@@ -33,7 +33,7 @@ import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
 import com.epam.dlab.automation.test.libs.models.*;
 import com.jayway.restassured.response.Response;
-import com.jayway.restassured.response.ResponseBody;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -44,6 +44,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.testng.Assert.fail;
 
@@ -52,7 +53,7 @@ public class TestCallable implements Callable<Boolean> {
 
     private final String notebookTemplate;
     private final boolean fullTest;
-    private final String token, ssnExpEnvURL, ssnProUserResURL,ssnCompResURL;
+	private final String token, ssnExpEnvURL, ssnProUserResURL, ssnCompResURL;
     private final String storageName;
     private final String notebookName, clusterName, dataEngineType;
     private final NotebookConfig notebookConfig;
@@ -102,7 +103,7 @@ public class TestCallable implements Callable<Boolean> {
 
 	private Boolean executeStandardExploratoryTest() throws Exception {
 		try {
-			final String notebookIp = createNotebook(notebookName);
+			final String notebookIp = createNotebook(notebookName, "");
 			testLibs();
 
 			final DeployClusterDto deployClusterDto = createClusterDto();
@@ -150,21 +151,33 @@ public class TestCallable implements Callable<Boolean> {
 	private Boolean executeExploratoryTestWithImages() throws Exception {
 		String notebookNameForImageCreation = "im" + notebookName;
 		try {
-			createNotebook(notebookNameForImageCreation);
+			createNotebook(notebookNameForImageCreation, "");
 			libsInstall(notebookNameForImageCreation);
 
 
-			createMachineImageFromNotebook(notebookNameForImageCreation, "TestImage",
-					"Machine image for testing", HttpStatusCode.ACCEPTED,
-					"Machine image creation wasn't successful!");
+			String imageName = "TestImage";
+			createMachineImageFromNotebook(notebookNameForImageCreation, imageName);
+			String copyNotebookName = "cp" + notebookName;
+			LOGGER.info("Notebook {} from machine image {} will be created...", copyNotebookName, imageName);
+
+			createNotebook(copyNotebookName, imageName);
+			LOGGER.info("Comparing notebooks: {} with {}...", notebookNameForImageCreation, copyNotebookName);
+			if (areNotebooksEqual(notebookNameForImageCreation, copyNotebookName)) {
+				LOGGER.info("Notebooks with names {} and {} are equal", notebookNameForImageCreation,
+						copyNotebookName);
+			} else {
+				Assert.fail("Notebooks aren't equal. Created from machine image notebook is different from base " +
+						"exploratory");
+			}
 
 			terminateNotebook(notebookNameForImageCreation);
+			terminateNotebook(copyNotebookName);
 
-			LOGGER.info("{} All tests finished successfully", notebookNameForImageCreation);
+			LOGGER.info("Tests of notebook and machine image creation finished successfully");
 			return true;
 		} catch (AssertionError | Exception e) {
-			LOGGER.error("Error occurred while testing notebook {} with configuration {}: {}",
-					notebookNameForImageCreation, notebookConfig, e);
+			LOGGER.error("Error occurred while testing notebook and machine image with configuration: {}",
+					notebookConfig, e);
 			throw e;
 		}
 	}
@@ -245,7 +258,7 @@ public class TestCallable implements Callable<Boolean> {
     return clusterDto;
 	}
 
-	private String createNotebook(String notebookName) throws Exception {
+	private String createNotebook(String notebookName, String imageName) throws Exception {
 		LOGGER.info("6. Notebook {} will be created ...", notebookName);
 		String notebookConfigurationFile =
 				String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate, notebookTemplate);
@@ -257,6 +270,19 @@ public class TestCallable implements Callable<Boolean> {
 								notebookConfigurationFile).toString(), CreateNotebookDto.class);
 
 		createNoteBookRequest.setName(notebookName);
+
+		if (StringUtils.isNotBlank(imageName)) {
+			final String ssnImageDataUrl =
+					String.format(NamingHelper.getSelfServiceURL(ApiPath.IMAGE_CREATION + "/%s"), imageName);
+			LOGGER.info("Image data fetching URL: {}", ssnImageDataUrl);
+
+			Response response = new HttpRequest().webApiGet(ssnImageDataUrl, token);
+			Assert.assertEquals(response.statusCode(), HttpStatusCode.OK, "Cannot get data of machine image with name "
+					+ imageName);
+			ImageDto dto = response.as(ImageDto.class);
+			LOGGER.info("Image dto is: {}", dto);
+			createNoteBookRequest.setImageName(dto.getFullName());
+		}
 
 		LOGGER.info("Inside createNotebook(): createNotebookRequest: image is {}, templateName is {}, shape is {}, " +
 						"version is {}", createNoteBookRequest.getImage(), createNoteBookRequest.getTemplateName(),
@@ -297,16 +323,152 @@ public class TestCallable implements Callable<Boolean> {
 		return notebookIp;
 	}
 
-	private ResponseBody<?> createMachineImageFromNotebook(String notebookName, String imageName, String description,
-														   int expectedStatusCode, String errorMessage) {
+	private void createMachineImageFromNotebook(String notebookName, String imageName) throws InterruptedException {
 		final String ssnImageCreationURL = NamingHelper.getSelfServiceURL(ApiPath.IMAGE_CREATION);
-		ExploratoryImageDto requestBody = new ExploratoryImageDto(notebookName, imageName, description);
-		Response response = new HttpRequest().webApiPost(ssnImageCreationURL, ContentType.JSON, requestBody,
-				NamingHelper.getSsnToken());
-		LOGGER.info("   image creation response body for notebook {} is {}", notebookName, response.getBody().asString
-				());
-		Assert.assertEquals(response.statusCode(), expectedStatusCode, errorMessage);
-		return response.getBody();
+		ExploratoryImageDto requestBody =
+				new ExploratoryImageDto(notebookName, imageName, "Machine image for testing");
+
+		final String ssnImageDataUrl = ssnImageCreationURL + "/" + imageName;
+		LOGGER.info("Machine image data fetching URL: {}", ssnImageDataUrl);
+
+		long currentTime = System.currentTimeMillis() / 1000L;
+		long expiredTime = currentTime + getDuration(notebookConfig.getTimeoutImageCreate()).getSeconds();
+
+		Response imageCreationResponse =
+				new HttpRequest().webApiPost(ssnImageCreationURL, ContentType.JSON, requestBody, token);
+		if (imageCreationResponse.getStatusCode() != HttpStatusCode.ACCEPTED) {
+			LOGGER.error("Machine image creation response status {}, body {}", imageCreationResponse.getStatusCode(),
+					imageCreationResponse.getBody().print());
+			Assert.fail("Cannot create machine image for " + requestBody);
+		}
+
+		while (expiredTime > currentTime) {
+
+			imageCreationResponse = new HttpRequest().webApiGet(ssnImageDataUrl, token);
+			if (imageCreationResponse.getStatusCode() == HttpStatusCode.OK) {
+
+				LOGGER.info("Image creation response body for notebook {} is {}", notebookName,
+						imageCreationResponse.getBody().asString());
+
+				String actualImageStatus = imageCreationResponse.as(ImageDto.class).getStatus();
+
+				LOGGER.info("Current machine image status is: {}", actualImageStatus);
+
+				if (!"created".equalsIgnoreCase(actualImageStatus)) {
+					LOGGER.info("Wait {} sec left for machine image status {}", expiredTime - currentTime,
+							requestBody);
+					TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
+				} else {
+					break;
+				}
+
+			} else {
+				LOGGER.error("Response status{}, body {}", imageCreationResponse.getStatusCode(),
+						imageCreationResponse.getBody().print());
+				Assert.fail("Machine image creation failed for " + notebookName);
+			}
+			currentTime = System.currentTimeMillis() / 1000L;
+		}
+
+		if (expiredTime <= currentTime) {
+			Assert.fail("Due to timeout cannot create machine image on " + notebookName + " " + requestBody);
+		}
+	}
+
+	private boolean areNotebooksEqual(String firstNotebookName, String secondNotebookName) {
+		if (firstNotebookName == null || secondNotebookName == null) {
+			Assert.fail("Wrong exploratory names passed");
+			return false;
+		}
+		HttpRequest httpRequest = new HttpRequest();
+		Response fetchExploratoriesResponse = httpRequest.webApiGet(ssnProUserResURL, token);
+		if (fetchExploratoriesResponse.statusCode() != HttpStatusCode.OK) {
+			LOGGER.error("Response status: {}, body: {}", fetchExploratoriesResponse.getStatusCode(),
+					fetchExploratoriesResponse.getBody().print());
+			Assert.fail("Fetching resource list is failed");
+			return false;
+		}
+		List<Map<String, String>> notebooksTotal = fetchExploratoriesResponse.jsonPath().getList("exploratory");
+		List<Map<String, String>> notebooksFilterred = notebooksTotal.stream()
+				.filter(map -> map.get("exploratory_name").equals(firstNotebookName) ||
+						map.get("exploratory_name").equals(secondNotebookName))
+				.collect(Collectors.toList());
+
+		if (notebooksFilterred.isEmpty()) {
+			Assert.fail("Notebooks with names " + firstNotebookName + ", " + secondNotebookName + " don't exist");
+			return false;
+		}
+		if (notebooksFilterred.size() == 1) {
+			Assert.fail("Only one notebook with name " + notebooksFilterred.get(0).get("exploratory_name") +
+					" found. There is nothing for comparison");
+			return false;
+		}
+		if (notebooksFilterred.size() > 2) {
+			Assert.fail("Error occured: found " + notebooksFilterred.size() + " notebooks, but only 2 expected");
+			return false;
+		}
+
+		return areNotebooksEqualByFields(notebooksFilterred.get(0), notebooksFilterred.get(1)) &&
+				areLibListsEqual(getNotebookLibList(firstNotebookName), getNotebookLibList(secondNotebookName));
+
+	}
+
+	private boolean areNotebooksEqualByFields(Map<String, String> firstNotebook, Map<String, String> secondNotebook) {
+		if (!firstNotebook.get("shape").equals(secondNotebook.get("shape"))) {
+			Assert.fail("Notebooks aren't equal: they have different shapes");
+			return false;
+		}
+		if (!firstNotebook.get("image").equals(secondNotebook.get("image"))) {
+			Assert.fail("Notebooks aren't equal: they are created from different Docker images");
+			return false;
+		}
+		if (!firstNotebook.get("template_name").equals(secondNotebook.get("template_name"))) {
+			Assert.fail("Notebooks aren't equal: they are created from different templates");
+			return false;
+		}
+		if (!firstNotebook.get("version").equals(secondNotebook.get("version"))) {
+			Assert.fail("Notebooks aren't equal: they have different versions");
+			return false;
+		}
+		return true;
+	}
+
+	private List<Lib> getNotebookLibList(String notebookName) {
+		Map<String, String> params = new HashMap<>();
+		params.put("exploratory_name", notebookName);
+		Response libListResponse = new HttpRequest()
+				.webApiGet(NamingHelper.getSelfServiceURL(ApiPath.LIB_LIST_EXPLORATORY_FORMATTED), token, params);
+		List<Lib> libs = null;
+		if (libListResponse.getStatusCode() == HttpStatusCode.OK) {
+			libs = Arrays.asList(libListResponse.getBody().as(Lib[].class));
+		} else {
+			LOGGER.error("Response status {}, body {}", libListResponse.getStatusCode(), libListResponse.getBody()
+					.print());
+			Assert.fail("Cannot get lib list for " + libListResponse);
+			return libs;
+		}
+		return libs.stream().filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	private boolean areLibListsEqual(List<Lib> firstLibList, List<Lib> secondLibList) {
+		if (firstLibList == null && secondLibList == null) {
+			return true;
+		}
+		if (firstLibList == null || secondLibList == null || firstLibList.size() != secondLibList.size()) {
+			return false;
+		}
+		for (Lib lib : firstLibList) {
+			String libGroup = lib.getGroup();
+			String libName = lib.getName();
+			String libVersion = lib.getVersion();
+			List<Lib> filterred = secondLibList.stream().filter(l ->
+					l.getGroup().equals(libGroup) && l.getName().equals(libName) && l.getVersion().equals(libVersion))
+					.collect(Collectors.toList());
+			if (filterred.isEmpty()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private List<Lib> fetchLibrariesToInstall(String explName, LibToSearchData libToSearchData)

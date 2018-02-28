@@ -41,4 +41,13 @@ public class ExploratoryImageDto {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	@Override
+	public String toString() {
+		return "ExploratoryImageDto{" +
+				"notebookName='" + notebookName + '\'' +
+				", name='" + name + '\'' +
+				", description='" + description + '\'' +
+				'}';
+	}
 }
