@@ -46,8 +46,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
-import static com.epam.dlab.automation.helper.CloudProvider.AZURE_PROVIDER;
 import static org.testng.Assert.assertTrue;
 
 @Test(singleThreaded = true)
@@ -245,14 +245,21 @@ public class TestServices {
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
-		
+		if (!notebookConfigs.isEmpty() && !CloudProvider.GCP_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+			LOGGER.info("The following tests will be executed: creation notebook from template, creation machine " +
+					"image from previously created notebook, creation notebook from machine image");
+			FutureTask<Boolean> runNotebookImageCreationTask =
+					new FutureTask<>(new TestCallable(notebookConfigs.get(0), true));
+			futureTasks.add(runNotebookImageCreationTask);
+			executor.execute(runNotebookImageCreationTask);
+		}
 		for (NotebookConfig notebookConfig : notebookConfigs) {
 			if (!ConfigPropertyValue.isRunModeLocal() &&
-					AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+					CloudProvider.AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
 				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
-				Thread.sleep(NOTEBOOK_CREATION_DELAY);
+				TimeUnit.SECONDS.sleep(NOTEBOOK_CREATION_DELAY / 1000);
 			}
-			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
+			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, false));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
 		}
@@ -264,7 +271,7 @@ public class TestServices {
 				executor.shutdown();
 				return;
 			} else {
-				Thread.sleep(checkThreadTimeout);
+				TimeUnit.SECONDS.sleep(checkThreadTimeout / 1000);
 			}
 		}
 	}

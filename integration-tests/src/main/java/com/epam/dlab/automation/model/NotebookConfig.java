@@ -59,6 +59,9 @@ public class NotebookConfig {
     @JsonProperty("timeout_lib_install")
     private String timeoutLibInstall = "15m";
 
+	@JsonProperty("timeout_image_create")
+	private String timeoutImageCreate = "60m";
+
 
     public String getTimeoutNotebookCreate() {
     	return timeoutNotebookCreate;
@@ -92,6 +95,10 @@ public class NotebookConfig {
     	return timeoutLibInstall;
     }
 
+	public String getTimeoutImageCreate() {
+		return timeoutImageCreate;
+	}
+
     public String getNotebookTemplate() {
     	return notebookTemplate;
     }
@@ -114,6 +121,7 @@ public class NotebookConfig {
     			.add("timeoutClusterTerminate", timeoutClusterTerminate)
     			.add("timeoutLibGroups", timeoutLibGroups)
     			.add("timeoutLibInstall", timeoutLibInstall)
+				.add("timeoutImageCreate", timeoutImageCreate)
     			.add("timeoutLibList", timeoutLibList)
     			.add("timeoutNotebookCreate", timeoutNotebookCreate)
     			.add("timeoutNotebookShutdown", timeoutNotebookShutdown)

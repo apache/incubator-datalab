@@ -31,9 +31,9 @@ import com.epam.dlab.automation.test.libs.LibsHelper;
 import com.epam.dlab.automation.test.libs.TestLibGroupStep;
 import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
-import com.epam.dlab.automation.test.libs.models.Lib;
-import com.epam.dlab.automation.test.libs.models.LibToSearchData;
+import com.epam.dlab.automation.test.libs.models.*;
 import com.jayway.restassured.response.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -41,10 +41,10 @@ import org.testng.Assert;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.testng.Assert.fail;
 
@@ -53,17 +53,19 @@ public class TestCallable implements Callable<Boolean> {
 
     private final String notebookTemplate;
     private final boolean fullTest;
-    private final String token, ssnExpEnvURL, ssnProUserResURL,ssnCompResURL;
+	private final String token, ssnExpEnvURL, ssnProUserResURL, ssnCompResURL;
     private final String storageName;
     private final String notebookName, clusterName, dataEngineType;
     private final NotebookConfig notebookConfig;
+	private final boolean imageTestRequired;
 
-    TestCallable(NotebookConfig notebookConfig) {
+	TestCallable(NotebookConfig notebookConfig, boolean imageTestRequired) {
     	this.notebookTemplate = notebookConfig.getNotebookTemplate();
     	this.dataEngineType = notebookConfig.getDataEngineType();
         this.fullTest = notebookConfig.isFullTest();
 
-        this.notebookConfig=notebookConfig;
+		this.notebookConfig = notebookConfig;
+		this.imageTestRequired = imageTestRequired;
         
         this.token = NamingHelper.getSsnToken();
         this.ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
@@ -96,28 +98,33 @@ public class TestCallable implements Callable<Boolean> {
 
 	@Override
     public Boolean call() throws Exception {
-        
+		return imageTestRequired ? executeExploratoryTestWithImages() : executeStandardExploratoryTest();
+	}
+
+	private Boolean executeStandardExploratoryTest() throws Exception {
 		try {
-			final String notebookIp = createNotebook(notebookName);
+			final String notebookIp = createNotebook(notebookName, "");
 			testLibs();
 
 			final DeployClusterDto deployClusterDto = createClusterDto();
 			final String actualClusterName = deployClusterDto != null ? NamingHelper.getClusterName(
-                    NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
+					NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
 					dataEngineType, true) : NamingHelper.CLUSTER_ABSENT;
 
 			LOGGER.info("Actual cluster name of {} is {}", dataEngineType, actualClusterName);
 
-            if (!ConfigPropertyValue.isRunModeLocal()) {
+			if (!ConfigPropertyValue.isRunModeLocal()) {
 
-			    TestDataEngineService test = new TestDataEngineService();
+				TestDataEngineService test = new TestDataEngineService();
 				test.run(notebookName, actualClusterName);
 
 				String notebookScenarioFilesLocation = PropertiesResolver.getPropertyByName(
-						String.format(PropertiesResolver.NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
-                String notebookTemplatesLocation = PropertiesResolver.getPropertyByName(
-                        String.format(PropertiesResolver.NOTEBOOK_TEST_TEMPLATES_LOCATION, notebookTemplate));
-				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookScenarioFilesLocation),
+						String.format(PropertiesResolver.NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE,
+								notebookTemplate));
+				String notebookTemplatesLocation = PropertiesResolver.getPropertyByName(
+						String.format(PropertiesResolver.NOTEBOOK_TEST_TEMPLATES_LOCATION, notebookTemplate));
+				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File
+								(notebookScenarioFilesLocation),
 						new File(notebookTemplatesLocation), notebookName);
 			}
 
@@ -128,25 +135,54 @@ public class TestCallable implements Callable<Boolean> {
 			}
 			if (deployClusterDto != null) {
 				terminateNotebook(deployClusterDto);
-			}else{
-			    terminateNotebook(notebookName);
-            }
-
-			// Create notebook from machine image
-			String notebookNewName = "im" + notebookName;
-			createNotebook(notebookNewName);
-
-			terminateNotebook(notebookNewName);
+			} else {
+				terminateNotebook(notebookName);
+			}
 
 			LOGGER.info("{} All tests finished successfully", notebookName);
 			return true;
 		} catch (AssertionError | Exception e) {
-			LOGGER.error("Error occurred while testing notebook {} with configuration {}", notebookName, notebookConfig, e);
+			LOGGER.error("Error occurred while testing notebook {} with configuration {}", notebookName,
+					notebookConfig, e);
 			throw e;
 		}
    }
 
-private DeployClusterDto createClusterDto() throws Exception {
+	private Boolean executeExploratoryTestWithImages() throws Exception {
+		String notebookNameForImageCreation = "im" + notebookName;
+		try {
+			createNotebook(notebookNameForImageCreation, "");
+			libsInstall(notebookNameForImageCreation);
+
+			String imageName = "TestIm" +
+					String.valueOf(new Random().ints(0, 1000).findFirst().orElse(0));
+			createMachineImageFromNotebook(notebookNameForImageCreation, imageName);
+			String copyNotebookName = "cp" + notebookName;
+			LOGGER.info("Notebook {} from machine image {} will be created...", copyNotebookName, imageName);
+
+			createNotebook(copyNotebookName, imageName);
+			LOGGER.info("Comparing notebooks: {} with {}...", notebookNameForImageCreation, copyNotebookName);
+			if (areNotebooksEqual(notebookNameForImageCreation, copyNotebookName)) {
+				LOGGER.info("Notebooks with names {} and {} are equal", notebookNameForImageCreation,
+						copyNotebookName);
+			} else {
+				Assert.fail("Notebooks aren't equal. Created from machine image notebook is different from base " +
+						"exploratory");
+			}
+
+			terminateNotebook(notebookNameForImageCreation);
+			terminateNotebook(copyNotebookName);
+
+			LOGGER.info("Tests of notebook and machine image creation finished successfully");
+			return true;
+		} catch (AssertionError | Exception e) {
+			LOGGER.error("Error occurred while testing notebook and machine image with configuration: {}",
+					notebookConfig, e);
+			throw e;
+		}
+	}
+
+	private DeployClusterDto createClusterDto() throws Exception {
 	if (ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
 			&& NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
         LOGGER.info("There are no available dataengine services for Azure. Cluster creation is skipped.");
@@ -220,59 +256,341 @@ private DeployClusterDto createClusterDto() throws Exception {
     }
 
     return clusterDto;
-}
+	}
 
-private String  createNotebook(String notebookName) throws Exception {
-       LOGGER.info("6. Notebook {} will be created ...", notebookName);
-	String notebookConfigurationFile =
-			String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate, notebookTemplate);
-       LOGGER.info("{} notebook configuration file: {}", notebookName, notebookConfigurationFile);
+	private String createNotebook(String notebookName, String imageName) throws Exception {
+		LOGGER.info("6. Notebook {} will be created ...", notebookName);
+		String notebookConfigurationFile =
+				String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate, notebookTemplate);
+		LOGGER.info("{} notebook configuration file: {}", notebookName, notebookConfigurationFile);
 
-       CreateNotebookDto createNoteBookRequest =
-               JsonMapperDto.readNode(
-					   Paths.get(Objects.requireNonNull(CloudHelper.getClusterConfFileLocation()),
-							   notebookConfigurationFile).toString(), CreateNotebookDto.class);
+		CreateNotebookDto createNoteBookRequest =
+				JsonMapperDto.readNode(
+						Paths.get(Objects.requireNonNull(CloudHelper.getClusterConfFileLocation()),
+								notebookConfigurationFile).toString(), CreateNotebookDto.class);
 
-       createNoteBookRequest.setName(notebookName);
+		createNoteBookRequest.setName(notebookName);
 
-       LOGGER.info("Inside createNotebook(): createNotebookRequest: image is {}, templateName is {}, shape is {}, " +
-               "version is {}", createNoteBookRequest.getImage(), createNoteBookRequest.getTemplateName(),
-               createNoteBookRequest.getShape(), createNoteBookRequest.getVersion());
+		if (StringUtils.isNotBlank(imageName)) {
+			final String ssnImageDataUrl =
+					String.format(NamingHelper.getSelfServiceURL(ApiPath.IMAGE_CREATION + "/%s"), imageName);
+			LOGGER.info("Image data fetching URL: {}", ssnImageDataUrl);
 
-       Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
-                   createNoteBookRequest, token);
+			Response response = new HttpRequest().webApiGet(ssnImageDataUrl, token);
+			Assert.assertEquals(response.statusCode(), HttpStatusCode.OK, "Cannot get data of machine image with name "
+					+ imageName);
+			ImageDto dto = response.as(ImageDto.class);
+			LOGGER.info("Image dto is: {}", dto);
+			createNoteBookRequest.setImageName(dto.getFullName());
+		}
 
-	LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName,
-			responseCreateNotebook.getBody().asString());
+		LOGGER.info("Inside createNotebook(): createNotebookRequest: image is {}, templateName is {}, shape is {}, " +
+						"version is {}", createNoteBookRequest.getImage(), createNoteBookRequest.getTemplateName(),
+				createNoteBookRequest.getShape(), createNoteBookRequest.getVersion());
 
-	LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}",
-			responseCreateNotebook.statusCode());
+		Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
+				createNoteBookRequest, token);
 
-	Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK,
-			"Notebook " + notebookName + " was not created");
+		LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName,
+				responseCreateNotebook.getBody().asString());
 
-	String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating",
-			getDuration(notebookConfig.getTimeoutNotebookCreate()));
-       if (!gettingStatus.contains("running")) {
-           LOGGER.error("Notebook {} is in state {}", notebookName, gettingStatus);
-           throw new Exception("Notebook " + notebookName + " has not been created. Notebook status is " + gettingStatus);
-       }
-       LOGGER.info("   Notebook {} has been created", notebookName);
+		LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}",
+				responseCreateNotebook.statusCode());
 
-       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName), false);
+		Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK,
+				"Notebook " + notebookName + " was not created");
 
-	Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "create"),
-			NamingHelper.getSsnIp());
+		String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating",
+				getDuration(notebookConfig.getTimeoutNotebookCreate()));
+		if (!gettingStatus.contains("running")) {
+			LOGGER.error("Notebook {} is in state {}", notebookName, gettingStatus);
+			throw new Exception("Notebook " + notebookName + " has not been created. Notebook status is " + gettingStatus);
+		}
+		LOGGER.info("   Notebook {} has been created", notebookName);
 
-       LOGGER.info("   Notebook {} status has been verified", notebookName);
-       //get notebook IP
-	String notebookIp =
-			CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
+		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName), false);
 
-	LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
+		Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "create"),
+				NamingHelper.getSsnIp());
 
-       return notebookIp;
-   }
+		LOGGER.info("   Notebook {} status has been verified", notebookName);
+		//get notebook IP
+		String notebookIp =
+				CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
+
+		LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
+
+		return notebookIp;
+	}
+
+	private void createMachineImageFromNotebook(String notebookName, String imageName) throws InterruptedException {
+		final String ssnImageCreationURL = NamingHelper.getSelfServiceURL(ApiPath.IMAGE_CREATION);
+		ExploratoryImageDto requestBody =
+				new ExploratoryImageDto(notebookName, imageName, "Machine image for testing");
+
+		final String ssnImageDataUrl = ssnImageCreationURL + "/" + imageName;
+		LOGGER.info("Machine image data fetching URL: {}", ssnImageDataUrl);
+
+		long currentTime = System.currentTimeMillis() / 1000L;
+		long expiredTime = currentTime + getDuration(notebookConfig.getTimeoutImageCreate()).getSeconds();
+
+		Response imageCreationResponse =
+				new HttpRequest().webApiPost(ssnImageCreationURL, ContentType.JSON, requestBody, token);
+		if (imageCreationResponse.getStatusCode() != HttpStatusCode.ACCEPTED) {
+			LOGGER.error("Machine image creation response status {}, body {}", imageCreationResponse.getStatusCode(),
+					imageCreationResponse.getBody().print());
+			Assert.fail("Cannot create machine image for " + requestBody);
+		}
+
+		while (expiredTime > currentTime) {
+
+			imageCreationResponse = new HttpRequest().webApiGet(ssnImageDataUrl, token);
+			if (imageCreationResponse.getStatusCode() == HttpStatusCode.OK) {
+
+				LOGGER.info("Image creation response body for notebook {} is {}", notebookName,
+						imageCreationResponse.getBody().asString());
+
+				String actualImageStatus = imageCreationResponse.as(ImageDto.class).getStatus();
+
+				LOGGER.info("Current machine image status is: {}", actualImageStatus);
+
+				if (!"created".equalsIgnoreCase(actualImageStatus)) {
+					LOGGER.info("Wait {} sec left for machine image status {}", expiredTime - currentTime,
+							requestBody);
+					TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
+				} else {
+					break;
+				}
+
+			} else {
+				LOGGER.error("Response status{}, body {}", imageCreationResponse.getStatusCode(),
+						imageCreationResponse.getBody().print());
+				Assert.fail("Machine image creation failed for " + notebookName);
+			}
+			currentTime = System.currentTimeMillis() / 1000L;
+		}
+
+		if (expiredTime <= currentTime) {
+			Assert.fail("Due to timeout cannot create machine image on " + notebookName + " " + requestBody);
+		}
+	}
+
+	private boolean areNotebooksEqual(String firstNotebookName, String secondNotebookName) {
+		if (firstNotebookName == null || secondNotebookName == null) {
+			Assert.fail("Wrong exploratory names passed");
+			return false;
+		}
+		Response fetchExploratoriesResponse = new HttpRequest().webApiGet(ssnProUserResURL, token);
+		if (fetchExploratoriesResponse.statusCode() != HttpStatusCode.OK) {
+			LOGGER.error("Response status: {}, body: {}", fetchExploratoriesResponse.getStatusCode(),
+					fetchExploratoriesResponse.getBody().print());
+			Assert.fail("Fetching resource list is failed");
+			return false;
+		}
+		List<Map<String, String>> notebooksTotal = fetchExploratoriesResponse.jsonPath().getList("exploratory");
+		List<Map<String, String>> notebooksFilterred = notebooksTotal.stream()
+				.filter(map -> map.get("exploratory_name").equals(firstNotebookName) ||
+						map.get("exploratory_name").equals(secondNotebookName))
+				.collect(Collectors.toList());
+
+		if (notebooksFilterred.isEmpty()) {
+			Assert.fail("Notebooks with names " + firstNotebookName + ", " + secondNotebookName + " don't exist");
+			return false;
+		}
+		if (notebooksFilterred.size() == 1) {
+			Assert.fail("Only one notebook with name " + notebooksFilterred.get(0).get("exploratory_name") +
+					" found. There is nothing for comparison");
+			return false;
+		}
+		if (notebooksFilterred.size() > 2) {
+			Assert.fail("Error occured: found " + notebooksFilterred.size() + " notebooks, but only 2 expected");
+			return false;
+		}
+
+		return areNotebooksEqualByFields(notebooksFilterred.get(0), notebooksFilterred.get(1)) &&
+				areLibListsEqual(getNotebookLibList(firstNotebookName), getNotebookLibList(secondNotebookName));
+
+	}
+
+	private boolean areNotebooksEqualByFields(Map<String, String> firstNotebook, Map<String, String> secondNotebook) {
+		if (!firstNotebook.get("shape").equals(secondNotebook.get("shape"))) {
+			Assert.fail("Notebooks aren't equal: they have different shapes");
+			return false;
+		}
+		if (!firstNotebook.get("image").equals(secondNotebook.get("image"))) {
+			Assert.fail("Notebooks aren't equal: they are created from different Docker images");
+			return false;
+		}
+		if (!firstNotebook.get("template_name").equals(secondNotebook.get("template_name"))) {
+			Assert.fail("Notebooks aren't equal: they are created from different templates");
+			return false;
+		}
+		if (!firstNotebook.get("version").equals(secondNotebook.get("version"))) {
+			Assert.fail("Notebooks aren't equal: they have different versions");
+			return false;
+		}
+		return true;
+	}
+
+	private List<Lib> getNotebookLibList(String notebookName) {
+		Map<String, String> params = new HashMap<>();
+		params.put("exploratory_name", notebookName);
+		Response libListResponse = new HttpRequest()
+				.webApiGet(NamingHelper.getSelfServiceURL(ApiPath.LIB_LIST_EXPLORATORY_FORMATTED), token, params);
+		List<Lib> libs = null;
+		if (libListResponse.getStatusCode() == HttpStatusCode.OK) {
+			libs = Arrays.asList(libListResponse.getBody().as(Lib[].class));
+		} else {
+			LOGGER.error("Response status {}, body {}", libListResponse.getStatusCode(), libListResponse.getBody()
+					.print());
+			Assert.fail("Cannot get lib list for " + libListResponse);
+			return libs;
+		}
+		return libs.stream().filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	private boolean areLibListsEqual(List<Lib> firstLibList, List<Lib> secondLibList) {
+		if (firstLibList == null && secondLibList == null) {
+			return true;
+		}
+		if (firstLibList == null || secondLibList == null || firstLibList.size() != secondLibList.size()) {
+			return false;
+		}
+		for (Lib lib : firstLibList) {
+			String libGroup = lib.getGroup();
+			String libName = lib.getName();
+			String libVersion = lib.getVersion();
+			List<Lib> filterred = secondLibList.stream().filter(l ->
+					l.getGroup().equals(libGroup) && l.getName().equals(libName) && l.getVersion().equals(libVersion))
+					.collect(Collectors.toList());
+			if (filterred.isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private List<Lib> fetchLibrariesToInstall(String explName, LibToSearchData libToSearchData)
+			throws InterruptedException {
+		List<Lib> libs = new ArrayList<>();
+		Map<String, String> actualFoundLibs = new HashMap<>();
+
+		long currentTime = System.currentTimeMillis() / 1000L;
+		long expiredTime = currentTime + getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds();
+
+		LibSearchRequest libSearchRequest =
+				new LibSearchRequest(explName, libToSearchData.getGroup(), libToSearchData.getStartWith());
+
+		while (expiredTime > currentTime) {
+			Response libSearchResponse = new HttpRequest().webApiPost(ApiPath.LIB_LIST, ContentType.JSON,
+					libSearchRequest, token);
+			LOGGER.info("Request libraries {}", libSearchRequest);
+
+			if (libSearchResponse.getStatusCode() != HttpStatusCode.OK) {
+				LOGGER.error("Response status {}, body {}", libSearchResponse.getStatusCode(),
+						libSearchResponse.getBody().print());
+				Assert.fail("Cannot get lib list for " + libSearchRequest);
+			} else {
+				actualFoundLibs = libSearchResponse.getBody().jsonPath().getMap("", String.class, String.class);
+				if (actualFoundLibs == null || actualFoundLibs.isEmpty()) {
+					LOGGER.info("Init lib list. Wait for time out {} seconds left for {}",
+							expiredTime - currentTime, explName);
+					TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
+				} else {
+					break;
+				}
+			}
+			currentTime = System.currentTimeMillis() / 1000L;
+		}
+
+		if (expiredTime <= currentTime) {
+			Assert.fail("Due to timeout cannot get list of libraries for " + explName);
+		}
+
+		for (Map.Entry<String, String> entry : Objects.requireNonNull(actualFoundLibs).entrySet()) {
+			libs.add(new Lib(libToSearchData.getGroup(), entry.getKey(), entry.getValue()));
+		}
+		return libs;
+	}
+
+	private void installLibrary(Lib lib, String explName) throws Exception {
+		LibInstallRequest libInstallRequest = new LibInstallRequest(Collections.singletonList(lib), explName);
+
+		LOGGER.info("Install library: {}", libInstallRequest);
+
+		long currentTime = System.currentTimeMillis() / 1000L;
+		long expiredTime = currentTime + getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds();
+
+		Response libInstallResponse = new HttpRequest().webApiPost(
+				NamingHelper.getSelfServiceURL(ApiPath.LIB_INSTALL), ContentType.JSON, libInstallRequest, token);
+		if (libInstallResponse.getStatusCode() != HttpStatusCode.OK) {
+			LOGGER.error("Library install response status {}, body {}", libInstallResponse.getStatusCode(),
+					libInstallResponse.getBody().print());
+			Assert.fail("Cannot install libs for " + libInstallRequest);
+		}
+
+		while (expiredTime > currentTime) {
+
+			HttpRequest httpRequest = new HttpRequest();
+			Map<String, Object> params = new HashMap<>();
+			params.put("exploratory_name", explName);
+			libInstallResponse = httpRequest
+					.webApiGet(NamingHelper.getSelfServiceURL(ApiPath.LIB_LIST_EXPLORATORY_FORMATTED), token, params);
+			if (libInstallResponse.getStatusCode() == HttpStatusCode.OK) {
+
+				List<LibStatusResponse> actualStatuses = Arrays.asList(libInstallResponse.getBody().as
+						(LibStatusResponse[].class));
+
+				LOGGER.info("Actual statuses {}", actualStatuses);
+
+				LibStatusResponse s = actualStatuses.stream()
+						.filter(e -> e.getGroup().equals(lib.getGroup())
+								&& e.getName().equals(lib.getName())
+								&& (e.getVersion().equals(lib.getVersion()) || "N/A".equals(lib.getVersion())))
+						.findFirst().orElseThrow(() -> new Exception("There are no appropriate statuses"));
+
+				LOGGER.info("Library status is {}", s);
+
+				boolean allLibStatusesDone = true;
+
+				for (LibraryStatus libStatus : s.getStatus()) {
+					if (libStatus.getStatus().equals("installing")) {
+						allLibStatusesDone = false;
+					}
+				}
+				if (!allLibStatusesDone) {
+					LOGGER.info("Wait {} sec left for installation libs {}", expiredTime - currentTime,
+							libInstallRequest);
+					TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
+				} else {
+					break;
+				}
+
+			} else {
+				LOGGER.error("Response status{}, body {}", libInstallResponse.getStatusCode(), libInstallResponse
+						.getBody().print());
+				Assert.fail("Install libs failed for " + explName);
+			}
+			currentTime = System.currentTimeMillis() / 1000L;
+		}
+
+		if (expiredTime <= currentTime) {
+			Assert.fail("Due to timeout cannot install library on " + explName + " " + libInstallRequest);
+		}
+	}
+
+	private void libsInstall(String explName) throws Exception {
+		LOGGER.info("{}: install libraries  ...", explName);
+
+		List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(
+				getTemplateTestLibFile(LibsHelper.getLibListPath(explName)), LibToSearchData.class);
+
+		for (LibToSearchData libToSearchData : libToSearchDataList) {
+			List<Lib> libList = fetchLibrariesToInstall(explName, libToSearchData);
+			Lib lib = libList.get(new Random().nextInt(libList.size()));
+			installLibrary(lib, explName);
+		}
+	}
 
    private void testLibs() throws Exception {
        LOGGER.info("{}: install libraries  ...", notebookName);
