@@ -31,6 +31,7 @@ import { LibrariesInstallationService } from './services/librariesInstallation.s
 import { ManageUngitService } from './services/manageUngit.service';
 import { BillingReportService } from './services/billingReport.service';
 import { BackupService } from './services/backup.service';
+import { SchedulerService } from './services/scheduler.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -57,6 +58,7 @@ export class CoreModule {
         ManageUngitService,
         BillingReportService,
         BackupService,
+        SchedulerService,
         ApplicationServiceFacade
       ]
     };
