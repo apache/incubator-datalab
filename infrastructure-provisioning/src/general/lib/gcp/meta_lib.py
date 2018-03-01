@@ -157,11 +157,19 @@ class GCPMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def get_instance(self, instance_name):
-        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
-                                               instance=instance_name)
+    def get_instance(self, instance_name, fields=False):
         try:
-            return request.execute()
+            if fields == 'machineType':
+                request_instance_type = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
+                                                            instance=instance_name, fields=fields)
+                responce_instance_type = request_instance_type.execute()
+                instance_type = re.findall('(n1.\w*-\d)', responce_instance_type['machineType'])
+                return instance_type
+            else:
+                request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
+                                                       instance=instance_name)
+                return request.execute()
+
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
@@ -174,6 +182,16 @@ class GCPMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def get_machine_type_ram(self, instance_name):
+        try:
+            machine_type = GCPMeta().get_instance(instance_name, fields='machineType')
+            request_machine_ram = self.service.machineTypes().get(project=self.project, zone=os.environ['gcp_zone'],
+                                                              machineType=machine_type[0], fields='memoryMb')
+            responce_machine_ram = request_machine_ram.execute()
+            return responce_machine_ram
+        except Exception as err:
+            return str(err)
 
     def get_instance_status(self, instance_name):
         request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
