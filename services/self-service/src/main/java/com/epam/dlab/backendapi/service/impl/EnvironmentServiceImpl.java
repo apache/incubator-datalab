@@ -41,17 +41,17 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	@Override
 	public void stopEnvironment(String user) {
+		log.debug("Stopping environment for user {}", user);
 		exploratoryDAO.fetchRunningExploratoryFields(user)
 				.forEach(this::stopNotebook);
 		stopEdge(user);
-
 	}
 
 	@Override
 	public void terminateEnvironment(String user) {
+		log.debug("Terminating environment for user {}", user);
 		exploratoryDAO.fetchNotTerminatedExploratoryFields(user).forEach(this::terminateNotebook);
 		terminateEdge(user);
-
 	}
 
 	private void terminateEdge(String user) {

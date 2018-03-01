@@ -23,7 +23,6 @@ import com.epam.dlab.mongo.IsoDateModule;
 import com.epam.dlab.mongo.MongoService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Inject;
 import com.mongodb.MongoException;
 import com.mongodb.client.*;
@@ -52,8 +51,7 @@ public class BaseDAO implements MongoCollections {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-			.registerModule(new IsoDateModule())
-			.registerModule(new JavaTimeModule());
+			.registerModule(new IsoDateModule());
 
 	static final String FIELD_SET_DELIMETER = ".$.";
 	private static final String FIELD_PROJECTION_DELIMITER = "$";

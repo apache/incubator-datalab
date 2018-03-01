@@ -57,6 +57,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Override
 	public void updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO dto) {
+		//TODO check whether instance exists and not failed
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, dto);
 	}
 
