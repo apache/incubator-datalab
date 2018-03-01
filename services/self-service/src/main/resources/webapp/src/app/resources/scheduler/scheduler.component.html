@@ -24,8 +24,28 @@ limitations under the License.
     <div *ngIf="notebook" class="content-box">
       {{ notebook.name }}
       <form [formGroup]="schedulerFormGroup">
+
+        <div>
+          <mat-form-field>
+            <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+            <mat-datepicker #startDate></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date" formControlName="finishDate">
+            <mat-datepicker-toggle matSuffix [for]="finishDate"></mat-datepicker-toggle>
+            <mat-datepicker #finishDate></mat-datepicker>
+          </mat-form-field>
+        </div>
+
         <div class="control-group">
-          <dlab-time-picker [(pickTime)]="exportTime"></dlab-time-picker>
+          <dlab-time-picker [(pickTime)]="startTime"></dlab-time-picker>
+        </div>
+
+        <div class="control-group">
+          <dlab-time-picker [(pickTime)]="endTime"></dlab-time-picker>
         </div>
 
         <div class="control-group">
@@ -37,6 +57,10 @@ limitations under the License.
       </form>
 
       <pre *ngIf="schedulerFormGroup">{{ schedulerFormGroup.value | json }}</pre>
+      <div class="text-center m-top-30">
+          <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+          <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerFormGroup.value)">Create</button>
+        </div>
     </div>
   </modal-content>
 </modal-dialog>
