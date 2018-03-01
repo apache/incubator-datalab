@@ -17,10 +17,11 @@ limitations under the License.
 ****************************************************************************/
 
 form {
+
   textarea {
-    min-height: 34px;
-    max-height: 100px;
-    resize: vertical;
+    height: 70px;
+    resize: none;
     padding-top: 8px;
+    font: 300 16px/26px 'Open Sans', sans-serif;
   }
 }

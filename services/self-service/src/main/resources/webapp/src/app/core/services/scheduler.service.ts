@@ -34,11 +34,11 @@ export class SchedulerService {
       .catch((error: any) => error);
   }
 
-  public setExploratorySchedule(notebook, data): Observable<Response> {
+  public setExploratorySchedule(notebook, data): Observable<any> {
     const param = `/${notebook}`;
     return this.applicationServiceFacade
       .buildSetExploratorySchedule(param, data)
-      .map((response: Response) => response.json())
+      .map((response: Response) => response)
       .catch((error: any) => error);
   }
 }

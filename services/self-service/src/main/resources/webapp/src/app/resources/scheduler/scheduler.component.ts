@@ -16,10 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
-import { SchedulerService } from './../../core/services';
 
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+
+import * as _moment from 'moment';
+import { HTTP_STATUS_CODES } from './../../core/util';
+
+import { SchedulerService } from './../../core/services';
 import { SchedulerModel } from './scheduler.model';
 
 @Component({
@@ -31,46 +37,48 @@ export class SchedulerComponent implements OnInit {
 
   public model: SchedulerModel;
   public notebook: any;
-  private startTime = {
-    hour: new Date().getHours(),
-    minute: new Date().getMinutes(),
-    meridiem: new Date().getHours() < 12 ? 'AM' : 'PM'
-  };
-
-  private endTime = {
-    hour: new Date().getHours(),
-    minute: new Date().getMinutes(),
-    meridiem: new Date().getHours() < 12 ? 'AM' : 'PM'
-  };
-
+  
+  // private startTime = {
+  //   hour: new Date().getHours(),
+  //   minute: new Date().getMinutes(),
+  //   meridiem: new Date().getHours() < 12 ? 'AM' : 'PM'
+  // };
+    
+  
+  public date_format: string = 'YYYY-MM-DD';
+  public timeFormat: string = 'HH:mm';
   public weekdays: string[] = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];
-  schedulerFormGroup : FormGroup;
-
+  schedulerForm : FormGroup;
+    
+  public startTime: any;
+  public endTime: any;
   @ViewChild('bindDialog') bindDialog;
+  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(private formBuilder: FormBuilder, private schedulerService: SchedulerService) { }
 
   ngOnInit() {
-    this.schedulerFormGroup = this.formBuilder.group({
-      weekdays: this.formBuilder.array([]),
-      startDate: new Date(),
-      finishDate: new Date(),
-      startTime: this.startTime,
-      endtTime: this.endTime,
-    });
+    
+
+    console.log(_moment().format());
   }
 
   public open(param, notebook): void {
     this.notebook = notebook;
     
-    
-    
     if (!this.bindDialog.isOpened)
-    this.model = new SchedulerModel((response: Response) => { },
+    this.model = new SchedulerModel((response: Response) => {
+      debugger;
+      if (response.status === HTTP_STATUS_CODES.OK) {
+        this.close();
+        this.buildGrid.emit();
+      }
+    },
     error => {
       debugger;
     },
     () => {
+      this.formInit()
       this.bindDialog.open(param);
       this.getExploratorySchedule();
     },
@@ -78,9 +86,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   onChange(event) {
-    console.log(event);
-
-    const weekdays = <FormArray>this.schedulerFormGroup.get('weekdays') as FormArray;
+    const weekdays = <FormArray>this.schedulerForm.get('weekdays') as FormArray;
 
     if (event.checked) {
       weekdays.push(new FormControl(event.source.name))
@@ -88,17 +94,34 @@ export class SchedulerComponent implements OnInit {
       const i = weekdays.controls.findIndex(x => x.value === event.source.name);
       weekdays.removeAt(i);
     }
-    console.log(this.schedulerFormGroup.value.weekdays);
-    
+    console.log(this.schedulerForm.value.weekdays);
   }
   public scheduleInstance_btnClick(data) {
+    const parameters = {
+      begin_date: _moment(data.startDate).format(this.date_format),
+      finish_date: _moment(data.endDate).format(this.date_format),
+      start_time: _moment(this.startTime).format(this.timeFormat),
+      end_time: _moment(this.endTime).format(this.timeFormat),
+      days_repeat: data.weekdays.map((day => day.toUpperCase())),
+      timezone_offset: _moment().format('Z')
+    };
+
     debugger;
-    this.model.confirmAction();
+    // this.model.setCreatingParams(data, parameters);
+    this.model.confirmAction(this.notebook, parameters);
   }
 
   public close(): void {
     if (this.bindDialog.isOpened)
       this.bindDialog.close();
+  }
+
+  private formInit() {
+    this.schedulerForm = this.formBuilder.group({
+      weekdays: this.formBuilder.array([]),
+      startDate: new Date(),
+      finishDate: new Date()
+    });
   }
 
   private getExploratorySchedule() {

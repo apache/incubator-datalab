@@ -23,11 +23,18 @@ import { SortUtil } from './../../core/util';
 import { SchedulerService } from './../../core/services';
 
 export interface SchedulerParameters {
-   
+    begin_date : string;
+    finish_date : string;
+    start_time: string;
+    end_time: string;
+    days_repeat: Array<string>;
+    timezone_offset: string;
 }
 
 export class SchedulerModel {
     public confirmAction: Function;
+
+    private createParameters: SchedulerParameters;
 
     private continueWith: Function;
     private schedulerService: SchedulerService;
@@ -49,19 +56,23 @@ export class SchedulerModel {
         if (this.continueWith) this.continueWith();
     }
 
-    private scheduleInstance(params): Observable<Response> {
-        return this.schedulerService.setExploratorySchedule('DL', {
-            "begin_date" : "2014-01-01",
-            "finish_date" : "2019-01-31",
-            "start_time": "12:15",
-            "end_time": "18:25",
-            "days_repeat": ["MONDAY", "WEDNESDAY", "SUNDAY"],
-            "timezone_offset": "+02:00"
-        });
+    public setCreatingParams(data): void {
+        this.createParameters = {
+            begin_date : data,
+            finish_date : data,
+            start_time: data,
+            end_time: data,
+            days_repeat: data,
+            timezone_offset: data
+        }
+    }
+
+    private scheduleInstance(notebook, params): Observable<Response> {
+        return this.schedulerService.setExploratorySchedule(notebook.name, params);
     }
 
     private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-        this.confirmAction = (data) => this.scheduleInstance(data)
+        this.confirmAction = (notebook, data) => this.scheduleInstance(notebook, data)
             .subscribe(
                 (response: Response) => fnProcessResults(response),
                 (response: Response) => fnProcessErrors(response));

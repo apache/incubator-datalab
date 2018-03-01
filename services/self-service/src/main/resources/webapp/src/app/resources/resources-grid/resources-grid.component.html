@@ -89,7 +89,8 @@ limitations under the License.
         <ul class="list-unstyled">
           <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
                 && env.status.toLowerCase() !== 'terminating'
-                && env.status.toLowerCase() !== 'terminated'">
+                && env.status.toLowerCase() !== 'terminated'
+                && env.status.toLowerCase() !== 'creating_image'">
             <li (click)="exploratoryAction(env, 'stop')"
                 *ngIf="env.status.toLowerCase() !== 'stopped'
                 && env.status.toLowerCase() !== 'stopping'
@@ -123,7 +124,7 @@ limitations under the License.
           <li (click)="exploratoryAction(env, 'ami')"
               *ngIf="env.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
             <i class="material-icons">view_module</i>
-            <span>Create AMI</span>
+            <span>Create {{ DICTIONARY.image }}</span>
           </li>
           <li (click)="exploratoryAction(env, 'install')">
             <i class="material-icons">developer_board</i>
@@ -140,5 +141,5 @@ limitations under the License.
 <detail-dialog #detailDialog></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
 <install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
-<dlab-scheduler #envScheduler></dlab-scheduler>
+<dlab-scheduler #envScheduler (buildGrid)="buildGrid($event)"></dlab-scheduler>
 <dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid($event)"></dlab-ami-create-dialog>

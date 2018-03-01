@@ -1,20 +1,20 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.backendapi.dao;
 
@@ -23,7 +23,6 @@ import com.epam.dlab.mongo.IsoDateModule;
 import com.epam.dlab.mongo.MongoService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Inject;
 import com.mongodb.MongoException;
 import com.mongodb.client.*;
@@ -47,10 +46,9 @@ import static com.mongodb.client.model.Aggregates.unwind;
 public class BaseDAO implements MongoCollections {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-            .registerModule(new IsoDateModule())
-            .registerModule(new JavaTimeModule());
+	private static final ObjectMapper MAPPER = new ObjectMapper()
+			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
+			.registerModule(new IsoDateModule());
 
     static final String FIELD_SET_DELIMETER = ".$.";
     private static final String FIELD_PROJECTION_DELIMITER = "$";

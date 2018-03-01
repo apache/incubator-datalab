@@ -23,7 +23,7 @@ limitations under the License.
   <modal-content>
     <div *ngIf="notebook" class="content-box">
       {{ notebook.name }}
-      <form [formGroup]="schedulerFormGroup">
+      <form [formGroup]="schedulerForm">
 
         <div>
           <mat-form-field>
@@ -34,7 +34,7 @@ limitations under the License.
         </div>
         <div>
           <mat-form-field>
-            <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date" formControlName="finishDate">
+            <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date">
             <mat-datepicker-toggle matSuffix [for]="finishDate"></mat-datepicker-toggle>
             <mat-datepicker #finishDate></mat-datepicker>
           </mat-form-field>
@@ -56,10 +56,10 @@ limitations under the License.
         </div>
       </form>
 
-      <pre *ngIf="schedulerFormGroup">{{ schedulerFormGroup.value | json }}</pre>
+      <pre *ngIf="schedulerForm">{{ schedulerForm.value | json }}</pre>
       <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-          <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerFormGroup.value)">Create</button>
+          <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Create</button>
         </div>
     </div>
   </modal-content>
