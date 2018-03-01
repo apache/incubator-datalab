@@ -155,7 +155,7 @@ public class TestCallable implements Callable<Boolean> {
 			libsInstall(notebookNameForImageCreation);
 
 			String imageName = "TestIm" +
-					String.valueOf(new Random().ints(0, 1000).findFirst().orElseGet(() -> 0));
+					String.valueOf(new Random().ints(0, 1000).findFirst().orElse(0));
 			createMachineImageFromNotebook(notebookNameForImageCreation, imageName);
 			String copyNotebookName = "cp" + notebookName;
 			LOGGER.info("Notebook {} from machine image {} will be created...", copyNotebookName, imageName);
@@ -380,8 +380,7 @@ public class TestCallable implements Callable<Boolean> {
 			Assert.fail("Wrong exploratory names passed");
 			return false;
 		}
-		HttpRequest httpRequest = new HttpRequest();
-		Response fetchExploratoriesResponse = httpRequest.webApiGet(ssnProUserResURL, token);
+		Response fetchExploratoriesResponse = new HttpRequest().webApiGet(ssnProUserResURL, token);
 		if (fetchExploratoriesResponse.statusCode() != HttpStatusCode.OK) {
 			LOGGER.error("Response status: {}, body: {}", fetchExploratoriesResponse.getStatusCode(),
 					fetchExploratoriesResponse.getBody().print());
