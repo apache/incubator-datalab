@@ -248,16 +248,10 @@ public class TestServices {
 		if (!notebookConfigs.isEmpty() && !CloudProvider.GCP_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
 			LOGGER.info("The following tests will be executed: creation notebook from template, creation machine " +
 					"image from previously created notebook, creation notebook from machine image");
-//			FutureTask<Boolean> runNotebookImageCreationTask =
-//					new FutureTask<>(new TestCallable(notebookConfigs.get(0), true));
-//			futureTasks.add(runNotebookImageCreationTask);
-//			executor.execute(runNotebookImageCreationTask);
-			for (NotebookConfig notebookConfig : notebookConfigs) {
-				FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, true));
-				futureTasks.add(runScenarioTask);
-				executor.execute(runScenarioTask);
-
-			}
+			FutureTask<Boolean> runNotebookImageCreationTask =
+					new FutureTask<>(new TestCallable(notebookConfigs.get(0), true));
+			futureTasks.add(runNotebookImageCreationTask);
+			executor.execute(runNotebookImageCreationTask);
 		}
 //		for (NotebookConfig notebookConfig : notebookConfigs) {
 //			if (!ConfigPropertyValue.isRunModeLocal() &&
