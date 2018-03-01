@@ -154,8 +154,8 @@ public class TestCallable implements Callable<Boolean> {
 			createNotebook(notebookNameForImageCreation, "");
 			libsInstall(notebookNameForImageCreation);
 
-
-			String imageName = "TestImage";
+			String imageName = "TestIm" +
+					String.valueOf(new Random().ints(0, 1000).findFirst().orElseGet(() -> 0));
 			createMachineImageFromNotebook(notebookNameForImageCreation, imageName);
 			String copyNotebookName = "cp" + notebookName;
 			LOGGER.info("Notebook {} from machine image {} will be created...", copyNotebookName, imageName);

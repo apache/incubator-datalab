@@ -60,7 +60,7 @@ public class NotebookConfig {
     private String timeoutLibInstall = "15m";
 
 	@JsonProperty("timeout_image_create")
-	private String timeoutImageCreate = "15m";
+	private String timeoutImageCreate = "60m";
 
 
     public String getTimeoutNotebookCreate() {

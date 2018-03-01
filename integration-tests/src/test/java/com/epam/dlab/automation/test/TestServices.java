@@ -245,24 +245,30 @@ public class TestServices {
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
-		if (!notebookConfigs.isEmpty()) {
+		if (!notebookConfigs.isEmpty() && !CloudProvider.GCP_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
 			LOGGER.info("The following tests will be executed: creation notebook from template, creation machine " +
 					"image from previously created notebook, creation notebook from machine image");
-			FutureTask<Boolean> runNotebookImageCreationTask =
-					new FutureTask<>(new TestCallable(notebookConfigs.get(0), true));
-			futureTasks.add(runNotebookImageCreationTask);
-			executor.execute(runNotebookImageCreationTask);
-		}
-		for (NotebookConfig notebookConfig : notebookConfigs) {
-			if (!ConfigPropertyValue.isRunModeLocal() &&
-					CloudProvider.AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
-				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
-				TimeUnit.SECONDS.sleep(NOTEBOOK_CREATION_DELAY / 1000);
+//			FutureTask<Boolean> runNotebookImageCreationTask =
+//					new FutureTask<>(new TestCallable(notebookConfigs.get(0), true));
+//			futureTasks.add(runNotebookImageCreationTask);
+//			executor.execute(runNotebookImageCreationTask);
+			for (NotebookConfig notebookConfig : notebookConfigs) {
+				FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, true));
+				futureTasks.add(runScenarioTask);
+				executor.execute(runScenarioTask);
+
 			}
-			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, false));
-			futureTasks.add(runScenarioTask);
-			executor.execute(runScenarioTask);
 		}
+//		for (NotebookConfig notebookConfig : notebookConfigs) {
+//			if (!ConfigPropertyValue.isRunModeLocal() &&
+//					CloudProvider.AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+//				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
+//				TimeUnit.SECONDS.sleep(NOTEBOOK_CREATION_DELAY / 1000);
+//			}
+//			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, false));
+//			futureTasks.add(runScenarioTask);
+//			executor.execute(runScenarioTask);
+//		}
 		final long checkThreadTimeout = ConfigPropertyValue.isRunModeLocal() ? 1000 : 5000;
 		while (true) {
 			boolean done = allScenariosDone(futureTasks);
