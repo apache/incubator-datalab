@@ -27,7 +27,7 @@ import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
-import com.epam.dlab.rest.mappers.ResourceAlreadyExistExceptionMapper;
+import com.epam.dlab.rest.mappers.ResourceConflictExceptionMapper;
 import com.epam.dlab.rest.mappers.ResourceNotFoundExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
 import com.epam.dlab.utils.ServiceUtils;
@@ -93,7 +93,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		JerseyEnvironment jersey = environment.jersey();
 		jersey.register(new RuntimeExceptionMapper());
 		jersey.register(new JsonProcessingExceptionMapper());
-		jersey.register(new ResourceAlreadyExistExceptionMapper());
+		jersey.register(new ResourceConflictExceptionMapper());
 		jersey.register(new ResourceNotFoundExceptionMapper());
 		jersey.register(MultiPartFeature.class);
 		jersey.register(injector.getInstance(SecurityResource.class));
