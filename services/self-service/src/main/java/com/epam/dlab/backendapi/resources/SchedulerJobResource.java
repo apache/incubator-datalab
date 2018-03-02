@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -69,22 +68,13 @@ public class SchedulerJobResource {
 	 */
 	@GET
 	@Path("/{exploratoryName}")
-	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
-																  @PathParam("exploratoryName") String
-																		  exploratoryName) {
-
+	public Response fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
+														   @PathParam("exploratoryName") String
+																   exploratoryName) {
 		log.debug("Loading scheduler job for user {} and exploratory {}...", userInfo.getName(), exploratoryName);
-		try {
-			SchedulerJobDTO job = schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(),
-					exploratoryName);
-			log.info("Scheduler job data: {}", job);
-			return job;
-
-		} catch (Exception t) {
-			log.error("Cannot load scheduler job for user {} and exploratory {} an {}", userInfo.getName(),
-					exploratoryName, t);
-			throw new DlabException("Cannot load scheduler job: " + t.getLocalizedMessage(), t);
-		}
+		final SchedulerJobDTO schedulerJob = schedulerJobService
+				.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), exploratoryName);
+		return Response.ok(schedulerJob).build();
 	}
 
 }

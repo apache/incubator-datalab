@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
@@ -30,7 +29,9 @@ import org.bson.conversions.Bson;
 
 import java.time.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
@@ -44,21 +45,20 @@ import static com.mongodb.client.model.Projections.*;
 @Singleton
 public class SchedulerJobDAO extends BaseDAO {
 
-	static final String SCHEDULER_DATA = "scheduler_data";
+    static final String SCHEDULER_DATA = "scheduler_data";
 	public static final String TIMEZONE_PREFIX = "UTC";
 
 	public SchedulerJobDAO() {
-		log.info("{} is initialized", getClass().getSimpleName());
-	}
+        log.info("{} is initialized", getClass().getSimpleName());
+    }
 
-	/**
-	 * Return condition for search scheduler which is not null.
+    /** Return condition for search scheduler which is not null.
 	 *
 	 * @return Bson condition.
-	 */
-	private Bson schedulerNotNullCondition() {
-		return ne(SCHEDULER_DATA, null);
-	}
+     */
+    private Bson schedulerNotNullCondition() {
+        return ne(SCHEDULER_DATA, null);
+    }
 
 	/**
 	 * Return condition for search exploratory which has stopped/running state for starting/stopping it.
@@ -70,53 +70,48 @@ public class SchedulerJobDAO extends BaseDAO {
 	private Bson statusCondition(UserInstanceStatus desiredStatus) {
 		return desiredStatus.equals(UserInstanceStatus.RUNNING) ?
 				eq(STATUS, UserInstanceStatus.STOPPED.toString()) : eq(STATUS, UserInstanceStatus.RUNNING.toString());
-	}
+    }
 
 
-	/**
-	 * Finds and returns the list of all scheduler jobs for starting/stopping regarding to parameter passed.
-	 *
-	 * @param dateTime      for seeking appropriate scheduler jobs for starting/stopping.
+    /**
+     * Finds and returns the list of all scheduler jobs for starting/stopping regarding to parameter passed.
+	 * @param dateTime for seeking appropriate scheduler jobs for starting/stopping.
 	 * @param desiredStatus 'running' value for starting exploratory and another one for stopping.
 	 * @return list of scheduler jobs.
 	 */
-	public List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus, OffsetDateTime
-			dateTime) {
-		FindIterable<Document> docs = find(USER_INSTANCES,
+	public List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus, OffsetDateTime dateTime) {
+        FindIterable<Document> docs = find(USER_INSTANCES,
 				and(
 						statusCondition(desiredStatus),
-						schedulerNotNullCondition()
-				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
+                        schedulerNotNullCondition()
+                ),
+                fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
 
-		return stream(docs)
+		return StreamSupport.stream(docs.spliterator(), false)
 				.map(d -> convertFromDocument(d, SchedulerJobData.class))
 				.filter(jobData -> isSchedulerJobDtoSatisfyCondition(jobData.getJobDTO(), dateTime, desiredStatus))
 				.collect(Collectors.toList());
-	}
+    }
 
-	/**
-	 * Finds and returns the info of user's single scheduler job by exploratory name.
-	 *
-	 * @param user            user name.
-	 * @param exploratoryName the name of exploratory.
+    /**
+     * Finds and returns the info of user's single scheduler job by exploratory name.
+     * @param user            user name.
+     * @param exploratoryName the name of exploratory.
 	 * @return scheduler job data.
-	 */
-	public SchedulerJobDTO fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
-		return convertFromDocument((Document) findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
-				schedulerNotNullCondition()))
-				.orElseThrow(() -> new DlabException(
-						String.format("Scheduler job for user %s with exploratory instance name %s not found.",
-								user, exploratoryName))).get(SCHEDULER_DATA), SchedulerJobDTO.class);
+     */
+	public Optional<SchedulerJobDTO> fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
+		return findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
+				fields(include(SCHEDULER_DATA), excludeId()))
+				.map(d -> convertFromDocument((Document) d.get(SCHEDULER_DATA), SchedulerJobDTO.class));
 	}
 
 	/**
 	 * Checks if scheduler's time data satisfies existing time parameters.
 	 *
-	 * @param dto           scheduler job data.
-	 * @param dateTime      existing time data.
-	 * @param desiredStatus target exploratory status which has influence for time checking ('running' status requires
-	 *                      for checking start time, 'stopped' - for end time).
+	 * @param dto            scheduler job data.
+	 * @param dateTime       existing time data.
+	 * @param desiredStatus  target exploratory status which has influence for time checking ('running' status requires
+	 *                       for checking start time, 'stopped' - for end time).
 	 * @return true/false.
 	 */
 	private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, OffsetDateTime dateTime,
