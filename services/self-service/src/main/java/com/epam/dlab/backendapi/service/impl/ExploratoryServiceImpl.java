@@ -106,8 +106,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			}
 
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-			return provisioningService.post(action, userInfo.getAccessToken(), getExploratoryActionDto(userInfo,
+			final String uuid = provisioningService.post(action, userInfo.getAccessToken(), getExploratoryActionDto
+					(userInfo,
 					status, userInstance), String.class);
+			RequestId.put(userInfo.getName(), uuid);
+			return uuid;
 		} catch (Exception t) {
 			log.error("Could not " + action + " exploratory environment {} for user {}", exploratoryName, userInfo
 					.getName(), t);
