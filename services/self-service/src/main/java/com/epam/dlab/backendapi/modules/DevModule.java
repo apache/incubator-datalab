@@ -40,14 +40,8 @@ import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
-import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.core.Response;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Mock class for an application configuration of SelfService for developer mode.
@@ -56,6 +50,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 
 	public static final String TOKEN = "token123";
 	private static final String LOGIN_NAME = "test";
+	public static final String OPERATION_IS_NOT_SUPPORTED = "Operation is not supported";
 
 	/**
 	 * Instantiates an application configuration of SelfService for developer mode.
@@ -107,22 +102,41 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 	 * Creates and returns the mock object for authentication service.
 	 */
 	private RESTService createAuthenticationService() {
-		RESTService result = mock(RESTService.class);
-		when(result.post(eq(LOGIN), any(), any())).then(
-				(Answer<Response>) invocation -> {
-					for (Object o : invocation.getArguments()) {
-						if (o instanceof UserCredentialDTO) {
-							UserCredentialDTO credential = (UserCredentialDTO) o;
-							if (LOGIN_NAME.equals(credential.getUsername())) {
-								return Response.ok(TOKEN).build();
-							}
-						}
-					}
-					return Response.status(Response.Status.UNAUTHORIZED).entity("Username or password are not valid")
+		return new RESTService() {
+			@Override
+			public <T> T post(String path, Object parameter, Class<T> clazz) {
+				if (LOGIN.equals(path)) {
+					return authorize((UserCredentialDTO) parameter);
+				} else if (GET_USER_INFO.equals(path) && TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
+					return (T) getUserInfo();
+				}
+				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
+			}
+
+			private <T> T authorize(UserCredentialDTO credential) {
+				if (LOGIN_NAME.equals(credential.getUsername())) {
+					return (T) Response.ok(TOKEN).build();
+				} else {
+					return (T) Response.status(Response.Status.UNAUTHORIZED)
+							.entity("Username or password are not valid")
 							.build();
-				});
-		when(result.post(eq(GET_USER_INFO), eq(TOKEN), eq(UserInfo.class)))
-				.thenReturn(getUserInfo());
-		return result;
+				}
+			}
+
+			@Override
+			public <T> T get(String path, Class<T> clazz) {
+				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
+			}
+
+			@Override
+			public <T> T get(String path, String accessToken, Class<T> clazz) {
+				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
+			}
+
+			@Override
+			public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz) {
+				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
+			}
+		};
 	}
 }
