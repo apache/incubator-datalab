@@ -1145,6 +1145,8 @@ def ensure_local_jars(os_user, jars_dir):
 def configure_local_spark(os_user, jars_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
+            instance_memory = sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
+            spark_driver_memory = int(instance_memory) * 75 / 100
             if region == 'us-east-1':
                 endpoint_url = 'https://s3.amazonaws.com'
             elif region == 'cn-north-1':
@@ -1157,6 +1159,7 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             if os.environ['application'] == 'zeppelin':
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            sudo('''echo "spark.driver.memory {}m" >> /opt/spark/conf/spark-defaults.conf'''.format(spark_driver_memory))
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
