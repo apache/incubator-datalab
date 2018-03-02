@@ -33,6 +33,9 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	@Named(PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
 
+	@Inject
+	private RequestBuilder requestBuilder;
+
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
 		log.debug("Check the status of the user key for {}", user);
@@ -97,7 +100,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 
 	private String createEdge(UserInfo user, String keyContent) {
 
-		UploadFile uploadFile = RequestBuilder.newEdgeKeyUpload(user, keyContent);
+		UploadFile uploadFile = requestBuilder.newEdgeKeyUpload(user, keyContent);
 		String uuid = provisioningService.post(EDGE_CREATE, user.getAccessToken(), uploadFile, String.class);
 		RequestId.put(user.getName(), uuid);
 		return uuid;

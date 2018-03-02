@@ -28,7 +28,6 @@ import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Singleton;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -39,11 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -140,11 +137,20 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(USER, user), eq(STATUS, UserInstanceStatus.RUNNING.toString())));
 	}
 
+	/**
+	 * Finds and returns the info of all user's running notebooks.
+	 *
+	 * @param user user name.
+	 */
+	public List<UserInstanceDTO> fetchNotTerminatedExploratoryFields(String user) {
+		return getUserInstances(and(eq(USER, user),
+				not(in(STATUS, UserInstanceStatus.TERMINATING.toString(), UserInstanceStatus.TERMINATED.toString()))));
+	}
+
 	private List<UserInstanceDTO> getUserInstances(Bson condition) {
-		FindIterable<Document> docs = getCollection(USER_INSTANCES)
+		return stream(getCollection(USER_INSTANCES)
 				.find(condition)
-				.projection(fields(exclude(COMPUTATIONAL_RESOURCES)));
-		return StreamSupport.stream(docs.spliterator(), false)
+				.projection(fields(exclude(COMPUTATIONAL_RESOURCES))))
 				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
 				.collect(Collectors.toList());
 	}

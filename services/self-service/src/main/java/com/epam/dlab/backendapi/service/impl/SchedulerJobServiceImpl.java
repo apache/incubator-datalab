@@ -21,7 +21,6 @@ import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
@@ -171,10 +170,12 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				(desiredStatus.equals(UserInstanceStatus.RUNNING) ? UserInstanceStatus.STARTING : UserInstanceStatus
 						.STOPPING));
 		UserInfo userInfo = systemUserService.create(jobData.getUser());
-		String uuid = desiredStatus.equals(UserInstanceStatus.RUNNING) ?
-				exploratoryService.start(userInfo, jobData.getExploratoryName()) :
-				exploratoryService.stop(userInfo, jobData.getExploratoryName());
-		RequestId.put(userInfo.getName(), uuid);
+		if (desiredStatus.equals(UserInstanceStatus.RUNNING)) {
+			exploratoryService.start(userInfo, jobData.getExploratoryName());
+		} else {
+			exploratoryService.stop(userInfo, jobData.getExploratoryName());
+		}
+
 	}
 
 }

@@ -6,6 +6,7 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
@@ -44,6 +45,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
+	@Inject
+	private RequestBuilder requestBuilder;
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
@@ -69,8 +72,10 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
-			return provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), RequestBuilder
+			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), requestBuilder
 					.newExploratoryCreate(exploratory, userInfo, gitCreds), String.class);
+			RequestId.put(userInfo.getName(), uuid);
+			return uuid;
 		} catch (Exception t) {
 			log.error("Could not update the status of exploratory environment {} with name {} for user {}",
 					exploratory.getDockerImage(), exploratory.getName(), userInfo.getName(), t);
@@ -115,12 +120,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private ExploratoryActionDTO<?> getExploratoryActionDto(UserInfo userInfo, UserInstanceStatus status,
 															UserInstanceDTO userInstance) {
 		ExploratoryActionDTO<?> dto;
-		if (status == UserInstanceStatus.STARTING) {
-			dto = RequestBuilder.newExploratoryStart(userInfo, userInstance, gitCredsDAO.findGitCreds(userInfo.getName
+		if (status != UserInstanceStatus.STARTING) {
+			dto = requestBuilder.newExploratoryStop(userInfo, userInstance);
+		} else {
+			dto = requestBuilder.newExploratoryStart(userInfo, userInstance, gitCredsDAO.findGitCreds(userInfo.getName
 					()));
 
-		} else {
-			dto = RequestBuilder.newExploratoryStop(userInfo, userInstance);
 		}
 		return dto;
 	}
