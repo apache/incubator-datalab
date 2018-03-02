@@ -19,29 +19,27 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.domain;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.LibListComputationalDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.rest.contracts.ComputationalAPI;
-import com.epam.dlab.rest.contracts.ExploratoryAPI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ComputationalAPI;
+import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import io.dropwizard.lifecycle.Managed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Cache of libraries for exploratory.
  */
@@ -52,6 +50,9 @@ public class ExploratoryLibCache implements Managed, Runnable {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+
+	@Inject
+	private RequestBuilder requestBuilder;
 
     /** Instance of cache.
      */
@@ -198,10 +199,11 @@ public class ExploratoryLibCache implements Managed, Runnable {
             String uuid;
 			if (userInstance.getResources() != null && !userInstance.getResources().isEmpty()) {
 				UserComputationalResource userComputationalResource = userInstance.getResources().get(0);
-				LibListComputationalDTO dto = RequestBuilder.newLibComputationalList(userInfo, userInstance, userComputationalResource);
+				LibListComputationalDTO dto = requestBuilder.newLibComputationalList(userInfo, userInstance,
+						userComputationalResource);
                 uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
 			} else {
-				ExploratoryActionDTO<?> dto = RequestBuilder.newLibExploratoryList(userInfo, userInstance);
+				ExploratoryActionDTO<?> dto = requestBuilder.newLibExploratoryList(userInfo, userInstance);
 				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
 			}
 

@@ -34,6 +34,8 @@ public class GitCredentialServiceImpl implements GitCredentialService {
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
+	@Inject
+	private RequestBuilder requestBuilder;
 
 	@Override
 	public void updateGitCredentials(UserInfo userInfo, ExploratoryGitCredsDTO formDTO) {
@@ -69,7 +71,7 @@ public class GitCredentialServiceImpl implements GitCredentialService {
 	private boolean updateNotebookGitCredentials(UserInfo userInfo, ExploratoryGitCredsDTO formDTO,
 												 UserInstanceDTO instance) {
 		boolean gitCredentialsUpdated = true;
-		ExploratoryGitCredsUpdateDTO dto = RequestBuilder.newGitCredentialsUpdate(userInfo, instance, formDTO);
+		ExploratoryGitCredsUpdateDTO dto = requestBuilder.newGitCredentialsUpdate(userInfo, instance, formDTO);
 		try {
 			log.debug("Updating GIT creds for user {} on exploratory {}",
 					userInfo.getName(), dto.getExploratoryName());

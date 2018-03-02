@@ -64,6 +64,9 @@ public class ComputationalServiceImpl implements ComputationalService {
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
 
+	@Inject
+	private RequestBuilder requestBuilder;
+
 
 	@Override
 	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form) {
@@ -77,7 +80,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 				UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), form
 						.getNotebookName());
 
-				ComputationalBase<?> dto = RequestBuilder.newComputationalCreate(userInfo, instance, form);
+				ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, instance, form);
 
 				String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK, userInfo
 						.getAccessToken(), dto, String.class);
@@ -109,7 +112,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 			UserComputationalResource computationalResource = computationalDAO.fetchComputationalFields(userInfo
 					.getName(), exploratoryName, computationalName);
 
-			ComputationalTerminateDTO dto = RequestBuilder.newComputationalTerminate(userInfo, exploratoryName,
+			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, exploratoryName,
 					exploratoryId, computationalName, computationalResource.getComputationalId(),
 					DataEngineType.fromDockerImageName(computationalResource.getImageName()));
 
@@ -140,7 +143,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 				UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO
 						.getNotebookName());
 				String uuid = provisioningService.post(COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, userInfo.getAccessToken(),
-						RequestBuilder.newComputationalCreate(userInfo, instance, formDTO), String.class);
+						requestBuilder.newComputationalCreate(userInfo, instance, formDTO), String.class);
 				RequestId.put(userInfo.getName(), uuid);
 				return true;
 			} catch (Exception t) {

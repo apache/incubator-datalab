@@ -25,6 +25,8 @@ public class BackupResource {
 
 	@Inject
 	private BackupService backupService;
+	@Inject
+	private RequestBuilder requestBuilder;
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -32,7 +34,7 @@ public class BackupResource {
 	@RolesAllowed(UserRoles.BACKUP)
 	public Response createBackup(@Auth UserInfo userInfo, @Valid BackupFormDTO backupFormDTO) {
 		log.debug("Creating backup for user {} with parameters {}", userInfo.getName(), backupFormDTO);
-		final EnvBackupDTO dto = RequestBuilder.newBackupCreate(backupFormDTO, UUID.randomUUID().toString());
+		final EnvBackupDTO dto = requestBuilder.newBackupCreate(backupFormDTO, UUID.randomUUID().toString());
 		final String uuid = backupService.createBackup(dto, userInfo);
 		RequestId.put(userInfo.getName(), uuid);
 		return Response.accepted(uuid).build();

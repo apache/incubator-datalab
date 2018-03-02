@@ -29,6 +29,9 @@ public class EdgeServiceImpl implements EdgeService {
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
 
+	@Inject
+	private RequestBuilder requestBuilder;
+
 	@Override
 	public String start(UserInfo userInfo) {
 		log.debug("Starting EDGE node for user {}", userInfo.getName());
@@ -94,7 +97,7 @@ public class EdgeServiceImpl implements EdgeService {
 	private String action(UserInfo userInfo, String action, UserInstanceStatus status) {
 		try {
 			keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
-			ResourceSysBaseDTO<?> dto = RequestBuilder.newEdgeAction(userInfo);
+			ResourceSysBaseDTO<?> dto = requestBuilder.newEdgeAction(userInfo);
 			String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
 			RequestId.put(userInfo.getName(), uuid);
 			return uuid;
