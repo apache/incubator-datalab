@@ -32,7 +32,7 @@ type TimeFormatAlias = TimeFormat;
       <mat-input-container class="time-select">
         <input matInput placeholder="Select time" [value]="selectedTime">
       </mat-input-container>
-  </div>`,
+    </div>`,
   styleUrls: ['./time-picker.component.scss']
 })
 export class TimePickerComponent implements OnInit {
@@ -43,7 +43,7 @@ export class TimePickerComponent implements OnInit {
 
   ngOnInit() {
     if (!this.pickTime) {
-      this.pickTime = { hour: 12, minute: 0, meridiem: 'AM' };
+      this.pickTime = { hour: 0, minute: 0, meridiem: 'AM' };
     }
   }
 

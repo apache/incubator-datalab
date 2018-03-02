@@ -64,9 +64,9 @@ export class TimeCoverComponent implements OnInit {
   ngOnInit() {
     if (!this.pickTime) {
       this.pickTime = {
-        hour: 6,
+        hour: 0,
         minute: 0,
-        meridiem: 'PM'
+        meridiem: 'AM'
       };
     }
   }
