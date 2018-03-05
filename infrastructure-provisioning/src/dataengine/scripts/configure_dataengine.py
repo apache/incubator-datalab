@@ -67,8 +67,6 @@ r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', '
 
 
 def start_spark(os_user, master_ip, node):
-    instance_memory = sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
-    spark_executor_memory = int(instance_memory) * 75 / 100
     if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
         if not exists('/opt/spark/conf/spark-env.sh'):
             sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
@@ -80,11 +78,9 @@ def start_spark(os_user, master_ip, node):
         if os.environ['application'] == 'deeplearning':
             sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
-            sudo('''echo "spark.executor.memory {}m" >> /opt/spark/conf/spark-defaults.conf'''.format(spark_executor_memory))
             sudo('/opt/spark/sbin/start-master.sh')
             sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         if node == 'slave':
-            sudo('''echo "spark.executor.memory {}m" >> /opt/spark/conf/spark-defaults.conf'''.format(spark_executor_memory))
             sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
@@ -128,7 +124,7 @@ if __name__ == "__main__":
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, args.node_type)
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     if os.environ['application'] in ('tensor', 'deeplearning'):
