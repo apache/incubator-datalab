@@ -103,7 +103,8 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    if os.environ['application'] in ('jupyter', 'zeppelin'):
+    if (os.environ['application'] in ('jupyter', 'zeppelin')
+        and os.environ['notebook_scala_enabled'] == 'true'):
         print("Install Scala")
         ensure_scala(scala_link, args.scala_version, args.os_user)
     if (os.environ['application'] in ('jupyter', 'zeppelin')
