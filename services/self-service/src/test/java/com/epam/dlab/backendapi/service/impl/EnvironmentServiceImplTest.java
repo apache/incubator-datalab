@@ -127,10 +127,9 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateEnvironment(USER);
 
-		verify(exploratoryDAO).fetchNotTerminatedExploratoryFields(USER);
-		verify(systemUserInfoService, times(3)).create(USER);
-		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_2));
+		verify(exploratoryDAO, never()).fetchNotTerminatedExploratoryFields(anyString());
+		verify(systemUserInfoService).create(USER);
+		verifyZeroInteractions(exploratoryService);
 		verify(keyDAO).edgeNodeExist(USER);
 		verify(edgeService).terminate(refEq(userInfo));
 	}
