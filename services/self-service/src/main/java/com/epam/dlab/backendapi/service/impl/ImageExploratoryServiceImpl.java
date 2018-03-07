@@ -49,6 +49,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
 
+	@Inject
+	private RequestBuilder requestBuilder;
+
 	@Override
 	public String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription) {
 
@@ -76,7 +79,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.withStatus(UserInstanceStatus.CREATING_IMAGE));
 
 		return provisioningService.post(ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
-				RequestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
+				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
 	}
 
 	@Override

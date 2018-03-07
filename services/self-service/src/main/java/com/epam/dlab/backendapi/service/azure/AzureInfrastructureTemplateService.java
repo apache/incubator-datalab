@@ -1,6 +1,6 @@
 package com.epam.dlab.backendapi.service.azure;
 
-import com.epam.dlab.backendapi.service.InfrastructureTemplateServiceBase;
+import com.epam.dlab.backendapi.service.impl.InfrastructureTemplateServiceBase;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.google.inject.Singleton;

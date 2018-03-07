@@ -21,10 +21,12 @@ import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.exceptions.ResourceInappropriateStateException;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -32,12 +34,17 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 @Singleton
 public class SchedulerJobServiceImpl implements SchedulerJobService {
+
+	private static final String SCHEDULER_NOT_FOUND_MSG = "Scheduler job data not found for user %s with exploratory" +
+			" " +
+			"%s";
 
 	@Inject
 	private SchedulerJobDAO schedulerJobDAO;
@@ -53,12 +60,24 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Override
 	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
-		return schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(user, exploratoryName);
+		if (!exploratoryDAO.isExploratoryExist(user, exploratoryName)) {
+			throw new ResourceNotFoundException(String.format(ExploratoryDAO.EXPLORATORY_NOT_FOUND_MSG, user,
+					exploratoryName));
+		}
+		return schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(user, exploratoryName)
+				.orElseThrow(() -> new ResourceNotFoundException(String.format(SCHEDULER_NOT_FOUND_MSG, user,
+						exploratoryName)));
 	}
 
 	@Override
 	public void updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO dto) {
-		//TODO check whether instance exists and not failed
+		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(user, exploratoryName);
+		final UserInstanceStatus status = UserInstanceStatus.of(userInstance.getStatus());
+		if (Objects.isNull(status) || status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
+				UserInstanceStatus.FAILED)) {
+			throw new ResourceInappropriateStateException(String.format("Can not create/update scheduler for user " +
+					"instance with status: %s", status));
+		}
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, dto);
 	}
 
@@ -151,10 +170,12 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				(desiredStatus.equals(UserInstanceStatus.RUNNING) ? UserInstanceStatus.STARTING : UserInstanceStatus
 						.STOPPING));
 		UserInfo userInfo = systemUserService.create(jobData.getUser());
-		String uuid = desiredStatus.equals(UserInstanceStatus.RUNNING) ?
-				exploratoryService.start(userInfo, jobData.getExploratoryName()) :
-				exploratoryService.stop(userInfo, jobData.getExploratoryName());
-		RequestId.put(userInfo.getName(), uuid);
+		if (desiredStatus.equals(UserInstanceStatus.RUNNING)) {
+			exploratoryService.start(userInfo, jobData.getExploratoryName());
+		} else {
+			exploratoryService.stop(userInfo, jobData.getExploratoryName());
+		}
+
 	}
 
 }

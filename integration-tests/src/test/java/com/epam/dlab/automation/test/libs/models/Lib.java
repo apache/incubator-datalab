@@ -18,44 +18,46 @@
 
 package com.epam.dlab.automation.test.libs.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Lib {
-    @JsonProperty
-    private String group;
-    @JsonProperty
-    private String name;
-    @JsonProperty
-    private String version;
+	@JsonProperty
+	private String group;
+	@JsonProperty
+	private String name;
+	@JsonProperty
+	private String version;
 
-    public Lib() {
-    }
+	public Lib() {
+	}
 
-    public Lib(String group, String name, String version) {
-        this.group = group;
-        this.name = name;
-        this.version = version;
-    }
+	public Lib(String group, String name, String version) {
+		this.group = group;
+		this.name = name;
+		this.version = version;
+	}
 
-    public String getGroup() {
-        return group;
-    }
+	public String getGroup() {
+		return group;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getVersion() {
-        return version;
-    }
+	public String getVersion() {
+		return version;
+	}
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("group", group)
-                .add("name", name)
-                .add("version", version)
-                .toString();
-    }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this)
+				.add("group", group)
+				.add("name", name)
+				.add("version", version)
+				.toString();
+	}
 }
