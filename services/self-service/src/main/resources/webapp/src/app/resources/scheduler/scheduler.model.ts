@@ -78,3 +78,25 @@ export class SchedulerModel {
                 (response: Response) => fnProcessErrors(response));
     }
 }
+
+export class WeekdaysModel {
+    constructor(
+      public sunday: boolean,
+      public monday: boolean,
+      public tuesday: boolean,
+      public wednesday: boolean,
+      public thursday: boolean,
+      public friday: boolean,
+      public saturday: boolean
+    ) { }
+  
+    setDegault(): void {
+      this.sunday = false;
+      this.monday = false;
+      this.tuesday = false;
+      this.wednesday = false;
+      this.thursday = false;
+      this.friday = false;
+      this.saturday = false;
+    }
+  }

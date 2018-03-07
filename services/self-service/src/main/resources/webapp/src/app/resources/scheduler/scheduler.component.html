@@ -18,45 +18,45 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="scheduler-dialog modal-sm">
   <modal-header>
-    <h4 class="modal-title">Scheduler</h4>
+    <h4 class="modal-title">Scheduler <b *ngIf="notebook">for {{ notebook?.name }}</b></h4>
   </modal-header>
   <modal-content>
     <div *ngIf="notebook" class="content-box">
-      {{ notebook.name }}
       <form [formGroup]="schedulerForm">
-
-        <div>
-          <mat-form-field>
-            <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
-            <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
-            <mat-datepicker #startDate></mat-datepicker>
-          </mat-form-field>
-        </div>
-        <div>
-          <mat-form-field>
-            <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date">
-            <mat-datepicker-toggle matSuffix [for]="finishDate"></mat-datepicker-toggle>
-            <mat-datepicker #finishDate></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <div class="control-group">
-          <dlab-time-picker [(pickTime)]="startTime"></dlab-time-picker>
-        </div>
-
-        <div class="control-group">
-          <dlab-time-picker [(pickTime)]="endTime"></dlab-time-picker>
-        </div>
-
-        <div class="control-group">
-          <label class="label" for="options">Repeat on :</label>
-          <div *ngFor="let day of weekdays; let i = index">
-            <mat-checkbox class="example-margin" (change)="onChange($event)" [value]="day" name="{{ day }}">{{ day }}</mat-checkbox>
+        <div class="row-wrap">
+          <div class="col">
+            <mat-form-field>
+              <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
+              <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+              <mat-datepicker #startDate></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col">
+            <mat-form-field>
+              <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date" formControlName="finishDate">
+              <mat-datepicker-toggle matSuffix [for]="finishDate"></mat-datepicker-toggle>
+              <mat-datepicker #finishDate></mat-datepicker>
+            </mat-form-field>
           </div>
         </div>
+        <div class="row-wrap">
+          <div class="control-group col">
+            <dlab-time-picker [(pickTime)]="startTime"></dlab-time-picker>
+          </div>
+          <div class="control-group col">
+            <dlab-time-picker [(pickTime)]="endTime"></dlab-time-picker>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="label" for="options">Repeat on :</label>
+          <div *ngFor="let day of weekdays; let i = index" class="week-day">
+            <mat-slide-toggle labelPosition="before" [checked]="selectedWeekDays[day.toLowerCase()]" (change)="onDaySelect($event, day)">
+              <span class="hold-label">{{ day }}</span>
+            </mat-slide-toggle>
+          </div>
+        </div>
+        <span class="danger_color" *ngIf="errorMessage">At least one of given options should be selected</span>
       </form>
-
-      <pre *ngIf="schedulerForm">{{ schedulerForm.value | json }}</pre>
       <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
           <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Create</button>
