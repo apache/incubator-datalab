@@ -50,6 +50,9 @@ limitations under the License.
 .mat-button-ripple.mat-button-ripple-round.mat-ripple {
   border-radius: 0;
 }
+.scheduler-dialog .mat-button-ripple.mat-button-ripple-round.mat-ripple {
+  border-radius: 50%;
+}
 
 .mat-option {
   font-family: 'Open Sans', sans-serif;
@@ -87,20 +90,39 @@ font-weight: 400;
   height: 34px;
 }
 
-.backup-dialog span.mat-slide-toggle-content {
+.backup-dialog span.mat-slide-toggle-content,
+.scheduler-dialog span.mat-slide-toggle-content {
   font: 100 16px/24px 'Open Sans', sans-serif;
 }
-.backup-dialog .mat-slide-toggle {
+.backup-dialog .mat-slide-toggle,
+.scheduler-dialog .mat-slide-toggle {
   width: 100%;
 }
 .backup-dialog .mat-slide-toggle-label-before .mat-slide-toggle-label {
   justify-content: space-between;
 }
+.scheduler-dialog .mat-slide-toggle-label-before .mat-slide-toggle-label {
+  justify-content: flex-end;
+}
 
-.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb,
+.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
   background-color: #36afd5;
 }
 
-.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar,
+.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
   background-color: rgba(54, 175, 213, 0.3);
+}
+
+.scheduler-dialog .mat-fab.mat-accent, .mat-mini-fab.mat-accent, .mat-raised-button.mat-accent {
+  background-color: #36afd5;
+}
+
+.mat-calendar-body-cell-content.mat-calendar-body-selected {
+  background: #36afd5;
+}
+
+.mat-focused .mat-form-field-label {
+  color: #36afd5;
 }
