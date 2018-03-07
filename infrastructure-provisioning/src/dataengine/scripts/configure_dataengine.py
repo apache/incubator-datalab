@@ -70,8 +70,6 @@ def start_spark(os_user, master_ip, node):
     if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
         if not exists('/opt/spark/conf/spark-env.sh'):
             sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        if not exists('/opt/spark/conf/spark-defaults.conf'):
-            sudo('mv /opt/spark/conf/spark-defaults.conf.template /opt/spark/conf/spark-defaults.conf')
         sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
         if os.environ['application'] == 'tensor':
             sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
@@ -124,7 +122,7 @@ if __name__ == "__main__":
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, args.node_type)
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     if os.environ['application'] in ('tensor', 'deeplearning'):

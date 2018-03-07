@@ -1140,18 +1140,9 @@ def ensure_local_jars(os_user, jars_dir):
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)
-            
-def calc_instance_memory():
-    try:
-        memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
-        if memory > 8000:
-            return memory - 3500
-        else:
-            return memory * 75 / 100
-    except Exception as err:
-        return err
-    
-def configure_local_spark(os_user, jars_dir, region, templates_dir, node_type=''):
+      
+      
+def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             if region == 'us-east-1':
@@ -1166,17 +1157,17 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, node_type=''
             if os.environ['application'] == 'zeppelin':
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            if node_type == 'master' or node_type == 'slave':
-                sudo('''echo "spark.executor.memory {}m" >> /opt/spark/conf/spark-defaults.conf'''.format(calc_instance_memory()))
-            else:
-                sudo('''echo "spark.driver.memory {}m" >> /opt/spark/conf/spark-defaults.conf'''.format(calc_instance_memory()))
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
-    if node_type == 'master' or node_type == 'slave':
-        sudo("sed -i 's/spark.executor.memory {0}m/spark.executor.memory {0}m/g' /opt/spark/conf/spark-defaults.conf".format(calc_instance_memory()))
-    else:
-        sudo("sed -i 's/spark.driver.memory {0}m/spark.driver.memory {0}m/g' /opt/spark/conf/spark-defaults.conf".format(calc_instance_memory()))
+    try:
+        if memory_type == 'driver':
+            spark_memory = get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf"')
+            sudo('echo "spark.{0}.memory {1}m/g" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
+    except:
+        sys.exit(1)
+    
 
 def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
                                        user_name, endpoint_url, multiple_emrs):
@@ -1293,7 +1284,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
+def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled, spark_memory):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
     if region == 'us-east-1':
@@ -1304,6 +1295,7 @@ def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
+    local('echo "spark.executor.memory {}m" /tmp/notebook_spark-defaults_local.conf'.format(spark_memory))
     local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
 
 
