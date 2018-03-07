@@ -21,16 +21,14 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { CLOCK_TYPE, TimeFormat } from './ticker.component';
 type TimeFormatAlias = TimeFormat;
-
+     
 @Component({
   selector: 'dlab-time-picker',
   template: `
     <div class="time-picker">
-      <button mat-button (click)="openDatePickerDialog($event)">
-        <mat-icon>access_time</mat-icon>
-      </button>
       <mat-input-container class="time-select">
         <input matInput placeholder="Select time" [value]="selectedTime">
+        <mat-icon matSuffix (click)="openDatePickerDialog($event)">access_time</mat-icon>
       </mat-input-container>
     </div>`,
   styleUrls: ['./time-picker.component.scss']
@@ -48,7 +46,11 @@ export class TimePickerComponent implements OnInit {
   }
 
   private get selectedTime(): string {
-    return !this.pickTime ? '' : `${this.pickTime.hour}:${this.pickTime.minute} ${this.pickTime.meridiem}`;
+    return !this.pickTime ? '' : `${this.pickTime.hour}:${this.getFullMinutes()} ${this.pickTime.meridiem}`;
+  }
+
+  public getFullMinutes() {
+    return (Number(this.pickTime.minute) < 10) ? ('0' + this.pickTime.minute) : this.pickTime.minute;
   }
 
   public openDatePickerDialog($event) {

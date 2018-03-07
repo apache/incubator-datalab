@@ -60,7 +60,8 @@ limitations under the License.
     margin: 0;
     min-width: 44px;
   }
-  .time-select {
+  mat-icon {
+    cursor: pointer;
   }
 }
 
@@ -93,6 +94,9 @@ limitations under the License.
   .cover-block {
     width: 100%;
     padding: 6px;
+    .actions {
+      padding: 40px 40px 0;
+    }
   }
 }
 
