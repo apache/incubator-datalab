@@ -1,5 +1,6 @@
 {
     "request_id":"RID",
     "conf_resource": "edge",
-    "edge_user_name":"EUN"
+    "edge_user_name":"EUN",
+    "full_user_name": "FUN"
 }
