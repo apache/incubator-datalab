@@ -1162,9 +1162,9 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
             sys.exit(1)
     try:
         if memory_type == 'driver':
-            spark_memory = get_spark_memory()
-            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf"')
-            sudo('echo "spark.{0}.memory {1}m/g" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
     except:
         sys.exit(1)
     
@@ -1284,7 +1284,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled, spark_memory):
+def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
     if region == 'us-east-1':
@@ -1295,7 +1295,6 @@ def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled, 
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
-    local('echo "spark.executor.memory {}m" >> /tmp/notebook_spark-defaults_local.conf'.format(spark_memory))
     local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
 
 
