@@ -23,9 +23,11 @@ from dlab.fab import *
 from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
+from fabric.api import *
 
 
-def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, allocation_id):
+def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, ssn_ip,
+                        full_user_name):
     print('Terminating EMR cluster')
     try:
         clusters_list = get_emr_list(tag_name)
@@ -76,6 +78,16 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
     except:
         sys.exit(1)
 
+    print("Cleaning MongoDB")
+    try:
+        env['connection_attempts'] = 100
+        env.key_filename = ["{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])]
+        env.host_string = os.environ['conf_os_user'] + '@' + ssn_ip
+        sudo("python {0}tmp/remove_user_from_mongo.py --dlab_path {0} --user_name {1}".format(os.environ['ssn_dlab_path'],
+                                                                                       full_user_name))
+    except:
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
@@ -95,13 +107,13 @@ if __name__ == "__main__":
     edge_conf['edge_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['nb_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
     edge_conf['edge_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'],
-                                                          edge_conf['edge_instance_name']).get('Public')
-    edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
+    edge_conf['ssn_ip'] = get_instance_ip_address(edge_conf['tag_name'],
+                                                  edge_conf['service_base_name'] + '-ssn').get('Private')
     edge_conf['de_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
                                              '-dataengine*'
     edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
                           '-emr*'
+    edge_conf['full_user_name'] = os.environ['full_user_name']
 
     try:
         logging.info('[TERMINATE EDGE]')
@@ -109,7 +121,7 @@ if __name__ == "__main__":
         try:
             terminate_edge_node(edge_conf['tag_name'], edge_conf['user_name'], edge_conf['tag_value'],
                                 edge_conf['nb_sg'], edge_conf['edge_sg'], edge_conf['de_sg'], edge_conf['emr_sg'],
-                                edge_conf['allocation_id'])
+                                edge_conf['ssn_ip'], edge_conf['full_user_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
