@@ -4,7 +4,6 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.KeyUploaderCallback;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
-import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +23,9 @@ public class KeyUploaderCallbackGcp {
     @Inject
     private KeyUploaderCallback keyUploaderCallback;
 
+	@Inject
+	private RequestId requestId;
+
     public KeyUploaderCallbackGcp() {
         log.info("{} is initialized", getClass().getSimpleName());
     }
@@ -36,9 +38,9 @@ public class KeyUploaderCallbackGcp {
      */
     @POST
     @Path("/callback")
-    public Response loadKeyResponse(UploadFileResult<EdgeInfoGcp> dto) throws DlabException {
+	public Response loadKeyResponse(UploadFileResult<EdgeInfoGcp> dto) {
         log.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
-        RequestId.checkAndRemove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
         keyUploaderCallback.handleCallback(dto.getStatus(), dto.getUser(), dto.getEdgeInfo());
 
         return Response.ok().build();

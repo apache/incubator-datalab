@@ -40,6 +40,8 @@ public class EnvironmentStatusCallback {
 
     @Inject
     private EnvStatusDAO envDAO;
+	@Inject
+	private RequestId requestId;
 
     /**
      * Updates the status of the resources for user.
@@ -51,7 +53,7 @@ public class EnvironmentStatusCallback {
     @Path(ApiCallbacks.STATUS_URI)
     public Response status(EnvStatusDTO dto) {
         log.trace("Updating the status of resources for user {}: {}", dto.getUser(), dto);
-        RequestId.checkAndRemove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
         try {
             if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
                 log.warn("Request for the status of resources for user {} fails: {}", dto.getUser(), dto.getErrorMessage());

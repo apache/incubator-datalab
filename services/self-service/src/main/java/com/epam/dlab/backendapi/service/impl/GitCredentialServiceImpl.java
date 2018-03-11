@@ -26,7 +26,7 @@ import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_GIT_CREDS;
 @Singleton
 public class GitCredentialServiceImpl implements GitCredentialService {
 
-	public static final boolean CLEAR_USER_PASSWORD = true;
+	private static final boolean CLEAR_USER_PASSWORD = true;
 	@Inject
 	private GitCredsDAO gitCredsDAO;
 	@Inject
@@ -36,6 +36,8 @@ public class GitCredentialServiceImpl implements GitCredentialService {
 	private RESTService provisioningService;
 	@Inject
 	private RequestBuilder requestBuilder;
+	@Inject
+	private RequestId requestId;
 
 	@Override
 	public void updateGitCredentials(UserInfo userInfo, ExploratoryGitCredsDTO formDTO) {
@@ -77,10 +79,10 @@ public class GitCredentialServiceImpl implements GitCredentialService {
 					userInfo.getName(), dto.getExploratoryName());
 			final String uuid = provisioningService
 					.post(EXPLORATORY_GIT_CREDS, userInfo.getAccessToken(), dto, String.class);
-			RequestId.put(userInfo.getName(), uuid);
+			requestId.put(userInfo.getName(), uuid);
 		} catch (Exception t) {
-			log.error("Cannot update the GIT creds for user {} on exploratory {}", userInfo.getName(), dto
-					.getExploratoryName(), t);
+			log.error("Cannot update the GIT creds for user {} on exploratory {}", userInfo.getName(),
+					dto.getExploratoryName(), t);
 			gitCredentialsUpdated = false;
 		}
 		return gitCredentialsUpdated;

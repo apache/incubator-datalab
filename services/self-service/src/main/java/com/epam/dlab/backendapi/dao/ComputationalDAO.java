@@ -16,11 +16,11 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
@@ -40,8 +40,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  * DAO for user computational resources.
  */
 public class ComputationalDAO extends BaseDAO {
-    protected static final String COMPUTATIONAL_NAME = "computational_name";
-    protected static final String COMPUTATIONAL_ID = "computational_id";
+	static final String COMPUTATIONAL_NAME = "computational_name";
+	static final String COMPUTATIONAL_ID = "computational_id";
 
     private static String computationalFieldFilter(String fieldName) {
         return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -77,9 +77,8 @@ public class ComputationalDAO extends BaseDAO {
      * @param user              user name.
      * @param exploratoryName   the name of exploratory.
      * @param computationalName name of computational resource.
-     * @throws DlabException
      */
-    public String fetchComputationalId(String user, String exploratoryName, String computationalName) throws DlabException {
+	public String fetchComputationalId(String user, String exploratoryName, String computationalName) {
         Document doc = findOne(USER_INSTANCES,
                 exploratoryCondition(user, exploratoryName),
                 elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computationalName)))
@@ -94,9 +93,9 @@ public class ComputationalDAO extends BaseDAO {
      * @param user              user name.
      * @param exploratoryName   the name of exploratory.
      * @param computationalName name of computational resource.
-     * @throws DlabException
      */
-    public UserComputationalResource fetchComputationalFields(String user, String exploratoryName, String computationalName) throws DlabException {
+	public UserComputationalResource fetchComputationalFields(String user, String exploratoryName, String
+			computationalName) {
         Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
                 and(exploratoryCondition(user, exploratoryName),
                         elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computationalName))),
@@ -121,9 +120,8 @@ public class ComputationalDAO extends BaseDAO {
      *
      * @param dto object of computational resource status.
      * @return The result of an update operation.
-     * @throws DlabException
      */
-    public UpdateResult updateComputationalStatus(ComputationalStatusDTO dto) throws DlabException {
+	public UpdateResult updateComputationalStatus(ComputationalStatusDTO dto) {
         try {
             Document values = new Document(computationalFieldFilter(STATUS), dto.getStatus());
             return updateOne(USER_INSTANCES,
@@ -142,13 +140,12 @@ public class ComputationalDAO extends BaseDAO {
      *
      * @param dto object of exploratory status info.
      * @return The result of an update operation.
-     * @throws DlabException
      */
-    public int updateComputationalStatusesForExploratory(StatusEnvBaseDTO<?> dto) throws DlabException {
+	public int updateComputationalStatusesForExploratory(StatusEnvBaseDTO<?> dto) {
         Document values = new Document(computationalFieldFilter(STATUS), dto.getStatus());
         values.append(computationalFieldFilter(UPTIME), null);
         int count = 0;
-        UpdateResult result = null;
+		UpdateResult result;
         do {
             result = updateOne(USER_INSTANCES,
                     and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
@@ -168,9 +165,8 @@ public class ComputationalDAO extends BaseDAO {
      *
      * @param dto object of computational resource status.
      * @return The result of an update operation.
-     * @throws DlabException
      */
-    public UpdateResult updateComputationalFields(ComputationalStatusDTO dto) throws DlabException {
+	public UpdateResult updateComputationalFields(ComputationalStatusDTO dto) {
         try {
             Document values = new Document(computationalFieldFilter(STATUS), dto.getStatus());
             if (dto.getUptime() != null) {

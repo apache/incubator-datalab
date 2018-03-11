@@ -28,7 +28,7 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	private SelfServiceApplicationConfiguration configuration;
 
 
-	public Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
+	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
 		return getSharedInfo((T) edgeInfo);
 	}
 

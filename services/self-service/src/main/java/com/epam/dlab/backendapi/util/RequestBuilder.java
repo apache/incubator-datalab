@@ -230,10 +230,9 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ExploratoryGitCredsUpdateDTO> T newExploratoryStart(UserInfo userInfo, UserInstanceDTO
-			userInstance,
-																		  ExploratoryGitCredsDTO
-																				  exploratoryGitCredsDTO) {
+	public <T extends ExploratoryGitCredsUpdateDTO> T newExploratoryStart(UserInfo userInfo,
+																		  UserInstanceDTO userInstance,
+																		  ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
 
 		switch (cloudProvider()) {
 			case AWS:

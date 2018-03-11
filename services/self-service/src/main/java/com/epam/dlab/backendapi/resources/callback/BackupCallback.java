@@ -22,13 +22,16 @@ public class BackupCallback {
 	@Inject
 	private BackupService backupService;
 
+	@Inject
+	private RequestId requestId;
+
 	@Context
 	private UriInfo uriInfo;
 
 	@POST
 	@Path("/status")
 	public Response status(EnvBackupStatusDTO dto) {
-		RequestId.remove(dto.getRequestId());
+		requestId.remove(dto.getRequestId());
 		log.debug("Updating status of backup status to {}", dto);
 		backupService.updateStatus(dto.getEnvBackupDTO(), dto.getUser(),
 				dto.getEnvBackupStatus().withErrorMessage(dto.getErrorMessage()));
