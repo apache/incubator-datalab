@@ -117,7 +117,9 @@ if __name__ == "__main__":
         actions_lib.GCPActions().install_dataproc_spark(args)
         pyspark_kernel(kernels_dir, args.dataproc_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
-        toree_kernel(args)
+        if os.environ['notebook_scala_enabled'] == 'true':
+            toree_kernel(args)
+        if os.environ['notebook_r_enabled'] == 'true':
+            r_kernel(args)
         actions_lib.GCPActions().spark_defaults(args)
-        r_kernel(args)
         configuring_notebook(args.dataproc_version)

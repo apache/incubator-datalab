@@ -17,6 +17,16 @@
     "spark.home": "SPARK_HOME",
     "spark.hadoop.fs.s3a.fast.upload": "true"
   },
+  "interpreterGroup": [
+    {
+      "class": "org.apache.zeppelin.spark.SparkInterpreter",
+      "name": "spark"
+    },
+    {
+      "class": "org.apache.zeppelin.spark.PySparkInterpreter",
+      "name": "pyspark"
+    }
+  ],
   "dependencies": [],
   "option": {
     "remote": true,

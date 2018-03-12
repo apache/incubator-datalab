@@ -167,8 +167,10 @@ if __name__ == "__main__":
         install_emr_spark(args)
         pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
-        toree_kernel(args)
+        if os.environ['notebook_scala_enabled'] == 'true':
+            toree_kernel(args)
+        if os.environ['notebook_r_enabled'] == 'true':
+            r_kernel(args)
         spark_defaults(args)
-        r_kernel(args)
         configuring_notebook(args.emr_version)
         add_breeze_library_emr(args)
