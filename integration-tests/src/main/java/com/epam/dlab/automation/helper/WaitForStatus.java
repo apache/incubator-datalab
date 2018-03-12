@@ -31,10 +31,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class WaitForStatus {
-    private final static Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
+
+    private static final Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
 
     private static long getSsnRequestTimeout() {
         return ConfigPropertyValue.isRunModeLocal() ? 1000 : 10000;
+    }
+
+    private WaitForStatus() {
     }
 
     public static boolean selfService(Duration duration) throws InterruptedException {
@@ -172,7 +176,7 @@ public class WaitForStatus {
         return "";
     }
 
-	public static String getNotebookStatus(JsonPath json, String notebookName) {
+    private static String getNotebookStatus(JsonPath json, String notebookName) {
         List<Map<String, String>> notebooks = json.getList("exploratory");
         notebooks = notebooks.stream().filter(e -> notebookName.equals(e.get("exploratory_name"))).collect(Collectors.toList());
 
