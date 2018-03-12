@@ -18,7 +18,7 @@
         "zeppelin.dep.localrepo": "local-repo",
         "zeppelin.spark.maxResult": "1000",
         "master": "local[*]",
-        "spark.app.name": "Zeppelin"
+        "spark.app.name": "Zeppelin",
         "spark.hadoop.fs.s3a.endpoint": "ENDPOINTURL"
       },
       "interpreterGroup": [
@@ -57,7 +57,7 @@
         "zeppelin.dep.localrepo": "local-repo",
         "zeppelin.spark.maxResult": "1000",
         "master": "local[*]",
-        "spark.app.name": "Zeppelin"
+        "spark.app.name": "Zeppelin",
         "spark.hadoop.fs.s3a.endpoint": "ENDPOINTURL"
       },
       "interpreterGroup": [
