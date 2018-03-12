@@ -116,10 +116,10 @@ limitations under the License.
               <i class="material-icons">memory</i>
               <span>Add compute</span>
             </li>
-            <!-- <li (click)="exploratoryAction(env, 'schedule')">
+            <li (click)="exploratoryAction(env, 'schedule')">
                 <i class="material-icons">schedule</i>
               <span>Scheduler</span>
-            </li> -->
+            </li>
           </div>
           <li (click)="exploratoryAction(env, 'ami')"
               *ngIf="env.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
@@ -141,5 +141,5 @@ limitations under the License.
 <detail-dialog #detailDialog></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
 <install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
-<dlab-scheduler #envScheduler></dlab-scheduler>
+<dlab-scheduler #envScheduler (buildGrid)="buildGrid($event)"></dlab-scheduler>
 <dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid($event)"></dlab-ami-create-dialog>

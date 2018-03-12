@@ -1,6 +1,6 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2017, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import { LibrariesInstallationService } from './librariesInstallation.service';
 import { ManageUngitService } from './manageUngit.service';
 import { BillingReportService } from './billingReport.service';
 import { BackupService } from './backup.service';
+import { SchedulerService } from './scheduler.service';
 
 
 export * from './applicationServiceFacade.service';
@@ -46,3 +47,4 @@ export * from './librariesInstallation.service';
 export * from './manageUngit.service';
 export * from './billingReport.service';
 export * from './backup.service';
+export * from './scheduler.service';

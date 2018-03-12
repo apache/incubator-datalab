@@ -33,6 +33,7 @@ export class ApplicationServiceFacade {
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
   private static readonly IMAGE = 'image';
+  private static readonly SCHEDULER = 'scheduler';
   private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
@@ -303,6 +304,20 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetExploratorySchedule(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildSetExploratorySchedule(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -323,6 +338,8 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_templates/exploratory_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
       '/api/infrastructure_provision/exploratory_environment/image');
+    this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
+      '/api/infrastructure_provision/exploratory_environment/scheduler');
 
 
     // Computational Resources

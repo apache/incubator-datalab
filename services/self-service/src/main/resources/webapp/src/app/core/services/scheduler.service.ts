@@ -23,28 +23,22 @@ import { Observable } from 'rxjs/Observable';
 import { ApplicationServiceFacade } from './';
 
 @Injectable()
-export class BackupService {
-  inProgress: boolean;
-
+export class SchedulerService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  set creatingBackup(data) {
-    this.inProgress = data.status !== 'CREATED';
-  }
-
-  public createBackup(data): Observable<any> {
+  public getExploratorySchedule(notebook): Observable<Response> {
+    const param = `/${notebook}`;
     return this.applicationServiceFacade
-      .buildCreateBackupRequest(data)
-      .map((response: Response) => response)
+      .buildGetExploratorySchedule(param)
+      .map((response: Response) => response.json())
       .catch((error: any) => error);
   }
 
-  public getBackupStatus(uuid): Observable<Response> {
-    const body = `/${uuid}`;
+  public setExploratorySchedule(notebook, data): Observable<any> {
+    const param = `/${notebook}`;
     return this.applicationServiceFacade
-      .buildGetBackupStatusRequest(body)
-      .map((response: Response) => response.json())
-      .map(data => (this.creatingBackup = data))
+      .buildSetExploratorySchedule(param, data)
+      .map((response: Response) => response)
       .catch((error: any) => error);
   }
 }

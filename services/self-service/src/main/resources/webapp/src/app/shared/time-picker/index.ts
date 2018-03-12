@@ -1,6 +1,6 @@
 /***************************************************************************
 
-Copyright (c) 2018, EPAM SYSTEMS INC
+Copyright (c) 2016, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,28 +19,21 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { MaterialModule } from '../../shared/material.module';
-import { ModalModule, BubbleModule } from '../../shared';
-import { FormControlsModule } from '../../shared/form-controls';
-import { SchedulerComponent } from './scheduler.component';
-import { TimePickerModule } from '../../shared/time-picker';
 
-export * from './scheduler.component';
-export * from './scheduler.model';
+import { TimeCoverComponent } from './time-cover.component';
+import { TickerComponent } from './ticker.component';
+import {
+  TimePickerComponent,
+  TimePickerDialogComponent
+} from './time-picker.component';
+
+export * from './time-picker.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ModalModule,
-    FormControlsModule,
-    MaterialModule,
-    BubbleModule,
-    TimePickerModule
-  ],
-  declarations: [SchedulerComponent],
-  exports: [SchedulerComponent]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
+  declarations: [TimePickerComponent, TimePickerDialogComponent, TimeCoverComponent, TickerComponent],
+  entryComponents: [TimePickerDialogComponent],
+  exports: [TimePickerComponent]
 })
-export class SchedulerModule {}
+export class TimePickerModule {}
