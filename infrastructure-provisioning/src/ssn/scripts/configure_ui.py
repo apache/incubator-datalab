@@ -97,12 +97,9 @@ def configure_mongo(mongo_passwd):
                                                                                                       env.host_string))
         sudo('mv /tmp/resource_status.py ' + os.environ['ssn_dlab_path'] + 'tmp/')
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd))
-        local('scp -i {} /root/scripts/remove_user_from_mongo.py {}:/tmp/remove_user_from_mongo.py'.format(
-            args.keyfile, env.host_string))
         local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/configure_mongo.py ' + args.dlab_path + 'tmp/')
-        sudo('mv /tmp/remove_user_from_mongo.py ' + args.dlab_path + 'tmp/')
         local('scp -i {} /root/files/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
