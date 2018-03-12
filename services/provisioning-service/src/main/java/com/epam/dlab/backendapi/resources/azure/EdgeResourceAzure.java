@@ -48,31 +48,41 @@ import static com.epam.dlab.rest.contracts.ApiCallbacks.*;
 @Slf4j
 public class EdgeResourceAzure extends EdgeService {
 
-    public EdgeResourceAzure() {
-        log.info("{} is initialized", getClass().getSimpleName());
-    }
+	public EdgeResourceAzure() {
+		log.info("{} is initialized", getClass().getSimpleName());
+	}
 
-    @POST
-    @Path("/create")
-    public String create(@Auth UserInfo ui, UploadFileAzure dto) throws IOException {
-        saveKeyToFile(dto.getEdge().getEdgeUserName(), dto.getContent());
-        return action(ui.getName(), dto.getEdge(), dto.getEdge().getCloudSettings().getIamUser(), KEY_LOADER, DockerAction.CREATE);
-    }
+	@POST
+	@Path("/create")
+	public String create(@Auth UserInfo ui, UploadFileAzure dto) throws IOException {
+		saveKeyToFile(dto.getEdge().getEdgeUserName(), dto.getContent());
+		return action(ui.getName(), dto.getEdge(), dto.getEdge().getCloudSettings().getIamUser(), KEY_LOADER,
+				DockerAction.CREATE);
+	}
 
-    @POST
-    @Path("/start")
-    public String start(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws JsonProcessingException {
-        return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), EDGE + STATUS_URI, DockerAction.START);
-    }
+	@POST
+	@Path("/start")
+	public String start(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws JsonProcessingException {
+		return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), EDGE + STATUS_URI, DockerAction.START);
+	}
 
-    @POST
-    @Path("/stop")
-    public String stop(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws JsonProcessingException {
-        return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), EDGE + STATUS_URI, DockerAction.STOP);
-    }
+	@POST
+	@Path("/stop")
+	public String stop(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws JsonProcessingException {
+		return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), EDGE + STATUS_URI, DockerAction.STOP);
+	}
 
-    @SuppressWarnings("unchecked")
-    protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String callbackURI) {
-        return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAzure.class, UploadFileResult.class);
-    }
+	@POST
+	@Path("/terminate")
+	public String terminate(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws JsonProcessingException {
+		return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), EDGE + STATUS_URI,
+				DockerAction.TERMINATE);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String
+			callbackURI) {
+		return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAzure.class,
+				UploadFileResult.class);
+	}
 }

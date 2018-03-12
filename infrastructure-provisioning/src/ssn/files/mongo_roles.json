@@ -112,5 +112,17 @@
     ],
     "users": [
     ]
+  },
+  {
+    "_id": "admin",
+    "description": "Allow to execute administration operation operation",
+    "pages": [
+      "environment/*"
+    ],
+    "groups": [
+      "$anyuser"
+    ],
+    "users": [
+    ]
   }
 ]

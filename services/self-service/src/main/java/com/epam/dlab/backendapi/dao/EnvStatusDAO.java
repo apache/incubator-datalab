@@ -34,19 +34,16 @@ import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
@@ -93,11 +90,7 @@ public class EnvStatusDAO extends BaseDAO {
 		getEdgeNode(user).ifPresent(edge -> addResource(hostList, edge, EDGE_STATUS));
 
 		// Add exploratory
-		Iterable<Document> expList = find(USER_INSTANCES,
-				eq(USER, user),
-				fields(INCLUDE_EXP_FIELDS, excludeId()));
-
-		StreamSupport.stream(expList.spliterator(), false)
+		stream(find(USER_INSTANCES, eq(USER, user), fields(INCLUDE_EXP_FIELDS, excludeId())))
 				.forEach(exp -> {
 					addResource(hostList, exp, STATUS);
 					((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
@@ -108,7 +101,6 @@ public class EnvStatusDAO extends BaseDAO {
 								addResource(resourceList, comp, STATUS);
 							});
 				});
-
 		return new EnvResourceList()
 				.withHostList(!hostList.isEmpty() ? hostList : null)
 				.withClusterList(!clusterList.isEmpty() ? clusterList : null);
@@ -153,13 +145,21 @@ public class EnvStatusDAO extends BaseDAO {
 		if (list != null && notEmpty(list.getHostList())) {
 			updateEdgeStatus(user, list.getHostList());
 			if (!list.getHostList().isEmpty()) {
-				final FindIterable<Document> expList = find(USER_INSTANCES, eq(USER, user),
-						fields(INCLUDE_EXP_UPDATE_FIELDS, excludeId()));
-				StreamSupport.stream(expList.spliterator(), false)
+				stream(find(USER_INSTANCES, eq(USER, user),
+						fields(INCLUDE_EXP_UPDATE_FIELDS, excludeId())))
 						.filter(this::instanceIdPresent)
 						.forEach(exp -> updateUserResourceStatuses(user, list, exp));
 			}
 		}
+	}
+
+	public Set<String> fetchActiveEnvUsers() {
+		return Stream.concat(
+				stream(find(MongoCollections.USER_INSTANCES, eq(STATUS, UserInstanceStatus.RUNNING.toString()),
+						fields(include(USER), excludeId()))).map(d -> d.getString(USER)),
+				stream(find(MongoCollections.USER_EDGE, eq(EDGE_STATUS, UserInstanceStatus.RUNNING.toString()),
+						fields(include(ID)))).map(d -> d.getString(ID))
+		).collect(Collectors.toSet());
 	}
 
 	@SuppressWarnings("unchecked")

@@ -18,6 +18,7 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
@@ -27,8 +28,7 @@ import org.bson.Document;
 
 import java.util.Optional;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;
 
@@ -165,5 +165,11 @@ public abstract class KeyDAO extends BaseDAO {
 				eq(ID, user),
 				fields(include(EDGE_STATUS), excludeId())).orElse(null);
 		return (d == null ? "" : d.getString(EDGE_STATUS));
+	}
+
+	public boolean edgeNodeExist(String user) {
+		return findOne(USER_EDGE, and(eq(ID, user), not(in(EDGE_STATUS, UserInstanceStatus.TERMINATING.toString(),
+				UserInstanceStatus.TERMINATED.toString()))))
+				.isPresent();
 	}
 }
