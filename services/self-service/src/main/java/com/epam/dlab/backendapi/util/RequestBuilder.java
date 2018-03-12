@@ -430,18 +430,19 @@ public class RequestBuilder {
 
 		T computationalCreate;
 
+		//TODO use just 1 shape when devops api will be changed (slave/master -> instance shape)
 		switch (cloudProvider()) {
 			case AWS:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-						.withDataEngineMasterShape(form.getDataEngineMaster())
-						.withDataEngineSlaveShape(form.getDataEngineSlave());
+						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
+						.withDataEngineSlaveShape(form.getDataEngineInstanceShape());
 				break;
 			case AZURE:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-						.withDataEngineMasterSize(form.getDataEngineMaster())
-						.withDataEngineSlaveSize(form.getDataEngineSlave());
+						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
@@ -456,8 +457,8 @@ public class RequestBuilder {
 			case GCP:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateGcp.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-						.withDataEngineMasterSize(form.getDataEngineMaster())
-						.withDataEngineSlaveSize(form.getDataEngineSlave());
+						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
