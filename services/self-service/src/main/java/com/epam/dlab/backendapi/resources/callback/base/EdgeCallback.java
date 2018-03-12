@@ -16,29 +16,37 @@
 
 package com.epam.dlab.backendapi.resources.callback.base;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class EdgeCallback {
-    @Inject
-    private KeyDAO keyDAO;
+	@Inject
+	private KeyDAO keyDAO;
+	@Inject
+	private ExploratoryService exploratoryService;
 
-    public EdgeCallback() {
-        log.info("{} is initialized", getClass().getSimpleName());
-    }
+	public EdgeCallback() {
+		log.info("{} is initialized", getClass().getSimpleName());
+	}
 
-    public void handleEdgeCallback(String user, String status) {
-        try {
-            log.debug("Updating the status of EDGE node for user {} to {}", user, status);
-            keyDAO.updateEdgeStatus(user, status);
-        } catch (DlabException e) {
-            log.error("Could not update status of EDGE node for user {} to {}", status, status, e);
-            throw new DlabException("Could not update status of EDGE node to " + status + ": " + e.getLocalizedMessage(), e);
-        }
-    }
+	public void handleEdgeCallback(String user, String status) {
+		try {
+			log.debug("Updating the status of EDGE node for user {} to {}", user, status);
+			keyDAO.updateEdgeStatus(user, status);
+			if (UserInstanceStatus.of(status) == UserInstanceStatus.TERMINATED) {
+				exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATED);
+			}
+		} catch (DlabException e) {
+			log.error("Could not update status of EDGE node for user {} to {}", status, status, e);
+			throw new DlabException(String.format("Could not update status of EDGE node to %s: %s",
+					status, e.getLocalizedMessage()), e);
+		}
+	}
 
 
 }

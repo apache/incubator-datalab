@@ -51,14 +51,17 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public void terminateEnvironment(String user) {
 		log.debug("Terminating environment for user {}", user);
 		if (!terminateEdge(user)) {
-			exploratoryDAO.fetchNotTerminatedExploratoryFields(user).forEach(this::terminateNotebook);
+			exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(user, UserInstanceStatus.TERMINATED,
+					UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING).forEach(this::terminateNotebook);
 		}
 	}
 
 	private boolean terminateEdge(String user) {
 		final boolean nodeExists = keyDAO.edgeNodeExist(user);
 		if (nodeExists) {
+			keyDAO.deleteKey(user);
 			edgeService.terminate(systemUserInfoService.create(user));
+			exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATING);
 		}
 		return nodeExists;
 	}

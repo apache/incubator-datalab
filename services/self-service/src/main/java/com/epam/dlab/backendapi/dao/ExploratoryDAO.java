@@ -33,10 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
@@ -142,9 +139,14 @@ public class ExploratoryDAO extends BaseDAO {
 	 *
 	 * @param user user name.
 	 */
-	public List<UserInstanceDTO> fetchNotTerminatedExploratoryFields(String user) {
-		return getUserInstances(and(eq(USER, user),
-				not(in(STATUS, UserInstanceStatus.TERMINATING.toString(), UserInstanceStatus.TERMINATED.toString()))));
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusNotIn(String user, UserInstanceStatus... statuses) {
+		final List<String> statusList = Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors
+				.toList());
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						not(in(STATUS, statusList))
+				));
 	}
 
 	private List<UserInstanceDTO> getUserInstances(Bson condition) {
