@@ -95,7 +95,7 @@ export class SchedulerComponent implements OnInit {
     }
     const parameters = {
       begin_date: _moment(data.startDate).format(this.date_format),
-      finish_date: _moment(data.endDate).format(this.date_format),
+      finish_date: _moment(data.finishDate).format(this.date_format),
       start_time: this.convertTimeFormat(this.startTime),
       end_time: this.convertTimeFormat(this.endTime),
       days_repeat: selectedDays.filter(el => Boolean(this.selectedWeekDays[el])).map(day => day.toUpperCase()),
@@ -147,11 +147,12 @@ export class SchedulerComponent implements OnInit {
         meridiem: +spl[0] < 12 || +spl[0] === 24 ? 'AM' : 'PM'
       };
     } else {
-      let hours = 0;
+      let hours = time24.hour;
       let minutes = (time24.minute < 10) ? time24.minute + '0' : time24.minute;
 
       if (time24.meridiem == 'PM' && time24.hour < 12) hours = time24.hour + 12;
       if (time24.meridiem == 'AM' &&  time24.hour == 12) hours = time24.hour - 12;
+      hours = hours < 10 ? hours + '0' : hours;
 
       result = `${hours}:${minutes}`;
     }
