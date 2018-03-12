@@ -20,9 +20,9 @@ public class IsoLocalDateDeSerializer extends JsonDeserializer<LocalDate> {
 		JsonNode node = oc.readTree(p);
 		if (node.get(DATE_NODE) != null) {
 			String dateValue = node.get(DATE_NODE).asText();
-			return Instant.ofEpochMilli(Long.valueOf(dateValue)).atZone(ZoneOffset.UTC).toLocalDate();
+			return Instant.ofEpochMilli(Long.valueOf(dateValue)).atZone(ZoneOffset.systemDefault()).toLocalDate();
 		} else {
-			return Instant.ofEpochMilli(node.asLong()).atZone(ZoneOffset.UTC).toLocalDate();
+			return Instant.ofEpochMilli(node.asLong()).atZone(ZoneOffset.systemDefault()).toLocalDate();
 		}
 	}
 }
