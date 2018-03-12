@@ -39,6 +39,7 @@ def general_clean():
         sudo('rm -f /etc/systemd/system/ungit.service')
         sudo('systemctl daemon-reload')
         remove_os_pkg(['nodejs', 'npm'])
+        sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)

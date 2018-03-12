@@ -1023,7 +1023,7 @@ def ensure_local_jars(os_user, jars_dir):
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir):
+def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
     try:
         user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
             replace('_', '-') + '-storage'
@@ -1069,6 +1069,13 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+    try:
+        if memory_type == 'driver':
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
+    except:
+        sys.exit(1)
 
 
 def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):

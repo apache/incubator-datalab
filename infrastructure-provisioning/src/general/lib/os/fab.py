@@ -451,6 +451,21 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
     sudo("systemctl daemon-reload")
     sudo("systemctl restart zeppelin-notebook")
 
+def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        with settings(host_string='{}@{}'.format(os_user, hostname)):
+            instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+    else:
+        instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+    try:
+        if instance_memory > int(os.environ['dataengine_expl_instance_memory']):
+            spark_memory = instance_memory - int(os.environ['dataengine_os_expl_memory'])
+        else:
+            spark_memory = instance_memory * int(os.environ['dataengine_os_memory']) / 100
+        return spark_memory
+    except Exception as err:
+        print('Error:', str(err))
+        return err
 
 def replace_multi_symbols(string, symbol, symbol_cut=False):
     try:
