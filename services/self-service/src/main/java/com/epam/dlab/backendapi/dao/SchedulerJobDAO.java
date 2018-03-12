@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
@@ -30,6 +29,7 @@ import org.bson.conversions.Bson;
 
 import java.time.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -99,12 +99,10 @@ public class SchedulerJobDAO extends BaseDAO {
      * @param exploratoryName the name of exploratory.
 	 * @return scheduler job data.
      */
-	public SchedulerJobDTO fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
-		return convertFromDocument((Document) findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
-				schedulerNotNullCondition()))
-				.orElseThrow(() -> new DlabException(
-						String.format("Scheduler job for user %s with exploratory instance name %s not found.",
-								user, exploratoryName))).get(SCHEDULER_DATA), SchedulerJobDTO.class);
+	public Optional<SchedulerJobDTO> fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
+		return findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
+				fields(include(SCHEDULER_DATA), excludeId()))
+				.map(d -> convertFromDocument((Document) d.get(SCHEDULER_DATA), SchedulerJobDTO.class));
 	}
 
 	/**

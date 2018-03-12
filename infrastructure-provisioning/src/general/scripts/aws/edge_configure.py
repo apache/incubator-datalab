@@ -37,8 +37,7 @@ if __name__ == "__main__":
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['instance_name'] = edge_conf['instance_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
-                                                                                  os.environ['edge_user_name'])
+    edge_conf['instance_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
     edge_conf['bucket_name'] = '{}-{}-bucket'.format(edge_conf['service_base_name'],
                                                      os.environ['edge_user_name']).lower().replace('_', '-')

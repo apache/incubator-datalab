@@ -34,8 +34,7 @@ public class GcpHelper {
 	private GcpHelper() {
 	}
 
-	private static List<Instance> getInstances(String projectId, List<String> zones) throws IOException,
-			GeneralSecurityException {
+	private static List<Instance> getInstances(String projectId, List<String> zones) throws IOException {
 		List<Instance> instanceList = new ArrayList<>();
 		for (String zone : zones) {
 			Compute.Instances.List request = ComputeService.getInstance().instances().list(projectId, zone);
@@ -71,7 +70,7 @@ public class GcpHelper {
 
 
 	public static List<Instance> getInstancesByName(String name, String projectId, boolean restrictionMode,
-													List<String> zones) throws IOException, GeneralSecurityException {
+													List<String> zones) throws IOException {
 		if (ConfigPropertyValue.isRunModeLocal()) {
 			List<Instance> mockedInstanceList = new ArrayList<>();
 			Instance mockedInstance = mock(Instance.class);
@@ -113,7 +112,7 @@ public class GcpHelper {
 
 	public static void checkGcpStatus(String instanceName, String projectId, GcpInstanceState expGcpStatus, boolean
 			restrictionMode, List<String> zones)
-			throws CloudException, InterruptedException, IOException, GeneralSecurityException {
+			throws CloudException, InterruptedException, IOException {
 		LOGGER.info("Check status of instance with name {} on GCP", instanceName);
 		if (ConfigPropertyValue.isRunModeLocal()) {
 			LOGGER.info("GCP instance with name {} fake status is {}", instanceName, expGcpStatus);
@@ -157,8 +156,7 @@ public class GcpHelper {
 				(!getInstancePublicIps(instance).isEmpty() ? getInstancePublicIps(instance).get(0) : NOT_EXIST));
 	}
 
-	public static List<String> getAvailableZonesForProject(String projectId) throws IOException,
-			GeneralSecurityException {
+	public static List<String> getAvailableZonesForProject(String projectId) throws IOException {
 		List<Zone> zoneList = new ArrayList<>();
 		Compute.Zones.List request = ComputeService.getInstance().zones().list(projectId);
 		ZoneList response;
@@ -180,9 +178,13 @@ public class GcpHelper {
 		private ComputeService() {
 		}
 
-		static synchronized Compute getInstance() throws IOException, GeneralSecurityException {
+		static synchronized Compute getInstance() throws IOException {
 			if (instance == null) {
-				instance = createComputeService();
+				try {
+					instance = createComputeService();
+				} catch (GeneralSecurityException e) {
+					LOGGER.info("An exception occured: {}", e);
+				}
 			}
 			return instance;
 		}

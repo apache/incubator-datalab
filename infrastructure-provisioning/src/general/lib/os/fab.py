@@ -451,6 +451,21 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
     sudo("systemctl daemon-reload")
     sudo("systemctl restart zeppelin-notebook")
 
+def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        with settings(host_string='{}@{}'.format(os_user, hostname)):
+            instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+    else:
+        instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+    try:
+        if instance_memory > int(os.environ['dataengine_expl_instance_memory']):
+            spark_memory = instance_memory - int(os.environ['dataengine_os_expl_memory'])
+        else:
+            spark_memory = instance_memory * int(os.environ['dataengine_os_memory']) / 100
+        return spark_memory
+    except Exception as err:
+        print('Error:', str(err))
+        return err
 
 def replace_multi_symbols(string, symbol, symbol_cut=False):
     try:
@@ -472,11 +487,24 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
         traceback.print_exc(file=sys.stdout)
 
 
-def update_pyopenssl_lib():
+def update_pyopenssl_lib(os_user):
+    if not exists('/home/{}/.ensure_dir/pyopenssl_updated'.format(os_user)):
+        try:
+            if exists('/usr/bin/pip3'):
+                sudo('pip3 install -U pyopenssl')
+            sudo('pip2 install -U pyopenssl')
+            sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
+        except:
+            sys.exit(1)
+
+
+def find_cluster_kernels():
     try:
-        print("Updating pyOpenssl lib")
-        if exists('/usr/bin/pip3'):
-            sudo('pip3 install -U pyopenssl')
-        sudo('pip2 install -U pyopenssl')
+        with settings(sudo_user='root'):
+            de = [i for i in sudo('find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | '
+                                  'cut -f 1 -d "/" | rev | xargs -r').split(' ') if i != '']
+            des =  [i for i in sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
+                                    'cut -f 1,2 -d "/" | rev | xargs -r').split(' ') if i != '']
+        return (de, des)
     except:
         sys.exit(1)

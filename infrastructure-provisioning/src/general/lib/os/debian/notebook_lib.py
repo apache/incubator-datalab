@@ -203,9 +203,11 @@ def ensure_python2_libraries(os_user):
                 sudo('pip2 install virtualenv --no-cache-dir')
                 sudo('apt-get install -y libssl-dev')
             try:
-                sudo('pip2 install ipython ipykernel --no-cache-dir')
+                sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('pip2 install ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('pip2 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('pip2 install -U pip --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
@@ -220,9 +222,11 @@ def ensure_python3_libraries(os_user):
             sudo('apt-get install python3-setuptools')
             sudo('apt install -y python3-pip')
             try:
-                sudo('pip3 install ipython ipykernel --no-cache-dir')
+                sudo('pip3 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('pip3 install ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('pip3 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('pip3 install -U pip --no-cache-dir')
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv future --no-cache-dir')

@@ -194,9 +194,11 @@ def ensure_python2_libraries(os_user):
             sudo('yum install -y python-setuptools python-wheel')
             sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxml2-devel libxslt-devel --nogpgcheck')
             try:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython ipykernel --no-cache-dir')
+                sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('echo y | python2 -m pip uninstall backports.shutil_get_terminal_size')
             sudo('python2 -m pip install backports.shutil_get_terminal_size --no-cache-dir')
             sudo('pip2 install -U pip setuptools --no-cache-dir')
@@ -216,9 +218,11 @@ def ensure_python3_libraries(os_user):
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
             try:
-                sudo('python3.5 -m pip install ipython ipykernel --no-cache-dir')
+                sudo('python3.5 -m pip install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('python3.5 -m pip install ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('python3.5 -m pip install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
             sys.exit(1)

@@ -82,7 +82,6 @@ def start_spark(os_user, master_ip, node):
             sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
-
 ##############
 # Run script #
 ##############
@@ -126,7 +125,7 @@ if __name__ == "__main__":
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, '')
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     if os.environ['application'] in ('tensor', 'deeplearning'):

@@ -52,6 +52,9 @@ public class LibraryServiceImpl implements LibraryService {
 	@Inject
 	private ExploratoryLibDAO libraryDAO;
 
+	@Inject
+	private RequestBuilder requestBuilder;
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<Document> getLibs(String user, String exploratoryName, String computationalName) {
@@ -107,7 +110,7 @@ public class LibraryServiceImpl implements LibraryService {
 				throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
 			}
 
-			dto = RequestBuilder.newLibInstall(userInfo, userInstance);
+			dto = requestBuilder.newLibInstall(userInfo, userInstance);
 		} else {
 			userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName(),
 					formDTO.getComputationalName());
@@ -117,7 +120,7 @@ public class LibraryServiceImpl implements LibraryService {
 					.collect(Collectors.toList());
 
 			if (resourceList.size() == 1) {
-				dto = RequestBuilder.newLibInstall(userInfo, userInstance, resourceList.get(0));
+				dto = requestBuilder.newLibInstall(userInfo, userInstance, resourceList.get(0));
 			} else {
 				throw new DlabException(String.format("Computational with name %s is not unique or absent",
 						formDTO.getComputationalName()));
