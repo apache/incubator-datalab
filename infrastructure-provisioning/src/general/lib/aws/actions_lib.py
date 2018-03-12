@@ -1142,7 +1142,7 @@ def ensure_local_jars(os_user, jars_dir):
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir):
+def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             if region == 'us-east-1':
@@ -1160,7 +1160,14 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
-
+    try:
+        if memory_type == 'driver':
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
+    except:
+        sys.exit(1)
+    
 
 def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
                                        user_name, endpoint_url, multiple_emrs):
