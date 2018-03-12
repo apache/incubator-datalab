@@ -71,7 +71,7 @@ limitations under the License.
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group" [hidden]="model.selectedImage.image === 'docker.dlab-dataengine'">
           <label class="label" *ngIf="model.selectedImage">{{ DICTIONARY[model.selectedImage.image].data_engine_slave_instance_size }}</label>
           <div class="control">
             <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
