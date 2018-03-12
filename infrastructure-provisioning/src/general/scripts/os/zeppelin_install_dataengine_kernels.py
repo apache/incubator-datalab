@@ -24,6 +24,7 @@ from fabric.contrib.files import exists
 from dlab.meta_lib import *
 import os
 from fabric.contrib.files import exists
+from dlab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
@@ -46,6 +47,9 @@ def configure_notebook(keyfile, hoststring):
         put(templates_dir + 'dataengine_interpreter_spark.json', '/tmp/dataengine_interpreter.json')
     put(scripts_dir + 'zeppelin_dataengine_create_configs.py', '/tmp/zeppelin_dataengine_create_configs.py')
     put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+    spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
+    spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
+    run('echo "spark.executor.memory {0}m" >> /tmp/notebook_spark-defaults_local.conf'.format(spark_memory))
     sudo('\cp /tmp/zeppelin_dataengine_create_configs.py /usr/local/bin/zeppelin_dataengine_create_configs.py')
     sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
