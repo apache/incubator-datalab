@@ -59,7 +59,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private boolean terminateEdge(String user) {
 		final boolean nodeExists = keyDAO.edgeNodeExist(user);
 		if (nodeExists) {
-			keyDAO.deleteKey(user);
 			edgeService.terminate(systemUserInfoService.create(user));
 			exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATING);
 		}

@@ -135,7 +135,6 @@ public class EnvironmentServiceImplTest {
 		verify(systemUserInfoService).create(USER);
 		verify(keyDAO).edgeNodeExist(USER);
 		verify(edgeService).terminate(refEq(userInfo));
-		verify(keyDAO).deleteKey(USER);
 		verify(exploratoryService).updateExploratoryStatuses(USER, UserInstanceStatus.TERMINATING);
 		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}

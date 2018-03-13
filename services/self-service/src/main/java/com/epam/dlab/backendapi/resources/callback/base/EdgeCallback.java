@@ -30,16 +30,20 @@ public class EdgeCallback {
 	@Inject
 	private ExploratoryService exploratoryService;
 
-	public EdgeCallback() {
+	protected EdgeCallback() {
 		log.info("{} is initialized", getClass().getSimpleName());
 	}
 
-	public void handleEdgeCallback(String user, String status) {
+	protected void handleEdgeCallback(String user, String status) {
 		try {
-			log.debug("Updating the status of EDGE node for user {} to {}", user, status);
-			keyDAO.updateEdgeStatus(user, status);
 			if (UserInstanceStatus.of(status) == UserInstanceStatus.TERMINATED) {
+				log.debug("Removing user edge and set exploratory statuses to terminated");
+				keyDAO.deleteKey(user);
+				keyDAO.deleteEdge(user);
 				exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATED);
+			} else {
+				log.debug("Updating the status of EDGE node for user {} to {}", user, status);
+				keyDAO.updateEdgeStatus(user, status);
 			}
 		} catch (DlabException e) {
 			log.error("Could not update status of EDGE node for user {} to {}", status, status, e);
