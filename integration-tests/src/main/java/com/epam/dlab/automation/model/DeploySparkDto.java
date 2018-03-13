@@ -23,8 +23,7 @@ import com.google.common.base.MoreObjects;
 public class DeploySparkDto extends DeployClusterDto{
 	
 	private String dataengine_instance_count;
-	private String dataengine_slave;
-	private String dataengine_master;
+	private String dataengine_instance_shape;
 	
 	public String getDataengine_instance_count() {
 		return dataengine_instance_count;
@@ -32,19 +31,15 @@ public class DeploySparkDto extends DeployClusterDto{
 	public void setDataengine_instance_count(String dataengine_instance_count) {
 		this.dataengine_instance_count = dataengine_instance_count;
 	}
-	public String getDataengine_slave() {
-		return dataengine_slave;
+
+	public String getDataengine_instance_shape() {
+		return dataengine_instance_shape;
 	}
-	public void setDataengine_slave(String dataengine_slave) {
-		this.dataengine_slave = dataengine_slave;
+
+	public void setDataengine_instance_shape(String dataengine_instance_shape) {
+		this.dataengine_instance_shape = dataengine_instance_shape;
 	}
-	public String getDataengine_master() {
-		return dataengine_master;
-	}
-	public void setDataengine_master(String dataengine_master) {
-		this.dataengine_master = dataengine_master;
-	}
-	
+
 	@Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -52,8 +47,7 @@ public class DeploySparkDto extends DeployClusterDto{
         		.add("template_name", getTemplate_name())
         		.add("name", getName())
         		.add("notebook_name", getNotebook_name())
-        		.add("dataengine_master", dataengine_master)
-        		.add("dataengine_slave", dataengine_slave)
+				.add("dataengine_instance_shape", dataengine_instance_shape)
         		.add("dataengine_instance_count", dataengine_instance_count)
         		.toString();
     }

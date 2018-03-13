@@ -60,7 +60,7 @@ limitations under the License.
          <div class="col"><p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p></div>
          <div class="col"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>
         </div>
-        <div class="row-wrap">
+        <div class="row-wrap" *ngIf="resource.image === 'docker.dlab-dataengine-service'">
          <div class="col"><p>{{ DICTIONARY[resource.image].data_engine_slave_instance_size }}:</p></div>
          <div class="col"><span>{{ resource[DICTIONARY[resource.image].slave_node_shape] }}</span></div>
         </div>
