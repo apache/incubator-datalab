@@ -33,7 +33,7 @@ export class ComputationalResourceCreateModel {
 
   computational_resource_alias: string;
   computational_resource_count: number;
-  computational_resource_master_shape: string;
+  computational_resource_instance_shape: string;
   computational_resource_slave_shape: string;
   notebook_name: string;
   emr_slave_instance_spot: boolean;
@@ -80,7 +80,7 @@ export class ComputationalResourceCreateModel {
   public setCreatingParams(
     name: string,
     count: number,
-    shape_master: string,
+    instance_shape: string,
     shape_slave: string,
     spot: boolean,
     price: number,
@@ -88,7 +88,7 @@ export class ComputationalResourceCreateModel {
   ): void {
     this.computational_resource_alias = name;
     this.computational_resource_count = count;
-    this.computational_resource_master_shape = shape_master;
+    this.computational_resource_instance_shape = instance_shape;
     this.computational_resource_slave_shape = shape_slave;
     this.emr_slave_instance_spot = spot;
     this.emr_slave_instance_price = price;
@@ -158,7 +158,7 @@ export class ComputationalResourceCreateModel {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: this.computational_resource_alias,
         emr_instance_count: this.computational_resource_count,
-        emr_master_instance_type: this.computational_resource_master_shape,
+        emr_master_instance_type: this.computational_resource_instance_shape,
         emr_slave_instance_type: this.computational_resource_slave_shape,
         emr_version: this.selectedItem.version,
         notebook_name: this.notebook_name,
@@ -173,7 +173,7 @@ export class ComputationalResourceCreateModel {
         template_name: this.selectedItem.template_name,
         notebook_name: this.notebook_name,
         image: this.selectedItem.image,
-        dataproc_master_instance_type:  this.computational_resource_master_shape,
+        dataproc_master_instance_type:  this.computational_resource_instance_shape,
         dataproc_slave_instance_type: this.computational_resource_slave_shape,
         dataproc_version: this.selectedItem.version,
         dataproc_master_count: 1,
@@ -184,8 +184,7 @@ export class ComputationalResourceCreateModel {
       return this.userResourceService.createComputationalResource_Dataengine({
         name: this.computational_resource_alias,
         dataengine_instance_count: this.computational_resource_count,
-        dataengine_master: this.computational_resource_master_shape,
-        dataengine_slave: this.computational_resource_slave_shape,
+        dataengine_instance_shape: this.computational_resource_instance_shape,
         notebook_name: this.notebook_name,
         image: this.selectedImage.image,
         template_name: this.selectedImage.template_name,

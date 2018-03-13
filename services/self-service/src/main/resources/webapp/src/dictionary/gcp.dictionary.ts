@@ -77,11 +77,9 @@ export const NAMING_CONVENTION = {
   'docker.dlab-dataengine': {
       'total_instance_number_min': 'min_spark_instance_count',
       'total_instance_number_max': 'max_spark_instance_count',
-      'data_engine_master_instance_size': 'Master machine type',
-      'data_engine_slave_instance_size': 'Slave machine type',
+      'data_engine_master_instance_size': 'Machine type',
       'instance_number': 'Total machine number',
-      'master_node_shape': 'dataengine_master',
-      'slave_node_shape': 'dataengine_slave',
+      'master_node_shape': 'dataengine_instance_shape',
       'total_instance_number': 'dataengine_instance_count',
   }
 };

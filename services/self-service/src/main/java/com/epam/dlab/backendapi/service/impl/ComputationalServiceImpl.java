@@ -226,8 +226,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 				.templateName(form.getTemplateName())
 				.status(CREATING.toString())
 				.dataEngineInstanceCount(form.getDataEngineInstanceCount())
-				.dataEngineMaster(form.getDataEngineInstanceShape())
-				.dataEngineSlave(form.getDataEngineInstanceShape())
+				.dataEngineInstanceShape(form.getDataEngineInstanceShape())
 				.build();
 	}
 
