@@ -84,9 +84,8 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    if os.environ['notebook_scala_enabled'] == 'true':
-        print("Install Scala")
-        ensure_scala(scala_link, args.scala_version, args.os_user)
+    print("Install Scala")
+    ensure_scala(scala_link, args.scala_version, args.os_user)
     if os.environ['notebook_r_enabled'] == 'true':
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
@@ -112,9 +111,8 @@ if __name__ == "__main__":
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
-    if os.environ['notebook_scala_enabled'] == 'true':
-        print("Install Toree-Scala kernel for Jupyter")
-        ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
+    print("Install Toree-Scala kernel for Jupyter")
+    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
     if os.environ['notebook_r_enabled'] == 'true':
         print("Install R kernel for Jupyter")
         ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
@@ -132,11 +130,10 @@ if __name__ == "__main__":
     ensure_additional_python_libs(args.os_user)
     print("Install Matplotlib")
     ensure_matplot(args.os_user)
-    if os.environ['notebook_scala_enabled'] == 'true':
-        print("Install SBT")
-        ensure_sbt(args.os_user)
-        print("Install Breeze")
-        add_breeze_library_local(args.os_user)
+    print("Install SBT")
+    ensure_sbt(args.os_user)
+    print("Install Breeze")
+    add_breeze_library_local(args.os_user)
     
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")

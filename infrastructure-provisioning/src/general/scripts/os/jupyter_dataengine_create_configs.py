@@ -41,7 +41,6 @@ parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
-parser.add_argument('--scala_enabled', type=str, default='')
 args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
@@ -159,7 +158,6 @@ if __name__ == "__main__":
                                  args.datalake_enabled)
         configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
         pyspark_kernel(args)
-        if args.scala_enabled == 'true':
-            toree_kernel(args)
+        toree_kernel(args)
         if args.r_enabled == 'true':
             r_kernel(args)

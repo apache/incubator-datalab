@@ -37,32 +37,13 @@ parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='false')
 args = parser.parse_args()
 
-def prepare_interpreter(templates_dir, interpreter):
-    try:
-        if os.environ['notebook_r_enabled'] == 'true':
-            r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%",
-                      "zeppelin.R.cmd": "R",
-                      "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
-            f = open('{0}interpreter_{1}.json'.format(templates_dir, interpreter)).read()
-            data = json.loads(f)
-            for i in data['interpreterSettings'].keys():
-                data['interpreterSettings'][i]['properties'].update(r_conf)
-                if interpreter == 'livy':
-                    r_livy_int = {"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"}
-                    data['interpreterSettings'][interpreter]['interpreterGroup'].append(r_livy_int)
-            with(open('{0}interpreter_{1}.json'.format(templates_dir, interpreter), 'w')) as f:
-                f.write(json.dumps(data, indent=2))
-    except:
-        sys.exit(1)
 
 def configure_notebook(keyfile, hoststring):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     if os.environ['notebook_multiple_clusters'] == 'true':
-        prepare_interpreter(templates_dir, 'livy')
         put(templates_dir + 'dataengine_interpreter_livy.json', '/tmp/dataengine_interpreter.json')
     else:
-        prepare_interpreter(templates_dir, 'spark')
         put(templates_dir + 'dataengine_interpreter_spark.json', '/tmp/dataengine_interpreter.json')
     put(scripts_dir + 'zeppelin_dataengine_create_configs.py', '/tmp/zeppelin_dataengine_create_configs.py')
     put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
@@ -91,8 +72,10 @@ if __name__ == "__main__":
         region = ''
     configure_notebook(args.keyfile, env.host_string)
     livy_version = os.environ['notebook_livy_version']
+    r_enabled = os.environ['notebook_r_enabled']
     sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {} --region {} --datalake_enabled {}".
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} \
+         --notebook_ip {} --livy_version {} --multiple_clusters {} --region {} --datalake_enabled {} --r_enabled {}".
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
                 args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters'], region,
-                args.datalake_enabled))
+                args.datalake_enabled, r_enabled))

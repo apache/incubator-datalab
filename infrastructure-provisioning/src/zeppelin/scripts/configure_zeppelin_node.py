@@ -68,29 +68,9 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jars_dir = '/opt/jars/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
-r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%",
-          "zeppelin.R.cmd": "R",
-          "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
-r_livy_int = {"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"}
-r_spark_int = {"class": "org.apache.zeppelin.spark.SparkRInterpreter", "name": "r"}
+r_enabled = os.environ['notebook_r_enabled']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
-
-def prepare_interpreter(interpreter):
-    try:
-        if os.environ['notebook_r_enabled'] == 'true':
-            f = open('{0}interpreter_{1}.json'.format(templates_dir, interpreter)).read()
-            data = json.loads(f)
-            for i in data['interpreterSettings'].keys():
-                data['interpreterSettings'][i]['properties'].update(r_conf)
-                if interpreter == 'livy':
-                    data['interpreterSettings'][interpreter]['interpreterGroup'].append(r_livy_int)
-                else:
-                    data['interpreterSettings'][interpreter]['interpreterGroup'].append(r_spark_int)
-            with(open('{0}interpreter_{1}.json'.format(templates_dir, interpreter), 'w')) as f:
-                f.write(json.dumps(data, indent=2))
-    except:
-        sys.exit(1)
 
 def configure_zeppelin(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/zeppelin_ensured'):
@@ -134,7 +114,6 @@ def configure_local_livy_kernels(args):
         port_number_found = False
         default_port = 8998
         livy_port = ''
-        prepare_interpreter('livy')
         put(templates_dir + 'interpreter_livy.json', '/tmp/interpreter.json')
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
@@ -161,7 +140,6 @@ def configure_local_livy_kernels(args):
 
 def configure_local_spark_kernels(args):
     if not exists('/home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured'):
-        prepare_interpreter('spark')
         put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
@@ -216,9 +194,8 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    if os.environ['notebook_scala_enabled'] == 'true':
-        print("Installing Scala")
-        ensure_scala(scala_link, args.scala_version, args.os_user)
+    print("Installing Scala")
+    ensure_scala(scala_link, args.scala_version, args.os_user)
     if os.environ['notebook_r_enabled'] == 'true':
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
@@ -250,6 +227,7 @@ if __name__ == "__main__":
     else:
         print("Configuring local kernels")
         configure_local_spark_kernels(args)
+    update_zeppelin_interpreters(args.multiple_clusters, r_enabled)
 
     # INSTALL UNGIT
     print("Install nodejs")

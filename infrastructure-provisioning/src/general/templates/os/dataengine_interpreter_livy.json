@@ -17,20 +17,20 @@
     "zeppelin.dep.additionalRemoteRepository": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
     "livy.spark.hadoop.fs.s3a.fast.upload": "true"
   },
-    "interpreterGroup": [
-      {
-          "class": "org.apache.zeppelin.livy.LivySparkInterpreter",
-          "name": "spark"
-      },
-      {
-        "class": "org.apache.zeppelin.livy.LivyPySparkInterpreter",
-        "name": "pyspark"
-      },
-      {
-        "class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter",
-        "name": "pyspark3"
-      }
-    ],
+  "interpreterGroup": [
+    {
+      "class": "org.apache.zeppelin.livy.LivySparkInterpreter",
+      "name": "spark"
+    },
+    {
+      "class": "org.apache.zeppelin.livy.LivyPySparkInterpreter",
+      "name": "pyspark"
+    },
+    {
+      "class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter",
+      "name": "pyspark3"
+    }
+  ],
   "dependencies": [],
   "option": {
     "remote": true,

@@ -508,3 +508,32 @@ def find_cluster_kernels():
         return (de, des)
     except:
         sys.exit(1)
+
+
+def update_zeppelin_interpreters(multiple_clusters, r_enabled):
+    try:
+        interpreters_config = '/opt/zeppelin/conf/interpreter.json'
+        if multiple_clusters == 'true':
+            groups = [{"class": "org.apache.zeppelin.livy.LivySparkInterpreter", "name": "spark"},
+                      {"class": "org.apache.zeppelin.livy.LivyPySparkInterpreter", "name": "pyspark"},
+                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter", "name": "pyspark3"}]
+        else:
+            groups = [{"class": "org.apache.zeppelin.spark.SparkInterpreter","name": "spark"},
+                      {"class": "org.apache.zeppelin.spark.PySparkInterpreter", "name": "pyspark"}]
+        r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%", "zeppelin.R.cmd": "R",
+                  "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
+        data = json.loads(open(interpreters_config).read())
+        for i in data['interpreterSettings'].keys():
+            if r_enabled == 'true':
+                data['interpreterSettings'][i]['properties'].update(r_conf)
+                if multiple_clusters == 'true':
+                    groups.append({"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"})
+                else:
+                    groups.append({"class": "org.apache.zeppelin.spark.SparkRInterpreter", "name": "r"})
+            data['interpreterSettings'][i]['interpreterGroup'] = groups
+        with open(interpreters_config, 'w') as f:
+            f.write(json.dumps(data, indent=2))
+        local('sudo systemctl restart zeppelin-notebook')
+    except Exception as err:
+        print('Failed to update Zeppelin interpreters', str(err))
+        sys.exit(1)
