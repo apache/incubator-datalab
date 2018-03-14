@@ -97,7 +97,8 @@ if __name__ == "__main__":
                 subnet = ipaddress.ip_network(u'{}'.format(subnet_cidr))
                 num_addr = subnet.num_addresses
                 first_ip = int(ipaddress.IPv4Address(u'{}'.format(subnet.network_address)))
-                next_subnet = ipaddress.ip_network(u'{}/24'.format(ipaddress.ip_address(first_ip + num_addr)))
+                next_subnet = ipaddress.ip_network(u'{}/{}'.format(ipaddress.ip_address(first_ip + num_addr),
+                                                                   args.prefix))
                 pre_defined_subnet_list.append(next_subnet.compressed)
                 subnet_cidr = next_subnet
             existed_subnet_list = []
