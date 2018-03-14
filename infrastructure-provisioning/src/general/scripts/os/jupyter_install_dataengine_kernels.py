@@ -79,3 +79,4 @@ if __name__ == "__main__":
          --spark_master {} --region {} --datalake_enabled {} --r_enabled {}".
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
                 region, args.datalake_enabled, r_enabled))
+

@@ -46,6 +46,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_version', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 dataproc_dir = '/opt/{}/jars/'.format(args.dataproc_version)
@@ -117,9 +118,8 @@ if __name__ == "__main__":
         actions_lib.GCPActions().install_dataproc_spark(args)
         pyspark_kernel(kernels_dir, args.dataproc_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
-        if os.environ['notebook_scala_enabled'] == 'true':
-            toree_kernel(args)
-        if os.environ['notebook_r_enabled'] == 'true':
+        toree_kernel(args)
+        if r_enabled == 'true':
             r_kernel(args)
         actions_lib.GCPActions().spark_defaults(args)
         configuring_notebook(args.dataproc_version)

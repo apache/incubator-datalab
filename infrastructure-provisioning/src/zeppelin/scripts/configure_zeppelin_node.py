@@ -126,6 +126,7 @@ def configure_local_livy_kernels(args):
             else:
                 default_port += 1
         sudo('sed -i "s|LIVY_PORT|' + str(livy_port) + '|g" /tmp/interpreter.json')
+        update_zeppelin_interpreters(args.multiple_clusters, r_enabled, 'local')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('echo "livy.server.port = ' + str(livy_port) + '" >> /opt/livy/conf/livy.conf')
         sudo('''echo "SPARK_HOME='/opt/spark/'" >> /opt/livy/conf/livy-env.sh''')
@@ -143,6 +144,7 @@ def configure_local_spark_kernels(args):
         put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
+        update_zeppelin_interpreters(args.multiple_clusters, r_enabled, 'local')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured')
@@ -227,7 +229,6 @@ if __name__ == "__main__":
     else:
         print("Configuring local kernels")
         configure_local_spark_kernels(args)
-    update_zeppelin_interpreters(args.multiple_clusters, r_enabled)
 
     # INSTALL UNGIT
     print("Install nodejs")

@@ -46,6 +46,7 @@ parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -167,9 +168,8 @@ if __name__ == "__main__":
         install_emr_spark(args)
         pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
-        if os.environ['notebook_scala_enabled'] == 'true':
-            toree_kernel(args)
-        if os.environ['notebook_r_enabled'] == 'true':
+        toree_kernel(args)
+        if args.r_enabled == 'true':
             r_kernel(args)
         spark_defaults(args)
         configuring_notebook(args.emr_version)
