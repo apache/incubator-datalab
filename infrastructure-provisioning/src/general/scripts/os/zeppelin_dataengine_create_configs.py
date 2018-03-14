@@ -44,6 +44,7 @@ parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
@@ -173,3 +174,4 @@ if __name__ == "__main__":
         install_remote_livy(args)
     configure_zeppelin_dataengine_interpreter(args.cluster_name, cluster_dir, args.os_user,
                                               args.multiple_clusters, args.spark_master)
+    update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)
