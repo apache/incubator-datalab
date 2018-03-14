@@ -27,7 +27,7 @@ type TimeFormatAlias = TimeFormat;
   template: `
     <div class="time-picker">
       <mat-input-container class="time-select">
-        <input matInput placeholder="Select time" [value]="selectedTime">
+        <input matInput placeholder="{{ label }}" [value]="selectedTime">
         <mat-icon matSuffix (click)="openDatePickerDialog($event)">access_time</mat-icon>
       </mat-input-container>
     </div>`,
@@ -35,6 +35,7 @@ type TimeFormatAlias = TimeFormat;
 })
 export class TimePickerComponent implements OnInit {
   @Input() pickTime: TimeFormatAlias;
+  @Input() label: string = 'Select time';
   @Output() pickTimeChange: EventEmitter<TimeFormatAlias> = new EventEmitter();
 
   constructor(private dialog: MatDialog) {}
