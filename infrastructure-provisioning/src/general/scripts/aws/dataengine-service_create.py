@@ -211,11 +211,19 @@ def build_emr_cluster(args):
 
     # Parse Tags
     parser = re.split('[, ]+', args.tags)
-    tags = []
+    tags = list()
     for i in parser:
         key, value = i.split("=")
         tags.append({"Value": value, "Key": key})
     tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': args.service_base_name + ':' + args.name})
+    if 'conf_additional_tags' in os.environ:
+        for tag in os.environ['conf_additional_tags'].split(';'):
+            tags.append(
+                {
+                    'Key': tag.split(':')[0],
+                    'Value': tag.split(':')[1]
+                }
+            )
 
     prefix = "jars/" + args.release_label + "/lib/"
     jars_exist = get_object_count(args.s3_bucket, prefix)

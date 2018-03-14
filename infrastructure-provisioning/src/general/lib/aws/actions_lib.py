@@ -53,8 +53,20 @@ def create_s3_bucket(bucket_name, tag, region):
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
+        tags = list()
+        tags.append(tag)
+        tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
+                                                                         bucket_name})
+        if 'conf_additional_tags' in os.environ:
+            for tag in os.environ['conf_additional_tags'].split(';'):
+                tags.append(
+                    {
+                        'Key': tag.split(':')[0],
+                        'Value': tag.split(':')[1]
+                    }
+                )
         tagging = bucket.Tagging()
-        tagging.put(Tagging={'TagSet': [tag, {'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' + bucket_name}]})
+        tagging.put(Tagging={'TagSet': tags})
         tagging.reload()
         return bucket.name
     except Exception as err:
@@ -99,6 +111,7 @@ def remove_vpc(vpc_id):
 
 def create_tag(resource, tag, with_tag_res_id=True):
     try:
+        tags_list = list()
         ec2 = boto3.client('ec2')
         if type(tag) == dict:
             resource_name = tag.get('Value')
@@ -108,24 +121,27 @@ def create_tag(resource, tag, with_tag_res_id=True):
             resource_tag = json.loads(tag)
         if type(resource) != list:
             resource = [resource]
+        tags_list.append(resource_tag)
         if with_tag_res_id:
-            ec2.create_tags(
-                Resources=resource,
-                Tags=[
-                    resource_tag,
+            tags_list.append(
+                {
+                    'Key': os.environ['conf_tag_resource_id'],
+                    'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+                }
+            )
+        if 'conf_additional_tags' in os.environ:
+            for tag in os.environ['conf_additional_tags'].split(';'):
+                tags_list.append(
                     {
-                        'Key': os.environ['conf_tag_resource_id'],
-                        'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+                        'Key': tag.split(':')[0],
+                        'Value': tag.split(':')[1]
                     }
-                ]
-            )
-        else:
-            ec2.create_tags(
-                Resources=resource,
-                Tags=[
-                    resource_tag
-                ]
-            )
+                )
+        ec2.create_tags(
+            Resources=resource,
+            Tags=tags_list
+        )
+
     except Exception as err:
         logging.info("Unable to create Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
