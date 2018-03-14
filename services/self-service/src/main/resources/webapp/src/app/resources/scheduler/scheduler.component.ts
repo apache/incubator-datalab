@@ -44,8 +44,9 @@ export class SchedulerComponent implements OnInit {
   public weekdays: string[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   public schedulerForm: FormGroup;
 
-  public startTime: any;
-  public endTime: any;
+  public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
+  public endTime = { hour: 7, minute: 0, meridiem: 'PM' };
+
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
@@ -148,11 +149,11 @@ export class SchedulerComponent implements OnInit {
       };
     } else {
       let hours = time24.hour;
-      let minutes = (time24.minute < 10) ? time24.minute + '0' : time24.minute;
+      let minutes = (time24.minute < 10) ? '0' + time24.minute : time24.minute;
 
       if (time24.meridiem == 'PM' && time24.hour < 12) hours = time24.hour + 12;
       if (time24.meridiem == 'AM' &&  time24.hour == 12) hours = time24.hour - 12;
-      hours = hours < 10 ? hours + '0' : hours;
+      hours = hours < 10 ? '0' + hours : hours;
 
       result = `${hours}:${minutes}`;
     }
