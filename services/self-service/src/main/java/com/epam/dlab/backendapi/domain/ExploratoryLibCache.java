@@ -54,6 +54,9 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	@Inject
 	private RequestBuilder requestBuilder;
 
+	@Inject
+	private RequestId requestId;
+
     /** Instance of cache.
      */
 	private static ExploratoryLibCache libCache;
@@ -207,7 +210,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
 			}
 
-            RequestId.put(userInfo.getName(), uuid);
+			requestId.put(userInfo.getName(), uuid);
 
 		} catch (Exception e) {
 			LOGGER.warn("Ask docker for the status of resources for user {} and exploratory {} fails: {}",

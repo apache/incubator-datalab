@@ -71,6 +71,9 @@ public class LibExploratoryResource {
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
 
+	@Inject
+	private RequestId requestId;
+
 	/**
 	 * Returns the list of libraries groups for exploratory.
 	 *
@@ -189,7 +192,7 @@ public class LibExploratoryResource {
 								.class);
 			}
 
-			RequestId.put(userInfo.getName(), uuid);
+			requestId.put(userInfo.getName(), uuid);
 			return Response.ok(uuid).build();
 		} catch (DlabException e) {
 			log.error("Cannot install libs to exploratory environment {} for user {}: {}",

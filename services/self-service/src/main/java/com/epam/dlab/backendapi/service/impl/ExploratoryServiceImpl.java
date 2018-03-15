@@ -47,6 +47,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RESTService provisioningService;
 	@Inject
 	private RequestBuilder requestBuilder;
+	@Inject
+	private RequestId requestId;
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
@@ -68,13 +70,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		boolean isAdded = false;
 		try {
 			exploratoryDAO.insertExploratory(getUserInstanceDTO(userInfo, exploratory));
-
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
-			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), requestBuilder
-					.newExploratoryCreate(exploratory, userInfo, gitCreds), String.class);
-			RequestId.put(userInfo.getName(), uuid);
+			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(),
+					requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds), String.class);
+			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
 			log.error("Could not update the status of exploratory environment {} with name {} for user {}",
@@ -101,7 +102,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @param action          action for exploratory environment.
 	 * @param status          status for exploratory environment.
 	 * @return Invocation request as JSON string.
-	 * @throws DlabException
 	 */
 	private String action(UserInfo userInfo, String exploratoryName, String action, UserInstanceStatus status) {
 		try {
@@ -110,14 +110,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
 			final String uuid = provisioningService.post(action, userInfo.getAccessToken(),
 					getExploratoryActionDto(userInfo, status, userInstance), String.class);
-			RequestId.put(userInfo.getName(), uuid);
+			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
 			log.error("Could not " + action + " exploratory environment {} for user {}", exploratoryName, userInfo
 					.getName(), t);
 			updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
-			throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " + t
-					.getLocalizedMessage(), t);
+			throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " +
+					t.getLocalizedMessage(), t);
 		}
 	}
 
@@ -135,8 +135,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		if (status != UserInstanceStatus.STARTING) {
 			dto = requestBuilder.newExploratoryStop(userInfo, userInstance);
 		} else {
-			dto = requestBuilder.newExploratoryStart(userInfo, userInstance, gitCredsDAO.findGitCreds(userInfo.getName
-					()));
+			dto = requestBuilder.newExploratoryStart(
+					userInfo, userInstance, gitCredsDAO.findGitCreds(userInfo.getName()));
 
 		}
 		return dto;
@@ -149,7 +149,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @param user            user name
 	 * @param exploratoryName name of exploratory environment.
 	 * @param status          status for exploratory environment.
-	 * @throws DlabException
 	 */
 	private void updateExploratoryStatus(String user, String exploratoryName, UserInstanceStatus status) {
 		StatusEnvBaseDTO<?> exploratoryStatus = createStatusDTO(user, exploratoryName, status);
@@ -178,7 +177,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @param user            user name
 	 * @param exploratoryName name of exploratory environment.
 	 * @param status          status for exploratory environment.
-	 * @throws DlabException
 	 */
 	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus status) {
 		log.debug("updating status for all computational resources of {} for user {}: {}", exploratoryName, user,

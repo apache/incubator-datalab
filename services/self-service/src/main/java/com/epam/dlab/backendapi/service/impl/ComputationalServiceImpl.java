@@ -67,6 +67,9 @@ public class ComputationalServiceImpl implements ComputationalService {
 	@Inject
 	private RequestBuilder requestBuilder;
 
+	@Inject
+	private RequestId requestId;
+
 
 	@Override
 	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form) {
@@ -77,14 +80,14 @@ public class ComputationalServiceImpl implements ComputationalService {
 				createInitialComputationalResource(form))) {
 
 			try {
-				UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), form
-						.getNotebookName());
+				UserInstanceDTO instance =
+						exploratoryDAO.fetchExploratoryFields(userInfo.getName(), form.getNotebookName());
 
 				ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, instance, form);
 
-				String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK, userInfo
-						.getAccessToken(), dto, String.class);
-				RequestId.put(userInfo.getName(), uuid);
+				String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK,
+						userInfo.getAccessToken(), dto, String.class);
+				requestId.put(userInfo.getName(), uuid);
 				return true;
 			} catch (RuntimeException e) {
 				try {
@@ -95,8 +98,8 @@ public class ComputationalServiceImpl implements ComputationalService {
 				throw e;
 			}
 		} else {
-			log.debug("Computational with name {} is already existing for user {}", form.getName(), userInfo.getName
-					());
+			log.debug("Computational with name {} is already existing for user {}", form.getName(),
+					userInfo.getName());
 			return false;
 		}
 	}
@@ -118,7 +121,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 			String uuid = provisioningService.post(getTerminateUrl(computationalResource), userInfo.getAccessToken(),
 					dto, String.class);
-			RequestId.put(userInfo.getName(), uuid);
+			requestId.put(userInfo.getName(), uuid);
 		} catch (RuntimeException re) {
 
 			try {
@@ -144,7 +147,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 						.getNotebookName());
 				String uuid = provisioningService.post(COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, userInfo.getAccessToken(),
 						requestBuilder.newComputationalCreate(userInfo, instance, formDTO), String.class);
-				RequestId.put(userInfo.getName(), uuid);
+				requestId.put(userInfo.getName(), uuid);
 				return true;
 			} catch (Exception t) {
 				try {

@@ -19,8 +19,8 @@ package com.epam.dlab.backendapi.resources.callback;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
+import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -36,12 +36,14 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class GitCredsCallback {
 
+	@Inject
+	private RequestId requestId;
+
     /**
      * Update GIT credentials status in Mongo DB for user.
      *
      * @param dto description of status.
      * @return 200 OK - if request success.
-     * @throws DlabException
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
@@ -54,7 +56,7 @@ public class GitCredsCallback {
             log.debug("Git creds has been updated for exploratory environment {} for user {}, status is {}",
                     dto.getExploratoryName(), dto.getUser(), dto.getStatus());
         }
-        RequestId.checkAndRemove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
         return Response.ok().build();
     }
 }

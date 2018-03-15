@@ -36,6 +36,9 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	@Inject
 	private RequestBuilder requestBuilder;
 
+	@Inject
+	private RequestId requestId;
+
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
 		log.debug("Check the status of the user key for {}", user);
@@ -102,7 +105,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 
 		UploadFile uploadFile = requestBuilder.newEdgeKeyUpload(user, keyContent);
 		String uuid = provisioningService.post(EDGE_CREATE, user.getAccessToken(), uploadFile, String.class);
-		RequestId.put(user.getName(), uuid);
+		requestId.put(user.getName(), uuid);
 		return uuid;
 	}
 }

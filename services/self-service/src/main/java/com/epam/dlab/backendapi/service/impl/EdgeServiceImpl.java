@@ -32,6 +32,9 @@ public class EdgeServiceImpl implements EdgeService {
 	@Inject
 	private RequestBuilder requestBuilder;
 
+	@Inject
+	private RequestId requestId;
+
 	@Override
 	public String start(UserInfo userInfo) {
 		log.debug("Starting EDGE node for user {}", userInfo.getName());
@@ -81,8 +84,8 @@ public class EdgeServiceImpl implements EdgeService {
 		try {
 			return action(userInfo, EDGE_TERMINATE, TERMINATING);
 		} catch (DlabException e) {
-			log.error("Could not stop EDGE node for user {}", userInfo.getName(), e);
-			throw new DlabException("Could not stop EDGE node: " + e.getLocalizedMessage(), e);
+			log.error("Could not terminate EDGE node for user {}", userInfo.getName(), e);
+			throw new DlabException("Could not terminate EDGE node: " + e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -99,7 +102,7 @@ public class EdgeServiceImpl implements EdgeService {
 			keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
 			ResourceSysBaseDTO<?> dto = requestBuilder.newEdgeAction(userInfo);
 			String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
-			RequestId.put(userInfo.getName(), uuid);
+			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
 			keyDAO.updateEdgeStatus(userInfo.getName(), FAILED.toString());

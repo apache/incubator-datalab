@@ -47,19 +47,21 @@ public class ExploratoryCallback {
     @Inject
     private ComputationalDAO computationalDAO;
 
+	@Inject
+	private RequestId requestId;
+
     /**
      * Changes the status of exploratory environment.
      *
      * @param dto description of status.
      * @return 200 OK - if request success.
-     * @throws DlabException
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(ExploratoryStatusDTO dto) throws DlabException {
+	public Response status(ExploratoryStatusDTO dto) {
         log.debug("Updating status for exploratory environment {} for user {} to {}",
                 dto.getExploratoryName(), dto.getUser(), dto.getStatus());
-        RequestId.checkAndRemove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
         UserInstanceStatus currentStatus;
 
         try {

@@ -42,9 +42,8 @@ import java.util.stream.Stream;
 @Singleton
 public class SchedulerJobServiceImpl implements SchedulerJobService {
 
-	private static final String SCHEDULER_NOT_FOUND_MSG = "Scheduler job data not found for user %s with exploratory" +
-			" " +
-			"%s";
+	private static final String SCHEDULER_NOT_FOUND_MSG =
+			"Scheduler job data not found for user %s with exploratory %s";
 
 	@Inject
 	private SchedulerJobDAO schedulerJobDAO;

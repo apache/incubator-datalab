@@ -28,6 +28,9 @@ public class ImageExploratoryResource {
 	@Inject
 	private ImageExploratoryService imageExploratoryService;
 
+	@Inject
+	private RequestId requestId;
+
 	@Context
 	private UriInfo uriInfo;
 
@@ -36,7 +39,7 @@ public class ImageExploratoryResource {
 		log.debug("Creating an image {} for user {}", formDTO, ui.getName());
 		String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), formDTO.getName(), formDTO
 				.getDescription());
-		RequestId.put(ui.getName(), uuid);
+		requestId.put(ui.getName(), uuid);
 		final URI imageUri = UriBuilder.fromUri(uriInfo.getRequestUri())
 				.path(formDTO.getName())
 				.build();

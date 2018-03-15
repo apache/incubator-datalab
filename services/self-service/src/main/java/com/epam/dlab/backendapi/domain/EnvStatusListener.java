@@ -59,6 +59,9 @@ public class EnvStatusListener implements Managed {
 	private final RequestBuilder requestBuilder;
 
 	@Inject
+	private RequestId requestId;
+
+	@Inject
 	public EnvStatusListener(SelfServiceApplicationConfiguration configuration, EnvStatusDAO dao,
 							 @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
 							 RequestBuilder requestBuilder) {
@@ -76,7 +79,7 @@ public class EnvStatusListener implements Managed {
 	}
 
 	@Override
-	public void start() throws Exception {
+	public void start() {
 		executorService.scheduleAtFixedRate(new StatusChecker(), checkEnvStatusTimeout, checkEnvStatusTimeout,
 				TimeUnit.MILLISECONDS);
 	}
@@ -150,7 +153,7 @@ public class EnvStatusListener implements Managed {
 				log.trace("Ask docker for the status of resources for user {}: {}", userInfo.getName(), dto);
 				uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(),
 						dto, String.class);
-				RequestId.put(userInfo.getName(), uuid);
+				requestId.put(userInfo.getName(), uuid);
 			}
 
 			return uuid;

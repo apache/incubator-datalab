@@ -40,7 +40,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	private ExploratoryDAO exploratoryDAO;
 
 	@Inject
-	private ImageExploratoryDao imageExploratotyDao;
+	private ImageExploratoryDao imageExploratoryDao;
 
 	@Inject
 	private ExploratoryLibDAO libDAO;
@@ -57,13 +57,13 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
 		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), exploratoryName);
 
-		if (imageExploratotyDao.exist(user.getName(), imageName)) {
+		if (imageExploratoryDao.exist(user.getName(), imageName)) {
 			log.error(String.format(IMAGE_EXISTS_MSG, imageName));
 			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName));
 		}
 		final List<Library> libraries = libDAO.getLibraries(user.getName(), exploratoryName);
 
-		imageExploratotyDao.save(Image.builder()
+		imageExploratoryDao.save(Image.builder()
 				.name(imageName)
 				.description(imageDescription)
 				.status(ImageStatus.CREATING)
@@ -90,7 +90,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.withUser(image.getUser())
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.RUNNING));
-		imageExploratotyDao.updateImageFields(image);
+		imageExploratoryDao.updateImageFields(image);
 		if (newNotebookIp != null) {
 			log.debug("Changing exploratory ip with name {} for user {} to {}", exploratoryName, image.getUser(),
 					newNotebookIp);
@@ -101,12 +101,12 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
 	@Override
 	public List<ImageInfoRecord> getCreatedImages(String user, String dockerImage) {
-		return imageExploratotyDao.getImages(user, ImageStatus.CREATED, dockerImage);
+		return imageExploratoryDao.getImages(user, ImageStatus.CREATED, dockerImage);
 	}
 
 	@Override
 	public ImageInfoRecord getImage(String user, String name) {
-		return imageExploratotyDao.getImage(user, name).orElseThrow(() ->
+		return imageExploratoryDao.getImage(user, name).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name, user)));
 	}
 
