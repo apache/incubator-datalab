@@ -63,7 +63,6 @@ public class UserRoles {
 	 * Initialize user roles for all users.
 	 *
 	 * @param dao security DAO.
-	 * @throws DlabException
 	 */
 	public static void initialize(SecurityDAO dao, boolean defaultAccess) {
 		LOGGER.trace("Loading roles from database");
@@ -87,7 +86,7 @@ public class UserRoles {
 	 * @param userInfo user info.
 	 * @param type     the type of role.
 	 * @param name     the name of role.
-	 * @return
+	 * @return boolean value
 	 */
 	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name) {
 		return checkAccess(userInfo, type, name, true);
@@ -99,10 +98,10 @@ public class UserRoles {
 	 * @param userInfo user info.
 	 * @param type     the type of role.
 	 * @param name     the name of role.
-	 * @return
+	 * @return boolean value
 	 */
 	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
-		return (userRoles == null ? true : userRoles.hasAccess(userInfo, type, name, useDefault));
+		return (userRoles == null || userRoles.hasAccess(userInfo, type, name, useDefault));
 	}
 
 	/**
@@ -205,8 +204,8 @@ public class UserRoles {
 	 * @param userInfo   user info.
 	 * @param type       the type of role.
 	 * @param name       the name of role.
-	 * @param useDefault
-	 * @return
+	 * @param useDefault true/false
+	 * @return boolean value
 	 */
 	private boolean hasAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
 		if (userRoles == null) {

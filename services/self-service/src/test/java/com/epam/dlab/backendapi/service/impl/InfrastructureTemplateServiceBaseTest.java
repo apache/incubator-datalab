@@ -6,6 +6,7 @@ import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,21 @@ public class InfrastructureTemplateServiceBaseTest {
 	}
 
 	@Test
+	public void getExploratoryTemplatesWithException() {
+		doThrow(new DlabException("Could not load list of exploratory templates for user"))
+				.when(provisioningService).get(anyString(), anyString(), any());
+
+		UserInfo userInfo = new UserInfo("test", "token");
+		try {
+			infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo);
+		} catch (DlabException e) {
+			assertEquals("Could not load list of exploratory templates for user", e.getMessage());
+		}
+		verify(provisioningService).get("docker/exploratory", "token", ExploratoryMetadataDTO[].class);
+		verifyNoMoreInteractions(provisioningService);
+	}
+
+	@Test
 	public void getComputationalTemplates() throws NoSuchFieldException, IllegalAccessException {
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Arrays.asList(
 				new ComputationalMetadataDTO("dataengine-service"),
@@ -73,6 +89,39 @@ public class InfrastructureTemplateServiceBaseTest {
 			assertTrue(areFullComputationalTemplatesEqual(expectedFullCmdDtoList.get(i), actualFullCmdDtoList.get(i)));
 		}
 
+		verify(provisioningService).get("docker/computational", "token", ComputationalMetadataDTO[].class);
+		verifyNoMoreInteractions(provisioningService);
+	}
+
+	@Test
+	public void getComputationalTemplatesWhenMethodThrowsException() {
+		doThrow(new DlabException("Could not load list of computational templates for user"))
+				.when(provisioningService).get(anyString(), anyString(), any());
+
+		UserInfo userInfo = new UserInfo("test", "token");
+		try {
+			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo);
+		} catch (DlabException e) {
+			assertEquals("Could not load list of computational templates for user", e.getMessage());
+		}
+		verify(provisioningService).get("docker/computational", "token", ComputationalMetadataDTO[].class);
+		verifyNoMoreInteractions(provisioningService);
+	}
+
+	@Test
+	public void getComputationalTemplatesWithInapproprietaryImageName() {
+		List<ComputationalMetadataDTO> expectedCmdDtoList = Arrays.asList(
+				new ComputationalMetadataDTO("dataengine-service"),
+				new ComputationalMetadataDTO("blablabla")
+		);
+		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray());
+
+		UserInfo userInfo = new UserInfo("test", "token");
+		try {
+			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo);
+		} catch (IllegalArgumentException e) {
+			assertEquals("Unknown data engine null", e.getMessage());
+		}
 		verify(provisioningService).get("docker/computational", "token", ComputationalMetadataDTO[].class);
 		verifyNoMoreInteractions(provisioningService);
 	}

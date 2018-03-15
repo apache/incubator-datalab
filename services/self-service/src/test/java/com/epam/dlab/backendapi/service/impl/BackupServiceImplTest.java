@@ -56,10 +56,8 @@ public class BackupServiceImplTest {
 		assertEquals(expectedUuid, uuid);
 
 		verify(backupDao).createOrUpdate(ebDto, USER, EnvBackupStatus.CREATING);
-		verifyNoMoreInteractions(backupDao);
-
 		verify(provisioningService).post(BackupAPI.BACKUP, token, ebDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
+		verifyNoMoreInteractions(backupDao, provisioningService);
 	}
 
 	@Test
@@ -106,6 +104,16 @@ public class BackupServiceImplTest {
 		String id = "someId";
 		doThrow(new ResourceNotFoundException(String.format("Backup with id %s was not found for user %s", id, USER)))
 				.when(backupDao).getBackup(USER, id);
+		expectedException.expect(ResourceNotFoundException.class);
+		expectedException.expectMessage("Backup with id " + id + " was not found for user " + USER);
+
+		backupService.getBackup(USER, id);
+	}
+
+	@Test
+	public void getBackupWhenBackupIsAbsent() {
+		String id = "someId";
+		when(backupDao.getBackup(USER, id)).thenReturn(Optional.empty());
 		expectedException.expect(ResourceNotFoundException.class);
 		expectedException.expectMessage("Backup with id " + id + " was not found for user " + USER);
 

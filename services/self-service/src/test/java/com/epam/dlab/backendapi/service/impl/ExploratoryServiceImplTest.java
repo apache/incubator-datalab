@@ -8,11 +8,9 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
+import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.exloratory.Exploratory;
 import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
@@ -39,6 +37,7 @@ public class ExploratoryServiceImplTest {
 
 	private UserInfo userInfo;
 	private UserInstanceDTO userInstance;
+	private StatusEnvBaseDTO statusEnvBaseDTO;
 
 	@Mock
 	private ExploratoryDAO exploratoryDAO;
@@ -79,22 +78,41 @@ public class ExploratoryServiceImplTest {
 				any(ExploratoryGitCredsDTO.class))).thenReturn(egcuDto);
 
 		String exploratoryStart = "exploratory/start";
-		when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any())).thenReturn
-				(UUID);
+		when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any()))
+				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
 		String uuid = exploratoryService.start(userInfo, EXPLORATORY_NAME);
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
-		verify(exploratoryDAO).updateExploratoryStatus(any(StatusEnvBaseDTO.class));
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
+
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(provisioningService).post(exploratoryStart, TOKEN, egcuDto, String.class);
+		verify(requestId).put(USER, UUID);
+		verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
+	}
+
+	@Test
+	public void startWhenMethodFetchExploratoryFieldsThrowsException() {
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
+				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
+		try {
+			exploratoryService.start(userInfo, EXPLORATORY_NAME);
+		} catch (DlabException e) {
+			assertEquals("Could not exploratory/start exploratory environment expName: Exploratory for user with " +
+					"name not found", e.getMessage());
+		}
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 
-		verify(provisioningService).post(exploratoryStart, TOKEN, egcuDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
-		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(requestId);
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	@Test
@@ -116,14 +134,33 @@ public class ExploratoryServiceImplTest {
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
-		verify(exploratoryDAO).updateExploratoryStatus(any(StatusEnvBaseDTO.class));
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
+
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(provisioningService).post(exploratoryStop, TOKEN, eaDto, String.class);
+		verify(requestId).put(USER, UUID);
+		verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
+	}
+
+	@Test
+	public void stopWhenMethodFetchExploratoryFieldsThrowsException() {
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
+				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
+		try {
+			exploratoryService.stop(userInfo, EXPLORATORY_NAME);
+		} catch (DlabException e) {
+			assertEquals("Could not exploratory/stop exploratory environment expName: Exploratory for user with " +
+					"name not found", e.getMessage());
+		}
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 
-		verify(provisioningService).post(exploratoryStop, TOKEN, eaDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
-		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(requestId);
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	@Test
@@ -145,60 +182,120 @@ public class ExploratoryServiceImplTest {
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
-		verify(exploratoryDAO).updateExploratoryStatus(any(StatusEnvBaseDTO.class));
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
+
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(computationalDAO).updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class));
+		verify(requestBuilder).newExploratoryStop(userInfo, userInstance);
+		verify(provisioningService).post(exploratoryTerminate, TOKEN, eaDto, String.class);
+		verify(requestId).put(USER, UUID);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO, requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	public void terminateWhenMethodFetchExploratoryFieldsThrowsException() {
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
+				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
+		try {
+			exploratoryService.terminate(userInfo, EXPLORATORY_NAME);
+		} catch (DlabException e) {
+			assertEquals("Could not exploratory/terminate exploratory environment expName: Exploratory for user " +
+					"with name not found", e.getMessage());
+		}
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 
-		verify(computationalDAO).updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class));
-		verifyNoMoreInteractions(computationalDAO);
-
-		verify(requestBuilder).newExploratoryStop(userInfo, userInstance);
-		verifyNoMoreInteractions(requestBuilder);
-
-		verify(provisioningService).post(exploratoryTerminate, TOKEN, eaDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
-		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(requestId);
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	@Test
 	public void create() {
+		doNothing().when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
 		ExploratoryGitCredsDTO egcDto = new ExploratoryGitCredsDTO();
 		when(gitCredsDAO.findGitCreds(anyString())).thenReturn(egcDto);
 
 		ExploratoryCreateDTO ecDto = new ExploratoryCreateDTO();
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
-		when(requestBuilder.newExploratoryCreate(any(Exploratory.class), any(UserInfo.class), any
-				(ExploratoryGitCredsDTO.class))).thenReturn(ecDto);
+		when(requestBuilder.newExploratoryCreate(any(Exploratory.class), any(UserInfo.class),
+				any(ExploratoryGitCredsDTO.class))).thenReturn(ecDto);
 		String exploratoryCreate = "exploratory/create";
-		when(provisioningService.post(anyString(), anyString(), any(ExploratoryCreateDTO.class), any())).thenReturn
-				(UUID);
+		when(provisioningService.post(anyString(), anyString(), any(ExploratoryCreateDTO.class), any()))
+				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
 		String uuid = exploratoryService.create(userInfo, exploratory);
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
+		userInstance.withStatus("creating");
+		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
-		verifyNoMoreInteractions(gitCredsDAO);
-
 		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
-		verifyNoMoreInteractions(requestBuilder);
-
 		verify(provisioningService).post(exploratoryCreate, TOKEN, ecDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
 		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(requestId);
+		verifyNoMoreInteractions(exploratoryDAO, gitCredsDAO, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test
-	public void createWithException() {
-		doThrow(new RuntimeException()).when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
+	public void createWhenMethodInsertExploratoryThrowsException() {
+		doThrow(new RuntimeException("Exploratory for user with name not found"))
+				.when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
 		expectedException.expect(DlabException.class);
+		expectedException.expectMessage("Could not create exploratory environment expName for user test: " +
+				"Exploratory for user with name not found");
 
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
 		exploratoryService.create(userInfo, exploratory);
+	}
+
+	@Test
+	public void createWhenMethodInsertExploratoryThrowsExceptionWithItsCatching() {
+		doThrow(new RuntimeException()).when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
+		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
+		try {
+			exploratoryService.create(userInfo, exploratory);
+		} catch (DlabException e) {
+			assertEquals("Could not create exploratory environment expName for user test: null",
+					e.getMessage());
+		}
+		userInstance.withStatus("creating");
+		verify(exploratoryDAO).insertExploratory(userInstance);
+		verify(exploratoryDAO, never()).updateExploratoryStatus(any(StatusEnvBaseDTO.class));
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void createWhenMethodNewExploratoryCreateThrowsException() {
+		doNothing().when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
+		ExploratoryGitCredsDTO egcDto = new ExploratoryGitCredsDTO();
+		when(gitCredsDAO.findGitCreds(anyString())).thenReturn(egcDto);
+
+		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
+
+		doThrow(new DlabException("Cannot create instance of resource class ")).when(requestBuilder)
+				.newExploratoryCreate(any(Exploratory.class), any(UserInfo.class), any(ExploratoryGitCredsDTO.class));
+
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+		try {
+			exploratoryService.create(userInfo, exploratory);
+		} catch (DlabException e) {
+			assertEquals("Could not create exploratory environment expName for user test: Cannot create instance " +
+					"of resource class ", e.getMessage());
+		}
+
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
+
+		userInstance.withStatus("creating");
+		verify(exploratoryDAO).insertExploratory(userInstance);
+		verify(gitCredsDAO).findGitCreds(USER);
+		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO, gitCredsDAO, requestBuilder);
 	}
 
 	private UserInfo getUserInfo() {
@@ -207,6 +304,13 @@ public class ExploratoryServiceImplTest {
 
 	private UserInstanceDTO getUserInstanceDto() {
 		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME);
+	}
+
+	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {
+		return new ExploratoryStatusDTO()
+				.withUser(USER)
+				.withExploratoryName(EXPLORATORY_NAME)
+				.withStatus(status);
 	}
 
 }

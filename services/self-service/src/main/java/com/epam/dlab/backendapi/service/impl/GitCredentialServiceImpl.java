@@ -73,16 +73,16 @@ public class GitCredentialServiceImpl implements GitCredentialService {
 	private boolean updateNotebookGitCredentials(UserInfo userInfo, ExploratoryGitCredsDTO formDTO,
 												 UserInstanceDTO instance) {
 		boolean gitCredentialsUpdated = true;
-		ExploratoryGitCredsUpdateDTO dto = requestBuilder.newGitCredentialsUpdate(userInfo, instance, formDTO);
 		try {
 			log.debug("Updating GIT creds for user {} on exploratory {}",
-					userInfo.getName(), dto.getExploratoryName());
+					userInfo.getName(), instance.getExploratoryName());
+			ExploratoryGitCredsUpdateDTO dto = requestBuilder.newGitCredentialsUpdate(userInfo, instance, formDTO);
 			final String uuid = provisioningService
 					.post(EXPLORATORY_GIT_CREDS, userInfo.getAccessToken(), dto, String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} catch (Exception t) {
 			log.error("Cannot update the GIT creds for user {} on exploratory {}", userInfo.getName(),
-					dto.getExploratoryName(), t);
+					instance.getExploratoryName(), t);
 			gitCredentialsUpdated = false;
 		}
 		return gitCredentialsUpdated;

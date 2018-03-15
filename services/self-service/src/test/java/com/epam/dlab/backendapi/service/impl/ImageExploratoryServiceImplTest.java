@@ -11,12 +11,15 @@ import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.dto.exploratory.LibStatus;
+import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.exceptions.ResourceAlreadyExistException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exloratory.Image;
 import com.epam.dlab.model.library.Library;
 import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,7 +39,12 @@ import static org.mockito.Mockito.*;
 public class ImageExploratoryServiceImplTest {
 
 	private final String USER = "test";
+	private final String TOKEN = "token";
 	private final String EXPLORATORY_NAME = "expName";
+
+	private UserInfo userInfo;
+	private UserInstanceDTO userInstance;
+	private Image image;
 
 	@Mock
 	private ExploratoryDAO exploratoryDAO;
@@ -55,17 +63,19 @@ public class ImageExploratoryServiceImplTest {
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
+	@Before
+	public void setUp() {
+		userInfo = getUserInfo();
+		userInstance = getUserInstanceDto();
+		image = fetchImage();
+	}
+
 	@Test
 	public void createImage() {
-		String explId = "explId";
-		UserInstanceDTO uiDto = new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME)
-				.withExploratoryId(explId);
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(uiDto);
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
 		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(false);
 
-		Library library = new Library("someGroup", "someName", "someVersion", LibStatus.INSTALLED,
-				"someErrorMessage").withType(ResourceType.EXPLORATORY);
-		when(libDAO.getLibraries(anyString(), anyString())).thenReturn(Collections.singletonList(library));
+		when(libDAO.getLibraries(anyString(), anyString())).thenReturn(Collections.singletonList(getLibrary()));
 		doNothing().when(imageExploratoryDao).save(any(Image.class));
 		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
@@ -77,8 +87,6 @@ public class ImageExploratoryServiceImplTest {
 		when(provisioningService.post(anyString(), anyString(), any(ExploratoryImageDTO.class), any()))
 				.thenReturn(expectedUuid);
 
-		String token = "token";
-		UserInfo userInfo = new UserInfo(USER, token);
 		String imageName = "someImageName", imageDescription = "someDescription";
 		String actualUuid = imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName,
 				imageDescription);
@@ -87,18 +95,68 @@ public class ImageExploratoryServiceImplTest {
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-
 		verify(imageExploratoryDao).exist(USER, imageName);
 		verify(imageExploratoryDao).save(any(Image.class));
-
 		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(libDAO);
+		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName);
+		verify(provisioningService).post("exploratory/image", TOKEN, eiDto, String.class);
+		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao, libDAO, requestBuilder, provisioningService);
+	}
 
-		verify(requestBuilder).newExploratoryImageCreate(userInfo, uiDto, imageName);
-		verifyNoMoreInteractions(requestBuilder);
+	@Test
+	public void createImageWhenMethodFetchRunningExploratoryFieldsThrowsException() {
+		doThrow(new DlabException("Running exploratory instance for user with name not found."))
+				.when(exploratoryDAO).fetchRunningExploratoryFields(anyString(), anyString());
 
-		verify(provisioningService).post("exploratory/image", token, eiDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
+		String imageName = "someImageName", imageDescription = "someDescription";
+
+		try {
+			imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName, imageDescription);
+		} catch (DlabException e) {
+			assertEquals("Running exploratory instance for user with name not found.", e.getMessage());
+		}
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void createImageWhenResourceAlreadyExists() {
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(true);
+
+		expectedException.expect(ResourceAlreadyExistException.class);
+		expectedException.expectMessage("Image with name someImageName is already exist");
+
+		String imageName = "someImageName", imageDescription = "someDescription";
+		imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName, imageDescription);
+	}
+
+	@Test
+	public void createImageWhenMethodNewExploratoryImageCreateThrowsException() {
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(false);
+
+		when(libDAO.getLibraries(anyString(), anyString())).thenReturn(Collections.singletonList(getLibrary()));
+		doNothing().when(imageExploratoryDao).save(any(Image.class));
+		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		doThrow(new DlabException("Cannot create instance of resource class")).when(requestBuilder)
+				.newExploratoryImageCreate(any(UserInfo.class), any(UserInstanceDTO.class), anyString());
+
+		String imageName = "someImageName", imageDescription = "someDescription";
+		try {
+			imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName, imageDescription);
+		} catch (DlabException e) {
+			assertEquals("Cannot create instance of resource class", e.getMessage());
+		}
+
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
+		verify(imageExploratoryDao).exist(USER, imageName);
+		verify(imageExploratoryDao).save(any(Image.class));
+		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
+		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName);
+		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao, libDAO, requestBuilder);
 	}
 
 	@Test
@@ -108,33 +166,53 @@ public class ImageExploratoryServiceImplTest {
 		doNothing().when(imageExploratoryDao).updateImageFields(any(Image.class));
 		doNothing().when(exploratoryDAO).updateExploratoryIp(anyString(), anyString(), anyString());
 
-		String imageName = "someImageName", imageDescription = "someDescription", explId = "explId";
-		Library library = new Library("someGroup", "someName", "someVersion", LibStatus.INSTALLED,
-				"someErrorMessage").withType(ResourceType.EXPLORATORY);
-		Image image = Image.builder()
-				.name(imageName)
-				.description(imageDescription)
-				.status(ImageStatus.CREATING)
-				.user(USER)
-				.libraries(Collections.singletonList(library))
-				.computationalLibraries(Collections.emptyMap())
-				.dockerImage(imageName)
-				.exploratoryId(explId).build();
 		String notebookIp = "someIp";
 		imageExploratoryService.finishImageCreate(image, EXPLORATORY_NAME, notebookIp);
 
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
 		verify(exploratoryDAO).updateExploratoryIp(USER, notebookIp, EXPLORATORY_NAME);
-
 		verify(imageExploratoryDao).updateImageFields(image);
-		verifyNoMoreInteractions(imageExploratoryDao);
+		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao);
+	}
+
+	@Test
+	public void finishImageCreateWhenMethodUpdateExploratoryIpThrowsException() {
+		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		doNothing().when(imageExploratoryDao).updateImageFields(any(Image.class));
+		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
+				.when(exploratoryDAO).updateExploratoryIp(anyString(), anyString(), anyString());
+
+		String notebookIp = "someIp";
+		try {
+			imageExploratoryService.finishImageCreate(image, EXPLORATORY_NAME, notebookIp);
+		} catch (ResourceNotFoundException e) {
+			assertEquals("Exploratory for user with name not found", e.getMessage());
+		}
+
+		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
+		verify(exploratoryDAO).updateExploratoryIp(USER, notebookIp, EXPLORATORY_NAME);
+		verify(imageExploratoryDao).updateImageFields(image);
+		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao);
+	}
+
+	@Test
+	public void finishImageCreateWhenNotebookIpIsNull() {
+		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		doNothing().when(imageExploratoryDao).updateImageFields(any(Image.class));
+
+		imageExploratoryService.finishImageCreate(image, EXPLORATORY_NAME, null);
+
+		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
+		verify(exploratoryDAO, never()).updateExploratoryIp(USER, null, EXPLORATORY_NAME);
+		verify(imageExploratoryDao).updateImageFields(image);
+		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao);
 	}
 
 	@Test
 	public void getCreatedImages() {
-		String name = "someName", description = "someDescription", application = "someApp", fullName = "someFullName";
-		ImageInfoRecord imageInfoRecord =
-				new ImageInfoRecord(name, description, application, fullName, ImageStatus.CREATED);
+		ImageInfoRecord imageInfoRecord = getImageInfoRecord();
 		List<ImageInfoRecord> expectedRecordList = Collections.singletonList(imageInfoRecord);
 		when(imageExploratoryDao.getImages(anyString(), any(ImageStatus.class), anyString()))
 				.thenReturn(expectedRecordList);
@@ -150,26 +228,54 @@ public class ImageExploratoryServiceImplTest {
 
 	@Test
 	public void getImage() {
-		String name = "someName", description = "someDescription", application = "someApp", fullName = "someFullName";
-		ImageInfoRecord expectedImageInfoRecord =
-				new ImageInfoRecord(name, description, application, fullName, ImageStatus.CREATED);
+		ImageInfoRecord expectedImageInfoRecord = getImageInfoRecord();
 		when(imageExploratoryDao.getImage(anyString(), anyString())).thenReturn(Optional.of(expectedImageInfoRecord));
 
-		ImageInfoRecord actualImageInfoRecord = imageExploratoryService.getImage(USER, name);
+		ImageInfoRecord actualImageInfoRecord = imageExploratoryService.getImage(USER, "someName");
 		assertNotNull(actualImageInfoRecord);
 		assertEquals(expectedImageInfoRecord, actualImageInfoRecord);
 
-		verify(imageExploratoryDao).getImage(USER, name);
+		verify(imageExploratoryDao).getImage(USER, "someName");
 		verifyNoMoreInteractions(imageExploratoryDao);
 	}
 
 	@Test
-	public void getImageWithException() {
-		doThrow(new ResourceNotFoundException(String.format("Image with name %s was not found for user %s",
-				"someImageName", USER))).when(imageExploratoryDao).getImage(USER, "someImageName");
+	public void getImageWhenMethodGetImageReturnsOptionalEmpty() {
+		when(imageExploratoryDao.getImage(anyString(), anyString())).thenReturn(Optional.empty());
 		expectedException.expect(ResourceNotFoundException.class);
 		expectedException.expectMessage(String.format("Image with name %s was not found for user %s",
 				"someImageName", USER));
 		imageExploratoryService.getImage(USER, "someImageName");
+	}
+
+	private ImageInfoRecord getImageInfoRecord() {
+		return new ImageInfoRecord("someName", "someDescription", "someApp",
+				"someFullName", ImageStatus.CREATED);
+	}
+
+	private Image fetchImage() {
+		return Image.builder()
+				.name("someImageName")
+				.description("someDescription")
+				.status(ImageStatus.CREATING)
+				.user(USER)
+				.libraries(Collections.singletonList(getLibrary()))
+				.computationalLibraries(Collections.emptyMap())
+				.dockerImage("someImageName")
+				.exploratoryId("explId").build();
+	}
+
+	private Library getLibrary() {
+		return new Library("someGroup", "someName", "someVersion", LibStatus.INSTALLED,
+				"someErrorMessage").withType(ResourceType.EXPLORATORY);
+	}
+
+	private UserInstanceDTO getUserInstanceDto() {
+		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME)
+				.withExploratoryId("explId");
+	}
+
+	private UserInfo getUserInfo() {
+		return new UserInfo(USER, TOKEN);
 	}
 }

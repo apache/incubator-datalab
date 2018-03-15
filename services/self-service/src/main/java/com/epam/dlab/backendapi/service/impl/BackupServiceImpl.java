@@ -44,8 +44,7 @@ public class BackupServiceImpl implements BackupService {
 
 	@Override
 	public BackupInfoRecord getBackup(String userName, String id) {
-		return backupDao.getBackup(userName, id).orElseThrow(() -> new ResourceNotFoundException(String.format
-				("Backup" +
-						" with id %s was not found for user %s", id, userName)));
+		return backupDao.getBackup(userName, id).orElseThrow(() -> new ResourceNotFoundException(
+				String.format("Backup with id %s was not found for user %s", id, userName)));
 	}
 }

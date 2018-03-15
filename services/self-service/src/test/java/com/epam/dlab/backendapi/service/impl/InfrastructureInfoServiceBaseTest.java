@@ -8,6 +8,7 @@ import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.exceptions.DlabException;
 import org.bson.Document;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,10 +56,29 @@ public class InfrastructureInfoServiceBaseTest {
 		assertTrue(areInfrastructureInfoObjectsEqual(actualInfrastructureInfo, expectedInfrastructureInfo));
 
 		verify(expDAO).findExploratory(USER);
-		verifyNoMoreInteractions(expDAO);
-
 		verify(keyDAO).getEdgeInfo(USER);
-		verifyNoMoreInteractions(keyDAO);
+		verifyNoMoreInteractions(expDAO, keyDAO);
+	}
+
+	@Test
+	public void getUserResourcesWhenMethodGetEdgeInfoThrowsException() {
+		Document document = new Document();
+		Iterable<Document> documents = Collections.singletonList(document);
+		when(expDAO.findExploratory(anyString())).thenReturn(documents);
+
+		EdgeInfo edgeInfo = new EdgeInfo();
+		edgeInfo.setInstanceId("someId");
+		edgeInfo.setEdgeStatus("someStatus");
+		doThrow(new DlabException("Edge info not found")).when(keyDAO).getEdgeInfo(anyString());
+
+		try {
+			infrastructureInfoServiceBase.getUserResources(USER);
+		} catch (DlabException e) {
+			assertEquals("Could not load list of provisioned resources for user: ", e.getMessage());
+		}
+		verify(expDAO).findExploratory(USER);
+		verify(keyDAO).getEdgeInfo(USER);
+		verifyNoMoreInteractions(expDAO, keyDAO);
 	}
 
 	@Test
@@ -74,10 +94,21 @@ public class InfrastructureInfoServiceBaseTest {
 		assertEquals(expectedHealthStatusPageDTO, actualHealthStatusPageDTO);
 
 		verify(envDAO).getHealthStatusPageDTO(USER, false);
-		verifyNoMoreInteractions(envDAO);
-
 		verify(configuration).isBillingSchedulerEnabled();
-		verifyNoMoreInteractions(configuration);
+		verifyNoMoreInteractions(envDAO, configuration);
+	}
+
+	@Test
+	public void getHeathStatusWhenMethodGetHealthStatusPageDTOThrowsException() {
+		doThrow(new DlabException("Cannot fetch health status!"))
+				.when(envDAO).getHealthStatusPageDTO(anyString(), anyBoolean());
+		try {
+			infrastructureInfoServiceBase.getHeathStatus(USER, false, false);
+		} catch (DlabException e) {
+			assertEquals("Cannot fetch health status!", e.getMessage());
+		}
+		verify(envDAO).getHealthStatusPageDTO(USER, false);
+		verifyNoMoreInteractions(envDAO);
 	}
 
 	private boolean areInfrastructureInfoObjectsEqual(InfrastructureInfo object1, InfrastructureInfo object2) throws

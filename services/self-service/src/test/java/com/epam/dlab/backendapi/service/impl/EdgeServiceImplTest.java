@@ -53,11 +53,12 @@ public class EdgeServiceImplTest {
 	@Test
 	public void start() {
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_STOPPED);
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 		ResourceSysBaseDTO rsbDto = new ResourceSysBaseDTO();
 		when(requestBuilder.newEdgeAction(any(UserInfo.class))).thenReturn(rsbDto);
 		String edgeStart = "infrastructure/edge/start";
-		when(provisioningService.post(anyString(), anyString(), any(ResourceSysBaseDTO.class), any())).thenReturn
-				(UUID);
+		when(provisioningService.post(anyString(), anyString(), any(ResourceSysBaseDTO.class), any()))
+				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
 		String uuid = edgeService.start(userInfo);
@@ -65,19 +66,15 @@ public class EdgeServiceImplTest {
 		assertEquals(UUID, uuid);
 
 		verify(keyDAO).getEdgeStatus(USER);
-
+		verify(keyDAO).updateEdgeStatus(USER, "starting");
 		verify(requestBuilder).newEdgeAction(userInfo);
-		verifyNoMoreInteractions(requestBuilder);
-
 		verify(provisioningService).post(edgeStart, TOKEN, rsbDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
 		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(requestId);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test
-	public void startWithException() {
+	public void startWithInappropriateEdgeStatus() {
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_RUNNING);
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Could not start EDGE node because the status of instance is running");
@@ -86,8 +83,29 @@ public class EdgeServiceImplTest {
 	}
 
 	@Test
+	public void startWhenMethodNewEdgeActionThrowsException() {
+		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_STOPPED);
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
+
+		doThrow(new DlabException("Cannot create instance of resource class "))
+				.when(requestBuilder).newEdgeAction(any(UserInfo.class));
+		try {
+			edgeService.start(userInfo);
+		} catch (DlabException e) {
+			assertEquals("Could not start EDGE node: Could not infrastructure/edge/start EDGE node : " +
+					"Cannot create instance of resource class ", e.getMessage());
+		}
+		verify(keyDAO).getEdgeStatus(USER);
+		verify(keyDAO).updateEdgeStatus(USER, "starting");
+		verify(keyDAO).updateEdgeStatus(USER, "failed");
+		verify(requestBuilder).newEdgeAction(userInfo);
+		verifyNoMoreInteractions(keyDAO, requestBuilder);
+	}
+
+	@Test
 	public void stop() {
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_RUNNING);
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 		ResourceSysBaseDTO rsbDto = new ResourceSysBaseDTO();
 		when(requestBuilder.newEdgeAction(any(UserInfo.class))).thenReturn(rsbDto);
 		String edgeStop = "infrastructure/edge/stop";
@@ -100,19 +118,15 @@ public class EdgeServiceImplTest {
 		assertEquals(UUID, uuid);
 
 		verify(keyDAO).getEdgeStatus(USER);
-
+		verify(keyDAO).updateEdgeStatus(USER, "stopping");
 		verify(requestBuilder).newEdgeAction(userInfo);
-		verifyNoMoreInteractions(requestBuilder);
-
 		verify(provisioningService).post(edgeStop, TOKEN, rsbDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
 		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(requestId);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test
-	public void stopWithException() {
+	public void stopWithInappropriateEdgeStatus() {
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_STOPPED);
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Could not stop EDGE node because the status of instance is stopped");
@@ -121,13 +135,34 @@ public class EdgeServiceImplTest {
 	}
 
 	@Test
+	public void stopWhenMethodNewEdgeActionThrowsException() {
+		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_RUNNING);
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
+
+		doThrow(new DlabException("Cannot create instance of resource class "))
+				.when(requestBuilder).newEdgeAction(any(UserInfo.class));
+		try {
+			edgeService.stop(userInfo);
+		} catch (DlabException e) {
+			assertEquals("Could not stop EDGE node: Could not infrastructure/edge/stop EDGE node : " +
+					"Cannot create instance of resource class ", e.getMessage());
+		}
+		verify(keyDAO).getEdgeStatus(USER);
+		verify(keyDAO).updateEdgeStatus(USER, "stopping");
+		verify(keyDAO).updateEdgeStatus(USER, "failed");
+		verify(requestBuilder).newEdgeAction(userInfo);
+		verifyNoMoreInteractions(keyDAO, requestBuilder);
+	}
+
+	@Test
 	public void terminate() {
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_RUNNING);
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 		ResourceSysBaseDTO rsbDto = new ResourceSysBaseDTO();
 		when(requestBuilder.newEdgeAction(any(UserInfo.class))).thenReturn(rsbDto);
 		String edgeTerminate = "infrastructure/edge/terminate";
-		when(provisioningService.post(anyString(), anyString(), any(ResourceSysBaseDTO.class), any())).thenReturn
-				(UUID);
+		when(provisioningService.post(anyString(), anyString(), any(ResourceSysBaseDTO.class), any()))
+				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
 		String uuid = edgeService.terminate(userInfo);
@@ -135,24 +170,40 @@ public class EdgeServiceImplTest {
 		assertEquals(UUID, uuid);
 
 		verify(keyDAO).getEdgeStatus(USER);
-
+		verify(keyDAO).updateEdgeStatus(USER, "terminating");
 		verify(requestBuilder).newEdgeAction(userInfo);
-		verifyNoMoreInteractions(requestBuilder);
-
 		verify(provisioningService).post(edgeTerminate, TOKEN, rsbDto, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
 		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(requestId);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test
-	public void terminateWithException() {
+	public void terminateWithInappropriateEdgeStatus() {
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(anyString());
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Could not terminate EDGE node because the status of instance is null");
 
 		edgeService.terminate(userInfo);
+	}
+
+	@Test
+	public void terminateWhenMethodNewEdgeActionThrowsException() {
+		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STATUS_RUNNING);
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
+
+		doThrow(new DlabException("Cannot create instance of resource class "))
+				.when(requestBuilder).newEdgeAction(any(UserInfo.class));
+		try {
+			edgeService.terminate(userInfo);
+		} catch (DlabException e) {
+			assertEquals("Could not terminate EDGE node: Could not infrastructure/edge/terminate EDGE node : " +
+					"Cannot create instance of resource class ", e.getMessage());
+		}
+		verify(keyDAO).getEdgeStatus(USER);
+		verify(keyDAO).updateEdgeStatus(USER, "terminating");
+		verify(keyDAO).updateEdgeStatus(USER, "failed");
+		verify(requestBuilder).newEdgeAction(userInfo);
+		verifyNoMoreInteractions(keyDAO, requestBuilder);
 	}
 
 	private UserInfo getUserInfo() {

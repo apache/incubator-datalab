@@ -46,10 +46,14 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 
         log.debug("Loading list of exploratory templates for user {}", user.getName());
         try {
-            ExploratoryMetadataDTO[] array = provisioningService.get(DOCKER_EXPLORATORY, user.getAccessToken(), ExploratoryMetadataDTO[].class);
+			ExploratoryMetadataDTO[] array =
+					provisioningService.get(DOCKER_EXPLORATORY, user.getAccessToken(), ExploratoryMetadataDTO[].class);
 
-            return Arrays.stream(array).peek(e -> e.setImage(getSimpleImageName(e.getImage()))).filter(e -> exploratoryGpuIssuesAzureFilter(e) && UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage())).collect(Collectors.toList());
-
+			return Arrays.stream(array)
+					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
+					.filter(e -> exploratoryGpuIssuesAzureFilter(e) &&
+							UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage()))
+					.collect(Collectors.toList());
 
         } catch (DlabException e) {
             log.error("Could not load list of exploratory templates for user: {}", user.getName(), e);
@@ -62,10 +66,15 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 
         log.debug("Loading list of computational templates for user {}", user.getName());
         try {
-            ComputationalMetadataDTO[] array = provisioningService.get(DOCKER_COMPUTATIONAL, user.getAccessToken(), ComputationalMetadataDTO[].class);
+			ComputationalMetadataDTO[] array =
+					provisioningService.get(DOCKER_COMPUTATIONAL, user.getAccessToken(), ComputationalMetadataDTO[]
+							.class);
 
-            return Arrays.stream(array).peek(e -> e.setImage(getSimpleImageName(e.getImage()))).filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage()))
-                    .map(this::fullComputationalTemplate).collect(Collectors.toList());
+			return Arrays.stream(array)
+					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
+					.filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage()))
+					.map(this::fullComputationalTemplate)
+					.collect(Collectors.toList());
 
         } catch (DlabException e) {
             log.error("Could not load list of computational templates for user: {}", user.getName(), e);

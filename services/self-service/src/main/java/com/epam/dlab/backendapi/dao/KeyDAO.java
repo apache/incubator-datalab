@@ -36,7 +36,7 @@ import static com.mongodb.client.model.Updates.set;
  * DAO for manage the user key.
  */
 public abstract class KeyDAO extends BaseDAO {
-	protected static final String EDGE_STATUS = "edge_status";
+	static final String EDGE_STATUS = "edge_status";
 
 	/**
 	 * Store the user key to Mongo database.
@@ -56,7 +56,6 @@ public abstract class KeyDAO extends BaseDAO {
 	 *
 	 * @param user   user name
 	 * @param status the status of user key.
-	 * @throws DlabException
 	 */
 	public void updateKey(String user, String status) {
 		updateOne(USER_KEYS, eq(ID, user), set(STATUS, status));
@@ -75,7 +74,6 @@ public abstract class KeyDAO extends BaseDAO {
 	 * Finds and returns the user key.
 	 *
 	 * @param user user name.
-	 * @throws DlabException
 	 */
 	public UserKeyDTO fetchKey(String user) {
 		Optional<UserKeyDTO> opt = findOne(USER_KEYS,
@@ -93,7 +91,6 @@ public abstract class KeyDAO extends BaseDAO {
 	 *
 	 * @param user   user name.
 	 * @param status key status
-	 * @throws DlabException
 	 */
 	public UserKeyDTO fetchKey(String user, KeyLoadStatus status) {
 		return findOne(USER_KEYS,
@@ -108,7 +105,6 @@ public abstract class KeyDAO extends BaseDAO {
 	 *
 	 * @param user     user name
 	 * @param edgeInfo the EDGE of user
-	 * @throws DlabException
 	 */
 	public void updateEdgeInfo(String user, EdgeInfo edgeInfo) {
 		Document d = new Document(SET,
@@ -132,7 +128,6 @@ public abstract class KeyDAO extends BaseDAO {
 	 * Finds and returns the status of user key.
 	 *
 	 * @param user user name
-	 * @throws DlabException
 	 */
 	public KeyLoadStatus findKeyStatus(String user) {
 		return findOne(USER_KEYS, eq(ID, user), UserKeyDTO.class)
@@ -146,7 +141,6 @@ public abstract class KeyDAO extends BaseDAO {
 	 *
 	 * @param user   user name
 	 * @param status status of EDGE node
-	 * @throws DlabException
 	 */
 	public void updateEdgeStatus(String user, String status) {
 		updateOne(USER_EDGE,
@@ -158,7 +152,6 @@ public abstract class KeyDAO extends BaseDAO {
 	 * Return the status of EDGE node.
 	 *
 	 * @param user user name
-	 * @throws DlabException
 	 */
 	public String getEdgeStatus(String user) {
 		Document d = findOne(USER_EDGE,

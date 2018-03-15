@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -91,16 +92,10 @@ public class AccessKeyServiceImplTest {
 		assertEquals(expectedUuid, actualUuid);
 
 		verify(keyDAO).insertKey(USER, keyContent);
-		verifyNoMoreInteractions(keyDAO);
-
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, keyContent);
-		verifyNoMoreInteractions(requestBuilder);
-
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
 		verify(requestId).put(USER, expectedUuid);
-		verifyNoMoreInteractions(requestId);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
 	}
 
 
@@ -110,6 +105,10 @@ public class AccessKeyServiceImplTest {
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 
 		expectedException.expect(RuntimeException.class);
+
+		doNothing().when(keyDAO).deleteKey(anyString());
+		expectedException.expect(DlabException.class);
+		expectedException.expectMessage("Could not upload the key and create EDGE node: ");
 
 		accessKeyService.uploadKey(userInfo, "someKeyContent");
 	}
@@ -148,13 +147,60 @@ public class AccessKeyServiceImplTest {
 		verify(keyDAO).updateEdgeInfo(USER, edgeInfo);
 
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, userKeyDTO.getContent());
-		verifyNoMoreInteractions(requestBuilder);
-
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
-		verifyNoMoreInteractions(provisioningService);
-
 		verify(requestId).put(USER, expectedUuid);
-		verifyNoMoreInteractions(requestId);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	public void recoverEdgeWithExceptionInGetEdgeInfoMethod() {
+		EdgeInfo edgeInfo = new EdgeInfo();
+		edgeInfo.setId("someId");
+		edgeInfo.setEdgeStatus("running");
+		when(keyDAO.getEdgeInfo(anyString())).thenReturn(edgeInfo);
+
+		expectedException.expect(DlabException.class);
+		expectedException.expectMessage("Could not create EDGE node because the status of instance is running");
+
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
+
+		expectedException.expect(DlabException.class);
+		expectedException.expectMessage("Could not upload the key and create EDGE node:");
+
+		accessKeyService.recoverEdge(userInfo);
+
+		verify(keyDAO).getEdgeInfo(USER);
+		verify(keyDAO).updateEdgeStatus(USER, UserInstanceStatus.FAILED.toString());
+		verifyNoMoreInteractions(keyDAO);
+		verifyZeroInteractions(requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	public void recoverEdgeWithExceptionInFetchKeyMethod() {
+		EdgeInfo edgeInfo = new EdgeInfo();
+		edgeInfo.setId("someId");
+		edgeInfo.setEdgeStatus("failed");
+		when(keyDAO.getEdgeInfo(anyString())).thenReturn(edgeInfo);
+
+		UserKeyDTO userKeyDTO = new UserKeyDTO();
+		userKeyDTO.withStatus("someStatus");
+		userKeyDTO.withContent("someContent");
+		doThrow(new DlabException(String.format("Key of user %s with status %s not found", USER, KeyLoadStatus
+				.SUCCESS)))
+				.when(keyDAO).fetchKey(anyString(), eq(KeyLoadStatus.SUCCESS));
+
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
+
+		expectedException.expect(DlabException.class);
+		expectedException.expectMessage("Could not upload the key and create EDGE node: ");
+
+		accessKeyService.recoverEdge(userInfo);
+
+		verify(keyDAO).getEdgeInfo(USER);
+		verify(keyDAO).fetchKey(USER, KeyLoadStatus.SUCCESS);
+		verify(keyDAO).updateEdgeStatus(USER, UserInstanceStatus.FAILED.toString());
+		verifyNoMoreInteractions(keyDAO);
+		verifyZeroInteractions(requestBuilder, provisioningService, requestId);
 	}
 
 	private UserInfo getUserInfo() {
