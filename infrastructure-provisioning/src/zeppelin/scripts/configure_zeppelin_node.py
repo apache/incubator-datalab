@@ -68,6 +68,7 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jars_dir = '/opt/jars/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
+r_enabled = os.environ['notebook_r_enabled']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
@@ -125,6 +126,7 @@ def configure_local_livy_kernels(args):
             else:
                 default_port += 1
         sudo('sed -i "s|LIVY_PORT|' + str(livy_port) + '|g" /tmp/interpreter.json')
+        update_zeppelin_interpreters(args.multiple_clusters, r_enabled, 'local')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('echo "livy.server.port = ' + str(livy_port) + '" >> /opt/livy/conf/livy.conf')
         sudo('''echo "SPARK_HOME='/opt/spark/'" >> /opt/livy/conf/livy-env.sh''')
@@ -142,6 +144,7 @@ def configure_local_spark_kernels(args):
         put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
+        update_zeppelin_interpreters(args.multiple_clusters, r_enabled, 'local')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured')
@@ -195,8 +198,9 @@ if __name__ == "__main__":
     ensure_jre_jdk(args.os_user)
     print("Installing Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
-    print("Installing R")
-    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+    if os.environ['notebook_r_enabled'] == 'true':
+        print("Installing R")
+        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
     ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
@@ -237,8 +241,9 @@ if __name__ == "__main__":
     sudo('cp /home/{}/.git/templates/hooks/pre-commit /opt/zeppelin/notebook/.git/hooks/'.format(args.os_user))
 
     # INSTALL OPTIONAL PACKAGES
-    print("Install additional R packages")
-    install_r_packages(args.os_user)
+    if os.environ['notebook_r_enabled'] == 'true':
+        print("Install additional R packages")
+        install_r_packages(args.os_user)
     print("Install additional Python packages")
     ensure_additional_python_libs(args.os_user)
     print("Install Matplotlib.")

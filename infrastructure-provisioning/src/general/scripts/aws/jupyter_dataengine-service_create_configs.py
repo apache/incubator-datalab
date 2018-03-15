@@ -46,6 +46,7 @@ parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -168,7 +169,8 @@ if __name__ == "__main__":
         pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
         toree_kernel(args)
+        if args.r_enabled == 'true':
+            r_kernel(args)
         spark_defaults(args)
-        r_kernel(args)
         configuring_notebook(args.emr_version)
         add_breeze_library_emr(args)

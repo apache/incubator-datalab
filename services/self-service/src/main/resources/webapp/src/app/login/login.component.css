@@ -16,11 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-/* helper */
-.flex {
-	display: flex;
-}
-
 .butt-azure {
 	color: #fff;
 	background-color: #5bc0de;

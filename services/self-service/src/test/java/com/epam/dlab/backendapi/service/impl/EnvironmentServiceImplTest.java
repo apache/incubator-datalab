@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvStatusDAO;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -95,6 +97,7 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO).getEdgeStatus(USER);
 		verify(edgeService).stop(refEq(userInfo));
+		verifyNoMoreInteractions(keyDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
@@ -114,12 +117,13 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO).getEdgeStatus(USER);
 		verify(edgeService, never()).stop(refEq(userInfo));
+		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	public void terminateEnvironment() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchNotTerminatedExploratoryFields(anyString())).thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString())).thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.edgeNodeExist(anyString())).thenReturn(true);
@@ -127,17 +131,20 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateEnvironment(USER);
 
-		verify(exploratoryDAO, never()).fetchNotTerminatedExploratoryFields(anyString());
+		verify(exploratoryDAO, never()).fetchUserExploratoriesWhereStatusNotIn(anyString(), any());
 		verify(systemUserInfoService).create(USER);
-		verifyZeroInteractions(exploratoryService);
 		verify(keyDAO).edgeNodeExist(USER);
 		verify(edgeService).terminate(refEq(userInfo));
+		verify(exploratoryService).updateExploratoryStatuses(USER, UserInstanceStatus.TERMINATING);
+		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	public void terminateEnvironmentWithoutEdge() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchNotTerminatedExploratoryFields(anyString())).thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), Matchers.<UserInstanceStatus>anyVararg
+				()))
+				.thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.edgeNodeExist(anyString())).thenReturn(false);
@@ -145,12 +152,14 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateEnvironment(USER);
 
-		verify(exploratoryDAO).fetchNotTerminatedExploratoryFields(USER);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER, UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING);
 		verify(systemUserInfoService, times(2)).create(USER);
 		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO).edgeNodeExist(USER);
 		verify(edgeService, never()).terminate(refEq(userInfo));
+		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	private UserInfo getUserInfo() {

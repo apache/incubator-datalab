@@ -88,6 +88,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		}
 	}
 
+	@Override
+	public void updateExploratoryStatuses(String user, UserInstanceStatus status) {
+		exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(user, TERMINATED, FAILED)
+				.forEach(ui -> updateExploratoryStatus(ui.getExploratoryName(), status, user));
+	}
+
 	/**
 	 * Sends the post request to the provisioning service and update the status of exploratory environment.
 	 *
@@ -99,11 +105,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 */
 	private String action(UserInfo userInfo, String exploratoryName, String action, UserInstanceStatus status) {
 		try {
-			updateExploratoryStatus(userInfo.getName(), exploratoryName, status);
-
-			if (status == STOPPING || status == TERMINATING) {
-				updateComputationalStatuses(userInfo.getName(), exploratoryName, TERMINATING);
-			}
+			updateExploratoryStatus(exploratoryName, status, userInfo.getName());
 
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
 			final String uuid = provisioningService.post(action, userInfo.getAccessToken(),
@@ -116,6 +118,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
 			throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " +
 					t.getLocalizedMessage(), t);
+		}
+	}
+
+	private void updateExploratoryStatus(String exploratoryName, UserInstanceStatus status, String user) {
+		updateExploratoryStatus(user, exploratoryName, status);
+
+		if (status == STOPPING || status == TERMINATING) {
+			updateComputationalStatuses(user, exploratoryName, TERMINATING);
 		}
 	}
 

@@ -19,7 +19,6 @@ limitations under the License.
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService } from '../core/services';
-import { compareAsc } from 'date-fns';
 
 @Component({
   moduleId: module.id,

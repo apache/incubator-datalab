@@ -1119,7 +1119,7 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir):
+def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
@@ -1129,6 +1129,13 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
+    try:
+        if memory_type == 'driver':
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
+    except:
+        sys.exit(1)
 
 
 def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):

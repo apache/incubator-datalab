@@ -20,6 +20,7 @@
 
 import argparse
 import json
+from botocore import exceptions
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
@@ -96,7 +97,8 @@ if __name__ == "__main__":
                 subnet = ipaddress.ip_network(u'{}'.format(subnet_cidr))
                 num_addr = subnet.num_addresses
                 first_ip = int(ipaddress.IPv4Address(u'{}'.format(subnet.network_address)))
-                next_subnet = ipaddress.ip_network(u'{}/24'.format(ipaddress.ip_address(first_ip + num_addr)))
+                next_subnet = ipaddress.ip_network(u'{}/{}'.format(ipaddress.ip_address(first_ip + num_addr),
+                                                                   args.prefix))
                 pre_defined_subnet_list.append(next_subnet.compressed)
                 subnet_cidr = next_subnet
             existed_subnet_list = []
@@ -130,7 +132,11 @@ if __name__ == "__main__":
             ec2 = boto3.resource('ec2')
             rt = get_route_table_by_tag(args.infra_tag_name, args.infra_tag_value)
             route_table = ec2.RouteTable(rt)
-            route_table.associate_with_subnet(SubnetId=subnet_id)
+            try:
+                route_table.associate_with_subnet(SubnetId=subnet_id)
+            except exceptions.ClientError as err:
+                if 'Resource.AlreadyAssociated' in str(err):
+                    print('Other route table is already associted with this subnet. Skipping...')
         else:
             print("Associating route_table with the subnet")
             ec2 = boto3.resource('ec2')
