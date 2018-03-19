@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
@@ -15,7 +16,13 @@ import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
@@ -28,16 +35,15 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 
 	@Inject
 	private KeyDAO keyDAO;
-
 	@Inject
 	@Named(PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
-
 	@Inject
 	private RequestBuilder requestBuilder;
-
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private SelfServiceApplicationConfiguration configuration;
 
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
@@ -76,6 +82,22 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			log.error("Could not create the EDGE node for user {}", userInfo.getName(), e);
 			keyDAO.updateEdgeStatus(userInfo.getName(), UserInstanceStatus.FAILED.toString());
 			throw new DlabException("Could not upload the key and create EDGE node: " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	@Override
+	public String generateKey(UserInfo userInfo) {
+		log.debug("Generating new key pair for user {}", userInfo.getName());
+		try (ByteArrayOutputStream publicKeyOut = new ByteArrayOutputStream();
+			 ByteArrayOutputStream privateKeyOut = new ByteArrayOutputStream()) {
+			KeyPair pair = KeyPair.genKeyPair(new JSch(), com.jcraft.jsch.KeyPair.RSA);
+			pair.writePublicKey(publicKeyOut, userInfo.getName());
+			pair.writePrivateKey(privateKeyOut);
+			uploadKey(userInfo, new String(publicKeyOut.toByteArray()));
+			return new String(privateKeyOut.toByteArray());
+		} catch (JSchException | IOException e) {
+			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
+			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);
 		}
 	}
 

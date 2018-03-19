@@ -10,4 +10,6 @@ public interface AccessKeyService {
 
 	String recoverEdge(UserInfo userInfo);
 
+	String generateKey(UserInfo userInfo);
+
 }
