@@ -53,8 +53,6 @@ public class SchedulerJobResource {
 	@Path("/{exploratoryName}")
 	public Response create(@Auth UserInfo userInfo, @PathParam("exploratoryName") String exploratoryName,
 						   SchedulerJobDTO dto) {
-		log.debug("Updating exploratory {} for user {} with new scheduler job data {}...",
-				exploratoryName, userInfo.getName(), dto);
 		schedulerJobService.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
 		return Response.ok().build();
 	}

@@ -33,6 +33,7 @@ import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -77,6 +78,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			throw new ResourceInappropriateStateException(String.format("Can not create/update scheduler for user " +
 					"instance with status: %s", status));
 		}
+		if (Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty()) {
+			enrichSchedulerJobWithAllDaysOfWeek(dto);
+		}
+		log.debug("Updating exploratory {} for user {} with new scheduler job data {}...",
+				exploratoryName, user, dto);
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, dto);
 	}
 
@@ -175,6 +181,15 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			exploratoryService.stop(userInfo, jobData.getExploratoryName());
 		}
 
+	}
+
+	/**
+	 * Sets repeating days of existing scheduler job to all days of week
+	 *
+	 * @param schedulerJobDTO current scheduler job
+	 */
+	private void enrichSchedulerJobWithAllDaysOfWeek(SchedulerJobDTO schedulerJobDTO) {
+		schedulerJobDTO.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
 	}
 
 }
