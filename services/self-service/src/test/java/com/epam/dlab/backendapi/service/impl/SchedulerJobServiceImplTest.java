@@ -18,14 +18,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -139,6 +139,24 @@ public class SchedulerJobServiceImplTest {
 					e.getMessage());
 		}
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void updateSchedulerDataForUserAndExploratoryWithEnrichingSchedulerJob() {
+		userInstance.withStatus("running");
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
+				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
+
+		assertTrue(schedulerJobDTO.getDaysRepeat().isEmpty());
+
+		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+
+		assertArrayEquals(DayOfWeek.values(), schedulerJobDTO.getDaysRepeat().toArray());
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
