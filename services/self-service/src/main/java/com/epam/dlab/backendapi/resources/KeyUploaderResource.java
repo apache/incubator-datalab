@@ -28,6 +28,7 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class KeyUploaderResource implements EdgeAPI {
 
+	private static final String FILE_ATTACHMENT_FORMAT = "attachment; filename=\"%s.key\"";
 	@Inject
 	private AccessKeyService keyService;
 
@@ -96,6 +98,16 @@ public class KeyUploaderResource implements EdgeAPI {
 	@Path("/recover")
 	public Response recover(@Auth UserInfo userInfo) {
 		return Response.ok(keyService.recoverEdge(userInfo)).build();
+	}
+
+
+	@POST
+	@Path("/generate")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response generate(@Auth UserInfo userInfo) {
+		final Response.ResponseBuilder builder = Response.ok(keyService.generateKey(userInfo));
+		builder.header(HttpHeaders.CONTENT_DISPOSITION, String.format(FILE_ATTACHMENT_FORMAT, userInfo.getName()));
+		return builder.build();
 	}
 
 	private String getFileContent(InputStream uploadedInputStream, String user) {

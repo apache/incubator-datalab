@@ -62,6 +62,7 @@
     <properties>
         <org.glassfish.jersey.media.version>2.23.1</org.glassfish.jersey.media.version>
         <com.fiestacabin.dropwizard.quartz.version>0.7.1</com.fiestacabin.dropwizard.quartz.version>
+        <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
     </properties>
 
     <dependencies>
@@ -127,6 +128,13 @@
             <artifactId>dropwizard-quartz</artifactId>
             <version>${com.fiestacabin.dropwizard.quartz.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${com.jcraft.jsch.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.hamcrest</groupId>
