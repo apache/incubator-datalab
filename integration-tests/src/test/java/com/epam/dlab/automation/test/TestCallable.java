@@ -123,8 +123,8 @@ public class TestCallable implements Callable<Boolean> {
 								notebookTemplate));
 				String notebookTemplatesLocation = PropertiesResolver.getPropertyByName(
 						String.format(PropertiesResolver.NOTEBOOK_TEST_TEMPLATES_LOCATION, notebookTemplate));
-				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File
-								(notebookScenarioFilesLocation),
+				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName,
+						new File(notebookScenarioFilesLocation),
 						new File(notebookTemplatesLocation), notebookName);
 			}
 
