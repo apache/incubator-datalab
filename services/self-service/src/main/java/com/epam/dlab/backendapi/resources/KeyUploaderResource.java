@@ -20,6 +20,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.exceptions.DlabValidationException;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -84,7 +85,9 @@ public class KeyUploaderResource implements EdgeAPI {
 							  @FormDataParam("file") InputStream uploadedInputStream,
 							  @FormDataParam("file") FormDataContentDisposition fileDetail) {
 
-		keyService.uploadKey(userInfo, getFileContent(uploadedInputStream, userInfo.getName()));
+		final String fileContent = getFileContent(uploadedInputStream, userInfo.getName());
+		validate(fileContent);
+		keyService.uploadKey(userInfo, fileContent);
 		return Response.ok().build();
 	}
 
@@ -116,6 +119,14 @@ public class KeyUploaderResource implements EdgeAPI {
 		} catch (IOException e) {
 			log.error("Could not upload the key for user {}", user, e);
 			throw new DlabException("Could not upload the key for user " + user + ": " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	private void validate(String publicKey) {
+		if (!publicKey.startsWith("ssh-")) {
+			log.error("Wrong key format. Key should be in openSSH format");
+			log.trace("Key content:\n{}", publicKey);
+			throw new DlabValidationException("Wrong key format. Key should be in openSSH format");
 		}
 	}
 }
