@@ -519,10 +519,14 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         if multiple_clusters == 'true':
             groups = [{"class": "org.apache.zeppelin.livy.LivySparkInterpreter", "name": "spark"},
                       {"class": "org.apache.zeppelin.livy.LivyPySparkInterpreter", "name": "pyspark"},
-                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter", "name": "pyspark3"}]
+                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter", "name": "pyspark3"},
+                      {"class": "org.apache.zeppelin.livy.LivySparkSQLInterpreter", "name": "sql"},
+                      {"class": "org.apache.zeppelin.markdown.Markdown", "name": "md"}]
         else:
             groups = [{"class": "org.apache.zeppelin.spark.SparkInterpreter","name": "spark"},
-                      {"class": "org.apache.zeppelin.spark.PySparkInterpreter", "name": "pyspark"}]
+                      {"class": "org.apache.zeppelin.spark.PySparkInterpreter", "name": "pyspark"},
+                      {"class": "org.apache.zeppelin.spark.SparkSqlInterpreter", "name": "sql"},
+                      {"class": "org.apache.zeppelin.markdown.Markdown", "name": "md"}]
         r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%", "zeppelin.R.cmd": "R",
                   "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
         if interpreter_mode != 'remote':
