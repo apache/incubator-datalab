@@ -89,11 +89,9 @@ if __name__ == "__main__":
                 dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
         else:
             pre_defined_subnet_list = []
-            subnet_count = int(args.user_subnets_range.split('-')[1].replace(' ', '').split('.')[2]) - int(
-                args.user_subnets_range.split('-')[0].replace(' ', '').split('.')[2])
             subnet_cidr = args.user_subnets_range.split('-')[0].replace(' ', '')
             pre_defined_subnet_list.append(subnet_cidr)
-            for i in range(subnet_count):
+            while str(subnet_cidr) != args.user_subnets_range.split('-')[1].replace(' ', ''):
                 subnet = ipaddress.ip_network(u'{}'.format(subnet_cidr))
                 num_addr = subnet.num_addresses
                 first_ip = int(ipaddress.IPv4Address(u'{}'.format(subnet.network_address)))
