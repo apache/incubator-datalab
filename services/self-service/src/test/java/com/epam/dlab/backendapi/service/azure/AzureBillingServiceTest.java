@@ -47,24 +47,10 @@ public class AzureBillingServiceTest {
 
 	@Test
 	public void getReportWithTheSameInstanceOfDocument() {
-		Document expectedDocument = new Document();
-		when(billingDAO.getReport(any(UserInfo.class), any(AzureBillingFilter.class))).thenReturn(expectedDocument);
+		when(billingDAO.getReport(any(UserInfo.class), any(AzureBillingFilter.class))).thenReturn(new Document());
 
 		Document actualDocument = azureBillingService.getReport(userInfo, billingFilter);
-		assertEquals(expectedDocument, actualDocument);
-
-		verify(billingDAO).getReport(userInfo, billingFilter);
-		verifyNoMoreInteractions(billingDAO);
-	}
-
-	@Test
-	public void getReportWithAnotherInstanceOfDocument() {
-		Document expectedDocument = new Document().append("someField", "someValue");
-		Document anotherDocument = new Document().append("someField", "anotherValue");
-		when(billingDAO.getReport(any(UserInfo.class), any(AzureBillingFilter.class))).thenReturn(anotherDocument);
-
-		Document actualDocument = azureBillingService.getReport(userInfo, billingFilter);
-		assertNotEquals(expectedDocument, actualDocument);
+		assertEquals(new Document(), actualDocument);
 
 		verify(billingDAO).getReport(userInfo, billingFilter);
 		verifyNoMoreInteractions(billingDAO);
