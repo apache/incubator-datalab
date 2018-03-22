@@ -11,6 +11,7 @@ import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,8 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -82,8 +82,8 @@ public class AccessKeyServiceImplTest {
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
 
 		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).thenReturn
-				(expectedUuid);
+		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).
+				thenReturn(expectedUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 
 		String keyContent = "keyContent";
@@ -134,8 +134,8 @@ public class AccessKeyServiceImplTest {
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
 
 		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).thenReturn
-				(expectedUuid);
+		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any()))
+				.thenReturn(expectedUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 
 		String actualUuid = accessKeyService.recoverEdge(userInfo);
@@ -185,9 +185,8 @@ public class AccessKeyServiceImplTest {
 		UserKeyDTO userKeyDTO = new UserKeyDTO();
 		userKeyDTO.withStatus("someStatus");
 		userKeyDTO.withContent("someContent");
-		doThrow(new DlabException(String.format("Key of user %s with status %s not found", USER, KeyLoadStatus
-				.SUCCESS)))
-				.when(keyDAO).fetchKey(anyString(), eq(KeyLoadStatus.SUCCESS));
+		doThrow(new DlabException(String.format("Key of user %s with status %s not found", USER,
+				KeyLoadStatus.SUCCESS))).when(keyDAO).fetchKey(anyString(), eq(KeyLoadStatus.SUCCESS));
 
 		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 
@@ -201,6 +200,45 @@ public class AccessKeyServiceImplTest {
 		verify(keyDAO).updateEdgeStatus(USER, UserInstanceStatus.FAILED.toString());
 		verifyNoMoreInteractions(keyDAO);
 		verifyZeroInteractions(requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	public void generateKey() {
+		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+
+		UploadFile uploadFile = mock(UploadFile.class);
+		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
+
+		String someUuid = "someUuid";
+		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).thenReturn(someUuid);
+		when(requestId.put(anyString(), anyString())).thenReturn(someUuid);
+
+		String actualPrivateKey = accessKeyService.generateKey(userInfo);
+		assertTrue(StringUtils.isNotEmpty(actualPrivateKey));
+
+		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
+		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
+		verify(requestId).put(USER, someUuid);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	public void generateKeyWithException() {
+		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
+		doNothing().when(keyDAO).deleteKey(anyString());
+
+		try {
+			accessKeyService.generateKey(userInfo);
+		} catch (DlabException e) {
+			assertEquals("Could not upload the key and create EDGE node: null", e.getMessage());
+		}
+
+		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
+		verify(keyDAO).deleteKey(USER);
+		verifyNoMoreInteractions(keyDAO, requestBuilder);
 	}
 
 	private UserInfo getUserInfo() {

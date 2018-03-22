@@ -66,7 +66,7 @@ public class TestDataEngineService {
 			executePythonScript2(ssnSession, clusterName,
 					new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
         } finally {
-	        if(ssnSession != null && !ssnSession.isConnected()) {
+            if (ssnSession != null && ssnSession.isConnected()) {
 	            ssnSession.disconnect();
 	        }
         }
