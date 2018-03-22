@@ -2,20 +2,13 @@ package com.epam.dlab.backendapi.service.gcp;
 
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GcpInfrastructureInfoServiceTest {
-
-	@InjectMocks
-	private GcpInfrastructureInfoService gcpInfrastructureInfoService;
 
 	@Test
 	public void getSharedInfo() {
@@ -29,7 +22,7 @@ public class GcpInfrastructureInfoServiceTest {
 		expectedMap.put("user_own_bucket_name", "userOwnBucketName");
 		expectedMap.put("shared_bucket_name", "sharedBucketName");
 
-		Map<String, String> actualMap = gcpInfrastructureInfoService.getSharedInfo(edgeInfoGcp);
+		Map<String, String> actualMap = new GcpInfrastructureInfoService().getSharedInfo(edgeInfoGcp);
 		assertEquals(expectedMap, actualMap);
 	}
 }

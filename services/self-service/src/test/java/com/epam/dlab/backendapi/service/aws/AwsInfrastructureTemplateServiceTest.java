@@ -1,6 +1,8 @@
 package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
+import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
@@ -21,14 +26,35 @@ public class AwsInfrastructureTemplateServiceTest {
 	private AwsInfrastructureTemplateService awsInfrastructureTemplateService;
 
 	@Test
-	public void getCloudFullComputationalTemplate() {
+	public void getCloudFullComputationalTemplate() throws NoSuchFieldException, IllegalAccessException {
 		when(configuration.getMinEmrInstanceCount()).thenReturn(2);
 		when(configuration.getMaxEmrInstanceCount()).thenReturn(1000);
 		when(configuration.getMaxEmrSpotInstanceBidPct()).thenReturn(95);
 		when(configuration.getMinEmrSpotInstanceBidPct()).thenReturn(10);
 
-		assertNotNull(awsInfrastructureTemplateService.getCloudFullComputationalTemplate(new ComputationalMetadataDTO
-				()));
+		AwsEmrConfiguration expectedAwsEmrConfiguration = AwsEmrConfiguration.builder()
+				.minEmrInstanceCount(2)
+				.maxEmrInstanceCount(1000)
+				.maxEmrSpotInstanceBidPct(95)
+				.minEmrSpotInstanceBidPct(10)
+				.build();
+
+		ComputationalMetadataDTO expectedComputationalMetadataDTO =
+				new ComputationalMetadataDTO("someImageName");
+
+		FullComputationalTemplate fullComputationalTemplate =
+				awsInfrastructureTemplateService.getCloudFullComputationalTemplate(expectedComputationalMetadataDTO);
+		assertNotNull(fullComputationalTemplate);
+
+		Field actualAwsEmrConfiguration =
+				fullComputationalTemplate.getClass().getDeclaredField("awsEmrConfiguration");
+		actualAwsEmrConfiguration.setAccessible(true);
+		assertEquals(expectedAwsEmrConfiguration, actualAwsEmrConfiguration.get(fullComputationalTemplate));
+
+		Field actualComputationalMetadataDTO = fullComputationalTemplate.getClass().getSuperclass()
+				.getDeclaredField("computationalMetadataDTO");
+		actualComputationalMetadataDTO.setAccessible(true);
+		assertEquals(expectedComputationalMetadataDTO, actualComputationalMetadataDTO.get(fullComputationalTemplate));
 
 		verify(configuration).getMinEmrInstanceCount();
 		verify(configuration).getMaxEmrInstanceCount();

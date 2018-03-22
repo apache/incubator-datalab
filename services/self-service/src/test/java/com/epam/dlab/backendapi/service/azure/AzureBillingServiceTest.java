@@ -46,12 +46,25 @@ public class AzureBillingServiceTest {
 	}
 
 	@Test
-	public void getReport() {
+	public void getReportWithTheSameInstanceOfDocument() {
 		Document expectedDocument = new Document();
 		when(billingDAO.getReport(any(UserInfo.class), any(AzureBillingFilter.class))).thenReturn(expectedDocument);
 
 		Document actualDocument = azureBillingService.getReport(userInfo, billingFilter);
 		assertEquals(expectedDocument, actualDocument);
+
+		verify(billingDAO).getReport(userInfo, billingFilter);
+		verifyNoMoreInteractions(billingDAO);
+	}
+
+	@Test
+	public void getReportWithAnotherInstanceOfDocument() {
+		Document expectedDocument = new Document().append("someField", "someValue");
+		Document anotherDocument = new Document().append("someField", "anotherValue");
+		when(billingDAO.getReport(any(UserInfo.class), any(AzureBillingFilter.class))).thenReturn(anotherDocument);
+
+		Document actualDocument = azureBillingService.getReport(userInfo, billingFilter);
+		assertNotEquals(expectedDocument, actualDocument);
 
 		verify(billingDAO).getReport(userInfo, billingFilter);
 		verifyNoMoreInteractions(billingDAO);
@@ -86,7 +99,6 @@ public class AzureBillingServiceTest {
 	@Test
 	public void downloadReportWithInapproprietaryDateFormatInDocument() {
 		basicDocument.put("from", "someDateStart");
-		basicDocument.put("to", "someDateEnd");
 		when(billingDAO.getReport(any(UserInfo.class), any(AzureBillingFilter.class))).thenReturn(basicDocument);
 
 		try {
@@ -116,25 +128,20 @@ public class AzureBillingServiceTest {
 	}
 
 	@Test
-	public void getFirstLine() {
-		try {
+	public void getFirstLine() throws ParseException {
 			String result = azureBillingService.getFirstLine(basicDocument);
 			assertEquals("Service base name: someSBN  Available reporting period from: Mar 21, 2018 " +
 					"to: Mar 22, 2018", result);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Test
-	public void getFirstLineWithException() {
+	public void getFirstLineWithException() throws ParseException {
 		basicDocument.put("from", "someStartDate");
-		basicDocument.put("to", "someEndDate");
-		try {
-			azureBillingService.getFirstLine(basicDocument);
-		} catch (ParseException e) {
-			assertTrue(e.getStackTrace().length > 0);
-		}
+
+		expectedException.expect(ParseException.class);
+
+		expectedException.expectMessage("Unparseable date: \"someStartDate\"");
+		azureBillingService.getFirstLine(basicDocument);
 	}
 
 	@Test

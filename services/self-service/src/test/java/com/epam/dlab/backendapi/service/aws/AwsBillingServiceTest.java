@@ -46,12 +46,25 @@ public class AwsBillingServiceTest {
 	}
 
 	@Test
-	public void getReport() {
+	public void getReportWithTheSameInstanceOfDocument() {
 		Document expectedDocument = new Document();
 		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(expectedDocument);
 
 		Document actualDocument = awsBillingService.getReport(userInfo, billingFilter);
 		assertEquals(expectedDocument, actualDocument);
+
+		verify(billingDAO).getReport(userInfo, billingFilter);
+		verifyNoMoreInteractions(billingDAO);
+	}
+
+	@Test
+	public void getReportWithAnotherInstanceOfDocument() {
+		Document expectedDocument = new Document().append("someField", "someValue");
+		Document anotherDocument = new Document().append("someField", "anotherValue");
+		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(anotherDocument);
+
+		Document actualDocument = awsBillingService.getReport(userInfo, billingFilter);
+		assertNotEquals(expectedDocument, actualDocument);
 
 		verify(billingDAO).getReport(userInfo, billingFilter);
 		verifyNoMoreInteractions(billingDAO);
@@ -86,7 +99,6 @@ public class AwsBillingServiceTest {
 	@Test
 	public void downloadReportWithInapproprietaryDateFormatInDocument() {
 		basicDocument.put("usage_date_start", "someDateStart");
-		basicDocument.put("usage_date_end", "someDateEnd");
 		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(basicDocument);
 
 		try {
@@ -116,25 +128,21 @@ public class AwsBillingServiceTest {
 	}
 
 	@Test
-	public void getFirstLine() {
-		try {
-			String result = awsBillingService.getFirstLine(basicDocument);
-			assertEquals("Service base name: someSBN  Resource tag ID: someTagResourceId  Available reporting " +
+	public void getFirstLine() throws ParseException {
+		String result = awsBillingService.getFirstLine(basicDocument);
+		assertEquals("Service base name: someSBN  Resource tag ID: someTagResourceId  Available reporting " +
 					"period from: Mar 21, 2018 to: Mar 22, 2018", result);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Test
-	public void getFirstLineWithException() {
+	public void getFirstLineWithException() throws ParseException {
 		basicDocument.put("usage_date_start", "someStartDate");
-		basicDocument.put("usage_date_end", "someEndDate");
-		try {
-			awsBillingService.getFirstLine(basicDocument);
-		} catch (ParseException e) {
-			assertTrue(e.getStackTrace().length > 0);
-		}
+
+		expectedException.expect(ParseException.class);
+		expectedException.expectMessage("Unparseable date: \"someStartDate\"");
+
+		awsBillingService.getFirstLine(basicDocument);
+
 	}
 
 	@Test

@@ -204,18 +204,41 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void generateKey() {
+		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+
+		UploadFile uploadFile = mock(UploadFile.class);
+		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
+
+		String someUuid = "someUuid";
+		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).thenReturn(someUuid);
+		when(requestId.put(anyString(), anyString())).thenReturn(someUuid);
+
 		String actualPrivateKey = accessKeyService.generateKey(userInfo);
 		assertTrue(StringUtils.isNotEmpty(actualPrivateKey));
+
+		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
+		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
+		verify(requestId).put(USER, someUuid);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test
 	public void generateKeyWithException() {
-		doThrow(new DlabException("Can not generate private/public key pair due to:"))
-				.when(keyDAO).insertKey(anyString(), anyString());
-		expectedException.expect(DlabException.class);
-		expectedException.expectMessage("Can not generate private/public key pair due to:");
+		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
+		doNothing().when(keyDAO).deleteKey(anyString());
 
-		accessKeyService.generateKey(userInfo);
+		try {
+			accessKeyService.generateKey(userInfo);
+		} catch (DlabException e) {
+			assertEquals("Could not upload the key and create EDGE node: null", e.getMessage());
+		}
+
+		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
+		verify(keyDAO).deleteKey(USER);
+		verifyNoMoreInteractions(keyDAO, requestBuilder);
 	}
 
 	private UserInfo getUserInfo() {

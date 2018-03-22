@@ -2,20 +2,13 @@ package com.epam.dlab.backendapi.service.azure;
 
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AzureInfrastructureInfoServiceTest {
-
-	@InjectMocks
-	private AzureInfrastructureInfoService azureInfrastructureInfoService;
 
 	@Test
 	public void getSharedInfo() {
@@ -39,7 +32,7 @@ public class AzureInfrastructureInfoServiceTest {
 		expectedMap.put("datalake_user_directory_name", "datalakeUserDirectoryName");
 		expectedMap.put("datalake_shared_directory_name", "datalakeSharedDirectoryName");
 
-		Map<String, String> actualMap = azureInfrastructureInfoService.getSharedInfo(edgeInfoAzure);
+		Map<String, String> actualMap = new AzureInfrastructureInfoService().getSharedInfo(edgeInfoAzure);
 		assertEquals(expectedMap, actualMap);
 	}
 }
