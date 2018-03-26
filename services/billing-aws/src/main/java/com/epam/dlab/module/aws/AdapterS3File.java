@@ -1,36 +1,22 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.module.aws;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -40,141 +26,206 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.epam.dlab.core.AdapterBase;
 import com.epam.dlab.core.parser.ReportLine;
 import com.epam.dlab.exception.AdapterException;
-import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.module.ModuleName;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** The adapter for S3 file system of Amazon.
+import javax.validation.constraints.NotNull;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+/**
+ * The adapter for S3 file system of Amazon.
  */
 @JsonTypeName(ModuleName.ADAPTER_S3_FILE)
 @JsonClassDescription(
-	"Amazon S3 file system adapter.\n" +
-	"Read source or write converted data to the file in Amazon S3 bucket.\n" +
-	"  - type: " + ModuleName.ADAPTER_S3_FILE + "\n" +
-	"    [writeHeader: <true | false>]   - write header of data to the adapterOut.\n" +
-	"    bucket: <bucketname>            - the name of S3 bucket.\n" +
-	"    path: <path>                    - the path to the report or empty if used the root folder.\n" +
-	"    accountId: <AWS account number> - the account number, see for details\n" +
-	"                                      \"Detailed billing report with resources and tags\"\n" +
-	"                                      http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports.html#detailed-report-with-resources-tags\n" +
-	"    [accessKeyId: <string>]         - Amazon access key ID.\n" +
-	"    [secretAccessKey: <string>]     - Amazon secret access key."
-	)
+		"Amazon S3 file system adapter.\n" +
+				"Read source or write converted data to the file in Amazon S3 bucket.\n" +
+				"  - type: " + ModuleName.ADAPTER_S3_FILE + "\n" +
+				"    [writeHeader: <true | false>]   - write header of data to the adapterOut.\n" +
+				"    bucket: <bucketname>            - the name of S3 bucket.\n" +
+				"    path: <path>                    - the path to the report or empty if used the root folder.\n" +
+				"    accountId: <AWS account number> - the account number, see for details\n" +
+				"                                      \"Detailed billing report with resources and tags\"\n" +
+				"                                      http://docs.aws.amazon" +
+				".com/awsaccountbilling/latest/aboutv2/billing-reports.html#detailed-report-with-resources-tags\n" +
+				"    [accessKeyId: <string>]         - Amazon access key ID.\n" +
+				"    [secretAccessKey: <string>]     - Amazon secret access key."
+)
 public class AdapterS3File extends AdapterBase {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdapterS3File.class);
-	
-	/** Name of key for the last loaded file. */
-	public static final String DATA_KEY_LAST_LOADED_FILE = "AdapterS3File.lastLoadedFile";
 
-	/** Name of key for the modification date of loaded file. */
-	public static final String DATA_KEY_LAST_MODIFICATION_DATE = "AdapterS3File.lastModifyDate";
+	/**
+	 * Name of key for the last loaded file.
+	 */
+	public static final String DATA_KEY_LAST_LOADED_FILE = "AdapterS3File_lastLoadedFile";
 
-	/** The name of bucket. */
+	/**
+	 * Name of key for the modification date of loaded file.
+	 */
+	public static final String DATA_KEY_LAST_MODIFICATION_DATE = "AdapterS3File_lastModifyDate";
+	private static final String CANNOT_READ_FILE_FORMAT = "Cannot read file %s. %s";
+	private static final String DELIMITER = "/";
+
+	/**
+	 * The name of bucket.
+	 */
 	@NotNull
 	@JsonProperty
 	private String bucket;
 
-	/** The path to report. */
+	/**
+	 * The path to report.
+	 */
 	@JsonProperty
 	private String path;
-	
-	/** AWS account number. */
+
+	/**
+	 * AWS account number.
+	 */
 	@NotNull
 	@JsonProperty
 	private String accountId;
-	
-	/** Access key ID for Amazon Web Services. */
+
+	/**
+	 * Access key ID for Amazon Web Services.
+	 */
 	@JsonProperty
 	private String accessKeyId;
 
-	/** Secret key for Amazon Web Services. */
+	/**
+	 * Secret key for Amazon Web Services.
+	 */
 	@JsonProperty
 	private String secretAccessKey;
 
-	/** Return the name of bucket. */
+	/**
+	 * Return the name of bucket.
+	 */
 	public String getBucket() {
 		return bucket;
 	}
-	
-	/** Set the name of bucket. */
+
+	/**
+	 * Set the name of bucket.
+	 */
 	public void setBucket(String bucket) {
 		this.bucket = bucket;
 	}
 
-	/** Return the path to report. */
+	/**
+	 * Return the path to report.
+	 */
 	public String getPath() {
 		return path;
 	}
-	
-	/** Set the path to report. */
+
+	/**
+	 * Set the path to report.
+	 */
 	public void setPath(String path) {
 		this.path = path;
 	}
 
-	/** Return the AWS account number. */
+	/**
+	 * Return the AWS account number.
+	 */
 	public String getAccountId() {
 		return accountId;
 	}
-	
-	/** Set the AWS account number. */
+
+	/**
+	 * Set the AWS account number.
+	 */
 	public void setAccountId(String accountId) {
 		this.accountId = accountId;
 	}
 
-	/** Return the access key ID for Amazon Web Services. */
+	/**
+	 * Return the access key ID for Amazon Web Services.
+	 */
 	public String getAccessKeyId() {
 		return this.accessKeyId;
 	}
 
-	/** Set the access key ID for Amazon Web Services. */
+	/**
+	 * Set the access key ID for Amazon Web Services.
+	 */
 	public void setAccessKeyId(String accessKeyId) {
 		this.accessKeyId = accessKeyId;
 	}
 
-	/** Return the secret key for Amazon Web Services. */
+	/**
+	 * Return the secret key for Amazon Web Services.
+	 */
 	public String getSecretAccessKey() {
 		return this.secretAccessKey;
 	}
 
-	/** Set the secret key for Amazon Web Services. */
+	/**
+	 * Set the secret key for Amazon Web Services.
+	 */
 	public void setSecretAccessKey(String secretAccessKey) {
 		this.secretAccessKey = secretAccessKey;
 	}
 
-	
-	/** List of report files for loading. */
+
+	/**
+	 * List of report files for loading.
+	 */
 	@JsonIgnore
 	private List<String> filelist = null;
-	
-	/** Index of current report file. */
+
+	/**
+	 * Index of current report file.
+	 */
 	@JsonIgnore
 	private int currentFileIndex = -1;
-	
-	/** Index of current report file. */
+
+	/**
+	 * Index of current report file.
+	 */
 	@JsonIgnore
 	private String entryName = null;
-	
-	/** Amazon S3 client. */
+
+	/**
+	 * Amazon S3 client.
+	 */
 	@JsonIgnore
 	private AmazonS3 clientS3 = null;
-	
-	/** Amazon S3 client. */
+
+	/**
+	 * Amazon S3 client.
+	 */
 	@JsonIgnore
 	private Date lastModificationDate = null;
-	
-	/** File input stream. */
+
+	/**
+	 * File input stream.
+	 */
 	@JsonIgnore
 	private InputStream fileInputStream = null;
 
-	/** Zip input stream. */
+	/**
+	 * Zip input stream.
+	 */
 	@JsonIgnore
 	private ZipInputStream zipInputStream;
-	
-	/** Reader for adapter. */
+
+	/**
+	 * Reader for adapter.
+	 */
 	@JsonIgnore
 	private BufferedReader reader = null;
 
@@ -184,9 +235,9 @@ public class AdapterS3File extends AdapterBase {
 		if (getMode() == Mode.READ) {
 			setLastModificationDate();
 			clientS3 = getAmazonClient();
-			S3FileList s3files = new S3FileList(bucket, path, accountId, getModuleData().getString(DATA_KEY_LAST_LOADED_FILE), lastModificationDate);
+			S3FileList s3files = new S3FileList(bucket, getModuleData());
 			filelist = s3files.getFiles(clientS3);
-			currentFileIndex = (filelist.size() == 0 ? -1 : 0);
+			currentFileIndex = (filelist.isEmpty() ? -1 : 0);
 			fileInputStream = null;
 			reader = null;
 			entryName = null;
@@ -198,48 +249,49 @@ public class AdapterS3File extends AdapterBase {
 			throw new AdapterException("Mode of adapter unknown or not defined. Set mode to " + Mode.READ + ".");
 		}
 	}
-	
+
 	@Override
 	public boolean hasMultyEntry() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean openNextEntry() throws AdapterException {
 		String filename = getCurrentFileName();
 		if (filename == null) {
-			if (filelist.size() == 0) {
-				LOGGER.debug("New report files in bucket folder {} not found", (path == null ? bucket : bucket + "/" + path));
+			if (filelist.isEmpty()) {
+				final String reportPath = path == null ? bucket : bucket + DELIMITER + path;
+				LOGGER.debug("New report files in bucket folder {} not found", reportPath);
 			}
 			return false;
 		}
 		entryName = filename;
 		LOGGER.debug("Open a next entry in file {}", filename);
-		
+
 		if (fileInputStream == null) {
 			openZipFile(filename);
 		}
 		if (openZipEntry(filename)) {
 			return true;
 		}
-		
+
 		if (reader != null) {
 			try {
+				getModuleData().setId(filename);
+				getModuleData().setModificationDate(lastModificationDate);
 				getModuleData().set(DATA_KEY_LAST_LOADED_FILE, filename);
 				getModuleData().set(DATA_KEY_LAST_MODIFICATION_DATE, lastModificationDate);
 				getModuleData().store();
-			} catch (InitializationException e) {
-				throw new AdapterException("Cannot to store working data file \"" + filename + "\". " + e.getLocalizedMessage(), e);
 			} catch (Exception e) {
 				throw new AdapterException(e.getLocalizedMessage(), e);
 			}
 		}
-		
+
 		reader = null;
 		currentFileIndex++;
 		return openNextEntry();
 	}
-	
+
 	@Override
 	public boolean hasEntryData() {
 		return (reader != null);
@@ -260,7 +312,8 @@ public class AdapterS3File extends AdapterBase {
 		try {
 			return reader.readLine();
 		} catch (IOException e) {
-			throw new AdapterException("Cannot read file " + getCurrentFileName() + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException(String.format(CANNOT_READ_FILE_FORMAT, getCurrentFileName(), e
+					.getLocalizedMessage()), e);
 		}
 	}
 
@@ -268,35 +321,41 @@ public class AdapterS3File extends AdapterBase {
 	public void writeHeader(List<String> header) throws AdapterException {
 		throw new AdapterException("Unimplemented method.");
 	}
-	
+
 	@Override
 	public void writeRow(ReportLine row) throws AdapterException {
 		throw new AdapterException("Unimplemented method.");
 	}
-	
-	
-	/** Return the current file name.
+
+
+	/**
+	 * Return the current file name.
 	 */
 	public String getCurrentFileName() {
-		return (filelist == null || currentFileIndex < 0 || currentFileIndex >= filelist.size() ? null : filelist.get(currentFileIndex));
+		return (filelist == null || currentFileIndex < 0 || currentFileIndex >= filelist.size() ? null : filelist.get
+				(currentFileIndex));
 	}
-	
-	/** Creates and returns the Amazon client, as well as checks bucket existence.
+
+	/**
+	 * Creates and returns the Amazon client, as well as checks bucket existence.
+	 *
 	 * @throws AdapterException
 	 */
 	private AmazonS3 getAmazonClient() throws AdapterException {
 		AmazonS3 s3 = (accessKeyId == null ?
-						new AmazonS3Client() :
-						new AmazonS3Client(new BasicAWSCredentials(accessKeyId, secretAccessKey)));
-		
+				new AmazonS3Client() :
+				new AmazonS3Client(new BasicAWSCredentials(accessKeyId, secretAccessKey)));
+
 		if (!s3.doesBucketExist(bucket)) {
 			throw new AdapterException("Bucket \"" + bucket + "\" does not exist.");
 		}
-		
+
 		return s3;
 	}
-	
-	/** Open the source file and return reader.
+
+	/**
+	 * Open the source file and return reader.
+	 *
 	 * @throws AdapterException
 	 */
 	private InputStream getFileStream() throws AdapterException {
@@ -306,22 +365,28 @@ public class AdapterS3File extends AdapterBase {
 			lastModificationDate = object.getObjectMetadata().getLastModified();
 			return object.getObjectContent();
 		} catch (Exception e) {
-			throw new AdapterException("Cannot open file " + bucket + "/" + getCurrentFileName() + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException("Cannot open file " + bucket + DELIMITER + getCurrentFileName() + ". " + e
+					.getLocalizedMessage(), e);
 		}
 	}
-	
-	/** Return the modification date of loaded file.
+
+	/**
+	 * Return the modification date of loaded file.
+	 *
 	 * @throws AdapterException
 	 */
 	private void setLastModificationDate() throws AdapterException {
 		try {
 			lastModificationDate = getModuleData().getDate(DATA_KEY_LAST_MODIFICATION_DATE);
 		} catch (Exception e) {
-			throw new AdapterException("Cannot get the last modification date for report. " + e.getLocalizedMessage(), e);
+			throw new AdapterException("Cannot get the last modification date for report. " + e.getLocalizedMessage(),
+					e);
 		}
 	}
-	
-	/** Open a zip file.
+
+	/**
+	 * Open a zip file.
+	 *
 	 * @param filename file name.
 	 * @throws AdapterException
 	 */
@@ -332,15 +397,17 @@ public class AdapterS3File extends AdapterBase {
 		} catch (Exception e) {
 			throw new AdapterException("Cannot open file " + filename + ". " + e.getLocalizedMessage(), e);
 		}
-		
+
 		try {
 			zipInputStream = new ZipInputStream(fileInputStream);
 		} catch (Exception e) {
-			throw new AdapterException("Cannot read file " + filename + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException(String.format(CANNOT_READ_FILE_FORMAT, filename, e.getLocalizedMessage()), e);
 		}
 	}
-	
-	/** Open a next entry in zip file.
+
+	/**
+	 * Open a next entry in zip file.
+	 *
 	 * @param filename file name.
 	 * @return <b>true</b> if a next entry has been opened.
 	 * @throws AdapterException
@@ -357,15 +424,17 @@ public class AdapterS3File extends AdapterBase {
 				LOGGER.debug("Zip file have no more entries");
 			}
 		} catch (Exception e) {
-			throw new AdapterException("Cannot read file " + filename + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException(String.format(CANNOT_READ_FILE_FORMAT, filename, e.getLocalizedMessage()), e);
 		}
 		if (entry == null) {
 			closeZipFile(filename);
 		}
 		return (entry != null);
 	}
-	
-	/** Close a zip file.
+
+	/**
+	 * Close a zip file.
+	 *
 	 * @param filename file name.
 	 * @throws AdapterException
 	 */
@@ -379,7 +448,7 @@ public class AdapterS3File extends AdapterBase {
 			fileInputStream = null;
 		}
 	}
-	
+
 
 	@Override
 	public ToStringHelper toStringHelper(Object self) {

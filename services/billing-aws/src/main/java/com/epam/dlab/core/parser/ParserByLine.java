@@ -1,27 +1,22 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.core.parser;
-
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.core.ModuleBase;
 import com.epam.dlab.core.aggregate.AggregateGranularity;
@@ -30,28 +25,39 @@ import com.epam.dlab.exception.GenericException;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** Abstract module of parser by the line.<br>
+import java.util.List;
+
+/**
+ * Abstract module of parser by the line.<br>
  * See description of {@link ModuleBase} how to create your own parser.
  */
 public abstract class ParserByLine extends ParserBase {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ParserByLine.class);
 
-	/** Parse the header of source data and return it.
+	/**
+	 * Parse the header of source data and return it.
+	 *
 	 * @return the header of source data.
 	 * @throws AdapterException
 	 * @throws ParseException
 	 */
 	public abstract List<String> parseHeader() throws AdapterException, ParseException;
-	
-	/** Parse the row from source line and return result row.
+
+	/**
+	 * Parse the row from source line and return result row.
+	 *
 	 * @param line the source line.
 	 * @return the parsed row.
 	 * @throws ParseException
 	 */
 	public abstract List<String> parseRow(String line) throws ParseException;
-	
-	/** Read the line from adapter and return it.
+
+	/**
+	 * Read the line from adapter and return it.
+	 *
 	 * @return the parsed row from adapterIn.
 	 * @throws AdapterException
 	 * @throws ParseException
@@ -66,7 +72,9 @@ public abstract class ParserByLine extends ParserBase {
 		return line;
 	}
 
-	/** Initialize ParserBase.
+	/**
+	 * Initialize ParserBase.
+	 *
 	 * @throws InitializationException
 	 * @throws AdapterException
 	 * @throws ParseException
@@ -80,8 +88,10 @@ public abstract class ParserByLine extends ParserBase {
 		getAdapterOut().open();
 		return true;
 	}
-	
-	/** Initialize for each entry ParserBase.
+
+	/**
+	 * Initialize for each entry ParserBase.
+	 *
 	 * @throws InitializationException
 	 * @throws AdapterException
 	 * @throws ParseException
@@ -92,7 +102,7 @@ public abstract class ParserByLine extends ParserBase {
 		}
 		addStatistics(getAdapterIn().getEntryName());
 		getCurrentStatistics().start();
-		
+
 		super.init(parseHeader());
 		initialize();
 		if (getFilter() != null) {
@@ -101,7 +111,9 @@ public abstract class ParserByLine extends ParserBase {
 		return true;
 	}
 
-	/** Close adapters.
+	/**
+	 * Close adapters.
+	 *
 	 * @throws AdapterException
 	 */
 	protected void closeAdapters(boolean silent) throws AdapterException {
@@ -128,7 +140,10 @@ public abstract class ParserByLine extends ParserBase {
 			throw ex;
 		}
 	}
-	/** Parse the source data to common format and write it to output adapter.
+
+	/**
+	 * Parse the source data to common format and write it to output adapter.
+	 *
 	 * @throws InitializationException
 	 * @throws AdapterException
 	 * @throws ParseException
@@ -139,14 +154,13 @@ public abstract class ParserByLine extends ParserBase {
 				String line;
 				List<String> row;
 				ReportLine reportLine;
-				
 				do {
 					while ((line = getNextRow()) != null) {
 						if (getFilter() != null && (line = getFilter().canParse(line)) == null) {
 							getCurrentStatistics().incrRowFiltered();
 							continue;
 						}
-						
+
 						row = parseRow(line);
 						if ((getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
 							getCurrentStatistics().incrRowFiltered();
@@ -158,7 +172,8 @@ public abstract class ParserByLine extends ParserBase {
 								continue;
 							}
 						} catch (ParseException e) {
-							throw new ParseException(e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName() +
+							throw new ParseException(e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics
+									().getEntryName() +
 									"\nSource line[" +
 									getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						} catch (Exception e) {
@@ -166,19 +181,20 @@ public abstract class ParserByLine extends ParserBase {
 									e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName()
 									+ "\nSource line[" + getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						}
-						
+
 						try {
 							reportLine = getCommonFormat().toCommonFormat(row);
 						} catch (ParseException e) {
 							throw new ParseException("Cannot cast row to common format. " +
-									e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName() +
+									e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName
+									() +
 									"\nSource line[" + getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						}
 						if (getFilter() != null && (reportLine = getFilter().canAccept(reportLine)) == null) {
 							getCurrentStatistics().incrRowFiltered();
 							continue;
 						}
-						
+
 						getCurrentStatistics().incrRowParsed();
 						if (getAggregate() != AggregateGranularity.NONE) {
 							getAggregator().append(reportLine);
@@ -187,14 +203,14 @@ public abstract class ParserByLine extends ParserBase {
 							getCurrentStatistics().incrRowWritten();
 						}
 					}
-					
+
 					if (getAggregate() != AggregateGranularity.NONE) {
 						for (int i = 0; i < getAggregator().size(); i++) {
 							getAdapterOut().writeRow(getAggregator().get(i));
 							getCurrentStatistics().incrRowWritten();
 						}
 					}
-					
+
 					if (getAdapterIn().hasMultyEntry()) {
 						if (getAdapterIn().openNextEntry()) {
 							// Search entry with data
@@ -222,7 +238,7 @@ public abstract class ParserByLine extends ParserBase {
 			}
 			throw new ParseException("Unknown parser error. " + e.getLocalizedMessage(), e);
 		}
-		
+
 		closeAdapters(false);
 		if (getCurrentStatistics() != null) {
 			getCurrentStatistics().stop();
