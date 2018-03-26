@@ -17,81 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url(./assets/fonts/iconfont/MaterialIcons-Regular.eot); /* For IE6-8 */
-  src: local('Material Icons'), local('MaterialIcons-Regular'),
-    url(./assets/fonts/iconfont/MaterialIcons-Regular.woff2) format('woff2'),
-    url(./assets/fonts/iconfont/MaterialIcons-Regular.woff) format('woff'),
-    url(./assets/fonts/iconfont/MaterialIcons-Regular.ttf) format('truetype');
-}
 
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px; /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
-
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
-
-  /* Support for IE. */
-  font-feature-settings: 'liga';
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 300;
-  src: local('Open Sans Light'), local('OpenSans-Light'),
-    url(./assets/fonts/Open_Sans/OpenSans-Light.ttf) format('truetype'),
-    url(./assets/fonts/Open_Sans/OpenSans-Light.woff2) format('woff2'),
-    url(./assets/fonts/Open_Sans/OpenSans-Light.svg) format('svg');
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Open Sans Regular'), local('OpenSans-Regular'),
-    url(./assets/fonts/Open_Sans/OpenSans-Regular.ttf) format('truetype'),
-    url(./assets/fonts/Open_Sans/OpenSans-Regular.woff2) format('woff2'),
-    url(./assets/fonts/Open_Sans/OpenSans-Regular.svg) format('svg');
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 600;
-  src: local('Open Sans SemiBold'), local('OpenSans-SemiBold'),
-    url(./assets/fonts/Open_Sans/OpenSans-SemiBold.ttf) format('truetype'),
-    url(./assets/fonts/Open_Sans/OpenSans-Semibold.woff2) format('woff2'),
-    url(./assets/fonts/Open_Sans/OpenSans-Semibold.svg) format('svg');
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 800;
-  src: local('Open Sans ExtraBold'), local('OpenSans-ExtraBold'),
-    url(./assets/fonts/Open_Sans/OpenSans-Bold.ttf) format('truetype'),
-    url(./assets/fonts/Open_Sans/OpenSans-Bold.woff2) format('woff2'),
-    url(./assets/fonts/Open_Sans/OpenSans-Bold.svg) format('svg');
-}
+@import './assets/fonts/Material_Icons/material-icons.css';
+@import './assets/fonts/Open_Sans/open-sans.css';
 
 @import './assets/styles/_reset.scss';
 @import './assets/styles/_general.scss';
