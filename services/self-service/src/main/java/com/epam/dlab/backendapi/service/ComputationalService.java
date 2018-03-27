@@ -29,4 +29,6 @@ public interface ComputationalService {
 
 	boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO, UserComputationalResource
 			computationalResource);
+
+	void stopSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
 }

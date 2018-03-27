@@ -124,7 +124,9 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private void updateExploratoryStatus(String exploratoryName, UserInstanceStatus status, String user) {
 		updateExploratoryStatus(user, exploratoryName, status);
 
-		if (status == STOPPING || status == TERMINATING) {
+		if (status == STOPPING) {
+			updateComputationalStatuses(user, exploratoryName, STOPPING, TERMINATING);
+		} else if (status == TERMINATING) {
 			updateComputationalStatuses(user, exploratoryName, TERMINATING);
 		}
 	}
@@ -183,6 +185,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				status);
 		StatusEnvBaseDTO<?> exploratoryStatus = createStatusDTO(user, exploratoryName, status);
 		computationalDAO.updateComputationalStatusesForExploratory(exploratoryStatus);
+	}
+
+	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus
+			dataEngineStatus, UserInstanceStatus dataEngineServiceStatus) {
+		log.debug("updating status for all computational resources of {} for user {}: DataEngine {}, " +
+				"dataengine-service {}", exploratoryName, user, dataEngineStatus, dataEngineServiceStatus);
+		computationalDAO.updateComputationalStatusesForExploratory(user, exploratoryName, dataEngineStatus,
+				dataEngineServiceStatus);
 	}
 
 	/**

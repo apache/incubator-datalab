@@ -54,35 +54,6 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	@Inject
 	private ComputationalService computationalService;
 
-	/**
-	 * Sends request to provisioning service for creation the computational resource for user.
-	 *
-	 * @param userInfo user info.
-	 * @param formDTO  DTO info about creation of the computational resource.
-	 * @return 200 OK - if request success, 302 Found - for duplicates, otherwise throws exception.
-	 */
-	@PUT
-	@Deprecated
-	public Response create(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm formDTO) {
-		log.debug("Send request for creation the computational resource {} for user {}", formDTO.getName(), userInfo
-				.getName());
-		validate(userInfo, formDTO);
-
-		AwsComputationalResource awsComputationalResource = AwsComputationalResource.builder()
-				.computationalName(formDTO.getName())
-				.imageName(formDTO.getImage())
-				.templateName(formDTO.getTemplateName())
-				.status(CREATING.toString())
-				.masterShape(formDTO.getMasterInstanceType())
-				.slaveShape(formDTO.getSlaveInstanceType())
-				.slaveSpot(formDTO.getSlaveInstanceSpot())
-				.slaveSpotPctPrice(formDTO.getSlaveInstanceSpotPctPrice())
-				.slaveNumber(formDTO.getInstanceCount())
-				.version(formDTO.getVersion()).build();
-		boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
-				awsComputationalResource);
-		return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
-	}
 
 	/**
 	 * Asynchronously creates EMR cluster
@@ -99,7 +70,23 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
 		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
-			return create(userInfo, form);
+
+			validate(userInfo, form);
+
+			AwsComputationalResource awsComputationalResource = AwsComputationalResource.builder()
+					.computationalName(form.getName())
+					.imageName(form.getImage())
+					.templateName(form.getTemplateName())
+					.status(CREATING.toString())
+					.masterShape(form.getMasterInstanceType())
+					.slaveShape(form.getSlaveInstanceType())
+					.slaveSpot(form.getSlaveInstanceSpot())
+					.slaveSpotPctPrice(form.getSlaveInstanceSpotPctPrice())
+					.slaveNumber(form.getInstanceCount())
+					.version(form.getVersion()).build();
+			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
+					awsComputationalResource);
+			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
 		}
 
 		throw new IllegalArgumentException("Malformed image " + form.getImage());
@@ -144,6 +131,26 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
 		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+
+		return Response.ok().build();
+	}
+
+	/**
+	 * Sends request to provisioning service for stopping the computational resource for user.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@DELETE
+	@Path("/{exploratoryName}/{computationalName}/stop")
+	public Response stop(@Auth UserInfo userInfo,
+						 @PathParam("exploratoryName") String exploratoryName,
+						 @PathParam("computationalName") String computationalName) {
+		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
+
+		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
 
 		return Response.ok().build();
 	}
