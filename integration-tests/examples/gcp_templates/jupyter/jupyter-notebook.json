@@ -1,7 +1,7 @@
 {
   "image" : "docker.dlab-jupyter",
   "name" : "set the name",
-  "shape" : "n1-standard-1",
+  "shape" : "n1-standard-2",
   "version" : "jupyter_notebook-5.2.0",
   "template_name" : "Jupyter notebook 5.2.0"
 }

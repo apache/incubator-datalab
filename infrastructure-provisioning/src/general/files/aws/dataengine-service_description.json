@@ -9,6 +9,7 @@
       ],
       "Memory optimized" : [
         {"Size": "S", "Description": "r3.xlarge", "Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4", "Spot": "true", "SpotPctPrice": "70"},
+        {"Size": "M", "Description": "r4.2xlarge", "Type": "r4.2xlarge","Ram": "61 GB","Cpu": "8", "Spot": "true", "SpotPctPrice": "70"},
         {"Size": "M", "Description": "r3.4xlarge", "Type": "r3.4xlarge","Ram": "122 GB","Cpu": "16", "Spot": "true", "SpotPctPrice": "70"},
         {"Size": "L", "Description": "r3.8xlarge", "Type": "r3.8xlarge","Ram": "244 GB","Cpu": "32", "Spot": "true", "SpotPctPrice": "70"}
       ],
