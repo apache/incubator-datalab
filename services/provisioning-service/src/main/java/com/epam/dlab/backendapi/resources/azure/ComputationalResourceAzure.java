@@ -19,6 +19,7 @@ package com.epam.dlab.backendapi.resources.azure;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.SparkClusterService;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
+import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
@@ -37,23 +38,35 @@ import javax.ws.rs.core.MediaType;
 @Slf4j
 public class ComputationalResourceAzure {
 
-    @Inject
-    private SparkClusterService sparkClusterService;
+	@Inject
+	private SparkClusterService sparkClusterService;
 
-    @POST
-    @Path(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK)
-    public String create(@Auth UserInfo ui, SparkComputationalCreateAzure dto) {
-        log.debug("Create computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
+	@POST
+	@Path(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK)
+	public String create(@Auth UserInfo ui, SparkComputationalCreateAzure dto) {
+		log.debug("Create computational Spark resources {} for user {}: {}",
+				dto.getComputationalName(), ui.getName(), dto);
 
-        return sparkClusterService.create(ui, dto);
-    }
+		return sparkClusterService.create(ui, dto);
+	}
 
 
-    @POST
-    @Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_SPARK)
-    public String terminate(@Auth UserInfo ui, ComputationalTerminateDTO dto) {
-        log.debug("Terminate computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
+	@POST
+	@Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_SPARK)
+	public String terminate(@Auth UserInfo ui, ComputationalTerminateDTO dto) {
+		log.debug("Terminate computational Spark resources {} for user {}: {}",
+				dto.getComputationalName(), ui.getName(), dto);
 
-        return sparkClusterService.terminate(ui, dto);
-    }
+		return sparkClusterService.terminate(ui, dto);
+	}
+
+	@POST
+	@Path(ComputationalAPI.COMPUTATIONAL_STOP_SPARK)
+	public String stopSparkCluster(@Auth UserInfo ui, ComputationalStopDTO dto) {
+		log.debug("Strop computational Spark resources {} for user {}: {}",
+				dto.getComputationalName(), ui.getName(), dto);
+
+		return sparkClusterService.stop(ui, dto);
+	}
+
 }

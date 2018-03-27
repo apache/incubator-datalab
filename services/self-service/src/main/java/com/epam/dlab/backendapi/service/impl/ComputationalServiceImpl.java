@@ -30,10 +30,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
-import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
-import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.computational.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -51,6 +48,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	private static final String COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT = "Could not update the status of " +
 			"computational resource {} for user {}";
+	private static final String STOP_IS_NOT_SUPPORTED_DES = "Operation stop for data engine service is not supported";
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
@@ -163,6 +161,27 @@ public class ComputationalServiceImpl implements ComputationalService {
 			log.debug("Used existing computational resource {} for user {}", formDTO.getName(), userInfo.getName());
 			return false;
 		}
+	}
+
+	@Override
+	public void stopSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
+		final UserComputationalResource computationalResource = computationalDAO.fetchComputationalFields(userInfo
+				.getName(), exploratoryName, computationalName);
+		final DataEngineType dataEngineType = DataEngineType.fromDockerImageName(computationalResource.getImageName());
+		if (DataEngineType.SPARK_STANDALONE == dataEngineType) {
+			log.debug("Stopping spark cluster {} for exploratory {}", computationalName, exploratoryName);
+			updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, STOPPING);
+			final String exploratoryId = exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
+			final ComputationalStopDTO computationalStopDTO = requestBuilder
+					.newComputationalStop(userInfo, exploratoryName, exploratoryId, computationalName);
+			String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
+					userInfo.getAccessToken(), computationalStopDTO, String.class);
+			requestId.put(userInfo.getName(), uuid);
+		} else {
+			log.error(STOP_IS_NOT_SUPPORTED_DES);
+			throw new UnsupportedOperationException(STOP_IS_NOT_SUPPORTED_DES);
+		}
+
 	}
 
 	private String getTerminateUrl(UserComputationalResource computationalResource) {
