@@ -519,10 +519,16 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         if multiple_clusters == 'true':
             groups = [{"class": "org.apache.zeppelin.livy.LivySparkInterpreter", "name": "spark"},
                       {"class": "org.apache.zeppelin.livy.LivyPySparkInterpreter", "name": "pyspark"},
-                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter", "name": "pyspark3"}]
+                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter", "name": "pyspark3"},
+                      {"class": "org.apache.zeppelin.livy.LivySparkSQLInterpreter", "name": "sql"}]
+            if r_enabled:
+                groups.append({"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"})
         else:
             groups = [{"class": "org.apache.zeppelin.spark.SparkInterpreter","name": "spark"},
-                      {"class": "org.apache.zeppelin.spark.PySparkInterpreter", "name": "pyspark"}]
+                      {"class": "org.apache.zeppelin.spark.PySparkInterpreter", "name": "pyspark"},
+                      {"class": "org.apache.zeppelin.spark.SparkSqlInterpreter", "name": "sql"}]
+            if r_enabled:
+                groups.append({"class": "org.apache.zeppelin.spark.SparkRInterpreter", "name": "r"})
         r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%", "zeppelin.R.cmd": "R",
                   "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
         if interpreter_mode != 'remote':
@@ -530,17 +536,17 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         else:
             data = json.loads(open(interpreters_config).read())
         for i in data['interpreterSettings'].keys():
+            if data['interpreterSettings'][i]['group'] == 'md':
+                continue
             if r_enabled == 'true':
                 data['interpreterSettings'][i]['properties'].update(r_conf)
-                if multiple_clusters == 'true':
-                    groups.append({"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"})
-                else:
-                    groups.append({"class": "org.apache.zeppelin.spark.SparkRInterpreter", "name": "r"})
             data['interpreterSettings'][i]['interpreterGroup'] = groups
+
         if interpreter_mode != 'remote':
             with open(local_interpreters_config, 'w') as f:
                 f.write(json.dumps(data, indent=2))
             put(local_interpreters_config, local_interpreters_config)
+            sudo('cp -f {0} {1}'.format(local_interpreters_config, interpreters_config))
             sudo('systemctl restart zeppelin-notebook')
         else:
             with open(interpreters_config, 'w') as f:
