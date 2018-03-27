@@ -117,6 +117,26 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 		return Response.ok().build();
 	}
 
+	/**
+	 * Sends request to provisioning service for stopping the computational resource for user.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@DELETE
+	@Path("/{exploratoryName}/{computationalName}/stop")
+	public Response stop(@Auth UserInfo userInfo,
+						 @PathParam("exploratoryName") String exploratoryName,
+						 @PathParam("computationalName") String computationalName) {
+		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
+
+		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
+
+		return Response.ok().build();
+	}
+
 	private void validate(@Auth UserInfo userInfo, GcpComputationalCreateForm formDTO) {
 		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
 			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());

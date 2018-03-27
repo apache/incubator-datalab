@@ -46,6 +46,7 @@ import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.keyload.UploadFile;
+import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
@@ -326,7 +327,8 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ExploratoryActionDTO<T>> T newLibExploratoryList(UserInfo userInfo, UserInstanceDTO userInstance) {
+	public <T extends ExploratoryActionDTO<T>> T newLibExploratoryList(UserInfo userInfo, UserInstanceDTO
+			userInstance) {
 
 		switch (cloudProvider()) {
 			case AWS:
@@ -366,7 +368,8 @@ public class RequestBuilder {
 	@SuppressWarnings("unchecked")
 	public <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo, UserInstanceDTO
 			userInstance,
-																		 UserComputationalResource computationalResource) {
+																		 UserComputationalResource
+																				 computationalResource) {
 
 
 		switch (cloudProvider()) {
@@ -496,7 +499,8 @@ public class RequestBuilder {
 				computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
 				break;
 			case GCP:
-				GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(userInfo, GcpComputationalTerminateDTO.class);
+				GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(userInfo,
+						GcpComputationalTerminateDTO.class);
 				if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
 					gcpTerminateDTO.setClusterName(computationalId);
 				}
@@ -508,6 +512,17 @@ public class RequestBuilder {
 		}
 
 		return computationalTerminate
+				.withExploratoryName(exploratoryName)
+				.withComputationalName(computationalName)
+				.withNotebookInstanceName(exploratoryId);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ComputationalBase<T>> T newComputationalStop(UserInfo userInfo,
+																   String exploratoryName,
+																   String exploratoryId,
+																   String computationalName) {
+		return (T) newResourceSysBaseDTO(userInfo, ComputationalStopDTO.class)
 				.withExploratoryName(exploratoryName)
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratoryId);

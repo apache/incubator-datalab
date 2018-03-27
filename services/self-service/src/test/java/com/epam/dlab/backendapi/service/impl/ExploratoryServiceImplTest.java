@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -139,6 +140,8 @@ public class ExploratoryServiceImplTest {
 		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(provisioningService).post(exploratoryStop, TOKEN, eaDto, String.class);
+		verify(computationalDAO).updateComputationalStatusesForExploratory(userInfo.getName(), EXPLORATORY_NAME,
+				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING);
 		verify(requestId).put(USER, UUID);
 		verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
 	}
