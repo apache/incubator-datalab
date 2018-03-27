@@ -53,6 +53,10 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
 					.filter(e -> exploratoryGpuIssuesAzureFilter(e) &&
 							UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage()))
+					.peek(e -> e.getExploratoryEnvironmentShapes()
+							.forEach((k, v) -> v.removeIf(compResShapeDto ->
+									!UserRoles.checkAccess(user, RoleType.EXPLORATORY_SHAPES, compResShapeDto.getType
+											()))))
 					.collect(Collectors.toList());
 
         } catch (DlabException e) {

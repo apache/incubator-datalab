@@ -50,7 +50,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 
 	public static final String TOKEN = "token123";
 	private static final String LOGIN_NAME = "test";
-	public static final String OPERATION_IS_NOT_SUPPORTED = "Operation is not supported";
+	private static final String OPERATION_IS_NOT_SUPPORTED = "Operation is not supported";
 
 	/**
 	 * Instantiates an application configuration of SelfService for developer mode.
@@ -58,7 +58,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 	 * @param configuration application configuration of SelfService.
 	 * @param environment   environment of SelfService.
 	 */
-	public DevModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
+	DevModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
 		super(configuration, environment);
 	}
 
@@ -104,6 +104,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 	private RESTService createAuthenticationService() {
 		return new RESTService() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public <T> T post(String path, Object parameter, Class<T> clazz) {
 				if (LOGIN.equals(path)) {
 					return authorize((UserCredentialDTO) parameter);
@@ -113,6 +114,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
 			}
 
+			@SuppressWarnings("unchecked")
 			private <T> T authorize(UserCredentialDTO credential) {
 				if (LOGIN_NAME.equals(credential.getUsername())) {
 					return (T) Response.ok(TOKEN).build();

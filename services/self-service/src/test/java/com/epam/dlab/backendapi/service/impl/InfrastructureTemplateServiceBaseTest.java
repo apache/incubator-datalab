@@ -5,6 +5,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
+import com.epam.dlab.dto.imagemetadata.ComputationalResourceShapeDto;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -16,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,9 +40,24 @@ public class InfrastructureTemplateServiceBaseTest {
 
 	@Test
 	public void getExploratoryTemplates() {
-		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(
-				new ExploratoryMetadataDTO("someImage1"), new ExploratoryMetadataDTO("someImage2")
-		);
+		ExploratoryMetadataDTO emDto1 = new ExploratoryMetadataDTO("someImage1");
+		HashMap<String, List<ComputationalResourceShapeDto>> shapes1 = new HashMap<>();
+		shapes1.put("Memory optimized", Arrays.asList(
+				new ComputationalResourceShapeDto("Standard_E4s_v3", "someSize", "someDescription",
+						"someRam", 2),
+				new ComputationalResourceShapeDto("Standard_E32s_v3", "someSize2", "someDescription2",
+						"someRam2", 5)));
+		emDto1.setExploratoryEnvironmentShapes(shapes1);
+
+		ExploratoryMetadataDTO emDto2 = new ExploratoryMetadataDTO("someImage2");
+		HashMap<String, List<ComputationalResourceShapeDto>> shapes2 = new HashMap<>();
+		shapes2.put("Compute optimized", Arrays.asList(
+				new ComputationalResourceShapeDto("Standard_F2s", "someSize", "someDescription",
+						"someRam", 3),
+				new ComputationalResourceShapeDto("Standard_F16s", "someSize2", "someDescription2",
+						"someRam2", 6)));
+		emDto2.setExploratoryEnvironmentShapes(shapes2);
+		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
 
 		UserInfo userInfo = new UserInfo("test", "token");

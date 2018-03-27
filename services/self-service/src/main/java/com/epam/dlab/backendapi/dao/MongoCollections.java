@@ -45,6 +45,8 @@ public interface MongoCollections {
     String REQUEST_ID = "requestId";
     /** Images */
     String IMAGES = "images";
-    /** Images */
+	/**
+	 * Backup
+	 */
     String BACKUPS = "backup";
 }

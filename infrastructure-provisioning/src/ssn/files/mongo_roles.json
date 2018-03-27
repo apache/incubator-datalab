@@ -20,6 +20,52 @@
     ]
   },
   {
+    "_id": "nbShapesFetching1",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "p2.xlarge",
+      "c4.8xlarge",
+      "Standard_F8s",
+      "Standard_F16s"
+    ],
+    "groups": [
+      "specialUser"
+    ]
+  },
+  {
+    "_id": "nbShapesFetching2",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "p2.xlarge",
+      "t2.medium",
+      "r3.xlarge",
+      "r4.2xlarge",
+      "r3.4xlarge",
+      "r3.8xlarge",
+      "c4.large",
+      "c4.2xlarge",
+      "c4.8xlarge",
+      "n1-standard-1",
+      "n1-standard-2",
+      "n1-highcpu-2",
+      "n1-highcpu-8",
+      "n1-highcpu-32",
+      "n1-highmem-4",
+      "n1-highmem-16",
+      "n1-highmem-32",
+      "Standard_NC6",
+      "Standard_E4s_v3",
+      "Standard_E16s_v3",
+      "Standard_E32s_v3",
+      "Standard_F2s",
+      "Standard_F8s",
+      "Standard_F16s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateDeeplearning",
     "description": "Create Notebook Deep Learning",
     "exploratories": [

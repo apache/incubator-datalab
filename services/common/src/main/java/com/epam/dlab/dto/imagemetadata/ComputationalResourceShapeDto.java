@@ -125,8 +125,7 @@ public class ComputationalResourceShapeDto {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(type, size, description, ram, cpu, spot, spotPctPrice);
-        return result;
+        return Objects.hash(type, size, description, ram, cpu, spot, spotPctPrice);
     }
 
     @Override
