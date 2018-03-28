@@ -35,8 +35,9 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
-                terminate_emr(cluster_id)
-                print("The EMR cluster {} has been terminated successfully".format(emr_name))
+                if '{}'.format(tag_name[:-3]) in emr_name:
+                    terminate_emr(cluster_id)
+                    print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
             print("There are no EMR clusters to terminate.")
     except:
