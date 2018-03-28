@@ -83,9 +83,8 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
 		environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
-		environment.healthChecks().register(ServiceConsts.PROVISIONING_SERVICE_NAME, injector.getInstance
-				(ProvisioningServiceHealthCheck
-						.class));
+		environment.healthChecks().register(
+				ServiceConsts.PROVISIONING_SERVICE_NAME, injector.getInstance(ProvisioningServiceHealthCheck.class));
 
 		JerseyEnvironment jersey = environment.jersey();
 		jersey.register(new RuntimeExceptionMapper());

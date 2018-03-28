@@ -65,12 +65,12 @@ public class UserRoles {
 	 * @param dao security DAO.
 	 */
 	public static void initialize(SecurityDAO dao, boolean defaultAccess) {
-		LOGGER.trace("Loading roles from database");
+		LOGGER.trace("Loading roles from database...");
 		if (userRoles == null) {
 			userRoles = new UserRoles();
 		}
 		userRoles.load(dao, defaultAccess);
-		LOGGER.trace("New roles is {}", getRoles());
+		LOGGER.trace("New roles are: {}", getRoles());
 	}
 
 	/**

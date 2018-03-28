@@ -32,7 +32,9 @@ import java.io.IOException;
 
 public class VirtualMachineStatusChecker {
 
-    private VirtualMachineStatusChecker(){}
+	public static final String UNKNOWN_CLOUD_PROVIDER = "Unknown cloud provider";
+
+	private VirtualMachineStatusChecker(){}
 
     public static void checkIfRunning(String tagNameValue, boolean restrictionMode)
             throws CloudException, InterruptedException, IOException {
@@ -50,7 +52,7 @@ public class VirtualMachineStatusChecker {
                         GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
                 break;
             default:
-                Assert.fail("Unknown cloud provider");
+                Assert.fail(UNKNOWN_CLOUD_PROVIDER);
         }
 
     }
@@ -71,7 +73,28 @@ public class VirtualMachineStatusChecker {
                         GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
                 break;
             default:
-                Assert.fail("Unknown cloud provider");
+                Assert.fail(UNKNOWN_CLOUD_PROVIDER);
+        }
+
+    }
+
+    public static void checkIfStopped(String tagNameValue, boolean restrictionMode)
+            throws CloudException, InterruptedException, IOException {
+
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+                AmazonHelper.checkAmazonStatus(tagNameValue, AmazonInstanceState.STOPPED);
+                break;
+            case CloudProvider.AZURE_PROVIDER:
+                AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED, restrictionMode);
+                break;
+            case CloudProvider.GCP_PROVIDER:
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
+                        GcpInstanceState.STOPPED, restrictionMode,
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                break;
+            default:
+                Assert.fail(UNKNOWN_CLOUD_PROVIDER);
         }
 
     }

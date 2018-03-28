@@ -58,7 +58,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @param formDTO  description for the exploratory environment.
 	 * @return {@link Response.Status#OK} request for provisioning service has been accepted.<br>
 	 * {@link Response.Status#FOUND} request for provisioning service has been duplicated.
-	 * @throws DlabException
 	 */
 	@PUT
 	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
@@ -81,7 +80,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @param userInfo user info.
 	 * @param formDTO  description of exploratory action.
 	 * @return Invocation response as JSON string.
-	 * @throws DlabException
 	 */
 	@POST
 	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
@@ -97,7 +95,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @param userInfo user info.
 	 * @param name     name of exploratory environment.
 	 * @return Invocation response as JSON string.
-	 * @throws DlabException
 	 */
 	@DELETE
 	@Path("/{name}/stop")
@@ -112,7 +109,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @param userInfo user info.
 	 * @param name     name of exploratory environment.
 	 * @return Invocation response as JSON string.
-	 * @throws DlabException
 	 */
 	@DELETE
 	@Path("/{name}/terminate")

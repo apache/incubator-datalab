@@ -21,7 +21,8 @@ package com.epam.dlab.automation.cloud.aws;
 public enum AmazonInstanceState {
     STARTING,
     RUNNING,
-    TERMINATED;
+    TERMINATED,
+    STOPPED;
 	
     @Override
     public String toString() {

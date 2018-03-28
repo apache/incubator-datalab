@@ -3,7 +3,8 @@ package com.epam.dlab.automation.cloud.gcp;
 public enum GcpInstanceState {
 	STARTING,
 	RUNNING,
-	TERMINATED;
+	TERMINATED,
+	STOPPED;
 
 	@Override
 	public String toString() {

@@ -52,4 +52,5 @@ public interface MongoConstants {
 	public static final String COLLECTION_BILLING_TOTAL = "billingTotal";
 	public static final String FIELD_USAGE_DATE_START = "usage_date_start";
 	public static final String FIELD_USAGE_DATE_END = "usage_date_end";
+	String BILLING_DATA_COLLECTION = "BillingData";
 }

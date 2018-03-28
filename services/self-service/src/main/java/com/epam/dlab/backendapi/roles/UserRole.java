@@ -18,10 +18,12 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.roles;
 
-import java.util.Set;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.Set;
 
 /** Describe role.
  */
@@ -45,7 +47,7 @@ public class UserRole implements Comparable<UserRole> {
 	 * @param groups the names of external groups.
 	 * @param users the name of DLab's users.
 	 */
-	public UserRole(RoleType type, String name, Set<String> groups, Set<String> users) {
+	UserRole(RoleType type, String name, Set<String> groups, Set<String> users) {
 		this.type = type;
 		this.name = name;
 		this.groups = groups;
@@ -77,18 +79,31 @@ public class UserRole implements Comparable<UserRole> {
 	}
 	
 	@Override
-	public int compareTo(UserRole o) {
+	public int compareTo(@Nonnull UserRole o) {
 		int result = type.compareTo(o.type);
 		return (result == 0 ? name.compareTo(o.name) : result);
 	}
-	
-    public ToStringHelper toStringHelper(Object self) {
+
+	private ToStringHelper toStringHelper(Object self) {
     	return MoreObjects.toStringHelper(self)
     	        .add("type", type)
     	        .add("name", name)
     	        .add("groups", groups)
     	        .add("users", users);
     }
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		UserRole userRole = (UserRole) o;
+		return this.type.equals(userRole.getType()) && this.name.equals(userRole.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(type, name);
+	}
     
     @Override
     public String toString() {

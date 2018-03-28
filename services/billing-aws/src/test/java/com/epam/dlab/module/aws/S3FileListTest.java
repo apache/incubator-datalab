@@ -51,7 +51,7 @@ public class S3FileListTest {
 		list.add(array[0]);
 		list.add(array[1]);
 
-		S3FileList s3list = new S3FileList(null, null, null, null, null);
+		S3FileList s3list = new S3FileList(null, null);
 		s3list.sort(list);
 		
 		assertEquals(array.length, list.size());

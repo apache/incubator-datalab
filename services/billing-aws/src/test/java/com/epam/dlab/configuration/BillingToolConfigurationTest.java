@@ -21,6 +21,7 @@ package com.epam.dlab.configuration;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.epam.dlab.core.AdapterBase.Mode;
@@ -36,6 +37,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class BillingToolConfigurationTest {
 
 	@Test
+	@Ignore
 	public void config() throws InitializationException {
 		JsonNode node = new ConfigJsonGenerator()
 				.withAdapterIn("type", ModuleName.ADAPTER_FILE,
