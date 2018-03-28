@@ -28,6 +28,7 @@ import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_CREATE;
+import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
 
 @Singleton
 @Slf4j
@@ -57,16 +58,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	@Override
-	public String uploadKey(UserInfo user, String keyContent) {
-		log.debug("The upload of the user key and creation EDGE node will be started for user {}", user);
-		keyDAO.insertKey(user.getName(), keyContent);
-		try {
-			return createEdge(user, keyContent);
-		} catch (Exception e) {
-			log.error("The upload of the user key and create EDGE node for user {} fails", user.getName(), e);
-			keyDAO.deleteKey(user.getName());
-			throw new DlabException("Could not upload the key and create EDGE node: " + e.getLocalizedMessage(), e);
-		}
+	public String loadKey(UserInfo user, String keyContent, boolean isPrimaryUploading) {
+		return isPrimaryUploading ? uploadKey(user, keyContent) : reUploadKey(user, keyContent);
 	}
 
 	@Override
@@ -101,6 +94,35 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		}
 	}
 
+	private String uploadKey(UserInfo user, String keyContent) {
+		log.debug("The key uploading and EDGE node creating for user {} is starting...", user);
+		keyDAO.insertKey(user.getName(), keyContent);
+		try {
+			return createEdge(user, keyContent);
+		} catch (Exception e) {
+			log.error("The key uploading and EDGE node creating for user {} fails", user.getName(), e);
+			keyDAO.deleteKey(user.getName());
+			throw new DlabException("Could not upload the key and create EDGE node: " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	private String reUploadKey(UserInfo user, String keyContent) {
+		log.debug("The key reuploading for user {} is starting...", user);
+		keyDAO.deleteKey(user.getName());
+		keyDAO.insertKey(user.getName(), keyContent);
+		try {
+			UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent);
+			String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
+			requestId.put(user.getName(), uuid);
+			return uuid;
+		} catch (Exception e) {
+			log.error("The key reuploading for user {} fails", user.getName(), e);
+			keyDAO.deleteKey(user.getName());
+			throw new DlabException("Could not reupload the key. Previous key has been deleted: " +
+					e.getLocalizedMessage(), e);
+		}
+	}
+
 	private EdgeInfo getEdgeInfo(String userName) {
 		EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userName);
 		UserInstanceStatus status = UserInstanceStatus.of(edgeInfo.getEdgeStatus());
@@ -124,7 +146,6 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	private String createEdge(UserInfo user, String keyContent) {
-
 		UploadFile uploadFile = requestBuilder.newEdgeKeyUpload(user, keyContent);
 		String uuid = provisioningService.post(EDGE_CREATE, user.getAccessToken(), uploadFile, String.class);
 		requestId.put(user.getName(), uuid);

@@ -45,6 +45,7 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.base.keyload.ReuploadFile;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
@@ -65,6 +66,8 @@ import com.google.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.UUID;
+
+import static com.epam.dlab.cloud.CloudProvider.*;
 
 @Singleton
 public class RequestBuilder {
@@ -104,31 +107,31 @@ public class RequestBuilder {
 	@SuppressWarnings("unchecked")
 	private <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
 		try {
-			T resource = resourceClass.newInstance();
-			final String edgeUser = UsernameUtils.replaceWhitespaces(userInfo.getSimpleName());
-			switch (cloudProvider()) {
-				case GCP:
-					return (T) resource
-							.withEdgeUserName(adjustUserName(configuration.getMaxUserNameLength(), edgeUser))
-							.withCloudSettings(cloudSettings(userInfo));
-				case AWS:
-				case AZURE:
-					return (T) resource
-							.withEdgeUserName(edgeUser)
-							.withCloudSettings(cloudSettings(userInfo));
-				default:
-					throw new DlabException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-			}
+			return (T) resourceClass.newInstance()
+					.withEdgeUserName(getEdgeUserName(userInfo))
+					.withCloudSettings(cloudSettings(userInfo));
 		} catch (Exception e) {
 			throw new DlabException("Cannot create instance of resource class " + resourceClass.getName() + ". " +
 					e.getLocalizedMessage(), e);
 		}
 	}
 
-	private String adjustUserName(int maxLength, String userName) {
+	private String getEdgeUserName(UserInfo userInfo) {
+		String edgeUser = UsernameUtils.replaceWhitespaces(userInfo.getSimpleName());
+		switch (cloudProvider()) {
+			case GCP:
+				return adjustUserName(configuration.getMaxUserNameLength(), edgeUser);
+			case AWS:
+			case AZURE:
+				return edgeUser;
+			default:
+				throw new DlabException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+		}
+	}
 
-		return userName.length() > maxLength ? UUID.nameUUIDFromBytes(userName
-				.getBytes()).toString().substring(0, maxLength) : userName;
+	private String adjustUserName(int maxLength, String userName) {
+		return userName.length() > maxLength ?
+				UUID.nameUUIDFromBytes(userName.getBytes()).toString().substring(0, maxLength) : userName;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -168,27 +171,22 @@ public class RequestBuilder {
 		}
 	}
 
+	public UploadFile newKeyReupload(UserInfo userInfo, String content) {
+		ReuploadFile reuploadFile = new ReuploadFile();
+		reuploadFile.setContent(content);
+		reuploadFile.setEdgeUserName(getEdgeUserName(userInfo));
+		return reuploadFile;
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T extends ResourceSysBaseDTO<?>> T newEdgeAction(UserInfo userInfo) {
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return (T) newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+		checkInappropriateCloudProviderAndThrowException();
+		return (T) newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
 	}
 
 	public UserEnvironmentResources newUserEnvironmentStatus(UserInfo userInfo) {
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+		checkInappropriateCloudProviderAndThrowException();
+		return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -291,100 +289,61 @@ public class RequestBuilder {
 
 	public ExploratoryGitCredsUpdateDTO newGitCredentialsUpdate(UserInfo userInfo, UserInstanceDTO instanceDTO,
 																ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
-
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
-						.withNotebookImage(instanceDTO.getImageName())
-						.withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
-						.withNotebookInstanceName(instanceDTO.getExploratoryId())
-						.withExploratoryName(instanceDTO.getExploratoryName())
-						.withGitCreds(exploratoryGitCredsDTO.getGitCreds());
-
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+		checkInappropriateCloudProviderAndThrowException();
+		return newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
+				.withNotebookImage(instanceDTO.getImageName())
+				.withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
+				.withNotebookInstanceName(instanceDTO.getExploratoryId())
+				.withExploratoryName(instanceDTO.getExploratoryName())
+				.withGitCreds(exploratoryGitCredsDTO.getGitCreds());
 	}
 
 	public LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
-
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
-						.withNotebookImage(userInstance.getImageName())
-						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-						.withNotebookInstanceName(userInstance.getExploratoryId())
-						.withExploratoryName(userInstance.getExploratoryName())
-						.withLibs(new ArrayList<>());
-
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+		checkInappropriateCloudProviderAndThrowException();
+		return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
+				.withNotebookImage(userInstance.getImageName())
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withLibs(new ArrayList<>());
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ExploratoryActionDTO<T>> T newLibExploratoryList(UserInfo userInfo, UserInstanceDTO
-			userInstance) {
-
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return (T) newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class)
-						.withNotebookInstanceName(userInstance.getExploratoryId())
-						.withNotebookImage(userInstance.getImageName())
-						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-						.withExploratoryName(userInstance.getExploratoryName());
-
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+	public <T extends ExploratoryActionDTO<T>> T newLibExploratoryList(UserInfo userInfo,
+																	   UserInstanceDTO userInstance) {
+		checkInappropriateCloudProviderAndThrowException();
+		return (T) newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class)
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withNotebookImage(userInstance.getImageName())
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+				.withExploratoryName(userInstance.getExploratoryName());
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
 														 UserComputationalResource computationalResource) {
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
-						.withComputationalId(computationalResource.getComputationalId())
-						.withComputationalName(computationalResource.getComputationalName())
-						.withExploratoryName(userInstance.getExploratoryName())
-						.withComputationalImage(computationalResource.getImageName())
-						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-						.withLibs(new ArrayList<>());
-
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+		checkInappropriateCloudProviderAndThrowException();
+		return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
+				.withComputationalId(computationalResource.getComputationalId())
+				.withComputationalName(computationalResource.getComputationalName())
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withComputationalImage(computationalResource.getImageName())
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+				.withLibs(new ArrayList<>());
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo, UserInstanceDTO
-			userInstance,
+	public <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo,
+																		 UserInstanceDTO userInstance,
 																		 UserComputationalResource
-																				 computationalResource) {
+																					 computationalResource) {
 
-
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
-						.withComputationalId(computationalResource.getComputationalId())
-						.withComputationalImage(computationalResource.getImageName())
-						.withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
-						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
-
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+		checkInappropriateCloudProviderAndThrowException();
+		return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
+				.withComputationalId(computationalResource.getComputationalId())
+				.withComputationalImage(computationalResource.getImageName())
+				.withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -531,20 +490,13 @@ public class RequestBuilder {
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryImageDTO> T newExploratoryImageCreate(UserInfo userInfo, UserInstanceDTO userInstance,
 																	   String imageName) {
-
-		switch (cloudProvider()) {
-			case AWS:
-			case AZURE:
-			case GCP:
-				return (T) newResourceSysBaseDTO(userInfo, ExploratoryImageDTO.class)
-						.withNotebookInstanceName(userInstance.getExploratoryId())
-						.withExploratoryName(userInstance.getExploratoryName())
-						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-						.withNotebookImage(userInstance.getImageName())
-						.withImageName(imageName);
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
-		}
+		checkInappropriateCloudProviderAndThrowException();
+		return (T) newResourceSysBaseDTO(userInfo, ExploratoryImageDTO.class)
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+				.withNotebookImage(userInstance.getImageName())
+				.withImageName(imageName);
 	}
 
 
@@ -580,6 +532,13 @@ public class RequestBuilder {
 			}
 		}
 		return "";
+	}
+
+	private void checkInappropriateCloudProviderAndThrowException() {
+		CloudProvider provider = cloudProvider();
+		if (provider != AWS && provider != AZURE && provider != GCP) {
+			throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + provider);
+		}
 	}
 }
 

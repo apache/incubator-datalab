@@ -87,7 +87,7 @@ public class AccessKeyServiceImplTest {
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 
 		String keyContent = "keyContent";
-		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent);
+		String actualUuid = accessKeyService.loadKey(userInfo, keyContent, true);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
 
@@ -110,7 +110,7 @@ public class AccessKeyServiceImplTest {
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Could not upload the key and create EDGE node: ");
 
-		accessKeyService.uploadKey(userInfo, "someKeyContent");
+		accessKeyService.loadKey(userInfo, "someKeyContent", true);
 	}
 
 	@Test
