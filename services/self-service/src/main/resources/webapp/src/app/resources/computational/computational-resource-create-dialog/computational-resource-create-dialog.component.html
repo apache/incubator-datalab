@@ -24,7 +24,7 @@ limitations under the License.
     <div class="content-box" *ngIf="model.selectedImage">
       <form [formGroup]="resourceForm" novalidate (submit)="createComputationalResource($event, resourceForm.value, shapes.master_shape, shapes.slave_shape)">
 
-        <div class="control-group" *ngIf="PROVIDER === 'aws' || PROVIDER === 'gcp'">
+        <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="model.resourceImages.length === 1">
           <label class="label">Select cluster type</label>
           <div class="control">
             <dropdown-list #clusterType (selectedItem)="onUpdate($event)"></dropdown-list>
@@ -34,7 +34,7 @@ limitations under the License.
           </div>
         </div>
 
-        <div class="control-group" *ngIf="PROVIDER === 'aws' || PROVIDER === 'gcp'" [hidden]="!model.templates.length">
+        <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!model.templates.length">
           <label class="label">Select template</label>
           <div class="control">
             <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
