@@ -33,10 +33,11 @@ export class UploadKeyDialogComponent implements OnInit {
   model: KeyUploadDialogModel;
   processError: boolean = false;
   errorMessage: string = '';
-
+  
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('userAccessKeyUploadControl') userAccessKeyUploadControl;
   @Output() checkInfrastructureCreationProgress: EventEmitter<{}> = new EventEmitter();
+  @Output() generateUserKey: EventEmitter<{}> = new EventEmitter();
 
   constructor(private userAccessKeyService: UserAccessKeyService) {
     this.model = KeyUploadDialogModel.getDefault();
@@ -46,19 +47,24 @@ export class UploadKeyDialogComponent implements OnInit {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  uploadUserAccessKey_onChange($event) {
+  public uploadUserAccessKey_onChange($event) {
     if ($event.target.files.length > 0) {
       this.model.setUserAccessKey($event.target.files[0]);
     }
   }
 
-  uploadUserAccessKey_btnClick($event) {
+  public generateUserAccessKey_btnClick($event) {
+    this.generateUserKey.emit($event);
+    this.close();
+  }
+
+  public uploadUserAccessKey_btnClick($event) {
     this.model.confirmAction();
     $event.preventDefault();
     return false;
   }
 
-  open(params) {
+  public open(params) {
     if (!this.bindDialog.isOpened) {
       this.model = new KeyUploadDialogModel(null, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
@@ -76,7 +82,7 @@ export class UploadKeyDialogComponent implements OnInit {
     }
   }
 
-  close() {
+  public close() {
     if (this.bindDialog.isOpened)
       this.bindDialog.close();
   }
