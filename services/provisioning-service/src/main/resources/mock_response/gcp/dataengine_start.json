@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "response": {
+    "result": {
+      "Action": "Start Data Engine",
+      "service_base_name": "${CONF_SERVICE_BASE_NAME}"
+    },
+    "log": "/var/log/dlab/dataengine/dataengine_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+  },
+  "request_id": "${REQUEST_ID}"
+}
