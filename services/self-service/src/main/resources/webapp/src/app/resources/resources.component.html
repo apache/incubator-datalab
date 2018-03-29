@@ -50,6 +50,6 @@ limitations under the License.
 <resources-grid></resources-grid>
 
 <exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid($event)"></exploratory-environment-create-dialog>
-<key-upload-dialog #keyUploadModal (checkInfrastructureCreationProgress)="checkInfrastructureCreationProgress($event)"></key-upload-dialog>
+<key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" (checkInfrastructureCreationProgress)="checkInfrastructureCreationProgress($event)"></key-upload-dialog>
 <progress-dialog #preloaderModal [configs]="progressDialogConfig"></progress-dialog>
 <dlab-manage-ungit #manageUngitDialog></dlab-manage-ungit>
