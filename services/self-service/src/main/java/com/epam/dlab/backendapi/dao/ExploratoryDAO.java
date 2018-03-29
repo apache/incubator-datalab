@@ -33,12 +33,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.not;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.set;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
@@ -140,14 +150,28 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param user user name.
 	 */
 	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusNotIn(String user, UserInstanceStatus... statuses) {
-		final List<String> statusList = Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors
-				.toList());
+		final List<String> statusList = statusList(statuses);
 		return getUserInstances(
 				and(
 						eq(USER, user),
 						not(in(STATUS, statusList))
 				));
 	}
+
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, UserInstanceStatus... statuses) {
+		final List<String> statusList = statusList(statuses);
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						in(STATUS, statusList)
+				));
+	}
+
+	private List<String> statusList(UserInstanceStatus[] statuses) {
+		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors
+				.toList());
+	}
+
 
 	private List<UserInstanceDTO> getUserInstances(Bson condition) {
 		return stream(getCollection(USER_INSTANCES)
