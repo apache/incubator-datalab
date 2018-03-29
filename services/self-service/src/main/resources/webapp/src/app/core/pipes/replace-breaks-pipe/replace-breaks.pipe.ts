@@ -21,6 +21,12 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({name: 'lineBreak'})
 export class LineBreakPipe implements PipeTransform {
   transform(value: any, args?: any): any {
-    if (value) return value.replace(/\n/g, '<br/>');
+    if (value)
+      if(value.indexOf('Master') > -1) {
+        return value.replace(/\n/g, '<br/>');
+      } else if(value.match(/\d x \S+/)) {
+        return value.match(/\d x \S+/)[0].split(' x ')[1];
+      }
+    return value;
   }
 }

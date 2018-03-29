@@ -26,15 +26,17 @@ limitations under the License.
     <p>You can use <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html" target="_blank">PuTTY</a> to generate your SSH key. PuTTY is a free open-source terminal emulator that functions much like the Terminal application in Mac OS X in a Windows environment.</p>
     <li>Please download PuTTYgen program by using <a href="https://the.earth.li/~sgtatham/putty/latest/x86/puttygen.exe">this link</a>.</li>
     <li>Open the PuTTYgen program.</li>
-    <li>For Type of key to generate, select SSH-2 RSA.</li>
+    <li>For Type of key to generate, select RSA.</li>
     <li>Click the Generate button.</li>
     <li>Move your mouse in the area below the progress bar. When the progress bar is full, PuTTYgen generates your key pair.</li>
     <li>OPTIONAL: Type a passphrase in the Key passphrase field. Type the same passphrase in the Confirm passphrase field. You can use a key without a passphrase, but this is not recommended.</li>
     <img src="./../assets/guides/public_key.png" alt="">
     <li>You will need PRIVATE KEY to connect to your machine. Warning! You must save the private key.</li>
-    <li>Click the "Save private key button" to save the private key.</li>
+    <li>Click the "Save private key" button to save the private key.</li>
     <li>PUBLIC KEY shall be uploaded using Web UI of Dlab.</li>
-    <li>To save public key in a proper format you have to copy all text from "Public key for pasting into OpenSSH authorized_keys" field, create new file and paste this text in it, then save the file.</li>
+    <li>
+      <strong>Do not use "Save public key" button for saving public key.</strong>
+      To save public key in a proper format you have to copy all text from "Public key for pasting into OpenSSH authorized_keys" field, create new textfile and paste this text in it, then save the file in format file_name.pub</li>
     <br>
     <br>
     <p>You can use Cygwin if you want for SSH key generation. In order to generate key using Cygwin please follow these steps:</p>

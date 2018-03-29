@@ -305,7 +305,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
       slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
     };
-    if (DICTIONARY.cloud_provider === 'aws' || DICTIONARY.cloud_provider == 'gcp') {
+    if (DICTIONARY.cloud_provider !== 'azure') {
       this.cluster_type.setDefaultOptions(this.model.resourceImages,
         this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
         if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
