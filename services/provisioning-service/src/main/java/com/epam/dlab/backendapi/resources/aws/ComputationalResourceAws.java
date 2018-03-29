@@ -31,6 +31,7 @@ import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -55,7 +56,6 @@ import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 public class ComputationalResourceAws extends DockerService implements DockerCommands {
 
 	private static final DataEngineType EMR_DATA_ENGINE = DataEngineType.CLOUD_SERVICE;
-
 	@Inject
 	private ComputationalConfigure computationalConfigure;
 	@Inject
@@ -146,7 +146,7 @@ public class ComputationalResourceAws extends DockerService implements DockerCom
 	@POST
 	@Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_SPARK)
 	public String terminateSparkCluster(@Auth UserInfo ui, AwsComputationalTerminateDTO dto) {
-		log.debug("Terminate computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName
+		log.debug("Terminate computational Spark resource {} for user {}: {}", dto.getComputationalName(), ui.getName
 				(), dto);
 
 		return sparkClusterService.terminate(ui, dto);
@@ -159,6 +159,15 @@ public class ComputationalResourceAws extends DockerService implements DockerCom
 				dto.getComputationalName(), ui.getName(), dto);
 
 		return sparkClusterService.stop(ui, dto);
+	}
+
+	@POST
+	@Path(ComputationalAPI.COMPUTATIONAL_START_SPARK)
+	public String startSparkCluster(@Auth UserInfo ui, ComputationalStartDTO dto) {
+		log.debug("Start computational Spark resource {} for user {}: {}",
+				dto.getComputationalName(), ui.getName(), dto);
+
+		return sparkClusterService.start(ui, dto);
 	}
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {

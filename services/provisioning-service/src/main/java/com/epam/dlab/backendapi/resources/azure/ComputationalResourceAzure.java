@@ -19,6 +19,7 @@ package com.epam.dlab.backendapi.resources.azure;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.SparkClusterService;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
+import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -63,10 +64,19 @@ public class ComputationalResourceAzure {
 	@POST
 	@Path(ComputationalAPI.COMPUTATIONAL_STOP_SPARK)
 	public String stopSparkCluster(@Auth UserInfo ui, ComputationalStopDTO dto) {
-		log.debug("Strop computational Spark resources {} for user {}: {}",
+		log.debug("Stop computational Spark resources {} for user {}: {}",
 				dto.getComputationalName(), ui.getName(), dto);
 
 		return sparkClusterService.stop(ui, dto);
+	}
+
+	@POST
+	@Path(ComputationalAPI.COMPUTATIONAL_START_SPARK)
+	public String startSparkCluster(@Auth UserInfo ui, ComputationalStartDTO dto) {
+		log.debug("Start computational Spark resource {} for user {}: {}",
+				dto.getComputationalName(), ui.getName(), dto);
+
+		return sparkClusterService.start(ui, dto);
 	}
 
 }
