@@ -4,6 +4,7 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -40,6 +41,8 @@ public class AccessKeyServiceImplTest {
 	private RequestBuilder requestBuilder;
 	@Mock
 	private RequestId requestId;
+	@Mock
+	private ExploratoryService exploratoryService;
 
 	@InjectMocks
 	private AccessKeyServiceImpl accessKeyService;
@@ -77,6 +80,8 @@ public class AccessKeyServiceImplTest {
 	@Test
 	public void uploadKey() {
 		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(exploratoryService)
+				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(anyString());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -92,16 +97,20 @@ public class AccessKeyServiceImplTest {
 		assertEquals(expectedUuid, actualUuid);
 
 		verify(keyDAO).insertKey(USER, keyContent);
+		verify(exploratoryService)
+				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(USER);
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, keyContent);
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
-		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
+		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
 	}
 
 
 	@Test
 	public void uploadKeyWithException() {
 		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(exploratoryService)
+				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(anyString());
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 
 		expectedException.expect(RuntimeException.class);
@@ -111,6 +120,56 @@ public class AccessKeyServiceImplTest {
 		expectedException.expectMessage("Could not upload the key and create EDGE node: ");
 
 		accessKeyService.loadKey(userInfo, "someKeyContent", true);
+	}
+
+	@Test
+	public void reUploadKey() {
+		doNothing().when(keyDAO).deleteKey(anyString());
+		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).updateKey(anyString(), anyString());
+		doNothing().when(exploratoryService)
+				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(anyString());
+
+		UploadFile uploadFile = mock(UploadFile.class);
+		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
+
+		String expectedUuid = "someUuid";
+		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).
+				thenReturn(expectedUuid);
+		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
+
+		String keyContent = "keyContent";
+		String actualUuid = accessKeyService.loadKey(userInfo, keyContent, false);
+		assertNotNull(actualUuid);
+		assertEquals(expectedUuid, actualUuid);
+
+		verify(keyDAO).deleteKey(USER);
+		verify(keyDAO).insertKey(USER, keyContent);
+		verify(keyDAO).updateKey(USER, KeyLoadStatus.SUCCESS.getStatus());
+		verify(exploratoryService)
+				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(USER);
+		verify(requestBuilder).newKeyReupload(userInfo, keyContent);
+		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
+		verify(requestId).put(USER, expectedUuid);
+		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	public void reUploadKeyWithException() {
+		doNothing().when(keyDAO).deleteKey(anyString());
+		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).updateKey(anyString(), anyString());
+		doNothing().when(exploratoryService)
+				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(anyString());
+		doThrow(new RuntimeException()).when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString());
+		doNothing().when(exploratoryService).cancelReuploadKeyRequirementForAllUserInstances(anyString());
+
+		expectedException.expect(RuntimeException.class);
+
+		expectedException.expect(DlabException.class);
+		expectedException.expectMessage("Could not reupload the key. Previous key has been deleted:");
+
+		accessKeyService.loadKey(userInfo, "someKeyContent", false);
 	}
 
 	@Test

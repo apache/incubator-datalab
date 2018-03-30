@@ -63,6 +63,8 @@ public class UserInstanceDTO {
 	private String privateIp;
 	@JsonProperty("scheduler_data")
 	private SchedulerJobDTO schedulerData;
+	@JsonProperty("reupload_key_required")
+	private boolean reuploadKeyRequired = false;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<LibInstallDTO> libs = Collections.emptyList();
 
@@ -170,6 +172,17 @@ public class UserInstanceDTO {
 		return this;
 	}
 
+	/**
+	 * Sets value of requirement key reuploading.
+	 */
+	public UserInstanceDTO withReuploadKeyRequirement(boolean reuploadKeyRequired) {
+		setReuploadKeyRequired(reuploadKeyRequired);
+		return this;
+	}
+
+	/**
+	 * Sets library list.
+	 */
 	public UserInstanceDTO withLibs(List<LibInstallDTO> libs) {
 		setLibs(libs);
 		return this;

@@ -37,6 +37,7 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.push;
+import static com.mongodb.client.model.Updates.set;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
@@ -49,6 +50,11 @@ public class ComputationalDAO extends BaseDAO {
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
+	}
+
+	private static Bson computationalCondition(String user, String exploratoryName, String computationalName) {
+		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName),
+				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName));
 	}
 
 	/**
@@ -226,4 +232,21 @@ public class ComputationalDAO extends BaseDAO {
 			throw new DlabException("Could not update computational resource status", t);
 		}
 	}
+
+	/**
+	 * Updates the requirement for reuploading key for computational resource in Mongo database.
+	 *
+	 * @param user              user name.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return The result of an update operation.
+	 */
+	public UpdateResult updateReuploadKeyRequirementForComputationalResource(String user, String exploratoryName,
+																			 String computationalName, boolean
+																					 reuploadKeyRequired) {
+		return updateOne(USER_INSTANCES,
+				computationalCondition(user, exploratoryName, computationalName),
+				set(computationalFieldFilter(REUPLOAD_KEY_REQUIRED), reuploadKeyRequired));
+	}
+
 }

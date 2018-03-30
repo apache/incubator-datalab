@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  */
 public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
 
-	public static final String TOKEN = "token123";
+	private static final String TOKEN = "token123";
 
 	/**
 	 * Instantiates an application configuration of Provisioning Service for tests.
@@ -53,7 +53,7 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 	 * @param configuration application configuration of Provisioning Service.
 	 * @param environment   environment of Provisioning Service.
 	 */
-	public ProvisioningDevModule(ProvisioningServiceApplicationConfiguration configuration, Environment environment) {
+	ProvisioningDevModule(ProvisioningServiceApplicationConfiguration configuration, Environment environment) {
 		super(configuration, environment);
 	}
 

@@ -87,7 +87,7 @@ public class KeyUploaderResource implements EdgeAPI {
 	public Response loadKey(@Auth UserInfo userInfo,
 							@FormDataParam("file") InputStream uploadedInputStream,
 							@FormDataParam("file") FormDataContentDisposition fileDetail,
-							boolean isPrimaryUploading) {
+							@DefaultValue("true") @QueryParam("is_primary_uploading") boolean isPrimaryUploading) {
 
 		final String fileContent = getFileContent(uploadedInputStream, userInfo.getName());
 		validate(fileContent);

@@ -19,10 +19,8 @@ package com.epam.dlab.backendapi.resources.base;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.backendapi.core.response.handlers.ReuploadKeyCallbackHandler;
 import com.epam.dlab.dto.base.keyload.ReuploadFile;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.KeyAPI;
@@ -39,8 +37,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-
-import static com.epam.dlab.rest.contracts.ApiCallbacks.KEY_LOADER;
 
 /**
  * Provides API for reuploading keys
@@ -68,17 +64,14 @@ public class KeyResource implements DockerCommands {
 		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
 		FileUtils.deleteFile(filename, configuration.getKeyDirectory());
 		FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
-		return reuploadKeyAction(edgeUserName, ui.getName(), KEY_LOADER, DockerAction.REUPLOAD_KEY);
+		return reuploadKeyAction(edgeUserName, ui.getName(), DockerAction.REUPLOAD_KEY);
 	}
 
-	private String reuploadKeyAction(String edgeUserName, String userName, String callbackURI,
-									 DockerAction action) throws JsonProcessingException {
+	//TODO refactor Docker command corresponding to DevOps' requirement
+	private String reuploadKeyAction(String edgeUserName, String userName, DockerAction action) throws
+			JsonProcessingException {
 		log.debug("{} for edge user {}", action, edgeUserName);
 		String uuid = DockerCommands.generateUUID();
-
-		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
-				configuration.getKeyLoaderPollTimeout(),
-				getFileHandlerCallback(action, uuid, userName, callbackURI));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
@@ -92,18 +85,14 @@ public class KeyResource implements DockerCommands {
 				.withImage(configuration.getEdgeImage())
 				.withAction(action);
 
-		commandExecutor.executeAsync(userName, uuid, commandBuilder.buildCommand(runDockerCommand, null));
+		String command = commandBuilder.buildCommand(runDockerCommand, null);
+		log.trace("Docker command:  {}", command);
+		commandExecutor.executeAsync(userName, uuid, command);
 		return uuid;
 	}
 
-	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user,
-													   String callbackURI) {
-		return new ReuploadKeyCallbackHandler(selfService, callbackURI, user, uuid, action);
-	}
-
-
 	@Override
 	public String getResourceType() {
-		return null;
+		return "RES_TYPE";
 	}
 }

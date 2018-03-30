@@ -123,7 +123,8 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void terminateEnvironment() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString())).thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(anyBoolean(), anyString()))
+				.thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.edgeNodeExist(anyString())).thenReturn(true);
@@ -131,7 +132,8 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateEnvironment(USER);
 
-		verify(exploratoryDAO, never()).fetchUserExploratoriesWhereStatusNotIn(anyString(), any());
+		verify(exploratoryDAO, never()).fetchUserExploratoriesWhereStatusIncludedOrExcluded(anyBoolean(), anyString(),
+				any());
 		verify(systemUserInfoService).create(USER);
 		verify(keyDAO).edgeNodeExist(USER);
 		verify(edgeService).terminate(refEq(userInfo));
@@ -142,9 +144,8 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void terminateEnvironmentWithoutEdge() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), Matchers.<UserInstanceStatus>anyVararg
-				()))
-				.thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(anyBoolean(), anyString(),
+				Matchers.<UserInstanceStatus>anyVararg())).thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.edgeNodeExist(anyString())).thenReturn(false);
@@ -152,8 +153,8 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateEnvironment(USER);
 
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER, UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIncludedOrExcluded(false, USER,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING);
 		verify(systemUserInfoService, times(2)).create(USER);
 		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_2));

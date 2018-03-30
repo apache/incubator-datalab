@@ -51,8 +51,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public void terminateEnvironment(String user) {
 		log.debug("Terminating environment for user {}", user);
 		if (!terminateEdge(user)) {
-			exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(user, UserInstanceStatus.TERMINATED,
-					UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING).forEach(this::terminateNotebook);
+			exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(false, user,
+					UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
+					.forEach(this::terminateNotebook);
 		}
 	}
 

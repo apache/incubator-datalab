@@ -6,6 +6,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -43,6 +44,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private ExploratoryService exploratoryService;
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
 
@@ -97,6 +100,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	private String uploadKey(UserInfo user, String keyContent) {
 		log.debug("The key uploading and EDGE node creating for user {} is starting...", user);
 		keyDAO.insertKey(user.getName(), keyContent);
+		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(user.getName());
 		try {
 			return createEdge(user, keyContent);
 		} catch (Exception e) {
@@ -110,6 +114,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		log.debug("The key reuploading for user {} is starting...", user);
 		keyDAO.deleteKey(user.getName());
 		keyDAO.insertKey(user.getName(), keyContent);
+		keyDAO.updateKey(user.getName(), KeyLoadStatus.SUCCESS.getStatus());
+		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(user.getName());
 		try {
 			UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent);
 			String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
@@ -118,6 +124,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		} catch (Exception e) {
 			log.error("The key reuploading for user {} fails", user.getName(), e);
 			keyDAO.deleteKey(user.getName());
+			exploratoryService.cancelReuploadKeyRequirementForAllUserInstances(user.getName());
 			throw new DlabException("Could not reupload the key. Previous key has been deleted: " +
 					e.getLocalizedMessage(), e);
 		}

@@ -135,24 +135,29 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the info of all user's running notebooks.
+	 * Finds and returns the info of all user's notebooks whose status is present (parameter 'isIncluded' equals
+	 * 'true')
+	 * or not (parameter 'isIncluded' equals 'false') among predefined ones.
 	 *
+	 * @param isIncluded boolean value.
 	 * @param user user name.
+	 * @param statuses array of statuses.
 	 */
-	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusNotIn(String user, UserInstanceStatus... statuses) {
-		final List<String> statusList = Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors
-				.toList());
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIncludedOrExcluded(boolean isIncluded,
+																					 String user,
+																					 UserInstanceStatus... statuses) {
+		final List<String> statusList =
+				Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors.toList());
 		return getUserInstances(
 				and(
 						eq(USER, user),
-						not(in(STATUS, statusList))
+						(isIncluded ? (in(STATUS, statusList)) : not(in(STATUS, statusList)))
 				));
 	}
 
 	private List<UserInstanceDTO> getUserInstances(Bson condition) {
 		return stream(getCollection(USER_INSTANCES)
-				.find(condition)
-				.projection(fields(exclude(COMPUTATIONAL_RESOURCES))))
+				.find(condition))
 				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
 				.collect(Collectors.toList());
 	}
@@ -251,6 +256,20 @@ public class ExploratoryDAO extends BaseDAO {
 		return updateOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
 				set(SCHEDULER_DATA, convertToBson(dto)));
+	}
+
+	/**
+	 * Updates the requirement for reuploading key for exploratory in Mongo database.
+	 *
+	 * @param user            user name.
+	 * @param exploratoryName name of exploratory.
+	 * @return The result of an update operation.
+	 */
+	public UpdateResult updateReuploadKeyRequirementForUserAndExploratory(String user, String exploratoryName,
+																		  boolean reuploadKeyRequired) {
+		return updateOne(USER_INSTANCES,
+				exploratoryCondition(user, exploratoryName),
+				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 
 

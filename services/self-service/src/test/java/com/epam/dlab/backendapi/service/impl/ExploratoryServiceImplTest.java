@@ -9,6 +9,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -23,6 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -301,12 +304,165 @@ public class ExploratoryServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO, gitCredsDAO, requestBuilder);
 	}
 
+	@Test
+	public void updateExploratoryStatusesWithRunningStatus() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(anyBoolean(), anyString(), anyVararg
+				()))
+				.thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+
+		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.RUNNING);
+
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("running");
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIncludedOrExcluded(false, USER,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void updateExploratoryStatusesWithStoppingStatus() {
+		userInstance.setStatus("stopping");
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(anyBoolean(), anyString(), anyVararg
+				()))
+				.thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
+				any(UserInstanceStatus.class), any(UserInstanceStatus.class));
+
+		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.STOPPING);
+
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIncludedOrExcluded(false, USER,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME,
+				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void updateExploratoryStatusesWithTerminatingStatus() {
+		userInstance.setStatus("terminating");
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(anyBoolean(), anyString(), anyVararg
+				()))
+				.thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class)))
+				.thenReturn(10);
+
+		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.TERMINATING);
+
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIncludedOrExcluded(false, USER,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(computationalDAO).updateComputationalStatusesForExploratory(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void setReuploadKeyRequiredForRunningExploratoriesAndStoppedComputationals() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(eq(true), anyString(),
+				eq(UserInstanceStatus.STOPPED))).thenReturn(Collections.emptyList());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(eq(true), anyString(),
+				eq(UserInstanceStatus.RUNNING))).thenReturn(Collections.singletonList(userInstance));
+		when(computationalDAO.updateReuploadKeyRequirementForComputationalResource(anyString(), anyString(),
+				anyString(), anyBoolean())).thenReturn(mock(UpdateResult.class));
+
+		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(USER);
+
+		verify(exploratoryDAO, times(2))
+				.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, USER, UserInstanceStatus.STOPPED);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, USER,
+				UserInstanceStatus.RUNNING);
+		verify(computationalDAO).updateReuploadKeyRequirementForComputationalResource(USER, EXPLORATORY_NAME,
+				"compName", true);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void setReuploadKeyRequiredForRunningExploratoriesAndRunningComputationals() {
+		userInstance.getResources().forEach(resource -> resource.setStatus("running"));
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(eq(true), anyString(),
+				eq(UserInstanceStatus.STOPPED))).thenReturn(Collections.emptyList());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(eq(true), anyString(),
+				eq(UserInstanceStatus.RUNNING))).thenReturn(Collections.singletonList(userInstance));
+
+		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(USER);
+
+		verify(exploratoryDAO, times(2))
+				.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, USER, UserInstanceStatus.STOPPED);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, USER,
+				UserInstanceStatus.RUNNING);
+		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(computationalDAO);
+	}
+
+	@Test
+	public void setReuploadKeyRequiredForStoppedExploratoriesAndStoppedComputationals() {
+		userInstance.setStatus("stopped");
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(eq(true), anyString(),
+				eq(UserInstanceStatus.STOPPED))).thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(anyString(), anyString(), anyBoolean()))
+				.thenReturn(mock(UpdateResult.class));
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(eq(true), anyString(),
+				eq(UserInstanceStatus.RUNNING))).thenReturn(Collections.emptyList());
+		when(computationalDAO.updateReuploadKeyRequirementForComputationalResource(anyString(), anyString(),
+				anyString(), anyBoolean())).thenReturn(mock(UpdateResult.class));
+
+
+		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(USER);
+
+		verify(exploratoryDAO, times(2))
+				.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, USER, UserInstanceStatus.STOPPED);
+		verify(exploratoryDAO)
+				.updateReuploadKeyRequirementForUserAndExploratory(USER, EXPLORATORY_NAME, true);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, USER,
+				UserInstanceStatus.RUNNING);
+		verify(computationalDAO).updateReuploadKeyRequirementForComputationalResource(USER, EXPLORATORY_NAME,
+				"compName", true);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void cancelReuploadKeyRequirementForAllUserInstances() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(anyBoolean(), anyString(), anyVararg
+				()))
+				.thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(anyString(), anyString(), anyBoolean()))
+				.thenReturn(mock(UpdateResult.class));
+		when(computationalDAO.updateReuploadKeyRequirementForComputationalResource(anyString(), anyString(),
+				anyString(), anyBoolean())).thenReturn(mock(UpdateResult.class));
+
+		exploratoryService.cancelReuploadKeyRequirementForAllUserInstances(USER);
+
+		verify(exploratoryDAO)
+				.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, USER, UserInstanceStatus.values());
+		verify(exploratoryDAO).updateReuploadKeyRequirementForUserAndExploratory(USER, EXPLORATORY_NAME, false);
+		verify(computationalDAO).updateReuploadKeyRequirementForComputationalResource(USER, EXPLORATORY_NAME,
+				"compName", false);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
 
 	private UserInstanceDTO getUserInstanceDto() {
-		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME);
+		UserComputationalResource compResource = new UserComputationalResource();
+		compResource.setImageName("YYYY.dataengine");
+		compResource.setComputationalName("compName");
+		compResource.setStatus("stopped");
+		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME).withStatus("running")
+				.withResources(Collections.singletonList(compResource));
 	}
 
 	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {
