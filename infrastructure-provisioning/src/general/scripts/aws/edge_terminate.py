@@ -35,8 +35,9 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
-                terminate_emr(cluster_id)
-                print("The EMR cluster {} has been terminated successfully".format(emr_name))
+                if '{}'.format(tag_name[:-3]) in emr_name:
+                    terminate_emr(cluster_id)
+                    print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
             print("There are no EMR clusters to terminate.")
     except:
@@ -97,8 +98,7 @@ if __name__ == "__main__":
     edge_conf['edge_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['de_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
                                              '-dataengine*'
-    edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
-                          '-emr*'
+    edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-des-*'
 
     try:
         logging.info('[TERMINATE EDGE]')
