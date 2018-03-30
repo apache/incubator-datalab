@@ -218,7 +218,10 @@ Prerequisites:
 				"iam:PutRolePolicy",
 				"iam:AddRoleToInstanceProfile",
 				"iam:PassRole",
-				"iam:GetInstanceProfile"
+				"iam:GetInstanceProfile",
+				"iam:ListInstanceProfilesForRole"
+				"iam:RemoveRoleFromInstanceProfile",
+				"iam:DeleteInstanceProfile"
 			],
 			"Effect": "Allow",
 			"Resource": "*"
@@ -234,7 +237,14 @@ Prerequisites:
 				"ec2:CreateVpcEndpoint",
 				"ec2:ModifyVpcEndpoint",
 				"ec2:DescribeInstances",
-				"ec2:RunInstances"
+				"ec2:RunInstances",
+				"ec2:DescribeAddresses",
+				"ec2:AllocateAddress",
+				"ec2:DescribeInstances",
+				"ec2:AssociateAddress",
+				"ec2:DisassociateAddress",
+				"ec2:ReleaseAddress",
+				"ec2:TerminateInstances"
 			],
 			"Effect": "Allow",
 			"Resource": "*"

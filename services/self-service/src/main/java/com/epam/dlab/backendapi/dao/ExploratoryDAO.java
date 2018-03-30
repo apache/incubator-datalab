@@ -146,14 +146,19 @@ public class ExploratoryDAO extends BaseDAO {
 	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIncludedOrExcluded(boolean isIncluded,
 																					 String user,
 																					 UserInstanceStatus... statuses) {
-		final List<String> statusList =
-				Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors.toList());
+		final List<String> statusList = statusList(statuses);
 		return getUserInstances(
 				and(
 						eq(USER, user),
 						(isIncluded ? (in(STATUS, statusList)) : not(in(STATUS, statusList)))
 				));
 	}
+
+	private List<String> statusList(UserInstanceStatus[] statuses) {
+		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors
+				.toList());
+	}
+
 
 	private List<UserInstanceDTO> getUserInstances(Bson condition) {
 		return stream(getCollection(USER_INSTANCES)

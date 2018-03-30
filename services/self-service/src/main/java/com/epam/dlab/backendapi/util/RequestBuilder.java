@@ -47,6 +47,7 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.keyload.ReuploadFile;
 import com.epam.dlab.dto.base.keyload.UploadFile;
+import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -231,7 +232,8 @@ public class RequestBuilder {
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryGitCredsUpdateDTO> T newExploratoryStart(UserInfo userInfo,
 																		  UserInstanceDTO userInstance,
-																		  ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
+																		  ExploratoryGitCredsDTO
+																				  exploratoryGitCredsDTO) {
 
 		switch (cloudProvider()) {
 			case AWS:
@@ -394,7 +396,6 @@ public class RequestBuilder {
 
 		T computationalCreate;
 
-		//TODO use just 1 shape when devops api will be changed (slave/master -> instance shape)
 		switch (cloudProvider()) {
 			case AWS:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
@@ -482,6 +483,15 @@ public class RequestBuilder {
 																   String exploratoryId,
 																   String computationalName) {
 		return (T) newResourceSysBaseDTO(userInfo, ComputationalStopDTO.class)
+				.withExploratoryName(exploratoryName)
+				.withComputationalName(computationalName)
+				.withNotebookInstanceName(exploratoryId);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ComputationalBase<T>> T newComputationalStart(UserInfo userInfo, String exploratoryName,
+																	String exploratoryId, String computationalName) {
+		return (T) newResourceSysBaseDTO(userInfo, ComputationalStartDTO.class)
 				.withExploratoryName(exploratoryName)
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratoryId);

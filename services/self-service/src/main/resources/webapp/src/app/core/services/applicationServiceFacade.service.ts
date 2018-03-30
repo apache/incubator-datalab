@@ -30,6 +30,7 @@ export class ApplicationServiceFacade {
   private static readonly AUTHORIZE = 'authorize';
   private static readonly OAUTH = 'oauth';
   private static readonly ACCESS_KEY = 'access_key';
+  private static readonly ACCESS_KEY_GENERATE = 'access_key_generate';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
   private static readonly IMAGE = 'image';
@@ -91,6 +92,13 @@ export class ApplicationServiceFacade {
   public buildCheckUserAccessKeyRequest(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGenerateAccessKey(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE),
       null,
       this.getRequestOptions(true, true));
   }
@@ -297,6 +305,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetImagesList(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildCreateAMI(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
@@ -328,6 +343,7 @@ export class ApplicationServiceFacade {
 
     this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
+    this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY_GENERATE, '/api/user/access_key/generate');
 
     // Exploratory Environment
     this.requestRegistry.Add(ApplicationServiceFacade.PROVISIONED_RESOURCES,

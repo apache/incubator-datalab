@@ -532,7 +532,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
         client = boto3.client('iam')
-        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
+        service_base_name = os.environ['conf_service_base_name']
         roles_list = []
         for item in client.list_roles(MaxItems=250).get("Roles"):
             if item.get("RoleName").startswith(service_base_name + '-'):
@@ -558,7 +558,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-edge-Role' in iam_role:
                     if instance_type == 'edge' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + '{}'.format(scientist) + '-edge-Profile'
+                        role_profile_name = os.environ['conf_service_base_name'] + '-' + '{}'.format(scientist) + '-edge-Profile'
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -580,7 +580,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + "{}".format(scientist) + '-nb-de-Profile'
+                        role_profile_name = os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-nb-de-Profile'
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)

@@ -137,6 +137,26 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 		return Response.ok().build();
 	}
 
+	/**
+	 * Sends request to provisioning service for starting the computational resource for user.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@PUT
+	@Path("/{exploratoryName}/{computationalName}/start")
+	public Response start(@Auth UserInfo userInfo,
+						  @PathParam("exploratoryName") String exploratoryName,
+						  @PathParam("computationalName") String computationalName) {
+		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
+
+		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
+
+		return Response.ok().build();
+	}
+
 	private void validate(@Auth UserInfo userInfo, GcpComputationalCreateForm formDTO) {
 		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
 			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());

@@ -32,7 +32,10 @@ export class AmiCreateDialogComponent {
   readonly DICTIONARY = DICTIONARY;
   public notebook: any;
   public createAMIForm: FormGroup;
-  namePattern = '[a-zA-Z0-9]+';
+
+  namePattern = '[-_a-zA-Z0-9]+';
+  delimitersRegex = /[-_]?/g;
+  imagesList: any;
 
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
@@ -41,6 +44,10 @@ export class AmiCreateDialogComponent {
     private _userResource: UserResourceService,
     private _fb: FormBuilder
   ) {}
+
+  ngOnInit() {
+    this._userResource.getImagesList().subscribe(res => this.imagesList = res);
+  }
 
   public open(param, notebook): void {
     this.notebook = notebook;
@@ -65,7 +72,7 @@ export class AmiCreateDialogComponent {
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
-      name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength]],
+      name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       description: [''],
       exploratory_name: [this.notebook.name]
     });
@@ -74,5 +81,22 @@ export class AmiCreateDialogComponent {
   private providerMaxLength(control) {
     if (DICTIONARY.cloud_provider !== 'aws')
       return control.value.length <=10 ? null : { valid: false };
+  }
+
+  private delimitersFiltering(resource): string {
+    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
+  }
+
+  private checkDuplication(control) {
+    if (control.value)
+      return this.isDuplicate(control.value) ? { duplication: true } : null;
+  }
+
+  private isDuplicate(value: string) {
+    for (let index = 0; index < this.imagesList.length; index++) {
+      if (this.delimitersFiltering(value) === this.delimitersFiltering(this.imagesList[index].name))
+        return true;
+    }
+    return false;
   }
 }

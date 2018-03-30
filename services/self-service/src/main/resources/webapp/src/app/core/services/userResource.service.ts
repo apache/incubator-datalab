@@ -110,6 +110,12 @@ export class UserResourceService {
       .map((response: Response) => response.json());
   }
 
+  public getImagesList(): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildGetImagesList()
+      .map((response: Response) => response.json());
+  }
+
   public createAMI(data): Observable<Response> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
