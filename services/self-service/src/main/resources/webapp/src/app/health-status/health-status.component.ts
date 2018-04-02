@@ -34,6 +34,7 @@ export class HealthStatusComponent implements OnInit {
 
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
+  @ViewChild('manageEnvDialog') manageEnvironmentDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -68,6 +69,17 @@ export class HealthStatusComponent implements OnInit {
   showBackupDialog() {
     if (!this.backupDialog.isOpened)
       this.backupDialog.open({ isFooter: false });
+  }
+
+  getActiveUsersList() {
+    this.healthStatusService.getActiveUsers().subscribe(data => {
+      this.manageEnvironmentDialog.open({ isFooter: false }, data);
+    });
+  }
+
+  manageEnvironment(action) {
+    
+    this.healthStatusService.manageEnvironment(action, {}).subscribe();
   }
 
   createBackup($event) {
