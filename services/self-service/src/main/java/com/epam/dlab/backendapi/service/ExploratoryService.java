@@ -4,6 +4,9 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.model.exloratory.Exploratory;
 
+import java.util.List;
+import java.util.Map;
+
 public interface ExploratoryService {
 
 	String start(UserInfo userInfo, String exploratoryName);
@@ -19,4 +22,6 @@ public interface ExploratoryService {
 	void setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(String user);
 
 	void cancelReuploadKeyRequirementForAllUserInstances(String user);
+
+	Map<String, List<String>> getRunningEnvironment(String user);
 }

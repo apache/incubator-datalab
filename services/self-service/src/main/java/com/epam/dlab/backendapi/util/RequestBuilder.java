@@ -66,6 +66,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.epam.dlab.cloud.CloudProvider.*;
@@ -172,10 +174,11 @@ public class RequestBuilder {
 		}
 	}
 
-	public UploadFile newKeyReupload(UserInfo userInfo, String content) {
+	public UploadFile newKeyReupload(UserInfo userInfo, String content, Map<String, List<String>> runningEnvironment) {
 		ReuploadFile reuploadFile = new ReuploadFile();
 		reuploadFile.setContent(content);
 		reuploadFile.setEdgeUserName(getEdgeUserName(userInfo));
+		reuploadFile.setRunningEnvironment(runningEnvironment);
 		return reuploadFile;
 	}
 

@@ -117,7 +117,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		keyDAO.updateKey(user.getName(), KeyLoadStatus.SUCCESS.getStatus());
 		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(user.getName());
 		try {
-			UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent);
+			UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent,
+					exploratoryService.getRunningEnvironment(user.getName()));
 			String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
 			requestId.put(user.getName(), uuid);
 			return uuid;

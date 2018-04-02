@@ -120,13 +120,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				getExploratoriesWithPredefinedComputationalTypeAndStatuses(
 						user, DataEngineType.SPARK_STANDALONE, RUNNING, STOPPED);
 		log.debug("Setting requirement for reuploading key to the following running exploratories with stopped Spark" +
-				" " +
 				"clusters: {}", runningExploratoriesWithStoppedSparkClusters);
 		Map<String, List<String>> stoppedExploratoriesWithStoppedSparkClusters =
 				getExploratoriesWithPredefinedComputationalTypeAndStatuses(
 						user, DataEngineType.SPARK_STANDALONE, STOPPED, STOPPED);
 		log.debug("Setting requirement for reuploading key to the following stopped exploratories with stopped Spark" +
-				" " +
 				"clusters: {}", stoppedExploratoriesWithStoppedSparkClusters);
 
 		Map<String, List<String>> exploratoriesWithStoppedSparkClusters =
@@ -146,17 +144,28 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 */
 	@Override
 	public void cancelReuploadKeyRequirementForAllUserInstances(String user) {
-		List<UserInstanceDTO> userInstances =
-				exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, user, UserInstanceStatus
-						.values());
-		userInstances.forEach(ui -> exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(user, ui
-				.getExploratoryName(), false));
+		List<UserInstanceDTO> userInstances = exploratoryDAO
+				.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, user, UserInstanceStatus.values());
+		userInstances.forEach(ui ->
+				exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(user, ui.getExploratoryName(),
+						false));
 		userInstances.forEach(ui -> {
 			List<UserComputationalResource> compResources = ui.getResources();
 			compResources.forEach(compResource -> computationalDAO
-					.updateReuploadKeyRequirementForComputationalResource(user, ui.getExploratoryName(), compResource
-							.getComputationalName(), false));
+					.updateReuploadKeyRequirementForComputationalResource(user, ui.getExploratoryName(),
+							compResource.getComputationalName(), false));
 		});
+	}
+
+	/**
+	 * Returns the names of running notebooks and corresponding running Spark clusters.
+	 *
+	 * @param user user.
+	 */
+	@Override
+	public Map<String, List<String>> getRunningEnvironment(String user) {
+		return getExploratoriesWithPredefinedComputationalTypeAndStatuses(user, DataEngineType.SPARK_STANDALONE,
+				UserInstanceStatus.RUNNING, UserInstanceStatus.RUNNING);
 	}
 
 	/**
@@ -181,7 +190,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 */
 	private Map<String, List<String>> getExploratoriesWithPredefinedComputationalTypeAndStatuses(String user,
 																								 DataEngineType
-																										 computationalType, UserInstanceStatus exploratoryStatus, UserInstanceStatus computationalStatus) {
+																										 computationalType,
+																								 UserInstanceStatus
+																										 exploratoryStatus,
+																								 UserInstanceStatus
+																										 computationalStatus) {
 		List<UserInstanceDTO> exploratoriesWithPredefinedStatus =
 				getExploratoriesWithPredefinedStatus(user, exploratoryStatus);
 		if (exploratoriesWithPredefinedStatus.isEmpty()) {
@@ -196,8 +209,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				exploratoriesWithComputationalResources.stream().map(e -> e.withResources(e.getResources().stream()
 						.filter(resource -> resource.getImageName().endsWith(computationalType.getName()) &&
 								resource.getStatus().equals(computationalStatus.toString()))
-						.collect(Collectors.toList()))).filter(e -> !e.getResources().isEmpty())
-						.collect(Collectors.toList());
+						.collect(Collectors.toList())))
+						.filter(e -> !e.getResources().isEmpty()).collect(Collectors.toList());
 		if (exploratoriesWithPredefinedComputationalTypeAndStatus.isEmpty()) {
 			return Collections.emptyMap();
 		}

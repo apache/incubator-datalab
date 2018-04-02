@@ -22,6 +22,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -123,15 +125,17 @@ public class AccessKeyServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void reUploadKey() {
 		doNothing().when(keyDAO).deleteKey(anyString());
 		doNothing().when(keyDAO).insertKey(anyString(), anyString());
 		doNothing().when(keyDAO).updateKey(anyString(), anyString());
 		doNothing().when(exploratoryService)
 				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(anyString());
+		when(exploratoryService.getRunningEnvironment(anyString())).thenReturn(Collections.emptyMap());
 
 		UploadFile uploadFile = mock(UploadFile.class);
-		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
+		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyMap())).thenReturn(uploadFile);
 
 		String expectedUuid = "someUuid";
 		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).
@@ -148,20 +152,23 @@ public class AccessKeyServiceImplTest {
 		verify(keyDAO).updateKey(USER, KeyLoadStatus.SUCCESS.getStatus());
 		verify(exploratoryService)
 				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(USER);
-		verify(requestBuilder).newKeyReupload(userInfo, keyContent);
+		verify(exploratoryService).getRunningEnvironment(USER);
+		verify(requestBuilder).newKeyReupload(userInfo, keyContent, Collections.emptyMap());
 		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void reUploadKeyWithException() {
 		doNothing().when(keyDAO).deleteKey(anyString());
 		doNothing().when(keyDAO).insertKey(anyString(), anyString());
 		doNothing().when(keyDAO).updateKey(anyString(), anyString());
 		doNothing().when(exploratoryService)
 				.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(anyString());
-		doThrow(new RuntimeException()).when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString());
+		doThrow(new RuntimeException()).when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString(), anyMap
+				());
 		doNothing().when(exploratoryService).cancelReuploadKeyRequirementForAllUserInstances(anyString());
 
 		expectedException.expect(RuntimeException.class);
