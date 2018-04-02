@@ -20,8 +20,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService } from '../core/services';
 
-import 'rxjs/add/operator/toPromise';
-
 @Component({
   moduleId: module.id,
   selector: 'health-status',
@@ -85,12 +83,15 @@ export class HealthStatusComponent implements OnInit {
     });
   }
 
-  manageEnvironment($event) {    
-    this.healthStatusService.manageEnvironment($event.action, $event.user)
-    .subscribe(res => {
-        this.getActiveUsersList().subscribe(
-          usersList => this.manageEnvironmentDialog.usersList = usersList);
-      });
+  manageEnvironment($event) {
+    this.healthStatusService
+      .manageEnvironment($event.action, $event.user)
+      .subscribe(res => {
+          this.getActiveUsersList().subscribe(usersList => {
+              this.manageEnvironmentDialog.usersList = usersList;
+              this.buildGrid();
+            });
+        });
   }
 
   createBackup($event) {
