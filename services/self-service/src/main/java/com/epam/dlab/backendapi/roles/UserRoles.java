@@ -34,6 +34,7 @@ import java.util.*;
  */
 public class UserRoles {
 	public static final String BACKUP = "/api/infrastructure/backup";
+	public static final String ENVIRONMENT = "environment/*";
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoles.class);
 
 	private static final String ANY_USER = "$anyuser";
