@@ -16,7 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from './../../../dictionary/global.dictionary';
 
 @Component({
@@ -33,6 +34,8 @@ export class ManageEnvironmentComponent implements OnInit {
   @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
 
+  constructor(public dialog: MatDialog) { }
+
   ngOnInit() {}
 
   public open(param, data): void {
@@ -41,6 +44,33 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public applyAction(action, user) {
-    this.manageEnv.emit({action, user});
+    const dialogRef: MatDialogRef<ConfirmActionDialog> = this.dialog.open(ConfirmActionDialog, { data: {action, user}, width: '550px' });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) this.manageEnv.emit({action, user});
+    });
   }
+}
+
+
+@Component({
+  selector: 'dialog-result-example-dialog',
+  template: `
+  <div mat-dialog-content class="content">
+    <p>Kill env of {{ data.user}}.</p>
+    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+  </div>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+    <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
+  </div>
+  `,
+  styles: [`
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+  `]
+})
+export class ConfirmActionDialog {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmActionDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 }

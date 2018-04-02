@@ -24,7 +24,10 @@ import { NavbarModule, ModalModule } from './../shared';
 import { HealthStatusComponent } from './health-status.component';
 import { HealthStatusGridModule } from './health-status-grid/health-status-grid.module';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
-import { ManageEnvironmentComponent } from './manage-environment/manage-environment-dilog.component';
+import {
+  ManageEnvironmentComponent,
+  ConfirmActionDialog
+} from './manage-environment/manage-environment-dilog.component';
 
 @NgModule({
   imports: [
@@ -34,7 +37,13 @@ import { ManageEnvironmentComponent } from './manage-environment/manage-environm
     HealthStatusGridModule,
     MaterialModule
   ],
-  declarations: [HealthStatusComponent, BackupDilogComponent, ManageEnvironmentComponent],
+  declarations: [
+    HealthStatusComponent,
+    BackupDilogComponent,
+    ManageEnvironmentComponent,
+    ConfirmActionDialog
+  ],
+  entryComponents: [ConfirmActionDialog],
   exports: [HealthStatusComponent]
 })
 export class HealthStatusModule {}
