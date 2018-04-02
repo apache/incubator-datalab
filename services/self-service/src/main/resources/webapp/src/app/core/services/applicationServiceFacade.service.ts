@@ -347,7 +347,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
       data,
-      this.getRequestOptions(true, true));
+      this.getRequestOptions(false, true));
   }
 
   private setupRegistry(): void {

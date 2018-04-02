@@ -80,19 +80,16 @@ export class HealthStatusComponent implements OnInit {
   }
 
   openManageEnvironmentDialog() {
-    this.manageEnvironmentDialog.open({ isFooter: false }, this.usersList);
+    this.getActiveUsersList().subscribe(usersList => {
+      this.manageEnvironmentDialog.open({ isFooter: false }, usersList);
+    });
   }
 
   manageEnvironment($event) {    
-    debugger;
-    
     this.healthStatusService.manageEnvironment($event.action, $event.user)
     .subscribe(res => {
-      debugger;
-
         this.getActiveUsersList().subscribe(
-          res => this.manageEnvironmentDialog.usersList = res
-        );
+          usersList => this.manageEnvironmentDialog.usersList = usersList);
       });
   }
 

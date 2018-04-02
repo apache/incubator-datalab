@@ -100,6 +100,6 @@ export class HealthStatusService {
     const action = `/${act}`;
     return this.applicationServiceFacade
       .buildManageEnvironment(action, data)
-      .map((response: Response) => response.json());
+      .map((response: Response) => response);
   }
 }
