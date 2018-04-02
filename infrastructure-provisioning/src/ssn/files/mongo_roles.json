@@ -20,45 +20,239 @@
     ]
   },
   {
-    "_id": "nbShapesFetching1",
+    "_id": "nbShapes_p2.xlarge_fetching",
     "description": "Fetch notebook shapes",
     "exploratory_shapes": [
-      "p2.xlarge",
-      "c4.8xlarge",
-      "Standard_F8s",
-      "Standard_F16s"
+      "p2.xlarge"
     ],
     "groups": [
-      "specialUser"
+      "$anyuser"
     ]
   },
   {
-    "_id": "nbShapesFetching2",
+    "_id": "nbShapes_t2.medium_fetching",
     "description": "Fetch notebook shapes",
     "exploratory_shapes": [
-      "p2.xlarge",
-      "t2.medium",
-      "r3.xlarge",
-      "r4.2xlarge",
-      "r3.4xlarge",
-      "r3.8xlarge",
-      "c4.large",
-      "c4.2xlarge",
-      "c4.8xlarge",
-      "n1-standard-1",
-      "n1-standard-2",
-      "n1-highcpu-2",
-      "n1-highcpu-8",
-      "n1-highcpu-32",
-      "n1-highmem-4",
-      "n1-highmem-16",
-      "n1-highmem-32",
-      "Standard_NC6",
-      "Standard_E4s_v3",
-      "Standard_E16s_v3",
-      "Standard_E32s_v3",
-      "Standard_F2s",
-      "Standard_F8s",
+      "t2.medium"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r3.xlarge_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "r3.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r4.2xlarge_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "r4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r3.4xlarge_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "r3.4xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r3.8xlarge_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "r3.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_c4.large_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "c4.large"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_c4.2xlarge_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "c4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_c4.8xlarge_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "c4.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-standard-1_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-standard-1"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-standard-2_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-standard-2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highcpu-2_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-highcpu-2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highcpu-8_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-highcpu-8"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highcpu-32_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-highcpu-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highmem-4_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-highmem-4"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highmem-16_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-highmem-16"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highmem-32_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "n1-highmem-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_NC6_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "Standard_NC6"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_E4s_v3_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "Standard_E4s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_E16s_v3_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "Standard_E16s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_E32s_v3_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "Standard_E32s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_F2s_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "Standard_F2s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_F8s_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
+      "Standard_F8s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_F16s_fetching",
+    "description": "Fetch notebook shapes",
+    "exploratory_shapes": [
       "Standard_F16s"
     ],
     "groups": [
