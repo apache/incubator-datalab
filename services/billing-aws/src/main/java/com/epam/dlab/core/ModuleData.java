@@ -24,7 +24,6 @@ import com.epam.dlab.mongo.MongoDbConnection;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -34,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.mongodb.client.model.Filters.*;
 
 /**
  * Provides loading and storing the working data of modules.
@@ -139,13 +140,13 @@ public class ModuleData {
 		final Document document = new Document().append(ID_FIELD, id).append(MODIFICATION_DATE,
 				modificationDate).append(ENTRIES_FIELD, entries);
 		connection.getCollection(MongoConstants.BILLING_DATA_COLLECTION)
-				.updateOne(Filters.eq(ID_FIELD, id), new Document("$set", document), new UpdateOptions().upsert(true));
+				.updateOne(eq(ID_FIELD, id), new Document("$set", document), new UpdateOptions().upsert(true));
 		modified = false;
 	}
 
 	public boolean wasProcessed(String fileName, Date modificationDate) {
 		final FindIterable<Document> documents = connection.getCollection(MongoConstants.BILLING_DATA_COLLECTION)
-				.find(Filters.and(Filters.eq(ID_FIELD, fileName), Filters.lte(MODIFICATION_DATE, modificationDate)))
+				.find(and(eq(ID_FIELD, fileName), gte(MODIFICATION_DATE, modificationDate)))
 				.limit(1);
 		return documents.iterator().hasNext();
 	}
