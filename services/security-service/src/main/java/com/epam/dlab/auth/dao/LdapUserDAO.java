@@ -27,6 +27,7 @@ import com.epam.dlab.auth.core.SimpleConnection;
 import com.epam.dlab.auth.dao.filter.SearchResultProcessor;
 import com.epam.dlab.auth.dao.script.ScriptHolder;
 import com.epam.dlab.auth.dao.script.SearchResultToDictionaryMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -39,7 +40,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-
+@Slf4j
 public class LdapUserDAO {
 
 	// the request from security.yml for user look up by one of the parameters (mail or phone).
@@ -85,7 +86,7 @@ public class LdapUserDAO {
 			final LdapConnection ldapConnection = connection.connect();
 			userAttributes = searchUsersAttributes(username, ldapConnection);
 			String bindAttribute = userAttributes.get(ldapBindAttribute).toString();
-			bindUser(username, password, bindAttribute, ldapConnection, (String) userAttributes.get(DISTINGUISH_NAME));
+			bindUser(username, password, bindAttribute, ldapConnection);
 
 			UserInfo userInfo = new UserInfo(username, "******");
 			userAttributes.entrySet().forEach(entry -> addAttribute(userInfo, entry));
