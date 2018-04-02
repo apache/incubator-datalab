@@ -20,6 +20,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService } from '../core/services';
 
+import 'rxjs/add/operator/toPromise';
+
 @Component({
   moduleId: module.id,
   selector: 'health-status',
@@ -31,6 +33,7 @@ export class HealthStatusComponent implements OnInit {
   healthStatus: string;
   billingEnabled: boolean;
   backupAllowed: boolean;
+  usersList: Array<string> = [];
 
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
@@ -43,6 +46,7 @@ export class HealthStatusComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
+    this.getActiveUsersList().subscribe((res: any) => this.usersList = res);
   }
 
   buildGrid(): void {
@@ -72,14 +76,24 @@ export class HealthStatusComponent implements OnInit {
   }
 
   getActiveUsersList() {
-    this.healthStatusService.getActiveUsers().subscribe(data => {
-      this.manageEnvironmentDialog.open({ isFooter: false }, data);
-    });
+    return this.healthStatusService.getActiveUsers()
   }
 
-  manageEnvironment(action) {
+  openManageEnvironmentDialog() {
+    this.manageEnvironmentDialog.open({ isFooter: false }, this.usersList);
+  }
+
+  manageEnvironment($event) {    
+    debugger;
     
-    this.healthStatusService.manageEnvironment(action, {}).subscribe();
+    this.healthStatusService.manageEnvironment($event.action, $event.user)
+    .subscribe(res => {
+      debugger;
+
+        this.getActiveUsersList().subscribe(
+          res => this.manageEnvironmentDialog.usersList = res
+        );
+      });
   }
 
   createBackup($event) {

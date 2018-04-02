@@ -29,17 +29,22 @@ limitations under the License.
             <div class="action">Actions</div>
           </mat-list-item>
           <div class="scrolling-content" id="scrolling">
-            <mat-list-item *ngFor="let item of usersList">
-              <div class="username">{{ item }}</div>
-              <div class="action">
-                <button mat-raised-button type="button" (click)="applyAction('stop', item)" class="butt">
-                  <i class="material-icons">pause_circle_outline</i>Stop
-                </button>
-                <button mat-raised-button type="button" (click)="applyAction('terminate', item)" class="butt">
-                  <i class="material-icons">phonelink_off</i>Terminate
-                </button>
-              </div>
-            </mat-list-item>
+            <div *ngIf="usersList">
+              <mat-list-item *ngFor="let item of usersList">
+                <div class="username">{{ item }}</div>
+                <div class="action">
+                  <button mat-raised-button type="button" (click)="applyAction('stop', item)" class="butt">
+                    <i class="material-icons">pause_circle_outline</i>Stop
+                  </button>
+                  <button mat-raised-button type="button" (click)="applyAction('terminate', item)" class="butt">
+                    <i class="material-icons">phonelink_off</i>Terminate
+                  </button>
+                </div>
+              </mat-list-item>
+            </div>
+            <div class="info" *ngIf="!usersList">
+              No active users environments
+            </div>
           </div>
         </mat-list>
 

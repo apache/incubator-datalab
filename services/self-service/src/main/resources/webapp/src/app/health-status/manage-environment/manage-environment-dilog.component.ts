@@ -41,7 +41,6 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public applyAction(action, user) {
-    console.log(action, user);
     this.manageEnv.emit({action, user});
   }
 }

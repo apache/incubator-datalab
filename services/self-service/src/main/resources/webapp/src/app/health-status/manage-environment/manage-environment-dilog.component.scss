@@ -35,8 +35,10 @@ limitations under the License.
     button.butt.mat-raised-button {
       padding: 0;
       font-size: 14px;
+      width: 140px;
       &:first-child {
         margin-right: 5px;
+        width: 90px;
       }
     }
   }
