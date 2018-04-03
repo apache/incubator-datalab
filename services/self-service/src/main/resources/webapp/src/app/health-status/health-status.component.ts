@@ -31,6 +31,7 @@ export class HealthStatusComponent implements OnInit {
   healthStatus: string;
   billingEnabled: boolean;
   backupAllowed: boolean;
+  isAdmin: boolean;
   usersList: Array<string> = [];
 
   private clear = undefined;
@@ -57,6 +58,7 @@ export class HealthStatusComponent implements OnInit {
     this.healthStatus = healthStatusList.status;
     this.billingEnabled = healthStatusList.billingEnabled;
     this.backupAllowed = healthStatusList.backupAllowed;
+    this.isAdmin = healthStatusList.admin;
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {

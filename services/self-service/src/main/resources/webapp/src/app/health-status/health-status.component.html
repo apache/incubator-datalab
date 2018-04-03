@@ -19,7 +19,7 @@ limitations under the License.
 <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
-  <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()">
+  <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()" *ngIf="isAdmin">
     <i class="material-icons"></i>Manage environment
   </button>
   <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup" *ngIf="backupAllowed">
