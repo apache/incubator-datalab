@@ -239,6 +239,7 @@ public class ExploratoryServiceImplTest {
 		assertEquals(UUID, uuid);
 
 		userInstance.withStatus("creating");
+		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
 		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
@@ -270,6 +271,7 @@ public class ExploratoryServiceImplTest {
 					e.getMessage());
 		}
 		userInstance.withStatus("creating");
+		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(exploratoryDAO, never()).updateExploratoryStatus(any(StatusEnvBaseDTO.class));
 		verifyNoMoreInteractions(exploratoryDAO);
@@ -297,6 +299,7 @@ public class ExploratoryServiceImplTest {
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
 
 		userInstance.withStatus("creating");
+		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
 		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
@@ -365,7 +368,7 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	public void setReuploadKeyRequiredForRunningExploratoriesAndStoppedComputationals() {
+	public void updateUserInstancesReuploadKeyFlagForRunningExploratoriesAndStoppedComputationals() {
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.STOPPED)))
 				.thenReturn(Collections.emptyList());
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.RUNNING)))
@@ -385,7 +388,7 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	public void setReuploadKeyRequiredForRunningExploratoriesAndRunningComputationals() {
+	public void updateUserInstancesReuploadKeyFlagForRunningExploratoriesAndRunningComputationals() {
 		userInstance.getResources().forEach(resource -> resource.setStatus("running"));
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.STOPPED)))
 				.thenReturn(Collections.emptyList());
@@ -402,7 +405,7 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	public void setReuploadKeyRequiredForStoppedExploratoriesAndStoppedComputationals() {
+	public void updateUserInstancesReuploadKeyFlagForStoppedExploratoriesAndStoppedComputationals() {
 		userInstance.setStatus("stopped");
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.STOPPED)))
 				.thenReturn(Collections.singletonList(userInstance));

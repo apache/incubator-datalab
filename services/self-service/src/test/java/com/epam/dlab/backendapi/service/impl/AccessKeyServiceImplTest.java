@@ -79,7 +79,7 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void uploadKey() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
 
 		UploadFile uploadFile = mock(UploadFile.class);
@@ -95,7 +95,7 @@ public class AccessKeyServiceImplTest {
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
 
-		verify(keyDAO).insertKey(USER, keyContent);
+		verify(keyDAO).upsertKey(USER, keyContent, true);
 		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, keyContent);
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
@@ -106,7 +106,7 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void uploadKeyWithException() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 
@@ -122,10 +122,7 @@ public class AccessKeyServiceImplTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void reUploadKey() {
-		doNothing().when(keyDAO).deleteKey(anyString());
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
-		doNothing().when(keyDAO).updateKey(anyString(), anyString());
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -134,29 +131,25 @@ public class AccessKeyServiceImplTest {
 		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).
 				thenReturn(expectedUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
+		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
 
 		String keyContent = "keyContent";
 		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
 
-		verify(keyDAO).deleteKey(USER);
-		verify(keyDAO).insertKey(USER, keyContent);
-		verify(keyDAO).updateKey(USER, KeyLoadStatus.SUCCESS.getStatus());
-		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
+		verify(keyDAO).upsertKey(USER, keyContent, false);
 		verify(requestBuilder).newKeyReupload(userInfo, keyContent);
 		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
+		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
 		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void reUploadKeyWithException() {
-		doNothing().when(keyDAO).deleteKey(anyString());
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
-		doNothing().when(keyDAO).updateKey(anyString(), anyString());
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 		doThrow(new RuntimeException()).when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString());
 
 		expectedException.expect(RuntimeException.class);
@@ -258,7 +251,7 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void generateKey() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -270,7 +263,7 @@ public class AccessKeyServiceImplTest {
 		String actualPrivateKey = accessKeyService.generateKey(userInfo);
 		assertTrue(StringUtils.isNotEmpty(actualPrivateKey));
 
-		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(keyDAO).upsertKey(eq(USER), anyString(), eq(true));
 		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, someUuid);
@@ -279,17 +272,17 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void generateKeyWithException() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 		doNothing().when(keyDAO).deleteKey(anyString());
 
 		try {
 			accessKeyService.generateKey(userInfo);
 		} catch (DlabException e) {
-			assertEquals("Could not upload the key and create EDGE node: null", e.getMessage());
+			assertEquals("Could not upload the key and create EDGE node: ", e.getMessage());
 		}
 
-		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(keyDAO).upsertKey(eq(USER), anyString(), eq(true));
 		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
 		verify(keyDAO).deleteKey(USER);
 		verifyNoMoreInteractions(keyDAO, requestBuilder);

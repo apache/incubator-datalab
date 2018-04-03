@@ -81,11 +81,12 @@ public abstract class KeyDAO extends BaseDAO {
 	 * @param insertRequired true/false
 	 */
 	public void upsertKey(final String user, String content, boolean insertRequired) {
-		Document doc = new Document()
+		Document doc = new Document(SET,
+				new Document()
 				.append(ID, user)
 				.append(KEY_CONTENT, content)
 				.append(STATUS, insertRequired ? KeyLoadStatus.NEW.getStatus() : KeyLoadStatus.SUCCESS.getStatus())
-				.append(TIMESTAMP, new Date());
+						.append(TIMESTAMP, new Date()));
 		updateOne(USER_KEYS, eq(ID, user), doc, insertRequired);
 	}
 

@@ -125,12 +125,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				getExploratoriesWithPredefinedComputationalTypeAndStatuses(
 						user, DataEngineType.SPARK_STANDALONE, RUNNING, STOPPED);
 		log.debug("Setting requirement for reuploading key to the following running exploratories with stopped Spark" +
-				"clusters: {}", runningExploratoriesWithStoppedSparkClusters);
+				" clusters: {}", runningExploratoriesWithStoppedSparkClusters);
 		Map<String, List<String>> stoppedExploratoriesWithStoppedSparkClusters =
 				getExploratoriesWithPredefinedComputationalTypeAndStatuses(
 						user, DataEngineType.SPARK_STANDALONE, STOPPED, STOPPED);
 		log.debug("Setting requirement for reuploading key to the following stopped exploratories with stopped Spark" +
-				"clusters: {}", stoppedExploratoriesWithStoppedSparkClusters);
+				" clusters: {}", stoppedExploratoriesWithStoppedSparkClusters);
 
 		Map<String, List<String>> exploratoriesWithStoppedSparkClusters =
 				new HashMap<>(runningExploratoriesWithStoppedSparkClusters);
