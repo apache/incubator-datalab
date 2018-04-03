@@ -19,6 +19,9 @@ limitations under the License.
 <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
+  <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()" *ngIf="isAdmin">
+    <i class="material-icons"></i>Manage environment
+  </button>
   <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup" *ngIf="backupAllowed">
     <i class="material-icons">backup</i>Backup
   </button>
@@ -29,3 +32,4 @@ limitations under the License.
 
 <health-status-grid [environmentsHealthStatuses]="environmentsHealthStatuses" (refreshGrid)="buildGrid($event)"></health-status-grid>
 <dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)"></dlab-backup-dilog>
+<dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)"></dlab-manage-env-dilog>

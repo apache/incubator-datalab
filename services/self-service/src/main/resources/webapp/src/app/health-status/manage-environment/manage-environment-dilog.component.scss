@@ -16,15 +16,31 @@ limitations under the License.
 
 ****************************************************************************/
 
-.sub-nav {
-  justify-content: flex-end;
-  button {
-    margin-right: 10px;
-    &:last-child {
-      margin-right: 0;
-    }
-    &.env {
-      width: 210px;
+.manage-env-dialog {
+  .mat-list-item-content {
+    padding: 0 !important;
+  }
+  .list-header {
+    border-top: 1px solid #edf1f5;
+    border-bottom: 1px solid #edf1f5;
+    color: #577289;
+    width: 100%;
+    font-weight: 600;
+  }
+  .username {
+    width: 50%;
+  }
+  .action {
+    width: 50%;
+    display: flex;
+    button.butt.mat-raised-button {
+      padding: 0;
+      font-size: 14px;
+      width: 140px;
+      &:first-child {
+        margin-right: 5px;
+        width: 90px;
+      }
     }
   }
 }
