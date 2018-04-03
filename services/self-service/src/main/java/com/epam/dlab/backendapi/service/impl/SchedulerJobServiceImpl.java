@@ -116,6 +116,21 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
+	@Override
+	public void executeTerminateExploratoryJob() {
+		OffsetDateTime currentDateTime = OffsetDateTime.now();
+		List<SchedulerJobData> jobsToTerminate = getSchedulerJobsForTerminatingExploratories(currentDateTime);
+		if (!jobsToTerminate.isEmpty()) {
+			log.debug("Scheduler terminate job is executing...");
+			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
+					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
+					currentDateTime.toLocalDate(),
+					currentDateTime.getDayOfWeek());
+			log.info("Quantity of exploratories for terminating: {}", jobsToTerminate.size());
+			jobsToTerminate.forEach(job -> changeExploratoryStatusTo(UserInstanceStatus.TERMINATED, job));
+		}
+	}
+
 	/**
 	 * Pulls out scheduler jobs data to achieve target exploratory status (running/stopped)
 	 *
@@ -166,6 +181,33 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	/**
+	 * Pulls out scheduler jobs data for following terminating corresponding exploratories
+	 *
+	 * @param currentDateTime actual date with time
+	 * @return list of scheduler jobs data
+	 */
+	private List<SchedulerJobData> getSchedulerJobsForTerminatingExploratories(OffsetDateTime currentDateTime) {
+		return Stream.of(
+				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime)
+						.stream()
+						.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+								jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
+				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime.minusDays(1))
+						.stream()
+						.filter(jobData -> {
+							LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
+									ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
+											.getTimeZoneOffset())).toLocalDateTime();
+							return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+									jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
+									&& !convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate());
+						}),
+				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime).stream()
+						.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
+		).flatMap(Function.identity()).collect(Collectors.toList());
+	}
+
+	/**
 	 * Starts/stops exploratory corresponding to target status and scheduler job data
 	 *
 	 * @param desiredStatus target exploratory status (running/stopped)
@@ -189,7 +231,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	 * Enriches existing scheduler job with the following data:
 	 * - sets current date as 'beginDate' if this parameter wasn't defined;
 	 * - sets '9999-12-31' as 'finishDate' if this parameter wasn't defined;
-	 * - sets repeating days of existing scheduler job to all days of week if this parameter wasn't defined.
+	 * - sets repeating days of existing scheduler job to all days of week if this parameter wasn't defined;
+	 * - sets '9999-12-31 00:00' as 'terminateDateTime' if this parameter wasn't defined.
 	 *
 	 * @param dto current scheduler job
 	 */
@@ -202,6 +245,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 		if (Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty()) {
 			dto.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		}
+		if (Objects.isNull(dto.getTerminateDateTime()) || StringUtils.isBlank(dto.getTerminateDateTime().toString())) {
+			dto.setTerminateDateTime(LocalDateTime.of(9999, 12, 31, 0, 0));
 		}
 	}
 }

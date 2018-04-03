@@ -30,4 +30,9 @@ public interface SchedulerJobService {
 	 * Executes stop scheduler job for corresponding exploratories
 	 */
 	void executeStopExploratoryJob();
+
+	/**
+	 * Executes terminate scheduler job for corresponding exploratories
+	 */
+	void executeTerminateExploratoryJob();
 }

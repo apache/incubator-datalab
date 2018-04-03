@@ -22,6 +22,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.JSR310StringParsableDeseriali
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -35,12 +36,18 @@ public class IsoDateModule extends SimpleModule {
 
 	public IsoDateModule() {
 		super();
-		addDeserializer(Date.class, new IsoDateDeSerializer());
 		addSerializer(Date.class, new IsoDateSerializer());
+		addDeserializer(Date.class, new IsoDateDeSerializer());
+
 		addSerializer(LocalDate.class, new IsoLocalDateSerializer());
 		addDeserializer(LocalDate.class, new IsoLocalDateDeSerializer());
+
 		addSerializer(LocalTime.class, new ToStringSerializer(LocalTime.class));
 		addDeserializer(LocalTime.class, LocalTimeDeserializer.INSTANCE);
+
+		addSerializer(LocalDateTime.class, new IsoLocalDateTimeSerializer());
+		addDeserializer(LocalDateTime.class, new IsoLocalDateTimeDeSerializer());
+
 		addSerializer(ZoneOffset.class, new ToStringSerializer(ZoneOffset.class));
 		addDeserializer(ZoneOffset.class, JSR310StringParsableDeserializer.ZONE_OFFSET);
 
