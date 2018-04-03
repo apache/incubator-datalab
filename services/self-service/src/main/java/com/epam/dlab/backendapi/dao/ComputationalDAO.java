@@ -31,6 +31,7 @@ import org.bson.conversions.Bson;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.mongodb.client.model.Filters.*;
@@ -190,7 +191,7 @@ public class ComputationalDAO extends BaseDAO {
 			computationalImage) {
 		return and(exploratoryCondition(user, exploratoryName),
 				elemMatch(COMPUTATIONAL_RESOURCES, and(eq(IMAGE, computationalImage),
-						not(eq(STATUS, TERMINATED.toString())),
+						not(in(STATUS, TERMINATED.toString(), FAILED.toString())),
 						not(eq(STATUS, computationalStatus)))));
 	}
 
