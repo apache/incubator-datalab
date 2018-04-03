@@ -57,15 +57,15 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		log.debug("Terminating environment for user {}", user);
 		checkState(user, "terminate");
 		if (!terminateEdge(user)) {
-			exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(false, user,
-					UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
+			exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(user, UserInstanceStatus.TERMINATED,
+					UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
 					.forEach(this::terminateNotebook);
 		}
 	}
 
 	private void checkState(String user, String action) {
 		final List<UserInstanceDTO> userInstances = exploratoryDAO
-				.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, user, UserInstanceStatus.CREATING,
+				.fetchUserExploratoriesWhereStatusIn(user, UserInstanceStatus.CREATING,
 						UserInstanceStatus.STARTING);
 		if (UserInstanceStatus.STARTING.toString().equals(keyDAO.getEdgeStatus(user)) || !userInstances.isEmpty()) {
 			log.error(String.format(ERROR_MSG_FORMAT, action));

@@ -66,8 +66,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.epam.dlab.cloud.CloudProvider.*;
@@ -174,22 +172,21 @@ public class RequestBuilder {
 		}
 	}
 
-	public UploadFile newKeyReupload(UserInfo userInfo, String content, Map<String, List<String>> runningEnvironment) {
+	public UploadFile newKeyReupload(UserInfo userInfo, String content) {
 		ReuploadFile reuploadFile = new ReuploadFile();
 		reuploadFile.setContent(content);
 		reuploadFile.setEdgeUserName(getEdgeUserName(userInfo));
-		reuploadFile.setRunningEnvironment(runningEnvironment);
 		return reuploadFile;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends ResourceSysBaseDTO<?>> T newEdgeAction(UserInfo userInfo) {
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
 	}
 
 	public UserEnvironmentResources newUserEnvironmentStatus(UserInfo userInfo) {
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
 	}
 
@@ -245,13 +242,15 @@ public class RequestBuilder {
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
-						.withExploratoryName(userInstance.getExploratoryName());
+						.withExploratoryName(userInstance.getExploratoryName())
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
 			case AZURE:
 				T exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionStartAzure.class)
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
-						.withExploratoryName(userInstance.getExploratoryName());
+						.withExploratoryName(userInstance.getExploratoryName())
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryActionStartAzure) exploratoryStart)
@@ -289,12 +288,13 @@ public class RequestBuilder {
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withNotebookImage(userInstance.getImageName())
 				.withExploratoryName(userInstance.getExploratoryName())
-				.withNotebookImage(userInstance.getImageName());
+				.withNotebookImage(userInstance.getImageName())
+				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
 	}
 
 	public ExploratoryGitCredsUpdateDTO newGitCredentialsUpdate(UserInfo userInfo, UserInstanceDTO instanceDTO,
 																ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
 				.withNotebookImage(instanceDTO.getImageName())
 				.withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
@@ -304,7 +304,7 @@ public class RequestBuilder {
 	}
 
 	public LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
@@ -316,7 +316,7 @@ public class RequestBuilder {
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryActionDTO<T>> T newLibExploratoryList(UserInfo userInfo,
 																	   UserInstanceDTO userInstance) {
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class)
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withNotebookImage(userInstance.getImageName())
@@ -327,7 +327,7 @@ public class RequestBuilder {
 	@SuppressWarnings("unchecked")
 	public <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
 														 UserComputationalResource computationalResource) {
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
 				.withComputationalName(computationalResource.getComputationalName())
@@ -343,7 +343,7 @@ public class RequestBuilder {
 																		 UserComputationalResource
 																					 computationalResource) {
 
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
 				.withComputationalImage(computationalResource.getImageName())
@@ -503,7 +503,7 @@ public class RequestBuilder {
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryImageDTO> T newExploratoryImageCreate(UserInfo userInfo, UserInstanceDTO userInstance,
 																	   String imageName) {
-		checkInappropriateCloudProviderAndThrowException();
+		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, ExploratoryImageDTO.class)
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
@@ -547,7 +547,7 @@ public class RequestBuilder {
 		return "";
 	}
 
-	private void checkInappropriateCloudProviderAndThrowException() {
+	private void checkInappropriateCloudProviderOrElseThrowException() {
 		CloudProvider provider = cloudProvider();
 		if (provider != AWS && provider != AZURE && provider != GCP) {
 			throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + provider);

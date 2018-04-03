@@ -57,9 +57,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
-		//TODO don't forget to predict checking for key reuploading for previously stopped exploratories.
-		// Also there must be provided replacing flag 'reupload_key_required' from 'true' to 'false' in MongoDB
-		// (Java or DevOps functionality).
 		return action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
 	}
 
@@ -98,7 +95,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@Override
 	public void updateExploratoryStatuses(String user, UserInstanceStatus status) {
-		exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(false, user, TERMINATED, FAILED)
+		exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(user, TERMINATED, FAILED)
 				.forEach(ui -> updateExploratoryStatus(ui.getExploratoryName(), status, user));
 	}
 
@@ -109,13 +106,21 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @param user user.
 	 */
 	@Override
-	public void setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(String user) {
+	public void updateUserInstancesReuploadKeyFlag(String user) {
+		updateReuploadKeyFlagForStoppedExploratories(user);
+		updateReuploadKeyFlagForStoppedComputationalResources(user);
+	}
+
+	private void updateReuploadKeyFlagForStoppedExploratories(String user) {
 		List<String> stoppedExploratories = getExploratoriesWithPredefinedStatus(user, STOPPED).stream()
 				.map(UserInstanceDTO::getExploratoryName).collect(Collectors.toList());
 		log.debug("Setting requirement for reuploading key to the following stopped exploratories : {}",
 				stoppedExploratories);
 		stoppedExploratories.forEach(e ->
 				exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(user, e, true));
+	}
+
+	private void updateReuploadKeyFlagForStoppedComputationalResources(String user) {
 		Map<String, List<String>> runningExploratoriesWithStoppedSparkClusters =
 				getExploratoriesWithPredefinedComputationalTypeAndStatuses(
 						user, DataEngineType.SPARK_STANDALONE, RUNNING, STOPPED);
@@ -137,38 +142,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	/**
-	 * Sets parameter 'reuploadKeyRequired' to 'false' for all user's instances (exploratories and all types of
-	 * clusters).
-	 *
-	 * @param user user.
-	 */
-	@Override
-	public void cancelReuploadKeyRequirementForAllUserInstances(String user) {
-		List<UserInstanceDTO> userInstances = exploratoryDAO
-				.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, user, UserInstanceStatus.values());
-		userInstances.forEach(ui ->
-				exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(user, ui.getExploratoryName(),
-						false));
-		userInstances.forEach(ui -> {
-			List<UserComputationalResource> compResources = ui.getResources();
-			compResources.forEach(compResource -> computationalDAO
-					.updateReuploadKeyRequirementForComputationalResource(user, ui.getExploratoryName(),
-							compResource.getComputationalName(), false));
-		});
-	}
-
-	/**
-	 * Returns the names of running notebooks and corresponding running Spark clusters.
-	 *
-	 * @param user user.
-	 */
-	@Override
-	public Map<String, List<String>> getRunningEnvironment(String user) {
-		return getExploratoriesWithPredefinedComputationalTypeAndStatuses(user, DataEngineType.SPARK_STANDALONE,
-				UserInstanceStatus.RUNNING, UserInstanceStatus.RUNNING);
-	}
-
-	/**
 	 * Returns list of user's exploratories with predefined status.
 	 *
 	 * @param user   user.
@@ -176,7 +149,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @return list of user's instances.
 	 */
 	private List<UserInstanceDTO> getExploratoriesWithPredefinedStatus(String user, UserInstanceStatus status) {
-		return exploratoryDAO.fetchUserExploratoriesWhereStatusIncludedOrExcluded(true, user, status);
+		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, status);
 	}
 
 	/**

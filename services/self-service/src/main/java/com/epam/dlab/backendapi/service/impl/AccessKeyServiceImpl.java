@@ -61,8 +61,19 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	@Override
-	public String loadKey(UserInfo user, String keyContent, boolean isPrimaryUploading) {
-		return isPrimaryUploading ? uploadKey(user, keyContent) : reUploadKey(user, keyContent);
+	public String uploadKey(UserInfo user, String keyContent, boolean isPrimaryUploading) {
+		log.debug(isPrimaryUploading ? "The key uploading and EDGE node creating for user {} is starting..." :
+				"The key reuploading for user {} is starting...", user);
+		keyDAO.upsertKey(user.getName(), keyContent, isPrimaryUploading);
+		try {
+			return isPrimaryUploading ? createEdge(user, keyContent) : reuploadKey(user, keyContent);
+		} catch (Exception e) {
+			log.error(isPrimaryUploading ? "The key uploading and EDGE node creating for user {} fails" :
+					"The key reuploading for user {} fails", user.getName(), e);
+			keyDAO.deleteKey(user.getName());
+			throw new DlabException(isPrimaryUploading ? "Could not upload the key and create EDGE node: " :
+					"Could not reupload the key. Previous key has been deleted: " + e.getLocalizedMessage(), e);
+		}
 	}
 
 	@Override
@@ -89,7 +100,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			KeyPair pair = KeyPair.genKeyPair(new JSch(), com.jcraft.jsch.KeyPair.RSA);
 			pair.writePublicKey(publicKeyOut, userInfo.getName());
 			pair.writePrivateKey(privateKeyOut);
-			uploadKey(userInfo, new String(publicKeyOut.toByteArray()));
+			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), true);
 			return new String(privateKeyOut.toByteArray());
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
@@ -97,38 +108,13 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		}
 	}
 
-	private String uploadKey(UserInfo user, String keyContent) {
-		log.debug("The key uploading and EDGE node creating for user {} is starting...", user);
-		keyDAO.insertKey(user.getName(), keyContent);
-		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(user.getName());
-		try {
-			return createEdge(user, keyContent);
-		} catch (Exception e) {
-			log.error("The key uploading and EDGE node creating for user {} fails", user.getName(), e);
-			keyDAO.deleteKey(user.getName());
-			throw new DlabException("Could not upload the key and create EDGE node: " + e.getLocalizedMessage(), e);
-		}
-	}
 
-	private String reUploadKey(UserInfo user, String keyContent) {
-		log.debug("The key reuploading for user {} is starting...", user);
-		keyDAO.deleteKey(user.getName());
-		keyDAO.insertKey(user.getName(), keyContent);
-		keyDAO.updateKey(user.getName(), KeyLoadStatus.SUCCESS.getStatus());
-		exploratoryService.setReuploadKeyRequiredForCorrespondingExploratoriesAndComputationals(user.getName());
-		try {
-			UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent,
-					exploratoryService.getRunningEnvironment(user.getName()));
-			String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
-			requestId.put(user.getName(), uuid);
-			return uuid;
-		} catch (Exception e) {
-			log.error("The key reuploading for user {} fails", user.getName(), e);
-			keyDAO.deleteKey(user.getName());
-			exploratoryService.cancelReuploadKeyRequirementForAllUserInstances(user.getName());
-			throw new DlabException("Could not reupload the key. Previous key has been deleted: " +
-					e.getLocalizedMessage(), e);
-		}
+	private String reuploadKey(UserInfo user, String keyContent) {
+		UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent);
+		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
+		requestId.put(user.getName(), uuid);
+		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
+		return uuid;
 	}
 
 	private EdgeInfo getEdgeInfo(String userName) {
@@ -157,6 +143,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		UploadFile uploadFile = requestBuilder.newEdgeKeyUpload(user, keyContent);
 		String uuid = provisioningService.post(EDGE_CREATE, user.getAccessToken(), uploadFile, String.class);
 		requestId.put(user.getName(), uuid);
+		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
 		return uuid;
 	}
 }

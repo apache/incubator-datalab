@@ -135,22 +135,32 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the info of all user's notebooks whose status is present (parameter 'isIncluded' equals
-	 * 'true')
-	 * or not (parameter 'isIncluded' equals 'false') among predefined ones.
+	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *
-	 * @param isIncluded boolean value.
 	 * @param user user name.
 	 * @param statuses array of statuses.
 	 */
-	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIncludedOrExcluded(boolean isIncluded,
-																					 String user,
-																					 UserInstanceStatus... statuses) {
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, UserInstanceStatus... statuses) {
 		final List<String> statusList = statusList(statuses);
 		return getUserInstances(
 				and(
 						eq(USER, user),
-						(isIncluded ? (in(STATUS, statusList)) : not(in(STATUS, statusList)))
+						in(STATUS, statusList)
+				));
+	}
+
+	/**
+	 * Finds and returns the info of all user's notebooks whose status is absent among predefined ones.
+	 *
+	 * @param user     user name.
+	 * @param statuses array of statuses.
+	 */
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusNotIn(String user, UserInstanceStatus... statuses) {
+		final List<String> statusList = statusList(statuses);
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						not(in(STATUS, statusList))
 				));
 	}
 

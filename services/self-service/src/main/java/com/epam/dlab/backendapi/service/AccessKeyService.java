@@ -7,7 +7,7 @@ public interface AccessKeyService {
 
 	KeyLoadStatus getUserKeyStatus(String user);
 
-	String loadKey(UserInfo user, String keyContent, boolean isPrimaryUploading);
+	String uploadKey(UserInfo user, String keyContent, boolean isPrimaryUploading);
 
 	String recoverEdge(UserInfo userInfo);
 

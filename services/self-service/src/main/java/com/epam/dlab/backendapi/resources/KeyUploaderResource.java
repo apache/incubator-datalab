@@ -91,7 +91,7 @@ public class KeyUploaderResource implements EdgeAPI {
 
 		final String fileContent = getFileContent(uploadedInputStream, userInfo.getName());
 		validate(fileContent);
-		keyService.loadKey(userInfo, fileContent, isPrimaryUploading);
+		keyService.uploadKey(userInfo, fileContent, isPrimaryUploading);
 		return Response.ok().build();
 	}
 

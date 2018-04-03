@@ -37,8 +37,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides API for reuploading keys
@@ -66,13 +64,12 @@ public class KeyResource implements DockerCommands {
 		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
 		FileUtils.deleteFile(filename, configuration.getKeyDirectory());
 		FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
-		return reuploadKeyAction(edgeUserName, ui.getName(), dto.getRunningEnvironment(), DockerAction.REUPLOAD_KEY);
+		return reuploadKeyAction(edgeUserName, ui.getName(), DockerAction.REUPLOAD_KEY);
 	}
 
 	//TODO refactor Docker command corresponding to DevOps' requirement
-	private String reuploadKeyAction(String edgeUserName, String userName, Map<String, List<String>>
-			runningEnvironment,
-									 DockerAction action) throws JsonProcessingException {
+	private String reuploadKeyAction(String edgeUserName, String userName, DockerAction action)
+			throws JsonProcessingException {
 		log.debug("{} for edge user {}", action, edgeUserName);
 		String uuid = DockerCommands.generateUUID();
 
@@ -96,6 +93,7 @@ public class KeyResource implements DockerCommands {
 
 	@Override
 	public String getResourceType() {
+		//TODO add some functionality if necessary (depends on DevOps' requirement)
 		return "RES_TYPE";
 	}
 }

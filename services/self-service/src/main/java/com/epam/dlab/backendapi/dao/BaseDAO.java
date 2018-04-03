@@ -172,7 +172,7 @@ public class BaseDAO implements MongoCollections {
 		try {
 			if (isUpsert) {
 				mongoService.getCollection(collection).updateOne(condition, document,
-						new UpdateOptions().upsert(isUpsert));
+						new UpdateOptions().upsert(true));
 			} else {
 				mongoService.getCollection(collection).updateOne(condition, document);
 			}
