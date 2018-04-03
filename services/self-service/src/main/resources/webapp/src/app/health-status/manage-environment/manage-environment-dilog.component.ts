@@ -56,7 +56,8 @@ export class ManageEnvironmentComponent implements OnInit {
   selector: 'dialog-result-example-dialog',
   template: `
   <div mat-dialog-content class="content">
-    <p>Kill env of {{ data.user}}.</p>
+    <p *ngIf="data.action === 'terminate'">Environment of <strong>{{ data.user}}</strong> will be terminated. </p>
+    <p *ngIf="data.action === 'stop'">Environment of <strong>{{ data.user}}</strong> will be stopped. </p>
     <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
   </div>
   <div class="text-center">
