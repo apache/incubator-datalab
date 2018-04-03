@@ -59,7 +59,12 @@ public class InfrastructureInfoResource {
 	@Path("/status")
 	public HealthStatusPageDTO status(@Auth UserInfo userInfo, @QueryParam("full") @DefaultValue("0") int fullReport) {
 		final boolean backupAllowed = UserRoles.checkAccess(userInfo, RoleType.PAGE, UserRoles.BACKUP, false);
-		return infrastructureInfoService.getHeathStatus(userInfo.getName(), fullReport != 0, backupAllowed);
+		return infrastructureInfoService
+				.getHeathStatus(userInfo.getName(), fullReport != 0, backupAllowed, isAdmin(userInfo));
+	}
+
+	private boolean isAdmin(UserInfo userInfo) {
+		return UserRoles.checkAccess(userInfo, RoleType.PAGE, UserRoles.ENVIRONMENT, false);
 	}
 
 	/**
