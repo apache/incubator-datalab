@@ -35,6 +35,8 @@ public class HealthStatusPageDTO {
 	private boolean billingEnabled;
 	@JsonProperty
 	private boolean backupAllowed;
+	@JsonProperty
+	private boolean admin;
 
 	/**
 	 * Return the status of environment.
@@ -123,6 +125,24 @@ public class HealthStatusPageDTO {
 				.add("listResources", listResources)
 				.add("billingEnabled", billingEnabled)
 				.add("backupAllowed", backupAllowed)
+				.add("admin", admin)
 				.toString();
+	}
+
+	public HealthStatusPageDTO withAdmin(boolean isAdmin) {
+		this.admin = isAdmin;
+		return this;
+	}
+
+	public boolean isBillingEnabled() {
+		return billingEnabled;
+	}
+
+	public boolean isBackupAllowed() {
+		return backupAllowed;
+	}
+
+	public boolean isAdmin() {
+		return admin;
 	}
 }

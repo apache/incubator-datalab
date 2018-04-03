@@ -46,12 +46,13 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	}
 
 	@Override
-	public HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean backupAllowed) {
+	public HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean backupAllowed, boolean isAdmin) {
 		log.debug("Request the status of resources for user {}, report type {}", user, fullReport);
 		try {
 			return envDAO.getHealthStatusPageDTO(user, fullReport)
 					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
-					.withBackupAllowed(backupAllowed);
+					.withBackupAllowed(backupAllowed)
+					.withAdmin(isAdmin);
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);

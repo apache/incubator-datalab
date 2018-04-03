@@ -22,5 +22,5 @@ import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 public interface InfrastructureInfoService {
 	InfrastructureInfo getUserResources(String user);
 
-	HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean backupAllowed);
+	HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean backupAllowed, boolean isAdmin);
 }
