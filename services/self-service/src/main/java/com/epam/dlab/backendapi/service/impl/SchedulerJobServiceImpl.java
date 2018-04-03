@@ -31,11 +31,13 @@ import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,9 +80,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			throw new ResourceInappropriateStateException(String.format("Can not create/update scheduler for user " +
 					"instance with status: %s", status));
 		}
-		if (Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty()) {
-			enrichSchedulerJobWithAllDaysOfWeek(dto);
-		}
+		enrichSchedulerJobIfNecessary(dto);
 		log.debug("Updating exploratory {} for user {} with new scheduler job data {}...",
 				exploratoryName, user, dto);
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, dto);
@@ -135,22 +135,24 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	 * @return list of scheduler jobs data
 	 */
 	private List<SchedulerJobData> getSchedulerJobsForStoppingExploratories(OffsetDateTime currentDateTime) {
-		return Stream.concat(
+		return Stream.of(
 				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime)
 						.stream()
-						.filter(jobData ->
+						.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
 								jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
 				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime.minusDays(1))
 						.stream()
 						.filter(jobData -> {
 							LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
 									ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
-											.getTimeZoneOffset()))
-									.toLocalDateTime();
-							return jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
+											.getTimeZoneOffset())).toLocalDateTime();
+							return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+									jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
 									&& !convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate());
-						})
-		).collect(Collectors.toList());
+						}),
+				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime).stream()
+						.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
+		).flatMap(Function.identity()).collect(Collectors.toList());
 	}
 
 	/**
@@ -172,8 +174,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private void changeExploratoryStatusTo(UserInstanceStatus desiredStatus, SchedulerJobData jobData) {
 		log.debug("Exploratory with name {} for user {} is {}...",
 				jobData.getExploratoryName(), jobData.getUser(),
-				(desiredStatus.equals(UserInstanceStatus.RUNNING) ? UserInstanceStatus.STARTING : UserInstanceStatus
-						.STOPPING));
+				(desiredStatus.equals(UserInstanceStatus.RUNNING) ? UserInstanceStatus.STARTING :
+						UserInstanceStatus.STOPPING));
 		UserInfo userInfo = systemUserService.create(jobData.getUser());
 		if (desiredStatus.equals(UserInstanceStatus.RUNNING)) {
 			exploratoryService.start(userInfo, jobData.getExploratoryName());
@@ -184,13 +186,23 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	/**
-	 * Sets repeating days of existing scheduler job to all days of week
+	 * Enriches existing scheduler job with the following data:
+	 * - sets current date as 'beginDate' if this parameter wasn't defined;
+	 * - sets '9999-12-31' as 'finishDate' if this parameter wasn't defined;
+	 * - sets repeating days of existing scheduler job to all days of week if this parameter wasn't defined.
 	 *
-	 * @param schedulerJobDTO current scheduler job
+	 * @param dto current scheduler job
 	 */
-	private void enrichSchedulerJobWithAllDaysOfWeek(SchedulerJobDTO schedulerJobDTO) {
-		schedulerJobDTO.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
+	private void enrichSchedulerJobIfNecessary(SchedulerJobDTO dto) {
+		if (Objects.isNull(dto.getBeginDate()) || StringUtils.isBlank(dto.getBeginDate().toString())) {
+			dto.setBeginDate(LocalDate.now());
+		}
+		if (Objects.isNull(dto.getFinishDate()) || StringUtils.isBlank(dto.getFinishDate().toString())) {
+			dto.setFinishDate(LocalDate.of(9999, 12, 31));
+		}
+		if (Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty()) {
+			dto.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		}
 	}
-
 }
 
