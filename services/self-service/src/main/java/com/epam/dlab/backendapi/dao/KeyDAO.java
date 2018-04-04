@@ -38,7 +38,7 @@ import static com.mongodb.client.model.Updates.set;
  */
 public abstract class KeyDAO extends BaseDAO {
 	static final String EDGE_STATUS = "edge_status";
-	static final String KEY_CONTENT = "content";
+	private static final String KEY_CONTENT = "content";
 
 	/**
 	 * Store the user key to Mongo database.

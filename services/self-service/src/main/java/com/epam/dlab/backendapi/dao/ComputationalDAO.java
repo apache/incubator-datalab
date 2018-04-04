@@ -25,11 +25,14 @@ import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
@@ -43,18 +46,23 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 /**
  * DAO for user computational resources.
  */
+@Slf4j
 public class ComputationalDAO extends BaseDAO {
-	protected static final String COMPUTATIONAL_NAME = "computational_name";
-	protected static final String COMPUTATIONAL_ID = "computational_id";
+	static final String COMPUTATIONAL_NAME = "computational_name";
+	static final String COMPUTATIONAL_ID = "computational_id";
+	private static final String TEMPLATE_NAME = "template_name";
+
 	private static final String IMAGE = "image";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
 	}
 
-	private static Bson computationalCondition(String user, String exploratoryName, String computationalName) {
-		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName),
-				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName));
+	private static Bson computationalCondition(String user, String exploratoryField, String exploratoryFieldValue,
+											   String compResourceField,
+											   String compResourceFieldValue) {
+		return and(eq(USER, user), eq(exploratoryField, exploratoryFieldValue),
+				eq(COMPUTATIONAL_RESOURCES + "." + compResourceField, compResourceFieldValue));
 	}
 
 	/**
@@ -233,20 +241,43 @@ public class ComputationalDAO extends BaseDAO {
 		}
 	}
 
+
 	/**
-	 * Updates the requirement for reuploading key for computational resource in Mongo database.
+	 * Updates the requirement for reuploading key for all corresponding computational resources in Mongo database.
 	 *
-	 * @param user              user name.
-	 * @param exploratoryName   name of exploratory.
-	 * @param computationalName name of computational resource.
-	 * @return The result of an update operation.
+	 * @param user                 user name.
+	 * @param exploratoryStatus    status of exploratory.
+	 * @param computationalType    type of computational resource (Spark cluster, EMR cluster etc.).
+	 * @param computationalStatus  status of computational resource.
+	 * @param reuploadKeyRequired  true/false.
 	 */
-	public UpdateResult updateReuploadKeyRequirementForComputationalResource(String user, String exploratoryName,
-																			 String computationalName, boolean
-																					 reuploadKeyRequired) {
-		return updateOne(USER_INSTANCES,
-				computationalCondition(user, exploratoryName, computationalName),
-				set(computationalFieldFilter(REUPLOAD_KEY_REQUIRED), reuploadKeyRequired));
+	@SuppressWarnings("unchecked")
+	public void updateReuploadKeyFlagForCorrespondingComputationalResources(String user,
+																			UserInstanceStatus exploratoryStatus,
+																			String computationalType,
+																			UserInstanceStatus computationalStatus,
+																			boolean reuploadKeyRequired) {
+
+		List<String> exploratoryNames = find(USER_INSTANCES,
+				and(eq(USER, user), eq(STATUS, exploratoryStatus.toString())),
+				fields(include(EXPLORATORY_NAME))).into(new ArrayList<>())
+				.stream().map(d -> d.getString(EXPLORATORY_NAME)).collect(Collectors.toList());
+
+		exploratoryNames.forEach(explName -> {
+
+			List<String> compNames = ((List<Document>) find(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME,
+					explName)), fields(include(COMPUTATIONAL_RESOURCES))).first().get(COMPUTATIONAL_RESOURCES))
+					.stream().filter(resource ->
+							resource.getString(STATUS).equals(computationalStatus.toString())
+									&& resource.getString(TEMPLATE_NAME).equals(computationalType))
+					.map(resource -> resource.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
+
+			compNames.forEach(compName -> updateOne(USER_INSTANCES,
+					computationalCondition(user, EXPLORATORY_NAME, explName, COMPUTATIONAL_NAME, compName),
+					set(computationalFieldFilter(REUPLOAD_KEY_REQUIRED), reuploadKeyRequired)));
+
+		});
 	}
+
 
 }

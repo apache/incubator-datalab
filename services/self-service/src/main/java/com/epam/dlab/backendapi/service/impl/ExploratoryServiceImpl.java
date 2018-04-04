@@ -12,8 +12,6 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
@@ -26,10 +24,7 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -107,92 +102,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 */
 	@Override
 	public void updateUserInstancesReuploadKeyFlag(String user) {
-		updateReuploadKeyFlagForStoppedExploratories(user);
-		updateReuploadKeyFlagForStoppedComputationalResources(user);
-	}
-
-	private void updateReuploadKeyFlagForStoppedExploratories(String user) {
-		List<String> stoppedExploratories = getExploratoriesWithPredefinedStatus(user, STOPPED).stream()
-				.map(UserInstanceDTO::getExploratoryName).collect(Collectors.toList());
-		log.debug("Setting requirement for reuploading key to the following stopped exploratories : {}",
-				stoppedExploratories);
-		stoppedExploratories.forEach(e ->
-				exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(user, e, true));
-	}
-
-	private void updateReuploadKeyFlagForStoppedComputationalResources(String user) {
-		Map<String, List<String>> runningExploratoriesWithStoppedSparkClusters =
-				getExploratoriesWithPredefinedComputationalTypeAndStatuses(
-						user, DataEngineType.SPARK_STANDALONE, RUNNING, STOPPED);
-		log.debug("Setting requirement for reuploading key to the following running exploratories with stopped Spark" +
-				" clusters: {}", runningExploratoriesWithStoppedSparkClusters);
-		Map<String, List<String>> stoppedExploratoriesWithStoppedSparkClusters =
-				getExploratoriesWithPredefinedComputationalTypeAndStatuses(
-						user, DataEngineType.SPARK_STANDALONE, STOPPED, STOPPED);
-		log.debug("Setting requirement for reuploading key to the following stopped exploratories with stopped Spark" +
-				" clusters: {}", stoppedExploratoriesWithStoppedSparkClusters);
-
-		Map<String, List<String>> exploratoriesWithStoppedSparkClusters =
-				new HashMap<>(runningExploratoriesWithStoppedSparkClusters);
-		exploratoriesWithStoppedSparkClusters.putAll(stoppedExploratoriesWithStoppedSparkClusters);
-
-		exploratoriesWithStoppedSparkClusters.forEach((explName, compNameList) ->
-				compNameList.forEach(compName -> computationalDAO
-						.updateReuploadKeyRequirementForComputationalResource(user, explName, compName, true)));
-	}
-
-	/**
-	 * Returns list of user's exploratories with predefined status.
-	 *
-	 * @param user   user.
-	 * @param status status for exploratory environment.
-	 * @return list of user's instances.
-	 */
-	private List<UserInstanceDTO> getExploratoriesWithPredefinedStatus(String user, UserInstanceStatus status) {
-		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, status);
-	}
-
-	/**
-	 * Returns list of user's exploratories with computational resources where both of them have predefined statuses.
-	 *
-	 * @param user                user.
-	 * @param computationalType   either 'dataengine' or 'dataengine-service'
-	 * @param exploratoryStatus   status for exploratory environment.
-	 * @param computationalStatus status for computational resource affiliated with the exploratory.
-	 * @return map with elements [key: exploratoryName, value: list of computational resources' names].
-	 */
-	private Map<String, List<String>> getExploratoriesWithPredefinedComputationalTypeAndStatuses(String user,
-																								 DataEngineType
-																										 computationalType,
-																								 UserInstanceStatus
-																										 exploratoryStatus,
-																								 UserInstanceStatus
-																										 computationalStatus) {
-		List<UserInstanceDTO> exploratoriesWithPredefinedStatus =
-				getExploratoriesWithPredefinedStatus(user, exploratoryStatus);
-		if (exploratoriesWithPredefinedStatus.isEmpty()) {
-			return Collections.emptyMap();
-		}
-		List<UserInstanceDTO> exploratoriesWithComputationalResources = exploratoriesWithPredefinedStatus.stream()
-				.filter(e -> !e.getResources().isEmpty()).collect(Collectors.toList());
-		if (exploratoriesWithComputationalResources.isEmpty()) {
-			return Collections.emptyMap();
-		}
-		List<UserInstanceDTO> exploratoriesWithPredefinedComputationalTypeAndStatus =
-				exploratoriesWithComputationalResources.stream().map(e -> e.withResources(e.getResources().stream()
-						.filter(resource -> resource.getImageName().endsWith(computationalType.getName()) &&
-								resource.getStatus().equals(computationalStatus.toString()))
-						.collect(Collectors.toList())))
-						.filter(e -> !e.getResources().isEmpty()).collect(Collectors.toList());
-		if (exploratoriesWithPredefinedComputationalTypeAndStatus.isEmpty()) {
-			return Collections.emptyMap();
-		}
-		return exploratoriesWithPredefinedComputationalTypeAndStatus.stream()
-				.collect(Collectors.toMap(UserInstanceDTO::getExploratoryName,
-						uiDto -> uiDto.getResources().stream()
-								.map(UserComputationalResource::getComputationalName).collect(Collectors.toList())))
-				.entrySet().stream().filter(entry -> !entry.getValue().isEmpty())
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		exploratoryDAO.updateReuploadKeyForCorrespondingExploratories(user, STOPPED, true);
+		computationalDAO.updateReuploadKeyFlagForCorrespondingComputationalResources(user, RUNNING, "Spark cluster",
+				STOPPED, true);
+		computationalDAO.updateReuploadKeyFlagForCorrespondingComputationalResources(user, STOPPED, "Spark cluster",
+				STOPPED, true);
 	}
 
 	/**

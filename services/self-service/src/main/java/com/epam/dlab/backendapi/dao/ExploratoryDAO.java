@@ -70,6 +70,10 @@ public class ExploratoryDAO extends BaseDAO {
 		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
 	}
 
+	private static Bson exploratoryStatusCondition(String user, UserInstanceStatus exploratoryStatus) {
+		return and(eq(USER, user), eq(STATUS, exploratoryStatus.toString()));
+	}
+
 	private static Bson runningExploratoryCondition(String user, String exploratoryName) {
 		return and(eq(USER, user),
 				and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, UserInstanceStatus.RUNNING.toString())));
@@ -274,16 +278,15 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Updates the requirement for reuploading key for exploratory in Mongo database.
+	 * Updates the requirement for reuploading key for all user's corresponding exploratories in Mongo database.
 	 *
-	 * @param user            user name.
-	 * @param exploratoryName name of exploratory.
-	 * @return The result of an update operation.
+	 * @param user                 user name.
+	 * @param exploratoryStatus    status of exploratory.
+	 * @param reuploadKeyRequired  true/false.
 	 */
-	public UpdateResult updateReuploadKeyRequirementForUserAndExploratory(String user, String exploratoryName,
-																		  boolean reuploadKeyRequired) {
-		return updateOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
+	public void updateReuploadKeyForCorrespondingExploratories(String user, UserInstanceStatus exploratoryStatus,
+															   boolean reuploadKeyRequired) {
+		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, exploratoryStatus),
 				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 

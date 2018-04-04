@@ -368,64 +368,19 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	public void updateUserInstancesReuploadKeyFlagForRunningExploratoriesAndStoppedComputationals() {
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.STOPPED)))
-				.thenReturn(Collections.emptyList());
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.RUNNING)))
-				.thenReturn(Collections.singletonList(userInstance));
-		when(computationalDAO.updateReuploadKeyRequirementForComputationalResource(anyString(), anyString(),
-				anyString(), anyBoolean())).thenReturn(mock(UpdateResult.class));
+	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
+		doNothing().when(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(anyString(),
+				any(UserInstanceStatus.class), anyBoolean());
+		doNothing().when(computationalDAO).updateReuploadKeyFlagForCorrespondingComputationalResources(anyString(),
+				any(UserInstanceStatus.class), anyString(), any(UserInstanceStatus.class), anyBoolean());
 
 		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
 
-		verify(exploratoryDAO, times(2))
-				.fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.STOPPED);
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER,
-				UserInstanceStatus.RUNNING);
-		verify(computationalDAO).updateReuploadKeyRequirementForComputationalResource(USER, EXPLORATORY_NAME,
-				"compName", true);
-		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
-	}
-
-	@Test
-	public void updateUserInstancesReuploadKeyFlagForRunningExploratoriesAndRunningComputationals() {
-		userInstance.getResources().forEach(resource -> resource.setStatus("running"));
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.STOPPED)))
-				.thenReturn(Collections.emptyList());
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.RUNNING)))
-				.thenReturn(Collections.singletonList(userInstance));
-
-		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
-
-		verify(exploratoryDAO, times(2))
-				.fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.STOPPED);
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.RUNNING);
-		verifyNoMoreInteractions(exploratoryDAO);
-		verifyZeroInteractions(computationalDAO);
-	}
-
-	@Test
-	public void updateUserInstancesReuploadKeyFlagForStoppedExploratoriesAndStoppedComputationals() {
-		userInstance.setStatus("stopped");
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.STOPPED)))
-				.thenReturn(Collections.singletonList(userInstance));
-		when(exploratoryDAO.updateReuploadKeyRequirementForUserAndExploratory(anyString(), anyString(), anyBoolean()))
-				.thenReturn(mock(UpdateResult.class));
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.RUNNING)))
-				.thenReturn(Collections.emptyList());
-		when(computationalDAO.updateReuploadKeyRequirementForComputationalResource(anyString(), anyString(),
-				anyString(), anyBoolean())).thenReturn(mock(UpdateResult.class));
-
-
-		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
-
-		verify(exploratoryDAO, times(2))
-				.fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.STOPPED);
-		verify(exploratoryDAO)
-				.updateReuploadKeyRequirementForUserAndExploratory(USER, EXPLORATORY_NAME, true);
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.RUNNING);
-		verify(computationalDAO).updateReuploadKeyRequirementForComputationalResource(USER, EXPLORATORY_NAME,
-				"compName", true);
+		verify(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(USER, UserInstanceStatus.STOPPED, true);
+		verify(computationalDAO).updateReuploadKeyFlagForCorrespondingComputationalResources(USER,
+				UserInstanceStatus.RUNNING, "Spark cluster", UserInstanceStatus.STOPPED, true);
+		verify(computationalDAO).updateReuploadKeyFlagForCorrespondingComputationalResources(USER,
+				UserInstanceStatus.STOPPED, "Spark cluster", UserInstanceStatus.STOPPED, true);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 
