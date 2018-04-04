@@ -83,15 +83,17 @@ public class InfrastructureInfoServiceBaseTest {
 
 	@Test
 	public void getHeathStatus() {
-		HealthStatusPageDTO expectedHealthStatusPageDTO = new HealthStatusPageDTO().withStatus(HealthStatusEnum.OK);
-		when(envDAO.getHealthStatusPageDTO(anyString(), anyBoolean())).thenReturn(expectedHealthStatusPageDTO);
+		when(envDAO.getHealthStatusPageDTO(anyString(), anyBoolean())).thenReturn(new HealthStatusPageDTO()
+				.withStatus(HealthStatusEnum.OK));
 		when(configuration.isBillingSchedulerEnabled()).thenReturn(false);
-		expectedHealthStatusPageDTO.withBillingEnabled(false).withBackupAllowed(false);
 
 		HealthStatusPageDTO actualHealthStatusPageDTO =
-				infrastructureInfoServiceBase.getHeathStatus(USER, false, false);
+				infrastructureInfoServiceBase.getHeathStatus(USER, false, true, true);
 		assertNotNull(actualHealthStatusPageDTO);
-		assertEquals(expectedHealthStatusPageDTO, actualHealthStatusPageDTO);
+		assertEquals(HealthStatusEnum.OK.toString(), actualHealthStatusPageDTO.getStatus());
+		assertTrue(actualHealthStatusPageDTO.isBackupAllowed());
+		assertFalse(actualHealthStatusPageDTO.isBillingEnabled());
+		assertTrue(actualHealthStatusPageDTO.isAdmin());
 
 		verify(envDAO).getHealthStatusPageDTO(USER, false);
 		verify(configuration).isBillingSchedulerEnabled();
@@ -103,7 +105,7 @@ public class InfrastructureInfoServiceBaseTest {
 		doThrow(new DlabException("Cannot fetch health status!"))
 				.when(envDAO).getHealthStatusPageDTO(anyString(), anyBoolean());
 		try {
-			infrastructureInfoServiceBase.getHeathStatus(USER, false, false);
+			infrastructureInfoServiceBase.getHeathStatus(USER, false, false, false);
 		} catch (DlabException e) {
 			assertEquals("Cannot fetch health status!", e.getMessage());
 		}
