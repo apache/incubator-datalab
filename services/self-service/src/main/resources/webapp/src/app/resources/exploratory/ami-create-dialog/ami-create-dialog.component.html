@@ -28,7 +28,7 @@ limitations under the License.
           <div class="control">
             <input type="text" formControlName="name" placeholder="Enter {{ DICTIONARY.image }} name">
             <span class="danger_color" *ngIf="createAMIForm.controls['name'].hasError('duplication')">This {{ DICTIONARY.image }} name already exists.</span>
-            <span class="danger_color" *ngIf="DICTIONARY.cloud_provider === 'azure' && !createAMIForm.valid && createAMIForm.controls['name'].dirty && !createAMIForm.controls['name'].hasError('duplication')">
+            <span class="danger_color" *ngIf="!createAMIForm.valid && createAMIForm.controls['name'].dirty && !createAMIForm.controls['name'].hasError('duplication')">
               {{ DICTIONARY.image }} name cannot be longer than 10 characters and can only contain letters, numbers, hyphens and '_'</span>
           </div>
         </div>

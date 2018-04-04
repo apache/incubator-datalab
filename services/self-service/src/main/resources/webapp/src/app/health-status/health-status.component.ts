@@ -31,9 +31,12 @@ export class HealthStatusComponent implements OnInit {
   healthStatus: string;
   billingEnabled: boolean;
   backupAllowed: boolean;
+  isAdmin: boolean;
+  usersList: Array<string> = [];
 
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
+  @ViewChild('manageEnvDialog') manageEnvironmentDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -42,6 +45,7 @@ export class HealthStatusComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
+    this.getActiveUsersList().subscribe((res: any) => this.usersList = res);
   }
 
   buildGrid(): void {
@@ -54,6 +58,7 @@ export class HealthStatusComponent implements OnInit {
     this.healthStatus = healthStatusList.status;
     this.billingEnabled = healthStatusList.billingEnabled;
     this.backupAllowed = healthStatusList.backupAllowed;
+    this.isAdmin = healthStatusList.admin;
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {
@@ -68,6 +73,27 @@ export class HealthStatusComponent implements OnInit {
   showBackupDialog() {
     if (!this.backupDialog.isOpened)
       this.backupDialog.open({ isFooter: false });
+  }
+
+  getActiveUsersList() {
+    return this.healthStatusService.getActiveUsers()
+  }
+
+  openManageEnvironmentDialog() {
+    this.getActiveUsersList().subscribe(usersList => {
+      this.manageEnvironmentDialog.open({ isFooter: false }, usersList);
+    });
+  }
+
+  manageEnvironment($event) {
+    this.healthStatusService
+      .manageEnvironment($event.action, $event.user)
+      .subscribe(res => {
+          this.getActiveUsersList().subscribe(usersList => {
+              this.manageEnvironmentDialog.usersList = usersList;
+              this.buildGrid();
+            });
+        });
   }
 
   createBackup($event) {
