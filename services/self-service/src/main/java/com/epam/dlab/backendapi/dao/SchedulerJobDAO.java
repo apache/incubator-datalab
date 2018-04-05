@@ -61,22 +61,37 @@ public class SchedulerJobDAO extends BaseDAO {
     }
 
 	/**
-	 * Return condition for search exploratory which has stopped/running state for starting/stopping it.
+	 * Return condition for search exploratory which has stopped state for starting it, running state for stopping it
+	 * and stopped/running state for termination.
 	 *
-	 * @param desiredStatus 'running' value for searching stopped exploratories and another one for searching with
-	 *                      'running' state.
+	 * @param desiredStatus 'running' value for searching stopped exploratories, 'stopped' - for searching
+	 *                       exploratories with 'running' state, 'terminated' for searching exploratories with
+	 *                       'stopped'
+	 *                       or 'running' state.
 	 * @return Bson condition.
 	 */
 	private Bson statusCondition(UserInstanceStatus desiredStatus) {
-		return desiredStatus.equals(UserInstanceStatus.RUNNING) ?
-				eq(STATUS, UserInstanceStatus.STOPPED.toString()) : eq(STATUS, UserInstanceStatus.RUNNING.toString());
+		switch (desiredStatus) {
+			case RUNNING:
+				return eq(STATUS, UserInstanceStatus.STOPPED.toString());
+			case STOPPED:
+				return eq(STATUS, UserInstanceStatus.RUNNING.toString());
+			case TERMINATED:
+				return or(eq(STATUS, UserInstanceStatus.STOPPED.toString()),
+						eq(STATUS, UserInstanceStatus.RUNNING.toString()));
+			default:
+				return null;
+		}
     }
 
 
     /**
-     * Finds and returns the list of all scheduler jobs for starting/stopping regarding to parameter passed.
-	 * @param dateTime for seeking appropriate scheduler jobs for starting/stopping.
-	 * @param desiredStatus 'running' value for starting exploratory and another one for stopping.
+	 * Finds and returns the list of all scheduler jobs for starting/stopping/terminating regarding to parameter
+	 * passed.
+	 *
+	 * @param dateTime for seeking appropriate scheduler jobs for starting/stopping/terminating.
+	 * @param desiredStatus 'running' value for starting exploratory, 'stopped' - for stopping and 'terminated' - for
+	 *                        terminating.
 	 * @return list of scheduler jobs.
 	 */
 	public List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus, OffsetDateTime dateTime) {
@@ -110,8 +125,9 @@ public class SchedulerJobDAO extends BaseDAO {
 	 *
 	 * @param dto            scheduler job data.
 	 * @param dateTime       existing time data.
-	 * @param desiredStatus  target exploratory status which has influence for time checking ('running' status requires
-	 *                       for checking start time, 'stopped' - for end time).
+	 * @param desiredStatus  target exploratory status which has influence for time/date checking ('running' status
+	 *                       requires for checking start time, 'stopped' - for end time, 'terminated' - for
+	 *                       'terminatedDateTime').
 	 * @return true/false.
 	 */
 	private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, OffsetDateTime dateTime,
@@ -125,11 +141,27 @@ public class SchedulerJobDAO extends BaseDAO {
 		LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(roundedDateTime.toInstant(),
 				ZoneId.ofOffset(TIMEZONE_PREFIX, zOffset)).toLocalDateTime();
 
-		return !convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
+		return desiredStatus.equals(UserInstanceStatus.TERMINATED) ?
+				convertedDateTime.toLocalDate().equals(dto.getTerminateDateTime().toLocalDate())
+						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus)) :
+				!convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
 				&& !convertedDateTime.toLocalDate().isAfter(dto.getFinishDate())
 				&& dto.getDaysRepeat().contains(convertedDateTime.toLocalDate().getDayOfWeek())
 				&& convertedDateTime.toLocalTime()
-				.equals(desiredStatus.equals(UserInstanceStatus.RUNNING) ? dto.getStartTime() : dto.getEndTime());
+						.equals(getDesiredTime(dto, desiredStatus));
+	}
+
+	private LocalTime getDesiredTime(SchedulerJobDTO dto, UserInstanceStatus desiredStatus) {
+		switch (desiredStatus) {
+			case RUNNING:
+				return dto.getStartTime();
+			case STOPPED:
+				return dto.getEndTime();
+			case TERMINATED:
+				return dto.getTerminateDateTime().toLocalTime();
+			default:
+				return null;
+		}
 	}
 
 }

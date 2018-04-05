@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -47,6 +48,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private static final String SCHEDULER_NOT_FOUND_MSG =
 			"Scheduler job data not found for user %s with exploratory %s";
+	private static final String CURRENT_DATETIME_INFO =
+			"Current time rounded: {} , current date: {}, current day of week: {}";
 
 	@Inject
 	private SchedulerJobDAO schedulerJobDAO;
@@ -89,12 +92,12 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void executeStartExploratoryJob() {
 		OffsetDateTime currentDateTime = OffsetDateTime.now();
-		List<SchedulerJobData> jobsToStart = getSchedulerJobsForStartingExploratories(currentDateTime);
+		List<SchedulerJobData> jobsToStart =
+				getSchedulerJobsForExploratoryAction(UserInstanceStatus.RUNNING, currentDateTime);
 		if (!jobsToStart.isEmpty()) {
 			log.debug("Scheduler start job is executing...");
-			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
-					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
-					currentDateTime.toLocalDate(),
+			log.info(CURRENT_DATETIME_INFO, LocalTime.of(currentDateTime.toLocalTime().getHour(),
+					currentDateTime.toLocalTime().getMinute()), currentDateTime.toLocalDate(),
 					currentDateTime.getDayOfWeek());
 			log.info("Quantity of exploratories for starting: {}", jobsToStart.size());
 			jobsToStart.forEach(job -> changeExploratoryStatusTo(UserInstanceStatus.RUNNING, job));
@@ -104,12 +107,12 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void executeStopExploratoryJob() {
 		OffsetDateTime currentDateTime = OffsetDateTime.now();
-		List<SchedulerJobData> jobsToStop = getSchedulerJobsForStoppingExploratories(currentDateTime);
+		List<SchedulerJobData> jobsToStop =
+				getSchedulerJobsForExploratoryAction(UserInstanceStatus.STOPPED, currentDateTime);
 		if (!jobsToStop.isEmpty()) {
 			log.debug("Scheduler stop job is executing...");
-			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
-					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
-					currentDateTime.toLocalDate(),
+			log.info(CURRENT_DATETIME_INFO, LocalTime.of(currentDateTime.toLocalTime().getHour(),
+					currentDateTime.toLocalTime().getMinute()), currentDateTime.toLocalDate(),
 					currentDateTime.getDayOfWeek());
 			log.info("Quantity of exploratories for stopping: {}", jobsToStop.size());
 			jobsToStop.forEach(job -> changeExploratoryStatusTo(UserInstanceStatus.STOPPED, job));
@@ -119,12 +122,12 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void executeTerminateExploratoryJob() {
 		OffsetDateTime currentDateTime = OffsetDateTime.now();
-		List<SchedulerJobData> jobsToTerminate = getSchedulerJobsForTerminatingExploratories(currentDateTime);
+		List<SchedulerJobData> jobsToTerminate =
+				getSchedulerJobsForExploratoryAction(UserInstanceStatus.TERMINATED, currentDateTime);
 		if (!jobsToTerminate.isEmpty()) {
 			log.debug("Scheduler terminate job is executing...");
-			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
-					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
-					currentDateTime.toLocalDate(),
+			log.info(CURRENT_DATETIME_INFO, LocalTime.of(currentDateTime.toLocalTime().getHour(),
+					currentDateTime.toLocalTime().getMinute()), currentDateTime.toLocalDate(),
 					currentDateTime.getDayOfWeek());
 			log.info("Quantity of exploratories for terminating: {}", jobsToTerminate.size());
 			jobsToTerminate.forEach(job -> changeExploratoryStatusTo(UserInstanceStatus.TERMINATED, job));
@@ -144,87 +147,87 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	/**
-	 * Pulls out scheduler jobs data for following stopping corresponding exploratories
+	 * Pulls out scheduler jobs data for the following starting/terminating/stopping corresponding exploratories.
 	 *
+	 * @param desiredStatus actual date with time
 	 * @param currentDateTime actual date with time
 	 * @return list of scheduler jobs data
 	 */
-	private List<SchedulerJobData> getSchedulerJobsForStoppingExploratories(OffsetDateTime currentDateTime) {
-		return Stream.of(
-				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime)
-						.stream()
-						.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-								jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
-				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime.minusDays(1))
-						.stream()
-						.filter(jobData -> {
-							LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
-									ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
-											.getTimeZoneOffset())).toLocalDateTime();
-							return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-									jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
-									&& !convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate());
-						}),
-				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime).stream()
-						.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
-		).flatMap(Function.identity()).collect(Collectors.toList());
+	private List<SchedulerJobData> getSchedulerJobsForExploratoryAction(UserInstanceStatus desiredStatus,
+																		OffsetDateTime currentDateTime) {
+		switch (desiredStatus) {
+			case RUNNING:
+				return getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime);
+			case TERMINATED:
+				return getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime);
+			case STOPPED:
+				return Stream.of(
+						getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime)
+								.stream()
+								.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+										jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
+						getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime.minusDays(1))
+								.stream()
+								.filter(jobData -> {
+									LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime
+													.toInstant(),
+											ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
+													.getTimeZoneOffset())).toLocalDateTime();
+									return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+											jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO()
+													.getStartTime())
+											&& !convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO()
+											.getFinishDate());
+								}),
+						getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime).stream()
+								.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
+				).flatMap(Function.identity()).collect(Collectors.toList());
+			default:
+				return Collections.emptyList();
+		}
 	}
 
 	/**
-	 * Pulls out scheduler jobs data for following starting corresponding exploratories
+	 * Starts/stops/terminates exploratory corresponding to target status and scheduler job data.
 	 *
-	 * @param currentDateTime actual date with time
-	 * @return list of scheduler jobs data
-	 */
-	private List<SchedulerJobData> getSchedulerJobsForStartingExploratories(OffsetDateTime currentDateTime) {
-		return getSchedulerJobsToAchieveStatus(UserInstanceStatus.RUNNING, currentDateTime);
-	}
-
-	/**
-	 * Pulls out scheduler jobs data for following terminating corresponding exploratories
-	 *
-	 * @param currentDateTime actual date with time
-	 * @return list of scheduler jobs data
-	 */
-	private List<SchedulerJobData> getSchedulerJobsForTerminatingExploratories(OffsetDateTime currentDateTime) {
-		return Stream.of(
-				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime)
-						.stream()
-						.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-								jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
-				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime.minusDays(1))
-						.stream()
-						.filter(jobData -> {
-							LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
-									ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
-											.getTimeZoneOffset())).toLocalDateTime();
-							return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-									jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
-									&& !convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate());
-						}),
-				getSchedulerJobsToAchieveStatus(UserInstanceStatus.STOPPED, currentDateTime).stream()
-						.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
-		).flatMap(Function.identity()).collect(Collectors.toList());
-	}
-
-	/**
-	 * Starts/stops exploratory corresponding to target status and scheduler job data
-	 *
-	 * @param desiredStatus target exploratory status (running/stopped)
+	 * @param desiredStatus target exploratory status (running/stopped/terminated)
 	 * @param jobData       scheduler job data which includes exploratory details
 	 */
 	private void changeExploratoryStatusTo(UserInstanceStatus desiredStatus, SchedulerJobData jobData) {
-		log.debug("Exploratory with name {} for user {} is {}...",
-				jobData.getExploratoryName(), jobData.getUser(),
-				(desiredStatus.equals(UserInstanceStatus.RUNNING) ? UserInstanceStatus.STARTING :
-						UserInstanceStatus.STOPPING));
+		log.debug("Exploratory with name {} for user {} is {}...", jobData.getExploratoryName(), jobData.getUser(),
+				getActionBasedOnDesiredStatus(desiredStatus));
 		UserInfo userInfo = systemUserService.create(jobData.getUser());
-		if (desiredStatus.equals(UserInstanceStatus.RUNNING)) {
-			exploratoryService.start(userInfo, jobData.getExploratoryName());
-		} else {
-			exploratoryService.stop(userInfo, jobData.getExploratoryName());
-		}
+		executeCorrespondingAction(userInfo, jobData.getExploratoryName(), desiredStatus);
+	}
 
+	private UserInstanceStatus getActionBasedOnDesiredStatus(UserInstanceStatus desiredStatus) {
+		switch (desiredStatus) {
+			case RUNNING:
+				return UserInstanceStatus.STARTING;
+			case STOPPED:
+				return UserInstanceStatus.STOPPING;
+			case TERMINATED:
+				return UserInstanceStatus.TERMINATING;
+			default:
+				return null;
+		}
+	}
+
+	private void executeCorrespondingAction(UserInfo userInfo, String exploratoryName,
+											UserInstanceStatus desiredStatus) {
+		switch (desiredStatus) {
+			case RUNNING:
+				exploratoryService.start(userInfo, exploratoryName);
+				break;
+			case STOPPED:
+				exploratoryService.stop(userInfo, exploratoryName);
+				break;
+			case TERMINATED:
+				exploratoryService.terminate(userInfo, exploratoryName);
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**
