@@ -189,7 +189,7 @@ public class BaseDAO implements MongoCollections {
 	 * @param condition  condition for search documents in collection.
 	 * @param document   document.
 	 */
-	protected UpdateResult updateMany(String collection, Bson condition, Bson document) {
+	UpdateResult updateMany(String collection, Bson condition, Bson document) {
 		try {
 			return mongoService.getCollection(collection)
 					.updateMany(condition, document);

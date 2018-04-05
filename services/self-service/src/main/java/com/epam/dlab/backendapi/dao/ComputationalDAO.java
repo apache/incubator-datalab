@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -30,12 +31,14 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
+import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
@@ -50,17 +53,18 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 public class ComputationalDAO extends BaseDAO {
 	static final String COMPUTATIONAL_NAME = "computational_name";
 	static final String COMPUTATIONAL_ID = "computational_id";
-	private static final String TEMPLATE_NAME = "template_name";
+	static final String TEMPLATE_NAME = "template_name";
 
 	private static final String IMAGE = "image";
+	public static final String COMPUTATIONAL_NOT_FOUND_MSG = "Computational resource %s affiliated with exploratory " +
+			"%s for user %s not found";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
 	}
 
 	private static Bson computationalCondition(String user, String exploratoryField, String exploratoryFieldValue,
-											   String compResourceField,
-											   String compResourceFieldValue) {
+											   String compResourceField, String compResourceFieldValue) {
 		return and(eq(USER, user), eq(exploratoryField, exploratoryFieldValue),
 				eq(COMPUTATIONAL_RESOURCES + "." + compResourceField, compResourceFieldValue));
 	}
@@ -131,8 +135,7 @@ public class ComputationalDAO extends BaseDAO {
 			}
 		}
 		throw new DlabException("Computational resource " + computationalName + " for user " + user + " with " +
-				"exploratory name " +
-				exploratoryName + " not found.");
+				"exploratory name " + exploratoryName + " not found.");
 	}
 
 	/**
@@ -299,11 +302,27 @@ public class ComputationalDAO extends BaseDAO {
 	 * @param fieldValue        computational field's value for updating.
 	 */
 
-	private <T> void updateComputationalField(String user, String exploratoryName, String computationalName,
-											  String fieldName, T fieldValue) {
-		updateOne(USER_INSTANCES,
+	private <T> UpdateResult updateComputationalField(String user, String exploratoryName, String computationalName,
+													  String fieldName, T fieldValue) {
+		return updateOne(USER_INSTANCES,
 				computationalCondition(user, EXPLORATORY_NAME, exploratoryName, COMPUTATIONAL_NAME, computationalName),
 				set(computationalFieldFilter(fieldName), fieldValue));
+	}
+
+	public UpdateResult updateSchedulerDataForComputationalResource(String user, String exploratoryName,
+																	String computationalName, SchedulerJobDTO dto) {
+		return updateComputationalField(user, exploratoryName, computationalName, SCHEDULER_DATA, convertToBson(dto));
+	}
+
+	/**
+	 * Checks if computational resource exists.
+	 *
+	 * @param user              user name.
+	 * @param exploratoryName   the name of exploratory.
+	 * @param computationalName the name of computational resource.
+	 */
+	public boolean isComputationalExist(String user, String exploratoryName, String computationalName) {
+		return !Objects.isNull(fetchComputationalFields(user, exploratoryName, computationalName));
 	}
 
 

@@ -33,6 +33,7 @@ public class SchedulerJobServiceImplTest {
 
 	private final String USER = "test";
 	private final String EXPLORATORY_NAME = "explName";
+	private final String COMPUTATIONAL_NAME = "compName";
 
 	private UserInfo userInfo;
 	private SchedulerJobDTO schedulerJobDTO;
@@ -162,15 +163,17 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void executeStartExploratoryJob() {
-		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class)))
-				.thenReturn(Collections.singletonList(new SchedulerJobData(USER, EXPLORATORY_NAME, schedulerJobDTO)));
+		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class),
+				anyBoolean()))
+				.thenReturn(Collections.singletonList(new SchedulerJobData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
+						schedulerJobDTO)));
 		when(systemUserService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
 
-		schedulerJobService.executeStartExploratoryJob();
+		schedulerJobService.executeStartResourceJob(false);
 
 		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.RUNNING), any(OffsetDateTime.class));
+				refEq(UserInstanceStatus.RUNNING), any(OffsetDateTime.class), eq(false));
 		verify(systemUserService).create(USER);
 		verify(exploratoryService).start(userInfo, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(schedulerJobDAO, systemUserService, exploratoryService);
@@ -178,11 +181,11 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void executeStartExploratoryJobWhenSchedulerIsAbsent() {
-		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class)))
-				.thenReturn(Collections.emptyList());
-		schedulerJobService.executeStartExploratoryJob();
+		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class),
+				anyBoolean())).thenReturn(Collections.emptyList());
+		schedulerJobService.executeStartResourceJob(false);
 		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.RUNNING), any(OffsetDateTime.class));
+				refEq(UserInstanceStatus.RUNNING), any(OffsetDateTime.class), eq(false));
 		verify(systemUserService, never()).create(any());
 		verify(exploratoryService, never()).start(any(), any());
 		verifyNoMoreInteractions(schedulerJobDAO);
@@ -195,15 +198,16 @@ public class SchedulerJobServiceImplTest {
 		schedulerJobDTO.setEndTime(LocalTime.of(18, 15));
 		schedulerJobDTO.setTimeZoneOffset(ZoneOffset.of("+02:00"));
 
-		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class)))
-				.thenReturn(Collections.singletonList(new SchedulerJobData(USER, EXPLORATORY_NAME, schedulerJobDTO)));
+		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class),
+				anyBoolean())).thenReturn(Collections.singletonList(new SchedulerJobData(USER, EXPLORATORY_NAME,
+				COMPUTATIONAL_NAME, schedulerJobDTO)));
 		when(systemUserService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn("someUuid");
 
-		schedulerJobService.executeStopExploratoryJob();
+		schedulerJobService.executeStopResourceJob(false);
 
-		verify(schedulerJobDAO, times(2)).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.STOPPED), any(OffsetDateTime.class));
+		verify(schedulerJobDAO, times(3)).getSchedulerJobsToAchieveStatus(
+				refEq(UserInstanceStatus.STOPPED), any(OffsetDateTime.class), eq(false));
 		verify(systemUserService).create(USER);
 		verify(exploratoryService).stop(userInfo, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(schedulerJobDAO);
@@ -211,12 +215,12 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void executeStopExploratoryJobWhenSchedulerIsAbsent() {
-		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class)))
-				.thenReturn(Collections.emptyList());
-		schedulerJobService.executeStopExploratoryJob();
+		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), any(OffsetDateTime.class),
+				anyBoolean())).thenReturn(Collections.emptyList());
+		schedulerJobService.executeStopResourceJob(false);
 
-		verify(schedulerJobDAO, times(2)).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.STOPPED), any(OffsetDateTime.class));
+		verify(schedulerJobDAO, times(3)).getSchedulerJobsToAchieveStatus(
+				refEq(UserInstanceStatus.STOPPED), any(OffsetDateTime.class), eq(false));
 		verify(systemUserService, never()).create(USER);
 		verify(exploratoryService, never()).stop(userInfo, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(schedulerJobDAO);

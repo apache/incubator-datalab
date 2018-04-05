@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.schedulers;
+package com.epam.dlab.backendapi.schedulers.computational;
 
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
@@ -24,17 +24,18 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
 /**
- * There realized integration with Quartz scheduler framework and defined terminate exploratory scheduler job which
- * executes every time specified.
+ * There realized integration with Quartz scheduler framework and defined stop computational resource scheduler job
+ * which executes every time specified.
  */
 @Slf4j
 @Scheduled(interval = 10)
-public class TerminateExploratoryJob implements Job {
+public class StopComputationalJob implements Job {
+
 	@Inject
 	private SchedulerJobService schedulerJobService;
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.executeTerminateExploratoryJob();
+		schedulerJobService.executeStopResourceJob(true);
 	}
 }

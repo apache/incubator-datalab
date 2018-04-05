@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.computational;
 
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,8 @@ public class UserComputationalResource {
     private String status;
     @JsonProperty("up_time")
     private Date uptime;
+	@JsonProperty("scheduler_data")
+	private SchedulerJobDTO schedulerData;
 	@JsonProperty("reupload_key_required")
 	private boolean reuploadKeyRequired = false;
 }

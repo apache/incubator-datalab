@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.gcp.computational;
 
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -48,10 +49,12 @@ public class GcpComputationalResource extends UserComputationalResource {
 
     @Builder
 	public GcpComputationalResource(String computationalName, String computationalId, String imageName,
-									String templateName, String status, Date uptime, boolean reuploadKeyRequired,
+									String templateName, String status, Date uptime,
+									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
 									String masterNumber, String version) {
-		super(computationalName, computationalId, imageName, templateName, status, uptime, reuploadKeyRequired);
+		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
+				reuploadKeyRequired);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;

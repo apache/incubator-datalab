@@ -369,14 +369,14 @@ public class ExploratoryServiceImplTest {
 
 	@Test
 	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
-		doNothing().when(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(anyString(),
+		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(),
 				any(UserInstanceStatus.class), anyBoolean());
 		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
 				any(UserInstanceStatus.class), anyString(), any(UserInstanceStatus.class), anyBoolean());
 
 		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
 
-		verify(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(USER, UserInstanceStatus.STOPPED, true);
+		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, UserInstanceStatus.STOPPED, true);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
 				UserInstanceStatus.RUNNING, "Spark cluster", UserInstanceStatus.STOPPED, true);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
