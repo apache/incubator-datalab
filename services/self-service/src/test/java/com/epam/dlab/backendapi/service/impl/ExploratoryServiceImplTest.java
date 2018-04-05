@@ -371,15 +371,15 @@ public class ExploratoryServiceImplTest {
 	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
 		doNothing().when(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(anyString(),
 				any(UserInstanceStatus.class), anyBoolean());
-		doNothing().when(computationalDAO).updateReuploadKeyFlagForCorrespondingComputationalResources(anyString(),
+		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
 				any(UserInstanceStatus.class), anyString(), any(UserInstanceStatus.class), anyBoolean());
 
 		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
 
 		verify(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(USER, UserInstanceStatus.STOPPED, true);
-		verify(computationalDAO).updateReuploadKeyFlagForCorrespondingComputationalResources(USER,
+		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
 				UserInstanceStatus.RUNNING, "Spark cluster", UserInstanceStatus.STOPPED, true);
-		verify(computationalDAO).updateReuploadKeyFlagForCorrespondingComputationalResources(USER,
+		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
 				UserInstanceStatus.STOPPED, "Spark cluster", UserInstanceStatus.STOPPED, true);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}

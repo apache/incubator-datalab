@@ -103,9 +103,9 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Override
 	public void updateUserInstancesReuploadKeyFlag(String user) {
 		exploratoryDAO.updateReuploadKeyForCorrespondingExploratories(user, STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForCorrespondingComputationalResources(user, RUNNING, "Spark cluster",
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, RUNNING, "Spark cluster",
 				STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForCorrespondingComputationalResources(user, STOPPED, "Spark cluster",
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, STOPPED, "Spark cluster",
 				STOPPED, true);
 	}
 

@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -250,34 +249,61 @@ public class ComputationalDAO extends BaseDAO {
 	 * @param exploratoryStatus    status of exploratory.
 	 * @param computationalType    type of computational resource (Spark cluster, EMR cluster etc.).
 	 * @param computationalStatus  status of computational resource.
-	 * @param reuploadKeyRequired  true/false.
-	 */
-	@SuppressWarnings("unchecked")
-	public void updateReuploadKeyFlagForCorrespondingComputationalResources(String user,
-																			UserInstanceStatus exploratoryStatus,
+	 * @param reuploadKeyRequired  true/false.	 */
+
+	public void updateReuploadKeyFlagForComputationalResources(String user, UserInstanceStatus exploratoryStatus,
 																			String computationalType,
 																			UserInstanceStatus computationalStatus,
 																			boolean reuploadKeyRequired) {
 
-		List<String> exploratoryNames = find(USER_INSTANCES,
+		List<String> exploratoryNames = stream(find(USER_INSTANCES,
 				and(eq(USER, user), eq(STATUS, exploratoryStatus.toString())),
-				fields(include(EXPLORATORY_NAME))).into(new ArrayList<>())
-				.stream().map(d -> d.getString(EXPLORATORY_NAME)).collect(Collectors.toList());
+				fields(include(EXPLORATORY_NAME)))).map(d -> d.getString(EXPLORATORY_NAME)).collect(Collectors
+				.toList());
 
-		exploratoryNames.forEach(explName -> {
+		exploratoryNames.forEach(explName ->
+				getComputationalResourcesWithStatus(computationalStatus, user, computationalType, explName)
+						.forEach(compName -> updateComputationalField(user, explName, compName,
+								REUPLOAD_KEY_REQUIRED, reuploadKeyRequired))
+		);
+	}
 
-			List<String> compNames = ((List<Document>) find(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME,
-					explName)), fields(include(COMPUTATIONAL_RESOURCES))).first().get(COMPUTATIONAL_RESOURCES))
-					.stream().filter(resource ->
-							resource.getString(STATUS).equals(computationalStatus.toString())
-									&& resource.getString(TEMPLATE_NAME).equals(computationalType))
-					.map(resource -> resource.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
+	/**
+	 * Returns names of computational resources with predefined status and type for user's exploratory.
+	 *
+	 * @param computationalStatus status of computational resource.
+	 * @param user                user name.
+	 * @param computationalType   type of computational resource (Spark cluster, EMR cluster etc.).
+	 * @param exploratoryName     name of exploratory.
+	 * @return list of computational resources' names
+	 */
 
-			compNames.forEach(compName -> updateOne(USER_INSTANCES,
-					computationalCondition(user, EXPLORATORY_NAME, explName, COMPUTATIONAL_NAME, compName),
-					set(computationalFieldFilter(REUPLOAD_KEY_REQUIRED), reuploadKeyRequired)));
+	@SuppressWarnings("unchecked")
+	private List<String> getComputationalResourcesWithStatus(UserInstanceStatus computationalStatus, String user,
+															 String computationalType, String exploratoryName) {
+		return stream((List<Document>) find(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName)),
+				fields(include(COMPUTATIONAL_RESOURCES))).first().get(COMPUTATIONAL_RESOURCES))
+				.filter(doc ->
+						doc.getString(STATUS).equals(computationalStatus.toString())
+								&& doc.getString(TEMPLATE_NAME).equals(computationalType))
+				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
+	}
 
-		});
+	/**
+	 * Updates computational resource's field.
+	 *
+	 * @param user              user name.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @param fieldName         computational field's name for updating.
+	 * @param fieldValue        computational field's value for updating.
+	 */
+
+	private <T> void updateComputationalField(String user, String exploratoryName, String computationalName,
+											  String fieldName, T fieldValue) {
+		updateOne(USER_INSTANCES,
+				computationalCondition(user, EXPLORATORY_NAME, exploratoryName, COMPUTATIONAL_NAME, computationalName),
+				set(computationalFieldFilter(fieldName), fieldValue));
 	}
 
 
