@@ -31,5 +31,6 @@ public interface ComputationalService {
 			computationalResource);
 
 	void stopSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
+
 	void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
 }

@@ -9,6 +9,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -23,6 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -236,6 +239,7 @@ public class ExploratoryServiceImplTest {
 		assertEquals(UUID, uuid);
 
 		userInstance.withStatus("creating");
+		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
 		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
@@ -267,6 +271,7 @@ public class ExploratoryServiceImplTest {
 					e.getMessage());
 		}
 		userInstance.withStatus("creating");
+		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(exploratoryDAO, never()).updateExploratoryStatus(any(StatusEnvBaseDTO.class));
 		verifyNoMoreInteractions(exploratoryDAO);
@@ -294,6 +299,7 @@ public class ExploratoryServiceImplTest {
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
 
 		userInstance.withStatus("creating");
+		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
 		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
@@ -301,12 +307,94 @@ public class ExploratoryServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO, gitCredsDAO, requestBuilder);
 	}
 
+	@Test
+	public void updateExploratoryStatusesWithRunningStatus() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
+				.thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+
+		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.RUNNING);
+
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("running");
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void updateExploratoryStatusesWithStoppingStatus() {
+		userInstance.setStatus("stopping");
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
+				.thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
+				any(UserInstanceStatus.class), any(UserInstanceStatus.class));
+
+		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.STOPPING);
+
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME,
+				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void updateExploratoryStatusesWithTerminatingStatus() {
+		userInstance.setStatus("terminating");
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
+				.thenReturn(Collections.singletonList(userInstance));
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class)))
+				.thenReturn(10);
+
+		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.TERMINATING);
+
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(computationalDAO).updateComputationalStatusesForExploratory(refEq(statusEnvBaseDTO, "self"));
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
+		doNothing().when(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(anyString(),
+				any(UserInstanceStatus.class), anyBoolean());
+		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
+				any(UserInstanceStatus.class), anyString(), any(UserInstanceStatus.class), anyBoolean());
+
+		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
+
+		verify(exploratoryDAO).updateReuploadKeyForCorrespondingExploratories(USER, UserInstanceStatus.STOPPED, true);
+		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
+				UserInstanceStatus.RUNNING, "Spark cluster", UserInstanceStatus.STOPPED, true);
+		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
+				UserInstanceStatus.STOPPED, "Spark cluster", UserInstanceStatus.STOPPED, true);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
 
 	private UserInstanceDTO getUserInstanceDto() {
-		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME);
+		UserComputationalResource compResource = new UserComputationalResource();
+		compResource.setImageName("YYYY.dataengine");
+		compResource.setComputationalName("compName");
+		compResource.setStatus("stopped");
+		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME).withStatus("running")
+				.withResources(Collections.singletonList(compResource));
 	}
 
 	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {

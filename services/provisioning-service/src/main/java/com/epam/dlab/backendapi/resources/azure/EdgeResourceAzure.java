@@ -26,6 +26,7 @@ import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.rest.contracts.EdgeAPI;
+import com.epam.dlab.utils.FileUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +56,7 @@ public class EdgeResourceAzure extends EdgeService {
 	@POST
 	@Path("/create")
 	public String create(@Auth UserInfo ui, UploadFileAzure dto) throws IOException {
-		saveKeyToFile(dto.getEdge().getEdgeUserName(), dto.getContent());
+		FileUtils.saveToFile(getKeyFilename(dto.getEdge().getEdgeUserName()), getKeyDirectory(), dto.getContent());
 		return action(ui.getName(), dto.getEdge(), dto.getEdge().getCloudSettings().getIamUser(), KEY_LOADER,
 				DockerAction.CREATE);
 	}

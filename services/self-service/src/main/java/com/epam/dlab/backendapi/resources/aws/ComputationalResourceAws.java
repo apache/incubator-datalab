@@ -166,8 +166,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	@PUT
 	@Path("/{exploratoryName}/{computationalName}/start")
 	public Response start(@Auth UserInfo userInfo,
-						 @PathParam("exploratoryName") String exploratoryName,
-						 @PathParam("computationalName") String computationalName) {
+						  @PathParam("exploratoryName") String exploratoryName,
+						  @PathParam("computationalName") String computationalName) {
 		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
 		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);

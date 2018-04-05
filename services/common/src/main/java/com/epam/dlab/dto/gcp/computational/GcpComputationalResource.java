@@ -47,8 +47,11 @@ public class GcpComputationalResource extends UserComputationalResource {
     private String version;
 
     @Builder
-    public GcpComputationalResource(String computationalName, String computationalId, String imageName, String templateName, String status, Date uptime, String instanceId, String masterShape, String slaveShape, String slaveNumber, String masterNumber, String version) {
-        super(computationalName, computationalId, imageName, templateName, status, uptime);
+	public GcpComputationalResource(String computationalName, String computationalId, String imageName,
+									String templateName, String status, Date uptime, boolean reuploadKeyRequired,
+									String instanceId, String masterShape, String slaveShape, String slaveNumber,
+									String masterNumber, String version) {
+		super(computationalName, computationalId, imageName, templateName, status, uptime, reuploadKeyRequired);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;

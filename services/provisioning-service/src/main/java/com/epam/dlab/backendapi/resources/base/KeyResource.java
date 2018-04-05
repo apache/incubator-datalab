@@ -14,25 +14,38 @@
  * limitations under the License.
  */
 
+
 package com.epam.dlab.backendapi.resources.base;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.Directories;
-import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.dto.base.keyload.ReuploadFile;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.KeyAPI;
+import com.epam.dlab.utils.FileUtils;
 import com.epam.dlab.utils.UsernameUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.dropwizard.auth.Auth;
+import lombok.extern.slf4j.Slf4j;
 
-public abstract class EdgeService implements DockerCommands {
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+/**
+ * Provides API for reuploading keys
+ */
+@Path(KeyAPI.REUPLOAD_KEY)
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Slf4j
+public class KeyResource implements DockerCommands {
 
 	@Inject
 	protected RESTService selfService;
@@ -45,24 +58,25 @@ public abstract class EdgeService implements DockerCommands {
 	@Inject
 	private CommandBuilder commandBuilder;
 
-	@Override
-	public String getResourceType() {
-		return Directories.EDGE_LOG_DIRECTORY;
+	@POST
+	public String reuploadKey(@Auth UserInfo ui, ReuploadFile dto) throws IOException {
+		String edgeUserName = dto.getEdgeUserName();
+		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
+		FileUtils.deleteFile(filename, configuration.getKeyDirectory());
+		FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
+		return reuploadKeyAction(edgeUserName, ui.getName(), DockerAction.REUPLOAD_KEY);
 	}
 
-	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI,
-							DockerAction action) throws JsonProcessingException {
-		logger.debug("{} EDGE node for user {}: {}", action, username, dto);
+	//TODO refactor Docker command corresponding to DevOps' requirement
+	private String reuploadKeyAction(String edgeUserName, String userName, DockerAction action)
+			throws JsonProcessingException {
+		log.debug("{} for edge user {}", action, edgeUserName);
 		String uuid = DockerCommands.generateUUID();
-
-		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
-				configuration.getKeyLoaderPollTimeout(),
-				getFileHandlerCallback(action, uuid, iamUser, callbackURI));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
-				.withName(nameContainer(dto.getEdgeUserName(), action))
-				.withVolumeForRootKeys(getKeyDirectory())
+				.withName(nameContainer(edgeUserName, action.toString()))
+				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
 				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
 				.withResource(getResourceType())
@@ -71,23 +85,15 @@ public abstract class EdgeService implements DockerCommands {
 				.withImage(configuration.getEdgeImage())
 				.withAction(action);
 
-		commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
+		String command = commandBuilder.buildCommand(runDockerCommand, null);
+		log.trace("Docker command:  {}", command);
+		commandExecutor.executeAsync(userName, uuid, command);
 		return uuid;
 	}
 
-	protected abstract FileHandlerCallback getFileHandlerCallback(DockerAction action,
-																  String uuid, String user, String callbackURI);
-
-	private String nameContainer(String user, DockerAction action) {
-		return nameContainer(user, action.toString(), getResourceType());
+	@Override
+	public String getResourceType() {
+		//TODO add some functionality if necessary (depends on DevOps' requirement)
+		return "RES_TYPE";
 	}
-
-	protected String getKeyDirectory() {
-		return configuration.getKeyDirectory();
-	}
-
-	protected String getKeyFilename(String edgeUserName) {
-		return UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
-	}
-
 }

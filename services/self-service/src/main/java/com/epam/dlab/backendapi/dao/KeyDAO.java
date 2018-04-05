@@ -26,6 +26,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
 
+import java.util.Date;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.*;
@@ -37,6 +38,7 @@ import static com.mongodb.client.model.Updates.set;
  */
 public abstract class KeyDAO extends BaseDAO {
 	static final String EDGE_STATUS = "edge_status";
+	private static final String KEY_CONTENT = "content";
 
 	/**
 	 * Store the user key to Mongo database.
@@ -68,6 +70,24 @@ public abstract class KeyDAO extends BaseDAO {
 	 */
 	public void deleteKey(String user) {
 		mongoService.getCollection(USER_KEYS).deleteOne(eq(ID, user));
+	}
+
+	/**
+	 * Inserts ('insertRequired' equals 'true') or updates ('insertRequired' equals 'false') the user key to/in Mongo
+	 * database.
+	 *
+	 * @param user           user name
+	 * @param content        key content
+	 * @param insertRequired true/false
+	 */
+	public void upsertKey(final String user, String content, boolean insertRequired) {
+		Document doc = new Document(SET,
+				new Document()
+				.append(ID, user)
+				.append(KEY_CONTENT, content)
+				.append(STATUS, insertRequired ? KeyLoadStatus.NEW.getStatus() : KeyLoadStatus.SUCCESS.getStatus())
+						.append(TIMESTAMP, new Date()));
+		updateOne(USER_KEYS, eq(ID, user), doc, insertRequired);
 	}
 
 	/**

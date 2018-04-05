@@ -33,22 +33,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
-import static com.mongodb.client.model.Filters.not;
-import static com.mongodb.client.model.Projections.exclude;
-import static com.mongodb.client.model.Projections.excludeId;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
@@ -78,6 +68,10 @@ public class ExploratoryDAO extends BaseDAO {
 
 	static Bson exploratoryCondition(String user, String exploratoryName) {
 		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
+	}
+
+	private static Bson exploratoryStatusCondition(String user, UserInstanceStatus exploratoryStatus) {
+		return and(eq(USER, user), eq(STATUS, exploratoryStatus.toString()));
 	}
 
 	private static Bson runningExploratoryCondition(String user, String exploratoryName) {
@@ -145,9 +139,25 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the info of all user's running notebooks.
+	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *
 	 * @param user user name.
+	 * @param statuses array of statuses.
+	 */
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, UserInstanceStatus... statuses) {
+		final List<String> statusList = statusList(statuses);
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						in(STATUS, statusList)
+				));
+	}
+
+	/**
+	 * Finds and returns the info of all user's notebooks whose status is absent among predefined ones.
+	 *
+	 * @param user     user name.
+	 * @param statuses array of statuses.
 	 */
 	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusNotIn(String user, UserInstanceStatus... statuses) {
 		final List<String> statusList = statusList(statuses);
@@ -158,18 +168,8 @@ public class ExploratoryDAO extends BaseDAO {
 				));
 	}
 
-	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, UserInstanceStatus... statuses) {
-		final List<String> statusList = statusList(statuses);
-		return getUserInstances(
-				and(
-						eq(USER, user),
-						in(STATUS, statusList)
-				));
-	}
-
 	private List<String> statusList(UserInstanceStatus[] statuses) {
-		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors
-				.toList());
+		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors.toList());
 	}
 
 
@@ -275,6 +275,19 @@ public class ExploratoryDAO extends BaseDAO {
 		return updateOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
 				set(SCHEDULER_DATA, convertToBson(dto)));
+	}
+
+	/**
+	 * Updates the requirement for reuploading key for all user's corresponding exploratories in Mongo database.
+	 *
+	 * @param user                 user name.
+	 * @param exploratoryStatus    status of exploratory.
+	 * @param reuploadKeyRequired  true/false.
+	 */
+	public void updateReuploadKeyForCorrespondingExploratories(String user, UserInstanceStatus exploratoryStatus,
+															   boolean reuploadKeyRequired) {
+		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, exploratoryStatus),
+				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 
 

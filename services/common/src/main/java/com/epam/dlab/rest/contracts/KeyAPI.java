@@ -16,8 +16,10 @@
 
 package com.epam.dlab.rest.contracts;
 
-public class BackupAPI {
-	public static final String BACKUP = "backup";
+public class KeyAPI {
+	public static final String REUPLOAD_KEY = "/reupload_key";
+	public static final String KEY_EXTENTION = ".pub";
 
-	private BackupAPI(){}
+	private KeyAPI() {
+	}
 }
