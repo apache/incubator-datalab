@@ -98,15 +98,15 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
 		verify(edgeService).stop(refEq(userInfo));
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(userInfo.getName(), UserInstanceStatus.CREATING,
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING);
 		verifyNoMoreInteractions(keyDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	public void stopEnvironmentWithWrongResourceState() {
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), Matchers.anyVararg())).
-				thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), Matchers.anyVararg()))
+				.thenReturn(getUserInstances());
 		expectedException.expect(ResourceConflictException.class);
 
 		environmentService.stopEnvironment(USER);
@@ -137,15 +137,15 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
 		verify(edgeService, never()).stop(refEq(userInfo));
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(userInfo.getName(), UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER,
+				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING);
 		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	public void terminateEnvironment() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString())).thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString())).thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.edgeNodeExist(anyString())).thenReturn(true);
@@ -153,23 +153,24 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateEnvironment(USER);
 
-		verify(exploratoryDAO, never()).fetchUserExploratoriesWhereStatusNotIn(anyString(), any());
+		verify(exploratoryDAO, never()).fetchUserExploratoriesWhereStatusIn(anyString(), any());
 		verify(systemUserInfoService).create(USER);
 		verify(keyDAO).edgeNodeExist(USER);
 		verify(edgeService).terminate(refEq(userInfo));
 		verify(exploratoryService).updateExploratoryStatuses(USER, UserInstanceStatus.TERMINATING);
 		verify(keyDAO).getEdgeStatus(userInfo.getName());
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(userInfo.getName(), UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER,
+				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING);
 		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	public void terminateEnvironmentWithoutEdge() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), Matchers.<UserInstanceStatus>anyVararg
-				()))
-				.thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), eq(UserInstanceStatus.CREATING),
+				eq(UserInstanceStatus.STARTING))).thenReturn(Collections.emptyList());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), eq(UserInstanceStatus.TERMINATED),
+				eq(UserInstanceStatus.FAILED), eq(UserInstanceStatus.TERMINATING))).thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.edgeNodeExist(anyString())).thenReturn(false);
@@ -184,16 +185,16 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO).edgeNodeExist(USER);
 		verify(edgeService, never()).terminate(refEq(userInfo));
-		verify(keyDAO).getEdgeStatus(userInfo.getName());
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(userInfo.getName(), UserInstanceStatus.CREATING,
+		verify(keyDAO).getEdgeStatus(USER);
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING);
 		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	public void terminateEnvironmentWithWrongResourceState() {
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), Matchers.anyVararg())).
-				thenReturn(getUserInstances());
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), Matchers.anyVararg()))
+				.thenReturn(getUserInstances());
 		expectedException.expect(ResourceConflictException.class);
 
 		environmentService.terminateEnvironment(USER);

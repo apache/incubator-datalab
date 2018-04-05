@@ -62,6 +62,7 @@ public class BaseDAO implements MongoCollections {
 	public static final String STATUS = "status";
 	public static final String ERROR_MESSAGE = "error_message";
 	static final String TIMESTAMP = "timestamp";
+	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
 
 	@Inject
 	protected MongoService mongoService;
@@ -171,7 +172,7 @@ public class BaseDAO implements MongoCollections {
 		try {
 			if (isUpsert) {
 				mongoService.getCollection(collection).updateOne(condition, document,
-						new UpdateOptions().upsert(isUpsert));
+						new UpdateOptions().upsert(true));
 			} else {
 				mongoService.getCollection(collection).updateOne(condition, document);
 			}

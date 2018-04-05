@@ -4,6 +4,7 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -40,6 +41,8 @@ public class AccessKeyServiceImplTest {
 	private RequestBuilder requestBuilder;
 	@Mock
 	private RequestId requestId;
+	@Mock
+	private ExploratoryService exploratoryService;
 
 	@InjectMocks
 	private AccessKeyServiceImpl accessKeyService;
@@ -76,7 +79,8 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void uploadKey() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -87,21 +91,23 @@ public class AccessKeyServiceImplTest {
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 
 		String keyContent = "keyContent";
-		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent);
+		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, true);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
 
-		verify(keyDAO).insertKey(USER, keyContent);
+		verify(keyDAO).upsertKey(USER, keyContent, true);
+		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, keyContent);
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
-		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
+		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
 	}
 
 
 	@Test
 	public void uploadKeyWithException() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 
 		expectedException.expect(RuntimeException.class);
@@ -110,7 +116,48 @@ public class AccessKeyServiceImplTest {
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Could not upload the key and create EDGE node: ");
 
-		accessKeyService.uploadKey(userInfo, "someKeyContent");
+		accessKeyService.uploadKey(userInfo, "someKeyContent", true);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void reUploadKey() {
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+
+		UploadFile uploadFile = mock(UploadFile.class);
+		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
+
+		String expectedUuid = "someUuid";
+		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).
+				thenReturn(expectedUuid);
+		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
+		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+
+		String keyContent = "keyContent";
+		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
+		assertNotNull(actualUuid);
+		assertEquals(expectedUuid, actualUuid);
+
+		verify(keyDAO).upsertKey(USER, keyContent, false);
+		verify(requestBuilder).newKeyReupload(userInfo, keyContent);
+		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
+		verify(requestId).put(USER, expectedUuid);
+		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
+		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void reUploadKeyWithException() {
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+		doThrow(new RuntimeException()).when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString());
+
+		expectedException.expect(RuntimeException.class);
+
+		expectedException.expect(DlabException.class);
+		expectedException.expectMessage("Could not reupload the key. Previous key has been deleted:");
+
+		accessKeyService.uploadKey(userInfo, "someKeyContent", false);
 	}
 
 	@Test
@@ -204,7 +251,7 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void generateKey() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -216,7 +263,7 @@ public class AccessKeyServiceImplTest {
 		String actualPrivateKey = accessKeyService.generateKey(userInfo);
 		assertTrue(StringUtils.isNotEmpty(actualPrivateKey));
 
-		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(keyDAO).upsertKey(eq(USER), anyString(), eq(true));
 		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, someUuid);
@@ -225,17 +272,17 @@ public class AccessKeyServiceImplTest {
 
 	@Test
 	public void generateKeyWithException() {
-		doNothing().when(keyDAO).insertKey(anyString(), anyString());
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 		doNothing().when(keyDAO).deleteKey(anyString());
 
 		try {
 			accessKeyService.generateKey(userInfo);
 		} catch (DlabException e) {
-			assertEquals("Could not upload the key and create EDGE node: null", e.getMessage());
+			assertEquals("Could not upload the key and create EDGE node: ", e.getMessage());
 		}
 
-		verify(keyDAO).insertKey(eq(USER), anyString());
+		verify(keyDAO).upsertKey(eq(USER), anyString(), eq(true));
 		verify(requestBuilder).newEdgeKeyUpload(refEq(userInfo), anyString());
 		verify(keyDAO).deleteKey(USER);
 		verifyNoMoreInteractions(keyDAO, requestBuilder);

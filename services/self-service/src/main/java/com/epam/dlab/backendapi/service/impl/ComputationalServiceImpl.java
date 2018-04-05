@@ -173,7 +173,8 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Override
 	public void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
-		sparkAction(userInfo, exploratoryName, computationalName, STARTING, ComputationalAPI.COMPUTATIONAL_START_SPARK);
+		sparkAction(userInfo, exploratoryName, computationalName, STARTING,
+				ComputationalAPI.COMPUTATIONAL_START_SPARK);
 	}
 
 	private void sparkAction(UserInfo userInfo, String exploratoryName, String computationalName, UserInstanceStatus
