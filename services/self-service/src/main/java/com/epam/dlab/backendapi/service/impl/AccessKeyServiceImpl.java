@@ -6,6 +6,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -28,6 +29,7 @@ import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_CREATE;
+import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
 
 @Singleton
 @Slf4j
@@ -43,6 +45,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	@Inject
 	private RequestId requestId;
 	@Inject
+	private ExploratoryService exploratoryService;
+	@Inject
 	private SelfServiceApplicationConfiguration configuration;
 
 	@Override
@@ -57,15 +61,18 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	@Override
-	public String uploadKey(UserInfo user, String keyContent) {
-		log.debug("The upload of the user key and creation EDGE node will be started for user {}", user);
-		keyDAO.insertKey(user.getName(), keyContent);
+	public String uploadKey(UserInfo user, String keyContent, boolean isPrimaryUploading) {
+		log.debug(isPrimaryUploading ? "The key uploading and EDGE node creating for user {} is starting..." :
+				"The key reuploading for user {} is starting...", user);
+		keyDAO.upsertKey(user.getName(), keyContent, isPrimaryUploading);
 		try {
-			return createEdge(user, keyContent);
+			return isPrimaryUploading ? createEdge(user, keyContent) : reuploadKey(user, keyContent);
 		} catch (Exception e) {
-			log.error("The upload of the user key and create EDGE node for user {} fails", user.getName(), e);
+			log.error(isPrimaryUploading ? "The key uploading and EDGE node creating for user {} fails" :
+					"The key reuploading for user {} fails", user.getName(), e);
 			keyDAO.deleteKey(user.getName());
-			throw new DlabException("Could not upload the key and create EDGE node: " + e.getLocalizedMessage(), e);
+			throw new DlabException(isPrimaryUploading ? "Could not upload the key and create EDGE node: " :
+					"Could not reupload the key. Previous key has been deleted: " + e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -93,12 +100,21 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			KeyPair pair = KeyPair.genKeyPair(new JSch(), com.jcraft.jsch.KeyPair.RSA);
 			pair.writePublicKey(publicKeyOut, userInfo.getName());
 			pair.writePrivateKey(privateKeyOut);
-			uploadKey(userInfo, new String(publicKeyOut.toByteArray()));
+			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), true);
 			return new String(privateKeyOut.toByteArray());
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
 			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);
 		}
+	}
+
+
+	private String reuploadKey(UserInfo user, String keyContent) {
+		UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent);
+		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
+		requestId.put(user.getName(), uuid);
+		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
+		return uuid;
 	}
 
 	private EdgeInfo getEdgeInfo(String userName) {
@@ -124,10 +140,10 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	private String createEdge(UserInfo user, String keyContent) {
-
 		UploadFile uploadFile = requestBuilder.newEdgeKeyUpload(user, keyContent);
 		String uuid = provisioningService.post(EDGE_CREATE, user.getAccessToken(), uploadFile, String.class);
 		requestId.put(user.getName(), uuid);
+		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
 		return uuid;
 	}
 }

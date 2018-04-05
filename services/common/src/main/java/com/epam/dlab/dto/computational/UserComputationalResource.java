@@ -41,4 +41,6 @@ public class UserComputationalResource {
     private String status;
     @JsonProperty("up_time")
     private Date uptime;
+	@JsonProperty("reupload_key_required")
+	private boolean reuploadKeyRequired = false;
 }

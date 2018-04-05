@@ -95,6 +95,21 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	/**
+	 * Sets parameter 'reuploadKeyRequired' to 'true' for all user's instances which have status 'stopped' and
+	 * may be restarted in future (exploratories and Spark clusters).
+	 *
+	 * @param user user.
+	 */
+	@Override
+	public void updateUserInstancesReuploadKeyFlag(String user) {
+		exploratoryDAO.updateReuploadKeyForCorrespondingExploratories(user, STOPPED, true);
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, RUNNING, "Spark cluster",
+				STOPPED, true);
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, STOPPED, "Spark cluster",
+				STOPPED, true);
+	}
+
+	/**
 	 * Sends the post request to the provisioning service and update the status of exploratory environment.
 	 *
 	 * @param userInfo        user info.

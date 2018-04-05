@@ -70,24 +70,28 @@ public class KeyUploaderResource implements EdgeAPI {
 	}
 
 	/**
-	 * Uploads the user key to server. Stores the user key to database and calls the post method
-	 * of the provisioning service for the upload of the key to the provisioning service and creation
-	 * of the EDGE notebook for user.
+	 * Uploads/reuploads the user key to server. If param 'isPrimaryUploading' equals 'true', then it stores
+	 * the user key to the database and calls the post method of the provisioning service for the key uploading
+	 * and edge creating for user. Else if this param equals 'false', then only replacing keys in the database
+	 * will be performed (user's key will be reuploaded).
 	 *
 	 * @param userInfo            user info.
 	 * @param uploadedInputStream content of the user key.
-	 * @param fileDetail
+	 * @param fileDetail          content type and content disposition of input data
+	 * @param isPrimaryUploading  true if key is being primarily uploaded, false - in case of reuploading
+	 *
 	 * @return 200 Ok
 	 */
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response uploadKey(@Auth UserInfo userInfo,
-							  @FormDataParam("file") InputStream uploadedInputStream,
-							  @FormDataParam("file") FormDataContentDisposition fileDetail) {
+	public Response loadKey(@Auth UserInfo userInfo,
+							@FormDataParam("file") InputStream uploadedInputStream,
+							@FormDataParam("file") FormDataContentDisposition fileDetail,
+							@DefaultValue("true") @QueryParam("is_primary_uploading") boolean isPrimaryUploading) {
 
 		final String fileContent = getFileContent(uploadedInputStream, userInfo.getName());
 		validate(fileContent);
-		keyService.uploadKey(userInfo, fileContent);
+		keyService.uploadKey(userInfo, fileContent, isPrimaryUploading);
 		return Response.ok().build();
 	}
 
