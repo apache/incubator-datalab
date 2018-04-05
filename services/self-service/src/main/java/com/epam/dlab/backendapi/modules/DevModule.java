@@ -51,6 +51,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 	public static final String TOKEN = "token123";
 	private static final String LOGIN_NAME = "test";
 	private static final String OPERATION_IS_NOT_SUPPORTED = "Operation is not supported";
+	private static final String LOGOUT = "logout";
 
 	/**
 	 * Instantiates an application configuration of SelfService for developer mode.
@@ -110,6 +111,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 					return authorize((UserCredentialDTO) parameter);
 				} else if (GET_USER_INFO.equals(path) && TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
 					return (T) getUserInfo();
+				} else if (LOGOUT.equals(path)) {
+					return (T) Response.ok().build();
 				}
 				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
 			}
