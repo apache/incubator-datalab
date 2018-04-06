@@ -49,336 +49,347 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
-    private static final String JSON_FILE_ENDING = ".json";
+	private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
+	private static final String JSON_FILE_ENDING = ".json";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+	private static final ObjectMapper MAPPER = new ObjectMapper()
+			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
+			.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    private String user;
-    private String uuid;
-    private String command;
+	private String user;
+	private String uuid;
+	private String command;
 
-    private CommandParserMock parser = new CommandParserMock();
-    private String responseFileName;
+	private CommandParserMock parser = new CommandParserMock();
+	private String responseFileName;
 
-    private CloudProvider cloudProvider;
+	private CloudProvider cloudProvider;
 
-    public CommandExecutorMockAsync(String user, String uuid, String command, CloudProvider cloudProvider) {
-        this.user = user;
-        this.uuid = uuid;
-        this.command = command;
-        this.cloudProvider = cloudProvider;
-    }
+	public CommandExecutorMockAsync(String user, String uuid, String command, CloudProvider cloudProvider) {
+		this.user = user;
+		this.uuid = uuid;
+		this.command = command;
+		this.cloudProvider = cloudProvider;
+	}
 
-    @Override
-    public Boolean get() {
-        try {
-            run();
-        } catch (Exception e) {
-            LOGGER.error("Command with UUID {} fails: {}", uuid, e.getLocalizedMessage(), e);
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public Boolean get() {
+		try {
+			run();
+		} catch (Exception e) {
+			LOGGER.error("Command with UUID {} fails: {}", uuid, e.getLocalizedMessage(), e);
+			return false;
+		}
+		return true;
+	}
 
 
-    /**
-     * Return parser of command line.
-     */
-    public CommandParserMock getParser() {
-        return parser;
-    }
+	/**
+	 * Return parser of command line.
+	 */
+	public CommandParserMock getParser() {
+		return parser;
+	}
 
-    /**
-     * Return variables for substitution into Json response file.
-     */
-    public Map<String, String> getVariables() {
-        return parser.getVariables();
-    }
+	/**
+	 * Return variables for substitution into Json response file.
+	 */
+	public Map<String, String> getVariables() {
+		return parser.getVariables();
+	}
 
-    /**
-     * Response file name.
-     */
-    public String getResponseFileName() {
-        return responseFileName;
-    }
+	/**
+	 * Response file name.
+	 */
+	public String getResponseFileName() {
+		return responseFileName;
+	}
 
-    public void run() {
-        LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid, command);
+	public void run() {
+		LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid, command);
 
-        responseFileName = null;
-        parser = new CommandParserMock(command, uuid);
-        LOGGER.debug("Parser is {}", parser);
-        DockerAction action = DockerAction.of(parser.getAction());
-        LOGGER.debug("Action is {}", action);
+		responseFileName = null;
+		parser = new CommandParserMock(command, uuid);
+		LOGGER.debug("Parser is {}", parser);
+		DockerAction action = DockerAction.of(parser.getAction());
+		LOGGER.debug("Action is {}", action);
 
-        if (parser.isDockerCommand()) {
-            if (action == null) {
-                throw new DlabException("Docker action not defined");
-            }
+		if (parser.isDockerCommand()) {
+			if (action == null) {
+				throw new DlabException("Docker action not defined");
+			}
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                LOGGER.error("InterruptedException occurred: {}", e.getMessage());
-            }
+			sleep(500);
 
-            try {
-                switch (action) {
-                    case DESCRIBE:
-                        describe();
-                        break;
-                    case CREATE:
-                    case START:
-                    case STOP:
-                    case TERMINATE:
-                    case GIT_CREDS:
-                    case CREATE_IMAGE:
-                        action(user, action);
-                        break;
-                    case CONFIGURE:
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            LOGGER.error("InterruptedException occurred: {}", e.getMessage());
-                        }
-                        action(user, action);
-                        break;
-                    case STATUS:
-                        parser.getVariables().put("list_resources", getResponseStatus(true));
-                        action(user, action);
-                        break;
-                    case LIB_LIST:
-                        action(user, action);
-                        copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json", cloudProvider.getName()),
-                                "notebook_lib_list_pkgs.json", parser.getResponsePath());
-                        break;
-                    case LIB_INSTALL:
-                        parser.getVariables().put("lib_install", getResponseLibInstall(true));
-                        action(user, action);
-                        break;
-                    default:
-                        break;
-                }
-            } catch (Exception e) {
-                String msg = "Cannot execute command for user " + user + " with UUID " + uuid + ". " +
-                        e.getLocalizedMessage();
-                LOGGER.error(msg, e);
-                throw new DlabException(msg, e);
-            }
-        } else {
-            final String scriptName = StringUtils.substringBefore(Paths.get(parser.getCommand()).getFileName().toString(), ".");
-            String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + scriptName + JSON_FILE_ENDING;
-            responseFileName = getAbsolutePath(parser.getResponsePath(), scriptName + user + "_" + parser.getRequestId() + JSON_FILE_ENDING);
-            setResponse(templateFileName, responseFileName);
-        }
+			try {
+				switch (action) {
+					case DESCRIBE:
+						describe();
+						break;
+					case CREATE:
+					case START:
+					case STOP:
+					case TERMINATE:
+					case GIT_CREDS:
+					case CREATE_IMAGE:
+						action(user, action);
+						break;
+					case CONFIGURE:
+						sleep(1000);
+						action(user, action);
+						break;
+					case STATUS:
+						parser.getVariables().put("list_resources", getResponseStatus(true));
+						action(user, action);
+						break;
+					case LIB_LIST:
+						action(user, action);
+						copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json", cloudProvider.getName
+                                        ()),
+								"notebook_lib_list_pkgs.json", parser.getResponsePath());
+						break;
+					case LIB_INSTALL:
+						parser.getVariables().put("lib_install", getResponseLibInstall(true));
+						action(user, action);
+						break;
+					default:
+						break;
+				}
+			} catch (Exception e) {
+				String msg = "Cannot execute command for user " + user + " with UUID " + uuid + ". " +
+						e.getLocalizedMessage();
+				LOGGER.error(msg, e);
+				throw new DlabException(msg, e);
+			}
+		} else {
+			final String scriptName = StringUtils.substringBefore(Paths.get(parser.getCommand()).getFileName()
+                    .toString(), ".");
+			String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + scriptName + JSON_FILE_ENDING;
+			responseFileName = getAbsolutePath(parser.getResponsePath(), scriptName + user + "_" + parser.getRequestId
+                    () + JSON_FILE_ENDING);
+			setResponse(templateFileName, responseFileName);
+		}
 
-    }
+	}
 
-    private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws IOException {
-        File to = new File(getAbsolutePath(destinationFolder, destinationFileName));
+	private void sleep(int ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+			LOGGER.error("InterruptedException occurred: {}", e.getMessage());
+			Thread.currentThread().interrupt();
+		}
+	}
 
-        try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream(sourceFilePath);
-             OutputStream outputStream = new FileOutputStream(to)) {
-            ByteStreams.copy(inputStream, outputStream);
-        }
+	private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws
+            IOException {
+		File to = new File(getAbsolutePath(destinationFolder, destinationFileName));
 
-        LOGGER.debug("File {} copied to {}", sourceFilePath, to);
-    }
+		try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream
+                (sourceFilePath);
+			 OutputStream outputStream = new FileOutputStream(to)) {
+			ByteStreams.copy(inputStream, outputStream);
+		}
 
-    /**
-     * Return absolute path to the file or folder.
-     *
-     * @param first part of path.
-     * @param more  next path components.
-     */
-    private static String getAbsolutePath(String first, String... more) {
-        return Paths.get(first, more).toAbsolutePath().toString();
-    }
+		LOGGER.debug("File {} copied to {}", sourceFilePath, to);
+	}
 
-    /**
-     * Tests the directory exists.
-     *
-     * @param dir the name of directory.
-     * @return <b>true</b> if the directory exists otherwise return <b>false</b>.
-     */
-    private boolean dirExists(String dir) {
-        File file = new File(dir);
-        return (file.exists() && file.isDirectory());
-    }
+	/**
+	 * Return absolute path to the file or folder.
+	 *
+	 * @param first part of path.
+	 * @param more  next path components.
+	 */
+	private static String getAbsolutePath(String first, String... more) {
+		return Paths.get(first, more).toAbsolutePath().toString();
+	}
 
-    /**
-     * Find and return the directory "infrastructure-provisioning/src".
-     *
-     * @throws FileNotFoundException
-     */
-    private String findTemplatesDir() throws FileNotFoundException {
-        String dir = System.getProperty("docker.dir");
+	/**
+	 * Tests the directory exists.
+	 *
+	 * @param dir the name of directory.
+	 * @return <b>true</b> if the directory exists otherwise return <b>false</b>.
+	 */
+	private boolean dirExists(String dir) {
+		File file = new File(dir);
+		return (file.exists() && file.isDirectory());
+	}
 
-        if (dir != null) {
-            dir = getAbsolutePath(dir);
-            if (dirExists(dir)) {
-                return dir;
-            }
-            throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
-                    "Please set JVM argument -Ddocker.dir to the " +
-                    "\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
-        }
-        dir = getAbsolutePath(
-                ".",
-                "../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
-        if (dirExists(dir)) {
-            return dir;
-        }
-        dir = getAbsolutePath(
-                ServiceUtils.getUserDir(),
-                "../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
-        if (dirExists(dir)) {
-            return dir;
-        }
-        throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
-                "Please set the value docker.dir property to the " +
-                "\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
-    }
+	/**
+	 * Find and return the directory "infrastructure-provisioning/src".
+	 *
+	 * @throws FileNotFoundException
+	 */
+	private String findTemplatesDir() throws FileNotFoundException {
+		String dir = System.getProperty("docker.dir");
 
-    /**
-     * Describe action.
-     */
-    private void describe() {
-        String templateFileName;
-        try {
-            templateFileName = getAbsolutePath(findTemplatesDir(), parser.getImageType() + "_description.json");
-        } catch (FileNotFoundException e) {
-            throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(), e);
-        }
-        responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + JSON_FILE_ENDING);
+		if (dir != null) {
+			dir = getAbsolutePath(dir);
+			if (dirExists(dir)) {
+				return dir;
+			}
+			throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
+					"Please set JVM argument -Ddocker.dir to the " +
+					"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
+		}
+		dir = getAbsolutePath(
+				".",
+				"../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
+		if (dirExists(dir)) {
+			return dir;
+		}
+		dir = getAbsolutePath(
+				ServiceUtils.getUserDir(),
+				"../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
+		if (dirExists(dir)) {
+			return dir;
+		}
+		throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
+				"Please set the value docker.dir property to the " +
+				"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
+	}
 
-        LOGGER.debug("Create response file from {} to {}", templateFileName, responseFileName);
-        File fileResponse = new File(responseFileName);
-        File fileTemplate = new File(templateFileName);
-        try {
-            if (!fileTemplate.exists()) {
-                throw new FileNotFoundException("File \"" + fileTemplate + "\" not found.");
-            }
-            if (!fileTemplate.canRead()) {
-                throw new IOException("Cannot read file \"" + fileTemplate + "\".");
-            }
-            Files.createParentDirs(fileResponse);
-            Files.copy(fileTemplate, fileResponse);
-        } catch (IOException e) {
-            throw new DlabException("Can't create response file " + responseFileName + ": " + e.getLocalizedMessage(), e);
-        }
-    }
+	/**
+	 * Describe action.
+	 */
+	private void describe() {
+		String templateFileName;
+		try {
+			templateFileName = getAbsolutePath(findTemplatesDir(), parser.getImageType() + "_description.json");
+		} catch (FileNotFoundException e) {
+			throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(),
+                    e);
+		}
+		responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + JSON_FILE_ENDING);
 
-    /**
-     * Perform docker action.
-     *
-     * @param user   the name of user.
-     * @param action docker action.
-     */
-    private void action(String user, DockerAction action) {
-        String resourceType = parser.getResourceType();
+		LOGGER.debug("Create response file from {} to {}", templateFileName, responseFileName);
+		File fileResponse = new File(responseFileName);
+		File fileTemplate = new File(templateFileName);
+		try {
+			if (!fileTemplate.exists()) {
+				throw new FileNotFoundException("File \"" + fileTemplate + "\" not found.");
+			}
+			if (!fileTemplate.canRead()) {
+				throw new IOException("Cannot read file \"" + fileTemplate + "\".");
+			}
+			Files.createParentDirs(fileResponse);
+			Files.copy(fileTemplate, fileResponse);
+		} catch (IOException e) {
+			throw new DlabException("Can't create response file " + responseFileName + ": " + e.getLocalizedMessage(),
+                    e);
+		}
+	}
 
-        String prefixFileName = (Lists.newArrayList("edge", "dataengine", "dataengine-service").contains(resourceType) ?
-                resourceType : "notebook") + "_";
-        String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + JSON_FILE_ENDING;
-        responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + JSON_FILE_ENDING);
-        setResponse(templateFileName, responseFileName);
-    }
+	/**
+	 * Perform docker action.
+	 *
+	 * @param user   the name of user.
+	 * @param action docker action.
+	 */
+	private void action(String user, DockerAction action) {
+		String resourceType = parser.getResourceType();
 
-    /**
-     * Return the section of resource statuses for docker action status.
-     */
-    private String getResponseStatus(boolean noUpdate) {
-        if (noUpdate) {
-            return "{}";
-        }
-        EnvResourceList resourceList;
-        try {
-            JsonNode json = MAPPER.readTree(parser.getJson());
-            json = json.get("edge_list_resources");
-            resourceList = MAPPER.readValue(json.toString(), EnvResourceList.class);
-        } catch (IOException e) {
-            throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
-        }
+		String prefixFileName = (Lists.newArrayList("edge", "dataengine", "dataengine-service").contains
+                (resourceType) ?
+				resourceType : "notebook") + "_";
+		String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString
+                () + JSON_FILE_ENDING;
+		responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId
+                () + JSON_FILE_ENDING);
+		setResponse(templateFileName, responseFileName);
+	}
 
-        if (resourceList.getHostList() != null) {
-            for (EnvResource host : resourceList.getHostList()) {
-                host.setStatus(UserInstanceStatus.RUNNING.toString());
-            }
-        }
-        if (resourceList.getClusterList() != null) {
-            for (EnvResource host : resourceList.getClusterList()) {
-                host.setStatus(UserInstanceStatus.RUNNING.toString());
-            }
-        }
+	/**
+	 * Return the section of resource statuses for docker action status.
+	 */
+	private String getResponseStatus(boolean noUpdate) {
+		if (noUpdate) {
+			return "{}";
+		}
+		EnvResourceList resourceList;
+		try {
+			JsonNode json = MAPPER.readTree(parser.getJson());
+			json = json.get("edge_list_resources");
+			resourceList = MAPPER.readValue(json.toString(), EnvResourceList.class);
+		} catch (IOException e) {
+			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
+		}
 
-        try {
-            return MAPPER.writeValueAsString(resourceList);
-        } catch (JsonProcessingException e) {
-            throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
-        }
-    }
+		if (resourceList.getHostList() != null) {
+			for (EnvResource host : resourceList.getHostList()) {
+				host.setStatus(UserInstanceStatus.RUNNING.toString());
+			}
+		}
+		if (resourceList.getClusterList() != null) {
+			for (EnvResource host : resourceList.getClusterList()) {
+				host.setStatus(UserInstanceStatus.RUNNING.toString());
+			}
+		}
 
-    /**
-     * Return the section of resource statuses for docker action status.
-     */
-    private String getResponseLibInstall(boolean isSuccess) {
-        List<LibInstallDTO> list;
-        try {
-            JsonNode json = MAPPER.readTree(parser.getJson());
-            json = json.get("libs");
-            list = MAPPER.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {
-            });
-        } catch (IOException e) {
-            throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
-        }
+		try {
+			return MAPPER.writeValueAsString(resourceList);
+		} catch (JsonProcessingException e) {
+			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
+		}
+	}
 
-        for (LibInstallDTO lib : list) {
-            if (isSuccess) {
-                lib.setStatus(LibStatus.INSTALLED.toString());
-            } else {
-                lib.setStatus(LibStatus.FAILED.toString());
-                lib.setErrorMessage("Mock error message");
-            }
-        }
+	/**
+	 * Return the section of resource statuses for docker action status.
+	 */
+	private String getResponseLibInstall(boolean isSuccess) {
+		List<LibInstallDTO> list;
+		try {
+			JsonNode json = MAPPER.readTree(parser.getJson());
+			json = json.get("libs");
+			list = MAPPER.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {
+			});
+		} catch (IOException e) {
+			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
+		}
 
-        try {
-            return MAPPER.writeValueAsString(list);
-        } catch (JsonProcessingException e) {
-            throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
-        }
-    }
+		for (LibInstallDTO lib : list) {
+			if (isSuccess) {
+				lib.setStatus(LibStatus.INSTALLED.toString());
+			} else {
+				lib.setStatus(LibStatus.FAILED.toString());
+				lib.setErrorMessage("Mock error message");
+			}
+		}
 
-    /**
-     * Write response file.
-     *
-     * @param sourceFileName template file name.
-     * @param targetFileName response file name.
-     */
-    private void setResponse(String sourceFileName, String targetFileName) {
-        String content;
-        URL url = Resources.getResource(sourceFileName);
-        try {
-            content = Resources.toString(url, Charsets.UTF_8);
-        } catch (IOException e) {
-            throw new DlabException("Can't read resource " + sourceFileName + ": " + e.getLocalizedMessage(), e);
-        }
+		try {
+			return MAPPER.writeValueAsString(list);
+		} catch (JsonProcessingException e) {
+			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
+		}
+	}
 
-        for (String key : parser.getVariables().keySet()) {
-            String value = parser.getVariables().get(key);
-            content = content.replace("${" + key.toUpperCase() + "}", value);
-        }
+	/**
+	 * Write response file.
+	 *
+	 * @param sourceFileName template file name.
+	 * @param targetFileName response file name.
+	 */
+	private void setResponse(String sourceFileName, String targetFileName) {
+		String content;
+		URL url = Resources.getResource(sourceFileName);
+		try {
+			content = Resources.toString(url, Charsets.UTF_8);
+		} catch (IOException e) {
+			throw new DlabException("Can't read resource " + sourceFileName + ": " + e.getLocalizedMessage(), e);
+		}
 
-        File fileResponse = new File(responseFileName);
-        try (BufferedWriter out = new BufferedWriter(new FileWriter(fileResponse))) {
-            Files.createParentDirs(fileResponse);
-            out.write(content);
-        } catch (IOException e) {
-            throw new DlabException("Can't write response file " + targetFileName + ": " + e.getLocalizedMessage(), e);
-        }
-        LOGGER.debug("Create response file from {} to {}", sourceFileName, targetFileName);
-    }
+		for (String key : parser.getVariables().keySet()) {
+			String value = parser.getVariables().get(key);
+			content = content.replace("${" + key.toUpperCase() + "}", value);
+		}
+
+		File fileResponse = new File(responseFileName);
+		try (BufferedWriter out = new BufferedWriter(new FileWriter(fileResponse))) {
+			Files.createParentDirs(fileResponse);
+			out.write(content);
+		} catch (IOException e) {
+			throw new DlabException("Can't write response file " + targetFileName + ": " + e.getLocalizedMessage(), e);
+		}
+		LOGGER.debug("Create response file from {} to {}", sourceFileName, targetFileName);
+	}
 }

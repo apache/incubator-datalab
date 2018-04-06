@@ -229,7 +229,6 @@ public class ExploratoryLibCache implements Managed, Runnable {
 					cache.entrySet().removeIf(e -> e.getValue().isExpired());
 				}
 
-				// TODO race conditions
 				if (cache.size() == 0) {
 					synchronized (libCache) {
 						thread = null;
@@ -239,6 +238,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 				}
 			} catch (InterruptedException e) {
 				LOGGER.trace("Library cache thread has been interrupted");
+				Thread.currentThread().interrupt();
 				break;
 			} catch (Exception e) {
 				LOGGER.warn("Library cache thread unhandled error: {}", e.getLocalizedMessage(), e);
