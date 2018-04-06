@@ -93,13 +93,19 @@ export class HealthStatusService {
   public getActiveUsers(): Observable<Response> {
     return this.applicationServiceFacade
       .buildGetActiveUsers()
-      .map((response: Response) => response.json());
+      .map((response: Response) => response.json())
+      .catch((error: any) => error);
   }
 
-  public manageEnvironment(act, data): Observable<Response> {
+  public manageEnvironment(act, data): Observable<Response | {}> {
     const action = `/${act}`;
     return this.applicationServiceFacade
       .buildManageEnvironment(action, data)
-      .map((response: Response) => response);
+      .map((response: Response) => response)
+      .catch((error: any) => {
+        return Observable.throw(
+            new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
+        );
+    });
   }
 }

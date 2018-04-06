@@ -94,7 +94,10 @@ export class HealthStatusComponent implements OnInit {
               this.manageEnvironmentDialog.usersList = usersList;
               this.buildGrid();
             });
-        });
+        },
+      (error) => {
+        this.manageEnvironmentDialog.errorMessage = JSON.parse(error.message).message;
+      });
   }
 
   createBackup($event) {

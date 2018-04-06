@@ -46,6 +46,7 @@ limitations under the License.
       <div class="info message" *ngIf="!usersList.length">
         No active users environments
       </div>
+      <div class="danger_color message m-top-20" *ngIf="errorMessage">{{ errorMessage }}</div>
     </div>
   </modal-content>
 </modal-dialog>
