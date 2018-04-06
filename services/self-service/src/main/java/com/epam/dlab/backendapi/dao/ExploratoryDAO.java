@@ -149,7 +149,7 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(
 				and(
 						eq(USER, user),
-						in(STATUS, statusList)
+						or(in(STATUS, statusList), in(COMPUTATIONAL_RESOURCES + "." + STATUS, statusList))
 				));
 	}
 
