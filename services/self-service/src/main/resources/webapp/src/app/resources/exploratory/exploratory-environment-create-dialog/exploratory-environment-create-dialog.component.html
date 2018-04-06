@@ -71,7 +71,7 @@ limitations under the License.
         </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-          <button mat-raised-button type="submit" [disabled]="!createExploratoryEnvironmentForm.valid" class="butt butt-success">Create</button>
+          <button mat-raised-button type="submit" [disabled]="!createExploratoryEnvironmentForm.valid || !this.environment_shape" class="butt butt-success">Create</button>
         </div>
       </form>
     </div>
