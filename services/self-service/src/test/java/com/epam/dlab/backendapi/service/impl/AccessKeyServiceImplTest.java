@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
@@ -43,6 +44,8 @@ public class AccessKeyServiceImplTest {
 	private RequestId requestId;
 	@Mock
 	private ExploratoryService exploratoryService;
+	@Mock
+	private SelfServiceApplicationConfiguration configuration;
 
 	@InjectMocks
 	private AccessKeyServiceImpl accessKeyService;
@@ -257,6 +260,7 @@ public class AccessKeyServiceImplTest {
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
 
 		String someUuid = "someUuid";
+		when(configuration.getPrivateKeySize()).thenReturn(2048);
 		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).thenReturn(someUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(someUuid);
 
@@ -273,6 +277,7 @@ public class AccessKeyServiceImplTest {
 	@Test
 	public void generateKeyWithException() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+		when(configuration.getPrivateKeySize()).thenReturn(2048);
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 		doNothing().when(keyDAO).deleteKey(anyString());
 
