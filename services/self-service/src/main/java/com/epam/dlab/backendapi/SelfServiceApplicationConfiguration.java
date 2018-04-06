@@ -94,6 +94,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private int maxUserNameLength;
 	@JsonProperty
 	private boolean gcpOuauth2AuthenticationEnabled;
+	@JsonProperty
+	private int privateKeySize = 2048;
 
 	public boolean isGcpOuauth2AuthenticationEnabled() {
 		return gcpOuauth2AuthenticationEnabled;
@@ -191,5 +193,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public int getMaxUserNameLength() {
 		return maxUserNameLength;
+	}
+
+	public int getPrivateKeySize() {
+		return privateKeySize;
 	}
 }

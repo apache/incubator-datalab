@@ -97,7 +97,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		log.debug("Generating new key pair for user {}", userInfo.getName());
 		try (ByteArrayOutputStream publicKeyOut = new ByteArrayOutputStream();
 			 ByteArrayOutputStream privateKeyOut = new ByteArrayOutputStream()) {
-			KeyPair pair = KeyPair.genKeyPair(new JSch(), com.jcraft.jsch.KeyPair.RSA);
+			KeyPair pair = KeyPair.genKeyPair(new JSch(), KeyPair.RSA, configuration.getPrivateKeySize());
 			pair.writePublicKey(publicKeyOut, userInfo.getName());
 			pair.writePrivateKey(privateKeyOut);
 			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), true);
