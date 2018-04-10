@@ -282,8 +282,8 @@ public class ComputationalDAO extends BaseDAO {
 	 */
 
 	@SuppressWarnings("unchecked")
-	private List<String> getComputationalResourcesWithStatus(UserInstanceStatus computationalStatus, String user,
-															 String computationalType, String exploratoryName) {
+	public List<String> getComputationalResourcesWithStatus(UserInstanceStatus computationalStatus, String user,
+															String computationalType, String exploratoryName) {
 		return stream((List<Document>) find(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName)),
 				fields(include(COMPUTATIONAL_RESOURCES))).first().get(COMPUTATIONAL_RESOURCES))
 				.filter(doc ->

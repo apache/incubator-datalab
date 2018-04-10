@@ -58,4 +58,7 @@ public class SchedulerJobDTO {
 	@JsonProperty("timezone_offset")
 	private ZoneOffset timeZoneOffset;
 
+	@JsonProperty("sync_start_required")
+	private boolean syncStartRequired = true;
+
 }

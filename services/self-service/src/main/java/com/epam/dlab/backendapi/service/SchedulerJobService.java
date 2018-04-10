@@ -46,26 +46,26 @@ public interface SchedulerJobService {
 													 String computationalName, SchedulerJobDTO dto);
 
 	/**
-	 * Executes start scheduler job for corresponding exploratories ('isAppliedCluster' equals 'false') or
-	 * computational resources ('isAppliedCluster' equals 'true').
+	 * Executes start scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
+	 * computational resources ('isAppliedForClusters' equals 'true').
 	 *
-	 * @param isAppliedCluster true/false
+	 * @param isAppliedForClusters true/false
 	 */
-	void executeStartResourceJob(boolean isAppliedCluster);
+	void executeStartResourceJob(boolean isAppliedForClusters);
 
 	/**
-	 * Executes stop scheduler job for corresponding exploratories ('isAppliedCluster' equals 'false') or
-	 * computational resources ('isAppliedCluster' equals 'true').
+	 * Executes stop scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
+	 * computational resources ('isAppliedForClusters' equals 'true').
 	 *
-	 * @param isAppliedCluster true/false
+	 * @param isAppliedForClusters true/false
 	 */
-	void executeStopResourceJob(boolean isAppliedCluster);
+	void executeStopResourceJob(boolean isAppliedForClusters);
 
 	/**
-	 * Executes terminate scheduler job for corresponding exploratories ('isAppliedCluster' equals 'false') or
-	 * computational resources ('isAppliedCluster' equals 'true').
+	 * Executes terminate scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
+	 * computational resources ('isAppliedForClusters' equals 'true').
 	 *
-	 * @param isAppliedCluster true/false
+	 * @param isAppliedForClusters true/false
 	 */
-	void executeTerminateResourceJob(boolean isAppliedCluster);
+	void executeTerminateResourceJob(boolean isAppliedForClusters);
 }

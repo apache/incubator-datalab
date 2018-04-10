@@ -29,6 +29,7 @@ import org.bson.conversions.Bson;
 
 import java.time.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -133,7 +134,7 @@ public class SchedulerJobDAO extends BaseDAO {
 																				OffsetDateTime dateTime) {
 		FindIterable<Document> userInstances = find(USER_INSTANCES,
 				and(
-						or(eq(STATUS, RUNNING.toString()), eq(STATUS, STOPPED.toString())),
+						eq(STATUS, RUNNING.toString()),
 						ne(COMPUTATIONAL_RESOURCES, null)
 				),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
@@ -204,8 +205,13 @@ public class SchedulerJobDAO extends BaseDAO {
 				.map(d -> (List<Document>) d.get(COMPUTATIONAL_RESOURCES))
 				.map(list -> list.stream().filter(d -> d.getString(COMPUTATIONAL_NAME).equals(computationalName))
 						.findAny().orElse(new Document()))
-				.map(d -> convertFromDocument((Document) d.get(SCHEDULER_DATA), SchedulerJobDTO.class));
+				.map(d -> {
+					Document schedulerData = (Document) d.get(SCHEDULER_DATA);
+					return Objects.isNull(schedulerData) ?
+							null : convertFromDocument(schedulerData, SchedulerJobDTO.class);
+				});
 	}
+
 
 	/**
 	 * Checks if scheduler's time data satisfies existing time parameters.
@@ -234,8 +240,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				!convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
 				&& !convertedDateTime.toLocalDate().isAfter(dto.getFinishDate())
 				&& dto.getDaysRepeat().contains(convertedDateTime.toLocalDate().getDayOfWeek())
-				&& convertedDateTime.toLocalTime()
-						.equals(getDesiredTime(dto, desiredStatus));
+						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus));
 	}
 
 	private LocalTime getDesiredTime(SchedulerJobDTO dto, UserInstanceStatus desiredStatus) {

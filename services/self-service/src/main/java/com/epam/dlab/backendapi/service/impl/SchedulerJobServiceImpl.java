@@ -37,10 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -84,8 +83,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	@Override
-	public SchedulerJobDTO fetchSchedulerJobForComputationalResource(String user, String exploratoryName, String
-			computationalName) {
+	public SchedulerJobDTO fetchSchedulerJobForComputationalResource(String user, String exploratoryName,
+																	 String computationalName) {
 		if (!computationalDAO.isComputationalExist(user, exploratoryName, computationalName)) {
 			throw new ResourceNotFoundException(String.format(ComputationalDAO.COMPUTATIONAL_NOT_FOUND_MSG,
 					computationalName, exploratoryName, user));
@@ -267,11 +266,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
-	private void executeExploratoryAction(UserInfo userInfo, String exploratoryName,
-										  UserInstanceStatus desiredStatus) {
+	private void executeExploratoryAction(UserInfo userInfo, String exploratoryName, UserInstanceStatus
+			desiredStatus) {
 		switch (desiredStatus) {
 			case RUNNING:
-				exploratoryService.start(userInfo, exploratoryName);
+				startSparkClustersWithExploratory(userInfo, exploratoryName);
 				break;
 			case STOPPED:
 				exploratoryService.stop(userInfo, exploratoryName);
@@ -282,6 +281,23 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			default:
 				break;
 		}
+	}
+
+	private void startSparkClustersWithExploratory(UserInfo userInfo, String exploratoryName) {
+		exploratoryService.start(userInfo, exploratoryName);
+		List<String> computationalResourcesForStartingWithExploratory =
+				getComputationalResourcesForStartingWithExploratory(userInfo.getName(), exploratoryName);
+		if (computationalResourcesForStartingWithExploratory.isEmpty()) {
+			return;
+		}
+		ExecutorService executor =
+				Executors.newFixedThreadPool(computationalResourcesForStartingWithExploratory.size());
+		computationalResourcesForStartingWithExploratory.forEach(compName ->
+				executor.execute(() -> {
+							UserInfo user = systemUserService.create(userInfo.getName());
+							computationalService.startSparkCluster(user, exploratoryName, compName);
+						}
+				));
 	}
 
 	private void executeComputationalAction(UserInfo userInfo, String exploratoryName, String computationalName,
@@ -301,12 +317,23 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
+	private List<String> getComputationalResourcesForStartingWithExploratory(String user, String exploratoryName) {
+		return computationalDAO.getComputationalResourcesWithStatus(UserInstanceStatus.STOPPED, user,
+				"Spark cluster", exploratoryName).stream()
+				.filter(clusterName -> {
+					Optional<SchedulerJobDTO> schedulerJob =
+							schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
+					return !schedulerJob.isPresent() || schedulerJob.get().isSyncStartRequired();
+				}).collect(Collectors.toList());
+	}
+
 	/**
 	 * Enriches existing scheduler job with the following data:
 	 * - sets current date as 'beginDate' if this parameter wasn't defined;
 	 * - sets '9999-12-31' as 'finishDate' if this parameter wasn't defined;
 	 * - sets repeating days of existing scheduler job to all days of week if this parameter wasn't defined;
-	 * - sets '9999-12-31 00:00' as 'terminateDateTime' if this parameter wasn't defined.
+	 * - sets '9999-12-31 00:00' as 'terminateDateTime' if this parameter wasn't defined;
+	 * - sets current system time zone offset as 'timeZoneOffset' if this parameter wasn't defined.
 	 *
 	 * @param dto current scheduler job
 	 */
@@ -322,6 +349,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 		if (Objects.isNull(dto.getTerminateDateTime()) || StringUtils.isBlank(dto.getTerminateDateTime().toString())) {
 			dto.setTerminateDateTime(LocalDateTime.of(9999, 12, 31, 0, 0));
+		}
+		if (Objects.isNull(dto.getTimeZoneOffset()) || StringUtils.isBlank(dto.getTimeZoneOffset().toString())) {
+			dto.setTimeZoneOffset(OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
 		}
 	}
 
