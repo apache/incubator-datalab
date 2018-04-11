@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.UserInstanceStatus.*;
+import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
 
 @Slf4j
 @Singleton
@@ -184,7 +185,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus,
 																   OffsetDateTime dateTime,
 																   boolean isAppliedForClusters) {
-		return schedulerJobDAO.getSchedulerJobsToAchieveStatus(desiredStatus, dateTime, isAppliedForClusters);
+		return schedulerJobDAO.getSchedulerJobsToAchieveStatus(desiredStatus, isAppliedForClusters).stream()
+				.filter(jobData -> isSchedulerJobDtoSatisfyCondition(jobData.getJobDTO(), dateTime, desiredStatus))
+				.collect(Collectors.toList());
 	}
 
 
@@ -200,32 +203,39 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private List<SchedulerJobData> getSchedulerJobsForAction(UserInstanceStatus desiredStatus,
 															 OffsetDateTime currentDateTime,
 															 boolean isAppliedForClusters) {
+		List<SchedulerJobData> schedulerJobDataList =
+				getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters);
 		if (desiredStatus == STOPPED) {
 			return Stream.of(
-					getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters)
-							.stream()
+					schedulerJobDataList.stream()
 							.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-									jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
+									endTimeIsAfterCondition(jobData)),
 					getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime.minusDays(1),
-							isAppliedForClusters)
-							.stream()
-							.filter(jobData -> {
-								LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
-										ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
-												.getTimeZoneOffset())).toLocalDateTime();
-								return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-										jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime()
-										) &&
-										(jobData.getJobDTO().getFinishDate() == null || !convertedDateTime
-												.toLocalDate()
-												.isAfter(jobData.getJobDTO().getFinishDate()));
-							}),
-					getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters).stream()
+							isAppliedForClusters).stream()
+							.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+									endTimeIsBeforeCondition(jobData) && finishDateCondition(jobData,
+									currentDateTime)),
+					schedulerJobDataList.stream()
 							.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
 			).flatMap(Function.identity()).collect(Collectors.toList());
 		} else if (desiredStatus == RUNNING || desiredStatus == TERMINATED) {
-			return getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters);
+			return schedulerJobDataList;
 		} else return Collections.emptyList();
+	}
+
+	private boolean finishDateCondition(SchedulerJobData jobData, OffsetDateTime currentDateTime) {
+		LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
+				ZoneId.ofOffset(TIMEZONE_PREFIX, jobData.getJobDTO().getTimeZoneOffset())).toLocalDateTime();
+		return jobData.getJobDTO().getFinishDate() == null ||
+				!convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate());
+	}
+
+	private boolean endTimeIsBeforeCondition(SchedulerJobData jobData) {
+		return jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime());
+	}
+
+	private boolean endTimeIsAfterCondition(SchedulerJobData jobData) {
+		return jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime());
 	}
 
 
@@ -356,6 +366,51 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			throw new ResourceInappropriateStateException(String.format("Can not create/update scheduler for user " +
 					"instance with status: %s", status));
 		}
+	}
+
+	/**
+	 * Checks if scheduler's time data satisfies existing time parameters.
+	 *
+	 * @param dto           scheduler job data.
+	 * @param dateTime      existing time data.
+	 * @param desiredStatus target exploratory status which has influence for time/date checking ('running' status
+	 *                      requires for checking start time, 'stopped' - for end time, 'terminated' - for
+	 *                      'terminatedDateTime').
+	 * @return true/false.
+	 */
+	private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, OffsetDateTime dateTime,
+													  UserInstanceStatus desiredStatus) {
+		ZoneOffset zOffset = dto.getTimeZoneOffset();
+		OffsetDateTime roundedDateTime = OffsetDateTime.of(
+				dateTime.toLocalDate(),
+				LocalTime.of(dateTime.toLocalTime().getHour(), dateTime.toLocalTime().getMinute()),
+				dateTime.getOffset());
+
+		LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(roundedDateTime.toInstant(),
+				ZoneId.ofOffset(TIMEZONE_PREFIX, zOffset)).toLocalDateTime();
+
+		return desiredStatus == TERMINATED ?
+				Objects.nonNull(dto.getTerminateDateTime()) &&
+						convertedDateTime.toLocalDate().equals(dto.getTerminateDateTime().toLocalDate())
+						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus)) :
+				!convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
+						&& isFinishDateMatchesCondition(dto, convertedDateTime)
+						&& dto.getDaysRepeat().contains(convertedDateTime.toLocalDate().getDayOfWeek())
+						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus));
+	}
+
+	private boolean isFinishDateMatchesCondition(SchedulerJobDTO dto, LocalDateTime currentDateTime) {
+		return dto.getFinishDate() == null || !currentDateTime.toLocalDate().isAfter(dto.getFinishDate());
+	}
+
+	private LocalTime getDesiredTime(SchedulerJobDTO dto, UserInstanceStatus desiredStatus) {
+		if (desiredStatus == RUNNING) {
+			return dto.getStartTime();
+		} else if (desiredStatus == STOPPED) {
+			return dto.getEndTime();
+		} else if (desiredStatus == TERMINATED) {
+			return dto.getTerminateDateTime().toLocalTime();
+		} else return null;
 	}
 }
 
