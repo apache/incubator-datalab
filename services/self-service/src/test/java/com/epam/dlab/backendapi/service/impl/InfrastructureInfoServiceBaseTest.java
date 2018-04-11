@@ -88,10 +88,9 @@ public class InfrastructureInfoServiceBaseTest {
 		when(configuration.isBillingSchedulerEnabled()).thenReturn(false);
 
 		HealthStatusPageDTO actualHealthStatusPageDTO =
-				infrastructureInfoServiceBase.getHeathStatus(USER, false, true, true);
+				infrastructureInfoServiceBase.getHeathStatus(USER, false, true);
 		assertNotNull(actualHealthStatusPageDTO);
 		assertEquals(HealthStatusEnum.OK.toString(), actualHealthStatusPageDTO.getStatus());
-		assertTrue(actualHealthStatusPageDTO.isBackupAllowed());
 		assertFalse(actualHealthStatusPageDTO.isBillingEnabled());
 		assertTrue(actualHealthStatusPageDTO.isAdmin());
 
@@ -105,7 +104,7 @@ public class InfrastructureInfoServiceBaseTest {
 		doThrow(new DlabException("Cannot fetch health status!"))
 				.when(envDAO).getHealthStatusPageDTO(anyString(), anyBoolean());
 		try {
-			infrastructureInfoServiceBase.getHeathStatus(USER, false, false, false);
+			infrastructureInfoServiceBase.getHeathStatus(USER, false, false);
 		} catch (DlabException e) {
 			assertEquals("Cannot fetch health status!", e.getMessage());
 		}

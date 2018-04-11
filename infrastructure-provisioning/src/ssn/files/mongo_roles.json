@@ -342,22 +342,11 @@
     ]
   },
   {
-    "_id": "envBackup",
-    "description": "Allow to execute backup operation operation",
-    "pages": [
-      "/api/infrastructure/backup"
-    ],
-    "groups": [
-      "$anyuser"
-    ],
-    "users": [
-    ]
-  },
-  {
     "_id": "admin",
     "description": "Allow to execute administration operation operation",
     "pages": [
-      "environment/*"
+      "environment/*",
+      "/api/infrastructure/backup"
     ],
     "groups": [
       "$anyuser"

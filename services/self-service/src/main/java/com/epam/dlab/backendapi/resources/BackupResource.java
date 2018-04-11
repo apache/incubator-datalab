@@ -3,7 +3,6 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
-import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.BackupService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.backup.EnvBackupDTO;
@@ -21,6 +20,7 @@ import java.util.UUID;
 
 @Slf4j
 @Path("/infrastructure/backup")
+@RolesAllowed("/api/infrastructure/backup")
 public class BackupResource {
 
 	@Inject
@@ -33,7 +33,6 @@ public class BackupResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	@RolesAllowed(UserRoles.BACKUP)
 	public Response createBackup(@Auth UserInfo userInfo, @Valid BackupFormDTO backupFormDTO) {
 		log.debug("Creating backup for user {} with parameters {}", userInfo.getName(), backupFormDTO);
 		final EnvBackupDTO dto = requestBuilder.newBackupCreate(backupFormDTO, UUID.randomUUID().toString());
