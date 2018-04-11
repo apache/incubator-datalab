@@ -431,6 +431,7 @@ limitations under the License.
 
 .helper_instruction {
   color: #35afd5;
+  overflow: hidden;
   cursor: pointer;
   transition: all .45s ease-in-out;
 }
@@ -442,7 +443,8 @@ limitations under the License.
 .helper_instruction .material-icons {
   font-size: 20px;
   vertical-align: top;
-  padding-right: 5px
+  padding-right: 5px;
+  overflow: hidden;
 }
 
 .detail-info span {

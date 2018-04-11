@@ -22,33 +22,31 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div class="content-box">
-      <div>
+      <div *ngIf="usersList.length">
         <mat-list>
           <mat-list-item class="list-header">
             <div class="username">User</div>
             <div class="action">Actions</div>
           </mat-list-item>
           <div class="scrolling-content" id="scrolling">
-            <div *ngIf="usersList">
-              <mat-list-item *ngFor="let item of usersList">
-                <div class="username">{{ item }}</div>
-                <div class="action">
-                  <button mat-raised-button type="button" (click)="applyAction('stop', item)" class="butt">
-                    <i class="material-icons">pause_circle_outline</i>Stop
-                  </button>
-                  <button mat-raised-button type="button" (click)="applyAction('terminate', item)" class="butt">
-                    <i class="material-icons">phonelink_off</i>Terminate
-                  </button>
-                </div>
-              </mat-list-item>
-            </div>
-            <div class="info" *ngIf="!usersList">
-              No active users environments
-            </div>
+            <mat-list-item *ngFor="let item of usersList">
+              <div class="username">{{ item }}</div>
+              <div class="action">
+                <button mat-raised-button type="button" (click)="applyAction('stop', item)" class="butt">
+                  <i class="material-icons">pause_circle_outline</i>Stop
+                </button>
+                <button mat-raised-button type="button" (click)="applyAction('terminate', item)" class="butt">
+                  <i class="material-icons">phonelink_off</i>Terminate
+                </button>
+              </div>
+            </mat-list-item>
           </div>
         </mat-list>
-
       </div>
+      <div class="info message" *ngIf="!usersList.length">
+        No active users environments
+      </div>
+      <div class="danger_color message m-top-20" *ngIf="errorMessage">{{ errorMessage }}</div>
     </div>
   </modal-content>
 </modal-dialog>

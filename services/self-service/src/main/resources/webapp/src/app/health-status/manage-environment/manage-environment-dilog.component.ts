@@ -29,6 +29,7 @@ import { DICTIONARY } from './../../../dictionary/global.dictionary';
 export class ManageEnvironmentComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
+  public errorMessage: string = '';
   public usersList: Array<string> = [];
 
   @ViewChild('bindDialog') bindDialog;
@@ -36,7 +37,11 @@ export class ManageEnvironmentComponent implements OnInit {
 
   constructor(public dialog: MatDialog) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.bindDialog.onClosing = () => {
+      this.errorMessage = '';
+    };
+  }
 
   public open(param, data): void {
     this.usersList = data;

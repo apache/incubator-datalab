@@ -153,7 +153,10 @@ export class ReportingComponent implements OnInit, OnDestroy {
               shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
-          shapes.indexOf(item[DICTIONARY.billing.instance_size]) === -1 && shapes.push(item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1]);
+          let parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+          if (shapes.indexOf(parsedShape) === -1) {
+            shapes.push(parsedShape);
+          }
         } else {
           shapes.indexOf(item[DICTIONARY.billing.instance_size]) === -1 && shapes.push(item[DICTIONARY.billing.instance_size]);
         }

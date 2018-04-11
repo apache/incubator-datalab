@@ -45,7 +45,6 @@ export class HealthStatusComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
-    this.getActiveUsersList().subscribe((res: any) => this.usersList = res);
   }
 
   buildGrid(): void {
@@ -59,6 +58,8 @@ export class HealthStatusComponent implements OnInit {
     this.billingEnabled = healthStatusList.billingEnabled;
     this.backupAllowed = healthStatusList.backupAllowed;
     this.isAdmin = healthStatusList.admin;
+
+    if (this.isAdmin) this.getActiveUsersList().subscribe((res: any) => this.usersList = res);
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {
@@ -93,7 +94,10 @@ export class HealthStatusComponent implements OnInit {
               this.manageEnvironmentDialog.usersList = usersList;
               this.buildGrid();
             });
-        });
+        },
+      (error) => {
+        this.manageEnvironmentDialog.errorMessage = JSON.parse(error.message).message;
+      });
   }
 
   createBackup($event) {

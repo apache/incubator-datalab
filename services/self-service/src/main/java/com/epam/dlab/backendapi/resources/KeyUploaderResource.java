@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class KeyUploaderResource implements EdgeAPI {
 
-	private static final String FILE_ATTACHMENT_FORMAT = "attachment; filename=\"%s.key\"";
+	private static final String FILE_ATTACHMENT_FORMAT = "attachment; filename=\"%s.pem\"";
 	@Inject
 	private AccessKeyService keyService;
 
