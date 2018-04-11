@@ -194,7 +194,7 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the info of exploratory.
+	 * Checks if exploratory exists.
 	 *
 	 * @param user            user name.
 	 * @param exploratoryName the name of exploratory.
@@ -284,8 +284,8 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param exploratoryStatus    status of exploratory.
 	 * @param reuploadKeyRequired  true/false.
 	 */
-	public void updateReuploadKeyForCorrespondingExploratories(String user, UserInstanceStatus exploratoryStatus,
-															   boolean reuploadKeyRequired) {
+	public void updateReuploadKeyForExploratories(String user, UserInstanceStatus exploratoryStatus,
+												  boolean reuploadKeyRequired) {
 		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, exploratoryStatus),
 				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}

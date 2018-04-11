@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.schedulers;
+package com.epam.dlab.backendapi.schedulers.exploratory;
 
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
@@ -36,7 +36,7 @@ public class StopExploratoryJob implements Job {
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.executeStopExploratoryJob();
+		schedulerJobService.executeStopResourceJob(false);
 	}
 
 }

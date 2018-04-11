@@ -21,11 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
+import java.time.*;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,21 +31,34 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SchedulerJobDTO {
+
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@JsonProperty("begin_date")
 	private LocalDate beginDate;
+
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@JsonProperty("finish_date")
 	private LocalDate finishDate;
+
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
 	@JsonProperty("start_time")
 	private LocalTime startTime;
+
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
 	@JsonProperty("end_time")
 	private LocalTime endTime;
+
 	@JsonProperty("days_repeat")
-	private List<DayOfWeek> daysRepeat = new ArrayList<>();
+	private List<DayOfWeek> daysRepeat = Collections.emptyList();
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+	@JsonProperty("terminate_datetime")
+	private LocalDateTime terminateDateTime;
+
 	@JsonProperty("timezone_offset")
 	private ZoneOffset timeZoneOffset;
+
+	@JsonProperty("sync_start_required")
+	private boolean syncStartRequired = true;
 
 }

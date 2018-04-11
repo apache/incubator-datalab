@@ -51,14 +51,37 @@ public class SchedulerJobResource {
 	 */
 	@POST
 	@Path("/{exploratoryName}")
-	public Response create(@Auth UserInfo userInfo, @PathParam("exploratoryName") String exploratoryName,
-						   SchedulerJobDTO dto) {
+	public Response upsertExploratoryScheduler(@Auth UserInfo userInfo,
+											   @PathParam("exploratoryName") String exploratoryName,
+											   SchedulerJobDTO dto) {
 		schedulerJobService.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
 		return Response.ok().build();
 	}
 
 	/**
-	 * Returns scheduler job for dlab resource <code>exploratoryName<code/>
+	 * Updates computational resource <code>computationalName<code/> affiliated with exploratory
+	 * <code>exploratoryName<code/> for user <code>userInfo<code/> with new scheduler job data
+	 *
+	 * @param userInfo          user info
+	 * @param exploratoryName   name of exploratory resource
+	 * @param computationalName name of computational resource
+	 * @param dto               scheduler job data
+	 * @return response
+	 */
+	@POST
+	@Path("/{exploratoryName}/{computationalName}")
+	public Response upsertComputationalScheduler(@Auth UserInfo userInfo,
+												 @PathParam("exploratoryName") String exploratoryName,
+												 @PathParam("computationalName") String computationalName,
+												 SchedulerJobDTO dto) {
+		schedulerJobService.updateSchedulerDataForComputationalResource(userInfo.getName(), exploratoryName,
+				computationalName, dto);
+		return Response.ok().build();
+	}
+
+
+	/**
+	 * Returns scheduler job for exploratory resource <code>exploratoryName<code/>
 	 *
 	 * @param userInfo        user info
 	 * @param exploratoryName name of exploratory resource
@@ -67,11 +90,32 @@ public class SchedulerJobResource {
 	@GET
 	@Path("/{exploratoryName}")
 	public Response fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
-														   @PathParam("exploratoryName") String
-																   exploratoryName) {
+														   @PathParam("exploratoryName") String exploratoryName) {
 		log.debug("Loading scheduler job for user {} and exploratory {}...", userInfo.getName(), exploratoryName);
+		final SchedulerJobDTO schedulerJob =
+				schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), exploratoryName);
+		return Response.ok(schedulerJob).build();
+	}
+
+	/**
+	 * Returns scheduler job for computational resource <code>computationalName<code/> affiliated with
+	 * exploratory <code>exploratoryName<code/>
+	 *
+	 * @param userInfo          user info
+	 * @param exploratoryName   name of exploratory resource
+	 * @param computationalName name of computational resource
+	 * @return scheduler job data
+	 */
+	@GET
+	@Path("/{exploratoryName}/{computationalName}")
+	public Response fetchSchedulerJobForComputationalResource(@Auth UserInfo userInfo,
+															  @PathParam("exploratoryName") String exploratoryName,
+															  @PathParam("computationalName") String
+																		  computationalName) {
+		log.debug("Loading scheduler job for user {}, exploratory {} and computational resource {}...",
+				userInfo.getName(), exploratoryName, computationalName);
 		final SchedulerJobDTO schedulerJob = schedulerJobService
-				.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), exploratoryName);
+				.fetchSchedulerJobForComputationalResource(userInfo.getName(), exploratoryName, computationalName);
 		return Response.ok(schedulerJob).build();
 	}
 

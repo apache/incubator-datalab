@@ -12,6 +12,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
@@ -102,10 +103,10 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 */
 	@Override
 	public void updateUserInstancesReuploadKeyFlag(String user) {
-		exploratoryDAO.updateReuploadKeyForCorrespondingExploratories(user, STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, RUNNING, "Spark cluster",
+		exploratoryDAO.updateReuploadKeyForExploratories(user, STOPPED, true);
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, RUNNING, DataEngineType.SPARK_STANDALONE,
 				STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, STOPPED, "Spark cluster",
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, STOPPED, DataEngineType.SPARK_STANDALONE,
 				STOPPED, true);
 	}
 

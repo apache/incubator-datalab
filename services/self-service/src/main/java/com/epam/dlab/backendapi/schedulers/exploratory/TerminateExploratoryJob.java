@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.schedulers;
+package com.epam.dlab.backendapi.schedulers.exploratory;
 
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
@@ -24,19 +24,17 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
 /**
- * There realized integration with Quartz scheduler framework and defined start exploratory scheduler job which
+ * There realized integration with Quartz scheduler framework and defined terminate exploratory scheduler job which
  * executes every time specified.
  */
 @Slf4j
 @Scheduled(interval = 10)
-public class StartExploratoryJob implements Job {
-
+public class TerminateExploratoryJob implements Job {
 	@Inject
 	private SchedulerJobService schedulerJobService;
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.executeStartExploratoryJob();
+		schedulerJobService.executeTerminateResourceJob(false);
 	}
-
 }
