@@ -29,7 +29,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -117,11 +116,8 @@ public class SchedulerJobDAO extends BaseDAO {
 				.map(d -> (List<Document>) d.get(COMPUTATIONAL_RESOURCES))
 				.map(list -> list.stream().filter(d -> d.getString(COMPUTATIONAL_NAME).equals(computationalName))
 						.findAny().orElse(new Document()))
-				.map(d -> {
-					Document schedulerData = (Document) d.get(SCHEDULER_DATA);
-					return Objects.isNull(schedulerData) ?
-							null : convertFromDocument(schedulerData, SchedulerJobDTO.class);
-				});
+				.map(d -> (Document) d.get(SCHEDULER_DATA))
+				.map(d -> convertFromDocument(d, SchedulerJobDTO.class));
 	}
 
 	public List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus,
@@ -181,10 +177,10 @@ public class SchedulerJobDAO extends BaseDAO {
 
 		return computationalResourcesWithSchedulersFromDocument(doc, computationalType, targetComputationalStatus)
 				.stream().map(compResource ->
-						new SchedulerJobData(doc.getString(USER), doc.getString(EXPLORATORY_NAME), compResource
-								.getString(COMPUTATIONAL_NAME),
-								convertFromDocument((Document) compResource.get(SCHEDULER_DATA), SchedulerJobDTO
-										.class)));
+						new SchedulerJobData(doc.getString(USER), doc.getString(EXPLORATORY_NAME),
+								compResource.getString(COMPUTATIONAL_NAME),
+								convertFromDocument((Document) compResource.get(SCHEDULER_DATA),
+										SchedulerJobDTO.class)));
 	}
 
 	@SuppressWarnings("unchecked")

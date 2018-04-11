@@ -39,8 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,7 +93,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 		return schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, computationalName)
 				.orElseThrow(() -> new ResourceNotFoundException(String.format(SCHEDULER_NOT_FOUND_MSG, user,
-						exploratoryName) + "with computational resource " + computationalName));
+						exploratoryName) + " with computational resource " + computationalName));
 	}
 
 	@Override
@@ -272,32 +270,21 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		} else return null;
 	}
 
-	private void executeExploratoryAction(UserInfo userInfo, String exploratoryName, UserInstanceStatus
-			desiredStatus) {
+	private void executeExploratoryAction(UserInfo userInfo, String exploratoryName,
+										  UserInstanceStatus desiredStatus) {
 		if (desiredStatus == RUNNING) {
 			exploratoryService.start(userInfo, exploratoryName);
-			startSparkClustersIfNecessary(userInfo, exploratoryName);
+			List<String> computationalResourcesForStartingWithExploratory =
+					getComputationalResourcesForStartingWithExploratory(userInfo.getName(), exploratoryName);
+			computationalResourcesForStartingWithExploratory.forEach(compName -> {
+				UserInfo user = systemUserService.create(userInfo.getName());
+				computationalService.startSparkCluster(user, exploratoryName, compName);
+			});
 		} else if (desiredStatus == STOPPED) {
 			exploratoryService.stop(userInfo, exploratoryName);
 		} else if (desiredStatus == TERMINATED) {
 			exploratoryService.terminate(userInfo, exploratoryName);
 		}
-	}
-
-	private void startSparkClustersIfNecessary(UserInfo userInfo, String exploratoryName) {
-		List<String> computationalResourcesForStartingWithExploratory =
-				getComputationalResourcesForStartingWithExploratory(userInfo.getName(), exploratoryName);
-		if (computationalResourcesForStartingWithExploratory.isEmpty()) {
-			return;
-		}
-		ExecutorService executor =
-				Executors.newFixedThreadPool(computationalResourcesForStartingWithExploratory.size());
-		computationalResourcesForStartingWithExploratory.forEach(compName ->
-				executor.execute(() -> {
-							UserInfo user = systemUserService.create(userInfo.getName());
-							computationalService.startSparkCluster(user, exploratoryName, compName);
-						}
-				));
 	}
 
 	private void executeComputationalAction(UserInfo userInfo, String exploratoryName, String computationalName,
