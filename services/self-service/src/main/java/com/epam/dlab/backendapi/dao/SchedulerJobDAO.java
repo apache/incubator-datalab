@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
@@ -33,11 +34,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.epam.dlab.UserInstanceStatus.RUNNING;
-import static com.epam.dlab.UserInstanceStatus.STOPPED;
+import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
-import static com.epam.dlab.backendapi.dao.ComputationalDAO.TEMPLATE_NAME;
+import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
@@ -75,17 +76,14 @@ public class SchedulerJobDAO extends BaseDAO {
 	 * @return Bson condition.
 	 */
 	private Bson statusCondition(UserInstanceStatus desiredStatus) {
-		switch (desiredStatus) {
-			case RUNNING:
-				return eq(STATUS, UserInstanceStatus.STOPPED.toString());
-			case STOPPED:
-				return eq(STATUS, UserInstanceStatus.RUNNING.toString());
-			case TERMINATED:
-				return or(eq(STATUS, UserInstanceStatus.STOPPED.toString()),
-						eq(STATUS, UserInstanceStatus.RUNNING.toString()));
-			default:
-				return null;
-		}
+		if (desiredStatus == RUNNING) {
+			return eq(STATUS, UserInstanceStatus.STOPPED.toString());
+		} else if (desiredStatus == STOPPED) {
+			return eq(STATUS, UserInstanceStatus.RUNNING.toString());
+		} else if (desiredStatus == TERMINATED) {
+			return or(eq(STATUS, UserInstanceStatus.STOPPED.toString()),
+					eq(STATUS, UserInstanceStatus.RUNNING.toString()));
+		} else return null;
     }
 
 	public List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus,
@@ -118,6 +116,24 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(Collectors.toList());
     }
 
+	public FindIterable<Document> getUserResourcesWithSpecialStatusAndCondition(UserInstanceStatus targetStatus,
+																				boolean useForComputationals) {
+		return useForComputationals ?
+				find(USER_INSTANCES,
+						and(
+								eq(STATUS, RUNNING.toString()),
+								ne(COMPUTATIONAL_RESOURCES, null)
+						),
+						fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES))) :
+
+				find(USER_INSTANCES,
+						and(
+								statusCondition(targetStatus),
+								schedulerNotNullCondition()
+						),
+						fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
+	}
+
 	/**
 	 * Finds and returns the list of all scheduler jobs for starting/stopping/terminating Spark clusters regarding to
 	 * parameter passed.
@@ -139,40 +155,49 @@ public class SchedulerJobDAO extends BaseDAO {
 				),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
 
-		return stream(userInstances).map(doc -> {
-
-			String user = doc.getString(USER);
-			String explName = doc.getString(EXPLORATORY_NAME);
-
-			List<Document> compResources = ((List<Document>) doc.get(COMPUTATIONAL_RESOURCES)).stream()
-					.filter(compResource ->
-							compResource.getString(TEMPLATE_NAME).equals("Spark cluster") &&
-									computationalStatusCondition(compResource, desiredStatus) &&
-									compResource.get(SCHEDULER_DATA) != null)
-					.collect(Collectors.toList());
-
-			return compResources.stream().map(compResource ->
-					new SchedulerJobData(user, explName, compResource.getString(COMPUTATIONAL_NAME),
-							convertFromDocument((Document) compResource.get(SCHEDULER_DATA), SchedulerJobDTO.class)));
-		}).flatMap(Function.identity())
+		return stream(userInstances).map(doc ->
+				schedulerComputationalDataFromDocument(doc, DataEngineType.SPARK_STANDALONE, desiredStatus)
+		).flatMap(Function.identity())
 				.filter(jobData -> isSchedulerJobDtoSatisfyCondition(jobData.getJobDTO(), dateTime, desiredStatus))
 				.collect(Collectors.toList());
 	}
 
-	private boolean computationalStatusCondition(Document computationalResource, UserInstanceStatus desiredStatus) {
-		switch (desiredStatus) {
-			case RUNNING:
-				return computationalResource.get(STATUS).equals(STOPPED.toString());
-			case STOPPED:
-				return computationalResource.get(STATUS).equals(RUNNING.toString());
-			case TERMINATED:
-				return computationalResource.get(STATUS).equals(STOPPED.toString()) ||
-						computationalResource.get(STATUS).equals(RUNNING.toString());
-			default:
-				return false;
-		}
+	private Stream<SchedulerJobData> schedulerComputationalDataFromDocument(Document doc,
+																			DataEngineType computationalType,
+																			UserInstanceStatus
+																					targetComputationalStatus) {
+
+		return computationalResourcesWithSchedulersFromDocument(doc, computationalType, targetComputationalStatus)
+				.stream().map(compResource ->
+						new SchedulerJobData(doc.getString(USER), doc.getString(EXPLORATORY_NAME), compResource
+								.getString(COMPUTATIONAL_NAME),
+								convertFromDocument((Document) compResource.get(SCHEDULER_DATA), SchedulerJobDTO
+										.class)));
 	}
 
+	@SuppressWarnings("unchecked")
+	private List<Document> computationalResourcesWithSchedulersFromDocument(Document doc,
+																			DataEngineType computationalType,
+																			UserInstanceStatus
+																						targetComputationalStatus) {
+		return ((List<Document>) doc.get(COMPUTATIONAL_RESOURCES)).stream()
+				.filter(compResource ->
+						DataEngineType.fromDockerImageName(compResource.getString(IMAGE)) ==
+								computationalType &&
+								computationalStatusCondition(compResource, targetComputationalStatus) &&
+								compResource.get(SCHEDULER_DATA) != null)
+				.collect(Collectors.toList());
+	}
+
+	private boolean computationalStatusCondition(Document computationalResource, UserInstanceStatus desiredStatus) {
+		if (desiredStatus == RUNNING) {
+			return computationalResource.get(STATUS).equals(STOPPED.toString());
+		} else if (desiredStatus == STOPPED) {
+			return computationalResource.get(STATUS).equals(RUNNING.toString());
+		} else
+			return desiredStatus == TERMINATED && (computationalResource.get(STATUS).equals(STOPPED.toString()) ||
+					computationalResource.get(STATUS).equals(RUNNING.toString()));
+	}
 
 	/**
      * Finds and returns the info of user's single scheduler job by exploratory name.
@@ -234,26 +259,28 @@ public class SchedulerJobDAO extends BaseDAO {
 		LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(roundedDateTime.toInstant(),
 				ZoneId.ofOffset(TIMEZONE_PREFIX, zOffset)).toLocalDateTime();
 
-		return desiredStatus.equals(UserInstanceStatus.TERMINATED) ?
+		return desiredStatus == TERMINATED ?
+				Objects.nonNull(dto.getTerminateDateTime()) &&
 				convertedDateTime.toLocalDate().equals(dto.getTerminateDateTime().toLocalDate())
 						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus)) :
 				!convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
-				&& !convertedDateTime.toLocalDate().isAfter(dto.getFinishDate())
+						&& isFinishDateMatchesCondition(dto, convertedDateTime)
 				&& dto.getDaysRepeat().contains(convertedDateTime.toLocalDate().getDayOfWeek())
 						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus));
 	}
 
+	private boolean isFinishDateMatchesCondition(SchedulerJobDTO dto, LocalDateTime currentDateTime) {
+		return dto.getFinishDate() == null || !currentDateTime.toLocalDate().isAfter(dto.getFinishDate());
+	}
+
 	private LocalTime getDesiredTime(SchedulerJobDTO dto, UserInstanceStatus desiredStatus) {
-		switch (desiredStatus) {
-			case RUNNING:
-				return dto.getStartTime();
-			case STOPPED:
-				return dto.getEndTime();
-			case TERMINATED:
-				return dto.getTerminateDateTime().toLocalTime();
-			default:
-				return null;
-		}
+		if (desiredStatus == RUNNING) {
+			return dto.getStartTime();
+		} else if (desiredStatus == STOPPED) {
+			return dto.getEndTime();
+		} else if (desiredStatus == TERMINATED) {
+			return dto.getTerminateDateTime().toLocalTime();
+		} else return null;
 	}
 
 }

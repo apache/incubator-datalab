@@ -27,6 +27,7 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -43,6 +44,8 @@ import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.epam.dlab.UserInstanceStatus.*;
 
 @Slf4j
 @Singleton
@@ -137,7 +140,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	public void executeStopResourceJob(boolean isAppliedForClusters) {
 		OffsetDateTime currentDateTime = OffsetDateTime.now();
 		List<SchedulerJobData> jobsToStop =
-				getSchedulerJobsForAction(UserInstanceStatus.STOPPED, currentDateTime, isAppliedForClusters);
+				getSchedulerJobsForAction(STOPPED, currentDateTime, isAppliedForClusters);
 		if (!jobsToStop.isEmpty()) {
 			log.debug(isAppliedForClusters ? "Scheduler computational resource stop job is executing..." :
 					"Scheduler exploratory stop job is executing...");
@@ -146,7 +149,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 					currentDateTime.getDayOfWeek());
 			log.info(isAppliedForClusters ? "Quantity of clusters for stopping: {}" :
 					"Quantity of exploratories for stopping: {}", jobsToStop.size());
-			jobsToStop.forEach(job -> changeResourceStatusTo(UserInstanceStatus.STOPPED, job, isAppliedForClusters));
+			jobsToStop.forEach(job -> changeResourceStatusTo(STOPPED, job, isAppliedForClusters));
 		}
 	}
 
@@ -197,36 +200,32 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private List<SchedulerJobData> getSchedulerJobsForAction(UserInstanceStatus desiredStatus,
 															 OffsetDateTime currentDateTime,
 															 boolean isAppliedForClusters) {
-		switch (desiredStatus) {
-			case RUNNING:
-			case TERMINATED:
-				return getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters);
-			case STOPPED:
-				return Stream.of(
-						getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters)
-								.stream()
-								.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-										jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
-						getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime.minusDays(1),
-								isAppliedForClusters)
-								.stream()
-								.filter(jobData -> {
-									LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime
-													.toInstant(),
-											ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
-													.getTimeZoneOffset())).toLocalDateTime();
-									return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-											jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO()
-													.getStartTime())
-											&& !convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO()
-											.getFinishDate());
-								}),
-						getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters).stream()
-								.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
-				).flatMap(Function.identity()).collect(Collectors.toList());
-			default:
-				return Collections.emptyList();
-		}
+		if (desiredStatus == STOPPED) {
+			return Stream.of(
+					getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters)
+							.stream()
+							.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+									jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime())),
+					getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime.minusDays(1),
+							isAppliedForClusters)
+							.stream()
+							.filter(jobData -> {
+								LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
+										ZoneId.ofOffset(SchedulerJobDAO.TIMEZONE_PREFIX, jobData.getJobDTO()
+												.getTimeZoneOffset())).toLocalDateTime();
+								return Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
+										jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime()
+										) &&
+										(jobData.getJobDTO().getFinishDate() == null || !convertedDateTime
+												.toLocalDate()
+												.isAfter(jobData.getJobDTO().getFinishDate()));
+							}),
+					getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters).stream()
+							.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
+			).flatMap(Function.identity()).collect(Collectors.toList());
+		} else if (desiredStatus == RUNNING || desiredStatus == TERMINATED) {
+			return getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters);
+		} else return Collections.emptyList();
 	}
 
 
@@ -254,37 +253,28 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 
 	private UserInstanceStatus getActionBasedOnDesiredStatus(UserInstanceStatus desiredStatus) {
-		switch (desiredStatus) {
-			case RUNNING:
-				return UserInstanceStatus.STARTING;
-			case STOPPED:
-				return UserInstanceStatus.STOPPING;
-			case TERMINATED:
-				return UserInstanceStatus.TERMINATING;
-			default:
-				return null;
-		}
+		if (desiredStatus == RUNNING) {
+			return UserInstanceStatus.STARTING;
+		} else if (desiredStatus == STOPPED) {
+			return UserInstanceStatus.STOPPING;
+		} else if (desiredStatus == TERMINATED) {
+			return UserInstanceStatus.TERMINATING;
+		} else return null;
 	}
 
 	private void executeExploratoryAction(UserInfo userInfo, String exploratoryName, UserInstanceStatus
 			desiredStatus) {
-		switch (desiredStatus) {
-			case RUNNING:
-				startSparkClustersWithExploratory(userInfo, exploratoryName);
-				break;
-			case STOPPED:
-				exploratoryService.stop(userInfo, exploratoryName);
-				break;
-			case TERMINATED:
-				exploratoryService.terminate(userInfo, exploratoryName);
-				break;
-			default:
-				break;
+		if (desiredStatus == RUNNING) {
+			exploratoryService.start(userInfo, exploratoryName);
+			startSparkClustersIfNecessary(userInfo, exploratoryName);
+		} else if (desiredStatus == STOPPED) {
+			exploratoryService.stop(userInfo, exploratoryName);
+		} else if (desiredStatus == TERMINATED) {
+			exploratoryService.terminate(userInfo, exploratoryName);
 		}
 	}
 
-	private void startSparkClustersWithExploratory(UserInfo userInfo, String exploratoryName) {
-		exploratoryService.start(userInfo, exploratoryName);
+	private void startSparkClustersIfNecessary(UserInfo userInfo, String exploratoryName) {
 		List<String> computationalResourcesForStartingWithExploratory =
 				getComputationalResourcesForStartingWithExploratory(userInfo.getName(), exploratoryName);
 		if (computationalResourcesForStartingWithExploratory.isEmpty()) {
@@ -302,24 +292,23 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private void executeComputationalAction(UserInfo userInfo, String exploratoryName, String computationalName,
 											UserInstanceStatus desiredStatus) {
-		switch (desiredStatus) {
-			case RUNNING:
-				computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
-				break;
-			case STOPPED:
-				computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
-				break;
-			case TERMINATED:
-				computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
-				break;
-			default:
-				break;
+		if (desiredStatus == RUNNING) {
+			computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
+		} else if (desiredStatus == STOPPED) {
+			computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
+		} else if (desiredStatus == TERMINATED) {
+			computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
 		}
 	}
 
 	private List<String> getComputationalResourcesForStartingWithExploratory(String user, String exploratoryName) {
-		return computationalDAO.getComputationalResourcesWithStatus(UserInstanceStatus.STOPPED, user,
-				"Spark cluster", exploratoryName).stream()
+		Optional<SchedulerJobDTO> schedulerJobForExploratory = schedulerJobDAO
+				.fetchSingleSchedulerJobByUserAndExploratory(user, exploratoryName);
+		if (!schedulerJobForExploratory.isPresent() || !schedulerJobForExploratory.get().isSyncStartRequired()) {
+			return Collections.emptyList();
+		}
+		return computationalDAO.getComputationalResourcesWithStatus(STOPPED, user,
+				DataEngineType.SPARK_STANDALONE, exploratoryName).stream()
 				.filter(clusterName -> {
 					Optional<SchedulerJobDTO> schedulerJob =
 							schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
@@ -330,9 +319,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	/**
 	 * Enriches existing scheduler job with the following data:
 	 * - sets current date as 'beginDate' if this parameter wasn't defined;
-	 * - sets '9999-12-31' as 'finishDate' if this parameter wasn't defined;
 	 * - sets repeating days of existing scheduler job to all days of week if this parameter wasn't defined;
-	 * - sets '9999-12-31 00:00' as 'terminateDateTime' if this parameter wasn't defined;
 	 * - sets current system time zone offset as 'timeZoneOffset' if this parameter wasn't defined.
 	 *
 	 * @param dto current scheduler job
@@ -341,14 +328,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		if (Objects.isNull(dto.getBeginDate()) || StringUtils.isBlank(dto.getBeginDate().toString())) {
 			dto.setBeginDate(LocalDate.now());
 		}
-		if (Objects.isNull(dto.getFinishDate()) || StringUtils.isBlank(dto.getFinishDate().toString())) {
-			dto.setFinishDate(LocalDate.of(9999, 12, 31));
-		}
 		if (Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty()) {
 			dto.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
-		}
-		if (Objects.isNull(dto.getTerminateDateTime()) || StringUtils.isBlank(dto.getTerminateDateTime().toString())) {
-			dto.setTerminateDateTime(LocalDateTime.of(9999, 12, 31, 0, 0));
 		}
 		if (Objects.isNull(dto.getTimeZoneOffset()) || StringUtils.isBlank(dto.getTimeZoneOffset().toString())) {
 			dto.setTimeZoneOffset(OffsetDateTime.now(ZoneId.systemDefault()).getOffset());

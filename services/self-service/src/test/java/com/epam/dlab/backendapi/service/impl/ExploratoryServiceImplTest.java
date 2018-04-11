@@ -9,6 +9,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
@@ -372,15 +373,15 @@ public class ExploratoryServiceImplTest {
 		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(),
 				any(UserInstanceStatus.class), anyBoolean());
 		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
-				any(UserInstanceStatus.class), anyString(), any(UserInstanceStatus.class), anyBoolean());
+				any(UserInstanceStatus.class), any(DataEngineType.class), any(UserInstanceStatus.class), anyBoolean());
 
 		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
 
 		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, UserInstanceStatus.STOPPED, true);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				UserInstanceStatus.RUNNING, "Spark cluster", UserInstanceStatus.STOPPED, true);
+				UserInstanceStatus.RUNNING, DataEngineType.SPARK_STANDALONE, UserInstanceStatus.STOPPED, true);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				UserInstanceStatus.STOPPED, "Spark cluster", UserInstanceStatus.STOPPED, true);
+				UserInstanceStatus.STOPPED, DataEngineType.SPARK_STANDALONE, UserInstanceStatus.STOPPED, true);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 
