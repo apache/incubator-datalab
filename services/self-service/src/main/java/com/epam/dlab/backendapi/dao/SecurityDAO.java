@@ -48,6 +48,6 @@ public class SecurityDAO extends BaseDAO {
     	if (!collectionExists(ROLES)) {
 			throw new DlabException("Collection \"" + ROLES + "\" does not exist.");
     	}
-		return find(ROLES, ne(ID, "_Example"), fields(exclude(ID, "description")));
+		return find(ROLES, ne(ID, "_Example"), fields(exclude("description")));
     }
 }
