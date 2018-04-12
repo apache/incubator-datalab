@@ -35,6 +35,8 @@ export class HealthStatusGridComponent implements OnInit {
    @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
 
    @ViewChild('confirmationDialog') confirmationDialog;
+   @ViewChild('keyReuploadDialog') keyReuploadDialog;
+   
 
     constructor(
       private healthStatusService: HealthStatusService
@@ -43,7 +45,7 @@ export class HealthStatusGridComponent implements OnInit {
     ngOnInit(): void {
       this.buildGrid();
     }
-
+    
     buildGrid(): void {
       this.refreshGrid.emit();
     }
@@ -60,5 +62,12 @@ export class HealthStatusGridComponent implements OnInit {
           .recreateEdgeNode()
           .subscribe(() => this.buildGrid());
       }
+  }
+
+  showReuploaKeydDialog() {
+    this.keyReuploadDialog.open({ isFooter: false });
+  }
+
+  public generateUserKey($event) {
   }
 }

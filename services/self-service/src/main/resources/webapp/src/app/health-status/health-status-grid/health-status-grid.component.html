@@ -48,6 +48,10 @@ limitations under the License.
             <i class="material-icons">refresh</i>
             <span>Recreate</span>
           </li>
+          <li (click)="showReuploaKeydDialog()">
+            <!-- <i class="material-icons"></i> -->
+            <span>Reupload key</span>
+          </li>
         </ul>
       </bubble-up>
     </td>
@@ -55,3 +59,5 @@ limitations under the License.
 </table>
 
 <confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
+
+<key-upload-dialog #keyReuploadDialog (generateUserKey)="generateUserKey($event)"></key-upload-dialog>
