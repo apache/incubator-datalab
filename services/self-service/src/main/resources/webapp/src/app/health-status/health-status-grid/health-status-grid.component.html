@@ -48,8 +48,7 @@ limitations under the License.
             <i class="material-icons">refresh</i>
             <span>Recreate</span>
           </li>
-          <li (click)="showReuploaKeydDialog()">
-            <!-- <i class="material-icons"></i> -->
+          <li *ngIf="!envInProgress" (click)="showReuploaKeydDialog()">
             <span>Reupload key</span>
           </li>
         </ul>

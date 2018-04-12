@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
-import { HealthStatusService, BackupService } from '../core/services';
+import { HealthStatusService, BackupService, UserResourceService } from '../core/services';
 
 @Component({
   moduleId: module.id,
@@ -32,6 +32,7 @@ export class HealthStatusComponent implements OnInit {
   billingEnabled: boolean;
   backupAllowed: boolean;
   isAdmin: boolean;
+  envInProgress: boolean = false;
   usersList: Array<string> = [];
 
   private clear = undefined;
@@ -40,7 +41,8 @@ export class HealthStatusComponent implements OnInit {
 
   constructor(
     private healthStatusService: HealthStatusService,
-    private backupService: BackupService
+    private backupService: BackupService,
+    private userResourceService: UserResourceService
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +61,7 @@ export class HealthStatusComponent implements OnInit {
     this.backupAllowed = healthStatusList.backupAllowed;
     this.isAdmin = healthStatusList.admin;
 
-    if (this.isAdmin) this.getActiveUsersList().subscribe((res: any) => this.usersList = res);
+    this.getExploratoryList();
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {
@@ -79,7 +81,7 @@ export class HealthStatusComponent implements OnInit {
   getActiveUsersList() {
     return this.healthStatusService.getActiveUsers()
   }
-
+ 
   openManageEnvironmentDialog() {
     this.getActiveUsersList().subscribe(usersList => {
       this.manageEnvironmentDialog.open({ isFooter: false }, usersList);
@@ -105,6 +107,20 @@ export class HealthStatusComponent implements OnInit {
       this.getBackupStatus(result);
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
     });
+  }
+
+  getExploratoryList() {
+    console.log("inner getExploratoryList");
+    
+    this.userResourceService.getUserProvisionedResources()
+      .subscribe((result) => {
+        console.log(result);
+        
+        this.envInProgress = true;
+        // this.getDefaultFilterConfiguration();
+      
+        // (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
+      });
   }
 
   private getBackupStatus(result) {
