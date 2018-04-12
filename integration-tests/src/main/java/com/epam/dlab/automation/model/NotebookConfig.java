@@ -62,6 +62,9 @@ public class NotebookConfig {
 	@JsonProperty("timeout_image_create")
 	private String timeoutImageCreate = "60m";
 
+	@JsonProperty("image_test_required")
+	private boolean imageTestRequired = false;
+
 
     public String getTimeoutNotebookCreate() {
     	return timeoutNotebookCreate;
@@ -113,8 +116,16 @@ public class NotebookConfig {
     	return fullTest;
     }
 
+	public boolean isImageTestRequired() {
+		return imageTestRequired;
+	}
 
-    @Override
+	public void setImageTestRequired(boolean imageTestRequired) {
+		this.imageTestRequired = imageTestRequired;
+	}
+
+
+	@Override
     public String toString() {
     	return MoreObjects.toStringHelper(this)
     			.add("timeoutClusterCreate", timeoutClusterCreate)
@@ -129,6 +140,7 @@ public class NotebookConfig {
     			.add("notebookTemplate", notebookTemplate)
     			.add("dataEngineType", dataEngineType)
     			.add("fullTest", fullTest)
+				.add("imageTestRequired", imageTestRequired)
     			.toString();
     }
 

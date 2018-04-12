@@ -59,13 +59,13 @@ public class TestCallable implements Callable<Boolean> {
     private final NotebookConfig notebookConfig;
 	private final boolean imageTestRequired;
 
-	TestCallable(NotebookConfig notebookConfig, boolean imageTestRequired) {
+	TestCallable(NotebookConfig notebookConfig) {
     	this.notebookTemplate = notebookConfig.getNotebookTemplate();
     	this.dataEngineType = notebookConfig.getDataEngineType();
         this.fullTest = notebookConfig.isFullTest();
 
 		this.notebookConfig = notebookConfig;
-		this.imageTestRequired = imageTestRequired;
+		this.imageTestRequired = notebookConfig.isImageTestRequired();
         
         this.token = NamingHelper.getSsnToken();
         this.ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
@@ -98,10 +98,6 @@ public class TestCallable implements Callable<Boolean> {
 
 	@Override
     public Boolean call() throws Exception {
-		return imageTestRequired ? executeExploratoryTestWithImages() : executeStandardExploratoryTest();
-	}
-
-	private Boolean executeStandardExploratoryTest() throws Exception {
 		try {
 			final String notebookIp = createNotebook(notebookName, "");
 			testLibs();
@@ -140,13 +136,13 @@ public class TestCallable implements Callable<Boolean> {
 			}
 
 			LOGGER.info("{} All tests finished successfully", notebookName);
-			return true;
+			return imageTestRequired ? executeExploratoryTestWithImages() : true;
 		} catch (AssertionError | Exception e) {
 			LOGGER.error("Error occurred while testing notebook {} with configuration {}", notebookName,
 					notebookConfig, e);
 			throw e;
 		}
-   }
+	}
 
 	private Boolean executeExploratoryTestWithImages() throws Exception {
 		String notebookNameForImageCreation = "im" + notebookName;
