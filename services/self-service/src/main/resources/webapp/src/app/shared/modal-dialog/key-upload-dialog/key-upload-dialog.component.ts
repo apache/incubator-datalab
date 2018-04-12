@@ -60,7 +60,7 @@ export class UploadKeyDialogComponent implements OnInit {
   }
 
   public uploadUserAccessKey_btnClick($event) {
-    this.model.confirmAction();
+    this.model.confirmAction(this.primaryUploading);
     $event.preventDefault();
     return false;
   }
@@ -75,7 +75,7 @@ export class UploadKeyDialogComponent implements OnInit {
       },
         (response: Response) => {
           this.processError = true;
-          this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+          this.errorMessage = `${ErrorMapUtils.setErrorMessage(response)}. ${response.text()}`;
         },
         this.userAccessKeyService);
 

@@ -51,16 +51,16 @@ export class KeyUploadDialogModel {
     this.accessKeyLabel = this.getLabel(accessKey);
   }
 
-  private uploadUserAccessKey(): Observable<Response> {
+  private uploadUserAccessKey(primary?: boolean): Observable<Response | {}> {
     const formData = new FormData();
     formData.append('file', this.newAccessKeyForUpload);
 
-    return this.userAccessKeyService.uploadUserAccessKey(formData);
+    return primary ? this.userAccessKeyService.uploadUserAccessKey(formData) : this.userAccessKeyService.reuploadUserAccessKey(formData)
   }
 
   private prepareModel(newAccessKeyForUpload: any, fnProcessResults: any, fnProcessErrors: any): void {
     this.setUserAccessKey(newAccessKeyForUpload);
-    this.confirmAction = () => this.uploadUserAccessKey()
+    this.confirmAction = (primary?: boolean) => this.uploadUserAccessKey(primary)
       .subscribe(
       (response: Response) => fnProcessResults(response),
       (response: Response) => fnProcessErrors(response));
