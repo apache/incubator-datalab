@@ -30,7 +30,6 @@ export class HealthStatusComponent implements OnInit {
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
   billingEnabled: boolean;
-  backupAllowed: boolean;
   isAdmin: boolean;
   usersList: Array<string> = [];
 
@@ -56,7 +55,6 @@ export class HealthStatusComponent implements OnInit {
   loadHealthStatusList(healthStatusList): Array<EnvironmentStatusModel> {
     this.healthStatus = healthStatusList.status;
     this.billingEnabled = healthStatusList.billingEnabled;
-    this.backupAllowed = healthStatusList.backupAllowed;
     this.isAdmin = healthStatusList.admin;
 
     if (this.isAdmin) this.getActiveUsersList().subscribe((res: any) => this.usersList = res);
