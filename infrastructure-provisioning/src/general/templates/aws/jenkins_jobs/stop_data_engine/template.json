@@ -1,0 +1,7 @@
+{
+    "conf_resource": "dataengine",
+    "request_id":"RID",
+    "edge_user_name":"EUN",
+    "notebook_instance_name":"NIN",
+    "computational_name": "CNAM"
+}

@@ -55,7 +55,7 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
     except:
         sys.exit(1)
 
-    print("Terminating data engine cluster")
+    print("Stopping data engine cluster")
     try:
         cluster_list = []
         master_ids = []
@@ -68,14 +68,7 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
             for tag in get_instance_attr(id, 'tags'):
                 if tag['Key'] == 'Name':
                     cluster_list.append(tag['Value'].replace(' ', '')[:-2])
-        remove_ec2('dataengine_notebook_name', nb_tag_value)
-    except:
-        sys.exit(1)
-
-    print("Removing Data Engine kernels from notebook")
-    try:
-        for cluster_name in cluster_list:
-            remove_dataengine_kernels(tag_name, nb_tag_value, ssh_user, key_path, cluster_name)
+        stop_ec2('dataengine_notebook_name', nb_tag_value)
     except:
         sys.exit(1)
 
