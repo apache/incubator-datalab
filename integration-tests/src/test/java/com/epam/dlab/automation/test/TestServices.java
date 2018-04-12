@@ -245,13 +245,9 @@ public class TestServices {
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
-		if (!notebookConfigs.isEmpty() && !CloudProvider.GCP_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
-			LOGGER.info("The following tests will be executed: creation notebook from template, creation machine " +
-					"image from previously created notebook, creation notebook from machine image");
-			FutureTask<Boolean> runNotebookImageCreationTask =
-					new FutureTask<>(new TestCallable(notebookConfigs.get(0), true));
-			futureTasks.add(runNotebookImageCreationTask);
-			executor.execute(runNotebookImageCreationTask);
+		if (CloudProvider.GCP_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+			LOGGER.debug("Image creation tests are skipped for all types of notebooks in GCP.");
+			notebookConfigs.forEach(config -> config.setImageTestRequired(false));
 		}
 		for (NotebookConfig notebookConfig : notebookConfigs) {
 			if (!ConfigPropertyValue.isRunModeLocal() &&
@@ -259,7 +255,7 @@ public class TestServices {
 				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
 				TimeUnit.SECONDS.sleep(NOTEBOOK_CREATION_DELAY / 1000);
 			}
-			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, false));
+			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
 		}
