@@ -110,17 +110,14 @@ export class HealthStatusComponent implements OnInit {
   }
 
   getExploratoryList() {
-    console.log("inner getExploratoryList");
-    
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
-        console.log(result);
-        
-        this.envInProgress = true;
-        // this.getDefaultFilterConfiguration();
-      
-        // (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
+        this.envInProgress = this.isEnvironmentsInProgress(result);
       });
+  }
+
+  isEnvironmentsInProgress(data): boolean {
+    return data.exploratory.some(el => el.status === 'creating');
   }
 
   private getBackupStatus(result) {
