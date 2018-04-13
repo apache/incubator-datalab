@@ -38,7 +38,6 @@ export class ResourcesComponent implements OnInit {
   progressDialogConfig: any;
   healthStatus: any;
   billingEnabled: boolean;
-  backupAllowed: boolean;
 
   @ViewChild('keyUploadModal') keyUploadModal;
   @ViewChild('preloaderModal') preloaderModal;
@@ -176,8 +175,6 @@ export class ResourcesComponent implements OnInit {
         (result: any) => {
           this.healthStatus = result.status;
           this.billingEnabled = result.billingEnabled;
-          this.backupAllowed = result.backupAllowed;
-
           this.resourcesGrid.healthStatus = this.healthStatus;
           this.resourcesGrid.billingEnabled = this.billingEnabled;
         });

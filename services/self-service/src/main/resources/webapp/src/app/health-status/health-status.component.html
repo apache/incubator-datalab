@@ -22,7 +22,7 @@ limitations under the License.
   <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()" *ngIf="isAdmin">
     <i class="material-icons"></i>Manage environment
   </button>
-  <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup" *ngIf="backupAllowed">
+  <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup" *ngIf="isAdmin">
     <i class="material-icons">backup</i>Backup
   </button>
   <button mat-raised-button class="butt" (click)="buildGrid()">
