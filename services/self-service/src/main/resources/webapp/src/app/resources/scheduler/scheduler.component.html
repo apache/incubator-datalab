@@ -18,7 +18,11 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="scheduler-dialog modal-sm">
   <modal-header>
-    <h4 class="modal-title">Scheduler <span *ngIf="notebook">for <b>{{ notebook?.name }}</b></span></h4>
+    <h4 class="modal-title">Scheduler
+      <span *ngIf="notebook">for
+        <b>{{ notebook?.name }}</b>
+      </span>
+    </h4>
   </modal-header>
   <modal-content>
     <div *ngIf="notebook" class="content-box">
@@ -58,9 +62,9 @@ limitations under the License.
         <span class="danger_color" *ngIf="errorMessage">At least one of given options should be selected</span>
       </form>
       <div class="text-center m-top-30">
-          <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-          <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Create</button>
-        </div>
+        <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+        <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Create</button>
+      </div>
     </div>
   </modal-content>
 </modal-dialog>
