@@ -99,7 +99,7 @@ public class EnvironmentServiceImplTest {
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
 		verify(edgeService).stop(refEq(userInfo));
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING);
+				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
 		verifyNoMoreInteractions(keyDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
@@ -138,7 +138,7 @@ public class EnvironmentServiceImplTest {
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
 		verify(edgeService, never()).stop(refEq(userInfo));
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER,
-				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING);
+				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
 		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
@@ -160,7 +160,7 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryService).updateExploratoryStatuses(USER, UserInstanceStatus.TERMINATING);
 		verify(keyDAO).getEdgeStatus(userInfo.getName());
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER,
-				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING);
+				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
 		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
@@ -187,7 +187,7 @@ public class EnvironmentServiceImplTest {
 		verify(edgeService, never()).terminate(refEq(userInfo));
 		verify(keyDAO).getEdgeStatus(USER);
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING);
+				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
 		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
