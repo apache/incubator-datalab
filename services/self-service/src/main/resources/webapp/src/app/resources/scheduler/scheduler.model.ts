@@ -67,12 +67,12 @@ export class SchedulerModel {
         }
     }
 
-    private scheduleInstance(notebook, params): Observable<Response> {
-        return this.schedulerService.setExploratorySchedule(notebook.name, params);
+    private scheduleInstance(notebook, params, resourse): Observable<Response> {
+        return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
     }
 
     private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-        this.confirmAction = (notebook, data) => this.scheduleInstance(notebook, data)
+        this.confirmAction = (notebook, data, resourse?) => this.scheduleInstance(notebook, data, resourse)
             .subscribe(
                 (response: Response) => fnProcessResults(response),
                 (response: Response) => fnProcessErrors(response));
