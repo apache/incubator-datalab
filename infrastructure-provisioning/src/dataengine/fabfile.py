@@ -62,7 +62,7 @@ def start():
         local("~/scripts/{}.py".format('dataengine_start'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed terminating Data Engine.", str(err))
+        append_result("Failed starting Data Engine.", str(err))
         sys.exit(1)
 
 
@@ -111,7 +111,7 @@ def stop():
         local("~/scripts/{}.py".format('dataengine_stop'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed terminating Data Engine.", str(err))
+        append_result("Failed stopping Data Engine.", str(err))
         sys.exit(1)
 
 
