@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { KeyUploadDialogModel } from './key-upload.model';
@@ -33,6 +33,7 @@ export class UploadKeyDialogComponent implements OnInit {
   model: KeyUploadDialogModel;
   processError: boolean = false;
   errorMessage: string = '';
+  @Input() primaryUploading: boolean = true;
   
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('userAccessKeyUploadControl') userAccessKeyUploadControl;
@@ -59,7 +60,7 @@ export class UploadKeyDialogComponent implements OnInit {
   }
 
   public uploadUserAccessKey_btnClick($event) {
-    this.model.confirmAction();
+    this.model.confirmAction(this.primaryUploading);
     $event.preventDefault();
     return false;
   }
@@ -74,7 +75,7 @@ export class UploadKeyDialogComponent implements OnInit {
       },
         (response: Response) => {
           this.processError = true;
-          this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+          this.errorMessage = `${ErrorMapUtils.setErrorMessage(response)}. ${response.text()}`;
         },
         this.userAccessKeyService);
 

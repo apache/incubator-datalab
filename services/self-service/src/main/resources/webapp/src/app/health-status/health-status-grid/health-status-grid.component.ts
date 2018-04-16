@@ -32,18 +32,19 @@ import { ConfirmationDialogType } from '../../shared';
 export class HealthStatusGridComponent implements OnInit {
 
    @Input() environmentsHealthStatuses: Array<EnvironmentStatusModel>;
+   @Input() envInProgress: boolean;
    @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
 
    @ViewChild('confirmationDialog') confirmationDialog;
+   @ViewChild('keyReuploadDialog') keyReuploadDialog;
+   
 
     constructor(
       private healthStatusService: HealthStatusService
     ) { }
 
-    ngOnInit(): void {
-      this.buildGrid();
-    }
-
+    ngOnInit(): void { }
+    
     buildGrid(): void {
       this.refreshGrid.emit();
     }
@@ -60,5 +61,9 @@ export class HealthStatusGridComponent implements OnInit {
           .recreateEdgeNode()
           .subscribe(() => this.buildGrid());
       }
+  }
+
+  showReuploaKeydDialog() {
+    this.keyReuploadDialog.open({ isFooter: false });
   }
 }

@@ -43,4 +43,11 @@ export class UserAccessKeyService {
       .buildUploadUserAccessKeyRequest(data)
       .map((response: Response) => response);
   }
+
+  public reuploadUserAccessKey(data): Observable<Response> {
+    const param = '?is_primary_uploading=false';
+    return this.applicationServiceFacade
+      .buildReuploadUserAccessKeyRequest(data, param)
+      .map((response: Response) => response);
+  }
 }
