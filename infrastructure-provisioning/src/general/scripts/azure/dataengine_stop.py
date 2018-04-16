@@ -58,6 +58,7 @@ if __name__ == "__main__":
     except:
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
+    data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
     data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
                                                           data_engine['user_name'],
