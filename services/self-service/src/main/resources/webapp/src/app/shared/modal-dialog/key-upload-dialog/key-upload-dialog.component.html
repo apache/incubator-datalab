@@ -40,9 +40,10 @@ limitations under the License.
               <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />
             </span>
 
-            <button mat-raised-button type="button" class="butt butt-generate" (click)="generateUserAccessKey_btnClick($event)">
+            <button *ngIf="primaryUploading" mat-raised-button type="button" class="butt butt-generate" (click)="generateUserAccessKey_btnClick($event)">
               <i class="material-icons">move_to_inbox</i> Generate
             </button>
+            <div *ngIf="model.accessKeyLabel.length" class="m-bott-10 m-top-10" [class.danger_color]="!model.accessKeyFormValid">{{model.accessKeyLabel}}</div>
           </div>
         </div>
         <div class="text-right" *ngIf="processError">

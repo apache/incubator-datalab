@@ -31,7 +31,8 @@ import com.epam.dlab.automation.test.libs.LibsHelper;
 import com.epam.dlab.automation.test.libs.TestLibGroupStep;
 import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
-import com.epam.dlab.automation.test.libs.models.*;
+import com.epam.dlab.automation.test.libs.models.Lib;
+import com.epam.dlab.automation.test.libs.models.LibToSearchData;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -102,6 +103,10 @@ public class TestCallable implements Callable<Boolean> {
 			final String notebookIp = createNotebook(notebookName, "");
 			testLibs();
 
+			if (imageTestRequired) {
+				executeImageTest();
+			}
+
 			final DeployClusterDto deployClusterDto = createClusterDto();
 			final String actualClusterName = deployClusterDto != null ? NamingHelper.getClusterName(
 					NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
@@ -136,7 +141,7 @@ public class TestCallable implements Callable<Boolean> {
 			}
 
 			LOGGER.info("{} All tests finished successfully", notebookName);
-			return imageTestRequired ? executeExploratoryTestWithImages() : true;
+			return true;
 		} catch (AssertionError | Exception e) {
 			LOGGER.error("Error occurred while testing notebook {} with configuration {}", notebookName,
 					notebookConfig, e);
@@ -144,36 +149,34 @@ public class TestCallable implements Callable<Boolean> {
 		}
 	}
 
-	private Boolean executeExploratoryTestWithImages() throws Exception {
-		String notebookNameForImageCreation = "im" + notebookName;
+	private void executeImageTest() throws Exception {
+		LOGGER.debug("Tests with machine image are starting...");
 		try {
-			createNotebook(notebookNameForImageCreation, "");
-			libsInstall(notebookNameForImageCreation);
-
 			String imageName = "TestIm" +
 					String.valueOf(new Random().ints(0, 1000).findFirst().orElse(0));
-			createMachineImageFromNotebook(notebookNameForImageCreation, imageName);
-			String copyNotebookName = "cp" + notebookName;
-			LOGGER.info("Notebook {} from machine image {} will be created...", copyNotebookName, imageName);
+			LOGGER.info("Machine image with name {} from notebook {} is creating...", imageName, notebookName);
+			createMachineImageFromNotebook(notebookName, imageName);
+			LOGGER.info("Machine image with name {} was successfully created.", imageName);
 
+			String copyNotebookName = "cp" + notebookName;
+			LOGGER.info("Notebook {} from machine image {} is creating...", copyNotebookName, imageName);
 			createNotebook(copyNotebookName, imageName);
-			LOGGER.info("Comparing notebooks: {} with {}...", notebookNameForImageCreation, copyNotebookName);
-			if (areNotebooksEqual(notebookNameForImageCreation, copyNotebookName)) {
-				LOGGER.info("Notebooks with names {} and {} are equal", notebookNameForImageCreation,
-						copyNotebookName);
+			LOGGER.info("Notebook {} from machine image {} was successfully created.", copyNotebookName, imageName);
+
+			LOGGER.info("Comparing notebooks: {} with {}...", notebookName, copyNotebookName);
+			if (areNotebooksEqual(notebookName, copyNotebookName)) {
+				LOGGER.info("Notebooks with names {} and {} are equal", notebookName, copyNotebookName);
 			} else {
 				Assert.fail("Notebooks aren't equal. Created from machine image notebook is different from base " +
 						"exploratory");
 			}
 
-			terminateNotebook(notebookNameForImageCreation);
+			LOGGER.debug("Notebook {} created from image {} is terminating...", copyNotebookName, imageName);
 			terminateNotebook(copyNotebookName);
 
-			LOGGER.info("Tests of notebook and machine image creation finished successfully");
-			return true;
+			LOGGER.info("Tests with machine image creation finished successfully");
 		} catch (AssertionError | Exception e) {
-			LOGGER.error("Error occurred while testing notebook and machine image with configuration: {}",
-					notebookConfig, e);
+			LOGGER.error("Error occurred while testing notebook {} and machine image {}", notebookName, e);
 			throw e;
 		}
 	}
@@ -464,128 +467,6 @@ public class TestCallable implements Callable<Boolean> {
 			}
 		}
 		return true;
-	}
-
-	private List<Lib> fetchLibrariesToInstall(String explName, LibToSearchData libToSearchData)
-			throws InterruptedException {
-		List<Lib> libs = new ArrayList<>();
-		Map<String, String> actualFoundLibs = new HashMap<>();
-
-		long currentTime = System.currentTimeMillis() / 1000L;
-		long expiredTime = currentTime + getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds();
-
-		LibSearchRequest libSearchRequest =
-				new LibSearchRequest(explName, libToSearchData.getGroup(), libToSearchData.getStartWith());
-
-		while (expiredTime > currentTime) {
-			Response libSearchResponse = new HttpRequest().webApiPost(ApiPath.LIB_LIST, ContentType.JSON,
-					libSearchRequest, token);
-			LOGGER.info("Request libraries {}", libSearchRequest);
-
-			if (libSearchResponse.getStatusCode() != HttpStatusCode.OK) {
-				LOGGER.error("Response status {}, body {}", libSearchResponse.getStatusCode(),
-						libSearchResponse.getBody().print());
-				Assert.fail("Cannot get lib list for " + libSearchRequest);
-			} else {
-				actualFoundLibs = libSearchResponse.getBody().jsonPath().getMap("", String.class, String.class);
-				if (actualFoundLibs == null || actualFoundLibs.isEmpty()) {
-					LOGGER.info("Init lib list. Wait for time out {} seconds left for {}",
-							expiredTime - currentTime, explName);
-					TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
-				} else {
-					break;
-				}
-			}
-			currentTime = System.currentTimeMillis() / 1000L;
-		}
-
-		if (expiredTime <= currentTime) {
-			Assert.fail("Due to timeout cannot get list of libraries for " + explName);
-		}
-
-		for (Map.Entry<String, String> entry : Objects.requireNonNull(actualFoundLibs).entrySet()) {
-			libs.add(new Lib(libToSearchData.getGroup(), entry.getKey(), entry.getValue()));
-		}
-		return libs;
-	}
-
-	private void installLibrary(Lib lib, String explName) throws Exception {
-		LibInstallRequest libInstallRequest = new LibInstallRequest(Collections.singletonList(lib), explName);
-
-		LOGGER.info("Install library: {}", libInstallRequest);
-
-		long currentTime = System.currentTimeMillis() / 1000L;
-		long expiredTime = currentTime + getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds();
-
-		Response libInstallResponse = new HttpRequest().webApiPost(
-				NamingHelper.getSelfServiceURL(ApiPath.LIB_INSTALL), ContentType.JSON, libInstallRequest, token);
-		if (libInstallResponse.getStatusCode() != HttpStatusCode.OK) {
-			LOGGER.error("Library install response status {}, body {}", libInstallResponse.getStatusCode(),
-					libInstallResponse.getBody().print());
-			Assert.fail("Cannot install libs for " + libInstallRequest);
-		}
-
-		while (expiredTime > currentTime) {
-
-			HttpRequest httpRequest = new HttpRequest();
-			Map<String, Object> params = new HashMap<>();
-			params.put("exploratory_name", explName);
-			libInstallResponse = httpRequest
-					.webApiGet(NamingHelper.getSelfServiceURL(ApiPath.LIB_LIST_EXPLORATORY_FORMATTED), token, params);
-			if (libInstallResponse.getStatusCode() == HttpStatusCode.OK) {
-
-				List<LibStatusResponse> actualStatuses = Arrays.asList(libInstallResponse.getBody().as
-						(LibStatusResponse[].class));
-
-				LOGGER.info("Actual statuses {}", actualStatuses);
-
-				LibStatusResponse s = actualStatuses.stream()
-						.filter(e -> e.getGroup().equals(lib.getGroup())
-								&& e.getName().equals(lib.getName())
-								&& (e.getVersion().equals(lib.getVersion()) || "N/A".equals(lib.getVersion())))
-						.findFirst().orElseThrow(() -> new Exception("There are no appropriate statuses"));
-
-				LOGGER.info("Library status is {}", s);
-
-				boolean allLibStatusesDone = true;
-
-				for (LibraryStatus libStatus : s.getStatus()) {
-					if (libStatus.getStatus().equals("installing")) {
-						allLibStatusesDone = false;
-					}
-				}
-				if (!allLibStatusesDone) {
-					LOGGER.info("Wait {} sec left for installation libs {}", expiredTime - currentTime,
-							libInstallRequest);
-					TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
-				} else {
-					break;
-				}
-
-			} else {
-				LOGGER.error("Response status{}, body {}", libInstallResponse.getStatusCode(), libInstallResponse
-						.getBody().print());
-				Assert.fail("Install libs failed for " + explName);
-			}
-			currentTime = System.currentTimeMillis() / 1000L;
-		}
-
-		if (expiredTime <= currentTime) {
-			Assert.fail("Due to timeout cannot install library on " + explName + " " + libInstallRequest);
-		}
-	}
-
-	private void libsInstall(String explName) throws Exception {
-		LOGGER.info("{}: install libraries  ...", explName);
-
-		List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(
-				getTemplateTestLibFile(LibsHelper.getLibListPath(explName)), LibToSearchData.class);
-
-		for (LibToSearchData libToSearchData : libToSearchDataList) {
-			List<Lib> libList = fetchLibrariesToInstall(explName, libToSearchData);
-			Lib lib = libList.get(new Random().nextInt(libList.size()));
-			installLibrary(lib, explName);
-		}
 	}
 
    private void testLibs() throws Exception {
