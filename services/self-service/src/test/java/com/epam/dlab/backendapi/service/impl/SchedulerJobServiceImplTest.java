@@ -196,7 +196,6 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void updateSchedulerDataForUserAndExploratoryWithEnrichingSchedulerJob() {
-		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
 		schedulerJobDTO.setBeginDate(null);
 		schedulerJobDTO.setTimeZoneOffset(null);
 		userInstance.withStatus("running");
@@ -204,13 +203,11 @@ public class SchedulerJobServiceImplTest {
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getDaysRepeat().isEmpty());
 		assertTrue(schedulerJobDTO.getBeginDate() == null);
 		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
 
 		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
-		assertArrayEquals(DayOfWeek.values(), schedulerJobDTO.getDaysRepeat().toArray());
 		assertEquals(LocalDate.now(), schedulerJobDTO.getBeginDate());
 		assertEquals(OffsetDateTime.now(ZoneId.systemDefault()).getOffset(), schedulerJobDTO.getTimeZoneOffset());
 
@@ -277,7 +274,6 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void updateSchedulerDataForComputationalResourceWithEnrichingSchedulerJob() {
-		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
 		schedulerJobDTO.setBeginDate(null);
 		schedulerJobDTO.setTimeZoneOffset(null);
 		userInstance.withStatus("running");
@@ -287,14 +283,12 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getDaysRepeat().isEmpty());
 		assertTrue(schedulerJobDTO.getBeginDate() == null);
 		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
 
 		schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
 
-		assertArrayEquals(DayOfWeek.values(), schedulerJobDTO.getDaysRepeat().toArray());
 		assertEquals(LocalDate.now(), schedulerJobDTO.getBeginDate());
 		assertEquals(OffsetDateTime.now(ZoneId.systemDefault()).getOffset(), schedulerJobDTO.getTimeZoneOffset());
 

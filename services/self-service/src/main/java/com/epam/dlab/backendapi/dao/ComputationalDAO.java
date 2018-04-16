@@ -310,7 +310,8 @@ public class ComputationalDAO extends BaseDAO {
 
 	public UpdateResult updateSchedulerDataForComputationalResource(String user, String exploratoryName,
 																	String computationalName, SchedulerJobDTO dto) {
-		return updateComputationalField(user, exploratoryName, computationalName, SCHEDULER_DATA, convertToBson(dto));
+		return updateComputationalField(user, exploratoryName, computationalName, SCHEDULER_DATA,
+				Objects.isNull(dto) ? null : convertToBson(dto));
 	}
 
 	/**
