@@ -168,6 +168,22 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	public void updateSchedulerDataForUserAndExploratoryWhenSchedulerIsNull() {
+		userInstance.withStatus("running");
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
+				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
+
+		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
+		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
+		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, null);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
 	public void updateSchedulerDataForUserAndExploratoryWhenMethodFetchExploratoryFieldsThrowsException() {
 		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
 				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
@@ -196,7 +212,6 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void updateSchedulerDataForUserAndExploratoryWithEnrichingSchedulerJob() {
-		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
 		schedulerJobDTO.setBeginDate(null);
 		schedulerJobDTO.setTimeZoneOffset(null);
 		userInstance.withStatus("running");
@@ -204,13 +219,11 @@ public class SchedulerJobServiceImplTest {
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getDaysRepeat().isEmpty());
 		assertTrue(schedulerJobDTO.getBeginDate() == null);
 		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
 
 		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
-		assertArrayEquals(DayOfWeek.values(), schedulerJobDTO.getDaysRepeat().toArray());
 		assertEquals(LocalDate.now(), schedulerJobDTO.getBeginDate());
 		assertEquals(OffsetDateTime.now(ZoneId.systemDefault()).getOffset(), schedulerJobDTO.getTimeZoneOffset());
 
@@ -235,6 +248,27 @@ public class SchedulerJobServiceImplTest {
 		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verify(computationalDAO).updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
 				COMPUTATIONAL_NAME, schedulerJobDTO);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void updateSchedulerDataForComputationalResourceWhenSchedulerIsNull() {
+		userInstance.withStatus("running");
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString()))
+				.thenReturn(userInstance.getResources().get(0));
+		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
+				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
+
+		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
+		schedulerJobDTO.setDaysRepeat(null);
+		schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
+				schedulerJobDTO);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
+		verify(computationalDAO).updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
+				COMPUTATIONAL_NAME, null);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 
@@ -277,7 +311,6 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void updateSchedulerDataForComputationalResourceWithEnrichingSchedulerJob() {
-		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
 		schedulerJobDTO.setBeginDate(null);
 		schedulerJobDTO.setTimeZoneOffset(null);
 		userInstance.withStatus("running");
@@ -287,14 +320,12 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getDaysRepeat().isEmpty());
 		assertTrue(schedulerJobDTO.getBeginDate() == null);
 		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
 
 		schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
 
-		assertArrayEquals(DayOfWeek.values(), schedulerJobDTO.getDaysRepeat().toArray());
 		assertEquals(LocalDate.now(), schedulerJobDTO.getBeginDate());
 		assertEquals(OffsetDateTime.now(ZoneId.systemDefault()).getOffset(), schedulerJobDTO.getTimeZoneOffset());
 
@@ -400,7 +431,7 @@ public class SchedulerJobServiceImplTest {
 		schedulerJobDTO.setStartTime(LocalTime.now().minusHours(1));
 		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), anyBoolean()))
 				.thenReturn(Collections.singletonList(new SchedulerJobData(USER, EXPLORATORY_NAME,
-				COMPUTATIONAL_NAME, schedulerJobDTO)));
+						COMPUTATIONAL_NAME, schedulerJobDTO)));
 		when(systemUserService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn("someUuid");
 
