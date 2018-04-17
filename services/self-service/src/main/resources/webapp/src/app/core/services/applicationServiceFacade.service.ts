@@ -182,6 +182,20 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildStopSparkClusterAction(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildStartSparkClusterAction(params): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + params,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildGetUserPreferences(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
