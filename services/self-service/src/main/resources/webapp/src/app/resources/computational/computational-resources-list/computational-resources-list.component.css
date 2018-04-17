@@ -28,7 +28,7 @@ limitations under the License.
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-left: 53px;
+  margin-left: 5px;
 }
 
 .resource_wrap {
