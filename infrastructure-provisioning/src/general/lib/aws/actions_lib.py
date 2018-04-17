@@ -1065,8 +1065,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
         if region == 'cn-north-1':
-            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip --no-cache-dir'.format(
-                python_version, python_version[0:3]))
+            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip=={} --no-cache-dir'.format(
+                python_version, python_version[0:3], os.environ['conf_pip_version']))
             local('sudo mv /etc/pip.conf /etc/back_pip.conf')
             local('sudo touch /etc/pip.conf')
             local('sudo echo "[global]" >> /etc/pip.conf')
@@ -1077,7 +1077,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         if region == 'cn-north-1':
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip --no-cache-dir'.format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip=={1} --no-cache-dir'.format(pip_mirror, os.environ['conf_pip_version']))
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
                       format(pip_mirror))
@@ -1100,7 +1100,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 local('sudo rm -rf /opt/python/python{}/'.format(python_version))
                 sys.exit(1)
         else:
-            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
                   ' install boto boto3 NumPy SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir')

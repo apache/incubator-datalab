@@ -35,7 +35,7 @@ def ensure_pip(requisites):
         if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
-            sudo('pip install -U pip --no-cache-dir')
+            sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
         return True
@@ -53,9 +53,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
-        sudo('{} install -U pip setuptools'.format(pip_version))
-        sudo('{} install -U pip --no-cache-dir'.format(pip_version))
-        sudo('{} install --upgrade pip'.format(pip_version))
+        sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")

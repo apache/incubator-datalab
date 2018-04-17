@@ -26,7 +26,7 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install any python dependencies
-RUN pip install -U pip && \
+RUN pip install -UI pip==9.0.3 && \
     pip install fabric fabvenv argparse ujson jupyter pycrypto azure==2.0.0 azure-mgmt-authorization pyyaml
 
 # Configuring ssh for user
