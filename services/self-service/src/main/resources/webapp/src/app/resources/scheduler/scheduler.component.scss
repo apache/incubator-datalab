@@ -26,6 +26,27 @@ limitations under the License.
       width: 50%;
       padding: 5px 10px;
       transition: all 0.4s ease-out;
+      &.Sunday {
+        order: 0;
+      }
+      &.Monday {
+        order: 1;
+      }
+      &.Tuesday {
+        order: 5;
+      }
+      &.Wednesday {
+        order: 6;
+      }
+      &.Thursday {
+        order: 0;
+      }
+      &.Friday {
+        order: 1;
+      }
+      &.Saturday {
+        order: 5;
+      }
       &:hover {
         color: #35afd5;
       }
