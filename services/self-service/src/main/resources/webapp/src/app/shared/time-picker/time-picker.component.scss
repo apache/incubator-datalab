@@ -69,6 +69,9 @@ limitations under the License.
   margin: -24px;
   padding: 0;
 }
+.timepicker-dialog .mat-button-ripple.mat-button-ripple-round.mat-ripple {
+  border-radius: 50%;
+}
 
 .time-cover {
   max-height: 100%;

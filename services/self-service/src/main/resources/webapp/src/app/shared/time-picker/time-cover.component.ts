@@ -40,8 +40,8 @@ type TimeFormatAlias = TimeFormat;
       <div class="cover-block">
         <ticker class="animation" [pickTime]="pickTime" (pickTimeChange)="emitpickTimeSelection($event)" [(currentTemplate)]="currentTemplate" (viewChange)="setCurrentTemplate($event)"></ticker>
         <div class="actions">
-          <button mat-raised-button (click)="revert()">Cancel</button>
-          <button mat-raised-button class="butt-success" (click)="assignTime()">Assign</button>
+          <button mat-raised-button class="butt mini" (click)="revert()">Cancel</button>
+          <button mat-raised-button class="butt mini butt-success" (click)="assignTime()">Assign</button>
         </div>
       </div>
     </div>`,

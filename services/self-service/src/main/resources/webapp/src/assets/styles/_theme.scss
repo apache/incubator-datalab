@@ -25,6 +25,9 @@ limitations under the License.
   font: 600 16px/1.45 'Open Sans';
   color: #577289;
 }
+.mat-raised-button.butt.mini {
+  width: 80px;
+}
 
 .mat-raised-button.butt i,
 .mat-raised-button.butt span i {
@@ -36,6 +39,10 @@ limitations under the License.
   background-color: #49af38;
   margin-left: 15px;
   color: #fff;
+}
+.mat-raised-button.butt.butt-success.mini {
+  margin-left: 5px;
+  width: 80px;
 }
 
 .mat-raised-button.butt:disabled {
@@ -50,7 +57,7 @@ limitations under the License.
 .mat-button-ripple.mat-button-ripple-round.mat-ripple {
   border-radius: 0;
 }
-.scheduler-dialog .mat-button-ripple.mat-button-ripple-round.mat-ripple {
+.ticker-wrap .mat-button-ripple.mat-button-ripple-round.mat-ripple {
   border-radius: 50%;
 }
 
