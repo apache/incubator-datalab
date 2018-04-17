@@ -1,0 +1,7 @@
+{
+    "conf_resource": "dataengine",
+    "request_id":"RID",
+    "edge_user_name":"EUN",
+    "exploratory_name":"EXN",
+    "computational_name": "CNAM"
+}

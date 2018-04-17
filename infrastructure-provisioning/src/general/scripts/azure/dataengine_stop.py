@@ -26,30 +26,13 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
 import uuid
-import argparse
-import sys
 
 
-def stop_notebook(resource_group_name, notebook_name):
+def stop_data_engine(resource_group_name, cluster_name):
     print("Stopping data engine cluster")
-    cluster_list = []
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            try:
-                if notebook_name == vm.tags['notebook_name']:
-                    if 'master' == vm.tags["Type"]:
-                        cluster_list.append(vm.tags["Name"])
-                    AzureActions().stop_instance(resource_group_name, vm.name)
-                    print("Instance {} has been stopped".format(vm.name))
-            except:
-                pass
-    except:
-        sys.exit(1)
-
-    print("Stopping notebook")
-    try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if notebook_name == vm.tags["Name"]:
+            if cluster_name == vm.tags["Name"]:
                 AzureActions().stop_instance(resource_group_name, vm.name)
                 print("Instance {} has been stopped".format(vm.name))
     except:
@@ -63,37 +46,42 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-
     # generating variables dictionary
     print('Generating infrastructure names and tags')
-    notebook_config = dict()
+    data_engine = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
+        data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
     except:
-        notebook_config['exploratory_name'] = ''
+        data_engine['exploratory_name'] = ''
     try:
-        notebook_config['computational_name'] = os.environ['computational_name'].replace('_', '-')
+        data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
     except:
-        notebook_config['computational_name'] = ''
-    notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
-    notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-
-    logging.info('[STOP NOTEBOOK]')
-    print('[STOP NOTEBOOK]')
+        data_engine['computational_name'] = ''
+    data_engine['service_base_name'] = os.environ['conf_service_base_name']
+    data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+    data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
+    data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
+                                                          data_engine['user_name'],
+                                                          data_engine['exploratory_name'],
+                                                          data_engine['computational_name'])
     try:
-        stop_notebook(notebook_config['resource_group_name'], notebook_config['notebook_name'])
-    except Exception as err:
-        append_result("Failed to stop notebook.", str(err))
+        logging.info('[STOPPING DATA ENGINE]')
+        print('[STOPPING DATA ENGINE]')
+        try:
+            stop_data_engine(data_engine['resource_group_name'], data_engine['cluster_name'])
+        except Exception as err:
+            traceback.print_exc()
+            append_result("Failed to stop Data Engine.", str(err))
+            raise Exception
+    except:
         sys.exit(1)
-
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"notebook_name": notebook_config['notebook_name'],
-                   "Action": "Stop notebook server"}
+            res = {"service_base_name": data_engine['service_base_name'],
+                   "Action": "Stop Data Engine"}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:
         print("Failed writing results.")
         sys.exit(0)
-
