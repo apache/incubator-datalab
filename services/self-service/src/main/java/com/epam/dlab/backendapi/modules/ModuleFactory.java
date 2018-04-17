@@ -32,8 +32,7 @@ public class ModuleFactory {
     /**
      * Instantiates an application configuration of SelfService for production or tests if
 	 * the mock property of configuration is set to <b>true</b> and method
-	 * {@link ServiceConfiguration#isDevMode()}
-     * returns <b>true</b> value.
+	 * {@link ServiceConfiguration#isDevMode()} returns <b>true</b> value.
      *
      * @param configuration application configuration of SelfService.
      * @param environment   environment of SelfService.

@@ -23,22 +23,22 @@ public class MongoCollections {
 	/** Environment settings. */
 	public static final String SETTINGS = "settings";
     /** Attempts of the user login into DLab. */
-	public static final String LOGIN_ATTEMPTS = "loginAttempts";
+	static final String LOGIN_ATTEMPTS = "loginAttempts";
     /** Attempts the actions of docker. */
 	static final String DOCKER_ATTEMPTS = "dockerAttempts";
     /** User keys and credentials. */
-	public static final String USER_KEYS = "userKeys";
+	static final String USER_KEYS = "userKeys";
     /** User AWS credentials. */
 	public static final String USER_EDGE = "userCloudCredentials";
     /** Instances of user. */
 	public static final String USER_INSTANCES = "userInstances";
     /** Name of shapes. */
 	public static final String SHAPES = "shapes";
-	public static final String USER_UI_SETTINGS = "userUISettings";
+	static final String USER_UI_SETTINGS = "userUISettings";
     /* Billing data. */
 	public static final String BILLING = "billing";
     /** User roles. */
-	public static final String ROLES = "roles";
+	static final String ROLES = "roles";
     /** GIT credentials of user. */
 	public static final String GIT_CREDS = "gitCreds";
     /** RequestId */
