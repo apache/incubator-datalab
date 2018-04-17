@@ -35,6 +35,7 @@ export class ConfirmationComputationalResourcesComponent implements OnInit {
   processError: boolean = false;
   tooltip: boolean = false;
   errorMessage: string = '';
+  action: string = '';
 
   @ViewChild('bindDialog') bindDialog;
   @Output() rebuildGrid: EventEmitter<{}> = new EventEmitter();
@@ -47,8 +48,9 @@ export class ConfirmationComputationalResourcesComponent implements OnInit {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  public open(option, notebook, resource) {
+  public open(option, notebook, resource, action) {
     this.tooltip = false;
+    this.action = action;
     this.model = new ComputationalResourcesModel(notebook, resource,
       (response: Response) => {
         this.close();

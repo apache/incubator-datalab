@@ -50,8 +50,16 @@ export class ComputationalResourcesModel {
     if (this.resource)
       this.computationalName = this.resource.computational_name;
 
-    this.confirmAction = () => this.userResourceService
-      .suspendComputationalResource(notebook.name, resource.computational_name)
-      .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
+    this.confirmAction = (action) => {
+      if (action === 'stop') {
+        this.userResourceService
+          .toggleStopStartAction(notebook.name, resource.computational_name, 'stop')
+          .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
+      } else if (action === 'terminate') {
+        this.userResourceService
+          .suspendComputationalResource(notebook.name, resource.computational_name)
+          .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
+      }
+    }
   };
 }
