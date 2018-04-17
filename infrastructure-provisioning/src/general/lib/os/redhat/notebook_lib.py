@@ -214,7 +214,7 @@ def ensure_python3_libraries(os_user):
         try:
             sudo('yum -y install https://centos7.iuscommunity.org/ius-release.rpm')
             sudo('yum install -y python35u python35u-pip python35u-devel')
-            sudo('python3.5 -m pip install -U pip setuptools --no-cache-dir')
+            sudo('python3.5 -m pip install -U pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
             try:
@@ -242,7 +242,7 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip wheel numpy --no-cache-dir')
+            sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy --no-cache-dir'. format(os.environ['conf_pip_version']))
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
             sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
             sudo('mv /usr/local/cuda-8.0 /opt/')

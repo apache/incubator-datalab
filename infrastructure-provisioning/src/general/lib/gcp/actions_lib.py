@@ -1037,7 +1037,7 @@ class GCPActions:
                 local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
                 venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
-                local('{0} && sudo -i {1} install -U pip'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install -U pip=={2}'.format(venv_command, pip_command, os.environ['conf_pip_version']))
                 local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
                       .format(venv_command, pip_command))
