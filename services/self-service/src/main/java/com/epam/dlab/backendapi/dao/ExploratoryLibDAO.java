@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;

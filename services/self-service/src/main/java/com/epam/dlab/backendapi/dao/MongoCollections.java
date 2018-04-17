@@ -19,34 +19,37 @@ limitations under the License.
 package com.epam.dlab.backendapi.dao;
 
 /** Names of Mongo collections. */
-public interface MongoCollections {
+public class MongoCollections {
 	/** Environment settings. */
-    String SETTINGS = "settings";
+	public static final String SETTINGS = "settings";
     /** Attempts of the user login into DLab. */
-    String LOGIN_ATTEMPTS = "loginAttempts";
+	static final String LOGIN_ATTEMPTS = "loginAttempts";
     /** Attempts the actions of docker. */
-    String DOCKER_ATTEMPTS = "dockerAttempts";
+	static final String DOCKER_ATTEMPTS = "dockerAttempts";
     /** User keys and credentials. */
-    String USER_KEYS = "userKeys";
+	static final String USER_KEYS = "userKeys";
     /** User AWS credentials. */
-    String USER_EDGE = "userCloudCredentials";
+	public static final String USER_EDGE = "userCloudCredentials";
     /** Instances of user. */
-    String USER_INSTANCES = "userInstances";
+	public static final String USER_INSTANCES = "userInstances";
     /** Name of shapes. */
-    String SHAPES = "shapes";
-    String USER_UI_SETTINGS = "userUISettings";
+	public static final String SHAPES = "shapes";
+	static final String USER_UI_SETTINGS = "userUISettings";
     /* Billing data. */
-    String BILLING = "billing";
+	public static final String BILLING = "billing";
     /** User roles. */
-    String ROLES = "roles";
+	static final String ROLES = "roles";
     /** GIT credentials of user. */
-    String GIT_CREDS = "gitCreds";
+	public static final String GIT_CREDS = "gitCreds";
     /** RequestId */
-    String REQUEST_ID = "requestId";
+	static final String REQUEST_ID = "requestId";
     /** Images */
-    String IMAGES = "images";
+	public static final String IMAGES = "images";
 	/**
 	 * Backup
 	 */
-    String BACKUPS = "backup";
+	public static final String BACKUPS = "backup";
+
+	private MongoCollections() {
+	}
 }

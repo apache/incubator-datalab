@@ -49,6 +49,8 @@ import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.KeyDAO.EDGE_STATUS;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
@@ -155,9 +157,9 @@ public class EnvStatusDAO extends BaseDAO {
 
 	public Set<String> fetchActiveEnvUsers() {
 		return Stream.concat(
-				stream(find(MongoCollections.USER_INSTANCES, eq(STATUS, UserInstanceStatus.RUNNING.toString()),
+				stream(find(USER_INSTANCES, eq(STATUS, UserInstanceStatus.RUNNING.toString()),
 						fields(include(USER), excludeId()))).map(d -> d.getString(USER)),
-				stream(find(MongoCollections.USER_EDGE, eq(EDGE_STATUS, UserInstanceStatus.RUNNING.toString()),
+				stream(find(USER_EDGE, eq(EDGE_STATUS, UserInstanceStatus.RUNNING.toString()),
 						fields(include(ID)))).map(d -> d.getString(ID))
 		).collect(Collectors.toSet());
 	}

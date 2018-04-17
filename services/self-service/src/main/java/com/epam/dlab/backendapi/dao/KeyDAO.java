@@ -29,6 +29,8 @@ import org.bson.Document;
 import java.util.Date;
 import java.util.Optional;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_KEYS;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;

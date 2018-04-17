@@ -25,6 +25,8 @@ import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
 import org.bson.Document;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.LOGIN_ATTEMPTS;
+import static com.epam.dlab.backendapi.dao.MongoCollections.ROLES;
 import static com.mongodb.client.model.Filters.ne;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.fields;

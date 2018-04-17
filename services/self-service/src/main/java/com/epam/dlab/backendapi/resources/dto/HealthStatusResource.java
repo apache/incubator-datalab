@@ -74,8 +74,8 @@ public class HealthStatusResource {
     }
 
     /** Set the status of resource. */
-    public HealthStatusResource withStatus(String Status) {
-        setStatus(Status);
+	public HealthStatusResource withStatus(String status) {
+		setStatus(status);
         return this;
     }
 

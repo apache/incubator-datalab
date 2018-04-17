@@ -26,7 +26,9 @@ import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 
 public class GcpSelfServiceModule extends CloudModule {
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public void init(Environment environment, Injector injector) {
 
 		environment.jersey().register(injector.getInstance(EdgeCallbackGcp.class));
