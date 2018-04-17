@@ -27,7 +27,7 @@ import { UserResourceService } from '../../../core/services';
 })
 
 export class ComputationalResourcesListComponent {
-  @ViewChild('terminateConfirmateResource') terminateConfirmateResource;
+  @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailComputationalResource') detailComputationalResource;
   @Input() resources: any[];
   @Input() environment: any[];
@@ -41,12 +41,24 @@ export class ComputationalResourcesListComponent {
     this.collapse = !this.collapse;
   }
 
+  toggleResourceAction(resource, action) {
+    if (action === 'stop') {
+      this.confirmationDialog.open({ isFooter: false }, this.environment, resource, 'stop');
+    } else if ('start') {
+      this.userResourceService
+        .toggleStopStartAction(this.environment['name'], resource.computational_name, 'start')
+        .subscribe(res => {
+          this.rebuildGrid();
+        });
+    }
+  }
+
   rebuildGrid(): void {
     this.buildGrid.emit();
   }
 
   terminateComputationalResources(notebook, resource): void {
-    this.terminateConfirmateResource.open({ isFooter: false }, notebook, resource);
+    this.confirmationDialog.open({ isFooter: false }, notebook, resource, 'terminate');
   };
 
   detailComputationalResources(environment, resource): void {
