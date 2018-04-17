@@ -157,6 +157,9 @@ public class GcpHelper {
 	}
 
 	public static List<String> getAvailableZonesForProject(String projectId) throws IOException {
+		if (ConfigPropertyValue.isRunModeLocal()) {
+			return Collections.emptyList();
+		}
 		List<Zone> zoneList = new ArrayList<>();
 		Compute.Zones.List request = ComputeService.getInstance().zones().list(projectId);
 		ZoneList response;
@@ -179,7 +182,7 @@ public class GcpHelper {
 		}
 
 		static synchronized Compute getInstance() throws IOException {
-			if (instance == null) {
+			if (!ConfigPropertyValue.isRunModeLocal() && instance == null) {
 				try {
 					instance = createComputeService();
 				} catch (GeneralSecurityException e) {
@@ -193,12 +196,11 @@ public class GcpHelper {
 			HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-			GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(ConfigPropertyValue
-					.getGcpAuthFileName()));
+			GoogleCredential credential =
+					GoogleCredential.fromStream(new FileInputStream(ConfigPropertyValue.getGcpAuthFileName()));
 			if (credential.createScopedRequired()) {
-				credential =
-						credential.createScoped(Collections.singletonList("https://www.googleapis" +
-								".com/auth/cloud-platform"));
+				credential = credential.createScoped(
+						Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
 			}
 
 			return new Compute.Builder(httpTransport, jsonFactory, credential)
