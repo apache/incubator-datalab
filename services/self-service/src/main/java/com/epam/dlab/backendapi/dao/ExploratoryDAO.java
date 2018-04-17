@@ -270,11 +270,11 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param dto object of scheduler data.
 	 * @return The result of an update operation.
 	 */
-	public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO
-			dto) {
+	public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName,
+																 SchedulerJobDTO dto) {
 		return updateOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
-				set(SCHEDULER_DATA, convertToBson(dto)));
+				set(SCHEDULER_DATA, Objects.isNull(dto) ? null : convertToBson(dto)));
 	}
 
 	/**

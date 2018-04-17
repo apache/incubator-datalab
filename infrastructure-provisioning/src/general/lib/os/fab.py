@@ -35,7 +35,7 @@ def ensure_pip(requisites):
         if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
-            sudo('pip install -U pip --no-cache-dir')
+            sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
         return True
@@ -53,9 +53,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
-        sudo('{} install -U pip setuptools'.format(pip_version))
-        sudo('{} install -U pip --no-cache-dir'.format(pip_version))
-        sudo('{} install --upgrade pip'.format(pip_version))
+        sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
@@ -261,7 +261,9 @@ def install_r_pkg(requisites):
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires"
     try:
         for r_pkg in requisites:
-            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\'  2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            if r_pkg == 'sparklyr':
+                run('sudo -i R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
@@ -451,6 +453,7 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
     sudo("systemctl daemon-reload")
     sudo("systemctl restart zeppelin-notebook")
 
+
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         with settings(host_string='{}@{}'.format(os_user, hostname)):
@@ -466,6 +469,7 @@ def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     except Exception as err:
         print('Error:', str(err))
         return err
+
 
 def replace_multi_symbols(string, symbol, symbol_cut=False):
     try:

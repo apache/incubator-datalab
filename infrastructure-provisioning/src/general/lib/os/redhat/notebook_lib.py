@@ -201,7 +201,7 @@ def ensure_python2_libraries(os_user):
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('echo y | python2 -m pip uninstall backports.shutil_get_terminal_size')
             sudo('python2 -m pip install backports.shutil_get_terminal_size --no-cache-dir')
-            sudo('pip2 install -U pip setuptools --no-cache-dir')
+            sudo('pip2 install -UI pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
@@ -214,7 +214,7 @@ def ensure_python3_libraries(os_user):
         try:
             sudo('yum -y install https://centos7.iuscommunity.org/ius-release.rpm')
             sudo('yum install -y python35u python35u-pip python35u-devel')
-            sudo('python3.5 -m pip install -U pip setuptools --no-cache-dir')
+            sudo('python3.5 -m pip install -U pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
             try:
@@ -242,7 +242,7 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip wheel numpy --no-cache-dir')
+            sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy --no-cache-dir'. format(os.environ['conf_pip_version']))
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
             sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
             sudo('mv /usr/local/cuda-8.0 /opt/')
@@ -313,6 +313,24 @@ def install_nodejs(os_user):
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 
+def add_cetnos_repo():
+    try:
+       put('/root/templates/CentOS.repo', '/tmp/CentOS.repo')
+       sudo('cp /tmp/CentOS.repo /etc/yum.repos.d/')
+    except:
+        sys.exit(1)
+
+
+def downgrade_python_version():
+    try:
+       sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
+        version = [pkg.vr for pkg in pl.installed if pkg.name == \'python\']; \
+        os.system(\'yum -y downgrade python python-devel-2.7.5-58.el7.x86_64 python-libs-2.7.5-58.el7.x86_64\') \
+        if version[0] == \'2.7.5-68.el7\' else False"')
+    except:
+        sys.exit(1)
+
+
 def install_os_pkg(requisites):
     status = list()
     error_parser = "Could not|No matching|Error:|failed|Requires:|Errno"
@@ -321,6 +339,8 @@ def install_os_pkg(requisites):
         sudo('yum update-minimal --security -y --skip-broken')
         sudo('export LC_ALL=C')
         for os_pkg in requisites:
+            if os_pkg == 'tkinter':
+                downgrade_python_version()
             sudo('yum -y install {0} --nogpgcheck 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
             try:
@@ -343,6 +363,7 @@ def remove_os_pkg(pkgs):
 
 def get_available_os_pkgs():
     try:
+        add_cetnos_repo()
         sudo('yum update-minimal --security -y --skip-broken')
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
         yum_list = yum_raw.split('\r\n')[1].replace("'","\"")

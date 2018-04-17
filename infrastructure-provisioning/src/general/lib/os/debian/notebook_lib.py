@@ -208,7 +208,7 @@ def ensure_python2_libraries(os_user):
             except:
                 sudo('pip2 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            sudo('pip2 install -U pip --no-cache-dir')
+            sudo('pip2 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
@@ -227,7 +227,7 @@ def ensure_python3_libraries(os_user):
             except:
                 sudo('pip3 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            sudo('pip3 install -U pip --no-cache-dir')
+            sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')

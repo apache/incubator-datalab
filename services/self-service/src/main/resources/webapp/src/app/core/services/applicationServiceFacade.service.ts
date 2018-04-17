@@ -112,6 +112,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildReuploadUserAccessKeyRequest(body: any, option: string): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY) + option,
+      body,
+      this.getRequestOptions(false, true));
+  }
+
   public buildGetUserProvisionedResourcesRequest(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.PROVISIONED_RESOURCES),

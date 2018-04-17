@@ -95,7 +95,7 @@ public class UserRoles {
 	public static boolean isAdmin(UserInfo userInfo) {
 		final List<UserRole> roles = UserRoles.getRoles();
 		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
-				userRoles.hasAccessByGroup(userInfo, r) || userRoles.hasAccessByUserName(userInfo, r));
+				(userRoles.hasAccessByGroup(userInfo, r) || userRoles.hasAccessByUserName(userInfo, r)));
 	}
 
 	/**

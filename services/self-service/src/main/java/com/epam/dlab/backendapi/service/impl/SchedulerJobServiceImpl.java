@@ -38,7 +38,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -100,9 +103,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	public void updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO dto) {
 		checkExploratoryStatusOrElseThrowException(user, exploratoryName);
 		enrichSchedulerJobIfNecessary(dto);
-		log.debug("Updating exploratory {} for user {} with new scheduler job data {}...",
-				exploratoryName, user, dto);
-		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, dto);
+		log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...",
+				exploratoryName, user, nullableJobDto(dto));
+		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, nullableJobDto(dto));
 	}
 
 	@Override
@@ -112,9 +115,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		checkComputationalStatusOrElseThrowException(user, exploratoryName, computationalName);
 		enrichSchedulerJobIfNecessary(dto);
 		log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new scheduler " +
-				"job data {}...", computationalName, exploratoryName, user, dto);
-		computationalDAO.updateSchedulerDataForComputationalResource(user, exploratoryName, computationalName, dto);
-
+				"job data {}...", computationalName, exploratoryName, user, nullableJobDto(dto));
+		computationalDAO.updateSchedulerDataForComputationalResource(user, exploratoryName, computationalName,
+				nullableJobDto(dto));
 	}
 
 	@Override
@@ -316,7 +319,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	/**
 	 * Enriches existing scheduler job with the following data:
 	 * - sets current date as 'beginDate' if this parameter wasn't defined;
-	 * - sets repeating days of existing scheduler job to all days of week if this parameter wasn't defined;
 	 * - sets current system time zone offset as 'timeZoneOffset' if this parameter wasn't defined.
 	 *
 	 * @param dto current scheduler job
@@ -324,9 +326,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private void enrichSchedulerJobIfNecessary(SchedulerJobDTO dto) {
 		if (Objects.isNull(dto.getBeginDate()) || StringUtils.isBlank(dto.getBeginDate().toString())) {
 			dto.setBeginDate(LocalDate.now());
-		}
-		if (Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty()) {
-			dto.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
 		}
 		if (Objects.isNull(dto.getTimeZoneOffset()) || StringUtils.isBlank(dto.getTimeZoneOffset().toString())) {
 			dto.setTimeZoneOffset(OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
@@ -398,6 +397,10 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		} else if (desiredStatus == TERMINATED) {
 			return dto.getTerminateDateTime().toLocalTime();
 		} else return null;
+	}
+
+	private SchedulerJobDTO nullableJobDto(SchedulerJobDTO dto) {
+		return Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty() ? null : dto;
 	}
 }
 
