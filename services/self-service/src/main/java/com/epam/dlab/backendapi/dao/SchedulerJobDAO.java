@@ -38,6 +38,7 @@ import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 

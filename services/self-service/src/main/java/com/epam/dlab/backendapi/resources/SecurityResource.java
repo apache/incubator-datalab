@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.MongoCollections;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -53,7 +52,7 @@ import javax.ws.rs.core.Response.Status;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class SecurityResource implements MongoCollections, SecurityAPI {
+public class SecurityResource implements SecurityAPI {
 
     @Inject
     private SecurityDAO dao;

@@ -18,15 +18,15 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-
+import com.epam.dlab.auth.UserInfo;
+import io.dropwizard.auth.Auth;
 import org.bson.Document;
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.epam.dlab.auth.UserInfo;
-import io.dropwizard.auth.Auth;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_UI_SETTINGS;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.set;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /** DAO for the user preferences.
  */
