@@ -27,7 +27,6 @@ COPY general/scripts/aws/deeplearning_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
-COPY general/templates/os/${OS}/CentOS.repo /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
