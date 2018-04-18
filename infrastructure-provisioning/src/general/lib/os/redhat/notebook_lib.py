@@ -313,14 +313,6 @@ def install_nodejs(os_user):
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 
-def add_cetnos_repo():
-    try:
-       put('/root/templates/CentOS.repo', '/tmp/CentOS.repo')
-       sudo('cp /tmp/CentOS.repo /etc/yum.repos.d/')
-    except:
-        sys.exit(1)
-
-
 def downgrade_python_version():
     try:
        sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
@@ -363,7 +355,6 @@ def remove_os_pkg(pkgs):
 
 def get_available_os_pkgs():
     try:
-        add_cetnos_repo()
         sudo('yum update-minimal --security -y --skip-broken')
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
         yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
