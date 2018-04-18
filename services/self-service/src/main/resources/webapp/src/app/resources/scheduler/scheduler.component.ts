@@ -121,8 +121,8 @@ export class SchedulerComponent implements OnInit {
   public scheduleInstance_btnClick(data) {
     const selectedDays = Object.keys(this.selectedWeekDays);
     const parameters = {
-      begin_date: _moment(data.startDate).format(this.date_format),
-      finish_date: _moment(data.finishDate).format(this.date_format),
+      begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
+      finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
       start_time: this.convertTimeFormat(this.startTime),
       end_time: this.convertTimeFormat(this.endTime),
       days_repeat: selectedDays.filter(el => Boolean(this.selectedWeekDays[el])).map(day => day.toUpperCase()),
@@ -145,7 +145,7 @@ export class SchedulerComponent implements OnInit {
     this.notebook.type = 'EXPLORATORY';
     this.notebook.title = `${ this.notebook.name } <em>notebook</em>`;
     return [this.notebook].concat(this.notebook.resources
-      .filter(item => item.status === 'running')
+      .filter(item => item.status === 'running' && item.image === 'docker.dlab-dataengine')
       .map(item => {
         item['name'] = item.computational_name;
         item['title'] = `${ item.computational_name } <em>cluster</em>`;
@@ -156,8 +156,8 @@ export class SchedulerComponent implements OnInit {
 
   private formInit(start?, end?) {
     this.schedulerForm = this.formBuilder.group({
-      startDate: start ? _moment(start).format() : _moment(new Date()).format(),
-      finishDate: end ? _moment(end).format() : _moment(new Date()).add(1, 'days').format()
+      startDate: [start ? _moment(start).format() : null],
+      finishDate: [end ? _moment(end).format() : null]
     });
   }
 
