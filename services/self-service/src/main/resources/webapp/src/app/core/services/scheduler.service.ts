@@ -31,14 +31,22 @@ export class SchedulerService {
     return this.applicationServiceFacade
       .buildGetExploratorySchedule(param)
       .map((response: Response) => response.json())
-      .catch((error: any) => error);
+      .catch((error: Response | any) => {
+        return Observable.throw(
+            new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
+        );
+    });
   }
 
-  public setExploratorySchedule(notebook, data, resource?): Observable<any> {
+  public setExploratorySchedule(notebook, data, resource?): Observable<Response> {
     const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
     return this.applicationServiceFacade
       .buildSetExploratorySchedule(param, data)
       .map((response: Response) => response)
-      .catch((error: any) => error);
+      .catch((error: Response | any) => {
+        return Observable.throw(
+            new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
+        );
+    });
   }
 }
