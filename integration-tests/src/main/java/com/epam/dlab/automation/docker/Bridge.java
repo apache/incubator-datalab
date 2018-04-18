@@ -23,113 +23,137 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Bridge {
-    
-    @JsonProperty
-    private Object IPAMConfig;
-    
-    @JsonProperty
-    private Object Links;
-    
-    @JsonProperty
-    private Object Aliases;
-    
-    @JsonProperty
-    private String NetworkID;
-    
-    @JsonProperty
-    private String EndpointID;
-    
-    @JsonProperty
-    private String Gateway;
-    
-    @JsonProperty
-    private String IPAddress;
-    
-    @JsonProperty
-    private int IPPrefixLen;
-    
-    @JsonProperty
-    private String IPv6Gateway;
-    
-    @JsonProperty
-    private String GlobalIPv6Address;
-    
-    @JsonProperty
-    private int GlobalIPv6PrefixLen;
-    
-    @JsonProperty
-    private String MacAddress;
-    
-    public Object getIPAMConfig() {
-        return IPAMConfig;
-    }
-    public void setIPAMConfig(Object iPAMConfig) {
-        IPAMConfig = iPAMConfig;
-    }
-    public Object getLinks() {
-        return Links;
-    }
-    public void setLinks(Object links) {
-        Links = links;
-    }
-    public Object getAliases() {
-        return Aliases;
-    }
-    public void setAliases(Object aliases) {
-        Aliases = aliases;
-    }
-    public String getNetworkID() {
-        return NetworkID;
-    }
-    public void setNetworkID(String networkID) {
-        NetworkID = networkID;
-    }
-    public String getEndpointID() {
-        return EndpointID;
-    }
-    public void setEndpointID(String endpointID) {
-        EndpointID = endpointID;
-    }
-    public String getGateway() {
-        return Gateway;
-    }
-    public void setGateway(String gateway) {
-        Gateway = gateway;
-    }
-    public String getIPAddress() {
-        return IPAddress;
-    }
-    public void setIPAddress(String iPAddress) {
-        IPAddress = iPAddress;
-    }
-    public int getIPPrefixLen() {
-        return IPPrefixLen;
-    }
-    public void setIPPrefixLen(int iPPrefixLen) {
-        IPPrefixLen = iPPrefixLen;
-    }
-    public String getIPv6Gateway() {
-        return IPv6Gateway;
-    }
-    public void setIPv6Gateway(String iPv6Gateway) {
-        IPv6Gateway = iPv6Gateway;
-    }
-    public String getGlobalIPv6Address() {
-        return GlobalIPv6Address;
-    }
-    public void setGlobalIPv6Address(String globalIPv6Address) {
-        GlobalIPv6Address = globalIPv6Address;
-    }
-    public int getGlobalIPv6PrefixLen() {
-        return GlobalIPv6PrefixLen;
-    }
-    public void setGlobalIPv6PrefixLen(int globalIPv6PrefixLen) {
-        GlobalIPv6PrefixLen = globalIPv6PrefixLen;
-    }
-    public String getMacAddress() {
-        return MacAddress;
-    }
-    public void setMacAddress(String macAddress) {
-        MacAddress = macAddress;
-    }
+
+	@JsonProperty("IPAMConfig")
+	private Object ipamConfig;
+
+	@JsonProperty("Links")
+	private Object links;
+
+	@JsonProperty("Aliases")
+	private Object aliases;
+
+	@JsonProperty("NetworkID")
+	private String networkId;
+
+	@JsonProperty("EndpointID")
+	private String endpointId;
+
+	@JsonProperty("Gateway")
+	private String gateway;
+
+	@JsonProperty("IPAddress")
+	private String ipAddress;
+
+	@JsonProperty("IPPrefixLen")
+	private int ipPrefixLen;
+
+	@JsonProperty("IPv6Gateway")
+	private String ipv6Gateway;
+
+	@JsonProperty("GlobalIPv6Address")
+	private String globalIpv6Address;
+
+	@JsonProperty("GlobalIPv6PrefixLen")
+	private int globalIpv6PrefixLen;
+
+	@JsonProperty("MacAddress")
+	private String macAddress;
+
+
+	public Object getIpamConfig() {
+		return ipamConfig;
+	}
+
+	public void setIpamConfig(Object ipamConfig) {
+		this.ipamConfig = ipamConfig;
+	}
+
+	public Object getLinks() {
+		return links;
+	}
+
+	public void setLinks(Object links) {
+		this.links = links;
+	}
+
+	public Object getAliases() {
+		return aliases;
+	}
+
+	public void setAliases(Object aliases) {
+		this.aliases = aliases;
+	}
+
+	public String getNetworkId() {
+		return networkId;
+	}
+
+	public void setNetworkId(String networkId) {
+		this.networkId = networkId;
+	}
+
+	public String getEndpointId() {
+		return endpointId;
+	}
+
+	public void setEndpointId(String endpointId) {
+		this.endpointId = endpointId;
+	}
+
+	public String getGateway() {
+		return gateway;
+	}
+
+	public void setGateway(String gateway) {
+		this.gateway = gateway;
+	}
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public int getIpPrefixLen() {
+		return ipPrefixLen;
+	}
+
+	public void setIpPrefixLen(int ipPrefixLen) {
+		this.ipPrefixLen = ipPrefixLen;
+	}
+
+	public String getIpv6Gateway() {
+		return ipv6Gateway;
+	}
+
+	public void setIpv6Gateway(String ipv6Gateway) {
+		this.ipv6Gateway = ipv6Gateway;
+	}
+
+	public String getGlobalIpv6Address() {
+		return globalIpv6Address;
+	}
+
+	public void setGlobalIpv6Address(String globalIpv6Address) {
+		this.globalIpv6Address = globalIpv6Address;
+	}
+
+	public int getGlobalIpv6PrefixLen() {
+		return globalIpv6PrefixLen;
+	}
+
+	public void setGlobalIpv6PrefixLen(int globalIpv6PrefixLen) {
+		this.globalIpv6PrefixLen = globalIpv6PrefixLen;
+	}
+
+	public String getMacAddress() {
+		return macAddress;
+	}
+
+	public void setMacAddress(String macAddress) {
+		this.macAddress = macAddress;
+	}
 }

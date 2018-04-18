@@ -16,9 +16,11 @@
 
  ****************************************************************************/
 
-package com.epam.dlab.automation.cloud;
+package com.epam.dlab.automation.exceptions;
 
-public class CloudException extends Exception{
+public class CloudException extends RuntimeException {
+
+	private static final long serialVersionUID = 1L;
 
     public CloudException(String message){
         super(message);

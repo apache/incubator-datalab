@@ -21,16 +21,16 @@ package com.epam.dlab.automation.docker;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class HostConfig {
-    
-    @JsonProperty
-    private String NetworkMode;
+
+	@JsonProperty("NetworkMode")
+	private String networkMode;
 
     public String getNetworkMode() {
-        return NetworkMode;
+		return networkMode;
     }
 
     public void setNetworkMode(String networkMode) {
-        this.NetworkMode = networkMode;
+		this.networkMode = networkMode;
     }
 
 }

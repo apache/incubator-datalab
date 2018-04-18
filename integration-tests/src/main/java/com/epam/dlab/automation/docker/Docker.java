@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.docker;
 
+import com.epam.dlab.automation.exceptions.DockerException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +46,7 @@ public class Docker {
     private Docker(){}
 
     public static void checkDockerStatus(String containerName, String ip)
-			throws IOException, InterruptedException, JSchException, DockerException {
+			throws IOException, InterruptedException, JSchException {
         
         LOGGER.info("Check docker status for instance {} and container {}", ip, containerName);
         if (ConfigPropertyValue.isRunModeLocal()) {
@@ -87,8 +88,8 @@ public class Docker {
         return dockerContainerList;
     }
 
-	private static DockerContainer getDockerContainer(List<DockerContainer> dockerContainerList, String containerName)
-			throws DockerException {
+	private static DockerContainer getDockerContainer(List<DockerContainer> dockerContainerList, String
+			containerName) {
 		for (DockerContainer dockerContainer : dockerContainerList) {
 			String name = dockerContainer.getNames().get(0);
 			if (name.contains(containerName)) {

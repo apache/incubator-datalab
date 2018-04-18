@@ -80,6 +80,6 @@ public class CreateNotebookDto {
     }
     
     public CreateNotebookDto(){
-        
+		//This empty constructor is required for proper serialization/deserialization
     }
 }

@@ -25,6 +25,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
 
+import static java.lang.System.err;
+import static java.lang.System.out;
+
 public class SSHConnect {
 	private static final Logger LOGGER = LogManager.getLogger(SSHConnect.class);
 	private static final String LOCALHOST_IP = ConfigPropertyValue.get("LOCALHOST_IP");
@@ -100,8 +103,8 @@ public class SSHConnect {
     }
 
 	public static AckStatus checkAck(ChannelExec channel) throws InterruptedException {
-        channel.setOutputStream(System.out, true);
-    	channel.setErrStream(System.err, true);
+		channel.setOutputStream(out, true);
+		channel.setErrStream(err, true);
 
         int status;
         while(channel.getExitStatus() == -1) {
@@ -113,7 +116,7 @@ public class SSHConnect {
     }
 
 	public static AckStatus checkAck(ChannelSftp channel) throws InterruptedException {
-        channel.setOutputStream(System.out, true);
+		channel.setOutputStream(out, true);
 
         int status;
         while(channel.getExitStatus() == -1) {

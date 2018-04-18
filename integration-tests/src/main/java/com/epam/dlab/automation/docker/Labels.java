@@ -18,6 +18,5 @@ limitations under the License.
 
 package com.epam.dlab.automation.docker;
 
-class Labels {
-
+interface Labels {
 }

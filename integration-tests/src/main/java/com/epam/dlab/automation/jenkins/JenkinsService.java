@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.jenkins;
 
+import com.epam.dlab.automation.exceptions.JenkinsException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.NamingHelper;
 import com.epam.dlab.automation.http.HttpStatusCode;
@@ -38,15 +39,16 @@ import java.util.regex.Pattern;
 import static com.jayway.restassured.RestAssured.given;
 
 public class JenkinsService {
-    private final static Logger LOGGER = LogManager.getLogger(JenkinsService.class);
+	private static final Logger LOGGER = LogManager.getLogger(JenkinsService.class);
 
     private final String awsAccessKeyId;
     private final String awsSecretAccessKey;
     
     private String ssnURL;
     private String serviceBaseName;
-    
-    FormAuthConfig config = new FormAuthConfig(JenkinsConfigProperties.JENKINS_JOB_NAME_SEARCH, "username", "password");
+
+	private FormAuthConfig config = new FormAuthConfig(JenkinsConfigProperties.JENKINS_JOB_NAME_SEARCH, "username",
+			"password");
     
     public JenkinsService(){
     	if (!ConfigPropertyValue.isUseJenkins()) {
@@ -77,7 +79,7 @@ public class JenkinsService {
                 .getString(JenkinsResponseElements.IN_QUEUE_ELEMENT);
     }
 
-    private boolean waitForJenkinsStartup(Duration duration) throws InterruptedException {
+	private void waitForJenkinsStartup(Duration duration) throws InterruptedException {
     	String actualStatus;
     	long timeout = duration.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
@@ -93,20 +95,18 @@ public class JenkinsService {
         if (actualStatus.endsWith(JenkinsConfigProperties.SUCCESS_STATUS)) {
             LOGGER.info("ERROR: Timeout has been expired for Jenkins");
             LOGGER.info("  timeout is {}");
-            return false;
         }
-        return true;
     }
 
-    public String runJenkinsJob(String jenkinsJobURL) throws Exception {
+	public String runJenkinsJob(String jenkinsJobURL) throws InterruptedException {
     	if (!ConfigPropertyValue.isUseJenkins()) {
     		return ConfigPropertyValue.getJenkinsBuildNumber();
     	}
-    	
-        RestAssured.baseURI = jenkinsJobURL;
+
+		baseUriInitialize(jenkinsJobURL);
         String dateAsString = NamingHelper.generateRandomValue();
         Response responsePostJob = getWhen(ContentType.URLENC)
-                .body(String.format(JenkinsConfigProperties.JENKINS_JOB_START_BODY,
+				.body(String.format(JenkinsConfigProperties.jenkinsJobStartBody,
                         awsAccessKeyId, awsSecretAccessKey, dateAsString,
                         ConfigPropertyValue.getClusterOsUser(), ConfigPropertyValue.getClusterOsFamily(),
                         awsAccessKeyId, awsSecretAccessKey, dateAsString,
@@ -123,12 +123,12 @@ public class JenkinsService {
         return ConfigPropertyValue.getJenkinsBuildNumber();
     }
 
-    public String getJenkinsJob() throws Exception {
+	public String getJenkinsJob() throws InterruptedException {
     	if (!ConfigPropertyValue.isUseJenkins()) {
     		return ConfigPropertyValue.getJenkinsBuildNumber();
     	}
-    	
-    	RestAssured.baseURI = ConfigPropertyValue.getJenkinsJobURL();
+
+		baseUriInitialize(ConfigPropertyValue.getJenkinsJobURL());
 
         setBuildNumber();
         checkBuildResult();
@@ -137,7 +137,11 @@ public class JenkinsService {
         return ConfigPropertyValue.getJenkinsBuildNumber();
     }
 
-    private void setBuildNumber() throws Exception {
+	private static void baseUriInitialize(String value) {
+		RestAssured.baseURI = value;
+	}
+
+	private void setBuildNumber() {
         if (ConfigPropertyValue.getJenkinsBuildNumber() != null) {
             LOGGER.info("Jenkins build number is {}", ConfigPropertyValue.getJenkinsBuildNumber());
         	return;
@@ -151,13 +155,13 @@ public class JenkinsService {
         if(matcher.find()) {
         	ConfigPropertyValue.setJenkinsBuildNumber(matcher.group().substring(2).trim());
         } else {
-        	throw new Exception("Jenkins job was failed. There is no buildNumber");
+			throw new JenkinsException("Jenkins job was failed. There is no buildNumber");
         }
         LOGGER.info("Jenkins build number is {}", ConfigPropertyValue.getJenkinsBuildNumber());
     }
 
 
-    private void checkBuildResult() throws Exception {
+	private void checkBuildResult() throws InterruptedException {
     	String buildResult;
     	long timeout = ConfigPropertyValue.getTimeoutJenkinsAutotest().toMillis();
     	long expiredTime = System.currentTimeMillis() + timeout;
@@ -170,18 +174,19 @@ public class JenkinsService {
                     .getString(JenkinsResponseElements.RESULT);
             if (buildResult == null) {
             	if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
-            		throw new Exception("Timeout has been expired for Jenkins build. Timeout is " + ConfigPropertyValue.getTimeoutJenkinsAutotest());
+					throw new JenkinsException("Timeout has been expired for Jenkins build. Timeout is " +
+							ConfigPropertyValue.getTimeoutJenkinsAutotest());
             	}
             	Thread.sleep(JenkinsConfigProperties.JENKINS_REQUEST_TIMEOUT);
             }
         } while (buildResult == null);
         
         if(!buildResult.equals("SUCCESS")) {
-        	throw new Exception("Jenkins job was failed. Build result is not success");
+			throw new JenkinsException("Jenkins job was failed. Build result is not success");
         }
     }
 
-    private void setJenkinsURLServiceBaseName() throws Exception {
+	private void setJenkinsURLServiceBaseName() {
         String jenkinsHoleURL = getWhen(ContentType.TEXT)
         		.get(ConfigPropertyValue.getJenkinsBuildNumber() + JenkinsUrls.LOG_TEXT)
         		.getBody()
@@ -197,7 +202,7 @@ public class JenkinsService {
         if(matcher.find()) {
         	serviceBaseName = matcher.group(1);         
         } else {
-        	throw new Exception("SSN URL in Jenkins job not found");
+			throw new JenkinsException("SSN URL in Jenkins job not found");
         }
     }
 

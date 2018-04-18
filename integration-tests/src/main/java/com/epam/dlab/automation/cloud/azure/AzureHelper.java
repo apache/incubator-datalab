@@ -18,7 +18,7 @@
 
 package com.epam.dlab.automation.cloud.azure;
 
-import com.epam.dlab.automation.cloud.CloudException;
+import com.epam.dlab.automation.exceptions.CloudException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.PowerState;
@@ -108,7 +108,8 @@ public class AzureHelper{
         return vm.powerState();
     }
 
-    public static void checkAzureStatus(String virtualMachineName, PowerState expAzureState, boolean restrictionMode) throws CloudException, InterruptedException {
+	public static void checkAzureStatus(String virtualMachineName, PowerState expAzureState, boolean restrictionMode)
+			throws InterruptedException {
         LOGGER.info("Check status of virtual machine with name {} on Azure", virtualMachineName);
         if (ConfigPropertyValue.isRunModeLocal()) {
             LOGGER.info("Azure virtual machine with name {} fake state is {}", virtualMachineName, expAzureState);

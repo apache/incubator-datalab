@@ -1,76 +1,90 @@
 package com.epam.dlab.automation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class DeployDataProcDto extends DeployClusterDto {
-	private String dataproc_master_count;
-	private String dataproc_slave_count;
-	private String dataproc_preemptible_count;
-	private String dataproc_master_instance_type;
-	private String dataproc_slave_instance_type;
-	private String dataproc_version;
 
-	public String getDataproc_master_count() {
-		return dataproc_master_count;
+	@JsonProperty("dataproc_master_count")
+	private String dataprocMasterCount;
+
+	@JsonProperty("dataproc_slave_count")
+	private String dataprocSlaveCount;
+
+	@JsonProperty("dataproc_preemptible_count")
+	private String dataprocPreemptibleCount;
+
+	@JsonProperty("dataproc_master_instance_type")
+	private String dataprocMasterInstanceType;
+
+	@JsonProperty("dataproc_slave_instance_type")
+	private String dataprocSlaveInstanceType;
+
+	@JsonProperty("dataproc_version")
+	private String dataprocVersion;
+
+
+	public String getDataprocMasterCount() {
+		return dataprocMasterCount;
 	}
 
-	public void setDataproc_master_count(String dataproc_master_count) {
-		this.dataproc_master_count = dataproc_master_count;
+	public void setDataprocMasterCount(String dataprocMasterCount) {
+		this.dataprocMasterCount = dataprocMasterCount;
 	}
 
-	public String getDataproc_slave_count() {
-		return dataproc_slave_count;
+	public String getDataprocSlaveCount() {
+		return dataprocSlaveCount;
 	}
 
-	public void setDataproc_slave_count(String dataproc_slave_count) {
-		this.dataproc_slave_count = dataproc_slave_count;
+	public void setDataprocSlaveCount(String dataprocSlaveCount) {
+		this.dataprocSlaveCount = dataprocSlaveCount;
 	}
 
-	public String getDataproc_preemptible_count() {
-		return dataproc_preemptible_count;
+	public String getDataprocPreemptibleCount() {
+		return dataprocPreemptibleCount;
 	}
 
-	public void setDataproc_preemptible_count(String dataproc_preemptible_count) {
-		this.dataproc_preemptible_count = dataproc_preemptible_count;
+	public void setDataprocPreemptibleCount(String dataprocPreemptibleCount) {
+		this.dataprocPreemptibleCount = dataprocPreemptibleCount;
 	}
 
-	public String getDataproc_master_instance_type() {
-		return dataproc_master_instance_type;
+	public String getDataprocMasterInstanceType() {
+		return dataprocMasterInstanceType;
 	}
 
-	public void setDataproc_master_instance_type(String dataproc_master_instance_type) {
-		this.dataproc_master_instance_type = dataproc_master_instance_type;
+	public void setDataprocMasterInstanceType(String dataprocMasterInstanceType) {
+		this.dataprocMasterInstanceType = dataprocMasterInstanceType;
 	}
 
-	public String getDataproc_slave_instance_type() {
-		return dataproc_slave_instance_type;
+	public String getDataprocSlaveInstanceType() {
+		return dataprocSlaveInstanceType;
 	}
 
-	public void setDataproc_slave_instance_type(String dataproc_slave_instance_type) {
-		this.dataproc_slave_instance_type = dataproc_slave_instance_type;
+	public void setDataprocSlaveInstanceType(String dataprocSlaveInstanceType) {
+		this.dataprocSlaveInstanceType = dataprocSlaveInstanceType;
 	}
 
-	public String getDataproc_version() {
-		return dataproc_version;
+	public String getDataprocVersion() {
+		return dataprocVersion;
 	}
 
-	public void setDataproc_version(String dataproc_version) {
-		this.dataproc_version = dataproc_version;
+	public void setDataprocVersion(String dataprocVersion) {
+		this.dataprocVersion = dataprocVersion;
 	}
 
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this)
 				.add("image", getImage())
-				.add("template_name", getTemplate_name())
+				.add("template_name", getTemplateName())
 				.add("name", getName())
-				.add("notebook_name", getNotebook_name())
-				.add("dataproc_master_count", dataproc_master_count)
-				.add("dataproc_slave_count", dataproc_slave_count)
-				.add("dataproc_preemptible_count", dataproc_preemptible_count)
-				.add("dataproc_master_instance_type", dataproc_master_instance_type)
-				.add("dataproc_slave_instance_type", dataproc_slave_instance_type)
-				.add("dataproc_version", dataproc_version)
+				.add("notebook_name", getNotebookName())
+				.add("dataproc_master_count", dataprocMasterCount)
+				.add("dataproc_slave_count", dataprocSlaveCount)
+				.add("dataproc_preemptible_count", dataprocPreemptibleCount)
+				.add("dataproc_master_instance_type", dataprocMasterInstanceType)
+				.add("dataproc_slave_instance_type", dataprocSlaveInstanceType)
+				.add("dataproc_version", dataprocVersion)
 				.toString();
 	}
 }

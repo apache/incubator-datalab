@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NetworkSettings {
 
-    @JsonProperty
+	@JsonProperty("Networks")
 	private Networks networks;
 
     public Networks getNetworks() {
