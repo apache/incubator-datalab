@@ -28,7 +28,7 @@ public class AckStatus {
         message = "";
     }
 
-    public AckStatus(int status, String message) {
+	AckStatus(int status, String message) {
         this.status = status;
         this.message = message;
     }

@@ -32,7 +32,7 @@ import java.io.IOException;
 
 public class VirtualMachineStatusChecker {
 
-	public static final String UNKNOWN_CLOUD_PROVIDER = "Unknown cloud provider";
+	private static final String UNKNOWN_CLOUD_PROVIDER = "Unknown cloud provider";
 
 	private VirtualMachineStatusChecker(){}
 
