@@ -29,6 +29,7 @@ export interface SchedulerParameters {
     end_time: string;
     days_repeat: Array<string>;
     timezone_offset: string;
+    sync_start_required: boolean;
 }
 
 export class SchedulerModel {
@@ -54,17 +55,6 @@ export class SchedulerModel {
         this.prepareModel(fnProcessResults, fnProcessErrors);
 
         if (this.continueWith) this.continueWith();
-    }
-
-    public setCreatingParams(data): void {
-        this.createParameters = {
-            begin_date : data,
-            finish_date : data,
-            start_time: data,
-            end_time: data,
-            days_repeat: data,
-            timezone_offset: data
-        }
     }
 
     private scheduleInstance(notebook, params, resourse): Observable<Response> {

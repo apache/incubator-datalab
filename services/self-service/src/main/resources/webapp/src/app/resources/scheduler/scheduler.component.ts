@@ -39,13 +39,16 @@ export class SchedulerComponent implements OnInit {
   public selectedWeekDays: WeekdaysModel = new WeekdaysModel(false, false, false, false, false, false, false);
   public notebook: any;
   public infoMessage: boolean = false;
+  public inherit: boolean = false;
+  public parent_inherit_val: boolean = false;
+
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   public schedulerForm: FormGroup;
   public destination: any;
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
-  public endTime = { hour: 7, minute: 0, meridiem: 'PM' };
+  public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;
@@ -103,6 +106,10 @@ export class SchedulerComponent implements OnInit {
     this.checkSelectedDays();
   }
 
+  public toggleInherit($event, day) {
+    this.inherit = $event.checked;
+  }
+
   public checkSelectedDays() {
     this.infoMessage = false;
 
@@ -119,7 +126,8 @@ export class SchedulerComponent implements OnInit {
       start_time: this.convertTimeFormat(this.startTime),
       end_time: this.convertTimeFormat(this.endTime),
       days_repeat: selectedDays.filter(el => Boolean(this.selectedWeekDays[el])).map(day => day.toUpperCase()),
-      timezone_offset: _moment().format('Z')
+      timezone_offset: _moment().format('Z'),
+      sync_start_required: this.inherit
     };
 
     (this.destination.type === 'СOMPUTATIONAL')
@@ -154,6 +162,9 @@ export class SchedulerComponent implements OnInit {
   }
 
   private getExploratorySchedule(resource, resource2?) {
+    this.inherit = false;
+    this.formInit();
+
     this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
       (params: any) => {
         if (params) {
@@ -161,6 +172,8 @@ export class SchedulerComponent implements OnInit {
             key => (this.selectedWeekDays[key.toLowerCase()] = true)
           );
           this.checkSelectedDays();
+          this.inherit = params.sync_start_required;
+          if(this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
 
           this.startTime = this.convertTimeFormat(params.start_time);
           this.endTime = this.convertTimeFormat(params.end_time);
@@ -168,12 +181,14 @@ export class SchedulerComponent implements OnInit {
           this.formInit(params.begin_date, params.finish_date);
         }
       },
-      error => {}
+      error => {
+        let errorMessage = JSON.parse(error.message);
+        if (errorMessage.status == HTTP_STATUS_CODES.NOT_FOUND && this.parent_inherit_val) this.inherit = true;
+      }
     );
   }
 
   private convertTimeFormat(time24: any) {
-
     let result;
     if (typeof time24 === 'string') {
       let spl = time24.split(':');
@@ -198,7 +213,10 @@ export class SchedulerComponent implements OnInit {
 
   private resetDialog() {
     this.infoMessage = false;
-    this.startTime = this.convertTimeFormat('00:00');
-    this.endTime = this.convertTimeFormat('00:00');
+    this.inherit = false;
+    this.parent_inherit_val = false;
+
+    this.startTime = this.convertTimeFormat('09:00');
+    this.endTime = this.convertTimeFormat('20:00');
   }
 }

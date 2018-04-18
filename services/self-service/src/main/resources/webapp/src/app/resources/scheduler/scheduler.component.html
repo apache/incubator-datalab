@@ -68,6 +68,12 @@ limitations under the License.
           </div>
         </div>
         <span class="info" *ngIf="infoMessage">In case of switching off all weekdays options, your schedule by <strong>{{ destination.name }}</strong> resource will be disabled </span>
+        <div class="inherit">
+            <!-- <label class="label" for="options">Inherit: </label> -->
+            <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)">
+              <span class="hold-label">Inherit</span>
+            </mat-slide-toggle>
+          </div>
       </form>
       <div class="text-center m-top-30">
         <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
