@@ -27,7 +27,7 @@ RUN apt-get update && \
 
 # Install any python dependencies
 RUN pip install -UI pip==9.0.3 && \
-    pip install fabric fabvenv argparse ujson jupyter pycrypto azure==2.0.0 azure-mgmt-authorization pyyaml
+    pip install fabric fabvenv argparse ujson jupyter pycrypto azure azure-mgmt-authorization pyyaml
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
