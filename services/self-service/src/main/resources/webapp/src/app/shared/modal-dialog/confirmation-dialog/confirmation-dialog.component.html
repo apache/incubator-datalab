@@ -34,7 +34,7 @@ limitations under the License.
         </div>
         <div class="col">
           <ul *ngIf="model.notebook.resources && model.notebook.resources.length > 0 && isAliveResources">
-            <li *ngFor="let resource of model.notebook.resources" [hidden]="resource.status != 'running'"> &#9642; {{ resource.computational_name }}</li>
+            <li *ngFor="let resource of model.notebook.resources" [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating'"> &#9642; {{ resource.computational_name }}</li>
           </ul>
           <span *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources">none</span>
         </div>
