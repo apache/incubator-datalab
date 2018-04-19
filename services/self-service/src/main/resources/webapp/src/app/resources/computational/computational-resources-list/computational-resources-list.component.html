@@ -23,7 +23,7 @@ limitations under the License.
 
   <div *ngIf="resources.length">
     <div class="resource_wrap">
-      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
+      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="toggleResourceAction(resources[0], 'terminate')">&times;</a>
       <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine'">
         <span *ngIf="resources[0].status === 'running' || resources[0].status === 'stopping'"
               (click)="toggleResourceAction(resources[0], 'stop')"
