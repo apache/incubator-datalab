@@ -82,14 +82,14 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	}
 
 	@Override
-	public void start() throws Exception {
+	public void start() {
 		if (libCache == null) {
 			libCache = this;
 		}
 	}
 
 	@Override
-	public void stop() throws Exception {
+	public void stop() {
 		if (libCache != null) {
 			synchronized (libCache) {
 				if (libCache.thread != null) {
@@ -106,7 +106,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	/** Return the list of libraries groups from cache.
 	 * @param userInfo the user info.
 	 * @param userInstance the notebook info.
-	 * @return
+	 * @return list of libraries groups
 	 */
 	public List<String> getLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		ExploratoryLibList libs = getLibs(userInfo, userInstance);
@@ -128,15 +128,12 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	 * @param userInfo the user info.
 	 * @param userInstance the notebook info.
 	 */
-	public ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance) {
+	private ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance) {
 		ExploratoryLibList libs;
 		String cacheKey = libraryCacheKey(userInstance);
 		synchronized (cache) {
+			cache.computeIfAbsent(cacheKey, libraries -> new ExploratoryLibList(cacheKey, null));
 			libs = cache.get(cacheKey);
-			if (libs == null) {
-				libs = new ExploratoryLibList(cacheKey, null);
-				cache.put(cacheKey, libs);
-			}
 			if (libs.isUpdateNeeded() && !libs.isUpdating()) {
 				libs.setUpdating();
 				requestLibList(userInfo, userInstance);
@@ -180,7 +177,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	}
 
 	/** Remove the list of libraries for docker image from cache.
-	 * @param imageName
+	 * @param imageName docker image name
 	 */
 	public void removeLibList(String imageName) {
 		synchronized (cache) {

@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
 import static com.epam.dlab.core.parser.ReportLine.*;
 import static com.mongodb.client.model.Accumulators.*;
 import static com.mongodb.client.model.Aggregates.*;
@@ -85,16 +87,7 @@ public class AwsBillingDAO extends BillingDAO {
     	addCondition(conditions, FIELD_PRODUCT, filter.getProduct());
     	addCondition(conditions, DLAB_RESOURCE_TYPE, DlabResourceType.getResourceTypeIds(filter.getResourceType()));
 
-    	if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
-    		conditions.add(regex(FIELD_DLAB_ID, filter.getDlabId(), "i"));
-    	}
-
-    	if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
-    		conditions.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
-    	}
-    	if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
-    		conditions.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
-    	}
+		addAnotherConditionsIfNecessary(conditions, filter);
 
     	// Create aggregation conditions
 
@@ -173,6 +166,19 @@ public class AwsBillingDAO extends BillingDAO {
 												reportItems.get(0).getString(FIELD_CURRENCY_CODE)))
 				.append(FULL_REPORT, isFullReport);
     }
+
+	private void addAnotherConditionsIfNecessary(List<Bson> conditions, AwsBillingFilter filter) {
+		if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
+			conditions.add(regex(FIELD_DLAB_ID, filter.getDlabId(), "i"));
+		}
+
+		if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
+			conditions.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
+		}
+		if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
+			conditions.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
+		}
+	}
 
 	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, BillingDAO.ShapeInfo> shapes) {
 		// Add SSN and EDGE nodes

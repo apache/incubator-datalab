@@ -23,10 +23,17 @@ limitations under the License.
 
   <div *ngIf="resources.length">
     <div class="resource_wrap">
-      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="terminateComputationalResources(environment, resources[0])">&times;</a>
+      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
+      <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine'">
+        <span *ngIf="resources[0].status === 'running' || resources[0].status === 'stopping'"
+              (click)="toggleResourceAction(resources[0], 'stop')"
+              [ngClass]="{'not-allowed' : resources[0].status === 'stopping'}">pause_circle_outline</span>
+        <span *ngIf="resources[0].status === 'stopped' || resources[0].status === 'starting'"
+              (click)="toggleResourceAction(resources[0], 'start')"
+              [ngClass]="{'not-allowed' : resources[0].status === 'starting'}">play_circle_outline</span>
+      </a>
       <a class="detailed-link" (click)="detailComputationalResources(environment, resources[0])">
         {{resources[0].computational_name}}
-        <span *ngIf="resources[0].nodes_number">{{resources[0].nodes_number}} nodes</span>
       </a>
     </div>
 
@@ -41,10 +48,17 @@ limitations under the License.
 <div *ngIf="collapse" class="source">
   <div *ngFor="let resource of resources | slice:1">
       <div class="resource_wrap">
-        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' }" (click)="terminateComputationalResources(environment, resource)">&times;</a>
+        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' }" (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
+        <a class="start-stop-action material-icons" *ngIf="resource.image === 'docker.dlab-dataengine'">
+          <span *ngIf="resource.status === 'running' || resource.status === 'stopping'"
+                (click)="toggleResourceAction(resource, 'stop')"
+                [ngClass]="{'not-allowed' : resource.status === 'stopping'}">pause_circle_outline</span>
+          <span *ngIf="resource.status === 'stopped' || resource.status === 'starting'"
+                (click)="toggleResourceAction(resource, 'start')"
+                [ngClass]="{'not-allowed' : resource.status === 'starting'}">play_circle_outline</span>
+        </a>
         <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">
           {{resource.computational_name}}
-          <span *ngIf="resource.nodes_number">{{resource.nodes_number}} nodes</span>
         </a>
       </div>
       <span ngClass="{{resource.status.toLowerCase() || ''}}" class="emt_status">{{resource.status}}</span>
@@ -52,5 +66,4 @@ limitations under the License.
 </div>
 
 
-<confirmation-computational-resources #terminateConfirmateResource (rebuildGrid)="rebuildGrid($event)"></confirmation-computational-resources>
 <detail-computational-resources #detailComputationalResource></detail-computational-resources>

@@ -56,6 +56,7 @@ public class AwsSelfServiceModule extends CloudModule {
     }
 
     @Override
+	@SuppressWarnings("unchecked")
     public void init(Environment environment, Injector injector) {
         environment.jersey().register(injector.getInstance(EdgeCallbackAws.class));
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));

@@ -16,8 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
 import { UserResourceService } from '../../../core/services';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   moduleId: module.id,
@@ -27,7 +28,7 @@ import { UserResourceService } from '../../../core/services';
 })
 
 export class ComputationalResourcesListComponent {
-  @ViewChild('terminateConfirmateResource') terminateConfirmateResource;
+  @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailComputationalResource') detailComputationalResource;
   @Input() resources: any[];
   @Input() environment: any[];
@@ -35,21 +36,75 @@ export class ComputationalResourcesListComponent {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   collapse: boolean = true;
-  constructor(private userResourceService: UserResourceService) { }
+  constructor(
+    private userResourceService: UserResourceService,
+    public dialog: MatDialog
+  ) { }
 
   toggleResourceList() {
     this.collapse = !this.collapse;
+  }
+
+  toggleResourceAction(resource, action) {
+    if (action === 'stop' || action === 'terminate') {
+      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource}, width: '550px' });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result && action === 'stop') {
+          this.userResourceService
+            .toggleStopStartAction(this.environment['name'], resource.computational_name, action)
+            .subscribe(response => {
+              this.rebuildGrid();
+            });
+        } else if (result && action === 'terminate') {
+          this.userResourceService
+            .suspendComputationalResource(this.environment['name'], resource.computational_name)
+            .subscribe(response => {
+              this.rebuildGrid();
+            });
+        }
+      });
+    } else if (action === 'start') {
+      this.userResourceService
+        .toggleStopStartAction(this.environment['name'], resource.computational_name, 'start')
+        .subscribe(res => {
+          this.rebuildGrid();
+        });
+    }
   }
 
   rebuildGrid(): void {
     this.buildGrid.emit();
   }
 
-  terminateComputationalResources(notebook, resource): void {
-    this.terminateConfirmateResource.open({ isFooter: false }, notebook, resource);
-  };
-
   detailComputationalResources(environment, resource): void {
     this.detailComputationalResource.open({ isFooter: false }, environment, resource);
   };
+}
+
+
+@Component({
+  selector: 'confirmation-dialog',
+  template: `
+  <div mat-dialog-content class="content">
+
+    <p>Computational resource <strong> {{ data.resource.computational_name }}</strong> will be 
+      <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
+      <span *ngIf="data.action === 'stop'">stopped.</span>
+    </p>
+    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+  </div>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+    <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
+  </div>
+  `,
+  styles: [`
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+  `]
+})
+export class ConfirmationDialog {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmationDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 }

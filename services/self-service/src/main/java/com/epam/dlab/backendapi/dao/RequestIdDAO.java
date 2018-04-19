@@ -27,6 +27,7 @@ import org.bson.Document;
 import java.util.Date;
 import java.util.Optional;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.REQUEST_ID;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.lt;
 

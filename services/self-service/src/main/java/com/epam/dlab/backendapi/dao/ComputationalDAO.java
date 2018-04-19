@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;

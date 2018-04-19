@@ -46,7 +46,7 @@ import static com.mongodb.client.model.Aggregates.unwind;
 /**
  * Implements the base API for Mongo database.
  */
-public class BaseDAO implements MongoCollections {
+public class BaseDAO {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
@@ -395,14 +395,14 @@ public class BaseDAO implements MongoCollections {
 					&& val instanceof ArrayList) {
 				ArrayList<?> array = (ArrayList<?>) val;
 				if (array.isEmpty()) {
-					break;
+					return val;
 				} else {
 					val = array.get(0);
 				}
 			} else if (val instanceof Document) {
 				val = ((Document) val).get(fieldParts[i]);
 			} else {
-				break;
+				return val;
 			}
 		}
 		return val;
