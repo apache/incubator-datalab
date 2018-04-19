@@ -17,33 +17,28 @@
  ****************************************************************************/
 package com.epam.dlab.backendapi.dao;
 
-import static com.epam.dlab.backendapi.dao.BaseDAO.USER;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
-import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
-import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Date;
-
 import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
-import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
+import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
+import org.junit.*;
+
+import java.util.Date;
+
+import static com.epam.dlab.backendapi.dao.BaseDAO.USER;
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @Ignore
 public class EnvStatusDAOTest extends DAOTestBase {
@@ -155,9 +150,9 @@ public class EnvStatusDAOTest extends DAOTestBase {
         
         // Health status
         HealthStatusPageDTO hStatus = envDAO.getHealthStatusPageDTO(user, true);
-        assertEquals(hStatus.getStatus(), HealthStatusEnum.OK);
+		assertEquals(HealthStatusEnum.OK.toString(), hStatus.getStatus());
         HealthStatusResource rStatus = hStatus.getListResources().get(0);
-        assertEquals(rStatus.getStatus(), "running");
+		assertEquals("running", rStatus.getStatus());
         assertEquals(rStatus.getResourceId(), edge.publicIp);
     }
 

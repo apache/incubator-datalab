@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.exceptions.DlabException;
 import org.bson.Document;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.SETTINGS;
 import static com.epam.dlab.backendapi.dao.MongoSetting.*;
 import static com.mongodb.client.model.Filters.eq;
 import static org.apache.commons.lang3.StringUtils.EMPTY;

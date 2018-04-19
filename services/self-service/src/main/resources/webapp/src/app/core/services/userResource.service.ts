@@ -90,6 +90,19 @@ export class UserResourceService {
       .map((response: Response) => response);
   }
 
+  public toggleStopStartAction(notebook: string, resource: string, action): Observable<Response> {
+    const url = `/${notebook}/${resource}/${action}`;
+    if (action === 'stop') {
+      return this.applicationServiceFacade
+        .buildStopSparkClusterAction(JSON.stringify(url))
+        .map((response: Response) => response);
+    } else if (action === 'start') {
+      return this.applicationServiceFacade
+        .buildStartSparkClusterAction(url)
+        .map((response: Response) => response);
+    }
+  }
+
   public getUserPreferences(): Observable<Response> {
     return this.applicationServiceFacade
       .buildGetUserPreferences()
