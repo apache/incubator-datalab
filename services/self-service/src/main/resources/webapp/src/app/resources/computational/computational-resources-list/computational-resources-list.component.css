@@ -58,9 +58,20 @@ limitations under the License.
   vertical-align: bottom;
   font-size: 18px;
   color: #36afd5;
-  cursor: pointer;
   margin-left: 3px;
 }
+
+.source .start-stop-action span {
+  cursor: pointer;
+}
+
+.source .start-stop-action span.not-allowed {
+  cursor: default;
+}
+
+.source .start-stop-action .not-allowed {
+  pointer-events: none;
+ }
 
 .source .remove_butt.disabled {
   color: #f5d3d3;
