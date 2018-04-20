@@ -27,7 +27,7 @@ type TimeFormatAlias = TimeFormat;
   template: `
     <div class="time-picker">
       <mat-input-container class="time-select">
-        <input matInput placeholder="{{ label }}" [value]="selectedTime">
+        <input matInput placeholder="{{ label }}" [value]="selectedTime" (input)="checkEmpty($event.target.value)">
         <mat-icon matSuffix (click)="openDatePickerDialog($event)">access_time</mat-icon>
       </mat-input-container>
     </div>`,
@@ -38,13 +38,9 @@ export class TimePickerComponent implements OnInit {
   @Input() label: string = 'Select time';
   @Output() pickTimeChange: EventEmitter<TimeFormatAlias> = new EventEmitter();
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog) { }
 
-  ngOnInit() {
-    if (!this.pickTime) {
-      this.pickTime = { hour: 0, minute: 0, meridiem: 'AM' };
-    }
-  }
+  ngOnInit() { }
 
   private get selectedTime(): string {
     return !this.pickTime ? '' : `${this.pickTime.hour}:${this.getFullMinutes()} ${this.pickTime.meridiem}`;
@@ -58,9 +54,9 @@ export class TimePickerComponent implements OnInit {
     const dialogRef = this.dialog.open(TimePickerDialogComponent, {
       data: {
         time: {
-          hour: this.pickTime.hour,
-          minute: this.pickTime.minute,
-          meridiem: this.pickTime.meridiem
+          hour: this.pickTime ? this.pickTime.hour : 0,
+          minute: this.pickTime ? this.pickTime.minute : 0,
+          meridiem: this.pickTime ? this.pickTime.meridiem : 'AM' 
         }
       }
     });
@@ -73,6 +69,13 @@ export class TimePickerComponent implements OnInit {
       }
     });
     return false;
+  }
+
+  checkEmpty(searchValue : string ) {
+    if (!searchValue.length) {
+      this.pickTime = null;
+      this.emitpickTimeSelection();
+    }
   }
 
   private emitpickTimeSelection() {
