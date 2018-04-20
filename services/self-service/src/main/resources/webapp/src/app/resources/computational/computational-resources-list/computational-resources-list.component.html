@@ -37,6 +37,10 @@ limitations under the License.
       </a>
     </div>
 
+    <span class="schedule">
+      <i class="material-icons" (click)="openScheduleDialog(resources[0])">schedule</i>
+    </span>
+
     <span class="material-icons arrow_icon" *ngIf="resources.length > 1" (click)="toggleResourceList()">
       <strong *ngIf="!collapse">keyboard_arrow_down</strong>
       <strong *ngIf="collapse">keyboard_arrow_up</strong>
@@ -62,8 +66,12 @@ limitations under the License.
         </a>
       </div>
       <span ngClass="{{resource.status.toLowerCase() || ''}}" class="emt_status">{{resource.status}}</span>
+      <span class="schedule">
+        <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>
+      </span>
   </div>
 </div>
 
 
 <detail-computational-resources #detailComputationalResource></detail-computational-resources>
+<dlab-scheduler #clusterScheduler></dlab-scheduler>

@@ -27,14 +27,6 @@ limitations under the License.
   <modal-content>
     <div *ngIf="notebook" class="content-box">
       <form [formGroup]="schedulerForm">
-        <div class="m-bott-10">
-          <div class="control-group">
-              <label class="label">Select resource</label>
-              <div class="control">
-                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
-              </div>
-            </div>
-        </div>
         <div class="row-wrap">
           <div class="col">
             <mat-form-field>

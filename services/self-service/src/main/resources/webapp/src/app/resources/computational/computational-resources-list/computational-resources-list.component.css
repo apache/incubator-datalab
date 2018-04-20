@@ -67,12 +67,21 @@ limitations under the License.
   pointer-events: none;
 }
 
-.arrow_icon {
+.arrow_icon, .schedule {
   position: absolute;
   right: 0;
   top: 4px;
   color: #748ba3;
   cursor: pointer;
+}
+
+.schedule {
+  right: 25px;
+  z-index: 1;
+}
+
+.schedule i {
+  font-size: 18px;
 }
 
 .emt_status {

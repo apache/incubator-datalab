@@ -66,9 +66,9 @@ export class SchedulerComponent implements OnInit {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  public open(param, notebook): void {
+  public open(param, notebook, type): void {
     this.notebook = notebook;
-    this.getResourcesList();
+    // this.getResourcesList();
 
     if (!this.bindDialog.isOpened)
       this.model = new SchedulerModel(
@@ -84,9 +84,11 @@ export class SchedulerComponent implements OnInit {
           this.formInit();
 
           this.changeDetector.detectChanges();
-          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.notebook.name, 'destination', 'title', 'array');
+          // this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.notebook.name, 'destination', 'title', 'array');
 
           this.destination = this.notebook;
+          this.destination.type = type;
+          
           this.selectedWeekDays.setDegault();
           this.getExploratorySchedule(this.notebook.name);
         },
