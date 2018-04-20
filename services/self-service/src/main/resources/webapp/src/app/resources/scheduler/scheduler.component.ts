@@ -39,6 +39,8 @@ export class SchedulerComponent implements OnInit {
   public selectedWeekDays: WeekdaysModel = new WeekdaysModel(false, false, false, false, false, false, false);
   public notebook: any;
   public infoMessage: boolean = false;
+  public timeReqiered: boolean = false;
+
   public inherit: boolean = false;
   public parent_inherit_val: boolean = false;
 
@@ -119,12 +121,17 @@ export class SchedulerComponent implements OnInit {
   }
 
   public scheduleInstance_btnClick(data) {
+
+    if (!this.startTime && !this.endTime) {
+      this.timeReqiered = true;
+      return false;
+    }
     const selectedDays = Object.keys(this.selectedWeekDays);
     const parameters = {
       begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
       finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
-      start_time: this.convertTimeFormat(this.startTime),
-      end_time: this.convertTimeFormat(this.endTime),
+      start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
+      end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
       days_repeat: selectedDays.filter(el => Boolean(this.selectedWeekDays[el])).map(day => day.toUpperCase()),
       timezone_offset: _moment().format('Z'),
       sync_start_required: this.inherit
@@ -173,10 +180,10 @@ export class SchedulerComponent implements OnInit {
           );
           this.checkSelectedDays();
           this.inherit = params.sync_start_required;
-          if(this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
+          if (this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
 
-          this.startTime = this.convertTimeFormat(params.start_time);
-          this.endTime = this.convertTimeFormat(params.end_time);
+          this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
+          this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
 
           this.formInit(params.begin_date, params.finish_date);
         }
@@ -213,6 +220,7 @@ export class SchedulerComponent implements OnInit {
 
   private resetDialog() {
     this.infoMessage = false;
+    this.timeReqiered = false;
     this.inherit = false;
     this.parent_inherit_val = false;
 

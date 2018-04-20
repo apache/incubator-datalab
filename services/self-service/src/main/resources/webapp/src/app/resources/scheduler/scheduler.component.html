@@ -59,6 +59,7 @@ limitations under the License.
             <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"></dlab-time-picker>
           </div>
         </div>
+        <div *ngIf="timeReqiered" class="danger_color"><span>required</span></div>
         <div class="control-group">
           <label class="label repeat" for="options">Repeat on :</label>
           <div *ngFor="let day of weekdays; let i = index" class="week-day" [ngClass]="day">
