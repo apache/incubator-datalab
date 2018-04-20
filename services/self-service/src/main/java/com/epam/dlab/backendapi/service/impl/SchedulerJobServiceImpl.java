@@ -35,14 +35,10 @@ import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -329,21 +325,31 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 		return computationalDAO.getComputationalResourcesWhereStatusIn(user,
 				DataEngineType.SPARK_STANDALONE, exploratoryName, STOPPED).stream()
-				.filter(clusterName -> {
-					Optional<SchedulerJobDTO> schedulerJobForCluster =
-							schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
-					return schedulerJobForCluster.isPresent() && areSchedulersEqualForSyncStarting(
-							schedulerJobForExploratory.get(), schedulerJobForCluster.get());
-				}).collect(Collectors.toList());
+				.filter(clusterName -> isClusterSchedulerPresentAndEqualToAnotherForSyncStarting(user, exploratoryName,
+						clusterName, schedulerJobForExploratory.get())).collect(Collectors.toList());
+	}
+
+	private boolean isClusterSchedulerPresentAndEqualToAnotherForSyncStarting(String user, String exploratoryName,
+																			  String clusterName, SchedulerJobDTO
+																					  dto) {
+		Optional<SchedulerJobDTO> schedulerJobForCluster =
+				schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
+		return schedulerJobForCluster.isPresent() &&
+				areSchedulersEqualForSyncStarting(dto, schedulerJobForCluster.get());
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean areCollectionsEqual(Collection col1, Collection col2) {
+		return col1.containsAll(col2) && col2.containsAll(col1);
 	}
 
 	private boolean areSchedulersEqualForSyncStarting(SchedulerJobDTO notebookScheduler,
 													  SchedulerJobDTO clusterScheduler) {
 		return !Objects.isNull(notebookScheduler) && !Objects.isNull(clusterScheduler) &&
-				notebookScheduler.getBeginDate() == clusterScheduler.getBeginDate() &&
-				notebookScheduler.getStartTime() == clusterScheduler.getStartTime() &&
-				CollectionUtils.isEqualCollection(notebookScheduler.getDaysRepeat(), clusterScheduler.getDaysRepeat())
-				&& notebookScheduler.getTimeZoneOffset() == clusterScheduler.getTimeZoneOffset() &&
+				notebookScheduler.getBeginDate().equals(clusterScheduler.getBeginDate()) &&
+				notebookScheduler.getStartTime().equals(clusterScheduler.getStartTime()) &&
+				areCollectionsEqual(notebookScheduler.getDaysRepeat(), clusterScheduler.getDaysRepeat())
+				&& notebookScheduler.getTimeZoneOffset().equals(clusterScheduler.getTimeZoneOffset()) &&
 				notebookScheduler.isSyncStartRequired() && clusterScheduler.isSyncStartRequired();
 	}
 
