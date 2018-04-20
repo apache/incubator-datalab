@@ -265,29 +265,31 @@ public class ComputationalDAO extends BaseDAO {
 				.toList());
 
 		exploratoryNames.forEach(explName ->
-				getComputationalResourcesWithStatus(computationalStatus, user, computationalType, explName)
+				getComputationalResourcesWhereStatusIn(user, computationalType, explName, computationalStatus)
 						.forEach(compName -> updateComputationalField(user, explName, compName,
 								REUPLOAD_KEY_REQUIRED, reuploadKeyRequired))
 		);
 	}
 
 	/**
-	 * Returns names of computational resources with predefined status and type for user's exploratory.
+	 * Returns names of computational resources which status is among existing ones. Also these resources will
+	 * have predefined type.
 	 *
-	 * @param computationalStatus status of computational resource.
-	 * @param user                user name.
-	 * @param computationalType   type of computational resource ('dataengine', 'dataengine-service').
-	 * @param exploratoryName     name of exploratory.
+	 * @param user                   user name.
+	 * @param computationalType      type of computational resource ('dataengine', 'dataengine-service').
+	 * @param exploratoryName        name of exploratory.
+	 * @param computationalStatuses  statuses of computational resource.
 	 * @return list of computational resources' names
 	 */
 
 	@SuppressWarnings("unchecked")
-	public List<String> getComputationalResourcesWithStatus(UserInstanceStatus computationalStatus, String user,
-															DataEngineType computationalType, String exploratoryName) {
+	public List<String> getComputationalResourcesWhereStatusIn(String user, DataEngineType computationalType,
+															   String exploratoryName,
+															   UserInstanceStatus... computationalStatuses) {
 		return stream((List<Document>) find(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName)),
 				fields(include(COMPUTATIONAL_RESOURCES))).first().get(COMPUTATIONAL_RESOURCES))
 				.filter(doc ->
-						doc.getString(STATUS).equals(computationalStatus.toString())
+						statusList(computationalStatuses).contains(doc.getString(STATUS))
 								&& DataEngineType.fromDockerImageName(doc.getString(IMAGE)) == computationalType)
 				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
 	}

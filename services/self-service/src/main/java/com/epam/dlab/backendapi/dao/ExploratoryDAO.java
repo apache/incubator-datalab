@@ -169,11 +169,6 @@ public class ExploratoryDAO extends BaseDAO {
 				));
 	}
 
-	private List<String> statusList(UserInstanceStatus[] statuses) {
-		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors.toList());
-	}
-
-
 	private List<UserInstanceDTO> getUserInstances(Bson condition) {
 		return stream(getCollection(USER_INSTANCES)
 				.find(condition)

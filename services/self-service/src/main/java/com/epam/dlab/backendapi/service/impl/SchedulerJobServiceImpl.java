@@ -35,6 +35,7 @@ import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
@@ -106,6 +107,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...",
 				exploratoryName, user, nullableJobDto(dto));
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, nullableJobDto(dto));
+		if (dto.isSyncStartRequired()) {
+			shareSchedulerJobDataToSparkClusters(user, exploratoryName, dto);
+		}
 	}
 
 	@Override
@@ -173,6 +177,23 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
+	/**
+	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.
+	 *
+	 * @param user            user's name
+	 * @param exploratoryName name of exploratory resource
+	 * @param dto             scheduler job data.
+	 */
+	private void shareSchedulerJobDataToSparkClusters(String user, String exploratoryName, SchedulerJobDTO dto) {
+		List<String> correspondingSparkClusters = computationalDAO.getComputationalResourcesWhereStatusIn(user,
+				DataEngineType.SPARK_STANDALONE, exploratoryName, STARTING, RUNNING, STOPPING, STOPPED);
+		for (String sparkName : correspondingSparkClusters) {
+			log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new " +
+					"scheduler job data {}...", sparkName, exploratoryName, user, nullableJobDto(dto));
+			computationalDAO.updateSchedulerDataForComputationalResource(user, exploratoryName, sparkName,
+					nullableJobDto(dto));
+		}
+	}
 
 	/**
 	 * Pulls out scheduler jobs data to achieve target exploratory ('isAppliedForClusters' equals 'false') or
@@ -262,7 +283,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
-
 	private UserInstanceStatus getActionBasedOnDesiredStatus(UserInstanceStatus desiredStatus) {
 		if (desiredStatus == RUNNING) {
 			return UserInstanceStatus.STARTING;
@@ -307,13 +327,24 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		if (!schedulerJobForExploratory.isPresent() || !schedulerJobForExploratory.get().isSyncStartRequired()) {
 			return Collections.emptyList();
 		}
-		return computationalDAO.getComputationalResourcesWithStatus(STOPPED, user,
-				DataEngineType.SPARK_STANDALONE, exploratoryName).stream()
+		return computationalDAO.getComputationalResourcesWhereStatusIn(user,
+				DataEngineType.SPARK_STANDALONE, exploratoryName, STOPPED).stream()
 				.filter(clusterName -> {
-					Optional<SchedulerJobDTO> schedulerJob =
+					Optional<SchedulerJobDTO> schedulerJobForCluster =
 							schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
-					return !schedulerJob.isPresent() || schedulerJob.get().isSyncStartRequired();
+					return schedulerJobForCluster.isPresent() && areSchedulersEqualForSyncStarting(
+							schedulerJobForExploratory.get(), schedulerJobForCluster.get());
 				}).collect(Collectors.toList());
+	}
+
+	private boolean areSchedulersEqualForSyncStarting(SchedulerJobDTO notebookScheduler,
+													  SchedulerJobDTO clusterScheduler) {
+		return !Objects.isNull(notebookScheduler) && !Objects.isNull(clusterScheduler) &&
+				notebookScheduler.getBeginDate() == clusterScheduler.getBeginDate() &&
+				notebookScheduler.getStartTime() == clusterScheduler.getStartTime() &&
+				CollectionUtils.isEqualCollection(notebookScheduler.getDaysRepeat(), clusterScheduler.getDaysRepeat())
+				&& notebookScheduler.getTimeZoneOffset() == clusterScheduler.getTimeZoneOffset() &&
+				notebookScheduler.isSyncStartRequired() && clusterScheduler.isSyncStartRequired();
 	}
 
 	/**
@@ -402,5 +433,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private SchedulerJobDTO nullableJobDto(SchedulerJobDTO dto) {
 		return Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty() ? null : dto;
 	}
+
 }
 

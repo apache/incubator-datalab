@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
+import static com.epam.dlab.UserInstanceStatus.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -165,6 +166,7 @@ public class SchedulerJobServiceImplTest {
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
 		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
 
 	@Test
@@ -181,6 +183,7 @@ public class SchedulerJobServiceImplTest {
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, null);
 		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
 
 	@Test
@@ -194,6 +197,7 @@ public class SchedulerJobServiceImplTest {
 		}
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
 
 	@Test
@@ -208,6 +212,7 @@ public class SchedulerJobServiceImplTest {
 		}
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
 
 	@Test
@@ -230,7 +235,51 @@ public class SchedulerJobServiceImplTest {
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
 		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
+
+	@Test
+	public void updateSchedulerDataForUserAndExploratoryWithSyncStartRequiredParam() {
+		userInstance.withStatus("running");
+		schedulerJobDTO.setSyncStartRequired(true);
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
+				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+				anyString(), anyVararg())).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
+		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
+				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
+
+		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+				EXPLORATORY_NAME, STARTING, RUNNING, STOPPING, STOPPED);
+		verify(computationalDAO).updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
+				COMPUTATIONAL_NAME, schedulerJobDTO);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void updateSchedulerDataForUserAndExploratoryWithSyncStartRequiredParamButAbsenceClusters() {
+		userInstance.withStatus("running");
+		schedulerJobDTO.setSyncStartRequired(true);
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
+				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+				anyString(), anyVararg())).thenReturn(Collections.emptyList());
+
+		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+				EXPLORATORY_NAME, STARTING, RUNNING, STOPPING, STOPPED);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
 
 	@Test
 	public void updateSchedulerDataForComputationalResource() {
@@ -365,8 +414,8 @@ public class SchedulerJobServiceImplTest {
 		when(schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(anyString(), anyString()))
 				.thenReturn(Optional.of(schedulerJobDTO));
 		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
-		when(computationalDAO.getComputationalResourcesWithStatus(any(UserInstanceStatus.class), anyString(),
-				any(DataEngineType.class), anyString())).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+				anyString(), any(UserInstanceStatus.class))).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
 		when(schedulerJobDAO.fetchSingleSchedulerJobForCluster(anyString(), anyString(), anyString()))
 				.thenReturn(Optional.of(schedulerJobDTO));
 		when(systemUserService.create(anyString())).thenReturn(userInfo);
@@ -377,8 +426,8 @@ public class SchedulerJobServiceImplTest {
 
 		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.RUNNING), eq(false));
 		verify(schedulerJobDAO).fetchSingleSchedulerJobByUserAndExploratory(USER, EXPLORATORY_NAME);
-		verify(computationalDAO).getComputationalResourcesWithStatus(UserInstanceStatus.STOPPED, USER,
-				DataEngineType.SPARK_STANDALONE, EXPLORATORY_NAME);
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+				EXPLORATORY_NAME, UserInstanceStatus.STOPPED);
 		verify(schedulerJobDAO).fetchSingleSchedulerJobForCluster(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verify(systemUserService, times(2)).create(USER);
 		verify(exploratoryService).start(userInfo, EXPLORATORY_NAME);
