@@ -19,36 +19,48 @@ limitations under the License.
 package com.epam.dlab.automation.model;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public abstract class DeployClusterDto {
 
 	private String image;
-	private String template_name;
+
+	@JsonProperty("template_name")
+	private String templateName;
 	private String name;
-	private String notebook_name;
-	
+
+	@JsonProperty("notebook_name")
+	private String notebookName;
+
 	public String getImage() {
 		return image;
 	}
+
 	public void setImage(String image) {
 		this.image = image;
 	}
-	public String getTemplate_name() {
-		return template_name;
+
+	public String getTemplateName() {
+		return templateName;
 	}
-	public void setTemplate_name(String template_name) {
-		this.template_name = template_name;
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getNotebook_name() {
-		return notebook_name;
+
+	public String getNotebookName() {
+		return notebookName;
 	}
-	public void setNotebook_name(String notebook_name) {
-		this.notebook_name = notebook_name;
+
+	public void setNotebookName(String notebookName) {
+		this.notebookName = notebookName;
 	}
-	
 }

@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.helper;
 
+import com.epam.dlab.automation.exceptions.LoadFailException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -159,7 +160,8 @@ public class ConfigPropertyValue {
             setKeyProperty(ACCESS_KEY_PUB_FILE_NAME);
         } catch (Exception e) {
         	LOGGER.fatal("Load properties from file {} fails.", CONFIG_FILE_NAME, e);
-            throw new RuntimeException("Load properties from \"" + CONFIG_FILE_NAME + "\" fails. " + e.getLocalizedMessage(), e);
+			throw new LoadFailException("Load properties from \"" + CONFIG_FILE_NAME + "\" fails. " +
+					e.getLocalizedMessage(), e);
         }
         
         printProperty(JENKINS_USERNAME);

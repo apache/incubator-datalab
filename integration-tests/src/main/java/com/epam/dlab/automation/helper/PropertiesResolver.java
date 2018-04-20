@@ -31,32 +31,35 @@ public class PropertiesResolver {
 
     private static final Logger LOGGER = LogManager.getLogger(PropertiesResolver.class);
     public static final boolean DEV_MODE;
-    public static final String CONFIG_FILE_NAME = "application.properties";
-    public static String NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE = "scenario.%s.files.location";
-    public static String NOTEBOOK_TEST_TEMPLATES_LOCATION = "%s.test.templates.location";
-    public static String NOTEBOOK_CONFIGURATION_FILE_TEMPLATE = "%s/%s-notebook.json";
+	private static final String CONFIG_FILE_NAME = "application.properties";
+	public static final String NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE = "scenario.%s.files.location";
+	public static final String NOTEBOOK_TEST_TEMPLATES_LOCATION = "%s.test.templates.location";
+	public static final String NOTEBOOK_CONFIGURATION_FILE_TEMPLATE = "%s/%s-notebook.json";
 
     //keys from application.properties(dev-application.properties)
-    private final static String CONF_FILE_LOCATION_PROPERTY = "conf.file.location";
-    private static String KEYS_DIRECTORY_LOCATION_PROPERTY = "keys.directory.location";
-    private static String NOTEBOOK_TEST_DATA_COPY_SCRIPT = "notebook.test.data.copy.script";
-    private static String NOTEBOOK_TEST_LIB_LOCATION = "notebook.test.lib.location";
+	private static final String CONF_FILE_LOCATION_PROPERTY = "conf.file.location";
+	private static final String KEYS_DIRECTORY_LOCATION_PROPERTY = "keys.directory.location";
+	private static final String NOTEBOOK_TEST_DATA_COPY_SCRIPT = "notebook.test.data.copy.script";
+	private static final String NOTEBOOK_TEST_LIB_LOCATION = "notebook.test.lib.location";
 
-    private static String SCENARIO_JUPYTER_FILES_LOCATION_PROPERTY = "scenario.jupyter.files.location";
-    private static String SCENARIO_RSTUDIO_FILES_LOCATION_PROPERTY = "scenario.rstudio.files.location";
-    private static String SCENARIO_ZEPPELIN_FILES_LOCATION_PROPERTY = "scenario.zeppelin.files.location";
-    private static String SCENARIO_TENSOR_FILES_LOCATION_PROPERTY = "scenario.tensor.files.location";
-    private static String SCENARIO_DEEPLEARNING_FILES_LOCATION_PROPERTY = "scenario.deeplearning.files.location";
+	private static final String SCENARIO_JUPYTER_FILES_LOCATION_PROPERTY = "scenario.jupyter.files.location";
+	private static final String SCENARIO_RSTUDIO_FILES_LOCATION_PROPERTY = "scenario.rstudio.files.location";
+	private static final String SCENARIO_ZEPPELIN_FILES_LOCATION_PROPERTY = "scenario.zeppelin.files.location";
+	private static final String SCENARIO_TENSOR_FILES_LOCATION_PROPERTY = "scenario.tensor.files.location";
+	private static final String SCENARIO_DEEPLEARNING_FILES_LOCATION_PROPERTY = "scenario.deeplearning.files.location";
 
-    private static String JUPYTER_TEST_TEMPLATES_LOCATION_PROPERTY = "jupyter.test.templates.location";
-    private static String RSTUDIO_TEST_TEMPLATES_LOCATION_PROPERTY = "rstudio.test.templates.location";
-    private static String ZEPPELIN_TEST_TEMPLATES_LOCATION_PROPERTY = "zeppelin.test.templates.location";
-    private static String TENSOR_TEST_TEMPLATES_LOCATION_PROPERTY = "tensor.test.templates.location";
-    private static String DEEPLEARNING_TEST_TEMPLATES_LOCATION_PROPERTY = "deeplearning.test.templates.location";
+	private static final String JUPYTER_TEST_TEMPLATES_LOCATION_PROPERTY = "jupyter.test.templates.location";
+	private static final String RSTUDIO_TEST_TEMPLATES_LOCATION_PROPERTY = "rstudio.test.templates.location";
+	private static final String ZEPPELIN_TEST_TEMPLATES_LOCATION_PROPERTY = "zeppelin.test.templates.location";
+	private static final String TENSOR_TEST_TEMPLATES_LOCATION_PROPERTY = "tensor.test.templates.location";
+	private static final String DEEPLEARNING_TEST_TEMPLATES_LOCATION_PROPERTY = "deeplearning.test.templates.location";
 
-    private static String CLUSTER_CONFIG_FILE_LOCATION_PROPERTY = "ec2.config.files.location";
-    private static String AZURE_CONFIG_FILE_LOCATION_PROPERTY = "azure.config.files.location";
-    private static String GCP_CONFIG_FILE_LOCATION_PROPERTY = "gcp.config.files.location";
+	private static final String CLUSTER_CONFIG_FILE_LOCATION_PROPERTY = "ec2.config.files.location";
+	private static final String AZURE_CONFIG_FILE_LOCATION_PROPERTY = "azure.config.files.location";
+	private static final String GCP_CONFIG_FILE_LOCATION_PROPERTY = "gcp.config.files.location";
+
+	private PropertiesResolver() {
+	}
 
     public static String getJupyterTestTemplatesLocationProperty() {
         return JUPYTER_TEST_TEMPLATES_LOCATION_PROPERTY;

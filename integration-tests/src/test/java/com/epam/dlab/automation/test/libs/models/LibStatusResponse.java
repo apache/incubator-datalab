@@ -18,11 +18,11 @@
 
 package com.epam.dlab.automation.test.libs.models;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LibStatusResponse {
@@ -54,16 +54,15 @@ public class LibStatusResponse {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        LibStatusResponse that = (LibStatusResponse) o;
+		LibStatusResponse that = (LibStatusResponse) o;
 
-        if (group != null ? !group.equals(that.group) : that.group != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (version != null ? !version.equals(that.version) : that.version != null) return false;
-        return status != null ? status.equals(that.status) : that.status == null; 
-    }
+		return (group != null ? group.equals(that.group) : that.group == null) && (name != null ? name.equals(that
+				.name) : that.name == null) && (version != null ? version.equals(that.version) : that.version == null)
+				&& (status != null ? status.equals(that.status) : that.status == null);
+	}
 
     @Override
     public int hashCode() {

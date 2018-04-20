@@ -20,10 +20,10 @@ package com.epam.dlab.automation.helper;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Tag;
-import com.epam.dlab.automation.cloud.CloudException;
 import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 import com.epam.dlab.automation.cloud.azure.AzureHelper;
 import com.epam.dlab.automation.cloud.gcp.GcpHelper;
+import com.epam.dlab.automation.exceptions.CloudException;
 import com.epam.dlab.automation.model.DeployClusterDto;
 import com.epam.dlab.automation.model.DeployDataProcDto;
 import com.epam.dlab.automation.model.DeployEMRDto;

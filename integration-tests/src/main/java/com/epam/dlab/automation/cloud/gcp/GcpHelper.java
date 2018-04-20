@@ -1,6 +1,6 @@
 package com.epam.dlab.automation.cloud.gcp;
 
-import com.epam.dlab.automation.cloud.CloudException;
+import com.epam.dlab.automation.exceptions.CloudException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -111,8 +111,8 @@ public class GcpHelper {
 	}
 
 	public static void checkGcpStatus(String instanceName, String projectId, GcpInstanceState expGcpStatus, boolean
-			restrictionMode, List<String> zones)
-			throws CloudException, InterruptedException, IOException {
+			restrictionMode, List<String> zones) throws InterruptedException, IOException {
+
 		LOGGER.info("Check status of instance with name {} on GCP", instanceName);
 		if (ConfigPropertyValue.isRunModeLocal()) {
 			LOGGER.info("GCP instance with name {} fake status is {}", instanceName, expGcpStatus);
@@ -157,6 +157,9 @@ public class GcpHelper {
 	}
 
 	public static List<String> getAvailableZonesForProject(String projectId) throws IOException {
+		if (ConfigPropertyValue.isRunModeLocal()) {
+			return Collections.emptyList();
+		}
 		List<Zone> zoneList = new ArrayList<>();
 		Compute.Zones.List request = ComputeService.getInstance().zones().list(projectId);
 		ZoneList response;
@@ -179,7 +182,7 @@ public class GcpHelper {
 		}
 
 		static synchronized Compute getInstance() throws IOException {
-			if (instance == null) {
+			if (!ConfigPropertyValue.isRunModeLocal() && instance == null) {
 				try {
 					instance = createComputeService();
 				} catch (GeneralSecurityException e) {
@@ -193,12 +196,11 @@ public class GcpHelper {
 			HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-			GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(ConfigPropertyValue
-					.getGcpAuthFileName()));
+			GoogleCredential credential =
+					GoogleCredential.fromStream(new FileInputStream(ConfigPropertyValue.getGcpAuthFileName()));
 			if (credential.createScopedRequired()) {
-				credential =
-						credential.createScoped(Collections.singletonList("https://www.googleapis" +
-								".com/auth/cloud-platform"));
+				credential = credential.createScoped(
+						Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
 			}
 
 			return new Compute.Builder(httpTransport, jsonFactory, credential)

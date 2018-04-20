@@ -29,12 +29,15 @@ import static com.jayway.restassured.RestAssured.given;
 
 public class HttpRequest {
 
-	public void AddHeader(String headerType, String headerValue) {
+	private static final String AUTHORIZATION = "Authorization";
+	private static final String BEARER = "Bearer ";
+
+	private void addHeader(String headerType, String headerValue) {
 		given().header(headerType, headerValue);
 	}
 
-	public void AddAuthorizationBearer(String token) {
-		this.AddHeader("Authorization", "Bearer " + token);
+	public void addAuthorizationBearer(String token) {
+		this.addHeader(AUTHORIZATION, BEARER + token);
 	}
 
 	public Response webApiGet(String url) {
@@ -42,11 +45,12 @@ public class HttpRequest {
 	}
 
 	public Response webApiGet(String url, String token) {
-		return given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON).when().get(url);
+		return given().header(AUTHORIZATION, BEARER + token).contentType(ContentType.JSON).when().get(url);
 	}
 	
 	public Response webApiGet(String url, String token, Map<String,?> params) {
-		return given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON).params(params).when().get(url);
+		return given().header(AUTHORIZATION, BEARER + token).contentType(ContentType.JSON).params(params).when().get
+				(url);
 	}
 
 	public Response webApiPost(String url, String contentType, Object body) {
@@ -60,7 +64,7 @@ public class HttpRequest {
 	public Response webApiPost(String url, String contentType, String token) {
 		return given()
 				.contentType(contentType)
-				.header("Authorization", "Bearer " + token)
+				.header(AUTHORIZATION, BEARER + token)
 				.multiPart(new File(ConfigPropertyValue.getAccessKeyPubFileName()))
 				.formParam(ConfigPropertyValue.getAccessKeyPubFileName())
 				.contentType(contentType)
@@ -69,14 +73,14 @@ public class HttpRequest {
 	}
 
 	public Response webApiPost(String url, String contentType, Object body, String token) {
-		return given().contentType(contentType).header("Authorization", "Bearer " + token).body(body).when().post(url);
+		return given().contentType(contentType).header(AUTHORIZATION, BEARER + token).body(body).when().post(url);
 	}
 
 	public Response webApiPut(String url, String contentType, Object body, String token) {
-		return given().contentType(contentType).header("Authorization", "Bearer " + token).body(body).when().put(url);
+		return given().contentType(contentType).header(AUTHORIZATION, BEARER + token).body(body).when().put(url);
 	}
 
 	public Response webApiDelete(String url, String contentType, String token) {
-		return given().contentType(contentType).header("Authorization", "Bearer " + token).when().delete(url);
+		return given().contentType(contentType).header(AUTHORIZATION, BEARER + token).when().delete(url);
 	}
 }
