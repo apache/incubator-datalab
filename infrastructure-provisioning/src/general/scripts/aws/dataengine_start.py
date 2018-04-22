@@ -27,10 +27,10 @@ import sys
 import uuid
 
 
-def start_dataengine(tag_name, nb_tag_value):
+def start_data_engine(cluster_name):
     print("Start Data Engine")
     try:
-        start_ec2(tag_name, nb_tag_value)
+        start_ec2('Name', cluster_name + '*')
     except:
         sys.exit(1)
 
@@ -47,16 +47,26 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     data_engine_config = dict()
-    data_engine_config['notebook_name'] = os.environ['notebook_instance_name']
-    data_engine_config['tag_name'] = 'dataengine_notebook_name'
+    try:
+        data_engine_config['exploratory_name'] = os.environ['exploratory_name']
+    except:
+        data_engine_config['exploratory_name'] = ''
+    try:
+        data_engine_config['computational_name'] = os.environ['computational_name']
+    except:
+        data_engine_config['computational_name'] = ''
     data_engine_config['service_base_name'] = os.environ['conf_service_base_name']
+    data_engine_config['user_name'] = os.environ['edge_user_name']
+    data_engine_config['cluster_name'] = \
+        data_engine_config['service_base_name'] + '-' + data_engine_config['user_name'] + '-de-' + \
+        data_engine_config['exploratory_name'] + '-' + data_engine_config['computational_name']
 
     logging.info('[START DATA ENGINE CLUSTER]')
     print('[START DATA ENGINE CLUSTER]')
     try:
-        start_dataengine(data_engine_config['tag_name'], data_engine_config['notebook_name'])
+        start_data_engine(data_engine_config['cluster_name'])
     except Exception as err:
-        append_result("Failed to stop notebook.", str(err))
+        append_result("Failed to start Data Engine.", str(err))
         sys.exit(1)
 
     try:

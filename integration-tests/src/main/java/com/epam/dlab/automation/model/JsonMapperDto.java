@@ -21,6 +21,7 @@ package com.epam.dlab.automation.model;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.gson.JsonParseException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,12 +31,13 @@ public class JsonMapperDto {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+	private JsonMapperDto() {
+	}
+
     @SuppressWarnings("unchecked")
 	public static <T> T readNode(String pathToJson, Class<T> clasz) throws IOException {
         try (FileInputStream in = new FileInputStream(pathToJson)){
-          return (T) OBJECT_MAPPER
-        		  .readerFor(clasz)
-        		  .readValue(in);
+			return OBJECT_MAPPER.readerFor(clasz).readValue(in);
         }
     }
 
@@ -44,7 +46,7 @@ public class JsonMapperDto {
             CollectionType typeReference = TypeFactory.defaultInstance().constructCollectionType(List.class, clasz);
             return OBJECT_MAPPER.readValue(in, typeReference);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot read json file", e);
+			throw new JsonParseException("Cannot read json file", e);
         }
     }
 
@@ -52,7 +54,7 @@ public class JsonMapperDto {
         try (FileInputStream in = new FileInputStream(pathToJson)){
             return OBJECT_MAPPER.readValue(in, clasz);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot read json file", e);
+			throw new JsonParseException("Cannot read json file", e);
         }
     }
 }

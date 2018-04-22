@@ -18,7 +18,7 @@
 
 package com.epam.dlab.automation.cloud.azure;
 
-import com.epam.dlab.automation.cloud.CloudException;
+import com.epam.dlab.automation.exceptions.CloudException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.PowerState;
@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,17 +46,21 @@ public class AzureHelper{
     private static final Duration CHECK_TIMEOUT = Duration.parse("PT10m");
     private static final String LOCALHOST_IP = ConfigPropertyValue.get("LOCALHOST_IP");
 
-    private static Azure azure;
-
-    static {
-        try {
-            azure = Azure.configure().authenticate(new File(ConfigPropertyValue.getAzureAuthFileName())).withDefaultSubscription();
-        } catch (IOException e) {
-            LOGGER.warn("Exception is occured ", e);
-        }
-    }
+	private static Azure azure = getAzureInstance();
 
     private AzureHelper(){}
+
+	private static Azure getAzureInstance() {
+		if (!ConfigPropertyValue.isRunModeLocal() && Objects.isNull(azure)) {
+			try {
+				return Azure.configure().authenticate(
+						new File(ConfigPropertyValue.getAzureAuthFileName())).withDefaultSubscription();
+			} catch (IOException e) {
+				LOGGER.info("An exception occured: {}", e);
+			}
+		}
+		return azure;
+	}
 
     private static List<VirtualMachine> getVirtualMachines(){
         return !azure.virtualMachines().list().isEmpty() ? new ArrayList<>(azure.virtualMachines().list()) : null;
@@ -103,7 +108,8 @@ public class AzureHelper{
         return vm.powerState();
     }
 
-    public static void checkAzureStatus(String virtualMachineName, PowerState expAzureState, boolean restrictionMode) throws CloudException, InterruptedException {
+	public static void checkAzureStatus(String virtualMachineName, PowerState expAzureState, boolean restrictionMode)
+			throws InterruptedException {
         LOGGER.info("Check status of virtual machine with name {} on Azure", virtualMachineName);
         if (ConfigPropertyValue.isRunModeLocal()) {
             LOGGER.info("Azure virtual machine with name {} fake state is {}", virtualMachineName, expAzureState);

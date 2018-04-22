@@ -32,12 +32,12 @@ import java.io.IOException;
 
 public class VirtualMachineStatusChecker {
 
-	public static final String UNKNOWN_CLOUD_PROVIDER = "Unknown cloud provider";
+	private static final String UNKNOWN_CLOUD_PROVIDER = "Unknown cloud provider";
 
 	private VirtualMachineStatusChecker(){}
 
     public static void checkIfRunning(String tagNameValue, boolean restrictionMode)
-            throws CloudException, InterruptedException, IOException {
+			throws InterruptedException, IOException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
@@ -58,7 +58,7 @@ public class VirtualMachineStatusChecker {
     }
 
     public static void checkIfTerminated(String tagNameValue, boolean restrictionMode)
-            throws CloudException, InterruptedException, IOException {
+			throws InterruptedException, IOException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
@@ -79,7 +79,7 @@ public class VirtualMachineStatusChecker {
     }
 
     public static void checkIfStopped(String tagNameValue, boolean restrictionMode)
-            throws CloudException, InterruptedException, IOException {
+			throws InterruptedException, IOException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:

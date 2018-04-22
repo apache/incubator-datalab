@@ -73,9 +73,8 @@ public class TestDataEngineService {
     }
     
     //TODO refactor two methods and make one
-	private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile, String
-			notebookName)
-			throws JSchException, IOException, InterruptedException {
+	private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile,
+									  String notebookName) throws JSchException, InterruptedException {
         String command;
         AckStatus status;
 
@@ -91,9 +90,8 @@ public class TestDataEngineService {
         LOGGER.info("{}: Python script executed successfully ", notebookName);
     }
 
-	private void executePythonScript(String Ip, String cluster_name, String notebookTestFile, int assignedPort, String
-			notebookName)
-			throws JSchException, IOException, InterruptedException {
+	private void executePythonScript(String Ip, String cluster_name, String notebookTestFile, int assignedPort,
+									 String notebookName) throws JSchException, InterruptedException {
         String command;
         AckStatus status;
         Session session = SSHConnect.getForwardedConnect(ConfigPropertyValue.getClusterOsUser(), Ip, assignedPort);

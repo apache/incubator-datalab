@@ -23,8 +23,8 @@ limitations under the License.
 
   <div *ngIf="resources.length">
     <div class="resource_wrap">
-      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
-      <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine'">
+      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="toggleResourceAction(resources[0], 'terminate')">&times;</a>
+      <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine' && environment.status === 'running'">
         <span *ngIf="resources[0].status === 'running' || resources[0].status === 'stopping'"
               (click)="toggleResourceAction(resources[0], 'stop')"
               [ngClass]="{'not-allowed' : resources[0].status === 'stopping'}">pause_circle_outline</span>
@@ -53,7 +53,7 @@ limitations under the License.
   <div *ngFor="let resource of resources | slice:1">
       <div class="resource_wrap">
         <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' }" (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
-        <a class="start-stop-action material-icons" *ngIf="resource.image === 'docker.dlab-dataengine'">
+        <a class="start-stop-action material-icons" *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
           <span *ngIf="resource.status === 'running' || resource.status === 'stopping'"
                 (click)="toggleResourceAction(resource, 'stop')"
                 [ngClass]="{'not-allowed' : resource.status === 'stopping'}">pause_circle_outline</span>

@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 public class WaitForStatus {
 
     private static final Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
+	private static final String EXPLORATORY_PATH = "exploratory";
 
     private static long getSsnRequestTimeout() {
         return ConfigPropertyValue.isRunModeLocal() ? 1000 : 10000;
@@ -158,15 +159,18 @@ public class WaitForStatus {
 
     public static String getClusterStatus(JsonPath json, String notebookName, String computationalName) {
 
-        List<Map<String, List<Map<String, String>>>> notebooks = json.getList("exploratory");
-        List<Map<String, List<Map<String, String>>>> filterred = notebooks.stream()
-                .filter(e -> notebookName.equals(e.get("exploratory_name"))).collect(Collectors.toList());
+		List<Map<String, List<Map<String, String>>>> notebooks = json.getList(EXPLORATORY_PATH);
+		List<Map<String, String>> notebooksWithReducedData = json.getList(EXPLORATORY_PATH);
 
-        if (filterred == null || filterred.size() != 1) {
+		List<Integer> indexesOfSeekingNotebooks = notebooksWithReducedData.stream()
+				.map(e -> notebookName.equals(e.get("exploratory_name")) ? notebooksWithReducedData.indexOf(e) : -1)
+				.filter(e -> e >= 0).collect(Collectors.toList());
+
+		if (indexesOfSeekingNotebooks == null || indexesOfSeekingNotebooks.size() != 1) {
             return "";
         }
-        List<Map<String, String>> resources = filterred.get(0)
-                .get("computational_resources");
+		List<Map<String, String>> resources = notebooks.get(indexesOfSeekingNotebooks.get(0))
+				.get("computational_resources");
         for (Map<String, String> resource : resources) {
             String comp = resource.get("computational_name");
             if (comp != null && comp.equals(computationalName)) {
@@ -177,8 +181,9 @@ public class WaitForStatus {
     }
 
     private static String getNotebookStatus(JsonPath json, String notebookName) {
-        List<Map<String, String>> notebooks = json.getList("exploratory");
-        notebooks = notebooks.stream().filter(e -> notebookName.equals(e.get("exploratory_name"))).collect(Collectors.toList());
+		List<Map<String, String>> notebooks = json.getList(EXPLORATORY_PATH);
+		notebooks = notebooks.stream().filter(e -> notebookName.equals(e.get("exploratory_name")))
+				.collect(Collectors.toList());
 
         if (notebooks == null || notebooks.size() != 1) {
             return "";

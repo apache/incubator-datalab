@@ -18,37 +18,43 @@ limitations under the License.
 
 package com.epam.dlab.automation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class DeploySparkDto extends DeployClusterDto{
-	
-	private String dataengine_instance_count;
-	private String dataengine_instance_shape;
-	
-	public String getDataengine_instance_count() {
-		return dataengine_instance_count;
-	}
-	public void setDataengine_instance_count(String dataengine_instance_count) {
-		this.dataengine_instance_count = dataengine_instance_count;
+
+	@JsonProperty("dataengine_instance_count")
+	private String dataengineInstanceCount;
+
+	@JsonProperty("dataengine_instance_shape")
+	private String dataengineInstanceShape;
+
+
+	public String getDataengineInstanceCount() {
+		return dataengineInstanceCount;
 	}
 
-	public String getDataengine_instance_shape() {
-		return dataengine_instance_shape;
+	public void setDataengineInstanceCount(String dataengineInstanceCount) {
+		this.dataengineInstanceCount = dataengineInstanceCount;
 	}
 
-	public void setDataengine_instance_shape(String dataengine_instance_shape) {
-		this.dataengine_instance_shape = dataengine_instance_shape;
+	public String getDataengineInstanceShape() {
+		return dataengineInstanceShape;
+	}
+
+	public void setDataengineInstanceShape(String dataengineInstanceShape) {
+		this.dataengineInstanceShape = dataengineInstanceShape;
 	}
 
 	@Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
         		.add("image", getImage())
-        		.add("template_name", getTemplate_name())
+				.add("template_name", getTemplateName())
         		.add("name", getName())
-        		.add("notebook_name", getNotebook_name())
-				.add("dataengine_instance_shape", dataengine_instance_shape)
-        		.add("dataengine_instance_count", dataengine_instance_count)
+				.add("notebook_name", getNotebookName())
+				.add("dataengine_instance_shape", dataengineInstanceShape)
+				.add("dataengine_instance_count", dataengineInstanceCount)
         		.toString();
     }
 	

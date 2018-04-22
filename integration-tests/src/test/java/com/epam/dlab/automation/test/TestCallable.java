@@ -211,7 +211,7 @@ public class TestCallable implements Callable<Boolean> {
 	}
 
     clusterDto.setName(clusterName);
-    clusterDto.setNotebook_name(notebookName);
+		clusterDto.setNotebookName(notebookName);
     LOGGER.info("{}: {} cluster = {}",notebookName,dataEngineType, clusterDto);
     Response responseDeployingCluster = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON,
     		clusterDto, token);
@@ -560,23 +560,23 @@ private void restartNotebook() throws Exception {
    }
 
    private void terminateNotebook(DeployClusterDto deployCluster) throws Exception {
-       terminateNotebook(deployCluster.getNotebook_name());
+	   terminateNotebook(deployCluster.getNotebookName());
 
        String gettingStatus = WaitForStatus.getClusterStatus(
 				new HttpRequest()
 					.webApiGet(ssnProUserResURL, token)
 					.getBody()
 					.jsonPath(),
-					deployCluster.getNotebook_name(), deployCluster.getName());
+			   deployCluster.getNotebookName(), deployCluster.getName());
        if (!gettingStatus.contains("terminated"))
 		   throw new Exception(dataEngineType + " cluster " + deployCluster.getName() + " has not been terminated for Notebook "
-				   + deployCluster.getNotebook_name() + ". Cluster status is " + gettingStatus);
+				   + deployCluster.getNotebookName() + ". Cluster status is " + gettingStatus);
 	   LOGGER.info("    {} cluster {} has been terminated for Notebook {}", dataEngineType, deployCluster.getName(),
-			   deployCluster.getNotebook_name());
+			   deployCluster.getNotebookName());
 
 	   VirtualMachineStatusChecker.checkIfTerminated(
 			   NamingHelper.getClusterInstanceName(
-					   deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), true);
+					   deployCluster.getNotebookName(), deployCluster.getName(), dataEngineType), true);
 
    }
    
@@ -614,7 +614,7 @@ private void restartNotebook() throws Exception {
 			   clusterNewName, notebookName);
 
        deployCluster.setName(clusterNewName);
-       deployCluster.setNotebook_name(notebookName);
+	   deployCluster.setNotebookName(notebookName);
        Response responseDeployingClusterNew = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON, deployCluster, token);
        LOGGER.info("    responseDeployingClusterNew.getBody() is {}", responseDeployingClusterNew.getBody().asString());
        Assert.assertEquals(responseDeployingClusterNew.statusCode(), HttpStatusCode.OK);
