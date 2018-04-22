@@ -285,7 +285,7 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'install') {
       this.installLibraries.open({ isFooter: false }, data);
     } else if (action === 'schedule') {
-      this.scheduler.open({ isFooter: false }, data);
+      this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
     } else if (action === 'ami') {
       this.createAMI.open({ isFooter: false }, data);
     }

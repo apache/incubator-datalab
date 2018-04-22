@@ -83,7 +83,7 @@ export class ComputationalResourcesListComponent {
   };
 
   openScheduleDialog(resource) {
-    this.clusterScheduler.open({ isFooter: false }, resource);
+    this.clusterScheduler.open({ isFooter: false }, this.environment, 'СOMPUTATIONAL', resource);
   }
 }
 
