@@ -61,10 +61,15 @@ limitations under the License.
             </mat-slide-toggle>
           </div>
         </div>
-        <span class="info" *ngIf="infoMessage">In case of switching off all weekdays options, your schedule by <strong>{{ destination.name }}</strong> resource will be disabled </span>
-        <div class="inherit">
+        <span class="weekdays-note">NOTE: to enable the scheduler at least one weekday should be specified</span>
+        <div class="inherit" *ngIf="destination">
           <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)">
-            <span class="hold-label">Inherit</span>
+            <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
+              <span>Start all spark clusters associated with current notebook based on notebook start schedule</span>
+            </span>
+            <ng-template #resourcePropagation>
+              <span class="hold-label">Use notebook schedule settings</span>
+            </ng-template>
           </mat-slide-toggle>
         </div>
       </form>
