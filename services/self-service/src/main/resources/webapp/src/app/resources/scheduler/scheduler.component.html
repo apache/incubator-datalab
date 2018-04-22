@@ -19,8 +19,9 @@ limitations under the License.
 <modal-dialog #bindDialog modalClass="scheduler-dialog modal-sm">
   <modal-header>
     <h4 class="modal-title">Scheduler
-      <span *ngIf="notebook">for
-        <b>{{ destination?.name }}</b>
+      <span *ngIf="destination">for
+        <b *ngIf="destination.type === 'EXPLORATORY'; else resource">{{ destination.name }}</b>
+        <ng-template #resource><b>{{ destination.computational_name }}</b></ng-template>
       </span>
     </h4>
   </modal-header>
