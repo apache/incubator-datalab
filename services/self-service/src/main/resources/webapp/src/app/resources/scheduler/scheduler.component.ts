@@ -42,7 +42,7 @@ export class SchedulerComponent implements OnInit {
   public timeReqiered: boolean = false;
 
   public inherit: boolean = false;
-  public parent_inherit_val: boolean = false;
+  // public parent_inherit_val: boolean = false;
 
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
@@ -66,9 +66,8 @@ export class SchedulerComponent implements OnInit {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  public open(param, notebook, type): void {
+  public open(param, notebook, type, resource?): void {
     this.notebook = notebook;
-    // this.getResourcesList();
 
     if (!this.bindDialog.isOpened)
       this.model = new SchedulerModel(
@@ -82,15 +81,16 @@ export class SchedulerComponent implements OnInit {
         () => {
           this.bindDialog.open(param);
           this.formInit();
-
           this.changeDetector.detectChanges();
-          // this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.notebook.name, 'destination', 'title', 'array');
 
-          this.destination = this.notebook;
+          this.destination = (type === 'EXPLORATORY') ? this.notebook : resource;
           this.destination.type = type;
           
           this.selectedWeekDays.setDegault();
-          this.getExploratorySchedule(this.notebook.name);
+
+          (this.destination.type === 'СOMPUTATIONAL')
+            ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name) 
+            : this.getExploratorySchedule(this.notebook.name);
         },
         this.schedulerService
       );
@@ -101,7 +101,7 @@ export class SchedulerComponent implements OnInit {
     this.selectedWeekDays.setDegault();
 
     (this.destination.type === 'СOMPUTATIONAL')
-      ? this.getExploratorySchedule(this.notebook.name, this.destination.name) 
+      ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name) 
       : this.getExploratorySchedule(this.notebook.name);
   }
 
@@ -140,7 +140,7 @@ export class SchedulerComponent implements OnInit {
     };
 
     (this.destination.type === 'СOMPUTATIONAL')
-      ? this.model.confirmAction(this.notebook.name, parameters, this.destination.name)
+      ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
       : this.model.confirmAction(this.notebook.name, parameters);
   }
 
@@ -148,19 +148,6 @@ export class SchedulerComponent implements OnInit {
     if (this.bindDialog.isOpened) this.bindDialog.close();
 
     this.resetDialog();
-  }
-
-  private getResourcesList() {
-    this.notebook.type = 'EXPLORATORY';
-    this.notebook.title = `${ this.notebook.name } <em>notebook</em>`;
-    return [this.notebook].concat(this.notebook.resources
-      .filter(item => item.status === 'running' && item.image === 'docker.dlab-dataengine')
-      .map(item => {
-        item['name'] = item.computational_name;
-        item['title'] = `${ item.computational_name } <em>cluster</em>`;
-        item['type'] = 'СOMPUTATIONAL';
-        return item;
-      }));
   }
 
   private formInit(start?, end?) {
@@ -182,7 +169,7 @@ export class SchedulerComponent implements OnInit {
           );
           this.checkSelectedDays();
           this.inherit = params.sync_start_required;
-          if (this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
+          // if (this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
 
           this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
@@ -192,7 +179,7 @@ export class SchedulerComponent implements OnInit {
       },
       error => {
         let errorMessage = JSON.parse(error.message);
-        if (errorMessage.status == HTTP_STATUS_CODES.NOT_FOUND && this.parent_inherit_val) this.inherit = true;
+        // if (errorMessage.status == HTTP_STATUS_CODES.NOT_FOUND && this.parent_inherit_val) this.inherit = true;
       }
     );
   }
@@ -224,7 +211,7 @@ export class SchedulerComponent implements OnInit {
     this.infoMessage = false;
     this.timeReqiered = false;
     this.inherit = false;
-    this.parent_inherit_val = false;
+    // this.parent_inherit_val = false;
 
     this.startTime = this.convertTimeFormat('09:00');
     this.endTime = this.convertTimeFormat('20:00');

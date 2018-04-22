@@ -81,7 +81,7 @@ limitations under the License.
 .arrow_icon, .schedule {
   position: absolute;
   right: 0;
-  top: 4px;
+  top: 0;
   color: #748ba3;
   cursor: pointer;
 }
