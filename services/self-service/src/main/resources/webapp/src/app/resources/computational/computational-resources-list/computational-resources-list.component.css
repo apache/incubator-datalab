@@ -87,10 +87,16 @@ limitations under the License.
 }
 
 .schedule {
-  right: 25px;
+  right: 30px;
+  top: 4px;
   z-index: 1;
 }
-
+.schedule.active {
+  color: #49af38;
+}
+.schedule.not-allowed {
+  pointer-events: none;
+}
 .schedule i {
   font-size: 18px;
 }

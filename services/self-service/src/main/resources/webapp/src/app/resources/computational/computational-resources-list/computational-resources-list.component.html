@@ -37,7 +37,7 @@ limitations under the License.
       </a>
     </div>
 
-    <span class="schedule">
+    <span class="schedule" [ngClass]="{'active': resources[0].scheduler_data, 'not-allowed': resources[0].image === 'docker.dlab-dataengine-service'}">
       <i class="material-icons" (click)="openScheduleDialog(resources[0])">schedule</i>
     </span>
 
@@ -66,7 +66,7 @@ limitations under the License.
         </a>
       </div>
       <span ngClass="{{resource.status.toLowerCase() || ''}}" class="emt_status">{{resource.status}}</span>
-      <span class="schedule">
+      <span class="schedule" [ngClass]="{'active': resource.scheduler_data, 'not-allowed': resource.image === 'docker.dlab-dataengine-service'}">
         <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>
       </span>
   </div>
