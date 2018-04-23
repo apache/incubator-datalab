@@ -27,8 +27,8 @@ type TimeFormatAlias = TimeFormat;
   template: `
     <div class="time-picker">
       <mat-input-container class="time-select">
-        <input matInput placeholder="{{ label }}" [value]="selectedTime" (input)="checkEmpty($event.target.value)">
-        <mat-icon matSuffix (click)="openDatePickerDialog($event)">access_time</mat-icon>
+        <input matInput placeholder="{{ label }}" [value]="selectedTime" (input)="checkEmpty($event.target.value)" [disabled]="disable">
+        <mat-icon matSuffix [ngClass]="{'not-allowed': disable}" (click)="openDatePickerDialog($event)" disabled="disable">access_time</mat-icon>
       </mat-input-container>
     </div>`,
   styleUrls: ['./time-picker.component.scss']
@@ -36,6 +36,7 @@ type TimeFormatAlias = TimeFormat;
 export class TimePickerComponent implements OnInit {
   @Input() pickTime: TimeFormatAlias;
   @Input() label: string = 'Select time';
+  @Input() disable: boolean = false;
   @Output() pickTimeChange: EventEmitter<TimeFormatAlias> = new EventEmitter();
 
   constructor(private dialog: MatDialog) { }
