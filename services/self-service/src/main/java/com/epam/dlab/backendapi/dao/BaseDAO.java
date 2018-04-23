@@ -18,6 +18,7 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.mongo.IsoDateModule;
 import com.epam.dlab.mongo.MongoService;
@@ -371,6 +372,10 @@ public class BaseDAO {
 
 	protected Stream<Document> stream(Iterable<Document> iterable) {
 		return StreamSupport.stream(iterable.spliterator(), false);
+	}
+
+	List<String> statusList(UserInstanceStatus[] statuses) {
+		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors.toList());
 	}
 
 	/**

@@ -38,10 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -106,6 +103,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...",
 				exploratoryName, user, nullableJobDto(dto));
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, nullableJobDto(dto));
+		if (dto.isSyncStartRequired()) {
+			shareSchedulerJobDataToSparkClusters(user, exploratoryName, dto);
+		}
 	}
 
 	@Override
@@ -173,6 +173,23 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
+	/**
+	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.
+	 *
+	 * @param user            user's name
+	 * @param exploratoryName name of exploratory resource
+	 * @param dto             scheduler job data.
+	 */
+	private void shareSchedulerJobDataToSparkClusters(String user, String exploratoryName, SchedulerJobDTO dto) {
+		List<String> correspondingSparkClusters = computationalDAO.getComputationalResourcesWhereStatusIn(user,
+				DataEngineType.SPARK_STANDALONE, exploratoryName, STARTING, RUNNING, STOPPING, STOPPED);
+		for (String sparkName : correspondingSparkClusters) {
+			log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new " +
+					"scheduler job data {}...", sparkName, exploratoryName, user, nullableJobDto(dto));
+			computationalDAO.updateSchedulerDataForComputationalResource(user, exploratoryName, sparkName,
+					nullableJobDto(dto));
+		}
+	}
 
 	/**
 	 * Pulls out scheduler jobs data to achieve target exploratory ('isAppliedForClusters' equals 'false') or
@@ -262,7 +279,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
-
 	private UserInstanceStatus getActionBasedOnDesiredStatus(UserInstanceStatus desiredStatus) {
 		if (desiredStatus == RUNNING) {
 			return UserInstanceStatus.STARTING;
@@ -307,13 +323,34 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		if (!schedulerJobForExploratory.isPresent() || !schedulerJobForExploratory.get().isSyncStartRequired()) {
 			return Collections.emptyList();
 		}
-		return computationalDAO.getComputationalResourcesWithStatus(STOPPED, user,
-				DataEngineType.SPARK_STANDALONE, exploratoryName).stream()
-				.filter(clusterName -> {
-					Optional<SchedulerJobDTO> schedulerJob =
-							schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
-					return !schedulerJob.isPresent() || schedulerJob.get().isSyncStartRequired();
-				}).collect(Collectors.toList());
+		return computationalDAO.getComputationalResourcesWhereStatusIn(user,
+				DataEngineType.SPARK_STANDALONE, exploratoryName, STOPPED).stream()
+				.filter(clusterName -> isClusterSchedulerPresentAndEqualToAnotherForSyncStarting(user, exploratoryName,
+						clusterName, schedulerJobForExploratory.get())).collect(Collectors.toList());
+	}
+
+	private boolean isClusterSchedulerPresentAndEqualToAnotherForSyncStarting(String user, String exploratoryName,
+																			  String clusterName, SchedulerJobDTO
+																					  dto) {
+		Optional<SchedulerJobDTO> schedulerJobForCluster =
+				schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
+		return schedulerJobForCluster.isPresent() &&
+				areSchedulersEqualForSyncStarting(dto, schedulerJobForCluster.get());
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean areCollectionsEqual(Collection col1, Collection col2) {
+		return col1.containsAll(col2) && col2.containsAll(col1);
+	}
+
+	private boolean areSchedulersEqualForSyncStarting(SchedulerJobDTO notebookScheduler,
+													  SchedulerJobDTO clusterScheduler) {
+		return !Objects.isNull(notebookScheduler) && !Objects.isNull(clusterScheduler) &&
+				notebookScheduler.getBeginDate().equals(clusterScheduler.getBeginDate()) &&
+				notebookScheduler.getStartTime().equals(clusterScheduler.getStartTime()) &&
+				areCollectionsEqual(notebookScheduler.getDaysRepeat(), clusterScheduler.getDaysRepeat())
+				&& notebookScheduler.getTimeZoneOffset().equals(clusterScheduler.getTimeZoneOffset()) &&
+				notebookScheduler.isSyncStartRequired() && clusterScheduler.isSyncStartRequired();
 	}
 
 	/**
@@ -402,5 +439,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private SchedulerJobDTO nullableJobDto(SchedulerJobDTO dto) {
 		return Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty() ? null : dto;
 	}
+
 }
 
