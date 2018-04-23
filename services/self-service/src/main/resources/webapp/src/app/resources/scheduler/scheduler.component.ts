@@ -108,27 +108,31 @@ export class SchedulerComponent implements OnInit {
 
   public onDaySelect($event, day) {
     this.selectedWeekDays[day.toLowerCase()] = $event.checked;
-    this.checkSelectedDays();
+    // this.checkSelectedDays();
   }
 
   public toggleInherit($event) {
     this.inherit = $event.checked;
+
+    (this.destination.type === 'СOMPUTATIONAL' && this.inherit)
+      ? this.schedulerForm.get('startDate').disable()
+      : this.schedulerForm.get('startDate').enable();
   }
 
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
 
-    this.enableSchedule ? this.schedulerForm.get('startDate').enable() : this.schedulerForm.get('startDate').disable();
-    console.log(`enableSchedule => ${this.enableSchedule}`);
+    // this.enableSchedule ? this.schedulerForm.get('startDate').enable() : this.schedulerForm.get('startDate').disable();
+    console.log(`turn off all => ${this.enableSchedule}`);
   }
 
-  public checkSelectedDays() {
-    this.infoMessage = false;
+  // public checkSelectedDays() {
+  //   this.infoMessage = false;
 
-    if (!Object.keys(this.selectedWeekDays).some(el => this.selectedWeekDays[el])) {
-      this.infoMessage = true;
-    }
-  }
+  //   if (!Object.keys(this.selectedWeekDays).some(el => this.selectedWeekDays[el])) {
+  //     this.infoMessage = true;
+  //   }
+  // }
 
   public scheduleInstance_btnClick(data) {
 
@@ -160,7 +164,7 @@ export class SchedulerComponent implements OnInit {
 
   private formInit(start?, end?) {
     this.schedulerForm = this.formBuilder.group({
-      startDate: { disabled: true, value: start ? _moment(start).format() : null },
+      startDate: { disabled: this.inherit, value: start ? _moment(start).format() : null },
       finishDate: { disabled: false, value: end ? _moment(end).format() : null }
     });
   }
@@ -175,7 +179,7 @@ export class SchedulerComponent implements OnInit {
           params.days_repeat.filter(
             key => (this.selectedWeekDays[key.toLowerCase()] = true)
           );
-          this.checkSelectedDays();
+          // this.checkSelectedDays();
           this.inherit = params.sync_start_required;
           // if (this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
 
@@ -220,7 +224,6 @@ export class SchedulerComponent implements OnInit {
     this.timeReqiered = false;
     this.inherit = false;
     // this.parent_inherit_val = false;
-
     this.startTime = this.convertTimeFormat('09:00');
     this.endTime = this.convertTimeFormat('20:00');
   }

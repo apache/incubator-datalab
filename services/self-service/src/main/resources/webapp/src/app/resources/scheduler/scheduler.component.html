@@ -26,8 +26,13 @@ limitations under the License.
     </h4>
   </modal-header>
   <modal-content>
-    <div *ngIf="notebook" class="content-box">
+    <div *ngIf="destination" class="content-box">
       <form [formGroup]="schedulerForm">
+        <div class="enable-schedule">
+          <mat-slide-toggle labelPosition="before" [checked]="enableSchedule" (change)="toggleSchedule($event)">
+            <span *ngIf="toggleSchedule" class="hold-label">Enable schedule</span>
+          </mat-slide-toggle>
+        </div>
         <div class="row-wrap">
           <div class="col">
             <mat-form-field>
@@ -46,26 +51,31 @@ limitations under the License.
         </div>
         <div class="row-wrap">
           <div class="control-group col">
-            <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"></dlab-time-picker>
+            <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
+              [disable]="destination.type === 'СOMPUTATIONAL' && inherit"></dlab-time-picker>
           </div>
           <div class="control-group col">
             <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"></dlab-time-picker>
           </div>
         </div>
         <div *ngIf="timeReqiered" class="danger_color"><span>required</span></div>
-        <div class="control-group">
+        <div class="control-group days-block">
           <label class="label repeat" for="options">Repeat on :</label>
           <div *ngFor="let day of weekdays; let i = index" class="week-day" [ngClass]="day">
-            <mat-slide-toggle labelPosition="before" [checked]="selectedWeekDays[day.toLowerCase()]" (change)="onDaySelect($event, day)">
+            <mat-slide-toggle
+                labelPosition="before"
+                [checked]="selectedWeekDays[day.toLowerCase()]"
+                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit"
+                (change)="onDaySelect($event, day)">
               <span class="hold-label">{{ day }}</span>
             </mat-slide-toggle>
           </div>
         </div>
-        <span class="weekdays-note">NOTE: to enable the scheduler at least one weekday should be specified</span>
+        <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>
         <div class="inherit" *ngIf="destination">
           <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)">
             <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
-              <span>Start all spark clusters associated with current notebook based on notebook start schedule</span>
+              <span>Start all spark clusters associated with current notebook <br /> based on notebook start schedule</span>
             </span>
             <ng-template #resourcePropagation>
               <span class="hold-label">Use notebook schedule settings</span>
@@ -75,7 +85,7 @@ limitations under the License.
       </form>
       <div class="text-center m-top-30">
         <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-        <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Create</button>
+        <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Save</button>
       </div>
     </div>
   </modal-content>
