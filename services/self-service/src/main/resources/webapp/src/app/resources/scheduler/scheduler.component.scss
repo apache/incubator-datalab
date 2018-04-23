@@ -51,10 +51,28 @@ limitations under the License.
         color: #35afd5;
       }
     }
+    &.days-block {
+      padding-bottom: 0;
+    }
+  }
+  .weekdays-note {
+    display: flex;
+    font-size: 12px;
+    color: #36afd5;
+    margin-bottom: 15px;
   }
   .inherit {
     color: #718ba6;
     font-size: 15px;
     font-weight: 600;
+    .mat-slide-toggle-content {
+      padding: 5px;
+      // margin-top: 22px;
+    }
+    .hold-label {
+      span {
+        font-size: 14px;
+      }
+    }
   }
 }

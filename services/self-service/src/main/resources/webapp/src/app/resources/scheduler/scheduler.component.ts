@@ -42,6 +42,7 @@ export class SchedulerComponent implements OnInit {
   public timeReqiered: boolean = false;
 
   public inherit: boolean = false;
+  public enableSchedule: boolean = false;
   // public parent_inherit_val: boolean = false;
 
   public date_format: string = 'YYYY-MM-DD';
@@ -110,8 +111,15 @@ export class SchedulerComponent implements OnInit {
     this.checkSelectedDays();
   }
 
-  public toggleInherit($event, day) {
+  public toggleInherit($event) {
     this.inherit = $event.checked;
+  }
+
+  public toggleSchedule($event) {
+    this.enableSchedule = $event.checked;
+
+    this.enableSchedule ? this.schedulerForm.get('startDate').enable() : this.schedulerForm.get('startDate').disable();
+    console.log(`enableSchedule => ${this.enableSchedule}`);
   }
 
   public checkSelectedDays() {
@@ -152,8 +160,8 @@ export class SchedulerComponent implements OnInit {
 
   private formInit(start?, end?) {
     this.schedulerForm = this.formBuilder.group({
-      startDate: [start ? _moment(start).format() : null],
-      finishDate: [end ? _moment(end).format() : null]
+      startDate: { disabled: true, value: start ? _moment(start).format() : null },
+      finishDate: { disabled: false, value: end ? _moment(end).format() : null }
     });
   }
 
