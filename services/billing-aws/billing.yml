@@ -58,8 +58,9 @@ adapterOut:
 filter:
   - type: aws
     currencyCode: USD
-    columnDlabTag: user:<CONF_TAG_RESOURCE_ID>
+    columnDlabTag: resourceTags/user:<CONF_TAG_RESOURCE_ID>
     serviceBaseName: <CONF_SERVICE_BASE_NAME>
+
 
 # Parser of source data to common format.
 parser:
@@ -67,9 +68,9 @@ parser:
     headerLineNo: 1
     skipLines: 1
     columnMapping: >-
-      dlab_id=user:user:tag;usage_date=UsageStartDate;product=ProductName;
-      usage_type=UsageType;usage=UsageQuantity;cost=BlendedCost;
-      resource_id=ResourceId;tags=Operation,ItemDescription
+      dlab_id=resourceTags/user:<CONF_TAG_RESOURCE_ID>;usage_date=lineItem/UsageStartDate;product=product/ProductName;
+      usage_type=lineItem/UsageType;usage=lineItem/UsageAmount;cost=lineItem/BlendedCost;
+      resource_id=lineItem/ResourceId;tags=product/operation,lineItem/LineItemDescription
     aggregate: day
 
 
