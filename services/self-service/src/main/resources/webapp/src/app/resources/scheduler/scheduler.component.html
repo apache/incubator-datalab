@@ -28,9 +28,9 @@ limitations under the License.
   <modal-content>
     <div *ngIf="destination" class="content-box">
       <form [formGroup]="schedulerForm">
-        <div class="enable-schedule">
-          <mat-slide-toggle labelPosition="before" [checked]="enableSchedule" (change)="toggleSchedule($event)">
-            <span *ngIf="toggleSchedule" class="hold-label">Enable schedule</span>
+        <div class="enable-schedule m-bott-10">
+          <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)">
+            <span *ngIf="toggleSchedule" class="hold-label">Enable scheduler</span>
           </mat-slide-toggle>
         </div>
         <div class="row-wrap">
@@ -49,6 +49,7 @@ limitations under the License.
             </mat-form-field>
           </div>
         </div>
+
         <div class="row-wrap">
           <div class="control-group col">
             <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
@@ -57,6 +58,15 @@ limitations under the License.
           <div class="control-group col">
             <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"></dlab-time-picker>
           </div>
+          <mat-form-field class="col">
+            <mat-select
+              placeholder="Select offset"
+              [(value)]="tzOffset"
+              class="timezone-offset"
+              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit">
+              <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
         <div *ngIf="timeReqiered" class="danger_color"><span>required</span></div>
         <div class="control-group days-block">
@@ -78,7 +88,7 @@ limitations under the License.
               <span>Start all spark clusters associated with current notebook <br /> based on notebook start schedule</span>
             </span>
             <ng-template #resourcePropagation>
-              <span class="hold-label">Use notebook schedule settings</span>
+              <span class="hold-label">Inherit notebook schedule settings</span>
             </ng-template>
           </mat-slide-toggle>
         </div>

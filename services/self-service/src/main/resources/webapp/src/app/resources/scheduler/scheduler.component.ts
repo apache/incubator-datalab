@@ -23,6 +23,8 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/materia
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 
 import * as _moment from 'moment';
+import 'moment-timezone';
+
 import { HTTP_STATUS_CODES } from './../../core/util';
 
 import { SchedulerService } from './../../core/services';
@@ -50,6 +52,8 @@ export class SchedulerComponent implements OnInit {
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   public schedulerForm: FormGroup;
   public destination: any;
+  public zones: Array<any> = [];
+  public tzOffset: string =  _moment().format('Z');
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
 
@@ -65,10 +69,15 @@ export class SchedulerComponent implements OnInit {
 
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
+    console.log(_moment.tz.names());
   }
 
   public open(param, notebook, type, resource?): void {
     this.notebook = notebook;
+    this.zones = _moment.tz.names()
+      .map(el => _moment.tz(el).format('Z'))
+      .filter((item, pos, ar) => ar.indexOf(item) === pos)
+      .sort();
 
     if (!this.bindDialog.isOpened)
       this.model = new SchedulerModel(
@@ -147,7 +156,7 @@ export class SchedulerComponent implements OnInit {
       start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
       end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
       days_repeat: selectedDays.filter(el => Boolean(this.selectedWeekDays[el])).map(day => day.toUpperCase()),
-      timezone_offset: _moment().format('Z'),
+      timezone_offset: this.tzOffset,
       sync_start_required: this.inherit
     };
 
@@ -180,7 +189,9 @@ export class SchedulerComponent implements OnInit {
             key => (this.selectedWeekDays[key.toLowerCase()] = true)
           );
           // this.checkSelectedDays();
+          this.enableSchedule = true;
           this.inherit = params.sync_start_required;
+          this.tzOffset = params.timezone_offset;
           // if (this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
 
           this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
@@ -223,7 +234,9 @@ export class SchedulerComponent implements OnInit {
     this.infoMessage = false;
     this.timeReqiered = false;
     this.inherit = false;
+    this.enableSchedule = false;
     // this.parent_inherit_val = false;
+    this.tzOffset = _moment().format('Z');
     this.startTime = this.convertTimeFormat('09:00');
     this.endTime = this.convertTimeFormat('20:00');
   }
