@@ -18,4 +18,6 @@ public interface ExploratoryService {
 
 	void updateUserInstancesReuploadKeyFlag(String user);
 
+	String getResourcesForKeyReuploading(String user, String serviceBaseName, UserInstanceStatus edgeStatus,
+										 UserInstanceStatus exploratoryStatus, UserInstanceStatus computationalStatus);
 }

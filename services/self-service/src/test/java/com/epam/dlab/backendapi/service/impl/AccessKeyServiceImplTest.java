@@ -7,6 +7,7 @@ import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.ReuploadFileDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
@@ -127,11 +128,11 @@ public class AccessKeyServiceImplTest {
 	public void reUploadKey() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 
-		UploadFile uploadFile = mock(UploadFile.class);
-		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
+		ReuploadFileDTO uploadFile = mock(ReuploadFileDTO.class);
+		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString())).thenReturn(uploadFile);
 
 		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).
+		when(provisioningService.post(anyString(), anyString(), any(ReuploadFileDTO.class), any())).
 				thenReturn(expectedUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
@@ -142,7 +143,7 @@ public class AccessKeyServiceImplTest {
 		assertEquals(expectedUuid, actualUuid);
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
-		verify(requestBuilder).newKeyReupload(userInfo, keyContent);
+		verify(requestBuilder).newKeyReupload(refEq(userInfo), eq(keyContent), anyString());
 		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
 		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
@@ -153,7 +154,8 @@ public class AccessKeyServiceImplTest {
 	@SuppressWarnings("unchecked")
 	public void reUploadKeyWithException() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
-		doThrow(new RuntimeException()).when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString());
+		doThrow(new RuntimeException())
+				.when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString(), anyString());
 
 		expectedException.expect(RuntimeException.class);
 

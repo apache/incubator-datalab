@@ -45,7 +45,6 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.base.keyload.ReuploadFile;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
@@ -172,11 +171,11 @@ public class RequestBuilder {
 		}
 	}
 
-	public UploadFile newKeyReupload(UserInfo userInfo, String content) {
-		ReuploadFile reuploadFile = new ReuploadFile();
-		reuploadFile.setContent(content);
-		reuploadFile.setEdgeUserName(getEdgeUserName(userInfo));
-		return reuploadFile;
+	public ReuploadFileDTO newKeyReupload(UserInfo userInfo, String content, String runningResources) {
+		checkInappropriateCloudProviderOrElseThrowException();
+		return newResourceSysBaseDTO(userInfo, ReuploadFileDTO.class)
+				.withContent(content)
+				.withRunningResources(runningResources);
 	}
 
 	@SuppressWarnings("unchecked")

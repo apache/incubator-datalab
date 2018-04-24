@@ -19,14 +19,12 @@ package com.epam.dlab.backendapi.resources.base;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.commands.*;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.dto.base.keyload.ReuploadFile;
-import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
+import com.epam.dlab.dto.ReuploadFileDTO;
 import com.epam.dlab.rest.contracts.KeyAPI;
 import com.epam.dlab.utils.FileUtils;
 import com.epam.dlab.utils.UsernameUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -45,55 +43,21 @@ import java.io.IOException;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class KeyResource implements DockerCommands {
+public class KeyResource {
 
 	@Inject
-	protected RESTService selfService;
+	private ReuploadKeyService reuploadKeyService;
 	@Inject
 	private ProvisioningServiceApplicationConfiguration configuration;
-	@Inject
-	private FolderListenerExecutor folderListenerExecutor;
-	@Inject
-	private ICommandExecutor commandExecutor;
-	@Inject
-	private CommandBuilder commandBuilder;
+
 
 	@POST
-	public String reuploadKey(@Auth UserInfo ui, ReuploadFile dto) throws IOException {
+	public String reuploadKey(@Auth UserInfo ui, ReuploadFileDTO dto) throws IOException {
 		String edgeUserName = dto.getEdgeUserName();
 		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
 		FileUtils.deleteFile(filename, configuration.getKeyDirectory());
 		FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
-		return reuploadKeyAction(edgeUserName, ui.getName(), DockerAction.REUPLOAD_KEY);
+		return reuploadKeyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
 	}
 
-	//TODO refactor Docker command corresponding to DevOps' requirement
-	private String reuploadKeyAction(String edgeUserName, String userName, DockerAction action)
-			throws JsonProcessingException {
-		log.debug("{} for edge user {}", action, edgeUserName);
-		String uuid = DockerCommands.generateUUID();
-
-		RunDockerCommand runDockerCommand = new RunDockerCommand()
-				.withInteractive()
-				.withName(nameContainer(edgeUserName, action.toString()))
-				.withVolumeForRootKeys(configuration.getKeyDirectory())
-				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
-				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-				.withResource(getResourceType())
-				.withRequestId(uuid)
-				.withConfKeyName(configuration.getAdminKey())
-				.withImage(configuration.getEdgeImage())
-				.withAction(action);
-
-		String command = commandBuilder.buildCommand(runDockerCommand, null);
-		log.trace("Docker command:  {}", command);
-		commandExecutor.executeAsync(userName, uuid, command);
-		return uuid;
-	}
-
-	@Override
-	public String getResourceType() {
-		//TODO add some functionality if necessary (depends on DevOps' requirement)
-		return "RES_TYPE";
-	}
 }

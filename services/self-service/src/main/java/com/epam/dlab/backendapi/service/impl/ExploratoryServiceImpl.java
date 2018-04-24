@@ -2,10 +2,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.ComputationalDAO;
-import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.GitCredsDAO;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.*;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -13,6 +10,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
@@ -25,7 +23,7 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -50,6 +48,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private EnvStatusDAO envStatusDAO;
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
@@ -109,6 +109,140 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, STOPPED, DataEngineType.SPARK_STANDALONE,
 				STOPPED, true);
 	}
+
+	/**
+	 * Returns string which contains full names of user's edge, exploratories and computational resources where last
+	 * two have predefined statuses.
+	 *
+	 * @param user                user.
+	 * @param serviceBaseName     service base name.
+	 * @param edgeStatus          edge status.
+	 * @param exploratoryStatus   status for exploratory environment.
+	 * @param computationalStatus status for computational resource affiliated with the exploratory.
+	 * @return string in format 'SBN-user-edge,SBN-user-nb-notebookName,...,SBN-user-de/des-notebookName-clusterName'.
+	 */
+	public String getResourcesForKeyReuploading(String user, String serviceBaseName,
+												UserInstanceStatus edgeStatus,
+												UserInstanceStatus exploratoryStatus,
+												UserInstanceStatus computationalStatus) {
+		Map<String, List<String>> populatedResources = getPopulatedExploratoriesWithComputationalResources(user,
+				serviceBaseName, exploratoryStatus, computationalStatus);
+		StringBuilder sb = new StringBuilder();
+		if (edgeStatus == envStatusDAO.getEdgeStatus(user)) {
+			sb.append(serviceBaseName).append("-").append(user).append("-").append("edge").append(",");
+		}
+		for (Map.Entry<String, List<String>> entry : populatedResources.entrySet()) {
+			sb.append(entry.getKey()).append(",");
+			for (String compName : entry.getValue()) {
+				sb.append(compName).append(",");
+			}
+		}
+		return sb.toString().substring(0, sb.toString().length() - 1);
+	}
+
+	/**
+	 * Returns list of user's exploratories with computational resources where both of them have predefined statuses.
+	 *
+	 * @param user                user.
+	 * @param serviceBaseName     service base name.
+	 * @param exploratoryStatus   status for exploratory environment.
+	 * @param computationalStatus status for computational resource affiliated with the exploratory.
+	 * @return map with elements [key: exploratoryName in format 'SBN-user-nb-notebookName', value: list of
+	 * computational resources' names in format 'SBN-user-de/des-notebookName-clusterName'].
+	 */
+	private Map<String, List<String>> getPopulatedExploratoriesWithComputationalResources(String user,
+																						  String serviceBaseName,
+																						  UserInstanceStatus
+																								  exploratoryStatus,
+																						  UserInstanceStatus
+																								  computationalStatus) {
+		Map<String, List<Map<String, String>>> resourceMap =
+				getExploratoriesWithPredefinedComputationalStatus(user, exploratoryStatus, computationalStatus);
+		Map<String, List<String>> populated = new HashMap<>();
+		resourceMap.forEach((k, v) -> populated.put(
+				populatedExploratoryName(serviceBaseName, user, k),
+				v.stream().filter(map -> !map.isEmpty())
+						.map(e -> getPopulatedComputationalName(user, serviceBaseName, k, e))
+						.filter(Objects::nonNull)
+						.collect(Collectors.toList())));
+		return populated;
+	}
+
+	/**
+	 * Returns list of user's exploratories with computational resources where both of them have predefined statuses.
+	 *
+	 * @param user                user.
+	 * @param exploratoryStatus   status for exploratory environment.
+	 * @param computationalStatus status for computational resource affiliated with the exploratory.
+	 * @return map with elements [key: exploratoryName, value: list of computational resources' names with its type -
+	 * 'de' (dataengine) or 'des' (dataengine-service)].
+	 */
+	private Map<String, List<Map<String, String>>> getExploratoriesWithPredefinedComputationalStatus(String user,
+																									 UserInstanceStatus
+																											 exploratoryStatus,
+																									 UserInstanceStatus
+																											 computationalStatus) {
+		List<UserInstanceDTO> exploratoriesWithPredefinedStatus =
+				getExploratoriesWithPredefinedStatus(user, exploratoryStatus);
+		if (exploratoriesWithPredefinedStatus.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		List<UserInstanceDTO> exploratoriesWithPredefinedComputationalTypeAndStatus =
+				exploratoriesWithPredefinedStatus.stream().map(e ->
+						e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
+						.collect(Collectors.toList());
+		return exploratoriesWithPredefinedComputationalTypeAndStatus.stream()
+				.collect(Collectors.toMap(UserInstanceDTO::getExploratoryName,
+						uiDto -> uiDto.getResources().stream().map(this::computationalData)
+								.collect(Collectors.toList())));
+	}
+
+	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
+																			 UserInstanceStatus computationalStatus) {
+		return userInstance.getResources().stream()
+				.filter(resource -> resource.getStatus().equals(computationalStatus.toString()))
+				.collect(Collectors.toList());
+	}
+
+	private Map<String, String> computationalData(UserComputationalResource compResource) {
+		Map<String, String> compResourceData = new HashMap<>();
+		if (Objects.nonNull(compResource)) {
+			compResourceData.put(compResource.getComputationalName(),
+					DataEngineType.fromDockerImageName(compResource.getImageName()) ==
+							DataEngineType.SPARK_STANDALONE ? "de" : "des");
+		}
+		return compResourceData;
+	}
+
+
+	/**
+	 * Returns list of user's exploratories with predefined status.
+	 *
+	 * @param user   user.
+	 * @param status status for exploratory environment.
+	 * @return list of user's instances.
+	 */
+	private List<UserInstanceDTO> getExploratoriesWithPredefinedStatus(String user, UserInstanceStatus status) {
+		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, status);
+	}
+
+	private String getPopulatedComputationalName(String user, String serviceBaseName, String exploratoryName,
+												 Map<String, String> computationalData) {
+		Optional<Map.Entry<String, String>> entry = computationalData.entrySet().stream().findAny();
+		return entry.isPresent() ? populatedComputationalName(serviceBaseName, user, entry.get().getValue(),
+				exploratoryName, entry.get().getKey()) : null;
+	}
+
+	private String populatedExploratoryName(String serviceBaseName, String user, String exploratoryName) {
+		return String.join("-", serviceBaseName, user, "nb", exploratoryName);
+	}
+
+	private String populatedComputationalName(String serviceBaseName, String user, String computationalType,
+											  String exploratoryName, String computationalName) {
+		return String.join("-", serviceBaseName, user, computationalType, exploratoryName,
+				computationalName);
+	}
+
 
 	/**
 	 * Sends the post request to the provisioning service and update the status of exploratory environment.

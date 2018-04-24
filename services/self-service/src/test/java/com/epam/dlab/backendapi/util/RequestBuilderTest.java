@@ -9,11 +9,10 @@ import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.ReuploadFileDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.base.keyload.ReuploadFile;
-import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -38,7 +37,7 @@ public class RequestBuilderTest {
 
 	private final String USER = "test";
 
-	private ReuploadFile expectedReuploadFile;
+	private ReuploadFileDTO expectedReuploadFileDTO;
 	private UserInfo userInfo;
 	private Exploratory exploratory;
 	private ExploratoryGitCredsDTO egcDto;
@@ -59,7 +58,7 @@ public class RequestBuilderTest {
 	@Before
 	public void setUp() {
 		userInfo = getUserInfo();
-		expectedReuploadFile = getReuploadFile();
+		expectedReuploadFileDTO = getReuploadFile();
 		exploratory = Exploratory.builder().name("explName").build();
 		egcDto = new ExploratoryGitCredsDTO();
 		uiDto = new UserInstanceDTO();
@@ -147,8 +146,9 @@ public class RequestBuilderTest {
 	public void newKeyReuploadForAwsOrAzure() {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.AWS);
 
-		UploadFile actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent");
-		assertEquals(expectedReuploadFile, actualReuploadFile);
+		ReuploadFileDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent",
+				"someRunningResources");
+		assertEquals(expectedReuploadFileDTO, actualReuploadFile);
 
 		verify(configuration).getCloudProvider();
 		verifyNoMoreInteractions(configuration);
@@ -159,8 +159,9 @@ public class RequestBuilderTest {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.GCP);
 		when(configuration.getMaxUserNameLength()).thenReturn(10);
 
-		UploadFile actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent");
-		assertEquals(expectedReuploadFile, actualReuploadFile);
+		ReuploadFileDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent",
+				"someRunningResources");
+		assertEquals(expectedReuploadFileDTO, actualReuploadFile);
 
 		verify(configuration).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
@@ -1181,10 +1182,10 @@ public class RequestBuilderTest {
 		return new UserInfo(USER, "token");
 	}
 
-	private ReuploadFile getReuploadFile() {
-		ReuploadFile reuploadFile = new ReuploadFile();
-		reuploadFile.setContent("someContent");
-		reuploadFile.setEdgeUserName(USER);
-		return reuploadFile;
+	private ReuploadFileDTO getReuploadFile() {
+		ReuploadFileDTO reuploadFileDTO = new ReuploadFileDTO();
+		reuploadFileDTO.withContent("someContent");
+		reuploadFileDTO.setEdgeUserName(USER);
+		return reuploadFileDTO;
 	}
 }

@@ -4,10 +4,12 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.ReuploadFileDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
@@ -25,8 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static com.epam.dlab.UserInstanceStatus.FAILED;
-import static com.epam.dlab.UserInstanceStatus.TERMINATED;
+import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_CREATE;
 import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
@@ -48,6 +49,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	private ExploratoryService exploratoryService;
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
+	@Inject
+	private SettingsDAO settingsDAO;
 
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
@@ -108,9 +111,10 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		}
 	}
 
-
 	private String reuploadKey(UserInfo user, String keyContent) {
-		UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent);
+		ReuploadFileDTO uploadFile = requestBuilder.newKeyReupload(user, keyContent,
+				exploratoryService.getResourcesForKeyReuploading(user.getName(), settingsDAO.getServiceBaseName(),
+						RUNNING, RUNNING, RUNNING));
 		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
 		requestId.put(user.getName(), uuid);
 		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
