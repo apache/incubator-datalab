@@ -24,7 +24,7 @@ from dlab.meta_lib import *
 import sys
 import boto3, botocore
 from dlab.ssn_lib import *
-
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_id', type=str, default='')
@@ -37,6 +37,7 @@ args = parser.parse_args()
 if __name__ == "__main__":
     success = False
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
+    waiter = time.sleep(10)
     if args.vpc_id:
         print("Creating Endpoint in vpc {}, region {} with tag {}.".format(args.vpc_id, args.region, json.dumps(tag)))
         ec2 = boto3.client('ec2')
@@ -50,6 +51,12 @@ if __name__ == "__main__":
                 route_table.append(ec2.create_route_table(
                     VpcId = args.vpc_id
                 )['RouteTable']['RouteTableId'])
+                while route_table != '':
+                    waiter
+                    if route_table == '':
+                        waiter
+                    else:
+                        break
                 print('Created Route-Table with ID: {}'.format(route_table))
                 create_tag(route_table, json.dumps(tag))
             endpoints = get_vpc_endpoints(args.vpc_id)
