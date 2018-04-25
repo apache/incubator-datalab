@@ -75,7 +75,7 @@ export class UploadKeyDialogComponent implements OnInit {
       },
         (response: Response) => {
           this.processError = true;
-          this.errorMessage = `${ErrorMapUtils.setErrorMessage(response)}. ${response.text()}`;
+          this.errorMessage = `${response.text()}`;
         },
         this.userAccessKeyService);
 
