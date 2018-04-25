@@ -76,10 +76,25 @@ def start_spark(os_user, master_ip, node):
         if os.environ['application'] == 'deeplearning':
             sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
-            sudo('/opt/spark/sbin/start-master.sh')
-            sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
+            with cd('/opt/spark/sbin/'):
+                sudo("sed -i '/start-slaves.sh/d' start-all.sh")
+                sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> start-all.sh'''.format('{SPARK_HOME}', master_ip))
+            put('~/templates/spark-master.service', '/tmp/spark-master.service')
+            sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable spark-master.service')
+            sudo('systemctl start spark-master.service')
         if node == 'slave':
-            sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
+            with open('/root/templates/spark-slave.service', 'r') as f:
+                text = f.read()
+            text = text.replace('MASTER', 'spark://{}:7077'.format(master_ip))
+            with open('/root/templates/spark-slave.service', 'w') as f:
+                f.write(text)
+            put('~/templates/spark-slave.service', '/tmp/spark-slave.service')
+            sudo('mv /tmp/spark-slave.service /etc/systemd/system/spark-slave.service')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable spark-slave.service')
+            sudo('systemctl start spark-slave.service')
         sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
 ##############
