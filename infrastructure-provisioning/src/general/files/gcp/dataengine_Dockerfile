@@ -30,6 +30,7 @@ COPY general/scripts/gcp/dataengine_* /root/scripts/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/templates/gcp/core-site.xml /root/templates/
+COPY general/templates/os/${OS}/spark-* /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

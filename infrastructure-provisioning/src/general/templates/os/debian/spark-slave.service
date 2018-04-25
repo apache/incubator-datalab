@@ -1,0 +1,19 @@
+[Unit]
+Description=Apache Spark Slave Servers
+After=network.target
+After=systemd-user-sessions.service
+After=network-online.target
+
+[Service]
+User=dlab-user
+Type=forking
+ExecStart=/opt/spark/sbin/start-slave.sh MASTER
+ExecStop=/opt/spark/sbin/stop-slave.sh
+TimeoutSec=30
+Restart= on-failure
+RestartSec= 30
+StartLimitInterval=350
+StartLimitBurst=10
+
+[Install]
+WantedBy=multi-user.target
