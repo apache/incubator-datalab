@@ -27,26 +27,40 @@ public class EdgeInfo {
     @JsonProperty("_id")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String id;
+
     @JsonProperty("instance_id")
     private String instanceId;
-    @JsonProperty
+
+	@JsonProperty
     private String hostname;
-    @JsonProperty("public_ip")
+
+	@JsonProperty("public_ip")
     private String publicIp;
-    @JsonProperty
+
+	@JsonProperty
     private String ip;
-    @JsonProperty("key_name")
+
+	@JsonProperty("key_name")
     private String keyName;
-    @JsonProperty("tunnel_port")
+
+	@JsonProperty("tunnel_port")
     private String tunnelPort;
-    @JsonProperty("socks_port")
+
+	@JsonProperty("socks_port")
     private String socksPort;
-    @JsonProperty("notebook_sg")
+
+	@JsonProperty("notebook_sg")
     private String notebookSg;
-    @JsonProperty("edge_sg")
+
+	@JsonProperty("edge_sg")
     private String edgeSg;
-    @JsonProperty("notebook_subnet")
+
+	@JsonProperty("notebook_subnet")
     private String notebookSubnet;
-    @JsonProperty("edge_status")
+
+	@JsonProperty("edge_status")
     private String edgeStatus;
+
+	@JsonProperty("reupload_key_required")
+	private boolean reuploadKeyRequired = false;
 }
