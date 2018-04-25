@@ -42,11 +42,8 @@ export class SchedulerComponent implements OnInit {
   public notebook: any;
   public infoMessage: boolean = false;
   public timeReqiered: boolean = false;
-
   public inherit: boolean = false;
   public enableSchedule: boolean = false;
-  // public parent_inherit_val: boolean = false;
-
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -136,14 +133,6 @@ export class SchedulerComponent implements OnInit {
       this.schedulerForm.get('startDate').disable();
   }
 
-  // public checkSelectedDays() {
-  //   this.infoMessage = false;
-
-  //   if (!Object.keys(this.selectedWeekDays).some(el => this.selectedWeekDays[el])) {
-  //     this.infoMessage = true;
-  //   }
-  // }
-
   public scheduleInstance_btnClick(data) {
     if(!this.enableSchedule) {
       console.log(`on create if unchecked => ${this.enableSchedule}`);
@@ -193,14 +182,10 @@ export class SchedulerComponent implements OnInit {
           params.days_repeat.filter(
             key => (this.selectedWeekDays[key.toLowerCase()] = true)
           );
-          // this.checkSelectedDays();
           this.inherit = params.sync_start_required;
           this.tzOffset = params.timezone_offset;
-          // if (this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
-
           this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
-
           this.formInit(params.begin_date, params.finish_date);
           this.toggleSchedule({checked: true});
         }
@@ -208,7 +193,6 @@ export class SchedulerComponent implements OnInit {
       error => {
         let errorMessage = JSON.parse(error.message);
         this.toggleSchedule({checked: false});
-        // if (errorMessage.status == HTTP_STATUS_CODES.NOT_FOUND && this.parent_inherit_val) this.inherit = true;
       }
     );
   }
@@ -241,7 +225,6 @@ export class SchedulerComponent implements OnInit {
     this.timeReqiered = false;
     this.inherit = false;
     this.enableSchedule = false;
-    // this.parent_inherit_val = false;
     this.tzOffset = _moment().format('Z');
     this.startTime = this.convertTimeFormat('09:00');
     this.endTime = this.convertTimeFormat('20:00');
