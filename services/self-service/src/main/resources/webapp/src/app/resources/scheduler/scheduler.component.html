@@ -53,17 +53,18 @@ limitations under the License.
         <div class="row-wrap">
           <div class="control-group col">
             <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
-              [disable]="destination.type === 'СOMPUTATIONAL' && inherit"></dlab-time-picker>
+              [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"></dlab-time-picker>
           </div>
           <div class="control-group col">
-            <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"></dlab-time-picker>
+            <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"
+              [disable]="!enableSchedule"></dlab-time-picker>
           </div>
           <mat-form-field class="col">
             <mat-select
               placeholder="Select offset"
               [(value)]="tzOffset"
               class="timezone-offset"
-              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit">
+              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
               <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
             </mat-select>
           </mat-form-field>
@@ -75,7 +76,7 @@ limitations under the License.
             <mat-slide-toggle
                 labelPosition="before"
                 [checked]="selectedWeekDays[day.toLowerCase()]"
-                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit"
+                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
                 (change)="onDaySelect($event, day)">
               <span class="hold-label">{{ day }}</span>
             </mat-slide-toggle>
@@ -83,7 +84,7 @@ limitations under the License.
         </div>
         <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>
         <div class="inherit" *ngIf="destination">
-          <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)">
+          <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disable]="!enableSchedule">
             <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
               <span>Start all spark clusters associated with current notebook <br /> based on notebook start schedule</span>
             </span>

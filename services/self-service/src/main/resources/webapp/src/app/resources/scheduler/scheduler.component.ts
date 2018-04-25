@@ -69,7 +69,6 @@ export class SchedulerComponent implements OnInit {
 
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
-    console.log(_moment.tz.names());
   }
 
   public open(param, notebook, type, resource?): void {
@@ -89,7 +88,6 @@ export class SchedulerComponent implements OnInit {
         },
         error => {},
         () => {
-          this.bindDialog.open(param);
           this.formInit();
           this.changeDetector.detectChanges();
 
@@ -97,10 +95,13 @@ export class SchedulerComponent implements OnInit {
           this.destination.type = type;
           
           this.selectedWeekDays.setDegault();
-
+          
           (this.destination.type === 'СOMPUTATIONAL')
-            ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name) 
-            : this.getExploratorySchedule(this.notebook.name);
+          ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name) 
+          : this.getExploratorySchedule(this.notebook.name);
+          
+          this.toggleSchedule({checked: false});
+          this.bindDialog.open(param);
         },
         this.schedulerService
       );
@@ -130,9 +131,14 @@ export class SchedulerComponent implements OnInit {
 
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
+    
+    this.enableSchedule ? this.schedulerForm.get('startDate').enable() : this.schedulerForm.get('startDate').disable();
+    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
 
-    // this.enableSchedule ? this.schedulerForm.get('startDate').enable() : this.schedulerForm.get('startDate').disable();
-    console.log(`turn off all => ${this.enableSchedule}`);
+    if (this.destination.type === 'СOMPUTATIONAL' && this.inherit)
+      this.schedulerForm.get('startDate').disable();
+
+    if (!this.enableSchedule && this.destination.type === 'EXPLORATORY') this.inherit = false;
   }
 
   // public checkSelectedDays() {
@@ -144,7 +150,11 @@ export class SchedulerComponent implements OnInit {
   // }
 
   public scheduleInstance_btnClick(data) {
+    if(!this.enableSchedule) {
+      console.log(`on create if unchecked => ${this.enableSchedule}`);
 
+      return false;
+    }
     if (!this.startTime && !this.endTime) {
       this.timeReqiered = true;
       return false;
@@ -202,6 +212,7 @@ export class SchedulerComponent implements OnInit {
       },
       error => {
         let errorMessage = JSON.parse(error.message);
+        this.toggleSchedule({checked: false});
         // if (errorMessage.status == HTTP_STATUS_CODES.NOT_FOUND && this.parent_inherit_val) this.inherit = true;
       }
     );
