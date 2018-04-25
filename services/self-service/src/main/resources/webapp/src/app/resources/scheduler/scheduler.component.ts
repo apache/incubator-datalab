@@ -90,17 +90,14 @@ export class SchedulerComponent implements OnInit {
         () => {
           this.formInit();
           this.changeDetector.detectChanges();
-
           this.destination = (type === 'EXPLORATORY') ? this.notebook : resource;
           this.destination.type = type;
-          
           this.selectedWeekDays.setDegault();
-          
+
           (this.destination.type === 'СOMPUTATIONAL')
           ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name) 
           : this.getExploratorySchedule(this.notebook.name);
-          
-          this.toggleSchedule({checked: false});
+
           this.bindDialog.open(param);
         },
         this.schedulerService
@@ -137,8 +134,6 @@ export class SchedulerComponent implements OnInit {
 
     if (this.destination.type === 'СOMPUTATIONAL' && this.inherit)
       this.schedulerForm.get('startDate').disable();
-
-    if (!this.enableSchedule && this.destination.type === 'EXPLORATORY') this.inherit = false;
   }
 
   // public checkSelectedDays() {
@@ -199,7 +194,6 @@ export class SchedulerComponent implements OnInit {
             key => (this.selectedWeekDays[key.toLowerCase()] = true)
           );
           // this.checkSelectedDays();
-          this.enableSchedule = true;
           this.inherit = params.sync_start_required;
           this.tzOffset = params.timezone_offset;
           // if (this.destination.type === 'EXPLORATORY') this.parent_inherit_val = this.inherit;
@@ -208,6 +202,7 @@ export class SchedulerComponent implements OnInit {
           this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
 
           this.formInit(params.begin_date, params.finish_date);
+          this.toggleSchedule({checked: true});
         }
       },
       error => {
