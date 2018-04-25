@@ -112,6 +112,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
             sudo("sed -i '/exit 0/d' /etc/rc.local")
             sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
+            sudo('echo http_proxy=$http_proxy >> /home/{}/.Renviron'.format(os_user))
+            sudo('echo https_proxy=$https_proxy >> /home/{}/.Renviron'.format(os_user))
             sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
             sudo('touch /home/{}/.ensure_dir/rstudio_ensured'.format(os_user))
         except:
