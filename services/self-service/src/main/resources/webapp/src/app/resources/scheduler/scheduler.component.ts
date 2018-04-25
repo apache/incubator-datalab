@@ -134,17 +134,12 @@ export class SchedulerComponent implements OnInit {
   }
 
   public scheduleInstance_btnClick(data) {
-    if(!this.enableSchedule) {
-      console.log(`on create if unchecked => ${this.enableSchedule}`);
-
-      return false;
-    }
     if (!this.startTime && !this.endTime) {
       this.timeReqiered = true;
       return false;
     }
     const selectedDays = Object.keys(this.selectedWeekDays);
-    const parameters = {
+    let parameters = {
       begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
       finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
       start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
@@ -153,6 +148,10 @@ export class SchedulerComponent implements OnInit {
       timezone_offset: this.tzOffset,
       sync_start_required: this.inherit
     };
+
+    if(!this.enableSchedule) {
+      parameters = { begin_date: null, finish_date: null, start_time: null, end_time: null, days_repeat: [], timezone_offset: null, sync_start_required: false };
+    }
 
     (this.destination.type === 'СOMPUTATIONAL')
       ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
