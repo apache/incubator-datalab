@@ -23,6 +23,7 @@ import { MaterialModule } from '../../../shared/material.module';
 import { ModalModule } from '../../../shared';
 import { ComputationalResourcesListComponent, ConfirmationDialog } from './computational-resources-list.component';
 import { DetailComputationalResourcesModule } from './../detail-computational-resources';
+import { SchedulerModule } from '../../scheduler';
 
 export * from './computational-resources-list.component';
 
@@ -31,6 +32,7 @@ export * from './computational-resources-list.component';
     CommonModule,
     ModalModule,
     DetailComputationalResourcesModule,
+    SchedulerModule,
     MaterialModule
   ],
   declarations: [ComputationalResourcesListComponent, ConfirmationDialog],
