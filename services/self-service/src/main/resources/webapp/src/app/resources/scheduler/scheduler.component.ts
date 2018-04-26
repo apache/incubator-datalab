@@ -43,6 +43,7 @@ export class SchedulerComponent implements OnInit {
   public infoMessage: boolean = false;
   public timeReqiered: boolean = false;
   public inherit: boolean = false;
+  public parentInherit: boolean = false;
   public enableSchedule: boolean = false;
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
@@ -92,22 +93,14 @@ export class SchedulerComponent implements OnInit {
           this.selectedWeekDays.setDegault();
 
           (this.destination.type === 'СOMPUTATIONAL')
-          ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name) 
-          : this.getExploratorySchedule(this.notebook.name);
+            ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name)
+            : this.getExploratorySchedule(this.notebook.name);
 
+          if (this.destination.type === 'СOMPUTATIONAL') this.checkParentInherit();
           this.bindDialog.open(param);
         },
         this.schedulerService
       );
-  }
-
-  public onUpdate($event) {
-    this.destination = $event.model.value;
-    this.selectedWeekDays.setDegault();
-
-    (this.destination.type === 'СOMPUTATIONAL')
-      ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name) 
-      : this.getExploratorySchedule(this.notebook.name);
   }
 
   public onDaySelect($event, day) {
@@ -118,9 +111,13 @@ export class SchedulerComponent implements OnInit {
   public toggleInherit($event) {
     this.inherit = $event.checked;
 
-    (this.destination.type === 'СOMPUTATIONAL' && this.inherit)
-      ? this.schedulerForm.get('startDate').disable()
-      : this.schedulerForm.get('startDate').enable();
+    if (this.destination.type === 'СOMPUTATIONAL' && this.inherit) {
+
+      this.getExploratorySchedule(this.notebook.name);
+      this.schedulerForm.get('startDate').disable();
+    } else {
+      this.schedulerForm.get('startDate').enable();
+    }
   }
 
   public toggleSchedule($event) {
@@ -160,6 +157,7 @@ export class SchedulerComponent implements OnInit {
 
   public close(): void {
     if (this.bindDialog.isOpened) this.bindDialog.close();
+    this.buildGrid.emit();
 
     this.resetDialog();
   }
@@ -172,8 +170,8 @@ export class SchedulerComponent implements OnInit {
   }
 
   private getExploratorySchedule(resource, resource2?) {
-    this.inherit = false;
-    this.formInit();
+    // this.inherit = false;
+    // this.formInit();
 
     this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
       (params: any) => {
@@ -194,6 +192,11 @@ export class SchedulerComponent implements OnInit {
         this.toggleSchedule({checked: false});
       }
     );
+  }
+
+  private checkParentInherit() {
+    this.schedulerService.getExploratorySchedule(this.notebook.name)
+      .subscribe((res: any) => this.parentInherit = res.sync_start_required);
   }
 
   private convertTimeFormat(time24: any) {

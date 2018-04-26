@@ -84,7 +84,7 @@ limitations under the License.
         </div>
         <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>
         <div class="inherit" *ngIf="destination">
-          <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule">
+          <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
             <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
               <span>Start all spark clusters associated with current notebook <br /> based on notebook start schedule</span>
             </span>
