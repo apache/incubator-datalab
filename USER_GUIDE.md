@@ -38,6 +38,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [Web UI filters](#filter)
 
+[Scheduler](#scheduler)
+
 ---------
 # Login <a name="login"></a>
 
@@ -432,3 +434,40 @@ Once your list of filtered by any of the columns, icon ![filter](doc/filter_icon
 ![filter](doc/sort_icon.png) for a filtered columns only.
 
 There is also an option for quick and easy way to filter out all inactive instances (Failed and Terminated) by clicking on “Show active” button in the ribbon. To switch back to the list of all resources, click on “Show all”.
+
+# Scheduler <a name="scheduler"></a>
+
+Scheduler component allow to automatically schedule starting/stopping of notebook/cluster. There are 2 types of schedulers available:
+- notebook scheduler;
+- computational scheduler (currently spark cluster only);
+
+To create scheduler for notebook click on ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Scheduler:
+
+<p align="center"> 
+    <img src="doc/notebook_menu_scheduler.png" alt="Notebook scheduler action" width="150">
+</p>
+After clicking you will see popup with the following fields:
+
+- start/finish dates - date range when scheduler is active;
+- start/end time - time when notebook should be running;
+- offset - your zone offset;
+- repeat on - days when scheduler should be active
+- possibility to synchronize notebook scheduler with computational schedulers
+
+<p align="center"> 
+    <img src="doc/notebook_scheduler.png" alt="Notebook scheduler" width="400">
+</p>
+
+Also scheduler can be configured for spark cluster. To configure scheduler for spark cluster  ![scheduler_computational](doc/icon_scheduler_computational.png) should be clicked (near computational status):
+
+<p align="center"> 
+    <img src="doc/computational_scheduler_create.png" alt="Computational scheduler create" width="400">
+</p>
+
+There is a possibility to inherit scheduler settings from notebook, if such scheduler is present:
+
+<p align="center"> 
+    <img src="doc/computational_scheduler.png" alt="Computational scheduler" width="400">
+</p>
+
+Once any scheduler is set up, notebook/spark cluster will be started/stopped automatically.
