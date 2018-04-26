@@ -105,14 +105,12 @@ export class SchedulerComponent implements OnInit {
 
   public onDaySelect($event, day) {
     this.selectedWeekDays[day.toLowerCase()] = $event.checked;
-    // this.checkSelectedDays();
   }
 
   public toggleInherit($event) {
     this.inherit = $event.checked;
 
     if (this.destination.type === 'СOMPUTATIONAL' && this.inherit) {
-
       this.getExploratorySchedule(this.notebook.name);
       this.schedulerForm.get('startDate').disable();
     } else {
@@ -170,9 +168,6 @@ export class SchedulerComponent implements OnInit {
   }
 
   private getExploratorySchedule(resource, resource2?) {
-    // this.inherit = false;
-    // this.formInit();
-
     this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
       (params: any) => {
         if (params) {
