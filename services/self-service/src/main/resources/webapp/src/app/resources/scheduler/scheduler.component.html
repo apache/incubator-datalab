@@ -18,11 +18,21 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="scheduler-dialog modal-sm">
   <modal-header>
-    <h4 class="modal-title">Scheduler <span *ngIf="notebook">for <b>{{ notebook?.name }}</b></span></h4>
+    <h4 class="modal-title">Scheduler
+      <span *ngIf="destination">for
+        <b *ngIf="destination.type === 'EXPLORATORY'; else resource">{{ destination.name }}</b>
+        <ng-template #resource><b>{{ destination.computational_name }}</b></ng-template>
+      </span>
+    </h4>
   </modal-header>
   <modal-content>
-    <div *ngIf="notebook" class="content-box">
+    <div *ngIf="destination" class="content-box">
       <form [formGroup]="schedulerForm">
+        <div class="enable-schedule m-bott-10">
+          <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)">
+            <span *ngIf="toggleSchedule" class="hold-label">Enable scheduler</span>
+          </mat-slide-toggle>
+        </div>
         <div class="row-wrap">
           <div class="col">
             <mat-form-field>
@@ -39,28 +49,55 @@ limitations under the License.
             </mat-form-field>
           </div>
         </div>
+
         <div class="row-wrap">
           <div class="control-group col">
-            <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"></dlab-time-picker>
+            <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
+              [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"></dlab-time-picker>
           </div>
           <div class="control-group col">
-            <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"></dlab-time-picker>
+            <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"
+              [disable]="!enableSchedule"></dlab-time-picker>
           </div>
+          <mat-form-field class="col">
+            <mat-select
+              placeholder="Select offset"
+              [(value)]="tzOffset"
+              class="timezone-offset"
+              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
+              <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
-        <div class="control-group">
-          <label class="label" for="options">Repeat on :</label>
-          <div *ngFor="let day of weekdays; let i = index" class="week-day">
-            <mat-slide-toggle labelPosition="before" [checked]="selectedWeekDays[day.toLowerCase()]" (change)="onDaySelect($event, day)">
+        <div *ngIf="timeReqiered" class="danger_color"><span>required</span></div>
+        <div class="control-group days-block">
+          <label class="label repeat" for="options">Repeat on :</label>
+          <div *ngFor="let day of weekdays; let i = index" class="week-day" [ngClass]="day">
+            <mat-slide-toggle
+                labelPosition="before"
+                [checked]="selectedWeekDays[day.toLowerCase()]"
+                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
+                (change)="onDaySelect($event, day)">
               <span class="hold-label">{{ day }}</span>
             </mat-slide-toggle>
           </div>
         </div>
-        <span class="danger_color" *ngIf="errorMessage">At least one of given options should be selected</span>
+        <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>
+        <div class="inherit" *ngIf="destination">
+          <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
+            <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
+              <span>Start all spark clusters associated with current notebook <br /> based on notebook start schedule</span>
+            </span>
+            <ng-template #resourcePropagation>
+              <span class="hold-label">Inherit notebook schedule settings</span>
+            </ng-template>
+          </mat-slide-toggle>
+        </div>
       </form>
       <div class="text-center m-top-30">
-          <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-          <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Create</button>
-        </div>
+        <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+        <button mat-raised-button type="button" class="butt butt-success" (click)="scheduleInstance_btnClick(schedulerForm.value)">Save</button>
+      </div>
     </div>
   </modal-content>
 </modal-dialog>

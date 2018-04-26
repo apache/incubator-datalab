@@ -55,6 +55,11 @@ limitations under the License.
 }
 
 .time-picker {
+  .time-select{
+    .not-allowed {
+      pointer-events: none;
+    }
+  }
   .button {
     padding: 0;
     margin: 0;
@@ -68,6 +73,9 @@ limitations under the License.
 .timepicker-dialog.mat-dialog-content {
   margin: -24px;
   padding: 0;
+}
+.timepicker-dialog .mat-button-ripple.mat-button-ripple-round.mat-ripple {
+  border-radius: 50%;
 }
 
 .time-cover {

@@ -30,6 +30,8 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 export class ComputationalResourcesListComponent {
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailComputationalResource') detailComputationalResource;
+  @ViewChild('clusterScheduler') clusterScheduler;
+
   @Input() resources: any[];
   @Input() environment: any[];
 
@@ -79,6 +81,10 @@ export class ComputationalResourcesListComponent {
   detailComputationalResources(environment, resource): void {
     this.detailComputationalResource.open({ isFooter: false }, environment, resource);
   };
+
+  openScheduleDialog(resource) {
+    this.clusterScheduler.open({ isFooter: false }, this.environment, 'СOMPUTATIONAL', resource);
+  }
 }
 
 

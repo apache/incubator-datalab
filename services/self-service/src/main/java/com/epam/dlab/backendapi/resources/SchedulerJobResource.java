@@ -51,10 +51,10 @@ public class SchedulerJobResource {
 	 */
 	@POST
 	@Path("/{exploratoryName}")
-	public Response upsertExploratoryScheduler(@Auth UserInfo userInfo,
+	public Response updateExploratoryScheduler(@Auth UserInfo userInfo,
 											   @PathParam("exploratoryName") String exploratoryName,
 											   SchedulerJobDTO dto) {
-		schedulerJobService.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
+		schedulerJobService.updateExploratorySchedulerData(userInfo.getName(), exploratoryName, dto);
 		return Response.ok().build();
 	}
 
@@ -74,7 +74,7 @@ public class SchedulerJobResource {
 												 @PathParam("exploratoryName") String exploratoryName,
 												 @PathParam("computationalName") String computationalName,
 												 SchedulerJobDTO dto) {
-		schedulerJobService.updateSchedulerDataForComputationalResource(userInfo.getName(), exploratoryName,
+		schedulerJobService.updateComputationalSchedulerData(userInfo.getName(), exploratoryName,
 				computationalName, dto);
 		return Response.ok().build();
 	}

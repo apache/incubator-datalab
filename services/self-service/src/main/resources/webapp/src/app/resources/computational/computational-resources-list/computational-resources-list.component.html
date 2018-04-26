@@ -23,7 +23,9 @@ limitations under the License.
 
   <div *ngIf="resources.length">
     <div class="resource_wrap">
-      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="toggleResourceAction(resources[0], 'terminate')">&times;</a>
+      <a class="remove_butt"
+        [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' && resources[0].status != 'stopped' }"
+        (click)="toggleResourceAction(resources[0], 'terminate')">&times;</a>
       <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine' && environment.status === 'running'">
         <span *ngIf="resources[0].status === 'running' || resources[0].status === 'stopping'"
               (click)="toggleResourceAction(resources[0], 'stop')"
@@ -37,6 +39,10 @@ limitations under the License.
       </a>
     </div>
 
+    <span class="schedule" [ngClass]="{'active': resources[0].scheduler_data, 'not-allowed': resources[0].image === 'docker.dlab-dataengine-service'}">
+      <i class="material-icons" (click)="openScheduleDialog(resources[0])">schedule</i>
+    </span>
+
     <span class="material-icons arrow_icon" *ngIf="resources.length > 1" (click)="toggleResourceList()">
       <strong *ngIf="!collapse">keyboard_arrow_down</strong>
       <strong *ngIf="collapse">keyboard_arrow_up</strong>
@@ -48,7 +54,8 @@ limitations under the License.
 <div *ngIf="collapse" class="source">
   <div *ngFor="let resource of resources | slice:1">
       <div class="resource_wrap">
-        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' }" (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
+        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' && resource.status != 'stopped' }"
+          (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
         <a class="start-stop-action material-icons" *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
           <span *ngIf="resource.status === 'running' || resource.status === 'stopping'"
                 (click)="toggleResourceAction(resource, 'stop')"
@@ -62,8 +69,12 @@ limitations under the License.
         </a>
       </div>
       <span ngClass="{{resource.status.toLowerCase() || ''}}" class="emt_status">{{resource.status}}</span>
+      <span class="schedule" [ngClass]="{'active': resource.scheduler_data, 'not-allowed': resource.image === 'docker.dlab-dataengine-service'}">
+        <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>
+      </span>
   </div>
 </div>
 
 
 <detail-computational-resources #detailComputationalResource></detail-computational-resources>
+<dlab-scheduler #clusterScheduler></dlab-scheduler>

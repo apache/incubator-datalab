@@ -29,6 +29,7 @@ export interface SchedulerParameters {
     end_time: string;
     days_repeat: Array<string>;
     timezone_offset: string;
+    sync_start_required: boolean;
 }
 
 export class SchedulerModel {
@@ -56,23 +57,12 @@ export class SchedulerModel {
         if (this.continueWith) this.continueWith();
     }
 
-    public setCreatingParams(data): void {
-        this.createParameters = {
-            begin_date : data,
-            finish_date : data,
-            start_time: data,
-            end_time: data,
-            days_repeat: data,
-            timezone_offset: data
-        }
-    }
-
-    private scheduleInstance(notebook, params): Observable<Response> {
-        return this.schedulerService.setExploratorySchedule(notebook.name, params);
+    private scheduleInstance(notebook, params, resourse): Observable<Response> {
+        return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
     }
 
     private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-        this.confirmAction = (notebook, data) => this.scheduleInstance(notebook, data)
+        this.confirmAction = (notebook, data, resourse?) => this.scheduleInstance(notebook, data, resourse)
             .subscribe(
                 (response: Response) => fnProcessResults(response),
                 (response: Response) => fnProcessErrors(response));
