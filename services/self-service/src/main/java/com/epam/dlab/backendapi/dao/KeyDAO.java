@@ -191,4 +191,16 @@ public abstract class KeyDAO extends BaseDAO {
 				UserInstanceStatus.TERMINATED.toString()))))
 				.isPresent();
 	}
+
+	/**
+	 * Updates the field 'reupload_key_required' of EDGE node.
+	 *
+	 * @param user                user name
+	 * @param reuploadKeyRequired true/false
+	 */
+	public void updateEdgeReuploadKey(String user, boolean reuploadKeyRequired) {
+		updateOne(USER_EDGE,
+				eq(ID, user),
+				Updates.set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
+	}
 }

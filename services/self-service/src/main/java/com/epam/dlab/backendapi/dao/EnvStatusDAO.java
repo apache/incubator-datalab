@@ -32,7 +32,6 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.client.model.Updates;
@@ -163,11 +162,6 @@ public class EnvStatusDAO extends BaseDAO {
 				stream(find(USER_EDGE, eq(EDGE_STATUS, UserInstanceStatus.RUNNING.toString()),
 						fields(include(ID)))).map(d -> d.getString(ID))
 		).collect(Collectors.toSet());
-	}
-
-	public UserInstanceStatus getEdgeStatus(String user) {
-		return getEdgeNode(user).map(edge -> UserInstanceStatus.of(edge.getString(EDGE_STATUS)))
-				.orElseThrow(() -> new ResourceNotFoundException("Edge node for user " + user + " doesn't exist."));
 	}
 
 	@SuppressWarnings("unchecked")

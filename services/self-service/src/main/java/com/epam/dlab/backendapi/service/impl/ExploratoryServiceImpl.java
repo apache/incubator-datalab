@@ -49,7 +49,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Inject
 	private RequestId requestId;
 	@Inject
-	private EnvStatusDAO envStatusDAO;
+	private KeyDAO keyDAO;
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
@@ -128,7 +128,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		Map<String, List<String>> populatedResources = getPopulatedExploratoriesWithComputationalResources(user,
 				serviceBaseName, exploratoryStatus, computationalStatus);
 		StringBuilder sb = new StringBuilder();
-		if (edgeStatus == envStatusDAO.getEdgeStatus(user)) {
+		if (edgeStatus == UserInstanceStatus.of(keyDAO.getEdgeStatus(user))) {
 			sb.append(serviceBaseName).append("-").append(user).append("-").append("edge").append(",");
 		}
 		for (Map.Entry<String, List<String>> entry : populatedResources.entrySet()) {
