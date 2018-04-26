@@ -50,7 +50,7 @@ def downgrade_python_version():
        sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
         version = [pkg.vr for pkg in pl.installed if pkg.name == \'python\']; \
         os.system(\'yum -y downgrade python python-devel-2.7.5-58.el7.x86_64 python-libs-2.7.5-58.el7.x86_64\') \
-        if version[0] == \'2.7.5-68.el7\' else False"')
+        if version != [] and version[0] == \'2.7.5-68.el7\' else False"')
     except:
         sys.exit(1)
 
