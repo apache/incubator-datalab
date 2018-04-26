@@ -159,10 +159,11 @@ public class SchedulerJobServiceImplTest {
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		verify(computationalDAO).updateSchedulerSyncFlag(USER, EXPLORATORY_NAME, false);
 		verifyNoMoreInteractions(exploratoryDAO);
 		verifyZeroInteractions(computationalDAO);
 	}
@@ -176,10 +177,11 @@ public class SchedulerJobServiceImplTest {
 
 		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
 		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
-		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, null);
+		verify(computationalDAO).updateSchedulerSyncFlag(USER, EXPLORATORY_NAME, false);
 		verifyNoMoreInteractions(exploratoryDAO);
 		verifyZeroInteractions(computationalDAO);
 	}
@@ -189,7 +191,7 @@ public class SchedulerJobServiceImplTest {
 		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
 				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
 		try {
-			schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+			schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 		} catch (ResourceNotFoundException e) {
 			assertEquals("Exploratory for user with name not found", e.getMessage());
 		}
@@ -203,7 +205,7 @@ public class SchedulerJobServiceImplTest {
 		userInstance.withStatus("terminated");
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
 		try {
-			schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+			schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 		} catch (ResourceInappropriateStateException e) {
 			assertEquals("Can not create/update scheduler for user instance with status: terminated",
 					e.getMessage());
@@ -225,13 +227,14 @@ public class SchedulerJobServiceImplTest {
 		assertTrue(schedulerJobDTO.getBeginDate() == null);
 		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
 
-		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		assertEquals(LocalDate.now(), schedulerJobDTO.getBeginDate());
 		assertEquals(OffsetDateTime.now(ZoneId.systemDefault()).getOffset(), schedulerJobDTO.getTimeZoneOffset());
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		verify(computationalDAO).updateSchedulerSyncFlag(USER, EXPLORATORY_NAME, false);
 		verifyNoMoreInteractions(exploratoryDAO);
 		verifyZeroInteractions(computationalDAO);
 	}
@@ -248,7 +251,7 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
@@ -269,7 +272,7 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
 				anyString(), anyVararg())).thenReturn(Collections.emptyList());
 
-		schedulerJobService.updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
+		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
@@ -288,7 +291,7 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
+		schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
@@ -309,7 +312,7 @@ public class SchedulerJobServiceImplTest {
 
 		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
 		schedulerJobDTO.setDaysRepeat(null);
-		schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
+		schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
@@ -326,7 +329,7 @@ public class SchedulerJobServiceImplTest {
 		doThrow(new ResourceNotFoundException("Computational resource for user with name not found"))
 				.when(computationalDAO).fetchComputationalFields(anyString(), anyString(), anyString());
 		try {
-			schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
+			schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME,
 					COMPUTATIONAL_NAME, schedulerJobDTO);
 		} catch (ResourceNotFoundException e) {
 			assertEquals("Computational resource for user with name not found", e.getMessage());
@@ -345,7 +348,7 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString()))
 				.thenReturn(userInstance.getResources().get(0));
 		try {
-			schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
+			schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME,
 					COMPUTATIONAL_NAME, schedulerJobDTO);
 		} catch (ResourceInappropriateStateException e) {
 			assertEquals("Can not create/update scheduler for user instance with status: terminated",
@@ -370,7 +373,7 @@ public class SchedulerJobServiceImplTest {
 		assertTrue(schedulerJobDTO.getBeginDate() == null);
 		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
 
-		schedulerJobService.updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
+		schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
 
 		assertEquals(LocalDate.now(), schedulerJobDTO.getBeginDate());

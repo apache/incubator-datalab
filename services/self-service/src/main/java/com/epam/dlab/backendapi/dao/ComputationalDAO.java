@@ -248,11 +248,12 @@ public class ComputationalDAO extends BaseDAO {
 	/**
 	 * Updates the requirement for reuploading key for all corresponding computational resources in Mongo database.
 	 *
-	 * @param user                 user name.
-	 * @param exploratoryStatus    status of exploratory.
-	 * @param computationalType    type of computational resource ('dataengine', 'dataengine-service').
-	 * @param computationalStatus  status of computational resource.
-	 * @param reuploadKeyRequired  true/false.	 */
+	 * @param user                user name.
+	 * @param exploratoryStatus   status of exploratory.
+	 * @param computationalType   type of computational resource ('dataengine', 'dataengine-service').
+	 * @param computationalStatus status of computational resource.
+	 * @param reuploadKeyRequired true/false.
+	 */
 
 	public void updateReuploadKeyFlagForComputationalResources(String user, UserInstanceStatus exploratoryStatus,
 															   DataEngineType computationalType,
@@ -275,10 +276,10 @@ public class ComputationalDAO extends BaseDAO {
 	 * Returns names of computational resources which status is among existing ones. Also these resources will
 	 * have predefined type.
 	 *
-	 * @param user                   user name.
-	 * @param computationalType      type of computational resource ('dataengine', 'dataengine-service').
-	 * @param exploratoryName        name of exploratory.
-	 * @param computationalStatuses  statuses of computational resource.
+	 * @param user                  user name.
+	 * @param computationalType     type of computational resource ('dataengine', 'dataengine-service').
+	 * @param exploratoryName       name of exploratory.
+	 * @param computationalStatuses statuses of computational resource.
 	 * @return list of computational resources' names
 	 */
 
@@ -309,6 +310,18 @@ public class ComputationalDAO extends BaseDAO {
 		return updateOne(USER_INSTANCES,
 				computationalCondition(user, EXPLORATORY_NAME, exploratoryName, COMPUTATIONAL_NAME, computationalName),
 				set(computationalFieldFilter(fieldName), fieldValue));
+	}
+
+	public void updateSchedulerSyncFlag(String user, String exploratoryName, boolean syncFlag) {
+		final String syncStartField = SCHEDULER_DATA + ".sync_start_required";
+		UpdateResult result;
+		do {
+
+			result = updateOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
+					elemMatch(COMPUTATIONAL_RESOURCES, and(ne(SCHEDULER_DATA, null), ne(syncStartField, syncFlag)))),
+					set(computationalFieldFilter(syncStartField), syncFlag));
+
+		} while (result.getModifiedCount() != 0);
 	}
 
 	public UpdateResult updateSchedulerDataForComputationalResource(String user, String exploratoryName,

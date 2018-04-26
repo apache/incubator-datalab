@@ -97,7 +97,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	@Override
-	public void updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO dto) {
+	public void updateExploratorySchedulerData(String user, String exploratoryName, SchedulerJobDTO dto) {
 		checkExploratoryStatusOrElseThrowException(user, exploratoryName);
 		enrichSchedulerJobIfNecessary(dto);
 		log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...",
@@ -105,12 +105,14 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, nullableJobDto(dto));
 		if (dto.isSyncStartRequired()) {
 			shareSchedulerJobDataToSparkClusters(user, exploratoryName, dto);
+		} else {
+			computationalDAO.updateSchedulerSyncFlag(user, exploratoryName, dto.isSyncStartRequired());
 		}
 	}
 
 	@Override
-	public void updateSchedulerDataForComputationalResource(String user, String exploratoryName,
-															String computationalName, SchedulerJobDTO dto) {
+	public void updateComputationalSchedulerData(String user, String exploratoryName, String computationalName,
+												 SchedulerJobDTO dto) {
 		checkExploratoryStatusOrElseThrowException(user, exploratoryName);
 		checkComputationalStatusOrElseThrowException(user, exploratoryName, computationalName);
 		enrichSchedulerJobIfNecessary(dto);
@@ -213,9 +215,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	 * Pulls out scheduler jobs data for the following starting/terminating/stopping corresponding exploratories
 	 * ('isAppliedForClusters' equals 'false') or computational resources ('isAppliedForClusters' equals 'true').
 	 *
-	 * @param desiredStatus         target exploratory/cluster status (running/stopped/terminated)
-	 * @param currentDateTime       actual date with time
-	 * @param isAppliedForClusters  true/false
+	 * @param desiredStatus        target exploratory/cluster status (running/stopped/terminated)
+	 * @param currentDateTime      actual date with time
+	 * @param isAppliedForClusters true/false
 	 * @return list of scheduler jobs data
 	 */
 	private List<SchedulerJobData> getSchedulerJobsForAction(UserInstanceStatus desiredStatus,

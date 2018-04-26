@@ -31,7 +31,7 @@ public interface SchedulerJobService {
 	 * @param exploratoryName name of exploratory resource
 	 * @param dto             scheduler job data
 	 */
-	void updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO dto);
+	void updateExploratorySchedulerData(String user, String exploratoryName, SchedulerJobDTO dto);
 
 	/**
 	 * Updates scheduler job data for computational resource <code>computationalName<code/> affiliated with
@@ -42,8 +42,8 @@ public interface SchedulerJobService {
 	 * @param computationalName name of computational resource
 	 * @param dto               scheduler job data
 	 */
-	void updateSchedulerDataForComputationalResource(String user, String exploratoryName,
-													 String computationalName, SchedulerJobDTO dto);
+	void updateComputationalSchedulerData(String user, String exploratoryName,
+										  String computationalName, SchedulerJobDTO dto);
 
 	/**
 	 * Executes start scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
