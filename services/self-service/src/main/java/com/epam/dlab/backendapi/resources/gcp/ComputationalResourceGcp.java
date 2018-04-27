@@ -64,6 +64,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.slaveShape(formDTO.getSlaveInstanceType())
 					.slaveNumber(formDTO.getSlaveInstanceCount())
 					.masterNumber(formDTO.getMasterInstanceCount())
+					.preemptibleNumber(formDTO.getPreemptibleCount())
 					.version(formDTO.getVersion()).build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
 					gcpComputationalResource);
@@ -164,27 +165,15 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 		}
 
 		int slaveInstanceCount = Integer.parseInt(formDTO.getSlaveInstanceCount());
-		if (slaveInstanceCount < configuration.getMinDataprocSlaveInstanceCount()
-				|| slaveInstanceCount > configuration.getMaxDataprocSlaveInstanceCount()) {
-			log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave " +
-							"instances" +
-							". Minimum is {}, maximum is {}",
-					formDTO.getName(), userInfo.getName(), configuration.getMinDataprocSlaveInstanceCount(),
-					configuration.getMaxDataprocSlaveInstanceCount());
-			throw new DlabException("Limit exceeded to creation slave instances. " +
-					"Minimum is " + configuration.getMinDataprocSlaveInstanceCount() +
-					", maximum is " + configuration.getMaxDataprocSlaveInstanceCount());
-		}
-
 		int masterInstanceCount = Integer.parseInt(formDTO.getMasterInstanceCount());
-		if (!configuration.getDataprocAvailableMasterInstanceCount().contains(masterInstanceCount)) {
-			log.debug("Creating computational resource {} for user {} fail: Not valid value for master instance " +
-							"count" +
-							"." +
-							" Valid is {}",
-					formDTO.getName(), userInfo.getName(), configuration.getDataprocAvailableMasterInstanceCount());
-			throw new DlabException("Not valid value for master instance count. Valid is " + configuration
-					.getDataprocAvailableMasterInstanceCount() + ".");
+		final int total = slaveInstanceCount + masterInstanceCount;
+		if (total < configuration.getMinInstanceCount()
+				|| total > configuration.getMaxInstanceCount()) {
+			log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation total " +
+							"instances. Minimum is {}, maximum is {}", formDTO.getName(), userInfo.getName(),
+					configuration.getMinInstanceCount(), configuration.getMaxInstanceCount());
+			throw new DlabException("Limit exceeded to creation slave instances. Minimum is " + configuration
+					.getMinInstanceCount() + ", maximum is " + configuration.getMaxInstanceCount());
 		}
 
 		final int preemptibleInstanceCount = Integer.parseInt(formDTO.getPreemptibleCount());

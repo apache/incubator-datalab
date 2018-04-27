@@ -31,7 +31,6 @@ import org.hibernate.validator.group.GroupSequenceProvider;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.List;
 
 /**
  * Configuration for Self Service.
@@ -81,13 +80,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@NotEmpty(groups = AwsValidation.class)
 	@JsonProperty
 	private String billingConfFile;
-
 	@JsonProperty
-	private List<Integer> dataprocAvailableMasterInstanceCount;
+	private int minInstanceCount;
 	@JsonProperty
-	private int minDataprocSlaveInstanceCount;
-	@JsonProperty
-	private int maxDataprocSlaveInstanceCount;
+	private int maxInstanceCount;
 	@JsonProperty
 	private int minDataprocPreemptibleCount;
 	@JsonProperty
@@ -175,16 +171,12 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	}
 
 
-	public int getMinDataprocSlaveInstanceCount() {
-		return minDataprocSlaveInstanceCount;
+	public int getMinInstanceCount() {
+		return minInstanceCount;
 	}
 
-	public List<Integer> getDataprocAvailableMasterInstanceCount() {
-		return dataprocAvailableMasterInstanceCount;
-	}
-
-	public int getMaxDataprocSlaveInstanceCount() {
-		return maxDataprocSlaveInstanceCount;
+	public int getMaxInstanceCount() {
+		return maxInstanceCount;
 	}
 
 	public int getMinDataprocPreemptibleCount() {
