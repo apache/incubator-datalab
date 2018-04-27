@@ -39,9 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
@@ -223,39 +221,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private List<SchedulerJobData> getSchedulerJobsForAction(UserInstanceStatus desiredStatus,
 															 OffsetDateTime currentDateTime,
 															 boolean isAppliedForClusters) {
-		List<SchedulerJobData> schedulerJobDataList =
-				getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters);
-		if (desiredStatus == STOPPED) {
-			return Stream.of(
-					schedulerJobDataList.stream()
-							.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-									endTimeIsAfterCondition(jobData)),
-					getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime.minusDays(1),
-							isAppliedForClusters).stream()
-							.filter(jobData -> Objects.nonNull(jobData.getJobDTO().getStartTime()) &&
-									endTimeIsBeforeCondition(jobData) && finishDateCondition(jobData,
-									currentDateTime)),
-					schedulerJobDataList.stream()
-							.filter(jobData -> Objects.isNull(jobData.getJobDTO().getStartTime()))
-			).flatMap(Function.identity()).collect(Collectors.toList());
-		} else if (desiredStatus == RUNNING || desiredStatus == TERMINATED) {
-			return schedulerJobDataList;
-		} else return Collections.emptyList();
-	}
-
-	private boolean finishDateCondition(SchedulerJobData jobData, OffsetDateTime currentDateTime) {
-		LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
-				ZoneId.ofOffset(TIMEZONE_PREFIX, jobData.getJobDTO().getTimeZoneOffset())).toLocalDateTime();
-		return jobData.getJobDTO().getFinishDate() == null ||
-				!convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate());
-	}
-
-	private boolean endTimeIsBeforeCondition(SchedulerJobData jobData) {
-		return jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime());
-	}
-
-	private boolean endTimeIsAfterCondition(SchedulerJobData jobData) {
-		return jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime());
+		return desiredStatus.in(STOPPED, RUNNING, TERMINATED) ?
+				getSchedulerJobsToAchieveStatus(desiredStatus, currentDateTime, isAppliedForClusters) :
+				Collections.emptyList();
 	}
 
 
