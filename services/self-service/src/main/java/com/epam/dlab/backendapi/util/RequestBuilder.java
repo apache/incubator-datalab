@@ -65,6 +65,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.epam.dlab.cloud.CloudProvider.*;
@@ -171,9 +172,11 @@ public class RequestBuilder {
 		}
 	}
 
-	public ReuploadFileDTO newKeyReupload(UserInfo userInfo, String content, String runningResources) {
+	public ReuploadFileDTO newKeyReupload(UserInfo userInfo, String id, String content, List<String>
+			runningResources) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, ReuploadFileDTO.class)
+				.withId(id)
 				.withContent(content)
 				.withRunningResources(runningResources);
 	}

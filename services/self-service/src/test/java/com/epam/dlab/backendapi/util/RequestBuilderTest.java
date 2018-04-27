@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -146,8 +147,8 @@ public class RequestBuilderTest {
 	public void newKeyReuploadForAwsOrAzure() {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.AWS);
 
-		ReuploadFileDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent",
-				"someRunningResources");
+		ReuploadFileDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
+				Collections.singletonList("someRunningResources"));
 		assertEquals(expectedReuploadFileDTO, actualReuploadFile);
 
 		verify(configuration).getCloudProvider();
@@ -159,8 +160,8 @@ public class RequestBuilderTest {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.GCP);
 		when(configuration.getMaxUserNameLength()).thenReturn(10);
 
-		ReuploadFileDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent",
-				"someRunningResources");
+		ReuploadFileDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
+				Collections.singletonList("someRunningResources"));
 		assertEquals(expectedReuploadFileDTO, actualReuploadFile);
 
 		verify(configuration).getCloudProvider();

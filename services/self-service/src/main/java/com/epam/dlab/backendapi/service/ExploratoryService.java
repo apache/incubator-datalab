@@ -4,6 +4,8 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.model.exloratory.Exploratory;
 
+import java.util.List;
+
 public interface ExploratoryService {
 
 	String start(UserInfo userInfo, String exploratoryName);
@@ -18,6 +20,7 @@ public interface ExploratoryService {
 
 	void updateUserInstancesReuploadKeyFlag(String user);
 
-	String getResourcesForKeyReuploading(String user, String serviceBaseName, UserInstanceStatus edgeStatus,
-										 UserInstanceStatus exploratoryStatus, UserInstanceStatus computationalStatus);
+	List<String> getResourcesForKeyReuploading(String user, String serviceBaseName, UserInstanceStatus edgeStatus,
+											   UserInstanceStatus exploratoryStatus, UserInstanceStatus
+													   computationalStatus);
 }

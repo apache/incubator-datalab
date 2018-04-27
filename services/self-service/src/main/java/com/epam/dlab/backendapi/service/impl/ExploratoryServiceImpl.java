@@ -96,48 +96,56 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	/**
-	 * Sets parameter 'reuploadKeyRequired' to 'true' for all user's instances which have status 'stopped' and
-	 * may be restarted in future (exploratories and Spark clusters).
+	 * Sets parameter 'reuploadKeyRequired' to 'true' for all corresponding user's instances. Herewith:
+	 * edge nodes may have statuses: 'starting', 'running', 'stopping', 'stopped';
+	 * exploratories may have statuses: 'creating', 'configuring', 'starting', 'running', 'stopping', 'stopped';
+	 * Spark clusters may have statuses: 'creating', 'configuring', 'starting', 'running', 'stopping', 'stopped';
+	 * dataengine-services may have statuses: 'creating', 'configuring', 'starting', 'running'.
 	 *
 	 * @param user user.
 	 */
 	@Override
 	public void updateUserInstancesReuploadKeyFlag(String user) {
-		exploratoryDAO.updateReuploadKeyForExploratories(user, STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, RUNNING, DataEngineType.SPARK_STANDALONE,
-				STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, STOPPED, DataEngineType.SPARK_STANDALONE,
-				STOPPED, true);
+		keyDAO.updateEdgeReuploadKey(user, true, STARTING, RUNNING, STOPPING, STOPPED);
+		exploratoryDAO.updateReuploadKeyForExploratories(user, true,
+				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user,
+				Arrays.asList(STARTING, RUNNING, STOPPING, STOPPED), DataEngineType.SPARK_STANDALONE,
+				true,
+				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user,
+				Collections.singletonList(RUNNING), DataEngineType.CLOUD_SERVICE,
+				true,
+				CREATING, CONFIGURING, STARTING, RUNNING);
 	}
 
 	/**
-	 * Returns string which contains full names of user's edge, exploratories and computational resources where last
-	 * two have predefined statuses.
+	 * Returns list which contains full names of user's edge, exploratories and computational resources with predefined
+	 * statuses.
 	 *
 	 * @param user                user.
 	 * @param serviceBaseName     service base name.
 	 * @param edgeStatus          edge status.
 	 * @param exploratoryStatus   status for exploratory environment.
 	 * @param computationalStatus status for computational resource affiliated with the exploratory.
-	 * @return string in format 'SBN-user-edge,SBN-user-nb-notebookName,...,SBN-user-de/des-notebookName-clusterName'.
+	 * @return list with names of user's resources (edge node, notebooks and clusters) in format 'SBN-user-edge'
+	 * (edge node), 'SBN-user-nb-notebookName' (notebook), 'SBN-user-de/des-notebookName-clusterName' (cluster).
 	 */
-	public String getResourcesForKeyReuploading(String user, String serviceBaseName,
-												UserInstanceStatus edgeStatus,
-												UserInstanceStatus exploratoryStatus,
-												UserInstanceStatus computationalStatus) {
+	public List<String> getResourcesForKeyReuploading(String user, String serviceBaseName,
+													  UserInstanceStatus edgeStatus,
+													  UserInstanceStatus exploratoryStatus,
+													  UserInstanceStatus computationalStatus) {
 		Map<String, List<String>> populatedResources = getPopulatedExploratoriesWithComputationalResources(user,
 				serviceBaseName, exploratoryStatus, computationalStatus);
-		StringBuilder sb = new StringBuilder();
+		List<String> resourceNames = new ArrayList<>();
 		if (edgeStatus == UserInstanceStatus.of(keyDAO.getEdgeStatus(user))) {
-			sb.append(serviceBaseName).append("-").append(user).append("-").append("edge").append(",");
+			resourceNames.add(serviceBaseName + "-" + user + "-edge");
 		}
 		for (Map.Entry<String, List<String>> entry : populatedResources.entrySet()) {
-			sb.append(entry.getKey()).append(",");
-			for (String compName : entry.getValue()) {
-				sb.append(compName).append(",");
-			}
+			resourceNames.add(entry.getKey());
+			resourceNames.addAll(entry.getValue());
 		}
-		return sb.toString().substring(0, sb.toString().length() - 1);
+		return resourceNames;
 	}
 
 	/**

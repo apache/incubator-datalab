@@ -24,6 +24,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -129,7 +131,8 @@ public class AccessKeyServiceImplTest {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 
 		ReuploadFileDTO uploadFile = mock(ReuploadFileDTO.class);
-		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString())).thenReturn(uploadFile);
+		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class)))
+				.thenReturn(uploadFile);
 
 		String expectedUuid = "someUuid";
 		when(provisioningService.post(anyString(), anyString(), any(ReuploadFileDTO.class), any())).
@@ -143,7 +146,7 @@ public class AccessKeyServiceImplTest {
 		assertEquals(expectedUuid, actualUuid);
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
-		verify(requestBuilder).newKeyReupload(refEq(userInfo), eq(keyContent), anyString());
+		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
 		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
 		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
@@ -155,7 +158,7 @@ public class AccessKeyServiceImplTest {
 	public void reUploadKeyWithException() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 		doThrow(new RuntimeException())
-				.when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString(), anyString());
+				.when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class));
 
 		expectedException.expect(RuntimeException.class);
 

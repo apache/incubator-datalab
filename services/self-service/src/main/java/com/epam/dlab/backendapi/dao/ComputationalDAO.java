@@ -115,7 +115,7 @@ public class ComputationalDAO extends BaseDAO {
 	 * @param user              user name.
 	 * @param exploratoryName   the name of exploratory.
 	 * @param computationalName name of computational resource.
-	 * @throws DlabException
+	 * @throws DlabException    if exception occurs
 	 */
 	public UserComputationalResource fetchComputationalFields(String user, String exploratoryName,
 															  String computationalName) {
@@ -216,7 +216,7 @@ public class ComputationalDAO extends BaseDAO {
 	 *
 	 * @param dto object of computational resource status.
 	 * @return The result of an update operation.
-	 * @throws DlabException
+	 * @throws DlabException if exception occurs
 	 */
 	public UpdateResult updateComputationalFields(ComputationalStatusDTO dto) {
 		try {
@@ -248,25 +248,26 @@ public class ComputationalDAO extends BaseDAO {
 	/**
 	 * Updates the requirement for reuploading key for all corresponding computational resources in Mongo database.
 	 *
-	 * @param user                user name.
-	 * @param exploratoryStatus   status of exploratory.
-	 * @param computationalType   type of computational resource ('dataengine', 'dataengine-service').
-	 * @param computationalStatus status of computational resource.
-	 * @param reuploadKeyRequired true/false.
+	 * @param user                  user name.
+	 * @param exploratoryStatuses   exploratory's status list.
+	 * @param computationalType     type of computational resource ('dataengine', 'dataengine-service').
+	 * @param reuploadKeyRequired   true/false.
+	 * @param computationalStatuses statuses of computational resource.
 	 */
 
-	public void updateReuploadKeyFlagForComputationalResources(String user, UserInstanceStatus exploratoryStatus,
+	public void updateReuploadKeyFlagForComputationalResources(String user,
+															   List<UserInstanceStatus> exploratoryStatuses,
 															   DataEngineType computationalType,
-															   UserInstanceStatus computationalStatus,
-															   boolean reuploadKeyRequired) {
+															   boolean reuploadKeyRequired,
+															   UserInstanceStatus... computationalStatuses) {
 
 		List<String> exploratoryNames = stream(find(USER_INSTANCES,
-				and(eq(USER, user), eq(STATUS, exploratoryStatus.toString())),
-				fields(include(EXPLORATORY_NAME)))).map(d -> d.getString(EXPLORATORY_NAME)).collect(Collectors
-				.toList());
+				and(eq(USER, user), in(STATUS, statusList(exploratoryStatuses))),
+				fields(include(EXPLORATORY_NAME)))).map(d -> d.getString(EXPLORATORY_NAME))
+				.collect(Collectors.toList());
 
 		exploratoryNames.forEach(explName ->
-				getComputationalResourcesWhereStatusIn(user, computationalType, explName, computationalStatus)
+				getComputationalResourcesWhereStatusIn(user, computationalType, explName, computationalStatuses)
 						.forEach(compName -> updateComputationalField(user, explName, compName,
 								REUPLOAD_KEY_REQUIRED, reuploadKeyRequired))
 		);

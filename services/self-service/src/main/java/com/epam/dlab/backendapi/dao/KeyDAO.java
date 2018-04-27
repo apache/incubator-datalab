@@ -197,10 +197,11 @@ public abstract class KeyDAO extends BaseDAO {
 	 *
 	 * @param user                user name
 	 * @param reuploadKeyRequired true/false
+	 * @param edgeStatuses        edge statuses
 	 */
-	public void updateEdgeReuploadKey(String user, boolean reuploadKeyRequired) {
+	public void updateEdgeReuploadKey(String user, boolean reuploadKeyRequired, UserInstanceStatus... edgeStatuses) {
 		updateOne(USER_EDGE,
-				eq(ID, user),
+				and(eq(ID, user), in(EDGE_STATUS, statusList(edgeStatuses))),
 				Updates.set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 }

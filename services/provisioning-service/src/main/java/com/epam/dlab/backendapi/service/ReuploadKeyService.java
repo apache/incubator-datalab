@@ -1,19 +1,27 @@
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
+import com.epam.dlab.backendapi.core.response.handlers.ReuploadKeyCallbackHandler;
 import com.epam.dlab.dto.ReuploadFileDTO;
+import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Singleton
 public class ReuploadKeyService extends DockerService implements DockerCommands {
 
 	public String reuploadKeyAction(String userName, ReuploadFileDTO dto, DockerAction action)
 			throws JsonProcessingException {
 		log.debug("{} for edge user {}", action, dto.getEdgeUserName());
 		String uuid = DockerCommands.generateUUID();
+		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
+				configuration.getKeyLoaderPollTimeout(),
+				new ReuploadKeyCallbackHandler(selfService, ApiCallbacks.KEY_LOADER, userName, dto));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
@@ -35,7 +43,7 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 
 	@Override
 	public String getResourceType() {
-		return "edge";
+		return Directories.EDGE_LOG_DIRECTORY;
 	}
 
 }

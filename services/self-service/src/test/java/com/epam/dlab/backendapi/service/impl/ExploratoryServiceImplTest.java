@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -369,19 +370,22 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
-		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(),
-				any(UserInstanceStatus.class), anyBoolean());
+		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(), anyBoolean(),
+				any(UserInstanceStatus.class));
 		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
-				any(UserInstanceStatus.class), any(DataEngineType.class), any(UserInstanceStatus.class), anyBoolean());
+				any(List.class), any(DataEngineType.class), anyBoolean(), any(UserInstanceStatus.class));
 
 		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
 
-		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, UserInstanceStatus.STOPPED, true);
+		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, true, UserInstanceStatus.STOPPED);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				UserInstanceStatus.RUNNING, DataEngineType.SPARK_STANDALONE, UserInstanceStatus.STOPPED, true);
+				Collections.singletonList(UserInstanceStatus.RUNNING), DataEngineType.SPARK_STANDALONE, true,
+				UserInstanceStatus.STOPPED);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				UserInstanceStatus.STOPPED, DataEngineType.SPARK_STANDALONE, UserInstanceStatus.STOPPED, true);
+				Collections.singletonList(UserInstanceStatus.STOPPED), DataEngineType.SPARK_STANDALONE, true,
+				UserInstanceStatus.STOPPED);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 

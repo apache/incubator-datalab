@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
@@ -112,12 +113,12 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	private String reuploadKey(UserInfo user, String keyContent) {
-		ReuploadFileDTO uploadFile = requestBuilder.newKeyReupload(user, keyContent,
+		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
+		ReuploadFileDTO reuploadFile = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
 				exploratoryService.getResourcesForKeyReuploading(user.getName(), settingsDAO.getServiceBaseName(),
 						RUNNING, RUNNING, RUNNING));
-		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
+		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), reuploadFile, String.class);
 		requestId.put(user.getName(), uuid);
-		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
 		return uuid;
 	}
 
