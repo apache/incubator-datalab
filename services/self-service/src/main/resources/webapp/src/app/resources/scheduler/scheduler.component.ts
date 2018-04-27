@@ -121,11 +121,11 @@ export class SchedulerComponent implements OnInit {
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
     
-    this.enableSchedule ? this.schedulerForm.get('startDate').enable() : this.schedulerForm.get('startDate').disable();
-    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+    (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
+      ? this.schedulerForm.get('startDate').enable()
+      : this.schedulerForm.get('startDate').disable();
 
-    if (this.destination.type === 'СOMPUTATIONAL' && this.inherit)
-      this.schedulerForm.get('startDate').disable();
+    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
   }
 
   public scheduleInstance_btnClick(data) {

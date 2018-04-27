@@ -37,7 +37,7 @@ limitations under the License.
           <div class="col">
             <mat-form-field>
               <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
-              <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+              <mat-datepicker-toggle [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }" matSuffix [for]="startDate"></mat-datepicker-toggle>
               <mat-datepicker #startDate></mat-datepicker>
             </mat-form-field>
           </div>
