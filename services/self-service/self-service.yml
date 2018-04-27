@@ -30,11 +30,9 @@ maxEmrSpotInstanceBidPct: 90
 <#if CLOUD_TYPE == "gcp">
 # Maximum length for gcp user name (due to gcp restrictions)
 maxUserNameLength: 10
-# Number of master Dataproc instances that could be created
-dataprocAvailableMasterInstanceCount: [1,3]
 # Minimum and maximum number of slave Dataproc instances that could be created
-minDataprocSlaveInstanceCount: 2
-maxDataprocSlaveInstanceCount: 14
+minInstanceCount: 3
+maxInstanceCount: 15
 minDataprocPreemptibleCount: 0
 gcpOuauth2AuthenticationEnabled: false
 </#if>

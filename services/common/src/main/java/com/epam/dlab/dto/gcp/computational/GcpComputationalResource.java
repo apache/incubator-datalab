@@ -44,6 +44,8 @@ public class GcpComputationalResource extends UserComputationalResource {
     private String slaveNumber;
     @JsonProperty("total_master_instance_number")
     private String masterNumber;
+	@JsonProperty("total_preemptible_number")
+	private String preemptibleNumber;
     @JsonProperty("dataproc_version")
     private String version;
 
@@ -52,7 +54,7 @@ public class GcpComputationalResource extends UserComputationalResource {
 									String templateName, String status, Date uptime,
 									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
-									String masterNumber, String version) {
+									String masterNumber,String preemptibleNumber, String version) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
 				reuploadKeyRequired);
         this.instanceId = instanceId;
@@ -61,5 +63,6 @@ public class GcpComputationalResource extends UserComputationalResource {
         this.slaveNumber = slaveNumber;
         this.masterNumber = masterNumber;
         this.version = version;
+        this.preemptibleNumber = preemptibleNumber;
     }
 }
