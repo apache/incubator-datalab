@@ -337,19 +337,20 @@ public class EnvStatusDAO extends BaseDAO {
 		UserInstanceStatus status;
 		if ("terminated".equalsIgnoreCase(newStatus) || "terminated_with_errors".equalsIgnoreCase(newStatus)) {
 			status = UserInstanceStatus.TERMINATED;
-		} else if ("terminating".equalsIgnoreCase(newStatus)) {
-			status = UserInstanceStatus.TERMINATING;
 		} else {
-			return oldStatus;
+			status = Optional.ofNullable(UserInstanceStatus.of(newStatus)).orElse(oldStatus);
 		}
 
 		switch (oldStatus) {
 			case CREATING:
 			case CONFIGURING:
 			case RUNNING:
-				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING) ? status : oldStatus);
+				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
+						UserInstanceStatus.STOPPING, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case TERMINATING:
 				return (status.in(UserInstanceStatus.TERMINATED) ? status : oldStatus);
+			case STARTING:
+				return status;
 			case FAILED:
 			case TERMINATED:
 			default:
