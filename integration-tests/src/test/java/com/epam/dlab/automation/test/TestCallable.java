@@ -114,6 +114,14 @@ public class TestCallable implements Callable<Boolean> {
 
 			LOGGER.info("Actual cluster name of {} is {}", dataEngineType, actualClusterName);
 
+			if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
+				stopEnvironment();
+				LOGGER.debug("Restarting notebook {}...", notebookName);
+				restartNotebook();
+				LOGGER.debug("Restarting Spark cluster {}...", clusterName);
+				restartCluster();
+			}
+
 			if (!ConfigPropertyValue.isRunModeLocal()) {
 
 				TestDataEngineService test = new TestDataEngineService();
@@ -129,9 +137,8 @@ public class TestCallable implements Callable<Boolean> {
 						new File(notebookTemplatesLocation), notebookName);
 			}
 
-			stopEnvironment();
-
-			if (fullTest && deployClusterDto != null) {
+			if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType) && fullTest && deployClusterDto != null) {
+				stopEnvironment();
 				restartNotebookAndRedeployToTerminate(deployClusterDto);
 			}
 			if (deployClusterDto != null) {
@@ -519,16 +526,16 @@ public class TestCallable implements Callable<Boolean> {
 	   final String clusterNewName = redeployCluster(deployClusterDto);
 	   terminateCluster(clusterNewName);
    }
-   
 
-private void restartNotebook() throws Exception {
+
+	private void restartNotebook() throws Exception {
        LOGGER.info("9. Notebook {} will be re-started ...", notebookName);
        String requestBody = "{\"notebook_instance_name\":\"" + notebookName + "\"}";
        Response respStartNotebook = new HttpRequest().webApiPost(ssnExpEnvURL, ContentType.JSON, requestBody, token);
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
-	String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName,
+		String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName,
 			VirtualMachineStatusChecker.getStartingStatus(), getDuration(notebookConfig.getTimeoutNotebookStartup()));
        String status = VirtualMachineStatusChecker.getRunningStatus();
        if (!Objects.requireNonNull(status).contains(gettingStatus)){
@@ -579,6 +586,32 @@ private void restartNotebook() throws Exception {
 					   deployCluster.getNotebookName(), deployCluster.getName(), dataEngineType), true);
 
    }
+
+	private void restartCluster() throws Exception {
+		String gettingStatus;
+		LOGGER.info("    Cluster {} will be restarted for notebook {} ...", clusterName, notebookName);
+		final String ssnRestartClusterURL =
+				NamingHelper.getSelfServiceURL(ApiPath.getStartClusterUrl(notebookName, clusterName));
+		LOGGER.info("    SSN restart cluster URL is {}", ssnRestartClusterURL);
+
+		Response respRestartCluster = new HttpRequest().webApiPut(ssnRestartClusterURL, ContentType.JSON, token);
+		LOGGER.info("    respRestartCluster.getBody() is {}", respRestartCluster.getBody().asString());
+		Assert.assertEquals(respRestartCluster.statusCode(), HttpStatusCode.OK);
+
+		gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "starting",
+				getDuration(notebookConfig.getTimeoutClusterStartup()));
+		if (!gettingStatus.contains("running"))
+			throw new Exception(dataEngineType + " cluster " + clusterName +
+					" has not been restarted. Cluster status is " + gettingStatus);
+		LOGGER.info("    {} cluster {} has been restarted for notebook {}", dataEngineType, clusterName,
+				notebookName);
+
+		VirtualMachineStatusChecker.checkIfRunning(
+				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
+
+		Docker.checkDockerStatus(
+				NamingHelper.getClusterContainerName(clusterName, "start"), NamingHelper.getSsnIp());
+	}
    
    private void terminateCluster(String clusterNewName) throws Exception {
        String gettingStatus;
@@ -636,8 +669,8 @@ private void restartNotebook() throws Exception {
 	   VirtualMachineStatusChecker.checkIfRunning(
 			   NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
-       Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp
-			   ());
+	   Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"),
+			   NamingHelper.getSsnIp());
        return clusterNewName;
    }
 
