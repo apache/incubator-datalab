@@ -37,7 +37,7 @@ limitations under the License.
           <div class="col">
             <mat-form-field>
               <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
-              <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+              <mat-datepicker-toggle [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }" matSuffix [for]="startDate"></mat-datepicker-toggle>
               <mat-datepicker #startDate></mat-datepicker>
             </mat-form-field>
           </div>
@@ -51,25 +51,26 @@ limitations under the License.
         </div>
 
         <div class="row-wrap">
-          <div class="control-group col">
+          <div class="control-group col time-range">
             <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
               [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"></dlab-time-picker>
           </div>
-          <div class="control-group col">
+          <div class="control-group col time-range">
             <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"
               [disable]="!enableSchedule"></dlab-time-picker>
           </div>
-          <mat-form-field class="col">
-            <mat-select
-              placeholder="Select offset"
-              [(value)]="tzOffset"
-              class="timezone-offset"
-              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-              <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div *ngIf="timeReqiered" class="danger_color m-bott-10"><span>At least one of time range fields should be selected</span></div>
+          <div class="col">
+            <mat-form-field class="timezone-offset">
+              <mat-select
+                placeholder="Select offset"
+                [(value)]="tzOffset"
+                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
+                <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
-        <div *ngIf="timeReqiered" class="danger_color"><span>required</span></div>
         <div class="control-group days-block">
           <label class="label repeat" for="options">Repeat on :</label>
           <div *ngFor="let day of weekdays; let i = index" class="week-day" [ngClass]="day">

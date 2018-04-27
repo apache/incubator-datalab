@@ -24,7 +24,7 @@ limitations under the License.
   <div *ngIf="resources.length">
     <div class="resource_wrap">
       <a class="remove_butt"
-        [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' && resources[0].status != 'stopped' }"
+        [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }"
         (click)="toggleResourceAction(resources[0], 'terminate')">&times;</a>
       <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine' && environment.status === 'running'">
         <span *ngIf="resources[0].status === 'running' || resources[0].status === 'stopping'"
@@ -39,7 +39,11 @@ limitations under the License.
       </a>
     </div>
 
-    <span class="schedule" [ngClass]="{'active': resources[0].scheduler_data, 'not-allowed': resources[0].image === 'docker.dlab-dataengine-service'}">
+    <span class="schedule"
+          [ngClass]="{'active': resources[0].scheduler_data,
+                      'not-allowed': resources[0].image === 'docker.dlab-dataengine-service'
+                      || resources[0].status === 'failed'
+                      || resources[0].status === 'terminated'}">
       <i class="material-icons" (click)="openScheduleDialog(resources[0])">schedule</i>
     </span>
 
@@ -54,7 +58,7 @@ limitations under the License.
 <div *ngIf="collapse" class="source">
   <div *ngFor="let resource of resources | slice:1">
       <div class="resource_wrap">
-        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' && resource.status != 'stopped' }"
+        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' }"
           (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
         <a class="start-stop-action material-icons" *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
           <span *ngIf="resource.status === 'running' || resource.status === 'stopping'"
@@ -77,4 +81,4 @@ limitations under the License.
 
 
 <detail-computational-resources #detailComputationalResource></detail-computational-resources>
-<dlab-scheduler #clusterScheduler></dlab-scheduler>
+<dlab-scheduler #clusterScheduler (buildGrid)="rebuildGrid($event)"></dlab-scheduler>

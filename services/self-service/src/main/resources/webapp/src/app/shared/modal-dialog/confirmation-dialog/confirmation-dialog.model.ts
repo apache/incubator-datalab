@@ -50,10 +50,14 @@ export class ConfirmationDialogModel {
   }
 
   public isAliveResources(resources): boolean {
-    if (resources)
-      for (let i = 0; i < resources.length; i++)
-        if (resources[i].status.toLowerCase() !== 'failed' || resources[i].status.toLowerCase() !== 'terminated' || resources[i].status.toLowerCase() !== 'terminating')
-          return true;
+    if (resources) {
+      for (let i = 0; i < resources.length; i++) {
+        if (resources[i].status.toLowerCase() != 'failed'
+          && resources[i].status.toLowerCase() != 'terminated'
+          && resources[i].status.toLowerCase() != 'terminating')
+            return true;
+      }
+    }
 
     return false;
   }

@@ -57,6 +57,13 @@ limitations under the License.
     &.days-block {
       padding-bottom: 0;
     }
+    &.time-range {
+      padding-bottom: 0 !important;
+    }
+  }
+  .timezone-offset {
+    width: 100%;
+    padding-right: 10px;
   }
   .weekdays-note {
     display: flex;
@@ -70,7 +77,6 @@ limitations under the License.
     font-weight: 600;
     .mat-slide-toggle-content {
       padding: 5px;
-      // margin-top: 22px;
     }
     .hold-label {
       span {

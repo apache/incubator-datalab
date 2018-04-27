@@ -121,6 +121,7 @@ limitations under the License.
   cursor: not-allowed !important;
   user-select: none;
   opacity: 0.6;
+  pointer-events: none;
 }
 
 .message {
