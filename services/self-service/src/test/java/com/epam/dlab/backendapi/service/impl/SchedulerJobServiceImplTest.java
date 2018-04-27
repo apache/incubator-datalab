@@ -563,8 +563,7 @@ public class SchedulerJobServiceImplTest {
 
 		schedulerJobService.executeStopResourceJob(false);
 
-		verify(schedulerJobDAO, times(2)).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.STOPPED), eq(false));
+		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.STOPPED), eq(false));
 		verify(systemUserService).create(USER);
 		verify(exploratoryService).stop(userInfo, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(schedulerJobDAO, systemUserService, exploratoryService);
@@ -577,8 +576,7 @@ public class SchedulerJobServiceImplTest {
 				.thenReturn(Collections.emptyList());
 		schedulerJobService.executeStopResourceJob(false);
 
-		verify(schedulerJobDAO, times(2)).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.STOPPED), eq(false));
+		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.STOPPED), eq(false));
 		verify(systemUserService, never()).create(USER);
 		verify(exploratoryService, never()).stop(any(), any());
 		verifyNoMoreInteractions(schedulerJobDAO);
@@ -596,8 +594,7 @@ public class SchedulerJobServiceImplTest {
 
 		schedulerJobService.executeStopResourceJob(true);
 
-		verify(schedulerJobDAO, times(2)).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.STOPPED), eq(true));
+		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.STOPPED), eq(true));
 		verify(systemUserService).create(USER);
 		verify(computationalService).stopSparkCluster(userInfo, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verifyNoMoreInteractions(schedulerJobDAO, systemUserService, computationalService);
@@ -610,8 +607,7 @@ public class SchedulerJobServiceImplTest {
 				.thenReturn(Collections.emptyList());
 		schedulerJobService.executeStopResourceJob(true);
 
-		verify(schedulerJobDAO, times(2)).getSchedulerJobsToAchieveStatus(
-				refEq(UserInstanceStatus.STOPPED), eq(true));
+		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.STOPPED), eq(true));
 		verify(systemUserService, never()).create(USER);
 		verify(computationalService, never()).stopSparkCluster(any(), any(), any());
 		verifyNoMoreInteractions(schedulerJobDAO);
