@@ -359,10 +359,13 @@ def get_available_os_pkgs():
         sudo('yum update-minimal --security -y --skip-broken')
         downgrade_python_version()
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
-        yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
+        yum_re = re.sub\
+            (r'\w*\s\w*\D\s\w*.\w*.\s\w*.\w*.\w.\w*.\w*.\w*', '', yum_raw)
+        yum_list = yum_re.replace("'", "\"")
         os_pkgs = json.loads(yum_list)
         return os_pkgs
-    except:
+    except Exception as err:
+        append_result("Failed to get available os packages.", str(err))
         sys.exit(1)
 
 
