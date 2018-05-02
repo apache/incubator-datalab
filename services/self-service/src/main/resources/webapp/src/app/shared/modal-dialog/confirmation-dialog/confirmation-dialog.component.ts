@@ -36,6 +36,11 @@ export class ConfirmationDialogComponent implements OnInit {
   processError: boolean = false;
   errorMessage: string = '';
 
+  dataengines: Array<any> = [];
+  dataengineServices: Array<any> = [];
+
+  confirmationType: number = 0;
+
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
@@ -51,6 +56,7 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   public open(param, notebook: any, type: ConfirmationDialogType) {
+    this.confirmationType = type;
     this.model = new ConfirmationDialogModel(type, notebook, (response: Response) => {
       if (response.status === HTTP_STATUS_CODES.OK) {
         this.close();
@@ -65,6 +71,7 @@ export class ConfirmationDialogComponent implements OnInit {
       this.healthStatusService);
 
     this.bindDialog.open(param);
+    if (!this.confirmationType) this.filterResourcesByType(notebook.resources);
     this.isAliveResources = this.model.isAliveResources(notebook.resources);
   }
 
@@ -72,8 +79,16 @@ export class ConfirmationDialogComponent implements OnInit {
     this.bindDialog.close();
   }
 
+  private filterResourcesByType(resources) {
+    resources
+    .filter(resource => (resource.status != 'failed' && resource.status != 'terminated' && resource.status != 'terminating'))
+    .forEach(resource => { (resource.image === 'docker.dlab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource); });
+  }
+
   private resetDialog(): void {
     this.processError = false;
+    this.dataengines = [];
+    this.dataengineServices = [];
     this.errorMessage = '';
   }
 }
