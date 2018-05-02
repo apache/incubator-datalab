@@ -420,7 +420,21 @@ def install_caffe2(os_user, caffe2_version):
              'scipy setuptools tornado --no-cache-dir')
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
+        sudo('git clone https://github.com/caffe2/caffe2')
+        submodules = ['third_party/pybind11', 'third_party/nccl', 'third_party/cub',
+              'third_party/eigen', 'third_party/googletest',
+              'third_party/nervanagpu', 'third_party/benchmark',
+              'third_party/protobuf', 'third_party/ios-cmake',
+              'third_party/NNPACK', 'third_party/gloo',
+              'third_party/pthreadpool', 'third_party/FXdiv',
+              'third_party/FP16', 'third_party/psimd',
+              'third_party/zstd', 'third_party/cpuinfo',
+              'third_party/python-enum', 'third_party/python-peachpy',
+              'third_party/python-six', 'third_party/ComputeLibrary',
+              'third_party/onnx']
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            for module in submodules:
+                sudo('git submodule update --init {}'.format(module))
         cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
             with settings(warn_only=True):

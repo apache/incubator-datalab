@@ -28,17 +28,42 @@ limitations under the License.
   <modal-content>
     <div class="content-box">
       <p>{{ model.title }}</p>
-      <div *ngIf="model.notebook.resources" class="row-wrap">
+
+      <div *ngIf="model.notebook.resources && dataengines.length" class="row-wrap m-bott-10">
+        <div class="col"><p>Following dataengines will be stopped:</p></div>
         <div class="col">
+          <ul>
+            <li *ngFor="let resource of dataengines"> &#9642; {{ resource.computational_name }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div *ngIf="model.notebook.resources && dataengineServices.length" class="row-wrap m-bott-10">
+        <div class="col"><p>Following dataengine services will be terminated:</p></div>
+        <div class="col">
+          <ul>
+            <li *ngFor="let resource of dataengineServices"> &#9642; {{ resource.computational_name }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row-wrap" *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources">
+        <div class="col"><p>Computational resources:</p></div>
+        <span class="col">none</span>
+      </div>
+
+      <div *ngIf="confirmationType && isAliveResources" class="row-wrap">
+        <div class="col" >
           <p>Computational resources:</p>
         </div>
         <div class="col">
           <ul *ngIf="model.notebook.resources && model.notebook.resources.length > 0 && isAliveResources">
-            <li *ngFor="let resource of model.notebook.resources" [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating'"> &#9642; {{ resource.computational_name }}</li>
+            <li *ngFor="let resource of model.notebook.resources"
+                [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating'"> &#9642; {{ resource.computational_name }}</li>
           </ul>
-          <span *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources">none</span>
         </div>
       </div>
+
       <div class="m-top-20">
         <p *ngIf="model.notebook.name">Do you want to proceed?</p>
         <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
