@@ -345,6 +345,7 @@ public class EnvStatusDAO extends BaseDAO {
 			case CREATING:
 			case CONFIGURING:
 			case RUNNING:
+			case STOPPED:
 				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
 						UserInstanceStatus.STOPPING, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case TERMINATING:
