@@ -114,6 +114,13 @@ public class TestCallable implements Callable<Boolean> {
 
 			LOGGER.info("Actual cluster name of {} is {}", dataEngineType, actualClusterName);
 
+			if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
+				LOGGER.debug("Spark cluster {} is stopping...", clusterName);
+				stopCluster();
+				LOGGER.debug("Starting Spark cluster {}...", clusterName);
+				startCluster();
+			}
+
 			if (!ConfigPropertyValue.isRunModeLocal()) {
 
 				TestDataEngineService test = new TestDataEngineService();
@@ -129,9 +136,8 @@ public class TestCallable implements Callable<Boolean> {
 						new File(notebookTemplatesLocation), notebookName);
 			}
 
-			stopEnvironment();
-
-			if (fullTest && deployClusterDto != null) {
+			if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType) && fullTest && deployClusterDto != null) {
+				stopEnvironment();
 				restartNotebookAndRedeployToTerminate(deployClusterDto);
 			}
 			if (deployClusterDto != null) {
@@ -519,16 +525,16 @@ public class TestCallable implements Callable<Boolean> {
 	   final String clusterNewName = redeployCluster(deployClusterDto);
 	   terminateCluster(clusterNewName);
    }
-   
 
-private void restartNotebook() throws Exception {
+
+	private void restartNotebook() throws Exception {
        LOGGER.info("9. Notebook {} will be re-started ...", notebookName);
        String requestBody = "{\"notebook_instance_name\":\"" + notebookName + "\"}";
        Response respStartNotebook = new HttpRequest().webApiPost(ssnExpEnvURL, ContentType.JSON, requestBody, token);
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
-	String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName,
+		String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName,
 			VirtualMachineStatusChecker.getStartingStatus(), getDuration(notebookConfig.getTimeoutNotebookStartup()));
        String status = VirtualMachineStatusChecker.getRunningStatus();
        if (!Objects.requireNonNull(status).contains(gettingStatus)){
@@ -579,6 +585,58 @@ private void restartNotebook() throws Exception {
 					   deployCluster.getNotebookName(), deployCluster.getName(), dataEngineType), true);
 
    }
+
+	private void startCluster() throws Exception {
+		String gettingStatus;
+		LOGGER.info("    Cluster {} will be started for notebook {} ...", clusterName, notebookName);
+		final String ssnStartClusterURL =
+				NamingHelper.getSelfServiceURL(ApiPath.getStartClusterUrl(notebookName, clusterName));
+		LOGGER.info("    SSN start cluster URL is {}", ssnStartClusterURL);
+
+		Response respStartCluster = new HttpRequest().webApiPut(ssnStartClusterURL, ContentType.JSON, token);
+		LOGGER.info("    respStartCluster.getBody() is {}", respStartCluster.getBody().asString());
+		Assert.assertEquals(respStartCluster.statusCode(), HttpStatusCode.OK);
+
+		gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "starting",
+				getDuration(notebookConfig.getTimeoutClusterStartup()));
+		if (!gettingStatus.contains("running"))
+			throw new Exception(dataEngineType + " cluster " + clusterName +
+					" has not been started. Cluster status is " + gettingStatus);
+		LOGGER.info("    {} cluster {} has been started for notebook {}", dataEngineType, clusterName,
+				notebookName);
+
+		VirtualMachineStatusChecker.checkIfRunning(
+				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
+
+		Docker.checkDockerStatus(
+				NamingHelper.getClusterContainerName(clusterName, "start"), NamingHelper.getSsnIp());
+	}
+
+	private void stopCluster() throws Exception {
+		String gettingStatus;
+		LOGGER.info("    Cluster {} will be stopped for notebook {} ...", clusterName, notebookName);
+		final String ssnStopClusterURL =
+				NamingHelper.getSelfServiceURL(ApiPath.getStopClusterUrl(notebookName, clusterName));
+		LOGGER.info("    SSN stop cluster URL is {}", ssnStopClusterURL);
+
+		Response respStopCluster = new HttpRequest().webApiDelete(ssnStopClusterURL, ContentType.JSON, token);
+		LOGGER.info("    respStopCluster.getBody() is {}", respStopCluster.getBody().asString());
+		Assert.assertEquals(respStopCluster.statusCode(), HttpStatusCode.OK);
+
+		gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "stopping",
+				getDuration(notebookConfig.getTimeoutClusterStop()));
+		if (!gettingStatus.contains("stopped"))
+			throw new Exception(dataEngineType + " cluster " + clusterName +
+					" has not been stopped. Cluster status is " + gettingStatus);
+		LOGGER.info("    {} cluster {} has been stopped for notebook {}", dataEngineType, clusterName,
+				notebookName);
+
+		VirtualMachineStatusChecker.checkIfStopped(
+				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
+
+		Docker.checkDockerStatus(
+				NamingHelper.getClusterContainerName(clusterName, "stop"), NamingHelper.getSsnIp());
+	}
    
    private void terminateCluster(String clusterNewName) throws Exception {
        String gettingStatus;
@@ -636,8 +694,8 @@ private void restartNotebook() throws Exception {
 	   VirtualMachineStatusChecker.checkIfRunning(
 			   NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
-       Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp
-			   ());
+	   Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"),
+			   NamingHelper.getSsnIp());
        return clusterNewName;
    }
 
