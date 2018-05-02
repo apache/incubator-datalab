@@ -32,6 +32,7 @@ public class ApiPath {
     private static final String TERMINATE_CLUSTER =
 			"/api/infrastructure_provision/computational_resources/%s/%s/terminate";
 	private static final String START_CLUSTER = "/api/infrastructure_provision/computational_resources/%s/%s/start";
+	private static final String STOP_CLUSTER = "/api/infrastructure_provision/computational_resources/%s/%s/stop";
     private static final String TERMINATE_NOTEBOOK = EXP_ENVIRONMENT + "/%s/terminate";
     public static final String LIB_GROUPS = "/api/infrastructure_provision/exploratory_environment/lib_groups";
     public static final String LIB_LIST = "/api/infrastructure_provision/exploratory_environment/search/lib_list";
@@ -60,5 +61,9 @@ public class ApiPath {
 
 	public static String getStartClusterUrl(String notebookName, String desName) {
 		return configureURL(START_CLUSTER, notebookName, desName);
+	}
+
+	public static String getStopClusterUrl(String notebookName, String desName) {
+		return configureURL(STOP_CLUSTER, notebookName, desName);
 	}
 }

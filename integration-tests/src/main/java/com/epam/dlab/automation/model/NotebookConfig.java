@@ -49,6 +49,9 @@ public class NotebookConfig {
 	@JsonProperty("timeout_cluster_startup")
 	private String timeoutClusterStartup = "20m";
 
+	@JsonProperty("timeout_cluster_stop")
+	private String timeoutClusterStop = "20m";
+
     @JsonProperty("timeout_cluster_terminate")
     private String timeoutClusterTerminate = "20m";
 
@@ -118,6 +121,10 @@ public class NotebookConfig {
 		return timeoutClusterStartup;
 	}
 
+	public String getTimeoutClusterStop() {
+		return timeoutClusterStop;
+	}
+
 	public boolean isFullTest() {
     	return fullTest;
     }
@@ -137,6 +144,7 @@ public class NotebookConfig {
     			.add("timeoutClusterCreate", timeoutClusterCreate)
     			.add("timeoutClusterTerminate", timeoutClusterTerminate)
 				.add("timeoutClusterStartup", timeoutClusterStartup)
+				.add("timeoutClusterStop", timeoutClusterStop)
     			.add("timeoutLibGroups", timeoutLibGroups)
     			.add("timeoutLibInstall", timeoutLibInstall)
 				.add("timeoutImageCreate", timeoutImageCreate)
