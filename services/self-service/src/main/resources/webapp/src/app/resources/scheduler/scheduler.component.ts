@@ -128,7 +128,12 @@ export class SchedulerComponent implements OnInit {
     this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
   }
 
-  public scheduleInstance_btnClick(data) {
+  public scheduleInstance_btnClick() {
+    let data = {
+      startDate: this.schedulerForm.controls.startDate.value,
+      finishDate: this.schedulerForm.controls.finishDate.value
+    };
+
     if (!this.startTime && !this.endTime) {
       this.timeReqiered = true;
       return false;
