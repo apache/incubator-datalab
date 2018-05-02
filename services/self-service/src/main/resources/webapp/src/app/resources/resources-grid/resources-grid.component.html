@@ -116,7 +116,9 @@ limitations under the License.
               <i class="material-icons">memory</i>
               <span>Add compute</span>
             </li>
-            <li (click)="exploratoryAction(env, 'schedule')">
+            <li (click)="exploratoryAction(env, 'schedule')"
+                *ngIf="env.status.toLowerCase() === 'running'
+                || env.status.toLowerCase() === 'stopped'">
                 <i class="material-icons">schedule</i>
               <span>Scheduler</span>
             </li>
