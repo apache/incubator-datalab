@@ -76,7 +76,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getGeneralBillingData() {
-    localStorage.removeItem('report_config');
 
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
@@ -165,9 +164,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item[DICTIONARY.billing.service] && services.indexOf(item[DICTIONARY.billing.service]) === -1)
         services.push(item[DICTIONARY.billing.service]);
     });
-    this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '', '');
-    this.reportingGrid.setConfiguration(this.filterConfiguration);
-    localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
+
+    if (!this.reportingGrid.filterConfiguration) {
+      this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '', '');
+      this.reportingGrid.setConfiguration(this.filterConfiguration);
+      localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
+    }
   }
 
   filterReport(event: ReportingConfigModel): void {

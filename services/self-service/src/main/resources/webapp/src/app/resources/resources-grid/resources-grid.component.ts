@@ -138,6 +138,17 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
+  isResourcesInProgress(notebook) {
+    if(notebook && notebook.resources.length) {
+      return notebook.resources.filter(resource => (
+        resource.status !== 'failed' 
+        && resource.status !== 'terminated'
+        && resource.status !== 'running'
+        && resource.status !== 'stopped')).length > 0;
+    }
+    return false;
+  }
+
   filterActiveInstances(): FilterConfigurationModel {
     const filteredData = (<any>Object).assign({}, this.filterConfiguration);
     for (const index in filteredData) {
