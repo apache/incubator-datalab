@@ -48,8 +48,11 @@ public class SchedulerJobDTO {
 	@JsonProperty("end_time")
 	private LocalTime endTime;
 
-	@JsonProperty("days_repeat")
-	private List<DayOfWeek> daysRepeat = Collections.emptyList();
+	@JsonProperty("start_days_repeat")
+	private List<DayOfWeek> startDaysRepeat = Collections.emptyList();
+
+	@JsonProperty("stop_days_repeat")
+	private List<DayOfWeek> stopDaysRepeat = Collections.emptyList();
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	@JsonProperty("terminate_datetime")

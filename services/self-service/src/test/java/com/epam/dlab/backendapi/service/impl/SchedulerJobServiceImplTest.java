@@ -176,7 +176,8 @@ public class SchedulerJobServiceImplTest {
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
 		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
-		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
+		schedulerJobDTO.setStartDaysRepeat(Collections.emptyList());
+		schedulerJobDTO.setStopDaysRepeat(Collections.emptyList());
 		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
@@ -311,7 +312,8 @@ public class SchedulerJobServiceImplTest {
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
 		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
-		schedulerJobDTO.setDaysRepeat(null);
+		schedulerJobDTO.setStartDaysRepeat(null);
+		schedulerJobDTO.setStopDaysRepeat(null);
 		schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
 
@@ -422,7 +424,8 @@ public class SchedulerJobServiceImplTest {
 		LocalDate notebookFinishDate = schedulerJobDTO.getFinishDate();
 		LocalTime notebookStartTime = schedulerJobDTO.getStartTime();
 		LocalTime notebookEndTime = schedulerJobDTO.getEndTime();
-		List<DayOfWeek> notebookDaysRepeat = schedulerJobDTO.getDaysRepeat();
+		List<DayOfWeek> notebookStartDaysRepeat = schedulerJobDTO.getStartDaysRepeat();
+		List<DayOfWeek> notebookStopDaysRepeat = schedulerJobDTO.getStopDaysRepeat();
 		LocalDateTime notebookTerminateDateTime = schedulerJobDTO.getTerminateDateTime();
 		ZoneOffset notebookZoneOffset = schedulerJobDTO.getTimeZoneOffset();
 		boolean notebookIsSyncStartRequired = schedulerJobDTO.isSyncStartRequired();
@@ -434,7 +437,8 @@ public class SchedulerJobServiceImplTest {
 				notebookFinishDate.getDayOfMonth()));
 		clusterScheduler.setStartTime(LocalTime.of(notebookStartTime.getHour(), notebookStartTime.getMinute()));
 		clusterScheduler.setEndTime(LocalTime.of(notebookEndTime.getHour() + 1, notebookEndTime.getMinute()));
-		clusterScheduler.setDaysRepeat(new ArrayList<>(notebookDaysRepeat));
+		clusterScheduler.setStartDaysRepeat(new ArrayList<>(notebookStartDaysRepeat));
+		clusterScheduler.setStopDaysRepeat(new ArrayList<>(notebookStopDaysRepeat));
 		clusterScheduler.setTerminateDateTime(LocalDateTime.of(notebookTerminateDateTime.getYear() + 1,
 				notebookTerminateDateTime.getMonth(), notebookTerminateDateTime.getDayOfMonth(),
 				notebookTerminateDateTime.getHour(), notebookTerminateDateTime.getMinute()));
@@ -477,7 +481,8 @@ public class SchedulerJobServiceImplTest {
 		LocalDate notebookFinishDate = schedulerJobDTO.getFinishDate();
 		LocalTime notebookStartTime = schedulerJobDTO.getStartTime();
 		LocalTime notebookEndTime = schedulerJobDTO.getEndTime();
-		List<DayOfWeek> notebookDaysRepeat = schedulerJobDTO.getDaysRepeat();
+		List<DayOfWeek> notebookStartDaysRepeat = schedulerJobDTO.getStartDaysRepeat();
+		List<DayOfWeek> notebookStopDaysRepeat = schedulerJobDTO.getStopDaysRepeat();
 		LocalDateTime notebookTerminateDateTime = schedulerJobDTO.getTerminateDateTime();
 		ZoneOffset notebookZoneOffset = schedulerJobDTO.getTimeZoneOffset();
 		boolean notebookIsSyncStartRequired = schedulerJobDTO.isSyncStartRequired();
@@ -489,7 +494,8 @@ public class SchedulerJobServiceImplTest {
 				notebookFinishDate.getDayOfMonth()));
 		clusterScheduler.setStartTime(LocalTime.of(notebookStartTime.getHour() + 1, notebookStartTime.getMinute()));
 		clusterScheduler.setEndTime(LocalTime.of(notebookEndTime.getHour() + 1, notebookEndTime.getMinute()));
-		clusterScheduler.setDaysRepeat(new ArrayList<>(notebookDaysRepeat));
+		clusterScheduler.setStartDaysRepeat(new ArrayList<>(notebookStartDaysRepeat));
+		clusterScheduler.setStopDaysRepeat(new ArrayList<>(notebookStopDaysRepeat));
 		clusterScheduler.setTerminateDateTime(LocalDateTime.of(notebookTerminateDateTime.getYear() + 1,
 				notebookTerminateDateTime.getMonth(), notebookTerminateDateTime.getDayOfMonth(),
 				notebookTerminateDateTime.getHour(), notebookTerminateDateTime.getMinute()));
@@ -688,7 +694,8 @@ public class SchedulerJobServiceImplTest {
 		schedulerJobDTO.setEndTime(LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
 		schedulerJobDTO.setTerminateDateTime(
 				LocalDateTime.of(LocalDate.now(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES)));
-		schedulerJobDTO.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		schedulerJobDTO.setStartDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		schedulerJobDTO.setStopDaysRepeat(Arrays.asList(DayOfWeek.values()));
 		schedulerJobDTO.setSyncStartRequired(false);
 		return schedulerJobDTO;
 	}
