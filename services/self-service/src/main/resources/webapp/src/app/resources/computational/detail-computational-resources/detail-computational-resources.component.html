@@ -49,7 +49,8 @@ limitations under the License.
          </div>
         </div>
         <div class="row-wrap">
-          <div class="col"><p>{{ DICTIONARY[resource.image].instance_number }}:</p></div>
+          <div class="col" *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'; else inst"><p>{{ DICTIONARY[resource.image].master_instance_number }}:</p></div>
+          <ng-template #inst><div class="col"><p>{{ DICTIONARY[resource.image].instance_number }}:</p></div></ng-template>
           <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_instance_number] }}</span></div>
         </div>
         <div class="row-wrap" *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'">

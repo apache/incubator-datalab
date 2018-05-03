@@ -79,6 +79,7 @@ export const NAMING_CONVENTION = {
       'total_instance_number_max': 'max_spark_instance_count',
       'data_engine_master_instance_size': 'Machine type',
       'instance_number': 'Total machine number',
+      'master_instance_number': 'Master machine number',
       'master_node_shape': 'dataengine_instance_shape',
       'total_instance_number': 'dataengine_instance_count',
   }
