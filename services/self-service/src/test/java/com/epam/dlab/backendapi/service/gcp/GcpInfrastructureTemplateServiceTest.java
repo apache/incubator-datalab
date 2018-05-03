@@ -28,15 +28,13 @@ public class GcpInfrastructureTemplateServiceTest {
 
 	@Test
 	public void getCloudFullComputationalTemplate() throws NoSuchFieldException, IllegalAccessException {
-		when(configuration.getDataprocAvailableMasterInstanceCount()).thenReturn(Collections.emptyList());
-		when(configuration.getMinDataprocSlaveInstanceCount()).thenReturn(2);
-		when(configuration.getMaxDataprocSlaveInstanceCount()).thenReturn(100);
+		when(configuration.getMinInstanceCount()).thenReturn(2);
+		when(configuration.getMaxInstanceCount()).thenReturn(100);
 		when(configuration.getMinDataprocPreemptibleCount()).thenReturn(10);
 
 		GcpDataprocConfiguration expectedGcpDataprocConfiguration = GcpDataprocConfiguration.builder()
-				.dataprocAvailableMasterInstanceCount(Collections.emptyList())
-				.minDataprocSlaveInstanceCount(2)
-				.maxDataprocSlaveInstanceCount(100)
+				.minInstanceCount(2)
+				.maxInstanceCount(100)
 				.minDataprocPreemptibleInstanceCount(10)
 				.build();
 
@@ -57,9 +55,8 @@ public class GcpInfrastructureTemplateServiceTest {
 		actualComputationalMetadataDTO.setAccessible(true);
 		assertEquals(expectedComputationalMetadataDTO, actualComputationalMetadataDTO.get(fullComputationalTemplate));
 
-		verify(configuration).getDataprocAvailableMasterInstanceCount();
-		verify(configuration).getMinDataprocSlaveInstanceCount();
-		verify(configuration).getMaxDataprocSlaveInstanceCount();
+		verify(configuration).getMinInstanceCount();
+		verify(configuration).getMaxInstanceCount();
 		verify(configuration).getMinDataprocPreemptibleCount();
 		verifyNoMoreInteractions(configuration);
 	}

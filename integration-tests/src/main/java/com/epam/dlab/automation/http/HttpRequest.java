@@ -80,6 +80,10 @@ public class HttpRequest {
 		return given().contentType(contentType).header(AUTHORIZATION, BEARER + token).body(body).when().put(url);
 	}
 
+	public Response webApiPut(String url, String contentType, String token) {
+		return given().contentType(contentType).header(AUTHORIZATION, BEARER + token).when().put(url);
+	}
+
 	public Response webApiDelete(String url, String contentType, String token) {
 		return given().contentType(contentType).header(AUTHORIZATION, BEARER + token).when().delete(url);
 	}

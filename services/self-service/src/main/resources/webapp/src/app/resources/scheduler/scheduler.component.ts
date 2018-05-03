@@ -105,14 +105,12 @@ export class SchedulerComponent implements OnInit {
 
   public onDaySelect($event, day) {
     this.selectedWeekDays[day.toLowerCase()] = $event.checked;
-    // this.checkSelectedDays();
   }
 
   public toggleInherit($event) {
     this.inherit = $event.checked;
 
     if (this.destination.type === 'СOMPUTATIONAL' && this.inherit) {
-
       this.getExploratorySchedule(this.notebook.name);
       this.schedulerForm.get('startDate').disable();
     } else {
@@ -123,14 +121,19 @@ export class SchedulerComponent implements OnInit {
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
     
-    this.enableSchedule ? this.schedulerForm.get('startDate').enable() : this.schedulerForm.get('startDate').disable();
-    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+    (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
+      ? this.schedulerForm.get('startDate').enable()
+      : this.schedulerForm.get('startDate').disable();
 
-    if (this.destination.type === 'СOMPUTATIONAL' && this.inherit)
-      this.schedulerForm.get('startDate').disable();
+    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
   }
 
-  public scheduleInstance_btnClick(data) {
+  public scheduleInstance_btnClick() {
+    let data = {
+      startDate: this.schedulerForm.controls.startDate.value,
+      finishDate: this.schedulerForm.controls.finishDate.value
+    };
+
     if (!this.startTime && !this.endTime) {
       this.timeReqiered = true;
       return false;
@@ -170,9 +173,6 @@ export class SchedulerComponent implements OnInit {
   }
 
   private getExploratorySchedule(resource, resource2?) {
-    // this.inherit = false;
-    // this.formInit();
-
     this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
       (params: any) => {
         if (params) {

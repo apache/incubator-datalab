@@ -50,10 +50,14 @@ export class ConfirmationDialogModel {
   }
 
   public isAliveResources(resources): boolean {
-    if (resources)
-      for (let i = 0; i < resources.length; i++)
-        if (resources[i].status.toLowerCase() !== 'failed' || resources[i].status.toLowerCase() !== 'terminated' || resources[i].status.toLowerCase() !== 'terminating')
-          return true;
+    if (resources) {
+      for (let i = 0; i < resources.length; i++) {
+        if (resources[i].status.toLowerCase() != 'failed'
+          && resources[i].status.toLowerCase() != 'terminated'
+          && resources[i].status.toLowerCase() != 'terminating')
+            return true;
+      }
+    }
 
     return false;
   }
@@ -72,9 +76,6 @@ export class ConfirmationDialogModel {
   }
 
   private setup(confirmationType: ConfirmationDialogType, notebook: any, fnProcessResults: any, fnProcessErrors: any): void {
-
-    const containRunningResourcesStopMessage = 'Exploratory Environment will be stopped\
-     and all connected computational resources will be terminated except for all data engines.';
     const defaultStopMessage = 'Exploratory Environment will be stopped';
 
     const containRunningResourcesTerminateMessage = 'Exploratory Environment and all connected computational resources\
@@ -85,7 +86,7 @@ export class ConfirmationDialogModel {
 
     switch (confirmationType) {
       case ConfirmationDialogType.StopExploratory: {
-        this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesStopMessage : defaultStopMessage;
+        this.title = defaultStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
           .subscribe((response: Response) => fnProcessResults(response),

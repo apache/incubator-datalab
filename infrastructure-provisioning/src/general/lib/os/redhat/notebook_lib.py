@@ -50,7 +50,7 @@ def downgrade_python_version():
        sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
         version = [pkg.vr for pkg in pl.installed if pkg.name == \'python\']; \
         os.system(\'yum -y downgrade python python-devel-2.7.5-58.el7.x86_64 python-libs-2.7.5-58.el7.x86_64\') \
-        if version[0] == \'2.7.5-68.el7\' else False"')
+        if version != [] and version[0] == \'2.7.5-68.el7\' else False"')
     except:
         sys.exit(1)
 
@@ -359,10 +359,13 @@ def get_available_os_pkgs():
         sudo('yum update-minimal --security -y --skip-broken')
         downgrade_python_version()
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
-        yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
+        yum_re = re.sub\
+            (r'\w*\s\w*\D\s\w*.\w*.\s\w*.\w*.\w.\w*.\w*.\w*', '', yum_raw)
+        yum_list = yum_re.replace("'", "\"")
         os_pkgs = json.loads(yum_list)
         return os_pkgs
-    except:
+    except Exception as err:
+        append_result("Failed to get available os packages.", str(err))
         sys.exit(1)
 
 
@@ -440,7 +443,21 @@ def install_caffe2(os_user, caffe2_version):
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        sudo('git clone --recursive https://github.com/caffe2/caffe2')
+        sudo('git clone https://github.com/caffe2/caffe2')
+        submodules = ['third_party/pybind11', 'third_party/nccl', 'third_party/cub',
+              'third_party/eigen', 'third_party/googletest',
+              'third_party/nervanagpu', 'third_party/benchmark',
+              'third_party/protobuf', 'third_party/ios-cmake',
+              'third_party/NNPACK', 'third_party/gloo',
+              'third_party/pthreadpool', 'third_party/FXdiv',
+              'third_party/FP16', 'third_party/psimd',
+              'third_party/zstd', 'third_party/cpuinfo',
+              'third_party/python-enum', 'third_party/python-peachpy',
+              'third_party/python-six', 'third_party/ComputeLibrary',
+              'third_party/onnx']
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            for module in submodules:
+                sudo('git submodule update --init {}'.format(module))
         cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
             with settings(warn_only=True):
