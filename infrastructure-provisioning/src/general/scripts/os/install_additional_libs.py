@@ -63,7 +63,7 @@ if __name__ == "__main__":
     except KeyError:
         pass
 
-    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor']:
+    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor', 'rstudio']:
         try:
             print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
             status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
