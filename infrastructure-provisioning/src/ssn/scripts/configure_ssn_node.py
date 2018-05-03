@@ -92,10 +92,12 @@ def creating_service_directories(dlab_path, os_user):
             sudo('mkdir -p /var/opt/dlab/log/ssn')
             sudo('mkdir -p /var/opt/dlab/log/edge')
             sudo('mkdir -p /var/opt/dlab/log/notebook')
+            sudo('mkdir -p /var/opt/dlab/log/notebook/rstudio_scripts')
             sudo('mkdir -p /var/opt/dlab/log/dataengine-service')
             sudo('mkdir -p /var/opt/dlab/log/dataengine')
             sudo('ln -s ' + dlab_path + 'conf /etc/opt/dlab')
             sudo('ln -s /var/opt/dlab/log /var/log/dlab')
+            sudo('ln -s /var/opt/dlab/log/notebook/rstudio_scripts {}'.format(dlab_path))
             sudo('chown -R ' + os_user + ':' + os_user + ' /var/opt/dlab/log')
             sudo('chown -R ' + os_user + ':' + os_user + ' ' + dlab_path)
 

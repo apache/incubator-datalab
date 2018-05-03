@@ -190,7 +190,23 @@ if __name__ == "__main__":
         append_result("Failed setup custom jar files.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
-
+        
+    try:
+        print('[EXECUTE BASH SCRIPT]')
+        logging.info('[EXECUTE BASH SCRIPT]')
+        params = '--hostname {} --keyfile "{}" --os_user {}' \
+            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('exec_rstudio_bash_script', params))
+        except:
+            append_result("Failed to execute bash script")
+            raise Exception
+    except Exception as err:
+        print('Failed to execute bash script', str(err))
+        append_result("Failed to execute bash script", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+        
     try:
         print('[CREATING AMI]')
         logging.info('[CREATING AMI]')
