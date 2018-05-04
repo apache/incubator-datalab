@@ -21,7 +21,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
-import com.epam.dlab.dto.ReuploadFileDTO;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.rest.contracts.KeyAPI;
 import com.epam.dlab.utils.FileUtils;
 import com.epam.dlab.utils.UsernameUtils;
@@ -52,7 +52,7 @@ public class KeyResource {
 
 
 	@POST
-	public String reuploadKey(@Auth UserInfo ui, ReuploadFileDTO dto) throws IOException {
+	public String reuploadKey(@Auth UserInfo ui, ReuploadKeyDTO dto) throws IOException {
 		String edgeUserName = dto.getEdgeUserName();
 		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
 		FileUtils.deleteFile(filename, configuration.getKeyDirectory());

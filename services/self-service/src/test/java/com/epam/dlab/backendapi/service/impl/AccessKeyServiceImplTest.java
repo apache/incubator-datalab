@@ -7,11 +7,11 @@ import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
-import com.epam.dlab.dto.ReuploadFileDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import org.apache.commons.lang3.StringUtils;
@@ -130,12 +130,12 @@ public class AccessKeyServiceImplTest {
 	public void reUploadKey() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
 
-		ReuploadFileDTO uploadFile = mock(ReuploadFileDTO.class);
+		ReuploadKeyDTO uploadFile = mock(ReuploadKeyDTO.class);
 		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class)))
 				.thenReturn(uploadFile);
 
 		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(ReuploadFileDTO.class), any())).
+		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any())).
 				thenReturn(expectedUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());

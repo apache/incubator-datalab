@@ -286,6 +286,20 @@ public class ExploratoryDAO extends BaseDAO {
 				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 
+	/**
+	 * Updates the requirement for reuploading key for single exploratory in Mongo database.
+	 *
+	 * @param user                user name.
+	 * @param exploratoryName     exploratory's name
+	 * @param reuploadKeyRequired true/false.
+	 */
+	public void updateReuploadKeyForSingleExploratory(String user, String exploratoryName,
+													  boolean reuploadKeyRequired) {
+		updateOne(USER_INSTANCES,
+				exploratoryCondition(user, exploratoryName),
+				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
+	}
+
 
 	/**
 	 * Updates the info of exploratory in Mongo database.

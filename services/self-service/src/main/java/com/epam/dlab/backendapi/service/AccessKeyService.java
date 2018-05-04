@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
 
 public interface AccessKeyService {
 
@@ -12,5 +13,7 @@ public interface AccessKeyService {
 	String recoverEdge(UserInfo userInfo);
 
 	String generateKey(UserInfo userInfo);
+
+	void processReuploadKeyResponse(ReuploadKeyStatusDTO dto);
 
 }

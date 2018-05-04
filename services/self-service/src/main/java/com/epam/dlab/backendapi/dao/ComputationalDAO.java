@@ -274,6 +274,21 @@ public class ComputationalDAO extends BaseDAO {
 	}
 
 	/**
+	 * Updates the requirement for reuploading key for single computational resource in Mongo database.
+	 *
+	 * @param user                user name.
+	 * @param exploratoryName     exploratory's name.
+	 * @param computationalName   name of computational resource.
+	 * @param reuploadKeyRequired true/false.
+	 */
+
+	public void updateReuploadKeyFlagForSingleComputationalResource(String user, String exploratoryName,
+																	String computationalName, boolean
+																			reuploadKeyRequired) {
+		updateComputationalField(user, exploratoryName, computationalName, REUPLOAD_KEY_REQUIRED, reuploadKeyRequired);
+	}
+
+	/**
 	 * Returns names of computational resources which status is among existing ones. Also these resources will
 	 * have predefined type.
 	 *

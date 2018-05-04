@@ -58,6 +58,7 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.exloratory.Exploratory;
 import com.epam.dlab.utils.UsernameUtils;
@@ -172,10 +173,10 @@ public class RequestBuilder {
 		}
 	}
 
-	public ReuploadFileDTO newKeyReupload(UserInfo userInfo, String id, String content, List<String>
+	public ReuploadKeyDTO newKeyReupload(UserInfo userInfo, String id, String content, List<String>
 			runningResources) {
 		checkInappropriateCloudProviderOrElseThrowException();
-		return newResourceSysBaseDTO(userInfo, ReuploadFileDTO.class)
+		return newResourceSysBaseDTO(userInfo, ReuploadKeyDTO.class)
 				.withId(id)
 				.withContent(content)
 				.withRunningResources(runningResources);

@@ -1,8 +1,9 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.dto.ReuploadFileDTO;
-import com.epam.dlab.dto.backup.EnvBackupStatusDTO;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonParser;
@@ -17,15 +18,14 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 	private static final String STATUS_FIELD = "status";
-	private static final String BACKUP_FILE_FIELD = "backup_file";
 	private static final String ERROR_MESSAGE_FIELD = "error_message";
 	private final String uuid;
-	private final ReuploadFileDTO dto;
+	private final ReuploadKeyDTO dto;
 	private final RESTService selfService;
 	private final String callbackUrl;
 	private final String user;
 
-	public ReuploadKeyCallbackHandler(RESTService selfService, String callbackUrl, String user, ReuploadFileDTO dto) {
+	public ReuploadKeyCallbackHandler(RESTService selfService, String callbackUrl, String user, ReuploadKeyDTO dto) {
 		this.selfService = selfService;
 		this.uuid = dto.getId();
 		this.callbackUrl = callbackUrl;
@@ -46,23 +46,22 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	@Override
 	public boolean handle(String fileName, byte[] content) throws Exception {
 		final String fileContent = new String(content);
-		log.debug("Got file {} while waiting for UUID {}, backup response: {}", fileName, uuid, fileContent);
+		log.debug("Got file {} while waiting for UUID {}, reupload key response: {}", fileName, uuid, fileContent);
 
 		final JsonNode jsonNode = MAPPER.readTree(fileContent);
 		final String status = jsonNode.get(STATUS_FIELD).textValue();
-		EnvBackupStatusDTO envBackupStatusDTO;
-//		if ("ok".equals(status)) {
-//			envBackupStatusDTO = buildBackupStatusDto(EnvBackupStatus.CREATED)
-//					.withBackupFile(jsonNode.get(BACKUP_FILE_FIELD).textValue());
-//		} else {
-//			envBackupStatusDTO = buildBackupStatusDto(EnvBackupStatus.FAILED)
-//					.withErrorMessage(jsonNode.get(ERROR_MESSAGE_FIELD).textValue());
-//		}
-//		selfServicePost(envBackupStatusDTO);
+		ReuploadKeyStatusDTO reuploadKeyStatusDTO;
+		if ("ok".equals(status)) {
+			reuploadKeyStatusDTO = buildReuploadKeyStatusDto(ReuploadKeyStatus.COMPLETED);
+		} else {
+			reuploadKeyStatusDTO = buildReuploadKeyStatusDto(ReuploadKeyStatus.FAILED)
+					.withErrorMessage(jsonNode.get(ERROR_MESSAGE_FIELD).textValue());
+		}
+		selfServicePost(reuploadKeyStatusDTO);
 		return "ok".equals(status);
 	}
 
-	private void selfServicePost(EnvBackupStatusDTO statusDTO) {
+	private void selfServicePost(ReuploadKeyStatusDTO statusDTO) {
 		log.debug("Send post request to self service {} for UUID {}, object is {}", uuid, statusDTO);
 		try {
 			selfService.post(callbackUrl, statusDTO, Response.class);
@@ -75,17 +74,17 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 
 	@Override
 	public void handleError(String errorMessage) {
-//		buildBackupStatusDto(EnvBackupStatus.FAILED)
-//				.withErrorMessage(errorMessage);
+		buildReuploadKeyStatusDto(ReuploadKeyStatus.FAILED)
+				.withErrorMessage(errorMessage);
 	}
 
-//	protected EnvBackupStatusDTO buildBackupStatusDto(EnvBackupStatus status) {
-//		return new EnvBackupStatusDTO()
-//				.withRequestId(uuid)
-//				.withEnvBackupDTO(dto)
-//				.withStatus(status)
-//				.withUser(user);
-//	}
+	private ReuploadKeyStatusDTO buildReuploadKeyStatusDto(ReuploadKeyStatus status) {
+		return new ReuploadKeyStatusDTO()
+				.withRequestId(uuid)
+				.withReuploadKeyDTO(dto)
+				.withStatus(status)
+				.withUser(user);
+	}
 
 }
 

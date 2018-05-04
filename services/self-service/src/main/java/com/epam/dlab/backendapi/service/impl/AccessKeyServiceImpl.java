@@ -3,17 +3,21 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.ComputationalDAO;
+import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
-import com.epam.dlab.dto.ReuploadFileDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -52,6 +56,10 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	private SelfServiceApplicationConfiguration configuration;
 	@Inject
 	private SettingsDAO settingsDAO;
+	@Inject
+	private ComputationalDAO computationalDAO;
+	@Inject
+	private ExploratoryDAO exploratoryDAO;
 
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
@@ -112,9 +120,31 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		}
 	}
 
+	public void processReuploadKeyResponse(ReuploadKeyStatusDTO dto) {
+		if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
+			String resourceName = dto.getReuploadKeyDTO().getRunningResources().get(0);
+			String user = resourceName.split("-")[1];
+			if (resourceName.contains("-edge")) {
+				log.debug("Updating 'reupload_key_required' flag to 'false' for edge {}...", resourceName);
+				keyDAO.updateEdgeReuploadKey(user, false, UserInstanceStatus.values());
+			} else if (resourceName.contains("-de-") || resourceName.contains("-des-")) {
+				log.debug("Updating 'reupload_key_required' flag to 'false' for cluster {}...", resourceName);
+				String exploratoryName = resourceName.split("-")[3];
+				String clusterName = resourceName.split("-")[4];
+				computationalDAO.updateReuploadKeyFlagForSingleComputationalResource(user, exploratoryName,
+						clusterName,
+						false);
+			} else {
+				log.debug("Updating 'reupload_key_required' flag to 'false' for notebook {}...", resourceName);
+				String exploratoryName = resourceName.split("-")[3];
+				exploratoryDAO.updateReuploadKeyForSingleExploratory(user, exploratoryName, false);
+			}
+		}
+	}
+
 	private String reuploadKey(UserInfo user, String keyContent) {
 		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
-		ReuploadFileDTO reuploadFile = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
+		ReuploadKeyDTO reuploadFile = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
 				exploratoryService.getResourcesForKeyReuploading(user.getName(), settingsDAO.getServiceBaseName(),
 						RUNNING, RUNNING, RUNNING));
 		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), reuploadFile, String.class);
