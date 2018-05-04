@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
     jars_conf = dict()
     jars_conf['service_base_name'] = os.environ['conf_service_base_name']
-    jars_conf['jars_bucket'] = '{}-ssn-bucket'.format(jars_conf['service_base_name'])
+    jars_conf['jars_bucket'] = '{}-ssn-bucket'.\
+        format(jars_conf['service_base_name'].replace('_', '-'))
     jars_conf['jars_dir'] = str(os.environ.get('conf_custom_jars_dir'))
     jars_conf['tmp_dir'] = '/tmp/{}/'.format(jars_conf['jars_dir'])
 
