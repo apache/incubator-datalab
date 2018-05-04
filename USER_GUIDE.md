@@ -391,6 +391,8 @@ corner of the DLab:
 -   green ![OK](doc/status_icon_ok.png), if Edge node status is Running;
 -   red ![Error](doc/status_icon_error.png),if Edge node is Stopped or Terminated;
 
+![Health_status](doc/health_status.png)
+
 To Stop Edge Node please click on actions icon on Health Status page and hit Stop.
 
 <p align="center"> 
