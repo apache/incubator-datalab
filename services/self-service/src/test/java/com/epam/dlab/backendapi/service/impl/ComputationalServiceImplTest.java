@@ -12,10 +12,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
-import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
-import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.computational.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -52,6 +49,8 @@ public class ComputationalServiceImplTest {
 	private UserInstanceDTO userInstance;
 	private ComputationalStatusDTO computationalStatusDTOWithStatusTerminating;
 	private ComputationalStatusDTO computationalStatusDTOWithStatusFailed;
+	private ComputationalStatusDTO computationalStatusDTOWithStatusStopping;
+	private ComputationalStatusDTO computationalStatusDTOWithStatusStarting;
 	private SparkStandaloneClusterResource sparkClusterResource;
 	private UserComputationalResource ucResource;
 
@@ -81,6 +80,8 @@ public class ComputationalServiceImplTest {
 		formList = getFormList();
 		computationalStatusDTOWithStatusTerminating = getComputationalStatusDTOWithStatus("terminating");
 		computationalStatusDTOWithStatusFailed = getComputationalStatusDTOWithStatus("failed");
+		computationalStatusDTOWithStatusStopping = getComputationalStatusDTOWithStatus("stopping");
+		computationalStatusDTOWithStatusStarting = getComputationalStatusDTOWithStatus("starting");
 		sparkClusterResource = getSparkClusterResource();
 		ucResource = getUserComputationalResource();
 	}
@@ -446,6 +447,82 @@ public class ComputationalServiceImplTest {
 		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder);
 	}
 
+	@Test
+	public void stopSparkCluster() {
+		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
+		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		when(exploratoryDAO.fetchExploratoryId(anyString(), anyString())).thenReturn("someId");
+
+		ComputationalStopDTO computationalStopDTO = new ComputationalStopDTO();
+		when(requestBuilder.newComputationalStop(any(UserInfo.class), anyString(), anyString(), anyString()))
+				.thenReturn(computationalStopDTO);
+		when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
+				.thenReturn("someUuid");
+		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
+
+		computationalService.stopSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+
+		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
+		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStopping, "self"));
+		verify(exploratoryDAO).fetchExploratoryId(USER, EXPLORATORY_NAME);
+		verify(requestBuilder).newComputationalStop(userInfo, EXPLORATORY_NAME, "someId", COMP_NAME);
+		verify(provisioningService)
+				.post(eq("computational/stop/spark"), eq(TOKEN), refEq(computationalStopDTO), eq(String.class));
+		verify(requestId).put(USER, "someUuid");
+		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder,
+				provisioningService, requestId);
+	}
+
+	@Test
+	public void stopSparkClusterWhenDataengineTypeIsAnother() {
+		ucResource.setImageName("dataengine-service");
+		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
+
+		expectedException.expect(UnsupportedOperationException.class);
+		expectedException.expectMessage("Operation for data engine service is not supported");
+
+		computationalService.stopSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+	}
+
+	@Test
+	public void startSparkCluster() {
+		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
+		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
+				.thenReturn(mock(UpdateResult.class));
+		when(exploratoryDAO.fetchExploratoryId(anyString(), anyString())).thenReturn("someId");
+
+		ComputationalStartDTO computationalStartDTO = new ComputationalStartDTO();
+		when(requestBuilder.newComputationalStart(any(UserInfo.class), anyString(), anyString(), anyString()))
+				.thenReturn(computationalStartDTO);
+		when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
+				.thenReturn("someUuid");
+		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
+
+		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+
+		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
+		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStarting, "self"));
+		verify(exploratoryDAO).fetchExploratoryId(USER, EXPLORATORY_NAME);
+		verify(requestBuilder).newComputationalStart(userInfo, EXPLORATORY_NAME, "someId", COMP_NAME);
+		verify(provisioningService)
+				.post(eq("computational/start/spark"), eq(TOKEN), refEq(computationalStartDTO), eq(String.class));
+		verify(requestId).put(USER, "someUuid");
+		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder,
+				provisioningService, requestId);
+	}
+
+	@Test
+	public void startSparkClusterWhenDataengineTypeIsAnother() {
+		ucResource.setImageName("dataengine-service");
+		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
+
+		expectedException.expect(UnsupportedOperationException.class);
+		expectedException.expectMessage("Operation for data engine service is not supported");
+
+		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+	}
+
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
@@ -485,7 +562,7 @@ public class ComputationalServiceImplTest {
 
 	private UserComputationalResource getUserComputationalResource() {
 		UserComputationalResource ucResource = new UserComputationalResource();
-		ucResource.setImageName("des");
+		ucResource.setImageName("dataengine");
 		return ucResource;
 	}
 
