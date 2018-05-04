@@ -205,7 +205,7 @@ def ensure_python2_libraries(os_user):
                 sudo('pip2 install ipython ipykernel --no-cache-dir')
             except:
                 sudo('pip2 install ipython==5.0.0 ipykernel --no-cache-dir')
-            sudo('pip2 install -U pip --no-cache-dir')
+            sudo('pip2 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
@@ -222,7 +222,7 @@ def ensure_python3_libraries(os_user):
                 sudo('pip3 install ipython ipykernel --no-cache-dir')
             except:
                 sudo('pip3 install ipython==5.0.0 ipykernel --no-cache-dir')
-            sudo('pip3 install -U pip --no-cache-dir')
+            sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')

@@ -35,8 +35,8 @@ def ensure_pip(requisites):
         if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
-            sudo('pip install -U pip --no-cache-dir')
-            sudo('pip install -U ' + requisites + ' --no-cache-dir')
+            sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+            sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
         return True
     except:
@@ -53,9 +53,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
-        sudo('{} install -U pip setuptools'.format(pip_version))
-        sudo('{} install -U pip --no-cache-dir'.format(pip_version))
-        sudo('{} install --upgrade pip'.format(pip_version))
+        sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
@@ -363,24 +363,25 @@ def add_breeze_library_local(os_user):
         try:
             breeze_tmp_dir = '/tmp/breeze_tmp_local/'
             jars_dir = '/opt/jars/'
-            sudo('mkdir -p ' + breeze_tmp_dir)
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-natives_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-viz_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
-                 breeze_tmp_dir + 'jfreechart-1.0.19.jar')
-            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
-                 breeze_tmp_dir + 'jcommon-1.0.24.jar')
-            sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
-                 breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
-            sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
+            sudo('mkdir -p {}'.format(breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O \
+                    {2}breeze_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar -O \
+                    {2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_{0}/{1}/breeze-viz_{0}-{1}.jar -O \
+                    {2}breeze-viz_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_{0}/{1}/breeze-macros_{0}-{1}.jar -O \
+                    {2}breeze-macros_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_{0}/{1}/breeze-parent_{0}-{1}.jar -O \
+                    {2}breeze-parent_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar -O \
+                    {1}jfreechart-{0}.jar'.format('1.0.19', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar -O \
+                    {1}jcommon-{0}.jar'.format('1.0.24', breeze_tmp_dir))
+            sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar -O \
+                    {1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir))
+            sudo('mv {0}* {1}'.format(breeze_tmp_dir, jars_dir))
+            sudo('touch /home/' + os_user + '/.ensure_dir/breeze_local_ensured')
         except:
             sys.exit(1)
 
