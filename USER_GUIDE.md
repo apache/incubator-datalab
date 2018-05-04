@@ -449,6 +449,8 @@ On the center of header you can choose period of report in datepicker:
     <img src="doc/billing_datepicker.png" alt="Billing datepicker" width="400">
 </p>
 
+You can save billing report in csv format hitting Export button.
+
 You can also filter data by each column:
 
 ![Billing filter](doc/billing_filter.png)
