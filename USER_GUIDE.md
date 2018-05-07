@@ -3,7 +3,6 @@ What is DLAB?
 
 DLab is an essential toolset for analytics. It is a self-service Web Console, used to create and manage exploratory environments. It allows teams to spin up analytical environments with best of breed open-source tools just with a single click of the mouse. Once established, environment can be managed by an analytical team itself, leveraging simple and easy-to-use Web Interface.
 
-
 ------------
 ## CONTENTS
 -----------
@@ -23,6 +22,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Notebook server](#notebook_terminate)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Deploy Computational resource](#computational_deploy)
+
+&nbsp; &nbsp; &nbsp; &nbsp; [Stop Spark cluster](#spark_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Computational resource](#computational_terminate)
 
@@ -65,15 +66,15 @@ To stop working with DLab - click on Log Out link at the top right corner of DLa
 
 When you log into DLab Web Application, the first thing you will have to setup is a Gateway Node, or an “Edge” Node.
 
-To do this click on “Upload” button on “Create initial infrastructure”, select your personal public key and hit “Create” button.
+To do this click on “Upload” button on “Create initial infrastructure”, select your personal public key and hit “Create” button or click on "Generate" button on “Create initial infrastructure” and save your private key.
 
 <p align="center"> 
-    <img src="doc/upload_key.png" alt="Upload user public key" width="400">
+    <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="400">
 </p>
 
 Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Create initial infrastructure” dialog. DLab build-in wiki page will guide Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-After you hit Create button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
+After you hit Create or Generate button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
 
 <p align="center"> 
     <img src="doc/loading_key.png" alt="Loading user key" width="350">
@@ -193,13 +194,13 @@ To Stop the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Acti
 
 Hit OK in confirmation popup.
 
-**NOTE:** if any Computational resources have been connected to your notebook server – they will be automatically terminated if you stop the notebook.
+**NOTE:** if any Computational resources except for Spark cluster have been connected to your notebook server – they will be automatically terminated if you stop the notebook and Spark cluster will be automatically stopped.
 
 <p align="center"> 
     <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
 </p>
 
-After you confirm you intent to Stop the notebook - the status will be changed to Stopping and will become Stopped in a while. Computational resource status will be changed to Terminated.
+After you confirm you intent to Stop the notebook - the status will be changed to Stopping and will become Stopped in a while. Spark cluster status will be changed to Stopped and other Computational resource status  will be changed to Terminated.
 
 --------------------------------
 ## Terminate Notebook server <a name="notebook_terminate"></a>
@@ -280,6 +281,21 @@ Insert following “magics” before blocks of your code to start executing your
 **RStudio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
 
 ![RStudio](doc/rstudio.png)
+
+---------------
+## Stop Spark cluster <a name="spark_stop"></a>
+
+Once you have stopped working with a spark cluster and you would like to release cloud resources for the sake of the costs, you might want to Stop the spark cluster. You will be able to Start the spark cluster again after a while and proceed with your analytics.
+
+To Stop the spark cluster click on ![stop](doc/stop_icon.png) button close to spark cluster alias.
+
+Hit YES in confirmation popup.
+
+<p align="center"> 
+    <img src="doc/spark_stop_confirm.png" alt="Spark stop confirm" width="400">
+</p>
+
+After you confirm your intent to Stop the spark cluster - the status will be changed to Stopping and will become Stopped in a while.
 
 ------------------
 ## Terminate Computational resource <a name="computational_terminate"></a>
@@ -377,6 +393,8 @@ corner of the DLab:
 -   green ![OK](doc/status_icon_ok.png), if Edge node status is Running;
 -   red ![Error](doc/status_icon_error.png),if Edge node is Stopped or Terminated;
 
+![Health_status](doc/health_status.png)
+
 To Stop Edge Node please click on actions icon on Health Status page and hit Stop.
 
 <p align="center"> 
@@ -390,6 +408,30 @@ Confirm you want to stop Edge node by clicking Yes:
 </p>
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
+
+Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
+
+<p align="center"> 
+    <img src="doc/backup_options.png" alt="Backup options" width="515">
+</p>
+
+Confirm you want to do backup by clicking Apply.
+
+Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
+
+<p align="center"> 
+    <img src="doc/manage_environment.png" alt="Manage environment" width="580">
+</p>
+
+If Administrator hit Stop button all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
+
+If Administrator hit Terminate button all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
+
+Administrator should confirm user environment stopping or termination by clicking Yes:
+
+<p align="center"> 
+    <img src="doc/manage_env_confirm.png" alt="Manage environment confirm" width="550">
+</p>
 
 --------------------------------
 # DLab Billing report <a name="billing_page"></a>
@@ -408,6 +450,8 @@ On the center of header you can choose period of report in datepicker:
 <p align="center"> 
     <img src="doc/billing_datepicker.png" alt="Billing datepicker" width="400">
 </p>
+
+You can save billing report in csv format hitting Export button.
 
 You can also filter data by each column:
 
