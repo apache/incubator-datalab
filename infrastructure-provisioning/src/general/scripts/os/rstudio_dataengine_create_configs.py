@@ -58,6 +58,8 @@ def configure_rstudio():
             local("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
             local("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
             local('echo \'SPARK_HOME="' + cluster_dir + 'spark/"\' >> /home/' + args.os_user + '/.Renviron')
+            local('echo http_proxy=$http_proxy >> /home/{}/.Renviron'.format(args.os_user))
+            local('echo https_proxy=$https_proxy >> /home/{}/.Renviron'.format(args.os_user))
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
                   args.os_user + '/.Rprofile')
