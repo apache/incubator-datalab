@@ -151,7 +151,7 @@ To access analytical tool Web UI – you need to configure SOCKS proxy. Please f
 On every analytical tool instance you can install additional libraries by clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
 
 <p align="center"> 
-    <img src="doc/notebook_menu.png" alt="Notebook manage_libraries" width="150">
+    <img src="doc/notebook_menu_manage_libraries.png" alt="Notebook manage_libraries" width="150">
 </p>
 
 After clicking you will see the window with 3 fields:
@@ -189,7 +189,7 @@ Once you have stopped working with an analytical tool and you would like to rele
 To Stop the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Stop:
 
 <p align="center"> 
-    <img src="doc/notebook_menu.png" alt="Notebook stopping" width="150">
+    <img src="doc/notebook_menu_stop.png" alt="Notebook stopping" width="150">
 </p>
 
 Hit OK in confirmation popup.
