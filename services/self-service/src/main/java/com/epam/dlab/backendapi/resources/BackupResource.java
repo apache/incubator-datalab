@@ -28,7 +28,7 @@ public class BackupResource {
 	private final RequestId requestId;
 
 	@Inject
-	public BackupResource(BackupService backupService, RequestBuilder requestBuilder, RequestId requestId) {
+	BackupResource(BackupService backupService, RequestBuilder requestBuilder, RequestId requestId) {
 		this.backupService = backupService;
 		this.requestBuilder = requestBuilder;
 		this.requestId = requestId;

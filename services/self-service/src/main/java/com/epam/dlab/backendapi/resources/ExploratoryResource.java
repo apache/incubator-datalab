@@ -48,8 +48,12 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class ExploratoryResource implements ExploratoryAPI {
 
-	@Inject
 	private ExploratoryService exploratoryService;
+
+	@Inject
+	ExploratoryResource(ExploratoryService exploratoryService) {
+		this.exploratoryService = exploratoryService;
+	}
 
 	/**
 	 * Creates the exploratory environment for user.

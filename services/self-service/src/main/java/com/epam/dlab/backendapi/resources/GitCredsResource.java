@@ -39,8 +39,12 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class GitCredsResource implements ExploratoryAPI {
 
-	@Inject
 	private GitCredentialService gitCredentialService;
+
+	@Inject
+	GitCredsResource(GitCredentialService gitCredentialService) {
+		this.gitCredentialService = gitCredentialService;
+	}
 
 	/**
 	 * Update GIT credentials for user.

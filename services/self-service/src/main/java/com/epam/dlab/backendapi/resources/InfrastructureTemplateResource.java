@@ -38,8 +38,12 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class InfrastructureTemplateResource implements DockerAPI {
 
-	@Inject
 	private InfrastructureTemplateService infrastructureTemplateService;
+
+	@Inject
+	InfrastructureTemplateResource(InfrastructureTemplateService infrastructureTemplateService) {
+		this.infrastructureTemplateService = infrastructureTemplateService;
+	}
 
 	/**
 	 * Returns the list of the computational resources templates for user.

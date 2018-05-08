@@ -17,8 +17,12 @@ import javax.ws.rs.core.Response;
 @RolesAllowed("environment/*")
 public class EnvironmentResource {
 
-	@Inject
 	private EnvironmentService environmentService;
+
+	@Inject
+	EnvironmentResource(EnvironmentService environmentService) {
+		this.environmentService = environmentService;
+	}
 
 	@GET
 	@Path("user/active")
