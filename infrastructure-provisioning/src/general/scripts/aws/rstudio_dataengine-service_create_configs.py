@@ -59,8 +59,6 @@ def configure_rstudio():
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
-            local('echo http_proxy=$http_proxy >> /home/{}/.Renviron'.format(args.os_user))
-            local('echo https_proxy=$https_proxy >> /home/{}/.Renviron'.format(args.os_user))
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
@@ -76,8 +74,6 @@ def configure_rstudio():
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
-            local('echo http_proxy=$http_proxy >> /home/{}/.Renviron'.format(args.os_user))
-            local('echo https_proxy=$https_proxy >> /home/{}/.Renviron'.format(args.os_user))
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
         except:
             sys.exit(1)
