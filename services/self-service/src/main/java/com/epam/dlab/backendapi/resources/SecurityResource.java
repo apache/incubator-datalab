@@ -54,15 +54,19 @@ import javax.ws.rs.core.Response.Status;
 @Slf4j
 public class SecurityResource implements SecurityAPI {
 
-    @Inject
     private SecurityDAO dao;
-    @Inject
-    @Named(ServiceConsts.SECURITY_SERVICE_NAME)
     private RESTService securityService;
-    @Inject
     private EnvStatusListener envStatusListener;
-    @Inject
     private SelfServiceApplicationConfiguration configuration;
+
+	@Inject
+	SecurityResource(SecurityDAO dao, @Named(ServiceConsts.SECURITY_SERVICE_NAME) RESTService securityService,
+					 EnvStatusListener envStatusListener, SelfServiceApplicationConfiguration configuration) {
+		this.dao = dao;
+		this.securityService = securityService;
+		this.envStatusListener = envStatusListener;
+		this.configuration = configuration;
+	}
 
     /**
      * Login method for the DLab user.

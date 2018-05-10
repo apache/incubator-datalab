@@ -211,12 +211,6 @@ public class LibExploratoryResourceTest {
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-//		verify(libraryService).generateLibraryInstallDTO(refEq(userInfo), refEq(libInstallFormDTO));
-//		verify(libraryService).prepareComputationalLibInstallation(eq(USER), refEq(libInstallFormDTO),
-//				refEq(getLibraryInstallDTO()));
-//		verify(provisioningService.post(eq("library/computational/lib_install"), eq(TOKEN),
-//				refEq(getLibraryInstallDTO()), eq(String.class)));
-//		verify(requestId).put(USER, "someUuid");
 		verifyZeroInteractions(libraryService, provisioningService, requestId);
 	}
 
@@ -245,12 +239,6 @@ public class LibExploratoryResourceTest {
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-//		verify(libraryService).generateLibraryInstallDTO(refEq(userInfo), refEq(libInstallFormDTO));
-//		verify(libraryService).prepareExploratoryLibInstallation(eq(USER), refEq(libInstallFormDTO),
-//				refEq(getLibraryInstallDTO()));
-//		verify(provisioningService.post(eq("library/exploratory/lib_install"), eq(TOKEN),
-//				refEq(getLibraryInstallDTO()), eq(String.class)));
-//		verify(requestId).put(USER, "someUuid");
 		verifyZeroInteractions(libraryService, provisioningService, requestId);
 	}
 

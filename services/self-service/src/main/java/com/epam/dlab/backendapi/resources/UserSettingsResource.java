@@ -18,23 +18,18 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.hibernate.validator.constraints.NotBlank;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 
 @Path("/user/settings")
@@ -43,8 +38,12 @@ import io.dropwizard.auth.Auth;
 public class UserSettingsResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsResource.class);
 
-    @Inject
-    private UserSettingsDAO userSettingsDAO;
+	private UserSettingsDAO userSettingsDAO;
+
+	@Inject
+	UserSettingsResource(UserSettingsDAO userSettingsDAO) {
+		this.userSettingsDAO = userSettingsDAO;
+	}
     
     @GET
     public String getSettings(@Auth UserInfo userInfo) {

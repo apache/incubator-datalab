@@ -18,7 +18,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,7 +31,6 @@ public class EnvironmentResourceTest {
 
 	private final String TOKEN = "TOKEN";
 	private final String USER = "testUser";
-	private final Date TIMESTAMP = new Date();
 	private final UserInfo userInfo = getUserInfo();
 	@SuppressWarnings("unchecked")
 	private Authenticator<String, UserInfo> authenticator = mock(Authenticator.class);
