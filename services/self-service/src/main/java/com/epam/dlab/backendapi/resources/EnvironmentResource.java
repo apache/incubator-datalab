@@ -20,7 +20,7 @@ public class EnvironmentResource {
 	private EnvironmentService environmentService;
 
 	@Inject
-	EnvironmentResource(EnvironmentService environmentService) {
+	public EnvironmentResource(EnvironmentService environmentService) {
 		this.environmentService = environmentService;
 	}
 

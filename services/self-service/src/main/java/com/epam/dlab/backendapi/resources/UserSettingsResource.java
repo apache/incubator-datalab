@@ -41,7 +41,7 @@ public class UserSettingsResource {
 	private UserSettingsDAO userSettingsDAO;
 
 	@Inject
-	UserSettingsResource(UserSettingsDAO userSettingsDAO) {
+	public UserSettingsResource(UserSettingsDAO userSettingsDAO) {
 		this.userSettingsDAO = userSettingsDAO;
 	}
     

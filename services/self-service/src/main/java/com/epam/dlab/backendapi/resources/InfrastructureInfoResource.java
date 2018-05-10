@@ -41,7 +41,7 @@ public class InfrastructureInfoResource {
 	private InfrastructureInfoService infrastructureInfoService;
 
 	@Inject
-	InfrastructureInfoResource(InfrastructureInfoService infrastructureInfoService) {
+	public InfrastructureInfoResource(InfrastructureInfoService infrastructureInfoService) {
 		this.infrastructureInfoService = infrastructureInfoService;
 	}
 

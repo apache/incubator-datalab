@@ -41,7 +41,7 @@ public class InfrastructureTemplateResource implements DockerAPI {
 	private InfrastructureTemplateService infrastructureTemplateService;
 
 	@Inject
-	InfrastructureTemplateResource(InfrastructureTemplateService infrastructureTemplateService) {
+	public InfrastructureTemplateResource(InfrastructureTemplateService infrastructureTemplateService) {
 		this.infrastructureTemplateService = infrastructureTemplateService;
 	}
 

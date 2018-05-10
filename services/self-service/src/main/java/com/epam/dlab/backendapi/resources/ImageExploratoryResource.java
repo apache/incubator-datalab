@@ -29,7 +29,7 @@ public class ImageExploratoryResource {
 	private RequestId requestId;
 
 	@Inject
-	ImageExploratoryResource(ImageExploratoryService imageExploratoryService, RequestId requestId) {
+	public ImageExploratoryResource(ImageExploratoryService imageExploratoryService, RequestId requestId) {
 		this.imageExploratoryService = imageExploratoryService;
 		this.requestId = requestId;
 	}

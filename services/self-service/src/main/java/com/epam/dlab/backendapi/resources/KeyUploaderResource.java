@@ -52,7 +52,7 @@ public class KeyUploaderResource implements EdgeAPI {
 	private AccessKeyService keyService;
 
 	@Inject
-	KeyUploaderResource(AccessKeyService keyService) {
+	public KeyUploaderResource(AccessKeyService keyService) {
 		this.keyService = keyService;
 	}
 

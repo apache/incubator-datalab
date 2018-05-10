@@ -42,7 +42,7 @@ public class GitCredsResource implements ExploratoryAPI {
 	private GitCredentialService gitCredentialService;
 
 	@Inject
-	GitCredsResource(GitCredentialService gitCredentialService) {
+	public GitCredsResource(GitCredentialService gitCredentialService) {
 		this.gitCredentialService = gitCredentialService;
 	}
 

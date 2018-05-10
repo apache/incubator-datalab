@@ -40,7 +40,7 @@ public class SchedulerJobResource {
 	private SchedulerJobService schedulerJobService;
 
 	@Inject
-	SchedulerJobResource(SchedulerJobService schedulerJobService) {
+	public SchedulerJobResource(SchedulerJobService schedulerJobService) {
 		this.schedulerJobService = schedulerJobService;
 	}
 

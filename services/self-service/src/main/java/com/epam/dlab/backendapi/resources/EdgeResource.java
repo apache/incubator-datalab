@@ -41,7 +41,7 @@ public class EdgeResource implements EdgeAPI {
 	private final EdgeService edgeService;
 
 	@Inject
-	EdgeResource(EdgeService edgeService) {
+	public EdgeResource(EdgeService edgeService) {
 		this.edgeService = edgeService;
 	}
 

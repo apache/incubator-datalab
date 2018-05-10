@@ -18,7 +18,6 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
@@ -59,17 +58,15 @@ import java.util.stream.Collectors;
 public class LibExploratoryResource {
 
 	private ExploratoryDAO exploratoryDAO;
-	private ExploratoryLibDAO libraryDAO;
 	private LibraryService libraryService;
 	private RESTService provisioningService;
 	private RequestId requestId;
 
 	@Inject
-	LibExploratoryResource(ExploratoryDAO exploratoryDAO, ExploratoryLibDAO libraryDAO, LibraryService
-			libraryService, @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-						   RequestId requestId) {
+	public LibExploratoryResource(ExploratoryDAO exploratoryDAO, LibraryService libraryService,
+								  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+								  RequestId requestId) {
 		this.exploratoryDAO = exploratoryDAO;
-		this.libraryDAO = libraryDAO;
 		this.libraryService = libraryService;
 		this.provisioningService = provisioningService;
 		this.requestId = requestId;

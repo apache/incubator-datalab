@@ -51,7 +51,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 	private ExploratoryService exploratoryService;
 
 	@Inject
-	ExploratoryResource(ExploratoryService exploratoryService) {
+	public ExploratoryResource(ExploratoryService exploratoryService) {
 		this.exploratoryService = exploratoryService;
 	}
 
