@@ -216,7 +216,7 @@ def ensure_python2_libraries(os_user):
             sudo('echo y | python2 -m pip uninstall backports.shutil_get_terminal_size')
             sudo('python2 -m pip install backports.shutil_get_terminal_size --no-cache-dir')
             sudo('pip2 install -UI pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip2 install boto3 --no-cache-dir')
+            sudo('pip2 install boto3 backoff --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
             downgrade_python_version()
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
