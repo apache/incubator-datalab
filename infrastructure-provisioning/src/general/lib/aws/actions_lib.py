@@ -19,6 +19,8 @@
 import boto3
 import botocore
 from botocore.client import Config
+import backoff
+from botocore.exceptions import ClientError
 import time
 import sys
 import os
@@ -32,6 +34,17 @@ import traceback
 import urllib2
 import meta_lib
 import dlab.fab
+
+
+def backoff_log(err):
+    logging.info("Unable to create Tag: " + \
+                 str(err) + "\n Traceback: " + \
+                 traceback.print_exc(file=sys.stdout))
+    append_result(str({"error": "Unable to create Tag", \
+                       "error_message": str(err) + "\n Traceback: " + \
+                                        traceback.print_exc(file=sys.stdout)}))
+    traceback.print_exc(file=sys.stdout)
+
 
 def put_to_bucket(bucket_name, local_file, destination_file):
     try:
@@ -109,43 +122,41 @@ def remove_vpc(vpc_id):
         traceback.print_exc(file=sys.stdout)
 
 
+@backoff.on_exception(backoff.expo,
+                      botocore.exceptions.ClientError,
+                      max_tries=7,
+                      on_giveup=backoff_log)
 def create_tag(resource, tag, with_tag_res_id=True):
-    try:
-        tags_list = list()
-        ec2 = boto3.client('ec2')
-        if type(tag) == dict:
-            resource_name = tag.get('Value')
-            resource_tag = tag
-        else:
-            resource_name = json.loads(tag).get('Value')
-            resource_tag = json.loads(tag)
-        if type(resource) != list:
-            resource = [resource]
-        tags_list.append(resource_tag)
-        if with_tag_res_id:
+    tags_list = list()
+    ec2 = boto3.client('ec2')
+    if type(tag) == dict:
+        resource_name = tag.get('Value')
+        resource_tag = tag
+    else:
+        resource_name = json.loads(tag).get('Value')
+        resource_tag = json.loads(tag)
+    if type(resource) != list:
+        resource = [resource]
+    tags_list.append(resource_tag)
+    if with_tag_res_id:
+        tags_list.append(
+            {
+                'Key': os.environ['conf_tag_resource_id'],
+                'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+            }
+        )
+    if 'conf_additional_tags' in os.environ:
+        for tag in os.environ['conf_additional_tags'].split(';'):
             tags_list.append(
                 {
-                    'Key': os.environ['conf_tag_resource_id'],
-                    'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+                    'Key': tag.split(':')[0],
+                    'Value': tag.split(':')[1]
                 }
             )
-        if 'conf_additional_tags' in os.environ:
-            for tag in os.environ['conf_additional_tags'].split(';'):
-                tags_list.append(
-                    {
-                        'Key': tag.split(':')[0],
-                        'Value': tag.split(':')[1]
-                    }
-                )
-        ec2.create_tags(
-            Resources=resource,
-            Tags=tags_list
-        )
-
-    except Exception as err:
-        logging.info("Unable to create Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
+    ec2.create_tags(
+        Resources=resource,
+        Tags=tags_list
+    )
 
 
 def remove_emr_tag(emr_id, tag):
