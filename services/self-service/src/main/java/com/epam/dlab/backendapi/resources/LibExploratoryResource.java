@@ -18,7 +18,6 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
@@ -58,21 +57,20 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LibExploratoryResource {
 
-	@Inject
 	private ExploratoryDAO exploratoryDAO;
-
-	@Inject
-	private ExploratoryLibDAO libraryDAO;
-
-	@Inject
 	private LibraryService libraryService;
-
-	@Inject
-	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
+	private RequestId requestId;
 
 	@Inject
-	private RequestId requestId;
+	public LibExploratoryResource(ExploratoryDAO exploratoryDAO, LibraryService libraryService,
+								  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+								  RequestId requestId) {
+		this.exploratoryDAO = exploratoryDAO;
+		this.libraryService = libraryService;
+		this.provisioningService = provisioningService;
+		this.requestId = requestId;
+	}
 
 	/**
 	 * Returns the list of libraries groups for exploratory.
@@ -184,12 +182,12 @@ public class LibExploratoryResource {
 
 			if (StringUtils.isEmpty(formDTO.getComputationalName())) {
 				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(),
-						libraryService.prepareExploratoryLibInstallation(userInfo.getName(), formDTO, dto), String
-								.class);
+						libraryService.prepareExploratoryLibInstallation(userInfo.getName(), formDTO, dto),
+						String.class);
 			} else {
 				uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_INSTALL, userInfo.getAccessToken(),
-						libraryService.prepareComputationalLibInstallation(userInfo.getName(), formDTO, dto), String
-								.class);
+						libraryService.prepareComputationalLibInstallation(userInfo.getName(), formDTO, dto),
+						String.class);
 			}
 
 			requestId.put(userInfo.getName(), uuid);

@@ -23,12 +23,16 @@ import java.util.UUID;
 @RolesAllowed("/api/infrastructure/backup")
 public class BackupResource {
 
+	private final BackupService backupService;
+	private final RequestBuilder requestBuilder;
+	private final RequestId requestId;
+
 	@Inject
-	private BackupService backupService;
-	@Inject
-	private RequestBuilder requestBuilder;
-	@Inject
-	private RequestId requestId;
+	public BackupResource(BackupService backupService, RequestBuilder requestBuilder, RequestId requestId) {
+		this.backupService = backupService;
+		this.requestBuilder = requestBuilder;
+		this.requestId = requestId;
+	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
