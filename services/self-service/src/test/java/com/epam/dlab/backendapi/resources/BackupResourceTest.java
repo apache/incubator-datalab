@@ -31,7 +31,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class BackupResourceTest {
+public class BackupResourceTest extends TestBase {
 
 	private final Date TIMESTAMP = new Date();
 	private BackupService backupService = mock(BackupService.class);
@@ -40,11 +40,11 @@ public class BackupResourceTest {
 
 	@Rule
 	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new BackupResource(backupService, requestBuilder, requestId));
+			getResourceTestRuleInstance(new BackupResource(backupService, requestBuilder, requestId));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -53,26 +53,26 @@ public class BackupResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/backup/1")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(getBackupInfo(), response.readEntity(BackupInfoRecord.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(backupService).getBackup(TestHelper.USER.toLowerCase(), "1");
+		verify(backupService).getBackup(USER.toLowerCase(), "1");
 		verifyNoMoreInteractions(backupService);
 		verifyZeroInteractions(requestId, requestBuilder);
 	}
 
 	@Test
 	public void getBackupWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(backupService.getBackup(anyString(), anyString())).thenReturn(getBackupInfo());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/backup/1")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
@@ -88,14 +88,14 @@ public class BackupResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/backup/1")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
 		assertEquals("Backup not found", response.readEntity(String.class));
 		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(backupService).getBackup(TestHelper.USER.toLowerCase(), "1");
+		verify(backupService).getBackup(USER.toLowerCase(), "1");
 		verifyNoMoreInteractions(backupService);
 		verifyZeroInteractions(requestId, requestBuilder);
 	}
@@ -106,7 +106,7 @@ public class BackupResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/backup")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -115,19 +115,19 @@ public class BackupResourceTest {
 				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(backupService).getBackups(TestHelper.USER.toLowerCase());
+		verify(backupService).getBackups(USER.toLowerCase());
 		verifyNoMoreInteractions(backupService);
 		verifyZeroInteractions(requestId, requestBuilder);
 	}
 
 	@Test
 	public void getBackupsWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(backupService.getBackups(anyString())).thenReturn(Collections.singletonList(getBackupInfo()));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/backup")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
@@ -145,21 +145,21 @@ public class BackupResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/backup")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getBackupFormDto()));
 
 		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
 		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(requestBuilder).newBackupCreate(eq(getBackupFormDto()), anyString());
-		verify(backupService).createBackup(getEnvBackupDto(), TestHelper.getUserInfo());
-		verify(requestId).put(TestHelper.USER.toLowerCase(), "someUuid");
+		verify(backupService).createBackup(getEnvBackupDto(), getUserInfo());
+		verify(requestId).put(USER.toLowerCase(), "someUuid");
 		verifyNoMoreInteractions(requestBuilder, backupService, requestId);
 	}
 
 	@Test
 	public void createBackupWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(requestBuilder.newBackupCreate(any(BackupFormDTO.class), anyString())).thenReturn(getEnvBackupDto());
 		when(backupService.createBackup(any(EnvBackupDTO.class), any(UserInfo.class))).thenReturn("someUuid");
 		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
@@ -167,7 +167,7 @@ public class BackupResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/backup")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getBackupFormDto()));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());

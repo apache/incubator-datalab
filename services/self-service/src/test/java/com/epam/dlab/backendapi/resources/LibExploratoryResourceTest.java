@@ -31,7 +31,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class LibExploratoryResourceTest {
+public class LibExploratoryResourceTest extends TestBase {
 
 	private ExploratoryDAO exploratoryDAO = mock(ExploratoryDAO.class);
 	private LibraryService libraryService = mock(LibraryService.class);
@@ -39,17 +39,17 @@ public class LibExploratoryResourceTest {
 	private RequestId requestId = mock(RequestId.class);
 
 	@Rule
-	public final ResourceTestRule resources = TestHelper.getResourceTestRuleInstance(
+	public final ResourceTestRule resources = getResourceTestRuleInstance(
 			new LibExploratoryResource(exploratoryDAO, libraryService, provisioningService, requestId));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
 	public void getLibGroupListWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn
 				(getUserInstanceDto());
 		final Response response = resources.getJerseyTest()
@@ -57,13 +57,13 @@ public class LibExploratoryResourceTest {
 				.queryParam("exploratory_name", "explName")
 				.queryParam("computational_name", "compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryDAO).fetchExploratoryFields(TestHelper.USER.toLowerCase(), "explName", "compName");
+		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName", "compName");
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
@@ -76,31 +76,31 @@ public class LibExploratoryResourceTest {
 				.queryParam("exploratory_name", "explName")
 				.queryParam("computational_name", "compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryDAO).fetchExploratoryFields(TestHelper.USER.toLowerCase(), "explName", "compName");
+		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName", "compName");
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	@Test
 	public void getLibGroupListWithoutComputationalWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_groups")
 				.queryParam("exploratory_name", "explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryDAO).fetchExploratoryFields(TestHelper.USER.toLowerCase(), "explName");
+		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
@@ -111,13 +111,13 @@ public class LibExploratoryResourceTest {
 				.target("/infrastructure_provision/exploratory_environment/lib_groups")
 				.queryParam("exploratory_name", "explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryDAO).fetchExploratoryFields(TestHelper.USER.toLowerCase(), "explName");
+		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
@@ -129,7 +129,7 @@ public class LibExploratoryResourceTest {
 				.queryParam("exploratory_name", "explName")
 				.queryParam("computational_name", "compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -137,20 +137,20 @@ public class LibExploratoryResourceTest {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(libraryService).getLibs(TestHelper.USER.toLowerCase(), "explName", "compName");
+		verify(libraryService).getLibs(USER.toLowerCase(), "explName", "compName");
 		verifyNoMoreInteractions(libraryService);
 	}
 
 	@Test
 	public void getLibListWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(libraryService.getLibs(anyString(), anyString(), anyString())).thenReturn(getDocuments());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_list")
 				.queryParam("exploratory_name", "explName")
 				.queryParam("computational_name", "compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -158,7 +158,7 @@ public class LibExploratoryResourceTest {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(libraryService).getLibs(TestHelper.USER.toLowerCase(), "explName", "compName");
+		verify(libraryService).getLibs(USER.toLowerCase(), "explName", "compName");
 		verifyNoMoreInteractions(libraryService);
 	}
 
@@ -171,13 +171,13 @@ public class LibExploratoryResourceTest {
 				.queryParam("exploratory_name", "explName")
 				.queryParam("computational_name", "compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(libraryService).getLibs(TestHelper.USER.toLowerCase(), "explName", "compName");
+		verify(libraryService).getLibs(USER.toLowerCase(), "explName", "compName");
 		verifyNoMoreInteractions(libraryService);
 	}
 
@@ -188,31 +188,31 @@ public class LibExploratoryResourceTest {
 				.target("/infrastructure_provision/exploratory_environment/lib_list/formatted")
 				.queryParam("exploratory_name", "explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(libraryService).getLibInfo(TestHelper.USER.toLowerCase(), "explName");
+		verify(libraryService).getLibInfo(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(libraryService);
 	}
 
 	@Test
 	public void getLibListFormattedWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(libraryService.getLibInfo(anyString(), anyString())).thenReturn(getLibInfoRecords());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_list/formatted")
 				.queryParam("exploratory_name", "explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(libraryService).getLibInfo(TestHelper.USER.toLowerCase(), "explName");
+		verify(libraryService).getLibInfo(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(libraryService);
 	}
 
@@ -224,13 +224,13 @@ public class LibExploratoryResourceTest {
 				.target("/infrastructure_provision/exploratory_environment/lib_list/formatted")
 				.queryParam("exploratory_name", "explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(libraryService).getLibInfo(TestHelper.USER.toLowerCase(), "explName");
+		verify(libraryService).getLibInfo(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(libraryService);
 	}
 
@@ -250,7 +250,7 @@ public class LibExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_install")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(libInstallFormDTO));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
@@ -261,7 +261,7 @@ public class LibExploratoryResourceTest {
 
 	@Test
 	public void libInstallWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(libraryService.generateLibraryInstallDTO(any(UserInfo.class), any(LibInstallFormDTO.class)))
 				.thenReturn(getLibraryInstallDTO());
 		when(libraryService.prepareComputationalLibInstallation(anyString(), any(LibInstallFormDTO.class),
@@ -276,7 +276,7 @@ public class LibExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_install")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(libInstallFormDTO));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
@@ -302,7 +302,7 @@ public class LibExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_install")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(libInstallFormDTO));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
@@ -313,7 +313,7 @@ public class LibExploratoryResourceTest {
 
 	@Test
 	public void getLibraryListWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString()))
 				.thenReturn(getUserInstanceDto());
 		SearchLibsFormDTO searchLibsFormDTO = new SearchLibsFormDTO();
@@ -324,13 +324,13 @@ public class LibExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/search/lib_list")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(searchLibsFormDTO));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryDAO).fetchExploratoryFields(TestHelper.USER.toLowerCase(), "explName", "compName");
+		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName", "compName");
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
@@ -346,13 +346,13 @@ public class LibExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/search/lib_list")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(searchLibsFormDTO));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryDAO).fetchExploratoryFields(TestHelper.USER.toLowerCase(), "explName", "compName");
+		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName", "compName");
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
@@ -368,20 +368,20 @@ public class LibExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/search/lib_list")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(searchLibsFormDTO));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryDAO).fetchExploratoryFields(TestHelper.USER.toLowerCase(), "explName");
+		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	private UserInstanceDTO getUserInstanceDto() {
 		UserComputationalResource ucResource = new UserComputationalResource();
 		ucResource.setComputationalName("compName");
-		return new UserInstanceDTO().withUser(TestHelper.USER).withExploratoryName("explName")
+		return new UserInstanceDTO().withUser(USER).withExploratoryName("explName")
 				.withResources(Collections.singletonList(ucResource));
 	}
 

@@ -22,17 +22,16 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class EnvironmentResourceTest {
+public class EnvironmentResourceTest extends TestBase {
 
 	private EnvironmentService environmentService = mock(EnvironmentService.class);
 
 	@Rule
-	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new EnvironmentResource(environmentService));
+	public final ResourceTestRule resources = getResourceTestRuleInstance(new EnvironmentResource(environmentService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -41,7 +40,7 @@ public class EnvironmentResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/environment/user/active")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -55,12 +54,12 @@ public class EnvironmentResourceTest {
 
 	@Test
 	public void getUsersWithActiveEnvWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(environmentService.getActiveUsers()).thenReturn(Collections.singleton("activeUser"));
 		final Response response = resources.getJerseyTest()
 				.target("/environment/user/active")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
@@ -75,25 +74,25 @@ public class EnvironmentResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/environment/terminate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.text(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.text(USER));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).terminateEnvironment(TestHelper.USER);
+		verify(environmentService).terminateEnvironment(USER);
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void terminateEnvWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(environmentService).terminateEnvironment(anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/environment/terminate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.text(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.text(USER));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
@@ -109,13 +108,13 @@ public class EnvironmentResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/environment/terminate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.text(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.text(USER));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).terminateEnvironment(TestHelper.USER);
+		verify(environmentService).terminateEnvironment(USER);
 		verifyNoMoreInteractions(environmentService);
 	}
 
@@ -125,25 +124,25 @@ public class EnvironmentResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/environment/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.text(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.text(USER));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).stopEnvironment(TestHelper.USER);
+		verify(environmentService).stopEnvironment(USER);
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void stopEnvWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(environmentService).stopEnvironment(anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/environment/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.text(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.text(USER));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
@@ -158,13 +157,13 @@ public class EnvironmentResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/environment/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.text(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.text(USER));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).stopEnvironment(TestHelper.USER);
+		verify(environmentService).stopEnvironment(USER);
 		verifyNoMoreInteractions(environmentService);
 	}
 }

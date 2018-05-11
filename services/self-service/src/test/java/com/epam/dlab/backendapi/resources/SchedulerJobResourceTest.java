@@ -25,17 +25,17 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class SchedulerJobResourceTest {
+public class SchedulerJobResourceTest extends TestBase {
 
 	private SchedulerJobService schedulerJobService = mock(SchedulerJobService.class);
 
 	@Rule
 	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new SchedulerJobResource(schedulerJobService));
+			getResourceTestRuleInstance(new SchedulerJobResource(schedulerJobService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -45,32 +45,32 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).updateExploratorySchedulerData(TestHelper.USER.toLowerCase(),
+		verify(schedulerJobService).updateExploratorySchedulerData(USER.toLowerCase(),
 				"explName", getSchedulerJobDTO());
 		verifyNoMoreInteractions(schedulerJobService);
 	}
 
 	@Test
 	public void updateExploratorySchedulerWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(schedulerJobService)
 				.updateExploratorySchedulerData(anyString(), anyString(), any(SchedulerJobDTO.class));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).updateExploratorySchedulerData(TestHelper.USER.toLowerCase(),
+		verify(schedulerJobService).updateExploratorySchedulerData(USER.toLowerCase(),
 				"explName", getSchedulerJobDTO());
 		verifyNoMoreInteractions(schedulerJobService);
 	}
@@ -83,13 +83,13 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).updateExploratorySchedulerData(TestHelper.USER.toLowerCase(), "explName",
+		verify(schedulerJobService).updateExploratorySchedulerData(USER.toLowerCase(), "explName",
 				getSchedulerJobDTO());
 		verifyNoMoreInteractions(schedulerJobService);
 	}
@@ -101,32 +101,32 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName/compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).updateComputationalSchedulerData(TestHelper.USER.toLowerCase(), "explName",
+		verify(schedulerJobService).updateComputationalSchedulerData(USER.toLowerCase(), "explName",
 				"compName", getSchedulerJobDTO());
 		verifyNoMoreInteractions(schedulerJobService);
 	}
 
 	@Test
 	public void upsertComputationalSchedulerWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(schedulerJobService)
 				.updateComputationalSchedulerData(anyString(), anyString(), anyString(), any(SchedulerJobDTO.class));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName/compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).updateComputationalSchedulerData(TestHelper.USER.toLowerCase(), "explName",
+		verify(schedulerJobService).updateComputationalSchedulerData(USER.toLowerCase(), "explName",
 				"compName", getSchedulerJobDTO());
 		verifyNoMoreInteractions(schedulerJobService);
 	}
@@ -139,13 +139,13 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName/compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).updateComputationalSchedulerData(TestHelper.USER.toLowerCase(), "explName",
+		verify(schedulerJobService).updateComputationalSchedulerData(USER.toLowerCase(), "explName",
 				"compName", getSchedulerJobDTO());
 		verifyNoMoreInteractions(schedulerJobService);
 	}
@@ -157,33 +157,33 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(getSchedulerJobDTO(), response.readEntity(SchedulerJobDTO.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(TestHelper.USER.toLowerCase(), "explName");
+		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(schedulerJobService);
 	}
 
 	@Test
 	public void fetchSchedulerJobForUserAndExploratoryWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(schedulerJobService.fetchSchedulerJobForUserAndExploratory(anyString(), anyString()))
 				.thenReturn(getSchedulerJobDTO());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(getSchedulerJobDTO(), response.readEntity(SchedulerJobDTO.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(TestHelper.USER.toLowerCase(), "explName");
+		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(schedulerJobService);
 	}
 
@@ -195,13 +195,13 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
 		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(TestHelper.USER.toLowerCase(), "explName");
+		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(schedulerJobService);
 	}
 
@@ -212,34 +212,34 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName/compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(getSchedulerJobDTO(), response.readEntity(SchedulerJobDTO.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(TestHelper.USER.toLowerCase(),
+		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(USER.toLowerCase(),
 				"explName", "compName");
 		verifyNoMoreInteractions(schedulerJobService);
 	}
 
 	@Test
 	public void fetchSchedulerJobForComputationalResourceWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(schedulerJobService.fetchSchedulerJobForComputationalResource(anyString(), anyString(), anyString()))
 				.thenReturn(getSchedulerJobDTO());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName/compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(getSchedulerJobDTO(), response.readEntity(SchedulerJobDTO.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(TestHelper.USER.toLowerCase(),
+		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(USER.toLowerCase(),
 				"explName", "compName");
 		verifyNoMoreInteractions(schedulerJobService);
 	}
@@ -252,13 +252,13 @@ public class SchedulerJobResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName/compName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
 		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(TestHelper.USER.toLowerCase(),
+		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(USER.toLowerCase(),
 				"explName", "compName");
 		verifyNoMoreInteractions(schedulerJobService);
 	}

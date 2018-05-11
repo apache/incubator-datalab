@@ -28,18 +28,18 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class ImageExploratoryResourceTest {
+public class ImageExploratoryResourceTest extends TestBase {
 
 	private ImageExploratoryService imageExploratoryService = mock(ImageExploratoryService.class);
 	private RequestId requestId = mock(RequestId.class);
 
 	@Rule
 	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new ImageExploratoryResource(imageExploratoryService, requestId));
+			getResourceTestRuleInstance(new ImageExploratoryResource(imageExploratoryService, requestId));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -50,36 +50,36 @@ public class ImageExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getExploratoryImageCreateFormDTO()));
 
 		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).createImage(TestHelper.getUserInfo(), "someNotebookName",
+		verify(imageExploratoryService).createImage(getUserInfo(), "someNotebookName",
 				"someImageName", "someDescription");
-		verify(requestId).put(TestHelper.USER.toLowerCase(), "someUuid");
+		verify(requestId).put(USER.toLowerCase(), "someUuid");
 		verifyNoMoreInteractions(imageExploratoryService, requestId);
 	}
 
 	@Test
 	public void createImageWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(imageExploratoryService.createImage(any(UserInfo.class), anyString(), anyString(), anyString()))
 				.thenReturn("someUuid");
 		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getExploratoryImageCreateFormDTO()));
 
 		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).createImage(TestHelper.getUserInfo(), "someNotebookName",
+		verify(imageExploratoryService).createImage(getUserInfo(), "someNotebookName",
 				"someImageName", "someDescription");
-		verify(requestId).put(TestHelper.USER.toLowerCase(), "someUuid");
+		verify(requestId).put(USER.toLowerCase(), "someUuid");
 		verifyNoMoreInteractions(imageExploratoryService, requestId);
 	}
 
@@ -90,13 +90,13 @@ public class ImageExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getExploratoryImageCreateFormDTO()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).createImage(TestHelper.getUserInfo(), "someNotebookName",
+		verify(imageExploratoryService).createImage(getUserInfo(), "someNotebookName",
 				"someImageName", "someDescription");
 		verifyNoMoreInteractions(imageExploratoryService);
 		verifyZeroInteractions(requestId);
@@ -110,7 +110,7 @@ public class ImageExploratoryResourceTest {
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.queryParam("docker_image", "someDockerImage")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -118,20 +118,20 @@ public class ImageExploratoryResourceTest {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getCreatedImages(TestHelper.USER.toLowerCase(), "someDockerImage");
+		verify(imageExploratoryService).getCreatedImages(USER.toLowerCase(), "someDockerImage");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
 	@Test
 	public void getImagesWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(imageExploratoryService.getCreatedImages(anyString(), anyString()))
 				.thenReturn(getImageList());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.queryParam("docker_image", "someDockerImage")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -139,7 +139,7 @@ public class ImageExploratoryResourceTest {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getCreatedImages(TestHelper.USER.toLowerCase(), "someDockerImage");
+		verify(imageExploratoryService).getCreatedImages(USER.toLowerCase(), "someDockerImage");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
@@ -150,33 +150,33 @@ public class ImageExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image/someName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(getImageList().get(0), response.readEntity(ImageInfoRecord.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getImage(TestHelper.USER.toLowerCase(), "someName");
+		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
 	@Test
 	public void getImageWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(imageExploratoryService.getImage(anyString(), anyString()))
 				.thenReturn(getImageList().get(0));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image/someName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(getImageList().get(0), response.readEntity(ImageInfoRecord.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getImage(TestHelper.USER.toLowerCase(), "someName");
+		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
@@ -187,13 +187,13 @@ public class ImageExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image/someName")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
 		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getImage(TestHelper.USER.toLowerCase(), "someName");
+		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 

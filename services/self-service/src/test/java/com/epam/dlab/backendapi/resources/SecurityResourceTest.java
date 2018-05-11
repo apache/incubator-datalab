@@ -24,7 +24,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class SecurityResourceTest {
+public class SecurityResourceTest extends TestBase {
 
 	private SecurityDAO securityDAO = mock(SecurityDAO.class);
 	private RESTService securityService = mock(RESTService.class);
@@ -32,23 +32,23 @@ public class SecurityResourceTest {
 	private SelfServiceApplicationConfiguration configuration = mock(SelfServiceApplicationConfiguration.class);
 
 	@Rule
-	public final ResourceTestRule resources = TestHelper.getResourceTestRuleInstance(
+	public final ResourceTestRule resources = getResourceTestRuleInstance(
 			new SecurityResource(securityDAO, securityService, envStatusListener, configuration));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
 	public void userLoginWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(securityDAO).writeLoginAttempt(any(UserCredentialDTO.class));
 		when(securityService.post(anyString(), any(UserCredentialDTO.class), any())).thenReturn(mock(Response.class));
 		final Response response = resources.getJerseyTest()
 				.target("/user/login")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getUserCredentialDTO()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -66,7 +66,7 @@ public class SecurityResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/login")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getUserCredentialDTO()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -84,32 +84,32 @@ public class SecurityResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/authorize")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(USER));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(envStatusListener).registerSession(refEq(TestHelper.getUserInfo()));
+		verify(envStatusListener).registerSession(refEq(getUserInfo()));
 		verify(configuration).isRolePolicyEnabled();
 		verifyNoMoreInteractions(envStatusListener, configuration);
 	}
 
 	@Test
 	public void authorizeWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(envStatusListener).registerSession(any(UserInfo.class));
 		when(configuration.isRolePolicyEnabled()).thenReturn(false);
 		final Response response = resources.getJerseyTest()
 				.target("/user/authorize")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(USER));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(envStatusListener).registerSession(refEq(TestHelper.getUserInfo()));
+		verify(envStatusListener).registerSession(refEq(getUserInfo()));
 		verify(configuration).isRolePolicyEnabled();
 		verifyNoMoreInteractions(envStatusListener, configuration);
 	}
@@ -122,13 +122,13 @@ public class SecurityResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/authorize")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(USER));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(envStatusListener).registerSession(refEq(TestHelper.getUserInfo()));
+		verify(envStatusListener).registerSession(refEq(getUserInfo()));
 		verify(configuration).isRolePolicyEnabled();
 		verify(configuration).getRoleDefaultAccess();
 		verifyNoMoreInteractions(envStatusListener, configuration);
@@ -141,7 +141,7 @@ public class SecurityResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/authorize")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json("someUser"));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
@@ -157,33 +157,33 @@ public class SecurityResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/authorize")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.USER));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(USER));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(envStatusListener).registerSession(refEq(TestHelper.getUserInfo()));
+		verify(envStatusListener).registerSession(refEq(getUserInfo()));
 		verifyNoMoreInteractions(envStatusListener);
 		verifyZeroInteractions(configuration);
 	}
 
 	@Test
 	public void userLogoutWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(envStatusListener).unregisterSession(any(UserInfo.class));
 		when(securityService.post(anyString(), anyString(), any())).thenReturn(mock(Response.class));
 		final Response response = resources.getJerseyTest()
 				.target("/user/logout")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.valueOf("text/html;charset=ISO-8859-1"), response.getMediaType());
 
-		verify(envStatusListener).unregisterSession(refEq(TestHelper.getUserInfo()));
-		verify(securityService).post(eq("logout"), eq(TestHelper.TOKEN), eq(Response.class));
+		verify(envStatusListener).unregisterSession(refEq(getUserInfo()));
+		verify(securityService).post(eq("logout"), eq(TOKEN), eq(Response.class));
 		verifyNoMoreInteractions(envStatusListener, securityService);
 	}
 
@@ -194,22 +194,22 @@ public class SecurityResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/logout")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.valueOf("text/html;charset=ISO-8859-1"), response.getMediaType());
 
-		verify(envStatusListener).unregisterSession(refEq(TestHelper.getUserInfo()));
-		verify(securityService).post(eq("logout"), eq(TestHelper.TOKEN), eq(Response.class));
+		verify(envStatusListener).unregisterSession(refEq(getUserInfo()));
+		verify(securityService).post(eq("logout"), eq(TOKEN), eq(Response.class));
 		verifyNoMoreInteractions(envStatusListener, securityService);
 	}
 
 	private UserCredentialDTO getUserCredentialDTO() {
 		UserCredentialDTO userCredentialDTO = new UserCredentialDTO();
-		userCredentialDTO.setUsername(TestHelper.USER);
+		userCredentialDTO.setUsername(USER);
 		userCredentialDTO.setPassword("somePass");
-		userCredentialDTO.setAccessToken(TestHelper.TOKEN);
+		userCredentialDTO.setAccessToken(TOKEN);
 		return userCredentialDTO;
 	}
 }

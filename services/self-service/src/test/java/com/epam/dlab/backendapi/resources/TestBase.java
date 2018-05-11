@@ -15,19 +15,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestHelper {
+public class TestBase {
 
-	static final String TOKEN = "TOKEN";
-	static final String USER = "testUser";
+	protected final String TOKEN = "TOKEN";
+	protected final String USER = "testUser";
 	@SuppressWarnings("unchecked")
 	private static Authenticator<String, UserInfo> authenticator = mock(Authenticator.class);
 	@SuppressWarnings("unchecked")
 	private static Authorizer<UserInfo> authorizer = mock(Authorizer.class);
 
-	private TestHelper() {
-	}
-
-	static <T> ResourceTestRule getResourceTestRuleInstance(T resourceInstance) {
+	protected <T> ResourceTestRule getResourceTestRuleInstance(T resourceInstance) {
 		return ResourceTestRule.builder()
 				.setTestContainerFactory(new GrizzlyWebTestContainerFactory())
 				.addProvider(new AuthDynamicFeature(new OAuthCredentialAuthFilter.Builder<UserInfo>()
@@ -44,17 +41,17 @@ public class TestHelper {
 				.build();
 	}
 
-	static void authSetup() throws AuthenticationException {
+	protected void authSetup() throws AuthenticationException {
 		when(authenticator.authenticate(TOKEN)).thenReturn(Optional.of(getUserInfo()));
 		when(authorizer.authorize(any(), any())).thenReturn(true);
 	}
 
-	static void authFailSetup() throws AuthenticationException {
+	protected void authFailSetup() throws AuthenticationException {
 		when(authenticator.authenticate(TOKEN)).thenReturn(Optional.of(getUserInfo()));
 		when(authorizer.authorize(any(), any())).thenReturn(false);
 	}
 
-	public static UserInfo getUserInfo() {
+	protected UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
 }

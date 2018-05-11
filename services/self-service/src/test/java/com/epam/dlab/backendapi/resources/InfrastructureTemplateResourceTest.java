@@ -24,17 +24,17 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class InfrastructureTemplateResourceTest {
+public class InfrastructureTemplateResourceTest extends TestBase {
 
 	private InfrastructureTemplateService infrastructureTemplateService = mock(InfrastructureTemplateService.class);
 
 	@Rule
 	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new InfrastructureTemplateResource(infrastructureTemplateService));
+			getResourceTestRuleInstance(new InfrastructureTemplateResource(infrastructureTemplateService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -46,19 +46,19 @@ public class InfrastructureTemplateResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_templates/computational_templates")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getComputationalTemplates(TestHelper.getUserInfo());
+		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo());
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
 	@Test
 	public void getComputationalTemplatesWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		FullComputationalTemplate fullComputationalTemplate =
 				new FullComputationalTemplate(new ComputationalMetadataDTO());
 		when(infrastructureTemplateService.getComputationalTemplates(any(UserInfo.class)))
@@ -66,13 +66,13 @@ public class InfrastructureTemplateResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_templates/computational_templates")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getComputationalTemplates(TestHelper.getUserInfo());
+		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo());
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
@@ -83,13 +83,13 @@ public class InfrastructureTemplateResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_templates/computational_templates")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getComputationalTemplates(TestHelper.getUserInfo());
+		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo());
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
@@ -102,7 +102,7 @@ public class InfrastructureTemplateResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_templates/exploratory_templates")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -111,13 +111,13 @@ public class InfrastructureTemplateResourceTest {
 				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getExploratoryTemplates(TestHelper.getUserInfo());
+		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo());
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
 	@Test
 	public void getExploratoryTemplatesWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		ExploratoryMetadataDTO exploratoryMetadataDTO =
 				new ExploratoryMetadataDTO("someImageName");
 		when(infrastructureTemplateService.getExploratoryTemplates(any(UserInfo.class)))
@@ -125,7 +125,7 @@ public class InfrastructureTemplateResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_templates/exploratory_templates")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -134,7 +134,7 @@ public class InfrastructureTemplateResourceTest {
 				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getExploratoryTemplates(TestHelper.getUserInfo());
+		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo());
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
@@ -146,13 +146,13 @@ public class InfrastructureTemplateResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_templates/exploratory_templates")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getExploratoryTemplates(TestHelper.getUserInfo());
+		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo());
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 }

@@ -26,17 +26,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class ExploratoryResourceTest {
+public class ExploratoryResourceTest extends TestBase {
 
 	private ExploratoryService exploratoryService = mock(ExploratoryService.class);
 
 	@Rule
-	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new ExploratoryResource(exploratoryService));
+	public final ResourceTestRule resources = getResourceTestRuleInstance(new ExploratoryResource(exploratoryService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -45,25 +44,25 @@ public class ExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(getExploratoryCreateFormDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).create(TestHelper.getUserInfo(), getExploratory(getExploratoryCreateFormDTO()));
+		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void createWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class))).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(getExploratoryCreateFormDTO()));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
@@ -79,7 +78,7 @@ public class ExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(getExploratoryCreateFormDTO()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -89,7 +88,7 @@ public class ExploratoryResourceTest {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).create(TestHelper.getUserInfo(), getExploratory(getExploratoryCreateFormDTO()));
+		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -99,7 +98,7 @@ public class ExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getExploratoryActionFormDTO()));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
@@ -111,12 +110,12 @@ public class ExploratoryResourceTest {
 
 	@Test
 	public void startWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getExploratoryActionFormDTO()));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
@@ -131,32 +130,32 @@ public class ExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/someName/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).stop(TestHelper.getUserInfo(), "someName");
+		verify(exploratoryService).stop(getUserInfo(), "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void stopWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/someName/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).stop(TestHelper.getUserInfo(), "someName");
+		verify(exploratoryService).stop(getUserInfo(), "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -167,7 +166,7 @@ public class ExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/someName/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -177,7 +176,7 @@ public class ExploratoryResourceTest {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).stop(TestHelper.getUserInfo(), "someName");
+		verify(exploratoryService).stop(getUserInfo(), "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -187,32 +186,32 @@ public class ExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/someName/terminate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).terminate(TestHelper.getUserInfo(), "someName");
+		verify(exploratoryService).terminate(getUserInfo(), "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void terminateWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/someName/terminate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).terminate(TestHelper.getUserInfo(), "someName");
+		verify(exploratoryService).terminate(getUserInfo(), "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -223,7 +222,7 @@ public class ExploratoryResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/someName/terminate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -233,7 +232,7 @@ public class ExploratoryResourceTest {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).terminate(TestHelper.getUserInfo(), "someName");
+		verify(exploratoryService).terminate(getUserInfo(), "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 

@@ -21,17 +21,16 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.*;
 
-public class UserSettingsResourceTest {
+public class UserSettingsResourceTest extends TestBase {
 
 	private UserSettingsDAO userSettingsDAO = mock(UserSettingsDAO.class);
 
 	@Rule
-	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new UserSettingsResource(userSettingsDAO));
+	public final ResourceTestRule resources = getResourceTestRuleInstance(new UserSettingsResource(userSettingsDAO));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -40,32 +39,32 @@ public class UserSettingsResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someSettings", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).getUISettings(refEq(TestHelper.getUserInfo()));
+		verify(userSettingsDAO).getUISettings(refEq(getUserInfo()));
 		verifyNoMoreInteractions(userSettingsDAO);
 	}
 
 	@Test
 	public void getSettingsWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(userSettingsDAO.getUISettings(any(UserInfo.class))).thenReturn("someSettings");
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someSettings", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).getUISettings(refEq(TestHelper.getUserInfo()));
+		verify(userSettingsDAO).getUISettings(refEq(getUserInfo()));
 		verifyNoMoreInteractions(userSettingsDAO);
 	}
 
@@ -75,30 +74,30 @@ public class UserSettingsResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json("someSettings"));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).setUISettings(refEq(TestHelper.getUserInfo()), eq("someSettings"));
+		verify(userSettingsDAO).setUISettings(refEq(getUserInfo()), eq("someSettings"));
 		verifyNoMoreInteractions(userSettingsDAO);
 	}
 
 	@Test
 	public void saveSettingsWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(userSettingsDAO).setUISettings(any(UserInfo.class), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json("someSettings"));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).setUISettings(refEq(TestHelper.getUserInfo()), eq("someSettings"));
+		verify(userSettingsDAO).setUISettings(refEq(getUserInfo()), eq("someSettings"));
 		verifyNoMoreInteractions(userSettingsDAO);
 	}
 
@@ -108,7 +107,7 @@ public class UserSettingsResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json("someSettings"));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -116,7 +115,7 @@ public class UserSettingsResourceTest {
 				"processing your request. It has been logged"));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).setUISettings(refEq(TestHelper.getUserInfo()), eq("someSettings"));
+		verify(userSettingsDAO).setUISettings(refEq(getUserInfo()), eq("someSettings"));
 		verifyNoMoreInteractions(userSettingsDAO);
 	}
 }

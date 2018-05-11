@@ -20,17 +20,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
-public class InfrastructureInfoResourceTest {
+public class InfrastructureInfoResourceTest extends TestBase {
 
 	private InfrastructureInfoService infrastructureInfoService = mock(InfrastructureInfoService.class);
 
 	@Rule
 	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new InfrastructureInfoResource(infrastructureInfoService));
+			getResourceTestRuleInstance(new InfrastructureInfoResource(infrastructureInfoService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class InfrastructureInfoResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -49,11 +49,11 @@ public class InfrastructureInfoResourceTest {
 
 	@Test
 	public void statusWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -70,34 +70,34 @@ public class InfrastructureInfoResourceTest {
 				.target("/infrastructure/status")
 				.queryParam("full", "1")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(TestHelper.USER.toLowerCase()), eq(true), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(true), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
 	@Test
 	public void healthStatusWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		HealthStatusPageDTO hspDto = getHealthStatusPageDTO();
 		when(infrastructureInfoService.getHeathStatus(anyString(), anyBoolean(), anyBoolean())).thenReturn(hspDto);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.queryParam("full", "1")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(TestHelper.USER.toLowerCase()), eq(true), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(true), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
@@ -108,14 +108,14 @@ public class InfrastructureInfoResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(TestHelper.USER.toLowerCase()), eq(false), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(false), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
@@ -126,13 +126,13 @@ public class InfrastructureInfoResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(TestHelper.USER.toLowerCase()), eq(false), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(false), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
@@ -143,33 +143,33 @@ public class InfrastructureInfoResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/info")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(info.toString(), response.readEntity(InfrastructureInfo.class).toString());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getUserResources(TestHelper.USER.toLowerCase());
+		verify(infrastructureInfoService).getUserResources(USER.toLowerCase());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
 	@Test
 	public void getUserResourcesWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		InfrastructureInfo info = getInfrastructureInfo();
 		when(infrastructureInfoService.getUserResources(anyString())).thenReturn(info);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/info")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(info.toString(), response.readEntity(InfrastructureInfo.class).toString());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getUserResources(TestHelper.USER.toLowerCase());
+		verify(infrastructureInfoService).getUserResources(USER.toLowerCase());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
@@ -180,13 +180,13 @@ public class InfrastructureInfoResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/info")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getUserResources(TestHelper.USER.toLowerCase());
+		verify(infrastructureInfoService).getUserResources(USER.toLowerCase());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 

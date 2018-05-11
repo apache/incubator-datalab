@@ -20,16 +20,16 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class EdgeResourceTest {
+public class EdgeResourceTest extends TestBase {
 
 	private EdgeService edgeService = mock(EdgeService.class);
 
 	@Rule
-	public final ResourceTestRule resources = TestHelper.getResourceTestRuleInstance(new EdgeResource(edgeService));
+	public final ResourceTestRule resources = getResourceTestRuleInstance(new EdgeResource(edgeService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -38,32 +38,32 @@ public class EdgeResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/edge/start")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.getUserInfo()));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getUserInfo()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(edgeService).start(TestHelper.getUserInfo());
+		verify(edgeService).start(getUserInfo());
 		verifyNoMoreInteractions(edgeService);
 	}
 
 	@Test
 	public void startWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(edgeService.start(any(UserInfo.class))).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/edge/start")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.getUserInfo()));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getUserInfo()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(edgeService).start(TestHelper.getUserInfo());
+		verify(edgeService).start(getUserInfo());
 		verifyNoMoreInteractions(edgeService);
 	}
 
@@ -73,8 +73,8 @@ public class EdgeResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/edge/start")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.getUserInfo()));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getUserInfo()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		String expectedJson = "\"code\":500,\"message\":\"There was an error processing your request. " +
@@ -83,7 +83,7 @@ public class EdgeResourceTest {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(edgeService).start(TestHelper.getUserInfo());
+		verify(edgeService).start(getUserInfo());
 		verifyNoMoreInteractions(edgeService);
 	}
 
@@ -93,32 +93,32 @@ public class EdgeResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/edge/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.getUserInfo()));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getUserInfo()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(edgeService).stop(TestHelper.getUserInfo());
+		verify(edgeService).stop(getUserInfo());
 		verifyNoMoreInteractions(edgeService);
 	}
 
 	@Test
 	public void stopWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(edgeService.stop(any(UserInfo.class))).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/edge/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.getUserInfo()));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getUserInfo()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(edgeService).stop(TestHelper.getUserInfo());
+		verify(edgeService).stop(getUserInfo());
 		verifyNoMoreInteractions(edgeService);
 	}
 
@@ -128,8 +128,8 @@ public class EdgeResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/edge/stop")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
-				.post(Entity.json(TestHelper.getUserInfo()));
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getUserInfo()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		String expectedJson = "\"code\":500,\"message\":\"There was an error processing your request. " +
@@ -138,7 +138,7 @@ public class EdgeResourceTest {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(edgeService).stop(TestHelper.getUserInfo());
+		verify(edgeService).stop(getUserInfo());
 		verifyNoMoreInteractions(edgeService);
 	}
 

@@ -24,17 +24,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class GitCredsResourceTest {
+public class GitCredsResourceTest extends TestBase {
 
 	private GitCredentialService gitCredentialService = mock(GitCredentialService.class);
 
 	@Rule
-	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new GitCredsResource(gitCredentialService));
+	public final ResourceTestRule resources = getResourceTestRuleInstance(new GitCredsResource(gitCredentialService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -44,33 +43,33 @@ public class GitCredsResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/git_creds")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(getExploratoryGitCredsDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(gitCredentialService)
-				.updateGitCredentials(refEq(TestHelper.getUserInfo()), refEq(getExploratoryGitCredsDTO(), "self"));
+				.updateGitCredentials(refEq(getUserInfo()), refEq(getExploratoryGitCredsDTO(), "self"));
 		verifyNoMoreInteractions(gitCredentialService);
 	}
 
 	@Test
 	public void updateGitCredsWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		doNothing().when(gitCredentialService).updateGitCredentials(any(UserInfo.class),
 				any(ExploratoryGitCredsDTO.class));
 		final Response response = resources.getJerseyTest()
 				.target("/user/git_creds")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(getExploratoryGitCredsDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(gitCredentialService)
-				.updateGitCredentials(refEq(TestHelper.getUserInfo()), refEq(getExploratoryGitCredsDTO(), "self"));
+				.updateGitCredentials(refEq(getUserInfo()), refEq(getExploratoryGitCredsDTO(), "self"));
 		verifyNoMoreInteractions(gitCredentialService);
 	}
 
@@ -81,13 +80,13 @@ public class GitCredsResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/git_creds")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(getExploratoryGitCredsDTO()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(gitCredentialService).updateGitCredentials(refEq(TestHelper.getUserInfo()),
+		verify(gitCredentialService).updateGitCredentials(refEq(getUserInfo()),
 				refEq(getExploratoryGitCredsDTO(), "self"));
 		verifyNoMoreInteractions(gitCredentialService);
 	}
@@ -99,33 +98,33 @@ public class GitCredsResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/git_creds")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(egcDto.getGitCreds(), response.readEntity(ExploratoryGitCredsDTO.class).getGitCreds());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(gitCredentialService).getGitCredentials(TestHelper.USER.toLowerCase());
+		verify(gitCredentialService).getGitCredentials(USER.toLowerCase());
 		verifyNoMoreInteractions(gitCredentialService);
 	}
 
 	@Test
 	public void getGitCredsWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		ExploratoryGitCredsDTO egcDto = getExploratoryGitCredsDTO();
 		when(gitCredentialService.getGitCredentials(anyString())).thenReturn(egcDto);
 		final Response response = resources.getJerseyTest()
 				.target("/user/git_creds")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(egcDto.getGitCreds(), response.readEntity(ExploratoryGitCredsDTO.class).getGitCreds());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(gitCredentialService).getGitCredentials(TestHelper.USER.toLowerCase());
+		verify(gitCredentialService).getGitCredentials(USER.toLowerCase());
 		verifyNoMoreInteractions(gitCredentialService);
 	}
 
@@ -136,13 +135,13 @@ public class GitCredsResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/git_creds")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(gitCredentialService).getGitCredentials(TestHelper.USER.toLowerCase());
+		verify(gitCredentialService).getGitCredentials(USER.toLowerCase());
 		verifyNoMoreInteractions(gitCredentialService);
 	}
 

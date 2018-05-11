@@ -24,17 +24,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class KeyUploaderResourceTest {
+public class KeyUploaderResourceTest extends TestBase {
 
 	private AccessKeyService keyService = mock(AccessKeyService.class);
 
 	@Rule
-	public final ResourceTestRule resources =
-			TestHelper.getResourceTestRuleInstance(new KeyUploaderResource(keyService));
+	public final ResourceTestRule resources = getResourceTestRuleInstance(new KeyUploaderResource(keyService));
 
 	@Before
 	public void setup() throws AuthenticationException {
-		TestHelper.authSetup();
+		authSetup();
 	}
 
 	@Test
@@ -43,30 +42,30 @@ public class KeyUploaderResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).getUserKeyStatus(TestHelper.USER.toLowerCase());
+		verify(keyService).getUserKeyStatus(USER.toLowerCase());
 		verifyNoMoreInteractions(keyService);
 	}
 
 	@Test
 	public void checkKeyWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(keyService.getUserKeyStatus(anyString())).thenReturn(KeyLoadStatus.SUCCESS);
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).getUserKeyStatus(TestHelper.USER.toLowerCase());
+		verify(keyService).getUserKeyStatus(USER.toLowerCase());
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -76,13 +75,13 @@ public class KeyUploaderResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).getUserKeyStatus(TestHelper.USER.toLowerCase());
+		verify(keyService).getUserKeyStatus(USER.toLowerCase());
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -97,19 +96,19 @@ public class KeyUploaderResourceTest {
 				.target("/user/access_key")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).uploadKey(TestHelper.getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", true);
+		verify(keyService).uploadKey(getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", true);
 		verifyNoMoreInteractions(keyService);
 	}
 
 	@Test
 	public void loadKeyWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(keyService.uploadKey(any(UserInfo.class), anyString(), anyBoolean())).thenReturn("someUuid");
 
 		FormDataMultiPart multiPart = new FormDataMultiPart()
@@ -119,13 +118,13 @@ public class KeyUploaderResourceTest {
 				.target("/user/access_key")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).uploadKey(TestHelper.getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", true);
+		verify(keyService).uploadKey(getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", true);
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -140,7 +139,7 @@ public class KeyUploaderResourceTest {
 				.target("/user/access_key")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -161,13 +160,13 @@ public class KeyUploaderResourceTest {
 				.target("/user/access_key")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).uploadKey(TestHelper.getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", true);
+		verify(keyService).uploadKey(getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", true);
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -183,19 +182,19 @@ public class KeyUploaderResourceTest {
 				.queryParam("is_primary_uploading", "false")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).uploadKey(TestHelper.getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", false);
+		verify(keyService).uploadKey(getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", false);
 		verifyNoMoreInteractions(keyService);
 	}
 
 	@Test
 	public void reuploadKeyWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(keyService.uploadKey(any(UserInfo.class), anyString(), anyBoolean())).thenReturn("someUuid");
 
 		FormDataMultiPart multiPart = new FormDataMultiPart()
@@ -206,13 +205,13 @@ public class KeyUploaderResourceTest {
 				.queryParam("is_primary_uploading", "false")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).uploadKey(TestHelper.getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", false);
+		verify(keyService).uploadKey(getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", false);
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -228,7 +227,7 @@ public class KeyUploaderResourceTest {
 				.queryParam("is_primary_uploading", "false")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -250,13 +249,13 @@ public class KeyUploaderResourceTest {
 				.queryParam("is_primary_uploading", "false")
 				.register(MultiPartFeature.class)
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.entity(multiPart, multiPart.getMediaType()));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).uploadKey(TestHelper.getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", false);
+		verify(keyService).uploadKey(getUserInfo(), "ssh-h;glfh;lgfmhgfmmgfkl", false);
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -267,31 +266,31 @@ public class KeyUploaderResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/recover")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).recoverEdge(TestHelper.getUserInfo());
+		verify(keyService).recoverEdge(getUserInfo());
 		verifyNoMoreInteractions(keyService);
 	}
 
 	@Test
 	public void recoverEdgeWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(keyService.recoverEdge(any(UserInfo.class))).thenReturn("someUuid");
 
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/recover")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).recoverEdge(TestHelper.getUserInfo());
+		verify(keyService).recoverEdge(getUserInfo());
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -303,13 +302,13 @@ public class KeyUploaderResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/recover")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).recoverEdge(TestHelper.getUserInfo());
+		verify(keyService).recoverEdge(getUserInfo());
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -320,31 +319,31 @@ public class KeyUploaderResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/generate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).generateKey(TestHelper.getUserInfo());
+		verify(keyService).generateKey(getUserInfo());
 		verifyNoMoreInteractions(keyService);
 	}
 
 	@Test
 	public void generateKeyWithFailedAuth() throws AuthenticationException {
-		TestHelper.authFailSetup();
+		authFailSetup();
 		when(keyService.generateKey(any(UserInfo.class))).thenReturn("someUuid");
 
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/generate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).generateKey(TestHelper.getUserInfo());
+		verify(keyService).generateKey(getUserInfo());
 		verifyNoMoreInteractions(keyService);
 	}
 
@@ -356,13 +355,13 @@ public class KeyUploaderResourceTest {
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/generate")
 				.request()
-				.header("Authorization", "Bearer " + TestHelper.TOKEN)
+				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(""));
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).generateKey(TestHelper.getUserInfo());
+		verify(keyService).generateKey(getUserInfo());
 		verifyNoMoreInteractions(keyService);
 	}
 
