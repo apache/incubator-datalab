@@ -25,21 +25,23 @@ import java.util.List;
 @Slf4j
 public class ImageExploratoryResource {
 
-	@Inject
 	private ImageExploratoryService imageExploratoryService;
-
-	@Inject
 	private RequestId requestId;
 
-	@Context
-	private UriInfo uriInfo;
+	@Inject
+	public ImageExploratoryResource(ImageExploratoryService imageExploratoryService, RequestId requestId) {
+		this.imageExploratoryService = imageExploratoryService;
+		this.requestId = requestId;
+	}
 
 	@POST
-	public Response createImage(@Auth UserInfo ui, @Valid @NotNull ExploratoryImageCreateFormDTO formDTO) {
+	public Response createImage(@Auth UserInfo ui, @Valid @NotNull ExploratoryImageCreateFormDTO formDTO,
+								@Context UriInfo uriInfo) {
 		log.debug("Creating an image {} for user {}", formDTO, ui.getName());
 		String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), formDTO.getName(), formDTO
 				.getDescription());
 		requestId.put(ui.getName(), uuid);
+
 		final URI imageUri = UriBuilder.fromUri(uriInfo.getRequestUri())
 				.path(formDTO.getName())
 				.build();

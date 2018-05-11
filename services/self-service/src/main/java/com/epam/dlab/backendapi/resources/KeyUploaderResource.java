@@ -49,8 +49,12 @@ import java.util.stream.Collectors;
 public class KeyUploaderResource implements EdgeAPI {
 
 	private static final String FILE_ATTACHMENT_FORMAT = "attachment; filename=\"%s.pem\"";
-	@Inject
 	private AccessKeyService keyService;
+
+	@Inject
+	public KeyUploaderResource(AccessKeyService keyService) {
+		this.keyService = keyService;
+	}
 
 	/**
 	 * Finds and returns the status of the user key.
