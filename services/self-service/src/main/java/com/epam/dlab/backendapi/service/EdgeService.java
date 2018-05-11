@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 
 public interface EdgeService {
@@ -8,4 +9,6 @@ public interface EdgeService {
 	String stop(UserInfo userInfo);
 
 	String terminate(UserInfo userInfo);
+
+	void updateReuploadKeyFlag(String user, boolean reuploadKeyRequired, UserInstanceStatus... edgeStatuses);
 }

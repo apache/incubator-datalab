@@ -375,16 +375,18 @@ public class ExploratoryServiceImplTest {
 		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(), anyBoolean(),
 				any(UserInstanceStatus.class));
 		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
-				any(List.class), any(DataEngineType.class), anyBoolean(), any(UserInstanceStatus.class));
+				any(List.class), any(List.class), anyBoolean(), any(UserInstanceStatus.class));
 
-		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
+		exploratoryService.updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
 
 		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, true, UserInstanceStatus.STOPPED);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				Collections.singletonList(UserInstanceStatus.RUNNING), DataEngineType.SPARK_STANDALONE, true,
+				Collections.singletonList(UserInstanceStatus.RUNNING),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true,
 				UserInstanceStatus.STOPPED);
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				Collections.singletonList(UserInstanceStatus.STOPPED), DataEngineType.SPARK_STANDALONE, true,
+				Collections.singletonList(UserInstanceStatus.STOPPED),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true,
 				UserInstanceStatus.STOPPED);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}

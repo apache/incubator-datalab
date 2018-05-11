@@ -67,8 +67,8 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 			selfService.post(callbackUrl, statusDTO, Response.class);
 		} catch (Exception e) {
 			log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
-			throw new DlabException("Send request or response error for UUID " + uuid + ": " + e.getLocalizedMessage()
-					, e);
+			throw new DlabException("Send request or response error for UUID " + uuid + ": "
+					+ e.getLocalizedMessage(), e);
 		}
 	}
 

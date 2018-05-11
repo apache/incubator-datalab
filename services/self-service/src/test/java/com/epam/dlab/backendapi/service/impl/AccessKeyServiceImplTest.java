@@ -86,7 +86,8 @@ public class AccessKeyServiceImplTest {
 	@Test
 	public void uploadKey() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg
+				());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -102,7 +103,7 @@ public class AccessKeyServiceImplTest {
 		assertEquals(expectedUuid, actualUuid);
 
 		verify(keyDAO).upsertKey(USER, keyContent, true);
-		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
+		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, keyContent);
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
@@ -113,7 +114,7 @@ public class AccessKeyServiceImplTest {
 	@Test
 	public void uploadKeyWithException() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 
 		expectedException.expect(RuntimeException.class);
@@ -138,7 +139,7 @@ public class AccessKeyServiceImplTest {
 		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any())).
 				thenReturn(expectedUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 
 		String keyContent = "keyContent";
 		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
@@ -149,7 +150,7 @@ public class AccessKeyServiceImplTest {
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
 		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
-		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
+		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
 		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
 	}
 

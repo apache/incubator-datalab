@@ -224,8 +224,8 @@ public class SchedulerJobServiceImplTest {
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getBeginDate() == null);
-		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
+		assertNull(schedulerJobDTO.getBeginDate());
+		assertNull(schedulerJobDTO.getTimeZoneOffset());
 
 		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
@@ -240,13 +240,14 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void updateSchedulerDataForUserAndExploratoryWithSyncStartRequiredParam() {
 		userInstance.withStatus("running");
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), anyVararg())).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
@@ -255,7 +256,8 @@ public class SchedulerJobServiceImplTest {
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, STARTING, RUNNING, STOPPING, STOPPED);
 		verify(computationalDAO).updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
 				COMPUTATIONAL_NAME, schedulerJobDTO);
@@ -263,20 +265,22 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void updateSchedulerDataForUserAndExploratoryWithSyncStartRequiredParamButAbsenceClusters() {
 		userInstance.withStatus("running");
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), anyVararg())).thenReturn(Collections.emptyList());
 
 		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, STARTING, RUNNING, STOPPING, STOPPED);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
@@ -370,8 +374,8 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getBeginDate() == null);
-		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
+		assertNull(schedulerJobDTO.getBeginDate());
+		assertNull(schedulerJobDTO.getTimeZoneOffset());
 
 		schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
@@ -407,6 +411,7 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void executeStartExploratoryJobWithSparkClusters() {
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), anyBoolean()))
@@ -415,7 +420,7 @@ public class SchedulerJobServiceImplTest {
 		when(schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(anyString(), anyString()))
 				.thenReturn(Optional.of(schedulerJobDTO));
 		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), any(UserInstanceStatus.class))).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
 
 		LocalDate notebookBeginDate = schedulerJobDTO.getBeginDate();
@@ -451,7 +456,8 @@ public class SchedulerJobServiceImplTest {
 
 		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.RUNNING), eq(false));
 		verify(schedulerJobDAO).fetchSingleSchedulerJobByUserAndExploratory(USER, EXPLORATORY_NAME);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, UserInstanceStatus.STOPPED);
 		verify(schedulerJobDAO).fetchSingleSchedulerJobForCluster(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verify(systemUserService, times(2)).create(USER);
@@ -462,6 +468,7 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void executeStartExploratoryJobWithSparkClustersWhenNotebookAndClusterSchedulersAreNotEqual() {
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), anyBoolean()))
@@ -470,7 +477,7 @@ public class SchedulerJobServiceImplTest {
 		when(schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(anyString(), anyString()))
 				.thenReturn(Optional.of(schedulerJobDTO));
 		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), any(UserInstanceStatus.class))).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
 
 		LocalDate notebookBeginDate = schedulerJobDTO.getBeginDate();
@@ -504,7 +511,8 @@ public class SchedulerJobServiceImplTest {
 
 		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.RUNNING), eq(false));
 		verify(schedulerJobDAO).fetchSingleSchedulerJobByUserAndExploratory(USER, EXPLORATORY_NAME);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, UserInstanceStatus.STOPPED);
 		verify(schedulerJobDAO).fetchSingleSchedulerJobForCluster(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verify(systemUserService).create(USER);

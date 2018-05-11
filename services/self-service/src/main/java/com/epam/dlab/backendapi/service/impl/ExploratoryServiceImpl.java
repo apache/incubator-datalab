@@ -2,7 +2,10 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.*;
+import com.epam.dlab.backendapi.dao.ComputationalDAO;
+import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.dao.GitCredsDAO;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -48,8 +51,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
-	@Inject
-	private KeyDAO keyDAO;
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
@@ -96,51 +97,35 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	/**
-	 * Sets parameter 'reuploadKeyRequired' to 'true' for all corresponding user's instances. Herewith:
-	 * edge nodes may have statuses: 'starting', 'running', 'stopping', 'stopped';
-	 * exploratories may have statuses: 'creating', 'configuring', 'starting', 'running', 'stopping', 'stopped';
-	 * Spark clusters may have statuses: 'creating', 'configuring', 'starting', 'running', 'stopping', 'stopped';
-	 * dataengine-services may have statuses: 'creating', 'configuring', 'starting', 'running'.
+	 * Updates parameter 'reuploadKeyRequired' for corresponding user's exploratories with allowable statuses.
 	 *
-	 * @param user user.
+	 * @param user                user.
+	 * @param reuploadKeyRequired true/false.
+	 * @param exploratoryStatuses allowable exploratories' statuses.
 	 */
 	@Override
-	public void updateUserInstancesReuploadKeyFlag(String user) {
-		keyDAO.updateEdgeReuploadKey(user, true, STARTING, RUNNING, STOPPING, STOPPED);
-		exploratoryDAO.updateReuploadKeyForExploratories(user, true,
-				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user,
-				Arrays.asList(STARTING, RUNNING, STOPPING, STOPPED), DataEngineType.SPARK_STANDALONE,
-				true,
-				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user,
-				Collections.singletonList(RUNNING), DataEngineType.CLOUD_SERVICE,
-				true,
-				CREATING, CONFIGURING, STARTING, RUNNING);
+	public void updateExploratoriesReuploadKeyFlag(String user, boolean reuploadKeyRequired,
+												   UserInstanceStatus... exploratoryStatuses) {
+		exploratoryDAO.updateReuploadKeyForExploratories(user, reuploadKeyRequired, exploratoryStatuses);
 	}
 
 	/**
-	 * Returns list which contains full names of user's edge, exploratories and computational resources with predefined
+	 * Returns list which contains full names of user's exploratories and computational resources with predefined
 	 * statuses.
 	 *
 	 * @param user                user.
 	 * @param serviceBaseName     service base name.
-	 * @param edgeStatus          edge status.
 	 * @param exploratoryStatus   status for exploratory environment.
 	 * @param computationalStatus status for computational resource affiliated with the exploratory.
-	 * @return list with names of user's resources (edge node, notebooks and clusters) in format 'SBN-user-edge'
-	 * (edge node), 'SBN-user-nb-notebookName' (notebook), 'SBN-user-de/des-notebookName-clusterName' (cluster).
+	 * @return list with names of user's resources (notebooks and clusters) in format
+	 * 'SBN-user-nb-notebookName' (notebook), 'SBN-user-de/des-notebookName-clusterName' (cluster).
 	 */
 	public List<String> getResourcesForKeyReuploading(String user, String serviceBaseName,
-													  UserInstanceStatus edgeStatus,
 													  UserInstanceStatus exploratoryStatus,
 													  UserInstanceStatus computationalStatus) {
 		Map<String, List<String>> populatedResources = getPopulatedExploratoriesWithComputationalResources(user,
 				serviceBaseName, exploratoryStatus, computationalStatus);
 		List<String> resourceNames = new ArrayList<>();
-		if (edgeStatus == UserInstanceStatus.of(keyDAO.getEdgeStatus(user))) {
-			resourceNames.add(serviceBaseName + "-" + user + "-edge");
-		}
 		for (Map.Entry<String, List<String>> entry : populatedResources.entrySet()) {
 			resourceNames.add(entry.getKey());
 			resourceNames.addAll(entry.getValue());

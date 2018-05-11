@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-@Path("infrastructure/reupload_key")
+@Path("infrastructure/reupload_key/status")
 @Consumes(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ReuploadKeyCallback {
@@ -28,7 +28,6 @@ public class ReuploadKeyCallback {
 	private UriInfo uriInfo;
 
 	@POST
-	@Path("/status")
 	public Response status(ReuploadKeyStatusDTO dto) {
 		requestId.remove(dto.getRequestId());
 		accessKeyService.processReuploadKeyResponse(dto);

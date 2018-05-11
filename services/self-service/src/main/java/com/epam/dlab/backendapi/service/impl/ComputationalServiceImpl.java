@@ -42,6 +42,8 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
 
@@ -175,6 +177,25 @@ public class ComputationalServiceImpl implements ComputationalService {
 	public void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
 		sparkAction(userInfo, exploratoryName, computationalName, STARTING,
 				ComputationalAPI.COMPUTATIONAL_START_SPARK);
+	}
+
+	/**
+	 * Updates parameter 'reuploadKeyRequired' for corresponding user's computational resources with allowable statuses
+	 * which are affiliated with exploratories with theirs allowable statuses.
+	 *
+	 * @param user                  user.
+	 * @param exploratoryStatuses   allowable exploratories' statuses.
+	 * @param computationalTypes    type list of computational resource.
+	 * @param reuploadKeyRequired   true/false.
+	 * @param computationalStatuses allowable statuses for computational resources.
+	 */
+	@Override
+	public void updateComputationalsReuploadKeyFlag(String user, List<UserInstanceStatus> exploratoryStatuses,
+													List<DataEngineType> computationalTypes,
+													boolean reuploadKeyRequired,
+													UserInstanceStatus... computationalStatuses) {
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, exploratoryStatuses, computationalTypes,
+				reuploadKeyRequired, computationalStatuses);
 	}
 
 	private void sparkAction(UserInfo userInfo, String exploratoryName, String computationalName, UserInstanceStatus

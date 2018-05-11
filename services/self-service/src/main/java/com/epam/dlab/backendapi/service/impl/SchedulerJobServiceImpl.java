@@ -182,7 +182,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	 */
 	private void shareSchedulerJobDataToSparkClusters(String user, String exploratoryName, SchedulerJobDTO dto) {
 		List<String> correspondingSparkClusters = computationalDAO.getComputationalResourcesWhereStatusIn(user,
-				DataEngineType.SPARK_STANDALONE, exploratoryName, STARTING, RUNNING, STOPPING, STOPPED);
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), exploratoryName,
+				STARTING, RUNNING, STOPPING, STOPPED);
 		for (String sparkName : correspondingSparkClusters) {
 			log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new " +
 					"scheduler job data {}...", sparkName, exploratoryName, user, nullableJobDto(dto));
@@ -294,7 +295,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			return Collections.emptyList();
 		}
 		return computationalDAO.getComputationalResourcesWhereStatusIn(user,
-				DataEngineType.SPARK_STANDALONE, exploratoryName, STOPPED).stream()
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), exploratoryName, STOPPED).stream()
 				.filter(clusterName -> isClusterSchedulerPresentAndEqualToAnotherForSyncStarting(user, exploratoryName,
 						clusterName, schedulerJobForExploratory.get())).collect(Collectors.toList());
 	}

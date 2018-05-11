@@ -261,9 +261,39 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
+	 * Updates the status for all user's corresponding exploratories in Mongo database.
+	 *
+	 * @param newExploratoryStatus   new status for exploratories.
+	 * @param user                   user name.
+	 * @param oldExploratoryStatuses old statuses of exploratories.
+	 */
+	public void updateStatusForExploratories(UserInstanceStatus newExploratoryStatus, String user,
+											 UserInstanceStatus... oldExploratoryStatuses) {
+		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, oldExploratoryStatuses),
+				set(STATUS, newExploratoryStatus.toString()));
+	}
+
+	/**
+	 * Updates status for single exploratory in Mongo database.
+	 *
+	 * @param user            user.
+	 * @param exploratoryName name of exploratory.
+	 * @param newStatus       new status of exploratory.
+	 * @return The result of an update operation.
+	 */
+	public UpdateResult updateStatusForSingleExploratory(String user, String exploratoryName,
+														 UserInstanceStatus newStatus) {
+		return updateOne(USER_INSTANCES,
+				exploratoryCondition(user, exploratoryName),
+				set(STATUS, newStatus.toString()));
+	}
+
+	/**
 	 * Updates the scheduler's data for exploratory in Mongo database.
 	 *
-	 * @param dto object of scheduler data.
+	 * @param user             user.
+	 * @param exploratoryName  name of exploratory.
+	 * @param dto              object of scheduler data.
 	 * @return The result of an update operation.
 	 */
 	public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName,
