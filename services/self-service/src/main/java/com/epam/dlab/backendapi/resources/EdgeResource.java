@@ -37,8 +37,13 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class EdgeResource implements EdgeAPI {
+
+	private final EdgeService edgeService;
+
 	@Inject
-	private EdgeService edgeService;
+	public EdgeResource(EdgeService edgeService) {
+		this.edgeService = edgeService;
+	}
 
 	/**
 	 * Starts EDGE node for user.
