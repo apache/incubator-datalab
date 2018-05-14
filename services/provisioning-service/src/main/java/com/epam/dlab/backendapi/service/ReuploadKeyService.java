@@ -44,7 +44,7 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 			newDto.withServiceBaseName(dto.getServiceBaseName());
 			newDto.withConfOsFamily(dto.getConfOsFamily());
 			newDto.withRunningResources(Collections.singletonList(resourceName));
-			command = commandBuilder.buildCommand(runDockerCommand, newDto);
+			command = commandBuilder.buildCommand(runDockerCommand, newDto).replaceAll("([\\[\\]])*", "");
 			log.trace("Docker command:  {}", command);
 			commandExecutor.executeAsync(userName, uuid, command);
 		}

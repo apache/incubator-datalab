@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -65,7 +66,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private void checkState(String user, String action) {
 		final List<UserInstanceDTO> userInstances = exploratoryDAO
-				.fetchUserExploratoriesWhereStatusIn(user, UserInstanceStatus.CREATING,
+				.fetchUserExploratoriesWhereStatusIn(user,
+						Arrays.asList(UserInstanceStatus.CREATING,
+								UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
+						UserInstanceStatus.CREATING,
 						UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
 		if (UserInstanceStatus.STARTING.toString().equals(keyDAO.getEdgeStatus(user)) || !userInstances.isEmpty()) {
 			log.error(String.format(ERROR_MSG_FORMAT, action));

@@ -132,28 +132,33 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 
 	public void processReuploadKeyResponse(ReuploadKeyStatusDTO dto) {
 		String resourceName = dto.getReuploadKeyDTO().getRunningResources().get(0);
-		String user = resourceName.split("-")[1];
-		if (resourceName.contains("-edge")) {
+		String[] resourceNameParts = resourceName.split("-");
+		if (resourceNameParts.length < 3 || resourceNameParts.length > 5) {
+			throw new DlabException("Couldn't process reupload key response: inappropriate resource name obtained.");
+		}
+		String user = resourceNameParts[1];
+		if (resourceName.contains("-edge") && resourceNameParts.length == 3) {
 			keyDAO.updateEdgeStatus(user, UserInstanceStatus.RUNNING.toString());
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
 				log.debug("Updating 'reupload_key_required' flag to 'false' for edge {}...", resourceName);
 				keyDAO.updateEdgeReuploadKey(user, false, UserInstanceStatus.values());
 			}
-		} else if (resourceName.contains("-de-") || resourceName.contains("-des-")) {
-			String exploratoryName = resourceName.split("-")[3];
-			String clusterName = resourceName.split("-")[4];
+		} else if (resourceName.contains("-nb-") && resourceNameParts.length == 4) {
+			String exploratoryName = resourceNameParts[3];
+			exploratoryDAO.updateStatusForSingleExploratory(user, exploratoryName, RUNNING);
+			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
+				log.debug("Updating 'reupload_key_required' flag to 'false' for notebook {}...", resourceName);
+				exploratoryDAO.updateReuploadKeyForSingleExploratory(user, exploratoryName, false);
+			}
+		} else if ((resourceName.contains("-de-") || resourceName.contains("-des-")) && resourceNameParts.length ==
+				5) {
+			String exploratoryName = resourceNameParts[3];
+			String clusterName = resourceNameParts[4];
 			computationalDAO.updateStatusForSingleComputationalResource(user, exploratoryName, clusterName, RUNNING);
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
 				log.debug("Updating 'reupload_key_required' flag to 'false' for cluster {}...", resourceName);
 				computationalDAO.updateReuploadKeyFlagForSingleComputationalResource(user, exploratoryName,
 						clusterName, false);
-			}
-		} else {
-			String exploratoryName = resourceName.split("-")[3];
-			exploratoryDAO.updateStatusForSingleExploratory(user, exploratoryName, RUNNING);
-			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug("Updating 'reupload_key_required' flag to 'false' for notebook {}...", resourceName);
-				exploratoryDAO.updateReuploadKeyForSingleExploratory(user, exploratoryName, false);
 			}
 		}
 	}
@@ -164,7 +169,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		List<String> resourcesForKeyReuploading = exploratoryService
 				.getResourcesForKeyReuploading(user.getName(), serviceBaseName, RUNNING, RUNNING);
 		if (RUNNING == UserInstanceStatus.of(keyDAO.getEdgeStatus(user.getName()))) {
-			resourcesForKeyReuploading.add(serviceBaseName + "-" + user + "-edge");
+			resourcesForKeyReuploading.add(String.join("-", serviceBaseName, user.getName(), "edge"));
 			keyDAO.updateEdgeStatus(user.getName(), UserInstanceStatus.REUPLOADING_KEY.toString());
 		}
 		updateStatusForUserResources(user.getName(), REUPLOADING_KEY);

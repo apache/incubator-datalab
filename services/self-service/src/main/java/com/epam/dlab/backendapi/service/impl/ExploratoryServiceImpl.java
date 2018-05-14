@@ -216,14 +216,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @return list of user's instances.
 	 */
 	private List<UserInstanceDTO> getExploratoriesWithPredefinedStatus(String user, UserInstanceStatus status) {
-		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, status);
+		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, true, status);
 	}
 
 	private String getPopulatedComputationalName(String user, String serviceBaseName, String exploratoryName,
 												 Map<String, String> computationalData) {
-		Optional<Map.Entry<String, String>> entry = computationalData.entrySet().stream().findAny();
-		return entry.isPresent() ? populatedComputationalName(serviceBaseName, user, entry.get().getValue(),
-				exploratoryName, entry.get().getKey()) : null;
+		return computationalData.entrySet().stream().findAny()
+				.map(e -> populatedComputationalName(serviceBaseName, user, e.getValue(), exploratoryName, e.getKey()))
+				.orElse(null);
 	}
 
 	private String populatedExploratoryName(String serviceBaseName, String user, String exploratoryName) {

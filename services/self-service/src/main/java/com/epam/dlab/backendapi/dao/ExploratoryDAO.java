@@ -136,22 +136,47 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param user user name.
 	 */
 	public List<UserInstanceDTO> fetchRunningExploratoryFields(String user) {
-		return getUserInstances(and(eq(USER, user), eq(STATUS, UserInstanceStatus.RUNNING.toString())));
+		return getUserInstances(and(eq(USER, user), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *
-	 * @param user user name.
-	 * @param statuses array of statuses.
+	 * @param user                         user name.
+	 * @param computationalFieldsRequired  true/false.
+	 * @param statuses                     array of statuses.
 	 */
-	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, UserInstanceStatus... statuses) {
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, boolean computationalFieldsRequired,
+																	 UserInstanceStatus... statuses) {
 		final List<String> statusList = statusList(statuses);
 		return getUserInstances(
 				and(
 						eq(USER, user),
-						or(in(STATUS, statusList), in(COMPUTATIONAL_RESOURCES + "." + STATUS, statusList))
-				));
+						in(STATUS, statusList)
+				),
+				computationalFieldsRequired);
+	}
+
+	/**
+	 * Finds and returns the info of all user's notebooks whose status or status of affiliated computational resource
+	 * is present among predefined ones.
+	 *
+	 * @param user                  user name.
+	 * @param exploratoryStatuses   array of exploratory statuses.
+	 * @param computationalStatuses array of computational statuses.
+	 */
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user,
+																	 List<UserInstanceStatus> exploratoryStatuses,
+																	 UserInstanceStatus... computationalStatuses) {
+		final List<String> exploratoryStatusList = statusList(exploratoryStatuses);
+		final List<String> computationalStatusList = statusList(computationalStatuses);
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						or(in(STATUS, exploratoryStatusList),
+								in(COMPUTATIONAL_RESOURCES + "." + STATUS, computationalStatusList))
+				),
+				false);
 	}
 
 	/**
@@ -166,13 +191,14 @@ public class ExploratoryDAO extends BaseDAO {
 				and(
 						eq(USER, user),
 						not(in(STATUS, statusList))
-				));
+				),
+				false);
 	}
 
-	private List<UserInstanceDTO> getUserInstances(Bson condition) {
+	private List<UserInstanceDTO> getUserInstances(Bson condition, boolean computationalFieldsRequired) {
 		return stream(getCollection(USER_INSTANCES)
 				.find(condition)
-				.projection(fields(exclude(COMPUTATIONAL_RESOURCES))))
+				.projection(computationalFieldsRequired ? null : fields(exclude(COMPUTATIONAL_RESOURCES))))
 				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
 				.collect(Collectors.toList());
 	}
