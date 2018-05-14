@@ -9,7 +9,6 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
@@ -27,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -374,21 +372,11 @@ public class ExploratoryServiceImplTest {
 	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
 		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(), anyBoolean(),
 				any(UserInstanceStatus.class));
-		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
-				any(List.class), any(List.class), anyBoolean(), any(UserInstanceStatus.class));
 
 		exploratoryService.updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
 
-		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, true, UserInstanceStatus.STOPPED);
-		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				Collections.singletonList(UserInstanceStatus.RUNNING),
-				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true,
-				UserInstanceStatus.STOPPED);
-		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				Collections.singletonList(UserInstanceStatus.STOPPED),
-				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true,
-				UserInstanceStatus.STOPPED);
-		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, true, UserInstanceStatus.RUNNING);
+		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	private UserInfo getUserInfo() {

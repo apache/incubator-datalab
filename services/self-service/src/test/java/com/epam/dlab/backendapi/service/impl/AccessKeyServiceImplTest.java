@@ -3,10 +3,16 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.ComputationalDAO;
+import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.ComputationalService;
+import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
@@ -24,8 +30,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static com.epam.dlab.UserInstanceStatus.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -47,6 +57,16 @@ public class AccessKeyServiceImplTest {
 	private RequestId requestId;
 	@Mock
 	private ExploratoryService exploratoryService;
+	@Mock
+	private ComputationalService computationalService;
+	@Mock
+	private EdgeService edgeService;
+	@Mock
+	private SettingsDAO settingsDAO;
+	@Mock
+	private ExploratoryDAO exploratoryDAO;
+	@Mock
+	private ComputationalDAO computationalDAO;
 	@Mock
 	private SelfServiceApplicationConfiguration configuration;
 
@@ -86,8 +106,8 @@ public class AccessKeyServiceImplTest {
 	@Test
 	public void uploadKey() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
-		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg
-				());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(),
+				anyVararg());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -103,11 +123,11 @@ public class AccessKeyServiceImplTest {
 		assertEquals(expectedUuid, actualUuid);
 
 		verify(keyDAO).upsertKey(USER, keyContent, true);
-		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
+		verifyZeroInteractions(exploratoryService);
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, keyContent);
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
-		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
 	}
 
 
@@ -130,28 +150,122 @@ public class AccessKeyServiceImplTest {
 	@SuppressWarnings("unchecked")
 	public void reUploadKey() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg
+				());
+		doNothing().when(computationalService).updateComputationalsReuploadKeyFlag(anyString(), any(List.class),
+				any(List.class), anyBoolean(), anyVararg());
+		doNothing().when(edgeService).updateReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
+		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
+		List<String> resourceNames = new ArrayList<>();
+		resourceNames.add("someSBN-test-nb-someName");
+		when(exploratoryService.getResourcesForKeyReuploading(anyString(), anyString(), any(UserInstanceStatus.class),
+				any(UserInstanceStatus.class))).thenReturn(resourceNames);
+		when(keyDAO.getEdgeStatus(anyString())).thenReturn("running");
+		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
+		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
+				any(UserInstanceStatus.class));
+		doNothing().when(computationalDAO).updateStatusForComputationalResources(any(UserInstanceStatus.class),
+				anyString(), any(List.class), any(List.class), any(UserInstanceStatus.class));
 
 		ReuploadKeyDTO uploadFile = mock(ReuploadKeyDTO.class);
 		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class)))
 				.thenReturn(uploadFile);
 
 		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any())).
-				thenReturn(expectedUuid);
+		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any()))
+				.thenReturn(expectedUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
-		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 
 		String keyContent = "keyContent";
 		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
+		assertEquals(2, resourceNames.size());
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
+		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true,
+				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
+		verify(computationalService).updateComputationalsReuploadKeyFlag(USER,
+				Arrays.asList(STARTING, RUNNING, STOPPING, STOPPED),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true,
+				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
+		verify(computationalService).updateComputationalsReuploadKeyFlag(USER, Collections.singletonList(RUNNING),
+				Collections.singletonList(DataEngineType.CLOUD_SERVICE), true,
+				CREATING, CONFIGURING, STARTING, RUNNING);
+		verify(edgeService).updateReuploadKeyFlag(USER, true, STARTING, RUNNING, STOPPING, STOPPED);
+		verify(settingsDAO).getServiceBaseName();
+		verify(exploratoryService).getResourcesForKeyReuploading(USER, "someSBN", RUNNING, RUNNING);
+		verify(keyDAO).getEdgeStatus(USER);
+		verify(keyDAO).updateEdgeStatus(USER, UserInstanceStatus.REUPLOADING_KEY.toString());
+		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
+		verify(computationalDAO).updateStatusForComputationalResources(REUPLOADING_KEY, USER,
+				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,
+						DataEngineType.CLOUD_SERVICE), RUNNING);
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
 		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
-		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
-		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
+		verifyNoMoreInteractions(keyDAO, exploratoryService, computationalService, edgeService, settingsDAO,
+				exploratoryDAO, computationalDAO, requestBuilder, provisioningService, requestId);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void reUploadKeyWhenEdgeIsNotRunning() {
+		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg
+				());
+		doNothing().when(computationalService).updateComputationalsReuploadKeyFlag(anyString(), any(List.class),
+				any(List.class), anyBoolean(), anyVararg());
+		doNothing().when(edgeService).updateReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
+		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
+		List<String> resourceNames = new ArrayList<>();
+		resourceNames.add("someSBN-test-nb-someName");
+		when(exploratoryService.getResourcesForKeyReuploading(anyString(), anyString(), any(UserInstanceStatus.class),
+				any(UserInstanceStatus.class))).thenReturn(resourceNames);
+		when(keyDAO.getEdgeStatus(anyString())).thenReturn("stopped");
+		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
+				any(UserInstanceStatus.class));
+		doNothing().when(computationalDAO).updateStatusForComputationalResources(any(UserInstanceStatus.class),
+				anyString(), any(List.class), any(List.class), any(UserInstanceStatus.class));
+
+		ReuploadKeyDTO uploadFile = mock(ReuploadKeyDTO.class);
+		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class)))
+				.thenReturn(uploadFile);
+
+		String expectedUuid = "someUuid";
+		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any()))
+				.thenReturn(expectedUuid);
+		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
+
+		String keyContent = "keyContent";
+		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
+		assertNotNull(actualUuid);
+		assertEquals(expectedUuid, actualUuid);
+		assertEquals(1, resourceNames.size());
+
+		verify(keyDAO).upsertKey(USER, keyContent, false);
+		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true,
+				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
+		verify(computationalService).updateComputationalsReuploadKeyFlag(USER,
+				Arrays.asList(STARTING, RUNNING, STOPPING, STOPPED),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true,
+				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
+		verify(computationalService).updateComputationalsReuploadKeyFlag(USER, Collections.singletonList(RUNNING),
+				Collections.singletonList(DataEngineType.CLOUD_SERVICE), true,
+				CREATING, CONFIGURING, STARTING, RUNNING);
+		verify(edgeService).updateReuploadKeyFlag(USER, true, STARTING, RUNNING, STOPPING, STOPPED);
+		verify(settingsDAO).getServiceBaseName();
+		verify(exploratoryService).getResourcesForKeyReuploading(USER, "someSBN", RUNNING, RUNNING);
+		verify(keyDAO).getEdgeStatus(USER);
+		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
+		verify(computationalDAO).updateStatusForComputationalResources(REUPLOADING_KEY, USER,
+				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,
+						DataEngineType.CLOUD_SERVICE), RUNNING);
+		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
+		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
+		verify(requestId).put(USER, expectedUuid);
+		verifyNoMoreInteractions(keyDAO, exploratoryService, computationalService, edgeService, settingsDAO,
+				exploratoryDAO, computationalDAO, requestBuilder, provisioningService, requestId);
 	}
 
 	@Test

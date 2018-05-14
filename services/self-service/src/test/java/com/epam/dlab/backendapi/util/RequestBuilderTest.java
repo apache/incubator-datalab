@@ -10,10 +10,12 @@ import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.exloratory.Exploratory;
@@ -149,9 +151,21 @@ public class RequestBuilderTest {
 
 		ReuploadKeyDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
 				Collections.singletonList("someRunningResources"));
-		assertEquals(expectedReuploadKeyDTO, actualReuploadFile);
+		AwsCloudSettings cloudSettings = new AwsCloudSettings();
+		cloudSettings.setAwsIamUser(USER);
+		expectedReuploadKeyDTO.withCloudSettings(cloudSettings);
+		expectedReuploadKeyDTO.withId("someId");
+		expectedReuploadKeyDTO.withRunningResources(Collections.singletonList("someRunningResources"));
+		assertEquals(expectedReuploadKeyDTO.getId(), actualReuploadFile.getId());
+		assertEquals(expectedReuploadKeyDTO.getContent(), actualReuploadFile.getContent());
+		assertEquals(expectedReuploadKeyDTO.getRunningResources(), actualReuploadFile.getRunningResources());
+		assertEquals(expectedReuploadKeyDTO.getCloudSettings(), actualReuploadFile.getCloudSettings());
+		assertEquals(expectedReuploadKeyDTO.getConfKeyDir(), actualReuploadFile.getConfKeyDir());
+		assertEquals(expectedReuploadKeyDTO.getConfOsFamily(), actualReuploadFile.getConfOsFamily());
+		assertEquals(expectedReuploadKeyDTO.getEdgeUserName(), actualReuploadFile.getEdgeUserName());
+		assertEquals(expectedReuploadKeyDTO.getServiceBaseName(), actualReuploadFile.getServiceBaseName());
 
-		verify(configuration).getCloudProvider();
+		verify(configuration, times(3)).getCloudProvider();
 		verifyNoMoreInteractions(configuration);
 	}
 
@@ -162,9 +176,21 @@ public class RequestBuilderTest {
 
 		ReuploadKeyDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
 				Collections.singletonList("someRunningResources"));
-		assertEquals(expectedReuploadKeyDTO, actualReuploadFile);
+		GcpCloudSettings cloudSettings = new GcpCloudSettings();
+		cloudSettings.setGcpIamUser(USER);
+		expectedReuploadKeyDTO.withCloudSettings(cloudSettings);
+		expectedReuploadKeyDTO.withId("someId");
+		expectedReuploadKeyDTO.withRunningResources(Collections.singletonList("someRunningResources"));
+		assertEquals(expectedReuploadKeyDTO.getId(), actualReuploadFile.getId());
+		assertEquals(expectedReuploadKeyDTO.getContent(), actualReuploadFile.getContent());
+		assertEquals(expectedReuploadKeyDTO.getRunningResources(), actualReuploadFile.getRunningResources());
+		assertEquals(expectedReuploadKeyDTO.getCloudSettings(), actualReuploadFile.getCloudSettings());
+		assertEquals(expectedReuploadKeyDTO.getConfKeyDir(), actualReuploadFile.getConfKeyDir());
+		assertEquals(expectedReuploadKeyDTO.getConfOsFamily(), actualReuploadFile.getConfOsFamily());
+		assertEquals(expectedReuploadKeyDTO.getEdgeUserName(), actualReuploadFile.getEdgeUserName());
+		assertEquals(expectedReuploadKeyDTO.getServiceBaseName(), actualReuploadFile.getServiceBaseName());
 
-		verify(configuration).getCloudProvider();
+		verify(configuration, times(3)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
 		verifyNoMoreInteractions(configuration);
 	}
@@ -1184,9 +1210,6 @@ public class RequestBuilderTest {
 	}
 
 	private ReuploadKeyDTO getReuploadFile() {
-		ReuploadKeyDTO reuploadKeyDTO = new ReuploadKeyDTO();
-		reuploadKeyDTO.withContent("someContent");
-		reuploadKeyDTO.setEdgeUserName(USER);
-		return reuploadKeyDTO;
+		return new ReuploadKeyDTO().withContent("someContent").withEdgeUserName(USER).withContent("someContent");
 	}
 }
