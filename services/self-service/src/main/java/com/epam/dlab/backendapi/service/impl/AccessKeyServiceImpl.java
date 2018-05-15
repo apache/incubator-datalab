@@ -71,6 +71,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
+	private final String REUPLOAD_KEY_UPDATE_MSG = "Updating 'reupload_key_required' flag to 'false'";
+
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
 		log.debug("Check the status of the user key for {}", user);
@@ -140,24 +142,24 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		if (resourceName.contains("-edge") && resourceNameParts.length == 3) {
 			keyDAO.updateEdgeStatus(user, UserInstanceStatus.RUNNING.toString());
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug("Updating 'reupload_key_required' flag to 'false' for edge {}...", resourceName);
+				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for edge {}...", resourceName);
 				keyDAO.updateEdgeReuploadKey(user, false, UserInstanceStatus.values());
 			}
 		} else if (resourceName.contains("-nb-") && resourceNameParts.length == 4) {
 			String exploratoryName = resourceNameParts[3];
-			exploratoryDAO.updateStatusForSingleExploratory(user, exploratoryName, RUNNING);
+			exploratoryDAO.updateStatusForExploratory(user, exploratoryName, RUNNING);
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug("Updating 'reupload_key_required' flag to 'false' for notebook {}...", resourceName);
-				exploratoryDAO.updateReuploadKeyForSingleExploratory(user, exploratoryName, false);
+				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for notebook {}...", resourceName);
+				exploratoryDAO.updateReuploadKeyForExploratory(user, exploratoryName, false);
 			}
 		} else if ((resourceName.contains("-de-") || resourceName.contains("-des-")) && resourceNameParts.length ==
 				5) {
 			String exploratoryName = resourceNameParts[3];
 			String clusterName = resourceNameParts[4];
-			computationalDAO.updateStatusForSingleComputationalResource(user, exploratoryName, clusterName, RUNNING);
+			computationalDAO.updateStatusForComputationalResource(user, exploratoryName, clusterName, RUNNING);
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug("Updating 'reupload_key_required' flag to 'false' for cluster {}...", resourceName);
-				computationalDAO.updateReuploadKeyFlagForSingleComputationalResource(user, exploratoryName,
+				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for cluster {}...", resourceName);
+				computationalDAO.updateReuploadKeyFlagForComputationalResource(user, exploratoryName,
 						clusterName, false);
 			}
 		}

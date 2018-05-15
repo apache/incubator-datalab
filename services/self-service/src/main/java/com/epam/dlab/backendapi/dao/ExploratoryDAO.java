@@ -307,8 +307,7 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param newStatus       new status of exploratory.
 	 * @return The result of an update operation.
 	 */
-	public UpdateResult updateStatusForSingleExploratory(String user, String exploratoryName,
-														 UserInstanceStatus newStatus) {
+	public UpdateResult updateStatusForExploratory(String user, String exploratoryName, UserInstanceStatus newStatus) {
 		return updateOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
 				set(STATUS, newStatus.toString()));
@@ -349,8 +348,7 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param exploratoryName     exploratory's name
 	 * @param reuploadKeyRequired true/false.
 	 */
-	public void updateReuploadKeyForSingleExploratory(String user, String exploratoryName,
-													  boolean reuploadKeyRequired) {
+	public void updateReuploadKeyForExploratory(String user, String exploratoryName, boolean reuploadKeyRequired) {
 		updateOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
 				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));

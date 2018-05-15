@@ -38,7 +38,7 @@ public class CommandBuilder {
 				LOGGER.info("Serialized DTO to: {}", str);
                 builder.append(str);
             } catch (JsonProcessingException e) {
-                LOGGER.error("ERROR generating json from dockerRunParameters: " + e.getMessage());
+				LOGGER.error("ERROR generating json from dockerRunParameters: {}", e.getMessage());
                 throw e;
             }
             builder.append('\'');

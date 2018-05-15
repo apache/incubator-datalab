@@ -228,9 +228,9 @@ public class ComputationalDAO extends BaseDAO {
 	 * @param newStatus         new status of computational resource.
 	 */
 
-	public void updateStatusForSingleComputationalResource(String user, String exploratoryName,
-														   String computationalName,
-														   UserInstanceStatus newStatus) {
+	public void updateStatusForComputationalResource(String user, String exploratoryName,
+													 String computationalName,
+													 UserInstanceStatus newStatus) {
 		updateComputationalField(user, exploratoryName, computationalName, STATUS, newStatus.toString());
 	}
 
@@ -327,8 +327,8 @@ public class ComputationalDAO extends BaseDAO {
 	 * @param reuploadKeyRequired true/false.
 	 */
 
-	public void updateReuploadKeyFlagForSingleComputationalResource(String user, String exploratoryName,
-																	String computationalName, boolean
+	public void updateReuploadKeyFlagForComputationalResource(String user, String exploratoryName,
+															  String computationalName, boolean
 																			reuploadKeyRequired) {
 		updateComputationalField(user, exploratoryName, computationalName, REUPLOAD_KEY_REQUIRED, reuploadKeyRequired);
 	}
