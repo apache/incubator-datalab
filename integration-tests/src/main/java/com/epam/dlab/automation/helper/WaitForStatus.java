@@ -30,7 +30,9 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class WaitForStatus {
 
@@ -168,24 +170,35 @@ public class WaitForStatus {
 	public static String getClusterStatus(JsonPath json, String notebookName, String computationalName) {
 		return (String) json.getList(EXPLORATORY_PATH)
 				.stream()
-				.filter(d -> notebookName.equals(((HashMap) d).get("exploratory_name")))
-				.flatMap(d -> ((List) ((HashMap) d).get("computational_resources")).stream())
-				.filter(cr -> computationalName.equals(((HashMap) cr).get("computational_name")))
-				.map(cr -> (((HashMap) cr).get("status")))
+				.filter(exploratoryNamePredicate(notebookName))
+				.flatMap(computationalResourcesStream())
+				.filter(computationalNamePredicate(computationalName))
+				.map(statusFieldPredicate())
 				.findAny()
 				.orElse(StringUtils.EMPTY);
 	}
 
 	private static String getNotebookStatus(JsonPath json, String notebookName) {
 		List<Map<String, String>> notebooks = json.getList(EXPLORATORY_PATH);
-		notebooks = notebooks.stream().filter(e -> notebookName.equals(e.get("exploratory_name")))
-				.collect(Collectors.toList());
+		return notebooks.stream().filter(exploratoryNamePredicate(notebookName))
+				.map(e -> e.get("status"))
+				.findAny()
+				.orElse(StringUtils.EMPTY);
+	}
 
-		if (notebooks == null || notebooks.size() != 1) {
-			return "";
-		}
-		Map<String, String> notebook = notebooks.get(0);
-		String status = notebook.get("status");
-		return (status == null ? "" : status);
+	private static Function<Object, Object> statusFieldPredicate() {
+		return cr -> (((HashMap) cr).get("status"));
+	}
+
+	private static Predicate<Object> computationalNamePredicate(String computationalName) {
+		return cr -> computationalName.equals(((HashMap) cr).get("computational_name"));
+	}
+
+	private static Function<Object, Stream<?>> computationalResourcesStream() {
+		return d -> ((List) ((HashMap) d).get("computational_resources")).stream();
+	}
+
+	private static Predicate<Object> exploratoryNamePredicate(String notebookName) {
+		return d -> notebookName.equals(((HashMap) d).get("exploratory_name"));
 	}
 }
