@@ -104,7 +104,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   public onDaySelect($event, day) {
-    this.selectedWeekDays[day.toLowerCase()] = $event.checked;
+    this.selectedWeekDays[day.toLowerCase()] = $event.source.checked;
   }
 
   public toggleInherit($event) {
