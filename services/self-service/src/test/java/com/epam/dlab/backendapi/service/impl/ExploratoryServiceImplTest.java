@@ -144,7 +144,8 @@ public class ExploratoryServiceImplTest {
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(provisioningService).post(exploratoryStop, TOKEN, eaDto, String.class);
 		verify(computationalDAO).updateComputationalStatusesForExploratory(userInfo.getName(), EXPLORATORY_NAME,
-				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING);
+				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING, UserInstanceStatus.FAILED,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED);
 		verify(requestId).put(USER, UUID);
 		verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
 	}
@@ -342,7 +343,8 @@ public class ExploratoryServiceImplTest {
 				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
 		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME,
-				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING);
+				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING, UserInstanceStatus.FAILED,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 

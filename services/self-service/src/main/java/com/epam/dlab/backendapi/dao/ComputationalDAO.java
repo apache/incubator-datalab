@@ -30,12 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
@@ -185,9 +185,12 @@ public class ComputationalDAO extends BaseDAO {
 
 	public void updateComputationalStatusesForExploratory(String user, String exploratoryName,
 														  UserInstanceStatus dataengineStatus,
-														  UserInstanceStatus dataengineServiceStatus) {
-		updateComputationalResource(user, exploratoryName, dataengineStatus, DataEngineType.SPARK_STANDALONE);
-		updateComputationalResource(user, exploratoryName, dataengineServiceStatus, DataEngineType.CLOUD_SERVICE);
+														  UserInstanceStatus dataengineServiceStatus,
+														  UserInstanceStatus... excludedStatuses) {
+		updateComputationalResource(user, exploratoryName, dataengineStatus, DataEngineType.SPARK_STANDALONE,
+				excludedStatuses);
+		updateComputationalResource(user, exploratoryName, dataengineServiceStatus, DataEngineType.CLOUD_SERVICE,
+				excludedStatuses);
 
 	}
 
@@ -236,22 +239,26 @@ public class ComputationalDAO extends BaseDAO {
 
 
 	private void updateComputationalResource(String user, String exploratoryName,
-											 UserInstanceStatus dataengineServiceStatus, DataEngineType cloudService) {
+											 UserInstanceStatus dataengineServiceStatus, DataEngineType cloudService,
+											 UserInstanceStatus... excludedStatuses) {
 		UpdateResult result;
 		do {
 			result = updateMany(USER_INSTANCES,
 					computationalFilter(user, exploratoryName, dataengineServiceStatus.toString(),
-							DataEngineType.getDockerImageName(cloudService)),
+							DataEngineType.getDockerImageName(cloudService), excludedStatuses),
 					new Document(SET,
 							new Document(computationalFieldFilter(STATUS), dataengineServiceStatus.toString())));
 		} while (result.getModifiedCount() > 0);
 	}
 
 	private Bson computationalFilter(String user, String exploratoryName, String computationalStatus, String
-			computationalImage) {
+			computationalImage, UserInstanceStatus[] excludedStatuses) {
+		final String[] statuses = Arrays.stream(excludedStatuses)
+				.map(UserInstanceStatus::toString)
+				.toArray(String[]::new);
 		return and(exploratoryCondition(user, exploratoryName),
 				elemMatch(COMPUTATIONAL_RESOURCES, and(eq(IMAGE, computationalImage),
-						not(in(STATUS, TERMINATED.toString(), FAILED.toString())),
+						not(in(STATUS, statuses)),
 						not(eq(STATUS, computationalStatus)))));
 	}
 
