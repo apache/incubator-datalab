@@ -150,7 +150,7 @@ def add_breeze_library_emr(args):
           breeze_tmp_dir + 'jfreechart-1.0.19.jar')
     local('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
           breeze_tmp_dir + 'jcommon-1.0.24.jar')
-    local('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+    local('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
           breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
     local('sudo mv ' + breeze_tmp_dir + '* ' + new_jars_directory_path)
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.emr_version +
