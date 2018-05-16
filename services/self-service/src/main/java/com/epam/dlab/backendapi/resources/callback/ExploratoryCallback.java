@@ -70,7 +70,7 @@ public class ExploratoryCallback {
 			log.error("Could not get current status for exploratory environment {} for user {}",
 					dto.getExploratoryName(), dto.getUser(), e);
 			throw new DlabException("Could not get current status for exploratory environment " + dto
-                    .getExploratoryName() +
+					.getExploratoryName() +
 					" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
 		}
 		log.debug("Current status for exploratory environment {} for user {} is {}",
@@ -80,10 +80,10 @@ public class ExploratoryCallback {
 			exploratoryDAO.updateExploratoryFields(dto);
 			if (currentStatus == TERMINATING) {
 				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto
-                        .getStatus()));
+						.getStatus()));
 			} else if (currentStatus == STOPPING) {
 				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto
-						.getStatus()), TERMINATED);
+						.getStatus()), TERMINATED, FAILED, TERMINATED, STOPPED);
 			}
 		} catch (DlabException e) {
 			log.error("Could not update status for exploratory environment {} for user {} to {}",
@@ -104,7 +104,7 @@ public class ExploratoryCallback {
 	 */
 	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus status) {
 		log.debug("updating status for all computational resources of {} for user {}: {}", exploratoryName, user,
-                status);
+				status);
 		computationalDAO.updateComputationalStatusesForExploratory(new ExploratoryStatusDTO()
 				.withUser(user)
 				.withExploratoryName(exploratoryName)
@@ -112,10 +112,10 @@ public class ExploratoryCallback {
 	}
 
 	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus
-			dataEngineStatus, UserInstanceStatus dataEngineServiceStatus) {
+			dataEngineStatus, UserInstanceStatus dataEngineServiceStatus, UserInstanceStatus... excludedStatuses) {
 		log.debug("updating status for all computational resources of {} for user {}: DataEngine {}, " +
 				"dataengine-service {}", exploratoryName, user, dataEngineStatus, dataEngineServiceStatus);
 		computationalDAO.updateComputationalStatusesForExploratory(user, exploratoryName, dataEngineStatus,
-				dataEngineServiceStatus);
+				dataEngineServiceStatus, excludedStatuses);
 	}
 }
