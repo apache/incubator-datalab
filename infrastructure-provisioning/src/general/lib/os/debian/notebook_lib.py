@@ -108,12 +108,14 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('touch /home/{}/.Rprofile'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
+            sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             sudo('rstudio-server start')
             sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
             sudo("sed -i '/exit 0/d' /etc/rc.local")
             sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
-            sudo('echo http_proxy=$http_proxy >> /home/{}/.Renviron'.format(os_user))
-            sudo('echo https_proxy=$https_proxy >> /home/{}/.Renviron'.format(os_user))
             sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
             sudo('touch /home/{}/.ensure_dir/rstudio_ensured'.format(os_user))
         except:
@@ -211,7 +213,7 @@ def ensure_python2_libraries(os_user):
                 sudo('pip2 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('pip2 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip2 install boto3 --no-cache-dir')
+            sudo('pip2 install boto3 backoff --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
         except:

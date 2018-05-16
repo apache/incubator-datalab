@@ -37,8 +37,12 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class SchedulerJobResource {
 
-	@Inject
 	private SchedulerJobService schedulerJobService;
+
+	@Inject
+	public SchedulerJobResource(SchedulerJobService schedulerJobService) {
+		this.schedulerJobService = schedulerJobService;
+	}
 
 
 	/**

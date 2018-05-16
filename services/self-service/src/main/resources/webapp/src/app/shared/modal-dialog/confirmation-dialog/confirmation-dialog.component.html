@@ -47,12 +47,12 @@ limitations under the License.
         </div>
       </div>
 
-      <div class="row-wrap" *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources">
+      <div class="row-wrap" *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources" [hidden]="model.notebook.type">
         <div class="col"><p>Computational resources:</p></div>
         <span class="col">none</span>
       </div>
 
-      <div *ngIf="confirmationType && isAliveResources" class="row-wrap">
+      <div *ngIf="confirmationType && isAliveResources" class="row-wrap" [hidden]="model.notebook.type">
         <div class="col" >
           <p>Computational resources:</p>
         </div>

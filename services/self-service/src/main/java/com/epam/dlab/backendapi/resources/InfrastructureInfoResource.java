@@ -38,8 +38,12 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class InfrastructureInfoResource {
 
-	@Inject
 	private InfrastructureInfoService infrastructureInfoService;
+
+	@Inject
+	public InfrastructureInfoResource(InfrastructureInfoService infrastructureInfoService) {
+		this.infrastructureInfoService = infrastructureInfoService;
+	}
 
 	/**
 	 * Return status of self-service.
