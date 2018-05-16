@@ -66,9 +66,11 @@ limitations under the License.
         label {
           background: rgba(196, 231, 243, 0.3);
           .mat-button-toggle-label-content {
-            line-height: 25px;
+            line-height: 26px;
             padding: 0px 8px;
+            width: 26px;
             font-size: 13px;
+            text-align: center;
           }
         }
       }

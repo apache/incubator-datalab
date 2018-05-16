@@ -72,15 +72,24 @@ limitations under the License.
           </div>
         </div>
         <div class="control-group">
+          <label class="label repeat" for="options">Repeat on :</label>
           <div class="days-block">
-            <label class="label repeat" for="options">Repeat on :</label>
+            <label>Start :</label>
             <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
-              (change)="onDaySelect($event, day)"
+              (change)="onDaySelect($event, day, 'start')"
               [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
-              [checked]="selectedWeekDays[day.toLowerCase()]">{{ day[0] }}
+              [checked]="selectedStartWeekDays[day.toLowerCase()]">{{ day[0] }}
             </mat-button-toggle>
-            </div>
           </div>
+          <div class="days-block">
+            <label>Stop :</label>
+            <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
+              (change)="onDaySelect($event, day, 'stop')"
+              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
+              [checked]="selectedStopWeekDays[day.toLowerCase()]">{{ day[0] }}
+            </mat-button-toggle>
+          </div>
+        </div>
         <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>
         <div class="inherit" *ngIf="destination">
           <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
