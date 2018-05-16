@@ -71,16 +71,16 @@ limitations under the License.
             </mat-form-field>
           </div>
         </div>
-        <div class="control-group days-block">
-          <label class="label repeat" for="options">Repeat on :</label>
-          <mat-button-toggle-group name="typeToggle" multiple ngDefaultControl>
+        <div class="control-group">
+          <div class="days-block">
+            <label class="label repeat" for="options">Repeat on :</label>
             <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
               (change)="onDaySelect($event, day)"
               [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
               [checked]="selectedWeekDays[day.toLowerCase()]">{{ day[0] }}
             </mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
+            </div>
+          </div>
         <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>
         <div class="inherit" *ngIf="destination">
           <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">

@@ -54,11 +54,24 @@ limitations under the License.
         color: #35afd5;
       }
     }
-    &.days-block {
-      padding-bottom: 0;
-    }
     &.time-range {
       padding-bottom: 0 !important;
+    }
+    .days-block {
+      padding-bottom: 0;
+      margin: 15px 0;
+      .mat-button-toggle-standalone {
+        box-shadow: none;
+        margin: 2px;
+        label {
+          background: rgba(196, 231, 243, 0.3);
+          .mat-button-toggle-label-content {
+            line-height: 25px;
+            padding: 0px 8px;
+            font-size: 13px;
+          }
+        }
+      }
     }
   }
   .timezone-offset {
