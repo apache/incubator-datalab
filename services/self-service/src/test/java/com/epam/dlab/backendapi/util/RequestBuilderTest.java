@@ -18,6 +18,8 @@ import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exloratory.Exploratory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -150,15 +152,17 @@ public class RequestBuilderTest {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.AWS);
 
 		ReuploadKeyDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
-				Collections.singletonList("someRunningResources"));
+				Collections.singletonList(
+						new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
 		AwsCloudSettings cloudSettings = new AwsCloudSettings();
 		cloudSettings.setAwsIamUser(USER);
 		expectedReuploadKeyDTO.withCloudSettings(cloudSettings);
 		expectedReuploadKeyDTO.withId("someId");
-		expectedReuploadKeyDTO.withRunningResources(Collections.singletonList("someRunningResources"));
+		expectedReuploadKeyDTO.withResources(Collections.singletonList(
+				new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
 		assertEquals(expectedReuploadKeyDTO.getId(), actualReuploadFile.getId());
 		assertEquals(expectedReuploadKeyDTO.getContent(), actualReuploadFile.getContent());
-		assertEquals(expectedReuploadKeyDTO.getRunningResources(), actualReuploadFile.getRunningResources());
+		assertEquals(expectedReuploadKeyDTO.getResources(), actualReuploadFile.getResources());
 		assertEquals(expectedReuploadKeyDTO.getCloudSettings(), actualReuploadFile.getCloudSettings());
 		assertEquals(expectedReuploadKeyDTO.getConfKeyDir(), actualReuploadFile.getConfKeyDir());
 		assertEquals(expectedReuploadKeyDTO.getConfOsFamily(), actualReuploadFile.getConfOsFamily());
@@ -175,15 +179,17 @@ public class RequestBuilderTest {
 		when(configuration.getMaxUserNameLength()).thenReturn(10);
 
 		ReuploadKeyDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
-				Collections.singletonList("someRunningResources"));
+				Collections.singletonList(
+						new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
 		GcpCloudSettings cloudSettings = new GcpCloudSettings();
 		cloudSettings.setGcpIamUser(USER);
 		expectedReuploadKeyDTO.withCloudSettings(cloudSettings);
 		expectedReuploadKeyDTO.withId("someId");
-		expectedReuploadKeyDTO.withRunningResources(Collections.singletonList("someRunningResources"));
+		expectedReuploadKeyDTO.withResources(Collections.singletonList(
+				new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
 		assertEquals(expectedReuploadKeyDTO.getId(), actualReuploadFile.getId());
 		assertEquals(expectedReuploadKeyDTO.getContent(), actualReuploadFile.getContent());
-		assertEquals(expectedReuploadKeyDTO.getRunningResources(), actualReuploadFile.getRunningResources());
+		assertEquals(expectedReuploadKeyDTO.getResources(), actualReuploadFile.getResources());
 		assertEquals(expectedReuploadKeyDTO.getCloudSettings(), actualReuploadFile.getCloudSettings());
 		assertEquals(expectedReuploadKeyDTO.getConfKeyDir(), actualReuploadFile.getConfKeyDir());
 		assertEquals(expectedReuploadKeyDTO.getConfOsFamily(), actualReuploadFile.getConfOsFamily());
@@ -1073,7 +1079,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
+		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName", false);
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1097,7 +1103,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
+		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName", false);
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1117,7 +1123,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
+		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName", false);
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();

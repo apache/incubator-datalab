@@ -1,5 +1,5 @@
 package com.epam.dlab.model;
 
 public enum ResourceType {
-	COMPUTATIONAL, EXPLORATORY
+	COMPUTATIONAL, EDGE, EXPLORATORY
 }

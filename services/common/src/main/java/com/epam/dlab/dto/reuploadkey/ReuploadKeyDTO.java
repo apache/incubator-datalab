@@ -1,6 +1,7 @@
 package com.epam.dlab.dto.reuploadkey;
 
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.model.ResourceData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
@@ -12,18 +13,23 @@ public class ReuploadKeyDTO extends ResourceSysBaseDTO<ReuploadKeyDTO> {
 	@JsonProperty
 	private String content;
 
-	@JsonProperty("list_instances_names")
-	private List<String> runningResources;
+	@JsonProperty
+	private List<ResourceData> resources;
 
+	@JsonProperty("resource_id")
+	private String resourceId;
+
+	@JsonProperty
 	private String id;
+
 
 	public ReuploadKeyDTO withContent(String content){
 		this.content = content;
 		return this;
 	}
 
-	public ReuploadKeyDTO withRunningResources(List<String> runningResources){
-		this.runningResources = runningResources;
+	public ReuploadKeyDTO withResources(List<ResourceData> resources) {
+		this.resources = resources;
 		return this;
 	}
 
@@ -32,4 +38,8 @@ public class ReuploadKeyDTO extends ResourceSysBaseDTO<ReuploadKeyDTO> {
 		return this;
 	}
 
+	public ReuploadKeyDTO withResourceId(String resourceId) {
+		this.resourceId = resourceId;
+		return this;
+	}
 }

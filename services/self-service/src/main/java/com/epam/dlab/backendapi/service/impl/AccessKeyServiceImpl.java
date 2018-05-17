@@ -22,6 +22,8 @@ import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -71,7 +73,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
-	private final String REUPLOAD_KEY_UPDATE_MSG = "Updating 'reupload_key_required' flag to 'false'";
+	private static final String REUPLOAD_KEY_UPDATE_MSG = "Updating 'reupload_key_required' flag to 'false'";
 
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
@@ -133,52 +135,46 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	public void processReuploadKeyResponse(ReuploadKeyStatusDTO dto) {
-		String resourceName = dto.getReuploadKeyDTO().getRunningResources().get(0);
-		String[] resourceNameParts = resourceName.split("-");
-		if (resourceNameParts.length < 3 || resourceNameParts.length > 5) {
-			throw new DlabException("Couldn't process reupload key response: inappropriate resource name obtained.");
-		}
-		String user = resourceNameParts[1];
-		if (resourceName.contains("-edge") && resourceNameParts.length == 3) {
+		ResourceData resource = dto.getReuploadKeyDTO().getResources().get(0);
+		String user = dto.getUser();
+		if (resource.getResourceType() == ResourceType.EDGE) {
 			keyDAO.updateEdgeStatus(user, UserInstanceStatus.RUNNING.toString());
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for edge {}...", resourceName);
+				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for edge with id {}...", resource.getResourceId());
 				keyDAO.updateEdgeReuploadKey(user, false, UserInstanceStatus.values());
 			}
-		} else if (resourceName.contains("-nb-") && resourceNameParts.length == 4) {
-			String exploratoryName = resourceNameParts[3];
-			exploratoryDAO.updateStatusForExploratory(user, exploratoryName, RUNNING);
+		} else if (resource.getResourceType() == ResourceType.EXPLORATORY) {
+			exploratoryDAO.updateStatusForExploratory(user, resource.getExploratoryName(), RUNNING);
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for notebook {}...", resourceName);
-				exploratoryDAO.updateReuploadKeyForExploratory(user, exploratoryName, false);
+				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for notebook {}...", resource.getExploratoryName());
+				exploratoryDAO.updateReuploadKeyForExploratory(user, resource.getExploratoryName(), false);
 			}
-		} else if ((resourceName.contains("-de-") || resourceName.contains("-des-")) && resourceNameParts.length ==
-				5) {
-			String exploratoryName = resourceNameParts[3];
-			String clusterName = resourceNameParts[4];
-			computationalDAO.updateStatusForComputationalResource(user, exploratoryName, clusterName, RUNNING);
+		} else if (resource.getResourceType() == ResourceType.COMPUTATIONAL) {
+			computationalDAO.updateStatusForComputationalResource(user, resource.getExploratoryName(),
+					resource.getComputationalName(), RUNNING);
 			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for cluster {}...", resourceName);
-				computationalDAO.updateReuploadKeyFlagForComputationalResource(user, exploratoryName,
-						clusterName, false);
+				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for cluster {} of notebook {}...",
+						resource.getComputationalName(), resource.getExploratoryName());
+				computationalDAO.updateReuploadKeyFlagForComputationalResource(user, resource.getExploratoryName(),
+						resource.getComputationalName(), false);
 			}
 		}
 	}
 
 	private String reuploadKey(UserInfo user, String keyContent) {
 		updateReuploadKeyForUserResources(user.getName(), true);
-		String serviceBaseName = settingsDAO.getServiceBaseName();
-		List<String> resourcesForKeyReuploading = exploratoryService
-				.getResourcesForKeyReuploading(user.getName(), serviceBaseName, RUNNING, RUNNING);
+		List<ResourceData> resourcesForKeyReuploading = exploratoryService
+				.getResourcesWithPredefinedStatuses(user.getName(), RUNNING, RUNNING);
 		if (RUNNING == UserInstanceStatus.of(keyDAO.getEdgeStatus(user.getName()))) {
-			resourcesForKeyReuploading.add(String.join("-", serviceBaseName, user.getName(), "edge"));
+			resourcesForKeyReuploading.add(new ResourceData(ResourceType.EDGE, keyDAO.getEdgeInfo(user.getName())
+					.getInstanceId(), null, null));
 			keyDAO.updateEdgeStatus(user.getName(), UserInstanceStatus.REUPLOADING_KEY.toString());
 		}
 		updateStatusForUserResources(user.getName(), REUPLOADING_KEY);
 
-		ReuploadKeyDTO reuploadFile = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
+		ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
 				resourcesForKeyReuploading);
-		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), reuploadFile, String.class);
+		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), reuploadKeyDTO, String.class);
 		requestId.put(user.getName(), uuid);
 		return uuid;
 	}

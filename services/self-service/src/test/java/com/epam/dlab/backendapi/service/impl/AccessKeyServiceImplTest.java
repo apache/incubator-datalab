@@ -19,6 +19,8 @@ import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -156,10 +158,10 @@ public class AccessKeyServiceImplTest {
 				any(List.class), anyBoolean(), anyVararg());
 		doNothing().when(edgeService).updateReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
-		List<String> resourceNames = new ArrayList<>();
-		resourceNames.add("someSBN-test-nb-someName");
-		when(exploratoryService.getResourcesForKeyReuploading(anyString(), anyString(), any(UserInstanceStatus.class),
-				any(UserInstanceStatus.class))).thenReturn(resourceNames);
+		List<ResourceData> resources = new ArrayList<>();
+		resources.add(new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null));
+		when(exploratoryService.getResourcesWithPredefinedStatuses(anyString(), any(UserInstanceStatus.class),
+				any(UserInstanceStatus.class))).thenReturn(resources);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn("running");
 		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
@@ -180,7 +182,7 @@ public class AccessKeyServiceImplTest {
 		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
-		assertEquals(2, resourceNames.size());
+		assertEquals(2, resources.size());
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
 		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true,
@@ -194,7 +196,7 @@ public class AccessKeyServiceImplTest {
 				CREATING, CONFIGURING, STARTING, RUNNING);
 		verify(edgeService).updateReuploadKeyFlag(USER, true, STARTING, RUNNING, STOPPING, STOPPED);
 		verify(settingsDAO).getServiceBaseName();
-		verify(exploratoryService).getResourcesForKeyReuploading(USER, "someSBN", RUNNING, RUNNING);
+		verify(exploratoryService).getResourcesWithPredefinedStatuses(USER, RUNNING, RUNNING);
 		verify(keyDAO).getEdgeStatus(USER);
 		verify(keyDAO).updateEdgeStatus(USER, UserInstanceStatus.REUPLOADING_KEY.toString());
 		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
@@ -218,10 +220,10 @@ public class AccessKeyServiceImplTest {
 				any(List.class), anyBoolean(), anyVararg());
 		doNothing().when(edgeService).updateReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
-		List<String> resourceNames = new ArrayList<>();
-		resourceNames.add("someSBN-test-nb-someName");
-		when(exploratoryService.getResourcesForKeyReuploading(anyString(), anyString(), any(UserInstanceStatus.class),
-				any(UserInstanceStatus.class))).thenReturn(resourceNames);
+		List<ResourceData> resources = new ArrayList<>();
+		resources.add(new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null));
+		when(exploratoryService.getResourcesWithPredefinedStatuses(anyString(), any(UserInstanceStatus.class),
+				any(UserInstanceStatus.class))).thenReturn(resources);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn("stopped");
 		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
 				any(UserInstanceStatus.class));
@@ -241,7 +243,7 @@ public class AccessKeyServiceImplTest {
 		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
-		assertEquals(1, resourceNames.size());
+		assertEquals(1, resources.size());
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
 		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true,
@@ -255,7 +257,7 @@ public class AccessKeyServiceImplTest {
 				CREATING, CONFIGURING, STARTING, RUNNING);
 		verify(edgeService).updateReuploadKeyFlag(USER, true, STARTING, RUNNING, STOPPING, STOPPED);
 		verify(settingsDAO).getServiceBaseName();
-		verify(exploratoryService).getResourcesForKeyReuploading(USER, "someSBN", RUNNING, RUNNING);
+		verify(exploratoryService).getResourcesWithPredefinedStatuses(USER, RUNNING, RUNNING);
 		verify(keyDAO).getEdgeStatus(USER);
 		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
 		verify(computationalDAO).updateStatusForComputationalResources(REUPLOADING_KEY, USER,

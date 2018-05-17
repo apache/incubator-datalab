@@ -223,7 +223,9 @@ public class ComputationalServiceImpl implements ComputationalService {
 			exploratoryName, String computationalName, UserInstanceStatus compStatus, String exploratoryId) {
 		if (UserInstanceStatus.STARTING == compStatus) {
 			return requestBuilder
-					.newComputationalStart(userInfo, exploratoryName, exploratoryId, computationalName);
+					.newComputationalStart(userInfo, exploratoryName, exploratoryId, computationalName,
+							computationalDAO.fetchComputationalFields(
+									userInfo.getName(), exploratoryName, computationalName).isReuploadKeyRequired());
 		} else if (UserInstanceStatus.STOPPING == compStatus) {
 			return requestBuilder
 					.newComputationalStop(userInfo, exploratoryName, exploratoryId, computationalName);

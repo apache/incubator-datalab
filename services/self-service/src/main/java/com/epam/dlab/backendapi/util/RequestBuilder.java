@@ -60,6 +60,7 @@ import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.exloratory.Exploratory;
 import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Inject;
@@ -174,12 +175,12 @@ public class RequestBuilder {
 	}
 
 	public ReuploadKeyDTO newKeyReupload(UserInfo userInfo, String id, String content,
-										 List<String> runningResources) {
+										 List<ResourceData> resources) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, ReuploadKeyDTO.class)
 				.withId(id)
 				.withContent(content)
-				.withRunningResources(runningResources);
+				.withResources(resources);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -496,11 +497,13 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ComputationalBase<T>> T newComputationalStart(UserInfo userInfo, String exploratoryName,
-																	String exploratoryId, String computationalName) {
+																	String exploratoryId, String computationalName,
+																	boolean reuploadKeyRequired) {
 		return (T) newResourceSysBaseDTO(userInfo, ComputationalStartDTO.class)
 				.withExploratoryName(exploratoryName)
 				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratoryId);
+				.withNotebookInstanceName(exploratoryId)
+				.withReuploadKeyRequired(reuploadKeyRequired);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -18,7 +18,7 @@ public class ReuploadKeyStatusDTO extends StatusBaseDTO<ReuploadKeyStatusDTO> {
 
 	public ReuploadKeyStatusDTO withStatus(ReuploadKeyStatus status) {
 		this.reuploadKeyStatus = status;
-		return withStatus(status.name());
+		return this;
 	}
 
 	@Override

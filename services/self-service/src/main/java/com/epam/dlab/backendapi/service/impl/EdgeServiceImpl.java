@@ -113,6 +113,7 @@ public class EdgeServiceImpl implements EdgeService {
 		try {
 			keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
 			ResourceSysBaseDTO<?> dto = requestBuilder.newEdgeAction(userInfo);
+			dto.withReuploadKeyRequired(keyDAO.getEdgeInfo(userInfo.getName()).isReuploadKeyRequired());
 			String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;

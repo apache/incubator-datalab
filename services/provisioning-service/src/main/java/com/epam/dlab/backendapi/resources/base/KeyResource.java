@@ -27,7 +27,6 @@ import com.epam.dlab.utils.FileUtils;
 import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -42,7 +41,6 @@ import java.io.IOException;
 @Path(KeyAPI.REUPLOAD_KEY)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Slf4j
 public class KeyResource {
 
 	@Inject
@@ -50,14 +48,13 @@ public class KeyResource {
 	@Inject
 	private ProvisioningServiceApplicationConfiguration configuration;
 
-
 	@POST
-	public String reuploadKey(@Auth UserInfo ui, ReuploadKeyDTO dto) throws IOException {
+	public void reuploadKey(@Auth UserInfo ui, ReuploadKeyDTO dto) throws IOException {
 		String edgeUserName = dto.getEdgeUserName();
 		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
 		FileUtils.deleteFile(filename, configuration.getKeyDirectory());
 		FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
-		return reuploadKeyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
+		reuploadKeyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
 	}
 
 }

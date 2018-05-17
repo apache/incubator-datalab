@@ -12,10 +12,10 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exloratory.Exploratory;
 import com.epam.dlab.model.library.Library;
@@ -26,7 +26,8 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -110,84 +111,33 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	/**
-	 * Returns list which contains full names of user's exploratories and computational resources with predefined
-	 * statuses.
-	 *
-	 * @param user                user.
-	 * @param serviceBaseName     service base name.
-	 * @param exploratoryStatus   status for exploratory environment.
-	 * @param computationalStatus status for computational resource affiliated with the exploratory.
-	 * @return list with names of user's resources (notebooks and clusters) in format
-	 * 'SBN-user-nb-notebookName' (notebook), 'SBN-user-de/des-notebookName-clusterName' (cluster).
-	 */
-	public List<String> getResourcesForKeyReuploading(String user, String serviceBaseName,
-													  UserInstanceStatus exploratoryStatus,
-													  UserInstanceStatus computationalStatus) {
-		Map<String, List<String>> populatedResources = getPopulatedExploratoriesWithComputationalResources(user,
-				serviceBaseName, exploratoryStatus, computationalStatus);
-		List<String> resourceNames = new ArrayList<>();
-		for (Map.Entry<String, List<String>> entry : populatedResources.entrySet()) {
-			resourceNames.add(entry.getKey());
-			resourceNames.addAll(entry.getValue());
-		}
-		return resourceNames;
-	}
-
-	/**
-	 * Returns list of user's exploratories with computational resources where both of them have predefined statuses.
-	 *
-	 * @param user                user.
-	 * @param serviceBaseName     service base name.
-	 * @param exploratoryStatus   status for exploratory environment.
-	 * @param computationalStatus status for computational resource affiliated with the exploratory.
-	 * @return map with elements [key: exploratoryName in format 'SBN-user-nb-notebookName', value: list of
-	 * computational resources' names in format 'SBN-user-de/des-notebookName-clusterName'].
-	 */
-	private Map<String, List<String>> getPopulatedExploratoriesWithComputationalResources(String user,
-																						  String serviceBaseName,
-																						  UserInstanceStatus
-																								  exploratoryStatus,
-																						  UserInstanceStatus
-																								  computationalStatus) {
-		Map<String, List<Map<String, String>>> resourceMap =
-				getExploratoriesWithPredefinedComputationalStatus(user, exploratoryStatus, computationalStatus);
-		Map<String, List<String>> populated = new HashMap<>();
-		resourceMap.forEach((k, v) -> populated.put(
-				populatedExploratoryName(serviceBaseName, user, k),
-				v.stream().filter(map -> !map.isEmpty())
-						.map(e -> getPopulatedComputationalName(user, serviceBaseName, k, e))
-						.filter(Objects::nonNull)
-						.collect(Collectors.toList())));
-		return populated;
-	}
-
-	/**
-	 * Returns list of user's exploratories with computational resources where both of them have predefined statuses.
+	 * Returns list of user's exploratories and corresponding computational resources where both of them have
+	 * predefined statuses.
 	 *
 	 * @param user                user.
 	 * @param exploratoryStatus   status for exploratory environment.
 	 * @param computationalStatus status for computational resource affiliated with the exploratory.
-	 * @return map with elements [key: exploratoryName, value: list of computational resources' names with its type -
-	 * 'de' (dataengine) or 'des' (dataengine-service)].
+	 * @return list with resources' data.
 	 */
-	private Map<String, List<Map<String, String>>> getExploratoriesWithPredefinedComputationalStatus(String user,
-																									 UserInstanceStatus
-																											 exploratoryStatus,
-																									 UserInstanceStatus
-																											 computationalStatus) {
+	public List<ResourceData> getResourcesWithPredefinedStatuses(String user, UserInstanceStatus exploratoryStatus,
+																 UserInstanceStatus computationalStatus) {
+		List<ResourceData> resources = new ArrayList<>();
 		List<UserInstanceDTO> exploratoriesWithPredefinedStatus =
 				getExploratoriesWithPredefinedStatus(user, exploratoryStatus);
-		if (exploratoriesWithPredefinedStatus.isEmpty()) {
-			return Collections.emptyMap();
-		}
 		List<UserInstanceDTO> exploratoriesWithPredefinedComputationalTypeAndStatus =
-				exploratoriesWithPredefinedStatus.stream().map(e ->
-						e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
+				exploratoriesWithPredefinedStatus.stream()
+						.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
 						.collect(Collectors.toList());
-		return exploratoriesWithPredefinedComputationalTypeAndStatus.stream()
-				.collect(Collectors.toMap(UserInstanceDTO::getExploratoryName,
-						uiDto -> uiDto.getResources().stream().map(this::computationalData)
-								.collect(Collectors.toList())));
+		exploratoriesWithPredefinedComputationalTypeAndStatus
+				.forEach(ui -> {
+					resources.add(
+							new ResourceData(ResourceType.EXPLORATORY, ui.getExploratoryId(),
+									ui.getExploratoryName(), null));
+					ui.getResources().forEach(cr -> resources.add(
+							new ResourceData(ResourceType.COMPUTATIONAL, cr.getComputationalId(),
+									ui.getExploratoryName(), cr.getComputationalName())));
+				});
+		return resources;
 	}
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
@@ -196,17 +146,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.filter(resource -> resource.getStatus().equals(computationalStatus.toString()))
 				.collect(Collectors.toList());
 	}
-
-	private Map<String, String> computationalData(UserComputationalResource compResource) {
-		Map<String, String> compResourceData = new HashMap<>();
-		if (Objects.nonNull(compResource)) {
-			compResourceData.put(compResource.getComputationalName(),
-					DataEngineType.fromDockerImageName(compResource.getImageName()) ==
-							DataEngineType.SPARK_STANDALONE ? "de" : "des");
-		}
-		return compResourceData;
-	}
-
 
 	/**
 	 * Returns list of user's exploratories with predefined status.
@@ -218,24 +157,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private List<UserInstanceDTO> getExploratoriesWithPredefinedStatus(String user, UserInstanceStatus status) {
 		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, true, status);
 	}
-
-	private String getPopulatedComputationalName(String user, String serviceBaseName, String exploratoryName,
-												 Map<String, String> computationalData) {
-		return computationalData.entrySet().stream().findAny()
-				.map(e -> populatedComputationalName(serviceBaseName, user, e.getValue(), exploratoryName, e.getKey()))
-				.orElse(null);
-	}
-
-	private String populatedExploratoryName(String serviceBaseName, String user, String exploratoryName) {
-		return String.join("-", serviceBaseName, user, "nb", exploratoryName);
-	}
-
-	private String populatedComputationalName(String serviceBaseName, String user, String computationalType,
-											  String exploratoryName, String computationalName) {
-		return String.join("-", serviceBaseName, user, computationalType, exploratoryName,
-				computationalName);
-	}
-
 
 	/**
 	 * Sends the post request to the provisioning service and update the status of exploratory environment.

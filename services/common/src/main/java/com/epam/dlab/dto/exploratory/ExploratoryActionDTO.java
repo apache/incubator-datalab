@@ -25,24 +25,6 @@ public class ExploratoryActionDTO<T extends ExploratoryActionDTO<?>> extends Exp
     @JsonProperty("notebook_instance_name")
     private String notebookInstanceName;
 
-	@JsonProperty("reupload_key_required")
-	private boolean reuploadKeyRequired;
-
-
-	public boolean isReuploadKeyRequired() {
-		return reuploadKeyRequired;
-	}
-
-	public void setReuploadKeyRequired(boolean reuploadKeyRequired) {
-		this.reuploadKeyRequired = reuploadKeyRequired;
-	}
-
-	@SuppressWarnings("unchecked")
-	public T withReuploadKeyRequired(boolean reuploadKeyRequired) {
-		setReuploadKeyRequired(reuploadKeyRequired);
-		return (T) this;
-	}
-
     public String getNotebookInstanceName() {
         return notebookInstanceName;
     }
@@ -60,8 +42,7 @@ public class ExploratoryActionDTO<T extends ExploratoryActionDTO<?>> extends Exp
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
-				.add("notebookInstanceName", notebookInstanceName)
-				.add("reuploadKeyRequired", reuploadKeyRequired);
+				.add("notebookInstanceName", notebookInstanceName);
     }
 
     @Override
