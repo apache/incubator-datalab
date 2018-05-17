@@ -93,22 +93,33 @@ def clean_tensor():
         print('Error:', str(err))
         sys.exit(1)
 
-
 if __name__ == "__main__":
     print('Configure connections')
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    if args.application in os.environ['dataengine_image_notebooks'].split(','):
-        general_clean()
-        if args.application == 'jupyter':
-            clean_jupyter()
-        elif args.application == 'zeppelin':
-            clean_zeppelin()
-        elif args.application == 'rstudio':
-            clean_rstudio()
-        elif args.application in ('tensor', 'deeplearning'):
-            clean_tensor()
+    de_master_name = '{}-{}-de-{}-{}-m'.format(
+        os.environ['conf_service_base_name'],
+        os.environ['edge_user_name'],
+        os.environ['exploratory_name'],
+        os.environ['computational_name'])
+    de_ami_id = get_ami_id_by_instance_name(de_master_name)
+    default_ami_id = get_ami_id(
+        os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
+
+    if de_ami_id!=default_ami_id:
+        if args.application in os.environ['dataengine_image_notebooks'].split(','):
+            general_clean()
+            if args.application == 'jupyter':
+                clean_jupyter()
+            elif args.application == 'zeppelin':
+                clean_zeppelin()
+            elif args.application == 'rstudio':
+                clean_rstudio()
+            elif args.application in ('tensor', 'deeplearning'):
+                clean_tensor()
+    else:
+        print('Found default ami, do not make clean')
 
     sys.exit(0)
