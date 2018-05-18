@@ -16,7 +16,7 @@ limitations under the License.
 
 -->
 
-<modal-dialog #bindDialog modalClass="scheduler-dialog modal-sm">
+<modal-dialog #bindDialog modalClass="scheduler-dialog modal-lg">
   <modal-header>
     <h4 class="modal-title">Scheduler
       <span *ngIf="destination">for
@@ -34,18 +34,28 @@ limitations under the License.
           </mat-slide-toggle>
         </div>
         <div class="row-wrap">
-          <div class="col">
+          <div class="col-3">
             <mat-form-field>
               <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
               <mat-datepicker-toggle [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }" matSuffix [for]="startDate"></mat-datepicker-toggle>
               <mat-datepicker #startDate></mat-datepicker>
             </mat-form-field>
           </div>
-          <div class="col">
+          <div class="col-3">
             <mat-form-field>
               <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date" formControlName="finishDate">
               <mat-datepicker-toggle matSuffix [for]="finishDate"></mat-datepicker-toggle>
               <mat-datepicker #finishDate></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-3">
+            <mat-form-field class="timezone-offset">
+              <mat-select
+                placeholder="Select offset"
+                [(value)]="tzOffset"
+                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
+                <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+              </mat-select>
             </mat-form-field>
           </div>
         </div>
@@ -60,16 +70,7 @@ limitations under the License.
               [disable]="!enableSchedule"></dlab-time-picker>
           </div>
           <div *ngIf="timeReqiered" class="danger_color m-bott-10"><span>At least one of time range fields should be selected</span></div>
-          <div class="col">
-            <mat-form-field class="timezone-offset">
-              <mat-select
-                placeholder="Select offset"
-                [(value)]="tzOffset"
-                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-                <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
+          
         </div>
         <div class="control-group">
           <label class="label repeat" for="options">Repeat on :</label>
