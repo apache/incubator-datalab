@@ -29,25 +29,7 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
     @JsonProperty("conf_key_dir")
     private String confKeyDir;
 
-	@JsonProperty("reupload_key_required")
-	private boolean reuploadKeyRequired;
-
-
-	public boolean isReuploadKeyRequired() {
-		return reuploadKeyRequired;
-	}
-
-	public void setReuploadKeyRequired(boolean reuploadKeyRequired) {
-		this.reuploadKeyRequired = reuploadKeyRequired;
-	}
-
-	@SuppressWarnings("unchecked")
-	public T withReuploadKeyRequired(boolean reuploadKeyRequired) {
-		setReuploadKeyRequired(reuploadKeyRequired);
-		return (T) this;
-	}
-
-    public String getServiceBaseName() {
+	public String getServiceBaseName() {
         return serviceBaseName;
     }
 

@@ -8,6 +8,7 @@ import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -52,10 +54,26 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private ReuploadKeyService reuploadKeyService;
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
-		return action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
+		String startActionUuid = action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
+		if (exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName).isReuploadKeyRequired()) {
+			while (exploratoryDAO.fetchExploratoryStatus(userInfo.getName(), exploratoryName) != RUNNING) {
+				try {
+					TimeUnit.MINUTES.sleep(1);
+				} catch (InterruptedException e) {
+					log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
+					Thread.currentThread().interrupt();
+				}
+			}
+			reuploadKeyService.reuploadKeyAction(userInfo, new ResourceData(ResourceType.EXPLORATORY,
+					exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName),
+					exploratoryName, null));
+		}
+		return startActionUuid;
 	}
 
 	@Override

@@ -1079,7 +1079,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName", false);
+		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1103,7 +1103,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName", false);
+		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1123,7 +1123,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName", false);
+		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();

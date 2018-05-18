@@ -497,13 +497,11 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ComputationalBase<T>> T newComputationalStart(UserInfo userInfo, String exploratoryName,
-																	String exploratoryId, String computationalName,
-																	boolean reuploadKeyRequired) {
+																	String exploratoryId, String computationalName) {
 		return (T) newResourceSysBaseDTO(userInfo, ComputationalStartDTO.class)
 				.withExploratoryName(exploratoryName)
 				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratoryId)
-				.withReuploadKeyRequired(reuploadKeyRequired);
+				.withNotebookInstanceName(exploratoryId);
 	}
 
 	@SuppressWarnings("unchecked")

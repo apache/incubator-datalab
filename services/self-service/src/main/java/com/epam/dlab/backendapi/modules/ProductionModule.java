@@ -77,6 +77,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(SchedulerJobService.class).to(SchedulerJobServiceImpl.class);
 		bind(EnvironmentService.class).to(EnvironmentServiceImpl.class);
 		bind(EdgeService.class).to(EdgeServiceImpl.class);
-
+		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
 	}
 }

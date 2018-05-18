@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.service.ComputationalService;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -35,6 +36,8 @@ import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
@@ -43,6 +46,7 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
@@ -72,6 +76,9 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Inject
 	private RequestId requestId;
+
+	@Inject
+	private ReuploadKeyService reuploadKeyService;
 
 
 	@Override
@@ -177,6 +184,22 @@ public class ComputationalServiceImpl implements ComputationalService {
 	public void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
 		sparkAction(userInfo, exploratoryName, computationalName, STARTING,
 				ComputationalAPI.COMPUTATIONAL_START_SPARK);
+		if (computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName)
+				.isReuploadKeyRequired()) {
+			while (UserInstanceStatus.of(computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName,
+					computationalName).getStatus()) != RUNNING) {
+				try {
+					TimeUnit.MINUTES.sleep(1);
+				} catch (InterruptedException e) {
+					log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
+					Thread.currentThread().interrupt();
+				}
+			}
+			reuploadKeyService.reuploadKeyAction(userInfo, new ResourceData(ResourceType.COMPUTATIONAL,
+					computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName)
+							.getComputationalId(),
+					exploratoryName, computationalName));
+		}
 	}
 
 	/**
@@ -223,9 +246,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 			exploratoryName, String computationalName, UserInstanceStatus compStatus, String exploratoryId) {
 		if (UserInstanceStatus.STARTING == compStatus) {
 			return requestBuilder
-					.newComputationalStart(userInfo, exploratoryName, exploratoryId, computationalName,
-							computationalDAO.fetchComputationalFields(
-									userInfo.getName(), exploratoryName, computationalName).isReuploadKeyRequired());
+					.newComputationalStart(userInfo, exploratoryName, exploratoryId, computationalName);
 		} else if (UserInstanceStatus.STOPPING == compStatus) {
 			return requestBuilder
 					.newComputationalStop(userInfo, exploratoryName, exploratoryId, computationalName);

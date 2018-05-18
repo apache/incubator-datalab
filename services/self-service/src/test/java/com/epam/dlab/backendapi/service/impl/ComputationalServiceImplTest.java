@@ -493,8 +493,8 @@ public class ComputationalServiceImplTest {
 		when(exploratoryDAO.fetchExploratoryId(anyString(), anyString())).thenReturn("someId");
 
 		ComputationalStartDTO computationalStartDTO = new ComputationalStartDTO();
-		when(requestBuilder.newComputationalStart(any(UserInfo.class), anyString(), anyString(), anyString(),
-				anyBoolean())).thenReturn(computationalStartDTO);
+		when(requestBuilder.newComputationalStart(any(UserInfo.class), anyString(), anyString(), anyString()))
+				.thenReturn(computationalStartDTO);
 		when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
 				.thenReturn("someUuid");
 		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
@@ -504,7 +504,7 @@ public class ComputationalServiceImplTest {
 		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStarting, "self"));
 		verify(exploratoryDAO).fetchExploratoryId(USER, EXPLORATORY_NAME);
-		verify(requestBuilder).newComputationalStart(userInfo, EXPLORATORY_NAME, "someId", COMP_NAME, false);
+		verify(requestBuilder).newComputationalStart(userInfo, EXPLORATORY_NAME, "someId", COMP_NAME);
 		verify(provisioningService)
 				.post(eq("computational/start/spark"), eq(TOKEN), refEq(computationalStartDTO), eq(String.class));
 		verify(requestId).put(USER, "someUuid");

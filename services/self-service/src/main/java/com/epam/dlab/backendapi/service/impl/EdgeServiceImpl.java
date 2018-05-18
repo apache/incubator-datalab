@@ -5,15 +5,20 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EdgeService;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.EdgeAPI.*;
@@ -35,6 +40,9 @@ public class EdgeServiceImpl implements EdgeService {
 	@Inject
 	private RequestId requestId;
 
+	@Inject
+	private ReuploadKeyService reuploadKeyService;
+
 	@Override
 	public String start(UserInfo userInfo) {
 		log.debug("Starting EDGE node for user {}", userInfo.getName());
@@ -44,13 +52,26 @@ public class EdgeServiceImpl implements EdgeService {
 					userInfo.getName(), status);
 			throw new DlabException("Could not start EDGE node because the status of instance is " + status);
 		}
-
+		String startActionUuid;
 		try {
-			return action(userInfo, EDGE_START, STARTING);
+			startActionUuid = action(userInfo, EDGE_START, STARTING);
 		} catch (DlabException e) {
 			log.error("Could not start EDGE node for user {}", userInfo.getName(), e);
 			throw new DlabException("Could not start EDGE node: " + e.getLocalizedMessage(), e);
 		}
+		if (keyDAO.getEdgeInfo(userInfo.getName()).isReuploadKeyRequired()) {
+			while (UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName())) != RUNNING) {
+				try {
+					TimeUnit.MINUTES.sleep(1);
+				} catch (InterruptedException e) {
+					log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
+					Thread.currentThread().interrupt();
+				}
+			}
+			reuploadKeyService.reuploadKeyAction(userInfo, new ResourceData(ResourceType.EDGE,
+					keyDAO.getEdgeInfo(userInfo.getName()).getInstanceId(), null, null));
+		}
+		return startActionUuid;
 	}
 
 	@Override
@@ -113,7 +134,6 @@ public class EdgeServiceImpl implements EdgeService {
 		try {
 			keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
 			ResourceSysBaseDTO<?> dto = requestBuilder.newEdgeAction(userInfo);
-			dto.withReuploadKeyRequired(keyDAO.getEdgeInfo(userInfo.getName()).isReuploadKeyRequired());
 			String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;

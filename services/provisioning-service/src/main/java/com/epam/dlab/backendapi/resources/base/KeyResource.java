@@ -28,10 +28,7 @@ import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
@@ -49,11 +46,14 @@ public class KeyResource {
 	private ProvisioningServiceApplicationConfiguration configuration;
 
 	@POST
-	public void reuploadKey(@Auth UserInfo ui, ReuploadKeyDTO dto) throws IOException {
-		String edgeUserName = dto.getEdgeUserName();
-		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
-		FileUtils.deleteFile(filename, configuration.getKeyDirectory());
-		FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
+	public void reuploadKey(@Auth UserInfo ui, @DefaultValue("true") @QueryParam("is_primary_reuploading")
+			boolean isPrimaryReuploading, ReuploadKeyDTO dto) throws IOException {
+		if (isPrimaryReuploading) {
+			String edgeUserName = dto.getEdgeUserName();
+			String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
+			FileUtils.deleteFile(filename, configuration.getKeyDirectory());
+			FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
+		}
 		reuploadKeyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
 	}
 
