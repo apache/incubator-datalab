@@ -30,14 +30,10 @@ limitations under the License.
           </mat-list-item>
           <div class="scrolling-content" id="scrolling">
             <mat-list-item *ngFor="let item of usersList">
-              <div class="username">{{ item }}</div>
+              <div class="username ellipsis">{{ item }}</div>
               <div class="action">
-                <button mat-raised-button type="button" (click)="applyAction('stop', item)" class="butt">
-                  <i class="material-icons">pause_circle_outline</i>Stop
-                </button>
-                <button mat-raised-button type="button" (click)="applyAction('terminate', item)" class="butt">
-                  <i class="material-icons">phonelink_off</i>Terminate
-                </button>
+                <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i class="material-icons">pause_circle_outline</i></span>
+                <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)"><i class="material-icons">phonelink_off</i></span>
               </div>
             </mat-list-item>
           </div>

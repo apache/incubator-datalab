@@ -304,3 +304,8 @@ input[type='number'] {
   color: #fff;
   box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6);
 }
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
