@@ -46,7 +46,8 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
@@ -186,19 +187,15 @@ public class ComputationalServiceImpl implements ComputationalService {
 				ComputationalAPI.COMPUTATIONAL_START_SPARK);
 		if (computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName)
 				.isReuploadKeyRequired()) {
-			while (UserInstanceStatus.of(computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName,
-					computationalName).getStatus()) != RUNNING) {
-				try {
-					TimeUnit.MINUTES.sleep(1);
-				} catch (InterruptedException e) {
-					log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
-					Thread.currentThread().interrupt();
-				}
-			}
-			reuploadKeyService.reuploadKeyAction(userInfo, new ResourceData(ResourceType.COMPUTATIONAL,
+			ResourceData resourceData = new ResourceData(ResourceType.COMPUTATIONAL,
 					computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName)
-							.getComputationalId(),
-					exploratoryName, computationalName));
+							.getComputationalId(), exploratoryName, computationalName);
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.execute(() -> {
+				reuploadKeyService.waitForRunningStatus(userInfo, resourceData, 30);
+				reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
+			});
+			executor.shutdown();
 		}
 	}
 

@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -29,7 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -56,22 +58,22 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestId requestId;
 	@Inject
 	private ReuploadKeyService reuploadKeyService;
+	@Inject
+	private SystemUserInfoServiceImpl systemUserService;
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
 		String startActionUuid = action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
 		if (exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName).isReuploadKeyRequired()) {
-			while (exploratoryDAO.fetchExploratoryStatus(userInfo.getName(), exploratoryName) != RUNNING) {
-				try {
-					TimeUnit.MINUTES.sleep(1);
-				} catch (InterruptedException e) {
-					log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
-					Thread.currentThread().interrupt();
-				}
-			}
-			reuploadKeyService.reuploadKeyAction(userInfo, new ResourceData(ResourceType.EXPLORATORY,
+			ResourceData resourceData = new ResourceData(ResourceType.EXPLORATORY,
 					exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName),
-					exploratoryName, null));
+					exploratoryName, null);
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.execute(() -> {
+				reuploadKeyService.waitForRunningStatus(userInfo, resourceData, 30);
+				reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
+			});
+			executor.shutdown();
 		}
 		return startActionUuid;
 	}

@@ -31,6 +31,7 @@ import io.dropwizard.auth.Auth;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Provides API for reuploading keys
@@ -46,7 +47,7 @@ public class KeyResource {
 	private ProvisioningServiceApplicationConfiguration configuration;
 
 	@POST
-	public void reuploadKey(@Auth UserInfo ui, @DefaultValue("true") @QueryParam("is_primary_reuploading")
+	public String reuploadKey(@Auth UserInfo ui, @DefaultValue("true") @QueryParam("is_primary_reuploading")
 			boolean isPrimaryReuploading, ReuploadKeyDTO dto) throws IOException {
 		if (isPrimaryReuploading) {
 			String edgeUserName = dto.getEdgeUserName();
@@ -55,6 +56,7 @@ public class KeyResource {
 			FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
 		}
 		reuploadKeyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
+		return UUID.randomUUID().toString();
 	}
 
 }

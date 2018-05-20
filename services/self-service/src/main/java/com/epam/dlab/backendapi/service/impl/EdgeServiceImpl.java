@@ -18,7 +18,8 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.EdgeAPI.*;
@@ -60,16 +61,14 @@ public class EdgeServiceImpl implements EdgeService {
 			throw new DlabException("Could not start EDGE node: " + e.getLocalizedMessage(), e);
 		}
 		if (keyDAO.getEdgeInfo(userInfo.getName()).isReuploadKeyRequired()) {
-			while (UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName())) != RUNNING) {
-				try {
-					TimeUnit.MINUTES.sleep(1);
-				} catch (InterruptedException e) {
-					log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
-					Thread.currentThread().interrupt();
-				}
-			}
-			reuploadKeyService.reuploadKeyAction(userInfo, new ResourceData(ResourceType.EDGE,
-					keyDAO.getEdgeInfo(userInfo.getName()).getInstanceId(), null, null));
+			ResourceData resourceData = new ResourceData(ResourceType.EDGE,
+					keyDAO.getEdgeInfo(userInfo.getName()).getInstanceId(), null, null);
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.execute(() -> {
+				reuploadKeyService.waitForRunningStatus(userInfo, resourceData, 30);
+				reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
+			});
+			executor.shutdown();
 		}
 		return startActionUuid;
 	}

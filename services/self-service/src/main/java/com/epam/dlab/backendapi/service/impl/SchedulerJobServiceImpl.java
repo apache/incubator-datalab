@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -69,7 +69,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private ComputationalService computationalService;
 
 	@Inject
-	private SystemUserInfoServiceImpl systemUserService;
+	private SystemUserInfoService systemUserService;
 
 	@Override
 	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {

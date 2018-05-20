@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
@@ -80,13 +81,32 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	}
 
 	@Override
+	public void waitForRunningStatus(UserInfo userInfo, ResourceData resourceData, long seconds) {
+		if (resourceData.getResourceType() == ResourceType.EDGE) {
+			while (UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName())) != RUNNING) {
+				pause(seconds);
+			}
+		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+			while (exploratoryDAO.fetchExploratoryStatus(userInfo.getName(), resourceData.getExploratoryName()) !=
+					RUNNING) {
+				pause(seconds);
+			}
+		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
+			while (UserInstanceStatus.of(computationalDAO.fetchComputationalFields(userInfo.getName(),
+					resourceData.getExploratoryName(), resourceData.getComputationalName()).getStatus()) != RUNNING) {
+				pause(seconds);
+			}
+		}
+	}
+
+	@Override
 	public void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData) {
 		try {
 			updateResourceStatus(userInfo, resourceData, REUPLOADING_KEY);
-			ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(userInfo, UUID.randomUUID().toString(), null,
+			ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(userInfo, UUID.randomUUID().toString(), "",
 					Collections.singletonList(resourceData));
-			String uuid = provisioningService.post(REUPLOAD_KEY + "?is_primary_reuploading=false",
-					userInfo.getAccessToken(), reuploadKeyDTO, String.class);
+			String uuid = provisioningService.post(REUPLOAD_KEY, userInfo.getAccessToken(), reuploadKeyDTO,
+					String.class, "is_primary_reuploading", false);
 			requestId.put(userInfo.getName(), uuid);
 		} catch (Exception t) {
 			log.error("Couldn't reupload key to " + resourceData.toString() + " for user {}", userInfo.getName(), t);
@@ -121,6 +141,15 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 				computationalDAO.updateReuploadKeyFlagForComputationalResource(user, resource.getExploratoryName(),
 						resource.getComputationalName(), false);
 			}
+		}
+	}
+
+	private void pause(long seconds) {
+		try {
+			TimeUnit.SECONDS.sleep(seconds);
+		} catch (InterruptedException e) {
+			log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
+			Thread.currentThread().interrupt();
 		}
 	}
 

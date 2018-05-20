@@ -55,23 +55,35 @@ public class RESTService {
     }
 
     public <T> T get(String path, String accessToken, Class<T> clazz) {
-        Invocation.Builder builder = getBuilder(path, accessToken);
+		Invocation.Builder builder = getBuilder(path, accessToken, null);
         log.debug("REST get secured {} {}", path, accessToken);
         return builder.get(clazz);
     }
 
     public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz) {
-        Invocation.Builder builder = getBuilder(path, accessToken);
-        log.debug("REST post secured {} {}", path, accessToken);
-        return builder.post(Entity.json(parameter), clazz);
-    }
+		Invocation.Builder builder = getBuilder(path, accessToken, null);
+		log.debug("REST post secured {} {}", path, accessToken);
+		return builder.post(Entity.json(parameter), clazz);
+	}
+
+	public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz, String queryParamName,
+					  Object... values) {
+		Invocation.Builder builder = getBuilder(path, accessToken, queryParamName, values);
+		log.debug("REST post secured {} {}", path, accessToken);
+		return builder.post(Entity.json(parameter), clazz);
+	}
 
     private Invocation.Builder getBuilder(String path) {
-        return getBuilder(path, null);
-    }
+		return getBuilder(path, null, null);
+	}
 
-    private Invocation.Builder getBuilder(String path, String token) {
-        Invocation.Builder builder = getWebTarget(path)
+	private Invocation.Builder getBuilder(String path, String token, String queryParamName, Object... values) {
+		WebTarget webTarget = getWebTarget(path);
+		if (queryParamName != null && values.length > 0) {
+			webTarget.queryParam(queryParamName, values);
+		}
+
+		Invocation.Builder builder = webTarget
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
