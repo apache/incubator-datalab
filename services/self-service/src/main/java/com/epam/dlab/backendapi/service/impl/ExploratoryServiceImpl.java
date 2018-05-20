@@ -30,8 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -68,12 +66,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			ResourceData resourceData = new ResourceData(ResourceType.EXPLORATORY,
 					exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName),
 					exploratoryName, null);
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(() -> {
-				reuploadKeyService.waitForRunningStatus(userInfo, resourceData, 30);
-				reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
-			});
-			executor.shutdown();
+			reuploadKeyService.waitForRunningStatusAndReuploadKey(userInfo, resourceData, 30);
 		}
 		return startActionUuid;
 	}

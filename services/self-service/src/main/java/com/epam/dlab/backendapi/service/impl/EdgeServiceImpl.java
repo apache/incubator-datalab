@@ -18,9 +18,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.EdgeAPI.*;
 
@@ -63,12 +60,7 @@ public class EdgeServiceImpl implements EdgeService {
 		if (keyDAO.getEdgeInfo(userInfo.getName()).isReuploadKeyRequired()) {
 			ResourceData resourceData = new ResourceData(ResourceType.EDGE,
 					keyDAO.getEdgeInfo(userInfo.getName()).getInstanceId(), null, null);
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(() -> {
-				reuploadKeyService.waitForRunningStatus(userInfo, resourceData, 30);
-				reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
-			});
-			executor.shutdown();
+			reuploadKeyService.waitForRunningStatusAndReuploadKey(userInfo, resourceData, 30);
 		}
 		return startActionUuid;
 	}

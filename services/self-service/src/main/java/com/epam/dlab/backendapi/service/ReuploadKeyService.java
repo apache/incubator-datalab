@@ -8,9 +8,7 @@ public interface ReuploadKeyService {
 
 	String reuploadKey(UserInfo user, String keyContent);
 
-	void waitForRunningStatus(UserInfo userInfo, ResourceData resourceData, long seconds);
-
-	void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData);
+	void waitForRunningStatusAndReuploadKey(UserInfo userInfo, ResourceData resourceData, long seconds);
 
 	void processReuploadKeyResponse(ReuploadKeyStatusDTO dto);
 }

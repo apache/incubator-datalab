@@ -23,11 +23,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -58,7 +61,11 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
-	private static final String REUPLOAD_KEY_UPDATE_MSG = "Updating 'reupload_key_required' flag to 'false'";
+	private static final String REUPLOAD_KEY_UPDATE_MSG = "Reuploading key process is successfully finished. " +
+			"Updating" +
+			" 'reupload_key_required' flag to 'false' {}.";
+	private static final String REUPLOAD_KEY_ERROR_MSG = "Reuploading key process is failed {}. The next attempt " +
+			"starts after resource restarting.";
 
 
 	@Override
@@ -81,66 +88,58 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	}
 
 	@Override
-	public void waitForRunningStatus(UserInfo userInfo, ResourceData resourceData, long seconds) {
-		if (resourceData.getResourceType() == ResourceType.EDGE) {
-			while (UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName())) != RUNNING) {
-				pause(seconds);
-			}
-		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
-			while (exploratoryDAO.fetchExploratoryStatus(userInfo.getName(), resourceData.getExploratoryName()) !=
-					RUNNING) {
-				pause(seconds);
-			}
-		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
-			while (UserInstanceStatus.of(computationalDAO.fetchComputationalFields(userInfo.getName(),
-					resourceData.getExploratoryName(), resourceData.getComputationalName()).getStatus()) != RUNNING) {
-				pause(seconds);
-			}
-		}
+	public void waitForRunningStatusAndReuploadKey(UserInfo userInfo, ResourceData resourceData, long seconds) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.execute(() -> {
+			waitForRunningStatus(userInfo, resourceData, seconds);
+			reuploadKeyAction(userInfo, resourceData);
+		});
+		executor.shutdown();
 	}
 
 	@Override
-	public void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData) {
+	public void processReuploadKeyResponse(ReuploadKeyStatusDTO dto) {
+		String user = dto.getUser();
+		ResourceData resource = dto.getReuploadKeyDTO().getResources().get(0);
+		updateResourceStatus(user, resource, RUNNING);
+		if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
+			log.debug(REUPLOAD_KEY_UPDATE_MSG, messageAppendix(user, resource));
+			updateResourceReuploadKeyFlag(user, resource, false);
+		} else {
+			log.error(REUPLOAD_KEY_ERROR_MSG, messageAppendix(user, resource));
+		}
+	}
+
+	private String messageAppendix(String user, ResourceData resourceData) {
+		if (resourceData.getResourceType() == ResourceType.EDGE) {
+			return String.format("for edge with id %s for user %s", resourceData.getResourceId(), user);
+		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+			return String.format("for notebook %s for user %s", resourceData.getExploratoryName(), user);
+		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
+			return String.format("for cluster %s of notebook %s for user %s",
+					resourceData.getComputationalName(), resourceData.getExploratoryName(), user);
+		} else return StringUtils.EMPTY;
+	}
+
+	private void waitForRunningStatus(UserInfo userInfo, ResourceData resourceData, long seconds) {
+		while (fetchResourceStatus(userInfo.getName(), resourceData) != RUNNING) {
+			pause(seconds);
+		}
+	}
+
+	private void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData) {
 		try {
-			updateResourceStatus(userInfo, resourceData, REUPLOADING_KEY);
-			ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(userInfo, UUID.randomUUID().toString(), "",
-					Collections.singletonList(resourceData));
+			updateResourceStatus(userInfo.getName(), resourceData, REUPLOADING_KEY);
+			ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(userInfo, UUID.randomUUID().toString(),
+					StringUtils.EMPTY, Collections.singletonList(resourceData));
 			String uuid = provisioningService.post(REUPLOAD_KEY, userInfo.getAccessToken(), reuploadKeyDTO,
 					String.class, "is_primary_reuploading", false);
 			requestId.put(userInfo.getName(), uuid);
 		} catch (Exception t) {
 			log.error("Couldn't reupload key to " + resourceData.toString() + " for user {}", userInfo.getName(), t);
-			updateResourceStatus(userInfo, resourceData, RUNNING);
+			updateResourceStatus(userInfo.getName(), resourceData, RUNNING);
 			throw new DlabException("Couldn't reupload key to " + resourceData.toString() + " for user " +
 					userInfo.getName() + ":	" + t.getLocalizedMessage(), t);
-		}
-	}
-
-	@Override
-	public void processReuploadKeyResponse(ReuploadKeyStatusDTO dto) {
-		ResourceData resource = dto.getReuploadKeyDTO().getResources().get(0);
-		String user = dto.getUser();
-		if (resource.getResourceType() == ResourceType.EDGE) {
-			keyDAO.updateEdgeStatus(user, UserInstanceStatus.RUNNING.toString());
-			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for edge with id {}...", resource.getResourceId());
-				keyDAO.updateEdgeReuploadKey(user, false, UserInstanceStatus.values());
-			}
-		} else if (resource.getResourceType() == ResourceType.EXPLORATORY) {
-			exploratoryDAO.updateStatusForExploratory(user, resource.getExploratoryName(), RUNNING);
-			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for notebook {}...", resource.getExploratoryName());
-				exploratoryDAO.updateReuploadKeyForExploratory(user, resource.getExploratoryName(), false);
-			}
-		} else if (resource.getResourceType() == ResourceType.COMPUTATIONAL) {
-			computationalDAO.updateStatusForComputationalResource(user, resource.getExploratoryName(),
-					resource.getComputationalName(), RUNNING);
-			if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-				log.debug(REUPLOAD_KEY_UPDATE_MSG + " for cluster {} of notebook {}...",
-						resource.getComputationalName(), resource.getExploratoryName());
-				computationalDAO.updateReuploadKeyFlagForComputationalResource(user, resource.getExploratoryName(),
-						resource.getComputationalName(), false);
-			}
 		}
 	}
 
@@ -153,15 +152,38 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 		}
 	}
 
-	private void updateResourceStatus(UserInfo userInfo, ResourceData resourceData, UserInstanceStatus newStatus) {
+	private UserInstanceStatus fetchResourceStatus(String user, ResourceData resourceData) {
 		if (resourceData.getResourceType() == ResourceType.EDGE) {
-			keyDAO.updateEdgeStatus(userInfo.getName(), newStatus.toString());
+			return UserInstanceStatus.of(keyDAO.getEdgeStatus(user));
 		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
-			exploratoryDAO.updateStatusForExploratory(userInfo.getName(), resourceData.getExploratoryName(),
+			return exploratoryDAO.fetchExploratoryStatus(user, resourceData.getExploratoryName());
+		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
+			return UserInstanceStatus.of(computationalDAO.fetchComputationalFields(user,
+					resourceData.getExploratoryName(), resourceData.getComputationalName()).getStatus());
+		} else throw new DlabException("Unknown resource type: " + resourceData.getResourceType());
+	}
+
+	private void updateResourceStatus(String user, ResourceData resourceData, UserInstanceStatus newStatus) {
+		if (resourceData.getResourceType() == ResourceType.EDGE) {
+			keyDAO.updateEdgeStatus(user, newStatus.toString());
+		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+			exploratoryDAO.updateStatusForExploratory(user, resourceData.getExploratoryName(),
 					newStatus);
 		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
-			computationalDAO.updateStatusForComputationalResource(userInfo.getName(),
-					resourceData.getExploratoryName(), resourceData.getComputationalName(), newStatus);
+			computationalDAO.updateStatusForComputationalResource(user, resourceData.getExploratoryName(),
+					resourceData.getComputationalName(), newStatus);
+		}
+	}
+
+	private void updateResourceReuploadKeyFlag(String user, ResourceData resourceData, boolean reuploadKeyRequired) {
+		if (resourceData.getResourceType() == ResourceType.EDGE) {
+			keyDAO.updateEdgeReuploadKey(user, reuploadKeyRequired, UserInstanceStatus.values());
+		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+			exploratoryDAO.updateReuploadKeyForExploratory(user, resourceData.getExploratoryName(),
+					reuploadKeyRequired);
+		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
+			computationalDAO.updateReuploadKeyFlagForComputationalResource(user, resourceData.getExploratoryName(),
+					resourceData.getComputationalName(), reuploadKeyRequired);
 		}
 	}
 

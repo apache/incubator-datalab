@@ -46,8 +46,6 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
@@ -190,12 +188,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 			ResourceData resourceData = new ResourceData(ResourceType.COMPUTATIONAL,
 					computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName)
 							.getComputationalId(), exploratoryName, computationalName);
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			executor.execute(() -> {
-				reuploadKeyService.waitForRunningStatus(userInfo, resourceData, 30);
-				reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
-			});
-			executor.shutdown();
+			reuploadKeyService.waitForRunningStatusAndReuploadKey(userInfo, resourceData, 30);
 		}
 	}
 
