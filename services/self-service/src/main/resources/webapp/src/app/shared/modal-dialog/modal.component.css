@@ -42,6 +42,7 @@ limitations under the License.
 .modal-sm { width: 525px; }
 .modal-md { width: 545px; }
 .modal-lg { width: 580px; }
+.modal-xl-s { width: 660px; }
 .modal-xl { width: 900px; }
 .modal-xxl { width: 1000px; }
 
@@ -220,7 +221,7 @@ limitations under the License.
 
 
 .dialog-body .content-box {
-  padding: 35px 50px 30px;
+  padding: 25px 35px 45px;
 }
 
 .install-libraries .dialog-body .content-box {
