@@ -18,11 +18,13 @@ package com.epam.dlab.billing.azure.rate;
 
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
 import lombok.extern.slf4j.Slf4j;
+import org.glassfish.jersey.client.ClientProperties;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Slf4j
 public class AzureRateCardClient {
@@ -41,9 +43,10 @@ public class AzureRateCardClient {
         try {
             client = ClientBuilder.newClient();
 
-            RateCardResponse rateCardResponse = client
+            Response response = client
                     .target("https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Commerce/RateCard")
                     .resolveTemplate("subscriptionId", billingConfigurationAzure.getSubscriptionId())
+                    .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
                     .queryParam("api-version", "2016-08-31-preview")
                     .queryParam("$filter",
                             String.format("OfferDurableId eq '%s' and Currency eq '%s' and Locale eq '%s' and RegionInfo eq '%s'",
@@ -51,6 +54,10 @@ public class AzureRateCardClient {
                                     billingConfigurationAzure.getLocale(), billingConfigurationAzure.getRegionInfo()))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header("Authorization", String.format("Bearer %s", authToken))
+                    .get(Response.class);
+
+            final RateCardResponse rateCardResponse = client.target(response.getLocation())
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(RateCardResponse.class);
 
             log.info("RateCard is retrieved. Meter counts is {}", rateCardResponse.getMeters().size());
