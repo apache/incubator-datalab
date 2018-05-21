@@ -19,6 +19,8 @@ limitations under the License.
 .manage-env-dialog {
   .mat-list-item-content {
     padding: 0 !important;
+    justify-content: space-between;
+    color: #577289;
   }
   .list-header {
     border-top: 1px solid #edf1f5;
@@ -27,23 +29,23 @@ limitations under the License.
     width: 100%;
     font-weight: 600;
   }
+  .scrolling-content {
+    max-height: 275px;
+    overflow-y: auto;
+  }
   .username {
-    width: 50%;
+    width: 80%;
   }
   .action {
-    width: 50%;
-    display: flex;
-    button.butt.mat-raised-button {
-      padding: 0;
-      font-size: 14px;
-      width: 140px;
-      &:first-child {
-        margin-right: 5px;
-        width: 90px;
+    width: 20%;
+    span {
+      padding: 3px;
+      cursor: pointer;
+      &:hover {
+        color: #718ba6;
       }
       i {
-        font-size: 17px;
-        vertical-align: sub;
+        font-size: 20px;
       }
     }
   }

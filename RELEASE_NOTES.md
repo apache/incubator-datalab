@@ -1,32 +1,40 @@
 # DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## New features in v1.8
+## New features in v1.9
 
-- OAuth2 authentication and authorization on Microsoft Azure
-- Added support of Data Lake Store on Microsoft Azure
-- Integration with  Google Cloud Platform (by means of deployment scripts, no UI yet)
+- Implemented ssh key pair generation for user
+- Added ability to stop Data Engine with further start
+- Added possibility to install additional packages for RStudio from console
+- Added possibility to stop or terminate user environment by administrator
+- Implemented restriction of available instance shapes for notebooks based on user roles
 
-## Improvements in v1.8
+## Improvements in v1.9
 
-- More readable error information for libraries installation
-- Added type identifier for computational resources during libraries installation, You can now distinguish which libraries have been installed on a notebooks and which on cluster 
-- Immediate validation on UI if cluster names are not duplicated
-
-
-## Bug fixes in v1.8
-
-Logout if user session is inactive for configured period of time 
-Occasional problem with DLab not successful login from the first attempt on Microsoft Azure
-Libraries from terminated clusters are shown on UI
+- Added possibility to install Python packages for RStudio
+- Implemented a scheduler for notebook (added UI) and Data Engine 
+- Implemented creation images from existing notebook including libraries (added UI)
+- Updated User guide
 
 
-## Known issues in v1.8
+## Bug fixes in v1.9
 
+- Sparklyr (r package) and tkinter  (yum) libraries are successfully installed on RStudio
+- User key is removed from MongoDB after Edge termination by administrator
+- Edge terminate process kills only Data Engine Service of related user not all users on AWS
+- Available lib list is successfully obtained for Data Engine Service on AWS
+
+
+## Known issues in v1.9
+
+- Remote kernel list for Data Engine is not updated after stop/start
+- Storage permissions aren't differentiated by users thought Dataproc permissions (users can create clusters, but have R/W access to all buckets)
 - DeepLearning, TensorFlow templates are not supported on Microsoft Azure for Red Hat Enterprise Linux
 - Microsoft Azure resource name length should not exceed 80 chars
+- Billing is not available on Microsoft Azure
 - GCP resource name length should not exceed 64 chars
-- Spark cluster status is not updated from “terminating” after notebook stop action
 - Low priority Virtual Machines are not supported yet on Microsoft Azure
+- Zeppelin supports only Dataproc 1.1 on GCP
+- Rare problem during notebook stopping/starting and creating clusters (impossible to automatically determine credentials (GCP))
 
 
   

@@ -48,12 +48,12 @@ limitations under the License.
         color: #748ba3;
         font-size: 18px;
         text-align: center;
-        cursor: pointer;
         i {
           font-size: 18px;
         }
       }
       .schedule {
+        cursor: pointer;
         &.not-allowed {
           pointer-events: none;
         }
@@ -62,22 +62,20 @@ limitations under the License.
         }
       }
       .start-stop-action {
+        
         font-size: 18px;
         color: #36afd5;
         margin-left: 3px;
-        span {
+        i {
           cursor: pointer;
           &.not-allowed {
-            cursor: default;
+            pointer-events: none;
           }
-        }
-        .not-allowed {
-          pointer-events: none;
         }
       }
       .remove_butt {
-        color: #ef5c4b;
         cursor: pointer;
+        color: #ef5c4b;
 
         &.disabled {
           color: #f5d3d3;

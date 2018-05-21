@@ -126,6 +126,7 @@ export class SchedulerComponent implements OnInit {
 
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
+    this.timeReqiered = false;
     
     (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
       ? this.schedulerForm.get('startDate').enable()
@@ -140,7 +141,7 @@ export class SchedulerComponent implements OnInit {
       finishDate: this.schedulerForm.controls.finishDate.value
     };
 
-    if (!this.startTime && !this.endTime) {
+    if (!this.startTime && !this.endTime && this.enableSchedule) {
       this.timeReqiered = true;
       return false;
     }
