@@ -90,7 +90,7 @@ public class VirtualMachineStatusChecker {
                 break;
             case CloudProvider.GCP_PROVIDER:
                 GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
-                        GcpInstanceState.STOPPED, restrictionMode,
+                        GcpInstanceState.TERMINATED, restrictionMode,
                         GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
                 break;
             default:
