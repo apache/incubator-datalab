@@ -17,77 +17,42 @@ limitations under the License.
 -->
 
 <div class="source">
+
   <div *ngIf="!resources.length">
-    <span *ngIf="!resources.length" class="no_details">no details</span>
+    <span *ngIf="!resources.length" class="no-details">no details</span>
   </div>
-
   <div *ngIf="resources.length">
-    <div class="resource_wrap">
-      <a class="remove_butt"
-        [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'
-                  && resources[0].status !== 'running'
-                  && resources[0].status !== 'failed'
-                  && resources[0].status !== 'stopped'}"
-        (click)="toggleResourceAction(resources[0], 'terminate')">&times;</a>
-      <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine' && environment.status === 'running'">
-        <span *ngIf="resources[0].status === 'running' || resources[0].status === 'stopping'"
-              (click)="toggleResourceAction(resources[0], 'stop')"
-              [ngClass]="{'not-allowed' : resources[0].status === 'stopping'}">pause_circle_outline</span>
-        <span *ngIf="resources[0].status === 'stopped' || resources[0].status === 'starting'"
-              (click)="toggleResourceAction(resources[0], 'start')"
-              [ngClass]="{'not-allowed' : resources[0].status === 'starting'}">play_circle_outline</span>
-      </a>
-      <a class="detailed-link" (click)="detailComputationalResources(environment, resources[0])">
-        {{resources[0].computational_name}}
-      </a>
-    </div>
-
-    <span class="schedule" [ngClass]="{'active': resources[0].scheduler_data,
-
-                      'not-allowed': resources[0].image === 'docker.dlab-dataengine-service'
-                      || (environment.status !== 'running' && environment.status !== 'stopped'
-                      || resources[0].status !== 'running' && resources[0].status !== 'stopped') }">
-      <i class="material-icons" (click)="openScheduleDialog(resources[0])">schedule</i>
-    </span>
-
-    <span class="material-icons arrow_icon" *ngIf="resources.length > 1" (click)="toggleResourceList()">
-      <strong *ngIf="!collapse">keyboard_arrow_down</strong>
-      <strong *ngIf="collapse">keyboard_arrow_up</strong>
-    </span>
-    <span ngClass="{{resources[0].status.toLowerCase() || ''}}" class="emt_status">{{resources[0].status}}</span>
-  </div>
-</div>
-
-<div *ngIf="collapse" class="source">
-  <div *ngFor="let resource of resources | slice:1">
-      <div class="resource_wrap">
-        <a class="remove_butt"
-          [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'
-          && resource.status != 'running' && resource.status != 'failed' && resource.status != 'stopped' }"
-          (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
-        <a class="start-stop-action material-icons" *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
-          <span *ngIf="resource.status === 'running' || resource.status === 'stopping'"
-                (click)="toggleResourceAction(resource, 'stop')"
-                [ngClass]="{'not-allowed' : resource.status === 'stopping'}">pause_circle_outline</span>
-          <span *ngIf="resource.status === 'stopped' || resource.status === 'starting'"
-                (click)="toggleResourceAction(resource, 'start')"
-                [ngClass]="{'not-allowed' : resource.status === 'starting'}">play_circle_outline</span>
-        </a>
+    <div *ngFor="let resource of resources" class="resource-wrap">
+      <div class="resource-name">
         <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">
           {{resource.computational_name}}
         </a>
       </div>
-      <span ngClass="{{resource.status.toLowerCase() || ''}}" class="emt_status">{{resource.status}}</span>
-      <span class="schedule"
-          [ngClass]="{'active': resource.scheduler_data,
-                      'not-allowed': resource.image === 'docker.dlab-dataengine-service'
-                      || environment.status !== 'running' && environment.status !== 'stopped'
-                      || resource.status !== 'running' && resource.status !== 'stopped' }">
-        <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>
-      </span>
+      <span ngClass="{{resource.status.toLowerCase() || ''}}" class="resource-status">{{resource.status}}</span>
+
+      <div class="resource-actions">
+        <a class="schedule" [ngClass]="{'active': resource.scheduler_data,
+            'not-allowed': resource.image === 'docker.dlab-dataengine-service'
+            || environment.status !== 'running' && environment.status !== 'stopped'
+            || resource.status !== 'running' && resource.status !== 'stopped' }">
+          <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>
+        </a>
+
+        <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
+          <i class="material-icons" *ngIf="resource.status === 'running' || resource.status === 'stopping'" (click)="toggleResourceAction(resource, 'stop')"
+            [ngClass]="{'not-allowed' : resource.status === 'stopping'}">pause_circle_outline</i>
+          <i class="material-icons" *ngIf="resource.status === 'stopped' || resource.status === 'starting'" (click)="toggleResourceAction(resource, 'start')"
+            [ngClass]="{'not-allowed' : resource.status === 'starting'}">play_circle_outline</i>
+        </a>
+
+        <a class="remove_butt" [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'
+            && resource.status != 'running' && resource.status != 'failed' && resource.status != 'stopped' }" (click)="toggleResourceAction(resource, 'terminate')">
+          <i class="material-icons">highlight_off</i>
+        </a>
+      </div>
+    </div>
   </div>
 </div>
-
 
 <detail-computational-resources #detailComputationalResource></detail-computational-resources>
 <dlab-scheduler #clusterScheduler (buildGrid)="rebuildGrid($event)"></dlab-scheduler>
