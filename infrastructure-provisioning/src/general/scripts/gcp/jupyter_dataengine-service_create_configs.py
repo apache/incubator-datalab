@@ -119,7 +119,7 @@ if __name__ == "__main__":
         pyspark_kernel(kernels_dir, args.dataproc_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
         toree_kernel(args)
-        if r_enabled == 'true':
+        if args.r_enabled == 'true':
             r_kernel(args)
         actions_lib.GCPActions().spark_defaults(args)
         configuring_notebook(args.dataproc_version)
