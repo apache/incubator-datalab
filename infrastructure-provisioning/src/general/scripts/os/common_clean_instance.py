@@ -99,16 +99,26 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    de_master_name = '{}-{}-de-{}-{}-m'.format(
-        os.environ['conf_service_base_name'],
-        os.environ['edge_user_name'],
-        os.environ['exploratory_name'],
-        os.environ['computational_name'])
-    de_ami_id = get_ami_id_by_instance_name(de_master_name)
-    default_ami_id = get_ami_id(
-        os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
+    if os.environ['conf_cloud_provider'] == 'azure':
+         de_master_name = '{}-{}-de-{}-{}-m'.format(
+            os.environ['conf_service_base_name'],
+            os.environ['edge_user_name'].replace("_", "-"),
+            os.environ['exploratory_name'].replace("_", "-"),
+            os.environ['computational_name'].replace("_", "-"))
+         de_ami_id = AzureMeta().get_instance_image(os.environ['azure_resource_group_name'],
+            de_master_name)
+         default_ami_id = 'default'
+    else:
+        de_master_name = '{}-{}-de-{}-{}-m'.format(
+            os.environ['conf_service_base_name'],
+            os.environ['edge_user_name'],
+            os.environ['exploratory_name'],
+            os.environ['computational_name'])
+        de_ami_id = get_ami_id_by_instance_name(de_master_name)
+        default_ami_id = get_ami_id(
+            os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
 
-    if de_ami_id!=default_ami_id:
+    if de_ami_id != default_ami_id:
         if args.application in os.environ['dataengine_image_notebooks'].split(','):
             general_clean()
             if args.application == 'jupyter':
