@@ -70,7 +70,7 @@ limitations under the License.
     <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{ env.status | underscoreless }}</td>
     <td>{{env.shape}}</td>
     <td>
-      <computational-resources-list [resources]="env.resources" [environment]="env" (buildGrid)="buildGrid($event)"></computational-resources-list>
+      <computational-resources-list [resources]="env.resources" [environment]="env" [healthStatus]="healthStatus" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
     <td *ngIf="billingEnabled">
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
