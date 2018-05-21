@@ -16,11 +16,14 @@ limitations under the License.
 
 ****************************************************************************/
 
+.login_page .form-group {
+  display: flex;
+}
 .butt-azure {
-	color: #fff;
-	background-color: #5bc0de;
-	margin-left: 10px;
-	padding: 0 15px;
+  color: #fff;
+  background-color: #5bc0de;
+  margin-left: 10px;
+  padding: 0 15px;
 }
 
 .butt-login.mat-raised-button {
@@ -30,11 +33,12 @@ limitations under the License.
   color: #fff;
   border-color: #46b8da;
 }
-.butt-login.mat-raised-button:disabled{
+.butt-login.mat-raised-button:disabled {
   color: #35afd6;
   background-color: rgba(0, 0, 0, 0.28);
   border: 1px solid;
-  box-shadow: 0 3px 1px -2px rgba(53, 175, 213, 0.74), 0 2px 2px 0 rgba(53, 175, 213, 0.65), 0 1px 5px 0 rgba(53, 175, 213, 0.47);
+  box-shadow: 0 3px 1px -2px rgba(53, 175, 213, 0.74),
+    0 2px 2px 0 rgba(53, 175, 213, 0.65), 0 1px 5px 0 rgba(53, 175, 213, 0.47);
 }
 
 .login_page .logo {
@@ -75,37 +79,37 @@ limitations under the License.
 }
 
 .form-wrap {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .input-icon-group {
   display: flex;
-	flex-direction: row;
-	background: #fff;
-	margin-bottom: 20px;
+  flex-direction: row;
+  background: #fff;
+  margin-bottom: 20px;
 }
 .input-with-icon {
-	width: 100%;
-	outline: none;
-	background-color: #fff;
-	height: 40px !important;
-	color: #555;
-	padding: 6px 12px;
-	box-sizing: border-box;
-	border: 1px solid #35afd5 !important;
-	border-left: 1px solid #35afd5;
-	transition: all .35s ease-in-out;
-	font: 300 14px/24px 'Open Sans', sans-serif !important;
+  width: 100%;
+  outline: none;
+  background-color: #fff;
+  height: 40px !important;
+  color: #555;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  border: 1px solid #35afd5 !important;
+  border-left: 1px solid #35afd5;
+  transition: all 0.35s ease-in-out;
+  font: 300 14px/24px 'Open Sans', sans-serif !important;
 }
 
 .input-icon {
-	padding: 7px;
-	font-size: 14px;
-	border: 1px solid #35afd5;
-	border-right: none;
-	color: #555;
+  padding: 7px;
+  font-size: 14px;
+  border: 1px solid #35afd5;
+  border-right: none;
+  color: #555;
 }
 
 .login-icon {
@@ -130,133 +134,132 @@ limitations under the License.
   color: red;
 }
 
-#fountainG{
+#fountainG {
   position: relative;
   top: 14px;
 }
 
-.fountainG{
-	position:absolute;
-	top:0;
-	background-color:rgb(79,163,189);
-	width:6px;
-	height:6px;
-	animation-name:bounce_fountainG;
-		-o-animation-name:bounce_fountainG;
-		-ms-animation-name:bounce_fountainG;
-		-webkit-animation-name:bounce_fountainG;
-		-moz-animation-name:bounce_fountainG;
-	animation-duration:1.105s;
-		-o-animation-duration:1.105s;
-		-ms-animation-duration:1.105s;
-		-webkit-animation-duration:1.105s;
-		-moz-animation-duration:1.105s;
-	animation-iteration-count:infinite;
-		-o-animation-iteration-count:infinite;
-		-ms-animation-iteration-count:infinite;
-		-webkit-animation-iteration-count:infinite;
-		-moz-animation-iteration-count:infinite;
-	animation-direction:normal;
-		-o-animation-direction:normal;
-		-ms-animation-direction:normal;
-		-webkit-animation-direction:normal;
-		-moz-animation-direction:normal;
-	transform:scale(.3);
-		-o-transform:scale(.3);
-		-ms-transform:scale(.3);
-		-webkit-transform:scale(.3);
-		-moz-transform:scale(.3);
-	border-radius:7px;
-		-o-border-radius:7px;
-		-ms-border-radius:7px;
-		-webkit-border-radius:7px;
-		-moz-border-radius:7px;
+.fountainG {
+  position: absolute;
+  top: 0;
+  background-color: rgb(79, 163, 189);
+  width: 6px;
+  height: 6px;
+  animation-name: bounce_fountainG;
+  -o-animation-name: bounce_fountainG;
+  -ms-animation-name: bounce_fountainG;
+  -webkit-animation-name: bounce_fountainG;
+  -moz-animation-name: bounce_fountainG;
+  animation-duration: 1.105s;
+  -o-animation-duration: 1.105s;
+  -ms-animation-duration: 1.105s;
+  -webkit-animation-duration: 1.105s;
+  -moz-animation-duration: 1.105s;
+  animation-iteration-count: infinite;
+  -o-animation-iteration-count: infinite;
+  -ms-animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-iteration-count: infinite;
+  animation-direction: normal;
+  -o-animation-direction: normal;
+  -ms-animation-direction: normal;
+  -webkit-animation-direction: normal;
+  -moz-animation-direction: normal;
+  transform: scale(0.3);
+  -o-transform: scale(0.3);
+  -ms-transform: scale(0.3);
+  -webkit-transform: scale(0.3);
+  -moz-transform: scale(0.3);
+  border-radius: 7px;
+  -o-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
 }
 
-#fountainG_1{
-	left:0;
-	animation-delay:0.446s;
-		-o-animation-delay:0.446s;
-		-ms-animation-delay:0.446s;
-		-webkit-animation-delay:0.446s;
-		-moz-animation-delay:0.446s;
+#fountainG_1 {
+  left: 0;
+  animation-delay: 0.446s;
+  -o-animation-delay: 0.446s;
+  -ms-animation-delay: 0.446s;
+  -webkit-animation-delay: 0.446s;
+  -moz-animation-delay: 0.446s;
 }
 
-#fountainG_2{
-	left:6px;
-	animation-delay:0.5525s;
-		-o-animation-delay:0.5525s;
-		-ms-animation-delay:0.5525s;
-		-webkit-animation-delay:0.5525s;
-		-moz-animation-delay:0.5525s;
+#fountainG_2 {
+  left: 6px;
+  animation-delay: 0.5525s;
+  -o-animation-delay: 0.5525s;
+  -ms-animation-delay: 0.5525s;
+  -webkit-animation-delay: 0.5525s;
+  -moz-animation-delay: 0.5525s;
 }
 
-#fountainG_3{
-	left:12px;
-	animation-delay:0.659s;
-		-o-animation-delay:0.659s;
-		-ms-animation-delay:0.659s;
-		-webkit-animation-delay:0.659s;
-		-moz-animation-delay:0.659s;
+#fountainG_3 {
+  left: 12px;
+  animation-delay: 0.659s;
+  -o-animation-delay: 0.659s;
+  -ms-animation-delay: 0.659s;
+  -webkit-animation-delay: 0.659s;
+  -moz-animation-delay: 0.659s;
 }
 
+@keyframes bounce_fountainG {
+  0% {
+    transform: scale(1);
+    background-color: rgb(62, 186, 224);
+  }
 
-@keyframes bounce_fountainG{
-	0%{
-	transform:scale(1);
-		background-color:rgb(62,186,224);
-	}
-
-	100%{
-	transform:scale(.3);
-		background-color:rgb(255,255,255);
-	}
+  100% {
+    transform: scale(0.3);
+    background-color: rgb(255, 255, 255);
+  }
 }
 
-@-o-keyframes bounce_fountainG{
-	0%{
-	-o-transform:scale(1);
-		background-color:rgb(62,186,224);
-	}
+@-o-keyframes bounce_fountainG {
+  0% {
+    -o-transform: scale(1);
+    background-color: rgb(62, 186, 224);
+  }
 
-	100%{
-	-o-transform:scale(.3);
-		background-color:rgb(255,255,255);
-	}
+  100% {
+    -o-transform: scale(0.3);
+    background-color: rgb(255, 255, 255);
+  }
 }
 
-@-ms-keyframes bounce_fountainG{
-	0%{
-	-ms-transform:scale(1);
-		background-color:rgb(62,186,224);
-	}
+@-ms-keyframes bounce_fountainG {
+  0% {
+    -ms-transform: scale(1);
+    background-color: rgb(62, 186, 224);
+  }
 
-	100%{
-	-ms-transform:scale(.3);
-		background-color:rgb(255,255,255);
-	}
+  100% {
+    -ms-transform: scale(0.3);
+    background-color: rgb(255, 255, 255);
+  }
 }
 
-@-webkit-keyframes bounce_fountainG{
-	0%{
-	-webkit-transform:scale(1);
-		background-color:rgb(62,186,224);
-	}
+@-webkit-keyframes bounce_fountainG {
+  0% {
+    -webkit-transform: scale(1);
+    background-color: rgb(62, 186, 224);
+  }
 
-	100%{
-	-webkit-transform:scale(.3);
-		background-color:rgb(255,255,255);
-	}
+  100% {
+    -webkit-transform: scale(0.3);
+    background-color: rgb(255, 255, 255);
+  }
 }
 
-@-moz-keyframes bounce_fountainG{
-	0%{
-	-moz-transform:scale(1);
-		background-color:rgb(62,186,224);
-	}
+@-moz-keyframes bounce_fountainG {
+  0% {
+    -moz-transform: scale(1);
+    background-color: rgb(62, 186, 224);
+  }
 
-	100%{
-	-moz-transform:scale(.3);
-		background-color:rgb(255,255,255);
-	}
+  100% {
+    -moz-transform: scale(0.3);
+    background-color: rgb(255, 255, 255);
+  }
 }

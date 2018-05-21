@@ -29,6 +29,10 @@ limitations under the License.
     width: 100%;
     font-weight: 600;
   }
+  .scrolling-content {
+    max-height: 275px;
+    overflow-y: auto;
+  }
   .username {
     width: 80%;
   }
