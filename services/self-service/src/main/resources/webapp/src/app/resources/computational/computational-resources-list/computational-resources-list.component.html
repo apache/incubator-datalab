@@ -27,15 +27,16 @@ limitations under the License.
         [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'
                   && resources[0].status !== 'running'
                   && resources[0].status !== 'failed'
-                  && resources[0].status !== 'stopped'}"
+                  && resources[0].status !== 'stopped',
+                  'not-allowed': healthStatus === 'error'}"
         (click)="toggleResourceAction(resources[0], 'terminate')">&times;</a>
       <a class="start-stop-action material-icons" *ngIf="resources[0].image === 'docker.dlab-dataengine' && environment.status === 'running'">
         <span *ngIf="resources[0].status === 'running' || resources[0].status === 'stopping'"
               (click)="toggleResourceAction(resources[0], 'stop')"
-              [ngClass]="{'not-allowed' : resources[0].status === 'stopping'}">pause_circle_outline</span>
+              [ngClass]="{'not-allowed' : resources[0].status === 'stopping' || healthStatus === 'error'}">pause_circle_outline</span>
         <span *ngIf="resources[0].status === 'stopped' || resources[0].status === 'starting'"
               (click)="toggleResourceAction(resources[0], 'start')"
-              [ngClass]="{'not-allowed' : resources[0].status === 'starting'}">play_circle_outline</span>
+              [ngClass]="{'not-allowed' : resources[0].status === 'starting' || healthStatus === 'error'}">play_circle_outline</span>
       </a>
       <a class="detailed-link" (click)="detailComputationalResources(environment, resources[0])">
         {{resources[0].computational_name}}
@@ -46,7 +47,8 @@ limitations under the License.
 
                       'not-allowed': resources[0].image === 'docker.dlab-dataengine-service'
                       || (environment.status !== 'running' && environment.status !== 'stopped'
-                      || resources[0].status !== 'running' && resources[0].status !== 'stopped') }">
+                      || resources[0].status !== 'running' && resources[0].status !== 'stopped')
+                      || healthStatus === 'error'}">
       <i class="material-icons" (click)="openScheduleDialog(resources[0])">schedule</i>
     </span>
 
@@ -63,15 +65,16 @@ limitations under the License.
       <div class="resource_wrap">
         <a class="remove_butt"
           [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'
-          && resource.status != 'running' && resource.status != 'failed' && resource.status != 'stopped' }"
+          && resource.status != 'running' && resource.status != 'failed' && resource.status != 'stopped',
+          'not-allowed': healthStatus === 'error'}"
           (click)="toggleResourceAction(resource, 'terminate')">&times;</a>
         <a class="start-stop-action material-icons" *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
           <span *ngIf="resource.status === 'running' || resource.status === 'stopping'"
                 (click)="toggleResourceAction(resource, 'stop')"
-                [ngClass]="{'not-allowed' : resource.status === 'stopping'}">pause_circle_outline</span>
+                [ngClass]="{'not-allowed' : resource.status === 'stopping' || healthStatus === 'error'}">pause_circle_outline</span>
           <span *ngIf="resource.status === 'stopped' || resource.status === 'starting'"
                 (click)="toggleResourceAction(resource, 'start')"
-                [ngClass]="{'not-allowed' : resource.status === 'starting'}">play_circle_outline</span>
+                [ngClass]="{'not-allowed' : resource.status === 'starting' || healthStatus === 'error'}">play_circle_outline</span>
         </a>
         <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">
           {{resource.computational_name}}
@@ -82,7 +85,8 @@ limitations under the License.
           [ngClass]="{'active': resource.scheduler_data,
                       'not-allowed': resource.image === 'docker.dlab-dataengine-service'
                       || environment.status !== 'running' && environment.status !== 'stopped'
-                      || resource.status !== 'running' && resource.status !== 'stopped' }">
+                      || resource.status !== 'running' && resource.status !== 'stopped'
+                      || healthStatus === 'error'}">
         <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>
       </span>
   </div>
