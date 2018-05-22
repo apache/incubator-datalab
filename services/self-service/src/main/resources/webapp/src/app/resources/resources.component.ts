@@ -164,6 +164,8 @@ export class ResourcesComponent implements OnInit {
           this.billingEnabled = result.billingEnabled;
           this.resourcesGrid.healthStatus = this.healthStatus;
           this.resourcesGrid.billingEnabled = this.billingEnabled;
+
+          this.healthStatus === 'error' && this.checkInfrastructureCreationProgress();
         });
   }
 }
