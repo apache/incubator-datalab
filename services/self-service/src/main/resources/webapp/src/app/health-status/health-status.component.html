@@ -33,3 +33,4 @@ limitations under the License.
 <health-status-grid [envInProgress]="envInProgress" [environmentsHealthStatuses]="environmentsHealthStatuses" (refreshGrid)="buildGrid($event)"></health-status-grid>
 <dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)"></dlab-backup-dilog>
 <dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)"></dlab-manage-env-dilog>
+<key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>

@@ -18,7 +18,8 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
-import { HealthStatusService, BackupService, UserResourceService } from '../core/services';
+import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
+import { FileUtils } from '../core/util';
 
 @Component({
   moduleId: module.id,
@@ -37,11 +38,13 @@ export class HealthStatusComponent implements OnInit {
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
+  @ViewChild('keyUploadModal') keyUploadDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
-    private userResourceService: UserResourceService
+    private userResourceService: UserResourceService,
+    private userAccessKeyService: UserAccessKeyService
   ) {}
 
   ngOnInit(): void {
@@ -59,6 +62,7 @@ export class HealthStatusComponent implements OnInit {
     this.billingEnabled = healthStatusList.billingEnabled;
     this.isAdmin = healthStatusList.admin;
 
+    this.checkUserAccessKey(this.healthStatus);
     this.getExploratoryList();
 
     if (healthStatusList.list_resources)
@@ -98,6 +102,19 @@ export class HealthStatusComponent implements OnInit {
       (error) => {
         this.manageEnvironmentDialog.errorMessage = JSON.parse(error.message).message;
       });
+  }
+
+  public generateUserKey($event) {
+    this.userAccessKeyService.generateAccessKey().subscribe(data => FileUtils.downloadFile(data));
+  }
+
+  public checkUserAccessKey(status: string) {
+    this.userAccessKeyService.checkUserAccessKey()
+      .subscribe(
+        response => console.log(response),
+        error => {
+          status === 'error' && this.keyUploadDialog.open({ isFooter: false });
+        });
   }
 
   createBackup($event) {
