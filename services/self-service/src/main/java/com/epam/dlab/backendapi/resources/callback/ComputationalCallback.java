@@ -39,7 +39,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static com.epam.dlab.UserInstanceStatus.RUNNING;
-import static com.epam.dlab.UserInstanceStatus.STARTING;
 
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -101,8 +100,7 @@ public class ComputationalCallback {
 			requestId.put(dto.getUser(), uuid);
         }
 
-		if (currentStatus == STARTING && UserInstanceStatus.of(dto.getStatus()) == RUNNING &&
-				compResource.isReuploadKeyRequired()) {
+		if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && compResource.isReuploadKeyRequired()) {
 			ResourceData resourceData = new ResourceData(ResourceType.COMPUTATIONAL,
 					compResource.getComputationalId(), dto.getExploratoryName(), dto.getComputationalName());
 			UserInfo userInfo = systemUserService.create(dto.getUser());

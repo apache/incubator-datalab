@@ -174,8 +174,7 @@ public class RequestBuilder {
 		}
 	}
 
-	public ReuploadKeyDTO newKeyReupload(UserInfo userInfo, String id, String content,
-										 List<ResourceData> resources) {
+	public ReuploadKeyDTO newKeyReupload(UserInfo userInfo, String id, String content, List<ResourceData> resources) {
 		return newResourceSysBaseDTO(userInfo, ReuploadKeyDTO.class)
 				.withId(id)
 				.withContent(content)

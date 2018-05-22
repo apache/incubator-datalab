@@ -30,7 +30,6 @@ import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.epam.dlab.UserInstanceStatus.RUNNING;
-import static com.epam.dlab.UserInstanceStatus.STARTING;
 
 @Slf4j
 public class EdgeCallback {
@@ -49,8 +48,8 @@ public class EdgeCallback {
 
 	protected void handleEdgeCallback(String user, String status) {
 		EdgeInfo edgeInfo = keyDAO.getEdgeInfo(user);
-		UserInstanceStatus currentStatus = UserInstanceStatus.of(edgeInfo.getEdgeStatus());
-		log.debug("Current status of edge node for user {} is {}", user, currentStatus);
+		log.debug("Current status of edge node for user {} is {}", user,
+				UserInstanceStatus.of(edgeInfo.getEdgeStatus()));
 
 		try {
 			if (UserInstanceStatus.of(status) == UserInstanceStatus.TERMINATED) {
@@ -65,8 +64,7 @@ public class EdgeCallback {
 			throw new DlabException(String.format("Could not update status of EDGE node to %s: %s",
 					status, e.getLocalizedMessage()), e);
 		}
-		if (currentStatus == STARTING && UserInstanceStatus.of(status) == RUNNING && edgeInfo.isReuploadKeyRequired
-				()) {
+		if (UserInstanceStatus.of(status) == RUNNING && edgeInfo.isReuploadKeyRequired()) {
 			ResourceData resourceData = new ResourceData(ResourceType.EDGE,
 					edgeInfo.getInstanceId(), null, null);
 			UserInfo userInfo = systemUserService.create(user);

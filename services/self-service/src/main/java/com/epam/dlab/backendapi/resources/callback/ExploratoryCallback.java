@@ -103,14 +103,12 @@ public class ExploratoryCallback {
 			throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
 					" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
 		}
-		if (currentStatus == STARTING && UserInstanceStatus.of(dto.getStatus()) == RUNNING &&
-				instance.isReuploadKeyRequired()) {
+		if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && instance.isReuploadKeyRequired()) {
 			ResourceData resourceData = new ResourceData(ResourceType.EXPLORATORY,
 					dto.getExploratoryId(), dto.getExploratoryName(), null);
 			UserInfo userInfo = systemUserService.create(dto.getUser());
 			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
 		}
-
 		return Response.ok().build();
 	}
 
