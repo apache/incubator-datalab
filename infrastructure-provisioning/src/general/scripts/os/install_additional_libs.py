@@ -103,4 +103,7 @@ if __name__ == "__main__":
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
                "Libs": general_status}
+        # if res['Libs'][0]['error_message'] == '':
+        #     res['Libs'][0]['status'] = 'installed'
+
         result.write(json.dumps(res))
