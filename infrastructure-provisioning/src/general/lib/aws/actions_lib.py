@@ -124,9 +124,10 @@ def remove_vpc(vpc_id):
 
 @backoff.on_exception(backoff.expo,
                       botocore.exceptions.ClientError,
-                      max_tries=7,
+                      max_tries=40,
                       on_giveup=backoff_log)
 def create_tag(resource, tag, with_tag_res_id=True):
+    print('Tags for the resource {} will be created'.format(resource))
     tags_list = list()
     ec2 = boto3.client('ec2')
     if type(tag) == dict:
