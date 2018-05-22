@@ -17,10 +17,16 @@
 package com.epam.dlab.backendapi.resources.callback;
 
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.auth.SystemUserInfoService;
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +37,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static com.epam.dlab.UserInstanceStatus.RUNNING;
+import static com.epam.dlab.UserInstanceStatus.STARTING;
 
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -44,6 +53,12 @@ public class ComputationalCallback {
 	@Inject
 	private RequestId requestId;
 
+	@Inject
+	private SystemUserInfoService systemUserService;
+
+	@Inject
+	private ReuploadKeyService reuploadKeyService;
+
     /**
      * Updates the status of the computational resource for user.
      *
@@ -53,9 +68,26 @@ public class ComputationalCallback {
     @POST
     @Path(ApiCallbacks.STATUS_URI)
     public Response status(ComputationalStatusDTO dto) {
-        log.debug("Updating status for computational resource {} for user {}: {}", dto.getComputationalName(), dto.getUser(), dto);
+		log.debug("Updating status for computational resource {} for user {}: {}",
+				dto.getComputationalName(), dto.getUser(), dto);
         String uuid = dto.getRequestId();
 		requestId.checkAndRemove(uuid);
+
+		UserInstanceStatus currentStatus;
+		UserComputationalResource compResource;
+		try {
+			compResource = computationalDAO.fetchComputationalFields(dto.getUser(), dto.getExploratoryName(),
+					dto.getComputationalName());
+			currentStatus = UserInstanceStatus.of(compResource.getStatus());
+		} catch (DlabException e) {
+			log.error("Could not get current status for computational resource {} of exploratory environment {} for " +
+					"user {}", dto.getComputationalName(), dto.getExploratoryName(), dto.getUser(), e);
+			throw new DlabException("Could not get current status for computational resource " +
+					dto.getComputationalName() + " of exploratory environment " + dto.getExploratoryName() +
+					" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
+		}
+		log.debug("Current status for computational resource {} of exploratory environment {} for user {} is {}",
+				dto.getComputationalName(), dto.getExploratoryName(), dto.getUser(), currentStatus);
 
         try {
             computationalDAO.updateComputationalFields(dto);
@@ -64,10 +96,18 @@ public class ComputationalCallback {
             throw e;
         }
         if (UserInstanceStatus.CONFIGURING == UserInstanceStatus.of(dto.getStatus())) {
-            log.debug("Waiting for configuration of the computational resource {} for user {}", dto.getComputationalName(), dto.getUser());
+			log.debug("Waiting for configuration of the computational resource {} for user {}",
+					dto.getComputationalName(), dto.getUser());
 			requestId.put(dto.getUser(), uuid);
         }
-        
+
+		if (currentStatus == STARTING && UserInstanceStatus.of(dto.getStatus()) == RUNNING &&
+				compResource.isReuploadKeyRequired()) {
+			ResourceData resourceData = new ResourceData(ResourceType.COMPUTATIONAL,
+					compResource.getComputationalId(), dto.getExploratoryName(), dto.getComputationalName());
+			UserInfo userInfo = systemUserService.create(dto.getUser());
+			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
+		}
         return Response.ok().build();
     }
 }

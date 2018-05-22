@@ -12,6 +12,7 @@ import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -19,8 +20,6 @@ import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.ResourceData;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -32,7 +31,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -158,10 +156,9 @@ public class AccessKeyServiceImplTest {
 				any(List.class), anyBoolean(), anyVararg());
 		doNothing().when(edgeService).updateReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
-		List<ResourceData> resources = new ArrayList<>();
-		resources.add(new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null));
-		when(exploratoryService.getResourcesWithPredefinedStatuses(anyString(), any(UserInstanceStatus.class),
-				any(UserInstanceStatus.class))).thenReturn(resources);
+		List<UserInstanceDTO> instances = Collections.singletonList(getUserInstance());
+		when(exploratoryService.getInstancesWithStatuses(anyString(), any(UserInstanceStatus.class),
+				any(UserInstanceStatus.class))).thenReturn(instances);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn("running");
 		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
@@ -182,7 +179,7 @@ public class AccessKeyServiceImplTest {
 		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
-		assertEquals(2, resources.size());
+		assertEquals(2, instances.size());
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
 		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true,
@@ -196,7 +193,7 @@ public class AccessKeyServiceImplTest {
 				CREATING, CONFIGURING, STARTING, RUNNING);
 		verify(edgeService).updateReuploadKeyFlag(USER, true, STARTING, RUNNING, STOPPING, STOPPED);
 		verify(settingsDAO).getServiceBaseName();
-		verify(exploratoryService).getResourcesWithPredefinedStatuses(USER, RUNNING, RUNNING);
+		verify(exploratoryService).getInstancesWithStatuses(USER, RUNNING, RUNNING);
 		verify(keyDAO).getEdgeStatus(USER);
 		verify(keyDAO).updateEdgeStatus(USER, UserInstanceStatus.REUPLOADING_KEY.toString());
 		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
@@ -220,10 +217,9 @@ public class AccessKeyServiceImplTest {
 				any(List.class), anyBoolean(), anyVararg());
 		doNothing().when(edgeService).updateReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
-		List<ResourceData> resources = new ArrayList<>();
-		resources.add(new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null));
-		when(exploratoryService.getResourcesWithPredefinedStatuses(anyString(), any(UserInstanceStatus.class),
-				any(UserInstanceStatus.class))).thenReturn(resources);
+		List<UserInstanceDTO> instances = Collections.singletonList(getUserInstance());
+		when(exploratoryService.getInstancesWithStatuses(anyString(), any(UserInstanceStatus.class),
+				any(UserInstanceStatus.class))).thenReturn(instances);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn("stopped");
 		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
 				any(UserInstanceStatus.class));
@@ -243,7 +239,7 @@ public class AccessKeyServiceImplTest {
 		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
-		assertEquals(1, resources.size());
+		assertEquals(1, instances.size());
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
 		verify(exploratoryService).updateExploratoriesReuploadKeyFlag(USER, true,
@@ -257,7 +253,7 @@ public class AccessKeyServiceImplTest {
 				CREATING, CONFIGURING, STARTING, RUNNING);
 		verify(edgeService).updateReuploadKeyFlag(USER, true, STARTING, RUNNING, STOPPING, STOPPED);
 		verify(settingsDAO).getServiceBaseName();
-		verify(exploratoryService).getResourcesWithPredefinedStatuses(USER, RUNNING, RUNNING);
+		verify(exploratoryService).getInstancesWithStatuses(USER, RUNNING, RUNNING);
 		verify(keyDAO).getEdgeStatus(USER);
 		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
 		verify(computationalDAO).updateStatusForComputationalResources(REUPLOADING_KEY, USER,
@@ -417,6 +413,10 @@ public class AccessKeyServiceImplTest {
 
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
+	}
+
+	private UserInstanceDTO getUserInstance() {
+		return new UserInstanceDTO().withUser(USER).withExploratoryName("explName");
 	}
 
 }

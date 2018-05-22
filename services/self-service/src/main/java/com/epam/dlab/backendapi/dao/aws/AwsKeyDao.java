@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.dao.aws;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import lombok.extern.slf4j.Slf4j;
@@ -31,4 +32,9 @@ public class AwsKeyDao extends KeyDAO {
     public EdgeInfoAws getEdgeInfo(String user) {
         return super.getEdgeInfo(user, EdgeInfoAws.class, new EdgeInfoAws());
     }
+
+	@Override
+	public EdgeInfoAws getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses) {
+		return super.getEdgeInfoWhereStatusIn(user, EdgeInfoAws.class, statuses);
+	}
 }

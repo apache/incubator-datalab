@@ -2,7 +2,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.model.exloratory.Exploratory;
 
 import java.util.List;
@@ -22,6 +22,6 @@ public interface ExploratoryService {
 	void updateExploratoriesReuploadKeyFlag(String user, boolean reuploadKeyRequired,
 											UserInstanceStatus... exploratoryStatuses);
 
-	List<ResourceData> getResourcesWithPredefinedStatuses(String user, UserInstanceStatus exploratoryStatus,
-														  UserInstanceStatus computationalStatus);
+	List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
+												   UserInstanceStatus computationalStatus);
 }

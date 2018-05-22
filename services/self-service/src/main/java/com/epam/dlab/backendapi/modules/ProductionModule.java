@@ -78,5 +78,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(EnvironmentService.class).to(EnvironmentServiceImpl.class);
 		bind(EdgeService.class).to(EdgeServiceImpl.class);
 		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
+		bind(ResourceService.class).to(ResourceServiceImpl.class);
 	}
 }

@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.service.ComputationalService;
-import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -36,8 +35,6 @@ import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.ResourceData;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
@@ -57,6 +54,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	private static final String COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT = "Could not update the status of " +
 			"computational resource {} for user {}";
 	private static final String OP_NOT_SUPPORTED_DES = "Operation for data engine service is not supported";
+
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
@@ -75,9 +73,6 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Inject
 	private RequestId requestId;
-
-	@Inject
-	private ReuploadKeyService reuploadKeyService;
 
 
 	@Override
@@ -183,13 +178,6 @@ public class ComputationalServiceImpl implements ComputationalService {
 	public void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
 		sparkAction(userInfo, exploratoryName, computationalName, STARTING,
 				ComputationalAPI.COMPUTATIONAL_START_SPARK);
-		if (computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName)
-				.isReuploadKeyRequired()) {
-			ResourceData resourceData = new ResourceData(ResourceType.COMPUTATIONAL,
-					computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName)
-							.getComputationalId(), exploratoryName, computationalName);
-			reuploadKeyService.waitForRunningStatusAndReuploadKey(userInfo, resourceData, 30);
-		}
 	}
 
 	/**

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.backendapi.core.Directories;
@@ -8,7 +24,6 @@ import com.epam.dlab.backendapi.core.response.handlers.ReuploadKeyCallbackHandle
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,16 +33,57 @@ import java.util.Collections;
 @Singleton
 public class ReuploadKeyService extends DockerService implements DockerCommands {
 
-	public void reuploadKeyAction(String userName, ReuploadKeyDTO dto, DockerAction action)
-			throws JsonProcessingException {
+	private static final String REUPLOAD_KEY_ACTION = "reupload_key";
+
+	public void reuploadKeyAction(String userName, ReuploadKeyDTO dto, DockerAction action) {
 		log.debug("{} for edge user {}", action, dto.getEdgeUserName());
 
-		for (ResourceData resource : dto.getResources()) {
-			String uuid = DockerCommands.generateUUID();
+		dto.getResources()
+				.stream()
+				.map(resourceData -> {
+					String uuid = getUuid();
+					return buildNewReuploadKeyDTO(resourceData, uuid, dto);
+				})
+				.peek(newDto -> startCallbackListener(userName, newDto))
+				.peek(newDto -> {
+					String uuid = newDto.getId();
+					newDto.withResourceId(newDto.getResources().get(0).getResourceId()).withId(null)
+							.withResources(null);
+					runDockerCmd(userName, uuid, buildRunDockerCommand(uuid, action), newDto);
+				})
+				.count();
+	}
 
-			RunDockerCommand runDockerCommand = new RunDockerCommand()
+	private String getUuid() {
+		return DockerCommands.generateUUID();
+	}
+
+	private void runDockerCmd(String userName, String uuid, RunDockerCommand runDockerCommand, ReuploadKeyDTO newDto) {
+		try {
+			final String command = commandBuilder.buildCommand(runDockerCommand, newDto);
+			log.trace("Docker command: {}", command);
+			commandExecutor.executeAsync(userName, uuid, command);
+		} catch (Exception e) {
+			log.error("Exception occured during reuploading key: {} for command {}", e.getLocalizedMessage(),
+					runDockerCommand.toCMD());
+		}
+	}
+
+	private void startCallbackListener(String userName, ReuploadKeyDTO newDto) {
+		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
+				configuration.getKeyLoaderPollTimeout(),
+				new ReuploadKeyCallbackHandler(selfService, ApiCallbacks.REUPLOAD_KEY_URI, userName, newDto));
+	}
+
+	@Override
+	public String getResourceType() {
+		return Directories.EDGE_LOG_DIRECTORY;
+	}
+
+	private RunDockerCommand buildRunDockerCommand(String uuid, DockerAction action) {
+		return new RunDockerCommand()
 				.withInteractive()
-				.withName("reupload_key")
+				.withName(REUPLOAD_KEY_ACTION)
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
 				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
@@ -36,29 +92,15 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 				.withConfKeyName(configuration.getAdminKey())
 				.withImage(configuration.getEdgeImage())
 				.withAction(action);
-
-			ReuploadKeyDTO newDto = new ReuploadKeyDTO()
-					.withId(uuid)
-					.withEdgeUserName(dto.getEdgeUserName())
-					.withServiceBaseName(dto.getServiceBaseName())
-					.withConfOsFamily(dto.getConfOsFamily())
-					.withResources(Collections.singletonList(resource));
-
-			folderListenerExecutor.start(configuration.getKeyLoaderDirectory(), configuration
-							.getKeyLoaderPollTimeout(),
-					new ReuploadKeyCallbackHandler(selfService, ApiCallbacks.REUPLOAD_KEY_URI, userName, newDto));
-
-			newDto.withResourceId(resource.getResourceId()).withId(null).withResources(null);
-
-			String command = commandBuilder.buildCommand(runDockerCommand, newDto);
-			log.trace("Docker command:  {}", command);
-			commandExecutor.executeAsync(userName, uuid, command);
-		}
 	}
 
-	@Override
-	public String getResourceType() {
-		return Directories.EDGE_LOG_DIRECTORY;
+	private ReuploadKeyDTO buildNewReuploadKeyDTO(ResourceData resource, String uuid, ReuploadKeyDTO dto) {
+		return new ReuploadKeyDTO()
+				.withId(uuid)
+				.withEdgeUserName(dto.getEdgeUserName())
+				.withServiceBaseName(dto.getServiceBaseName())
+				.withConfOsFamily(dto.getConfOsFamily())
+				.withResources(Collections.singletonList(resource));
 	}
 
 }

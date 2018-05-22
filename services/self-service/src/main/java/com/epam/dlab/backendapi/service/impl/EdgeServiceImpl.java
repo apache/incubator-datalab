@@ -5,13 +5,10 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EdgeService;
-import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.ResourceData;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -38,8 +35,6 @@ public class EdgeServiceImpl implements EdgeService {
 	@Inject
 	private RequestId requestId;
 
-	@Inject
-	private ReuploadKeyService reuploadKeyService;
 
 	@Override
 	public String start(UserInfo userInfo) {
@@ -50,19 +45,12 @@ public class EdgeServiceImpl implements EdgeService {
 					userInfo.getName(), status);
 			throw new DlabException("Could not start EDGE node because the status of instance is " + status);
 		}
-		String startActionUuid;
 		try {
-			startActionUuid = action(userInfo, EDGE_START, STARTING);
+			return action(userInfo, EDGE_START, STARTING);
 		} catch (DlabException e) {
 			log.error("Could not start EDGE node for user {}", userInfo.getName(), e);
 			throw new DlabException("Could not start EDGE node: " + e.getLocalizedMessage(), e);
 		}
-		if (keyDAO.getEdgeInfo(userInfo.getName()).isReuploadKeyRequired()) {
-			ResourceData resourceData = new ResourceData(ResourceType.EDGE,
-					keyDAO.getEdgeInfo(userInfo.getName()).getInstanceId(), null, null);
-			reuploadKeyService.waitForRunningStatusAndReuploadKey(userInfo, resourceData, 30);
-		}
-		return startActionUuid;
 	}
 
 	@Override

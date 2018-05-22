@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Copyright (c) 2018, EPAM SYSTEMS INC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,13 +50,17 @@ public class KeyResource {
 	public String reuploadKey(@Auth UserInfo ui, @DefaultValue("true") @QueryParam("is_primary_reuploading")
 			boolean isPrimaryReuploading, ReuploadKeyDTO dto) throws IOException {
 		if (isPrimaryReuploading) {
-			String edgeUserName = dto.getEdgeUserName();
-			String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
-			FileUtils.deleteFile(filename, configuration.getKeyDirectory());
-			FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
+			replaceKeyfile(dto);
 		}
 		reuploadKeyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
 		return UUID.randomUUID().toString();
+	}
+
+	private void replaceKeyfile(ReuploadKeyDTO dto) throws IOException {
+		String edgeUserName = dto.getEdgeUserName();
+		String filename = UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
+		FileUtils.deleteFile(filename, configuration.getKeyDirectory());
+		FileUtils.saveToFile(filename, configuration.getKeyDirectory(), dto.getContent());
 	}
 
 }

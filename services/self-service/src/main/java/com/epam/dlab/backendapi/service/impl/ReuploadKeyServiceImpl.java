@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
@@ -6,12 +22,12 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.service.ComputationalService;
-import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ResourceService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
@@ -25,15 +41,10 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
-import static com.epam.dlab.UserInstanceStatus.*;
+import static com.epam.dlab.UserInstanceStatus.REUPLOADING_KEY;
+import static com.epam.dlab.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
 
@@ -53,32 +64,31 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	@Inject
 	private ExploratoryService exploratoryService;
 	@Inject
-	private ComputationalService computationalService;
-	@Inject
-	private EdgeService edgeService;
-	@Inject
 	private ComputationalDAO computationalDAO;
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
+	@Inject
+	private ResourceService resourceService;
 
 	private static final String REUPLOAD_KEY_UPDATE_MSG = "Reuploading key process is successfully finished. " +
-			"Updating" +
-			" 'reupload_key_required' flag to 'false' {}.";
-	private static final String REUPLOAD_KEY_ERROR_MSG = "Reuploading key process is failed {}. The next attempt " +
+			"Updating 'reupload_key_required' flag to 'false' for {}.";
+	private static final String REUPLOAD_KEY_ERROR_MSG = "Reuploading key process is failed for {}. The next attempt" +
+			" " +
 			"starts after resource restarting.";
 
 
 	@Override
 	public String reuploadKey(UserInfo user, String keyContent) {
-		updateReuploadKeyForUserResources(user.getName(), true);
-		List<ResourceData> resourcesForKeyReuploading = exploratoryService
-				.getResourcesWithPredefinedStatuses(user.getName(), RUNNING, RUNNING);
-		if (RUNNING == UserInstanceStatus.of(keyDAO.getEdgeStatus(user.getName()))) {
-			resourcesForKeyReuploading.add(new ResourceData(ResourceType.EDGE, keyDAO.getEdgeInfo(user.getName())
-					.getInstanceId(), null, null));
+		resourceService.updateReuploadKeyFlagForUserResources(user.getName(), true);
+		List<ResourceData> resourcesForKeyReuploading = resourceService.convertToResourceData(
+				exploratoryService.getInstancesWithStatuses(user.getName(), RUNNING, RUNNING));
+		EdgeInfo edgeInfo = keyDAO.getEdgeInfoWhereStatusIn(user.getName(), RUNNING);
+		if (Objects.nonNull(edgeInfo)) {
+			resourcesForKeyReuploading.add(0, new ResourceData(ResourceType.EDGE, edgeInfo.getInstanceId(),
+					null, null));
 			keyDAO.updateEdgeStatus(user.getName(), UserInstanceStatus.REUPLOADING_KEY.toString());
 		}
-		updateStatusForUserResources(user.getName(), REUPLOADING_KEY);
+		updateStatusForUserInstances(user.getName(), REUPLOADING_KEY);
 
 		ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
 				resourcesForKeyReuploading);
@@ -88,46 +98,20 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	}
 
 	@Override
-	public void waitForRunningStatusAndReuploadKey(UserInfo userInfo, ResourceData resourceData, long seconds) {
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		executor.execute(() -> {
-			waitForRunningStatus(userInfo, resourceData, seconds);
-			reuploadKeyAction(userInfo, resourceData);
-		});
-		executor.shutdown();
-	}
-
-	@Override
-	public void processReuploadKeyResponse(ReuploadKeyStatusDTO dto) {
+	public void updateResourceData(ReuploadKeyStatusDTO dto) {
 		String user = dto.getUser();
 		ResourceData resource = dto.getReuploadKeyDTO().getResources().get(0);
 		updateResourceStatus(user, resource, RUNNING);
 		if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-			log.debug(REUPLOAD_KEY_UPDATE_MSG, messageAppendix(user, resource));
+			log.debug(REUPLOAD_KEY_UPDATE_MSG, resource.toString());
 			updateResourceReuploadKeyFlag(user, resource, false);
 		} else {
-			log.error(REUPLOAD_KEY_ERROR_MSG, messageAppendix(user, resource));
+			log.error(REUPLOAD_KEY_ERROR_MSG, resource.toString());
 		}
 	}
 
-	private String messageAppendix(String user, ResourceData resourceData) {
-		if (resourceData.getResourceType() == ResourceType.EDGE) {
-			return String.format("for edge with id %s for user %s", resourceData.getResourceId(), user);
-		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
-			return String.format("for notebook %s for user %s", resourceData.getExploratoryName(), user);
-		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
-			return String.format("for cluster %s of notebook %s for user %s",
-					resourceData.getComputationalName(), resourceData.getExploratoryName(), user);
-		} else return StringUtils.EMPTY;
-	}
-
-	private void waitForRunningStatus(UserInfo userInfo, ResourceData resourceData, long seconds) {
-		while (fetchResourceStatus(userInfo.getName(), resourceData) != RUNNING) {
-			pause(seconds);
-		}
-	}
-
-	private void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData) {
+	@Override
+	public void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData) {
 		try {
 			updateResourceStatus(userInfo.getName(), resourceData, REUPLOADING_KEY);
 			ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(userInfo, UUID.randomUUID().toString(),
@@ -143,32 +127,11 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 		}
 	}
 
-	private void pause(long seconds) {
-		try {
-			TimeUnit.SECONDS.sleep(seconds);
-		} catch (InterruptedException e) {
-			log.error("Interrupted exception occured: {}", e.getLocalizedMessage());
-			Thread.currentThread().interrupt();
-		}
-	}
-
-	private UserInstanceStatus fetchResourceStatus(String user, ResourceData resourceData) {
-		if (resourceData.getResourceType() == ResourceType.EDGE) {
-			return UserInstanceStatus.of(keyDAO.getEdgeStatus(user));
-		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
-			return exploratoryDAO.fetchExploratoryStatus(user, resourceData.getExploratoryName());
-		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
-			return UserInstanceStatus.of(computationalDAO.fetchComputationalFields(user,
-					resourceData.getExploratoryName(), resourceData.getComputationalName()).getStatus());
-		} else throw new DlabException("Unknown resource type: " + resourceData.getResourceType());
-	}
-
 	private void updateResourceStatus(String user, ResourceData resourceData, UserInstanceStatus newStatus) {
 		if (resourceData.getResourceType() == ResourceType.EDGE) {
 			keyDAO.updateEdgeStatus(user, newStatus.toString());
 		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
-			exploratoryDAO.updateStatusForExploratory(user, resourceData.getExploratoryName(),
-					newStatus);
+			exploratoryDAO.updateStatusForExploratory(user, resourceData.getExploratoryName(), newStatus);
 		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
 			computationalDAO.updateStatusForComputationalResource(user, resourceData.getExploratoryName(),
 					resourceData.getComputationalName(), newStatus);
@@ -187,23 +150,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 		}
 	}
 
-	private void updateReuploadKeyForUserResources(String user, boolean reuploadKeyRequired) {
-		exploratoryService.updateExploratoriesReuploadKeyFlag(user, reuploadKeyRequired,
-				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
-		computationalService.updateComputationalsReuploadKeyFlag(user,
-				Arrays.asList(STARTING, RUNNING, STOPPING, STOPPED),
-				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
-				reuploadKeyRequired,
-				CREATING, CONFIGURING, STARTING, RUNNING, STOPPING, STOPPED);
-		computationalService.updateComputationalsReuploadKeyFlag(user,
-				Collections.singletonList(RUNNING),
-				Collections.singletonList(DataEngineType.CLOUD_SERVICE),
-				reuploadKeyRequired,
-				CREATING, CONFIGURING, STARTING, RUNNING);
-		edgeService.updateReuploadKeyFlag(user, reuploadKeyRequired, STARTING, RUNNING, STOPPING, STOPPED);
-	}
-
-	private void updateStatusForUserResources(String user, UserInstanceStatus newStatus) {
+	private void updateStatusForUserInstances(String user, UserInstanceStatus newStatus) {
 		exploratoryDAO.updateStatusForExploratories(newStatus, user, RUNNING);
 		computationalDAO.updateStatusForComputationalResources(newStatus, user,
 				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,

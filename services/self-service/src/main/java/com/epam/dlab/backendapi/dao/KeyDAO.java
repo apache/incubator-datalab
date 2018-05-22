@@ -146,6 +146,16 @@ public abstract class KeyDAO extends BaseDAO {
 				.orElse(defaultValue);
 	}
 
+	public abstract EdgeInfo getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses);
+
+	protected <T extends EdgeInfo> T getEdgeInfoWhereStatusIn(String user, Class<T> target,
+															  UserInstanceStatus... statuses) {
+		return findOne(USER_EDGE,
+				and(eq(ID, user), in(EDGE_STATUS, statusList(statuses))),
+				target)
+				.orElse(null);
+	}
+
 	/**
 	 * Finds and returns the status of user key.
 	 *

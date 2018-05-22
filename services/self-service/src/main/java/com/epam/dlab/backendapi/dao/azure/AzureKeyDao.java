@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.dao.azure;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.google.inject.Singleton;
@@ -33,4 +34,9 @@ public class AzureKeyDao extends KeyDAO {
     public EdgeInfoAzure getEdgeInfo(String user) {
         return super.getEdgeInfo(user, EdgeInfoAzure.class, new EdgeInfoAzure());
     }
+
+	@Override
+	public EdgeInfoAzure getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses) {
+		return super.getEdgeInfoWhereStatusIn(user, EdgeInfoAzure.class, statuses);
+	}
 }

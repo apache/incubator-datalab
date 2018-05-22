@@ -176,7 +176,6 @@ public class RequestBuilder {
 
 	public ReuploadKeyDTO newKeyReupload(UserInfo userInfo, String id, String content,
 										 List<ResourceData> resources) {
-		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, ReuploadKeyDTO.class)
 				.withId(id)
 				.withContent(content)

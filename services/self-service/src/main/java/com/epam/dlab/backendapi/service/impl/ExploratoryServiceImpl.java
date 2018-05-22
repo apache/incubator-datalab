@@ -1,7 +1,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -9,7 +8,6 @@ import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
-import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
@@ -17,7 +15,6 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exloratory.Exploratory;
 import com.epam.dlab.model.library.Library;
@@ -28,7 +25,6 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,21 +50,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
-	@Inject
-	private ReuploadKeyService reuploadKeyService;
-	@Inject
-	private SystemUserInfoServiceImpl systemUserService;
+
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
-		String startActionUuid = action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
-		if (exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName).isReuploadKeyRequired()) {
-			ResourceData resourceData = new ResourceData(ResourceType.EXPLORATORY,
-					exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName),
-					exploratoryName, null);
-			reuploadKeyService.waitForRunningStatusAndReuploadKey(userInfo, resourceData, 30);
-		}
-		return startActionUuid;
+		return action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
 	}
 
 	@Override
@@ -130,27 +116,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @param user                user.
 	 * @param exploratoryStatus   status for exploratory environment.
 	 * @param computationalStatus status for computational resource affiliated with the exploratory.
-	 * @return list with resources' data.
+	 * @return list with user instances.
 	 */
-	public List<ResourceData> getResourcesWithPredefinedStatuses(String user, UserInstanceStatus exploratoryStatus,
-																 UserInstanceStatus computationalStatus) {
-		List<ResourceData> resources = new ArrayList<>();
-		List<UserInstanceDTO> exploratoriesWithPredefinedStatus =
-				getExploratoriesWithPredefinedStatus(user, exploratoryStatus);
-		List<UserInstanceDTO> exploratoriesWithPredefinedComputationalTypeAndStatus =
-				exploratoriesWithPredefinedStatus.stream()
+	@Override
+	public List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
+														  UserInstanceStatus computationalStatus) {
+		return getExploratoriesWithStatus(user, exploratoryStatus).stream()
 						.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
 						.collect(Collectors.toList());
-		exploratoriesWithPredefinedComputationalTypeAndStatus
-				.forEach(ui -> {
-					resources.add(
-							new ResourceData(ResourceType.EXPLORATORY, ui.getExploratoryId(),
-									ui.getExploratoryName(), null));
-					ui.getResources().forEach(cr -> resources.add(
-							new ResourceData(ResourceType.COMPUTATIONAL, cr.getComputationalId(),
-									ui.getExploratoryName(), cr.getComputationalName())));
-				});
-		return resources;
 	}
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
@@ -167,7 +140,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * @param status status for exploratory environment.
 	 * @return list of user's instances.
 	 */
-	private List<UserInstanceDTO> getExploratoriesWithPredefinedStatus(String user, UserInstanceStatus status) {
+	private List<UserInstanceDTO> getExploratoriesWithStatus(String user, UserInstanceStatus status) {
 		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, true, status);
 	}
 

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
+
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.model.ResourceData;
 
-public interface ReuploadKeyService {
+import java.util.List;
 
-	String reuploadKey(UserInfo user, String keyContent);
+public interface ResourceService {
 
-	void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData);
+	List<ResourceData> convertToResourceData(List<UserInstanceDTO> userInstances);
 
-	void updateResourceData(ReuploadKeyStatusDTO dto);
+	void updateReuploadKeyFlagForUserResources(String user, boolean reuploadKeyRequired);
 }
