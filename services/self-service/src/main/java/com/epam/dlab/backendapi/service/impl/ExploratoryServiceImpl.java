@@ -143,7 +143,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		if (status == STOPPING) {
 			updateComputationalStatuses(user, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
 		} else if (status == TERMINATING) {
-			updateComputationalStatuses(user, exploratoryName, TERMINATING);
+			updateComputationalStatuses(user, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
 		}
 	}
 
@@ -187,20 +187,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			log.error("Could not update the status of exploratory environment {} for user {} to {}",
 					exploratoryName, user, status, e);
 		}
-	}
-
-	/**
-	 * Updates the computational status of exploratory environment.
-	 *
-	 * @param user            user name
-	 * @param exploratoryName name of exploratory environment.
-	 * @param status          status for exploratory environment.
-	 */
-	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus status) {
-		log.debug("updating status for all computational resources of {} for user {}: {}", exploratoryName, user,
-				status);
-		StatusEnvBaseDTO<?> exploratoryStatus = createStatusDTO(user, exploratoryName, status);
-		computationalDAO.updateComputationalStatusesForExploratory(exploratoryStatus);
 	}
 
 	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus
