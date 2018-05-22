@@ -35,7 +35,6 @@ export class ResourcesComponent implements OnInit {
   userUploadAccessKeyState: number;
   exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
   computationalResources: Array<ComputationalResourceImage> = [];
-  progressDialogConfig: any;
   healthStatus: any;
   billingEnabled: boolean;
 
@@ -60,8 +59,6 @@ export class ResourcesComponent implements OnInit {
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.checkInfrastructureCreationProgress();
-    this.progressDialogConfig = this.setProgressDialogConfiguration();
-
     this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
   }
 
@@ -157,16 +154,6 @@ export class ResourcesComponent implements OnInit {
     } else if (status === HTTP_STATUS_CODES.OK) { // Key uploaded
       this.toggleDialogs(false, false, false);
     }
-  }
-
-  private setProgressDialogConfiguration() {
-    return {
-      message: 'Initial infrastructure is being created, <br/>please, wait...',
-      content: '<img src="assets/img/gif-spinner.gif" alt="">',
-      modal_size: 'modal-xs',
-      text_style: 'info-label',
-      aligning: 'text-center'
-    };
   }
 
   private getEnvironmentHealthStatus() {
