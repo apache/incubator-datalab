@@ -20,7 +20,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ResourcesGridComponent } from './resources-grid';
 import { UserAccessKeyService, UserResourceService, HealthStatusService, AppRoutingService } from '../core/services';
 import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
-import { HTTP_STATUS_CODES } from '../core/util';
+import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
 import { NavbarComponent } from '../shared';
 
 @Component({
@@ -93,29 +93,10 @@ export class ResourcesComponent implements OnInit {
   }
 
   public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(data => this.downloadFile(data));
-  }
-
-  private downloadFile(data: any) {
-    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
-
-    let parsedResponse = data.text();
-    let blob = new Blob([parsedResponse]);
-    let url = window.URL.createObjectURL(blob);
-
-    if (navigator.msSaveOrOpenBlob) {
-        navigator.msSaveBlob(blob, fileName);
-    } else {
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-    window.URL.revokeObjectURL(url);
-
-    this.checkInfrastructureCreationProgress();
+    this.userAccessKeyService.generateAccessKey().subscribe(data => {
+      FileUtils.downloadFile(data);
+      this.checkInfrastructureCreationProgress();
+    });
   }
 
   private toggleDialogs(keyUploadDialogToggle, preloaderDialogToggle, createAnalyticalToolDialogToggle) {

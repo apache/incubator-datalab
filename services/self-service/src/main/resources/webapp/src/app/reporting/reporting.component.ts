@@ -23,6 +23,7 @@ import { BillingReportService, HealthStatusService }  from './../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
+import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 
 @Component({
@@ -109,27 +110,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   exportBillingReport($event): void {
     this.billingReportService.downloadReport(this.reportData)
-      .subscribe(data => this.downloadFile(data));
-  }
-
-  downloadFile(data: any) {
-    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
-
-    let parsedResponse = data.text();
-    let blob = new Blob([parsedResponse], { type: 'text/csv' });
-    let url = window.URL.createObjectURL(blob);
-
-    if (navigator.msSaveOrOpenBlob) {
-        navigator.msSaveBlob(blob, fileName);
-    } else {
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-    window.URL.revokeObjectURL(url);
+      .subscribe(data => {
+        FileUtils.downloadFile(data);
+      });
   }
 
   getDefaultFilterConfiguration(data): void {
