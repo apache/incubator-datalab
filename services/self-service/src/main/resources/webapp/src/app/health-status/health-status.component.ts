@@ -19,7 +19,7 @@ limitations under the License.
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
-import { FileUtils } from '../core/util';
+import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
   moduleId: module.id,
@@ -35,10 +35,12 @@ export class HealthStatusComponent implements OnInit {
   envInProgress: boolean = false;
   usersList: Array<string> = [];
 
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
   @ViewChild('keyUploadModal') keyUploadDialog;
+  @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -62,16 +64,12 @@ export class HealthStatusComponent implements OnInit {
     this.billingEnabled = healthStatusList.billingEnabled;
     this.isAdmin = healthStatusList.admin;
 
-    this.checkUserAccessKey(this.healthStatus);
-    this.getExploratoryList();
+    this.checkUserAccessKey();
+    // this.getExploratoryList();
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {
-        return new EnvironmentStatusModel(
-          value.type,
-          value.resource_id,
-          value.status
-        );
+        return new EnvironmentStatusModel(value.type, value.resource_id, value.status);
       });
   }
 
@@ -81,7 +79,7 @@ export class HealthStatusComponent implements OnInit {
   }
 
   getActiveUsersList() {
-    return this.healthStatusService.getActiveUsers()
+    return this.healthStatusService.getActiveUsers();
   }
  
   openManageEnvironmentDialog() {
@@ -105,16 +103,32 @@ export class HealthStatusComponent implements OnInit {
   }
 
   public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(data => FileUtils.downloadFile(data));
+    this.userAccessKeyService.generateAccessKey().subscribe(
+      data => {
+        FileUtils.downloadFile(data);
+        this.buildGrid();
+      });
   }
 
-  public checkUserAccessKey(status: string) {
+  public checkUserAccessKey() {
     this.userAccessKeyService.checkUserAccessKey()
       .subscribe(
-        response => console.log(response),
-        error => {
-          status === 'error' && this.keyUploadDialog.open({ isFooter: false });
-        });
+        response => this.processAccessKeyStatus(response.status),
+        error => this.processAccessKeyStatus(error.status));
+  }
+
+  private processAccessKeyStatus(status: number) {
+    console.log(status);
+    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
+      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
+      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+
+      setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
+    } else if (status === HTTP_STATUS_CODES.OK) {
+      this.preloaderDialog.close();
+      this.keyUploadDialog.close();
+    }
   }
 
   createBackup($event) {
