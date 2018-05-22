@@ -16,10 +16,25 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './collections/dictionary/dictionary';
+export class FileUtils {
 
-export * from './http-status-codes';
-export * from './sortUtil';
-export * from './errorMapUtils';
-export * from './dateUtils';
-export * from './fileUtils';
+  public static downloadFile(data: any) {
+    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
+
+    let parsedResponse = data.text();
+    let blob = new Blob([parsedResponse]);
+    let url = window.URL.createObjectURL(blob);
+
+    if (navigator.msSaveOrOpenBlob) {
+        navigator.msSaveBlob(blob, fileName);
+    } else {
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url);
+  }
+}
