@@ -7,12 +7,12 @@ import lombok.Getter;
 @Getter
 public class ReuploadKeyStatusDTO extends StatusBaseDTO<ReuploadKeyStatusDTO> {
 
-	private ReuploadKeyDTO reuploadKeyDTO;
+	private ReuploadKeyCallbackDTO reuploadKeyCallbackDTO;
 	private ReuploadKeyStatus reuploadKeyStatus;
 
 
-	public ReuploadKeyStatusDTO withReuploadKeyDTO(ReuploadKeyDTO reuploadKeyDTO) {
-		this.reuploadKeyDTO = reuploadKeyDTO;
+	public ReuploadKeyStatusDTO withReuploadKeyCallbackDto(ReuploadKeyCallbackDTO reuploadKeyCallbackDTO) {
+		this.reuploadKeyCallbackDTO = reuploadKeyCallbackDTO;
 		return this;
 	}
 
@@ -25,6 +25,6 @@ public class ReuploadKeyStatusDTO extends StatusBaseDTO<ReuploadKeyStatusDTO> {
 	public MoreObjects.ToStringHelper toStringHelper(Object self) {
 		return super.toStringHelper(self)
 				.add("reuploadKeyStatus", reuploadKeyStatus)
-				.add("reuploadKeyDTO", reuploadKeyDTO);
+				.add("reuploadKeyCallbackDTO", reuploadKeyCallbackDTO);
 	}
 }

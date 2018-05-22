@@ -43,6 +43,7 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
@@ -197,6 +198,26 @@ public class ComputationalServiceImpl implements ComputationalService {
 													UserInstanceStatus... computationalStatuses) {
 		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, exploratoryStatuses, computationalTypes,
 				reuploadKeyRequired, computationalStatuses);
+	}
+
+	/**
+	 * Returns computational resource's data by name for user's exploratory.
+	 *
+	 * @param user              user.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return corresponding computational resource's data or empty data if resource doesn't exist.
+	 */
+	@Override
+	public Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
+																		String computationalName) {
+		try {
+			return Optional.of(computationalDAO.fetchComputationalFields(user, exploratoryName, computationalName));
+		} catch (DlabException e) {
+			log.warn("Computational resource {} affiliated with exploratory {} for user {} not found.",
+					computationalName, exploratoryName, user);
+		}
+		return Optional.empty();
 	}
 
 	private void sparkAction(UserInfo userInfo, String exploratoryName, String computationalName, UserInstanceStatus

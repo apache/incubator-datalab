@@ -22,7 +22,7 @@ import com.epam.dlab.model.ResourceData;
 
 import java.util.List;
 
-public interface ResourceService {
+public interface UserResourceService {
 
 	List<ResourceData> convertToResourceData(List<UserInstanceDTO> userInstances);
 

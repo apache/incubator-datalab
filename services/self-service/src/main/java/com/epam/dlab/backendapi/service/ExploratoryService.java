@@ -6,6 +6,7 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.model.exloratory.Exploratory;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExploratoryService {
 
@@ -24,4 +25,6 @@ public interface ExploratoryService {
 
 	List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
 												   UserInstanceStatus computationalStatus);
+
+	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
 }

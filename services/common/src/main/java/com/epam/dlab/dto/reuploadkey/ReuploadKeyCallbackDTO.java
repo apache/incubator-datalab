@@ -21,33 +21,32 @@ import com.epam.dlab.model.ResourceData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
-public class ReuploadKeyDTO extends ResourceSysBaseDTO<ReuploadKeyDTO> {
+public class ReuploadKeyCallbackDTO extends ResourceSysBaseDTO<ReuploadKeyCallbackDTO> {
 
 	@JsonProperty
-	private String content;
+	private ResourceData resource;
 
-	@JsonProperty
-	private List<ResourceData> resources;
+	@JsonProperty("resource_id")
+	private String resourceId;
 
 	@JsonProperty
 	private String id;
 
 
-	public ReuploadKeyDTO withContent(String content){
-		this.content = content;
+	public ReuploadKeyCallbackDTO withResource(ResourceData resource) {
+		this.resource = resource;
 		return this;
 	}
 
-	public ReuploadKeyDTO withResources(List<ResourceData> resources) {
-		this.resources = resources;
-		return this;
-	}
-
-	public ReuploadKeyDTO withId(String id){
+	public ReuploadKeyCallbackDTO withId(String id) {
 		this.id = id;
 		return this;
 	}
+
+	public ReuploadKeyCallbackDTO withResourceId(String resourceId) {
+		this.resourceId = resourceId;
+		return this;
+	}
 }
+

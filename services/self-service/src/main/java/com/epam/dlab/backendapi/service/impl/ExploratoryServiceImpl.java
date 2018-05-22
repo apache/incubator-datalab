@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -124,6 +125,23 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		return getExploratoriesWithStatus(user, exploratoryStatus).stream()
 						.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
 						.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns user instance's data by it's name.
+	 *
+	 * @param user            user.
+	 * @param exploratoryName name of exploratory.
+	 * @return corresponding user instance's data or empty data if resource doesn't exist.
+	 */
+	@Override
+	public Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName) {
+		try {
+			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, exploratoryName));
+		} catch (DlabException e) {
+			log.warn("User instance with exploratory name {} for user {} not found.", exploratoryName, user);
+		}
+		return Optional.empty();
 	}
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,

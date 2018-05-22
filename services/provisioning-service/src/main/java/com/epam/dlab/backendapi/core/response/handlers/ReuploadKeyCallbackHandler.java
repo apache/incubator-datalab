@@ -1,7 +1,7 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyCallbackDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -20,12 +20,13 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	private static final String STATUS_FIELD = "status";
 	private static final String ERROR_MESSAGE_FIELD = "error_message";
 	private final String uuid;
-	private final ReuploadKeyDTO dto;
+	private final ReuploadKeyCallbackDTO dto;
 	private final RESTService selfService;
 	private final String callbackUrl;
 	private final String user;
 
-	public ReuploadKeyCallbackHandler(RESTService selfService, String callbackUrl, String user, ReuploadKeyDTO dto) {
+	public ReuploadKeyCallbackHandler(RESTService selfService, String callbackUrl, String user,
+									  ReuploadKeyCallbackDTO dto) {
 		this.selfService = selfService;
 		this.uuid = dto.getId();
 		this.callbackUrl = callbackUrl;
@@ -81,7 +82,7 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	private ReuploadKeyStatusDTO buildReuploadKeyStatusDto(ReuploadKeyStatus status) {
 		return new ReuploadKeyStatusDTO()
 				.withRequestId(uuid)
-				.withReuploadKeyDTO(dto)
+				.withReuploadKeyCallbackDto(dto)
 				.withStatus(status)
 				.withUser(user);
 	}

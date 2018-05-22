@@ -8,6 +8,7 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ComputationalService {
 	/**
@@ -42,4 +43,7 @@ public interface ComputationalService {
 											 List<DataEngineType> computationalTypes,
 											 boolean reuploadKeyRequired,
 											 UserInstanceStatus... computationalStatuses);
+
+	Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
+																 String computationalName);
 }

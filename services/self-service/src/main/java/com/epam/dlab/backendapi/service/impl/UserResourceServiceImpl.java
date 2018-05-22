@@ -20,21 +20,21 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
-import com.epam.dlab.backendapi.service.ResourceService;
+import com.epam.dlab.backendapi.service.UserResourceService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.model.ResourceData;
-import com.epam.dlab.model.ResourceType;
 import com.google.inject.Inject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.dlab.UserInstanceStatus.*;
 
-public class ResourceServiceImpl implements ResourceService {
+public class UserResourceServiceImpl implements UserResourceService {
 
 	@Inject
 	private ExploratoryService exploratoryService;
@@ -51,16 +51,10 @@ public class ResourceServiceImpl implements ResourceService {
 	 */
 	@Override
 	public List<ResourceData> convertToResourceData(List<UserInstanceDTO> userInstances) {
-		List<ResourceData> resources = new ArrayList<>();
-		userInstances.forEach(ui -> {
-			resources.add(
-					new ResourceData(ResourceType.EXPLORATORY, ui.getExploratoryId(),
-							ui.getExploratoryName(), null));
-			ui.getResources().forEach(cr -> resources.add(
-					new ResourceData(ResourceType.COMPUTATIONAL, cr.getComputationalId(),
-							ui.getExploratoryName(), cr.getComputationalName())));
-		});
-		return resources;
+		return userInstances
+				.stream()
+				.flatMap(this::resourceDataStream)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -84,5 +78,15 @@ public class ResourceServiceImpl implements ResourceService {
 				reuploadKeyRequired,
 				CREATING, CONFIGURING, STARTING, RUNNING);
 		edgeService.updateReuploadKeyFlag(user, reuploadKeyRequired, STARTING, RUNNING, STOPPING, STOPPED);
+	}
+
+	private Stream<ResourceData> resourceDataStream(UserInstanceDTO ui) {
+		final Stream<ResourceData> exploratoryStream =
+				Stream.of(ResourceData.exploratoryResource(ui.getExploratoryId(), ui.getExploratoryName()));
+		final Stream<ResourceData> computationalStream = ui.getResources()
+				.stream()
+				.map(cr -> ResourceData.computationalResource(cr.getComputationalId(),
+						ui.getExploratoryName(), cr.getComputationalName()));
+		return Stream.concat(exploratoryStream, computationalStream);
 	}
 }

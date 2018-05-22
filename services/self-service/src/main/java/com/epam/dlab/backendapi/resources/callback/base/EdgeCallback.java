@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
-import com.epam.dlab.model.ResourceType;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,8 +64,7 @@ public class EdgeCallback {
 					status, e.getLocalizedMessage()), e);
 		}
 		if (UserInstanceStatus.of(status) == RUNNING && edgeInfo.isReuploadKeyRequired()) {
-			ResourceData resourceData = new ResourceData(ResourceType.EDGE,
-					edgeInfo.getInstanceId(), null, null);
+			ResourceData resourceData = ResourceData.edgeResource(edgeInfo.getInstanceId());
 			UserInfo userInfo = systemUserService.create(user);
 			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
 		}

@@ -22,12 +22,12 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -49,18 +49,16 @@ public class ExploratoryCallback {
 
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
-
 	@Inject
 	private ComputationalDAO computationalDAO;
-
 	@Inject
 	private RequestId requestId;
-
 	@Inject
 	private SystemUserInfoService systemUserService;
-
 	@Inject
 	private ReuploadKeyService reuploadKeyService;
+	@Inject
+	private ExploratoryService exploratoryService;
 
 	/**
 	 * Changes the status of exploratory environment.
@@ -74,17 +72,13 @@ public class ExploratoryCallback {
 		log.debug("Updating status for exploratory environment {} for user {} to {}",
 				dto.getExploratoryName(), dto.getUser(), dto.getStatus());
 		requestId.checkAndRemove(dto.getRequestId());
-		UserInstanceStatus currentStatus;
-		UserInstanceDTO instance;
-		try {
-			instance = exploratoryDAO.fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
-			currentStatus = UserInstanceStatus.of(instance.getStatus());
-		} catch (DlabException e) {
-			log.error("Could not get current status for exploratory environment {} for user {}",
-					dto.getExploratoryName(), dto.getUser(), e);
-			throw new DlabException("Could not get current status for exploratory environment " +
-					dto.getExploratoryName() + " for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
-		}
+
+		UserInstanceDTO instance = exploratoryService.getUserInstance(dto.getUser(), dto.getExploratoryName())
+				.orElseThrow(() -> new DlabException("User instance with exploratory name " + dto.getExploratoryName
+						() +
+						" for user " + dto.getUser() + " doesn't exist"));
+
+		UserInstanceStatus currentStatus = UserInstanceStatus.of(instance.getStatus());
 		log.debug("Current status for exploratory environment {} for user {} is {}",
 				dto.getExploratoryName(), dto.getUser(), currentStatus);
 
@@ -104,8 +98,8 @@ public class ExploratoryCallback {
 					" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
 		}
 		if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && instance.isReuploadKeyRequired()) {
-			ResourceData resourceData = new ResourceData(ResourceType.EXPLORATORY,
-					dto.getExploratoryId(), dto.getExploratoryName(), null);
+			ResourceData resourceData =
+					ResourceData.exploratoryResource(dto.getExploratoryId(), dto.getExploratoryName());
 			UserInfo userInfo = systemUserService.create(dto.getUser());
 			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
 		}

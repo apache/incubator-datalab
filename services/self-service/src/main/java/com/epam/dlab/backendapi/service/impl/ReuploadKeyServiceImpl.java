@@ -23,8 +23,8 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
-import com.epam.dlab.backendapi.service.ResourceService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
+import com.epam.dlab.backendapi.service.UserResourceService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
@@ -68,7 +68,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 	@Inject
-	private ResourceService resourceService;
+	private UserResourceService userResourceService;
 
 	private static final String REUPLOAD_KEY_UPDATE_MSG = "Reuploading key process is successfully finished. " +
 			"Updating 'reupload_key_required' flag to 'false' for {}.";
@@ -79,13 +79,12 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 
 	@Override
 	public String reuploadKey(UserInfo user, String keyContent) {
-		resourceService.updateReuploadKeyFlagForUserResources(user.getName(), true);
-		List<ResourceData> resourcesForKeyReuploading = resourceService.convertToResourceData(
+		userResourceService.updateReuploadKeyFlagForUserResources(user.getName(), true);
+		List<ResourceData> resourcesForKeyReuploading = userResourceService.convertToResourceData(
 				exploratoryService.getInstancesWithStatuses(user.getName(), RUNNING, RUNNING));
 		EdgeInfo edgeInfo = keyDAO.getEdgeInfoWhereStatusIn(user.getName(), RUNNING);
 		if (Objects.nonNull(edgeInfo)) {
-			resourcesForKeyReuploading.add(0, new ResourceData(ResourceType.EDGE, edgeInfo.getInstanceId(),
-					null, null));
+			resourcesForKeyReuploading.add(0, ResourceData.edgeResource(edgeInfo.getInstanceId()));
 			keyDAO.updateEdgeStatus(user.getName(), UserInstanceStatus.REUPLOADING_KEY.toString());
 		}
 		updateStatusForUserInstances(user.getName(), REUPLOADING_KEY);
@@ -100,7 +99,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	@Override
 	public void updateResourceData(ReuploadKeyStatusDTO dto) {
 		String user = dto.getUser();
-		ResourceData resource = dto.getReuploadKeyDTO().getResources().get(0);
+		ResourceData resource = dto.getReuploadKeyCallbackDTO().getResource();
 		updateResourceStatus(user, resource, RUNNING);
 		if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
 			log.debug(REUPLOAD_KEY_UPDATE_MSG, resource.toString());
@@ -117,7 +116,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 			ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(userInfo, UUID.randomUUID().toString(),
 					StringUtils.EMPTY, Collections.singletonList(resourceData));
 			String uuid = provisioningService.post(REUPLOAD_KEY, userInfo.getAccessToken(), reuploadKeyDTO,
-					String.class, "is_primary_reuploading", false);
+					String.class, Collections.singletonMap("is_primary_reuploading", false));
 			requestId.put(userInfo.getName(), uuid);
 		} catch (Exception t) {
 			log.error("Couldn't reupload key to " + resourceData.toString() + " for user {}", userInfo.getName(), t);
