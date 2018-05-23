@@ -16,12 +16,12 @@ limitations under the License.
 
 -->
 
-<modal-dialog #bindDialog modalClass="{{configs.modal_size || ''}} progress-dialog">
+<modal-dialog #bindDialog modalClass="modal-xs progress-dialog">
   <modal-header></modal-header>
-  <modal-content ngClass="{{configs.aligning || ''}}">
+  <modal-content class="text-center">
     <div class="content-box">
-      <div [innerHTML]="configs.content"></div>
-      <div [innerHTML]="configs.message" ngClass="{{configs.text_style || ''}}"></div>
+      <div><img src="assets/img/gif-spinner.gif" alt="loader"></div>
+      <p class="info-label">Initial infrastructure is being created, <br/>please, wait...</p>
     </div>
   </modal-content>
   <modal-footer></modal-footer>

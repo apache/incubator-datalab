@@ -29,9 +29,10 @@ limitations under the License.
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
     <td class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"
-            [ngClass]="{'disabled': env.status.toLowerCase() !== 'running' &&
-            env.status.toLowerCase() !== 'stopped' &&
-            env.status.toLowerCase() !== 'terminated'}">
+            [ngClass]="{'disabled': env.status.toLowerCase() !== 'running'
+            && env.status.toLowerCase() !== 'stopped'
+            && env.status.toLowerCase() !== 'terminated'
+            || !uploadKey}">
       </span>
 
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">

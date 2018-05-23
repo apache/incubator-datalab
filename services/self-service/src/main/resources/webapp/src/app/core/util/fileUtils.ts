@@ -16,31 +16,25 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+export class FileUtils {
 
-@Component({
-  moduleId: module.id,
-  selector: 'progress-dialog',
-  templateUrl: 'progress-dialog.component.html'
-})
+  public static downloadFile(data: any) {
+    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
 
-export class ProgressDialogComponent implements OnInit {
-  @Input() theBoundCallback: Function;
+    let parsedResponse = data.text();
+    let blob = new Blob([parsedResponse]);
+    let url = window.URL.createObjectURL(blob);
 
-  @ViewChild('bindDialog') bindDialog;
-
-  ngOnInit() {
-    if (this.theBoundCallback)
-      this.theBoundCallback();
-  }
-
-  open(params) {
-    if (!this.bindDialog.isOpened)
-      this.bindDialog.open(params);
-  }
-
-  close() {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
+    if (navigator.msSaveOrOpenBlob) {
+        navigator.msSaveBlob(blob, fileName);
+    } else {
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url);
   }
 }
