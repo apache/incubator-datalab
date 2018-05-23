@@ -22,21 +22,23 @@ import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 @Singleton
 public class AzureKeyDao extends KeyDAO {
 
-    public AzureKeyDao() {
-        log.info("{} is initialized", getClass().getSimpleName());
-    }
-
-    @Override
-    public EdgeInfoAzure getEdgeInfo(String user) {
-        return super.getEdgeInfo(user, EdgeInfoAzure.class, new EdgeInfoAzure());
-    }
+	public AzureKeyDao() {
+		log.info("{} is initialized", getClass().getSimpleName());
+	}
 
 	@Override
-	public EdgeInfoAzure getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses) {
+	public EdgeInfoAzure getEdgeInfo(String user) {
+		return super.getEdgeInfo(user, EdgeInfoAzure.class, new EdgeInfoAzure());
+	}
+
+	@Override
+	public Optional<EdgeInfoAzure> getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses) {
 		return super.getEdgeInfoWhereStatusIn(user, EdgeInfoAzure.class, statuses);
 	}
 }

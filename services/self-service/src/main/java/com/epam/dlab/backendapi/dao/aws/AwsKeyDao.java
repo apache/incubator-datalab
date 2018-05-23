@@ -21,20 +21,22 @@ import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 public class AwsKeyDao extends KeyDAO {
 
-    public AwsKeyDao() {
-        log.info("{} is initialized", getClass().getSimpleName());
-    }
-
-    @Override
-    public EdgeInfoAws getEdgeInfo(String user) {
-        return super.getEdgeInfo(user, EdgeInfoAws.class, new EdgeInfoAws());
-    }
+	public AwsKeyDao() {
+		log.info("{} is initialized", getClass().getSimpleName());
+	}
 
 	@Override
-	public EdgeInfoAws getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses) {
+	public EdgeInfoAws getEdgeInfo(String user) {
+		return super.getEdgeInfo(user, EdgeInfoAws.class, new EdgeInfoAws());
+	}
+
+	@Override
+	public Optional<EdgeInfoAws> getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses) {
 		return super.getEdgeInfoWhereStatusIn(user, EdgeInfoAws.class, statuses);
 	}
 }

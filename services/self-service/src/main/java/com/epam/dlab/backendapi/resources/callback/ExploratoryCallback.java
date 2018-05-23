@@ -47,6 +47,8 @@ import static com.epam.dlab.UserInstanceStatus.*;
 @Slf4j
 public class ExploratoryCallback {
 
+	private static final String USER_INSTANCE_NOT_EXIST_MSG = "User instance with exploratory name %s for user %s " +
+			"doesn't exist";
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 	@Inject
@@ -74,9 +76,8 @@ public class ExploratoryCallback {
 		requestId.checkAndRemove(dto.getRequestId());
 
 		UserInstanceDTO instance = exploratoryService.getUserInstance(dto.getUser(), dto.getExploratoryName())
-				.orElseThrow(() -> new DlabException("User instance with exploratory name " + dto.getExploratoryName
-						() +
-						" for user " + dto.getUser() + " doesn't exist"));
+				.orElseThrow(() -> new DlabException(String.format(USER_INSTANCE_NOT_EXIST_MSG,
+						dto.getExploratoryName(), dto.getUser())));
 
 		UserInstanceStatus currentStatus = UserInstanceStatus.of(instance.getStatus());
 		log.debug("Current status for exploratory environment {} for user {} is {}",

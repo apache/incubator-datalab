@@ -27,7 +27,6 @@ import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.service.UserResourceService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
@@ -41,7 +40,10 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 import static com.epam.dlab.UserInstanceStatus.REUPLOADING_KEY;
 import static com.epam.dlab.UserInstanceStatus.RUNNING;
@@ -82,11 +84,11 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 		userResourceService.updateReuploadKeyFlagForUserResources(user.getName(), true);
 		List<ResourceData> resourcesForKeyReuploading = userResourceService.convertToResourceData(
 				exploratoryService.getInstancesWithStatuses(user.getName(), RUNNING, RUNNING));
-		EdgeInfo edgeInfo = keyDAO.getEdgeInfoWhereStatusIn(user.getName(), RUNNING);
-		if (Objects.nonNull(edgeInfo)) {
-			resourcesForKeyReuploading.add(0, ResourceData.edgeResource(edgeInfo.getInstanceId()));
-			keyDAO.updateEdgeStatus(user.getName(), UserInstanceStatus.REUPLOADING_KEY.toString());
-		}
+		keyDAO.getEdgeInfoWhereStatusIn(user.getName(), RUNNING)
+				.ifPresent(edgeInfo -> {
+					resourcesForKeyReuploading.add(ResourceData.edgeResource(edgeInfo.getInstanceId()));
+					keyDAO.updateEdgeStatus(user.getName(), UserInstanceStatus.REUPLOADING_KEY.toString());
+				});
 		updateStatusForUserInstances(user.getName(), REUPLOADING_KEY);
 
 		ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
