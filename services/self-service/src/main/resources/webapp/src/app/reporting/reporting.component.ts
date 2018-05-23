@@ -19,10 +19,11 @@ limitations under the License.
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
-import { BillingReportService, HealthStatusService }  from './../core/services';
+import { BillingReportService, HealthStatusService, UserAccessKeyService }  from './../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
+import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 
 @Component({
@@ -34,6 +35,9 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
   <footer *ngIf="data">
     Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
+
+  <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
+  <progress-dialog #preloaderModal></progress-dialog>
   `,
   styles: [`
     footer {
@@ -52,9 +56,13 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 })
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
 
   @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
+
+  @ViewChild('keyUploadModal') keyUploadDialog;
+  @ViewChild('preloaderModal') preloaderDialog;
 
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
@@ -64,7 +72,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   constructor(
     private billingReportService: BillingReportService,
-    private healthStatusService: HealthStatusService,) { }
+    private healthStatusService: HealthStatusService,
+    private userAccessKeyService: UserAccessKeyService) { }
 
   ngOnInit() {
     this.rebuildBillingReport();
@@ -109,27 +118,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   exportBillingReport($event): void {
     this.billingReportService.downloadReport(this.reportData)
-      .subscribe(data => this.downloadFile(data));
-  }
-
-  downloadFile(data: any) {
-    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
-
-    let parsedResponse = data.text();
-    let blob = new Blob([parsedResponse], { type: 'text/csv' });
-    let url = window.URL.createObjectURL(blob);
-
-    if (navigator.msSaveOrOpenBlob) {
-        navigator.msSaveBlob(blob, fileName);
-    } else {
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-    window.URL.revokeObjectURL(url);
+      .subscribe(data => {
+        FileUtils.downloadFile(data);
+      });
   }
 
   getDefaultFilterConfiguration(data): void {
@@ -192,11 +183,41 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
+  public checkUserAccessKey() {
+    this.userAccessKeyService.checkUserAccessKey()
+      .subscribe(
+        response => this.processAccessKeyStatus(response.status),
+        error => this.processAccessKeyStatus(error.status));
+  }
+
+  public generateUserKey($event) {
+    this.userAccessKeyService.generateAccessKey().subscribe(
+      data => {
+        FileUtils.downloadFile(data);
+        this.rebuildBillingReport();
+      });
+  }
+
+  private processAccessKeyStatus(status: number) {
+    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
+      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
+      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+
+      setTimeout(() => this.rebuildBillingReport(), this.CHECK_ACCESS_KEY_TIMEOUT);
+    } else if (status === HTTP_STATUS_CODES.OK) {
+      this.preloaderDialog.close();
+      this.keyUploadDialog.close();
+    }
+  }
+
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
         this.healthStatus = result.status;
         this.billingEnabled = result.billingEnabled;
+
+        this.checkUserAccessKey();
       });
   }
 }

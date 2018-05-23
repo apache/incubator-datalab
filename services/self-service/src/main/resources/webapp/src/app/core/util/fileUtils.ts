@@ -16,37 +16,25 @@ limitations under the License.
 
 ****************************************************************************/
 
-.manage-env-dialog {
-  .mat-list-item-content {
-    padding: 0 !important;
-    justify-content: space-between;
-    color: #577289;
-  }
-  .list-header {
-    border-top: 1px solid #edf1f5;
-    border-bottom: 1px solid #edf1f5;
-    color: #577289;
-    width: 100%;
-    font-weight: 600;
-  }
-  .scrolling-content {
-    max-height: 275px;
-    overflow-y: auto;
-  }
-  .username {
-    width: 80%;
-  }
-  .action {
-    width: 20%;
-    span {
-      padding: 3px;
-      cursor: pointer;
-      &:hover {
-        color: #718ba6;
-      }
-      i {
-        font-size: 20px;
-      }
+export class FileUtils {
+
+  public static downloadFile(data: any) {
+    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
+
+    let parsedResponse = data.text();
+    let blob = new Blob([parsedResponse]);
+    let url = window.URL.createObjectURL(blob);
+
+    if (navigator.msSaveOrOpenBlob) {
+        navigator.msSaveBlob(blob, fileName);
+    } else {
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
+    window.URL.revokeObjectURL(url);
   }
 }
