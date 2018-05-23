@@ -494,8 +494,8 @@ class AzureMeta:
             return (image)
         except Exception as err:
             logging.info(
-                "Unable to get instance private IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to get instance private IP address",
+                "Unable to get instance image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance image",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
