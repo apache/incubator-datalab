@@ -28,9 +28,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.epam.dlab.UserInstanceStatus.CREATING;
+import static com.epam.dlab.UserInstanceStatus.RUNNING;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -521,6 +524,48 @@ public class ComputationalServiceImplTest {
 		expectedException.expectMessage("Operation for data engine service is not supported");
 
 		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void updateComputationalsReuploadKeyFlag() {
+		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(), any(List.class),
+				any(List.class), anyBoolean(), anyVararg());
+
+		computationalService.updateComputationalsReuploadKeyFlag(USER, Collections.singletonList(RUNNING),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true, RUNNING);
+
+		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER, Collections.singletonList
+						(RUNNING),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true, RUNNING);
+		verifyNoMoreInteractions(computationalDAO);
+	}
+
+	@Test
+	public void getComputationalResource() {
+		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
+
+		Optional<UserComputationalResource> expectedResource = Optional.of(ucResource);
+		Optional<UserComputationalResource> actualResource =
+				computationalService.getComputationalResource(USER, EXPLORATORY_NAME, COMP_NAME);
+		assertEquals(expectedResource, actualResource);
+
+		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
+		verifyNoMoreInteractions(computationalDAO);
+	}
+
+	@Test
+	public void getComputationalResourceWithException() {
+		doThrow(new DlabException("Computational resource not found"))
+				.when(computationalDAO).fetchComputationalFields(anyString(), anyString(), anyString());
+
+		Optional<UserComputationalResource> expectedResource = Optional.empty();
+		Optional<UserComputationalResource> actualResource =
+				computationalService.getComputationalResource(USER, EXPLORATORY_NAME, COMP_NAME);
+		assertEquals(expectedResource, actualResource);
+
+		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
+		verifyNoMoreInteractions(computationalDAO);
 	}
 
 	private UserInfo getUserInfo() {

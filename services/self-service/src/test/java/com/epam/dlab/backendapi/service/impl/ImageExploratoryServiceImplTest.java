@@ -32,7 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -219,7 +220,7 @@ public class ImageExploratoryServiceImplTest {
 
 		List<ImageInfoRecord> actualRecordList = imageExploratoryService.getCreatedImages(USER, "someImage");
 		assertNotNull(actualRecordList);
-		assertTrue(actualRecordList.size() == 1);
+		assertEquals(1, actualRecordList.size());
 		assertEquals(expectedRecordList, actualRecordList);
 
 		verify(imageExploratoryDao).getImages(USER, ImageStatus.CREATED, "someImage");

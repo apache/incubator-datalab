@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -373,14 +374,48 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
-	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
+	public void updateUserExploratoriesReuploadKeyFlag() {
 		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(), anyBoolean(),
 				any(UserInstanceStatus.class));
 
 		exploratoryService.updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
 
 		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, true, UserInstanceStatus.RUNNING);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void getInstancesWithStatuses() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), anyBoolean(), anyVararg()))
+				.thenReturn(Collections.singletonList(userInstance));
+		exploratoryService.getInstancesWithStatuses(USER, UserInstanceStatus.RUNNING, UserInstanceStatus.RUNNING);
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, true, UserInstanceStatus.RUNNING);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void getUserInstance() {
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+
+		Optional<UserInstanceDTO> expectedInstance = Optional.of(userInstance);
+		Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, EXPLORATORY_NAME);
+		assertEquals(expectedInstance, actualInstance);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void getUserInstanceWithException() {
+		doThrow(new ResourceNotFoundException("Exploratory for user not found"))
+				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
+
+		Optional<UserInstanceDTO> expectedInstance = Optional.empty();
+		Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, EXPLORATORY_NAME);
+		assertEquals(expectedInstance, actualInstance);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 

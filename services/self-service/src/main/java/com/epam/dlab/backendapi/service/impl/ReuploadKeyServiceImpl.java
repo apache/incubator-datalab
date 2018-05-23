@@ -75,7 +75,6 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	private static final String REUPLOAD_KEY_UPDATE_MSG = "Reuploading key process is successfully finished. " +
 			"Updating 'reupload_key_required' flag to 'false' for {}.";
 	private static final String REUPLOAD_KEY_ERROR_MSG = "Reuploading key process is failed for {}. The next attempt" +
-			" " +
 			"starts after resource restarting.";
 
 
