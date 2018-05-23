@@ -34,6 +34,7 @@ export class HealthStatusComponent implements OnInit {
   isAdmin: boolean;
   envInProgress: boolean = false;
   usersList: Array<string> = [];
+  uploadKey: boolean = true;
 
   private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
   private clear = undefined;
@@ -118,9 +119,9 @@ export class HealthStatusComponent implements OnInit {
   }
 
   private processAccessKeyStatus(status: number) {
-    console.log(status);
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
       this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+      this.uploadKey = false;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
       this.preloaderDialog.open({ isHeader: false, isFooter: false });
 
@@ -128,6 +129,7 @@ export class HealthStatusComponent implements OnInit {
     } else if (status === HTTP_STATUS_CODES.OK) {
       this.preloaderDialog.close();
       this.keyUploadDialog.close();
+      this.uploadKey = true;
     }
   }
 
