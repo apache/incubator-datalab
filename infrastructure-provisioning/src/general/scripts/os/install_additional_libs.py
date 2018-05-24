@@ -67,6 +67,8 @@ if __name__ == "__main__":
         try:
             print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
             status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
+            print(general_status)
+            print(status)
             general_status = general_status + status
         except KeyError:
             pass
@@ -74,6 +76,8 @@ if __name__ == "__main__":
         try:
             print('Installing pip3 packages: {}'.format(pkgs['libraries']['pip3']))
             status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3')
+            print(general_status)
+            print(status)
             general_status = general_status + status
         except KeyError:
             pass

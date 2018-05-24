@@ -59,25 +59,24 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         for pip_pkg in requisites:
             sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -i -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
-            # if err == '':
-            #     pip_pkg = pip_pkg.replace('_', '-').split('-')
-            print(pip_pkg)
-            replaced_pip_pkg = pip_pkg.replace("_", "-").split('-')
-            print(replaced_pip_pkg)
-            replaced_pip_pkg = replaced_pip_pkg[0]
-            print(replaced_pip_pkg)
-            sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, replaced_pip_pkg))
-            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, replaced_pip_pkg))
+            if err == '':
+                pip_pkg = pip_pkg.replace("_", "-").split('-')
+                pip_pkg = pip_pkg[0]
+            sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
+            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
             if res:
+                res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if replaced_pip_pkg in i][0].split('==')[1]
+                version = [i for i in ver if pip_pkg.lower() in i][0].split('==')[1]
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
             else:
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": err})
         return status
-    except:
-        return "Failed to install {} packages".format(pip_version)
+    except Exception as err:
+        append_result("Failed to install {} packages".format(pip_version), str(err))
+        print("Failed to install {} packages".format(pip_version))
+        sys.exit(1)
 
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
