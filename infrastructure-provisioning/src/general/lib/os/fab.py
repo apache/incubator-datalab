@@ -58,17 +58,31 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -i -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
+            sudo(
+                '{0} install {1} --no-cache-dir 2>&1 | grep -w -i -E  "({2})"'.format(
+                    pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
-            if err == '':
-                pip_pkg = pip_pkg.replace("_", "-").split('-')
-                pip_pkg = pip_pkg[0]
             sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
+            changed_pip_pkg = False
+            if res == '':
+                changed_pip_pkg = pip_pkg.replace("_", "-").split('-')
+                changed_pip_pkg = changed_pip_pkg[0]
+                sudo(
+                    '{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(
+                        pip_version, changed_pip_pkg))
+                res = sudo(
+                    'cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
             if res:
                 res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if pip_pkg.lower() in i][0].split('==')[1]
+                if changed_pip_pkg:
+                    version = [i for i in ver if changed_pip_pkg.lower() in i][0].split('==')[1]
+                else:
+                    version = \
+                    [i for i in ver if pip_pkg.lower() in i][0].split(
+                        '==')[1]
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
             else:
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": err})
