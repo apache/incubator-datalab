@@ -149,6 +149,21 @@ def get_ami_id_by_name(ami_name, state="*"):
         return ''
     return ''
 
+def get_ami_id_by_instance_name(instance_name):
+    ec2 = boto3.resource('ec2')
+    try:
+        for instance in ec2.instances.filter(Filters=[{'Name': 'tag:{}'.format('Name'), 'Values': [instance_name]}]):
+            return instance.image_id
+    except Exception as err:
+        logging.error("Error with getting AMI ID by instance name: " + str(
+            err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting AMI ID by instance name",
+                           "error_message": str(
+                               err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+        return ''
+    return ''
 
 def get_security_group_by_name(security_group_name):
     try:
