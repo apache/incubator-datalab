@@ -17,10 +17,12 @@
 package com.epam.dlab.model;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
+@EqualsAndHashCode
 public class ResourceData {
 	private ResourceType resourceType;
 	private String resourceId;

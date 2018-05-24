@@ -169,7 +169,7 @@ public class RequestBuilderTest {
 		assertEquals(expectedReuploadKeyDTO.getEdgeUserName(), actualReuploadFile.getEdgeUserName());
 		assertEquals(expectedReuploadKeyDTO.getServiceBaseName(), actualReuploadFile.getServiceBaseName());
 
-		verify(configuration, times(3)).getCloudProvider();
+		verify(configuration, times(2)).getCloudProvider();
 		verifyNoMoreInteractions(configuration);
 	}
 
@@ -196,7 +196,7 @@ public class RequestBuilderTest {
 		assertEquals(expectedReuploadKeyDTO.getEdgeUserName(), actualReuploadFile.getEdgeUserName());
 		assertEquals(expectedReuploadKeyDTO.getServiceBaseName(), actualReuploadFile.getServiceBaseName());
 
-		verify(configuration, times(3)).getCloudProvider();
+		verify(configuration, times(2)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
 		verifyNoMoreInteractions(configuration);
 	}
