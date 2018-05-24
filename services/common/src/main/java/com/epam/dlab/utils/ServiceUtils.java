@@ -1,4 +1,23 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.utils;
+
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.exceptions.DlabException;
 
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -9,34 +28,31 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.exceptions.DlabException;
-
 public class ServiceUtils {
 
 	private static String includePath = null;
-	
+
 	static {
-        includePath = System.getenv(ServiceConsts.DLAB_CONF_DIR_NAME);
-        if ( includePath == null || includePath.isEmpty() ) {
-        	includePath = getUserDir();
-        }
+		includePath = System.getenv(ServiceConsts.DLAB_CONF_DIR_NAME);
+		if (includePath == null || includePath.isEmpty()) {
+			includePath = getUserDir();
+		}
 	}
-	
+
 	/* Return working directory.
 	 */
 	public static String getUserDir() {
 		return System.getProperty("user.dir");
 	}
-	
+
 	/** Return path to DLab configuration directory.
 	 * @return
 	 */
 	public static String getConfPath() {
-        return includePath;
+		return includePath;
 	}
-	
-	
+
+
 	/** Return manifest for given class or empty manifest if {@link JarFile#MANIFEST_NAME} not found.
 	 * @param clazz class.
 	 * @throws IOException
@@ -55,7 +71,7 @@ public class ServiceUtils {
 		JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
 		return jarConnection.getManifest();
 	}
-	
+
 	/** Return manifest map for given class or empty map if manifest not found or cannot be read.
 	 * @param clazz class.
 	 */
@@ -74,10 +90,10 @@ public class ServiceUtils {
 			System.err.println("Cannot found or open manifest for class " + className);
 			throw new DlabException("Cannot read manifest file", e);
 		}
-		
+
 		return map;
 	}
-	
+
 	/** Print to standard output the manifest info about application. If parameter <b>args</b> is not
 	 * <b>null</b> and one or more arguments have value -v or --version then print version and return <b>true<b/>
 	 * otherwise <b>false</b>.
@@ -90,21 +106,21 @@ public class ServiceUtils {
 		boolean result = false;
 		if (args != null) {
 			for (String arg : args) {
-	            if (arg.equals("-v") ||
-	            	arg.equals("--version")) {
-	            	result = true;
-	            }
-	        }
+				if (arg.equals("-v") ||
+						arg.equals("--version")) {
+					result = true;
+				}
+			}
 			if (!result) {
 				return result;
 			}
 		}
-		
+
 		Map<String, String> manifest = getManifest(mainClass);
 		if (manifest.isEmpty()) {
 			return result;
 		}
-		
+
 		System.out.println("Title       " + manifest.get("Implementation-Title"));
 		System.out.println("Version     " + manifest.get("Implementation-Version"));
 		System.out.println("Created By  " + manifest.get("Created-By"));
@@ -115,7 +131,7 @@ public class ServiceUtils {
 		System.out.println("Build OS    " + manifest.get("Build-OS"));
 		System.out.println("Built Time  " + manifest.get("Build-Time"));
 		System.out.println("Built By    " + manifest.get("Built-By"));
-		
+
 		return result;
 	}
 }
