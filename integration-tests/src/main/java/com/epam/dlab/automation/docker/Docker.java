@@ -18,23 +18,23 @@ limitations under the License.
 
 package com.epam.dlab.automation.docker;
 
+import com.epam.dlab.automation.exceptions.DockerException;
+import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.testng.Assert;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.testng.Assert;
-
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.Session;
 
 public class Docker {
     private static final Logger LOGGER = LogManager.getLogger(Docker.class);
@@ -46,7 +46,7 @@ public class Docker {
     private Docker(){}
 
     public static void checkDockerStatus(String containerName, String ip)
-            throws Exception {
+			throws IOException, InterruptedException, JSchException {
         
         LOGGER.info("Check docker status for instance {} and container {}", ip, containerName);
         if (ConfigPropertyValue.isRunModeLocal()) {
@@ -75,8 +75,8 @@ public class Docker {
 
         TypeReference<List<DockerContainer>> typeRef = new TypeReference<List<DockerContainer>>() { };
         ObjectMapper mapper = new ObjectMapper();
-        
-        List<String> result = new ArrayList<String>();
+
+		List<String> result = new ArrayList<>();
         while ((line = reader.readLine()) != null) {      
              result.add(line);
              if (line.contains("Id")) {
@@ -87,27 +87,24 @@ public class Docker {
         
         return dockerContainerList;
     }
-    
-    private static DockerContainer getDockerContainer(List<DockerContainer> dockerContainerList, String containerName) throws Exception {
-        for(Iterator<DockerContainer> i = dockerContainerList.iterator(); i.hasNext(); ) {
-        	DockerContainer dockerContainer = i.next();
-        	String name = dockerContainer.getNames().get(0);
-            if(name.contains(containerName)) {
-                return dockerContainer;
-            }
-        }
+
+	private static DockerContainer getDockerContainer(List<DockerContainer> dockerContainerList, String
+			containerName) {
+		for (DockerContainer dockerContainer : dockerContainerList) {
+			String name = dockerContainer.getNames().get(0);
+			if (name.contains(containerName)) {
+				return dockerContainer;
+			}
+		}
         
         final String msg = "Docker container for " + containerName + " not found";
         LOGGER.error(msg);
-        String containers = "Container list:";
-        for(Iterator<DockerContainer> i = dockerContainerList.iterator(); i.hasNext(); ) {
-        	containers += System.lineSeparator() +
-        			i.next()
-        			.getNames()
-        			.get(0);
-        }
-        LOGGER.debug(containers);
-        
-        throw new Exception("Docker container for " + containerName + " not found");
+		StringBuilder containers = new StringBuilder("Container list:");
+		for (DockerContainer dockerContainer : dockerContainerList) {
+			containers.append(System.lineSeparator()).append(dockerContainer.getNames().get(0));
+		}
+		LOGGER.debug(containers.toString());
+
+		throw new DockerException("Docker container for " + containerName + " not found");
     }
 }

@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
@@ -61,13 +62,13 @@ public class ExploratoryLibDAO extends BaseDAO {
 	 * Return condition for search library into exploratory data.
 	 *
 	 * @param libraryGroup the name of group.
-	 * @param libraryName the name of library.
+	 * @param libraryName  the name of library.
 	 */
-    private static Bson libraryCondition(String libraryGroup, String libraryName) {
-        return elemMatch(EXPLORATORY_LIBS,
-        				and(eq(LIB_GROUP, libraryGroup),
-        					eq(LIB_NAME, libraryName)));
-    }
+	private static Bson libraryCondition(String libraryGroup, String libraryName) {
+		return elemMatch(EXPLORATORY_LIBS,
+				and(eq(LIB_GROUP, libraryGroup),
+						eq(LIB_NAME, libraryName)));
+	}
 
 	/**
 	 * Return condition for search library into exploratory data.
@@ -96,25 +97,27 @@ public class ExploratoryLibDAO extends BaseDAO {
 				and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
 	}
 
-    /** Return field filter for libraries properties in exploratory data.
-     * @param fieldName
-     * @return
-     */
-    private static String libraryFieldFilter(String fieldName) {
-        return EXPLORATORY_LIBS + FIELD_SET_DELIMETER + fieldName;
-    }
+	/**
+	 * Return field filter for libraries properties in exploratory data.
+	 *
+	 * @param fieldName
+	 * @return
+	 */
+	private static String libraryFieldFilter(String fieldName) {
+		return EXPLORATORY_LIBS + FIELD_SET_DELIMETER + fieldName;
+	}
 
 
-    private static String computationalLibraryFieldFilter(String computational, String fieldName) {
-        return COMPUTATIONAL_LIBS + "." + computational + FIELD_SET_DELIMETER + fieldName;
-    }
+	private static String computationalLibraryFieldFilter(String computational, String fieldName) {
+		return COMPUTATIONAL_LIBS + "." + computational + FIELD_SET_DELIMETER + fieldName;
+	}
 
-    private Document findLibraries(String user, String exploratoryName, Bson include) {
-        Optional<Document> opt = findOne(USER_INSTANCES,
-                exploratoryCondition(user, exploratoryName),
-                fields(excludeId(), include));
+	private Document findLibraries(String user, String exploratoryName, Bson include) {
+		Optional<Document> opt = findOne(USER_INSTANCES,
+				exploratoryCondition(user, exploratoryName),
+				fields(excludeId(), include));
 
-        return opt.orElseGet(Document::new);
+		return opt.orElseGet(Document::new);
 
 	}
 
@@ -128,15 +131,16 @@ public class ExploratoryLibDAO extends BaseDAO {
 	}
 
 	public Document findAllLibraries(String user, String exploratoryName) {
-		return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS, COMPUTATIONAL_RESOURCES));
+		return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS,
+				COMPUTATIONAL_RESOURCES));
 	}
 
-    public Document findExploratoryLibraries(String user, String exploratoryName) {
-        return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS));
-    }
+	public Document findExploratoryLibraries(String user, String exploratoryName) {
+		return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS));
+	}
 
-    public Document findComputationalLibraries(String user, String exploratoryName, String computationalName) {
-        return findLibraries(user, exploratoryName, include(COMPUTATIONAL_LIBS + "." + computationalName));
+	public Document findComputationalLibraries(String user, String exploratoryName, String computationalName) {
+		return findLibraries(user, exploratoryName, include(COMPUTATIONAL_LIBS + "." + computationalName));
 	}
 
 	/**
@@ -153,10 +157,10 @@ public class ExploratoryLibDAO extends BaseDAO {
 				and(exploratoryCondition(user, exploratoryName), libraryCondition(libraryGroup, libraryName, version)),
 				Projections.fields(excludeId(), Projections.include("libs.status")));
 
-    	if (libraryStatus.isPresent()) {
-    	    Object lib = libraryStatus.get().get(EXPLORATORY_LIBS);
-            if (lib != null && lib instanceof List && !((List) lib).isEmpty()) {
-                return  LibStatus.of(((List<Document>)lib).get(0).getOrDefault(STATUS, EMPTY).toString());
+		if (libraryStatus.isPresent()) {
+			Object lib = libraryStatus.get().get(EXPLORATORY_LIBS);
+			if (lib != null && lib instanceof List && !((List) lib).isEmpty()) {
+				return LibStatus.of(((List<Document>) lib).get(0).getOrDefault(STATUS, EMPTY).toString());
 			}
 		}
 
@@ -179,21 +183,21 @@ public class ExploratoryLibDAO extends BaseDAO {
 						libraryConditionComputational(computationalName, libraryGroup, libraryName, version)
 				),
 
-                Projections.fields(excludeId(),
-                        Projections.include(
-                                COMPUTATIONAL_LIBS + "." + computationalName + "." + STATUS,
-                                COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_GROUP,
-                                COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_NAME)
-                )
-        );
+				Projections.fields(excludeId(),
+						Projections.include(
+								COMPUTATIONAL_LIBS + "." + computationalName + "." + STATUS,
+								COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_GROUP,
+								COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_NAME)
+				)
+		);
 
-        if (libraryStatus.isPresent()) {
-            Object lib = ((Document)libraryStatus.get().get(COMPUTATIONAL_LIBS)).get(computationalName);
-            if (lib != null && lib instanceof List && !((List) lib).isEmpty()) {
-                return  LibStatus.of(((List<Document>)lib).stream()
-                        .filter(e -> libraryGroup.equals(e.getString(LIB_GROUP))
-                                && libraryName.equals(e.getString(LIB_NAME))).findFirst()
-                        .orElseGet(Document::new).getOrDefault(STATUS, EMPTY).toString());
+		if (libraryStatus.isPresent()) {
+			Object lib = ((Document) libraryStatus.get().get(COMPUTATIONAL_LIBS)).get(computationalName);
+			if (lib != null && lib instanceof List && !((List) lib).isEmpty()) {
+				return LibStatus.of(((List<Document>) lib).stream()
+						.filter(e -> libraryGroup.equals(e.getString(LIB_GROUP))
+								&& libraryName.equals(e.getString(LIB_NAME))).findFirst()
+						.orElseGet(Document::new).getOrDefault(STATUS, EMPTY).toString());
 			}
 		}
 
@@ -224,8 +228,8 @@ public class ExploratoryLibDAO extends BaseDAO {
 				values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), null);
 			}
 
-        updateOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
-                libraryCondition(library.getGroup(), library.getName())), new Document(SET, values));
+			updateOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
+					libraryCondition(library.getGroup(), library.getName())), new Document(SET, values));
 
 			return false;
 		}
@@ -243,27 +247,27 @@ public class ExploratoryLibDAO extends BaseDAO {
 	public boolean addLibrary(String user, String exploratoryName, String computationalName,
 							  LibInstallDTO library, boolean reinstall) {
 
-        Optional<Document> opt = findOne(USER_INSTANCES,
-                and(runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
-                        eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_GROUP, library.getGroup()),
-                        eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_NAME, library.getName())));
+		Optional<Document> opt = findOne(USER_INSTANCES,
+				and(runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
+						eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_GROUP, library.getGroup()),
+						eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_NAME, library.getName())));
 
-        if (!opt.isPresent()) {
-            updateOne(USER_INSTANCES,
-                    runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
-                    push(COMPUTATIONAL_LIBS + "." + computationalName, convertToBson(library)));
-            return true;
-        } else {
-            Document values = updateComputationalLibraryFields(computationalName, library, null);
-            if (reinstall) {
-                values.append(computationalLibraryFieldFilter(computationalName, LIB_INSTALL_DATE), null);
-                values.append(computationalLibraryFieldFilter(computationalName, LIB_ERROR_MESSAGE), null);
-            }
+		if (!opt.isPresent()) {
+			updateOne(USER_INSTANCES,
+					runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
+					push(COMPUTATIONAL_LIBS + "." + computationalName, convertToBson(library)));
+			return true;
+		} else {
+			Document values = updateComputationalLibraryFields(computationalName, library, null);
+			if (reinstall) {
+				values.append(computationalLibraryFieldFilter(computationalName, LIB_INSTALL_DATE), null);
+				values.append(computationalLibraryFieldFilter(computationalName, LIB_ERROR_MESSAGE), null);
+			}
 
-            updateOne(USER_INSTANCES, and(
-                    exploratoryCondition(user, exploratoryName),
-                            eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_GROUP, library.getGroup()),
-                            eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_NAME, library.getName())),
+			updateOne(USER_INSTANCES, and(
+					exploratoryCondition(user, exploratoryName),
+					eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_GROUP, library.getGroup()),
+					eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_NAME, library.getName())),
 
 					new Document(SET, values));
 
@@ -281,76 +285,74 @@ public class ExploratoryLibDAO extends BaseDAO {
 			return;
 		}
 
-    	if (StringUtils.isEmpty(dto.getComputationalName())) {
-            updateExploratoryLibraryFields(dto);
-        } else {
-    	    updateComputationalLibraryFields(dto);
-        }
-    }
+		if (StringUtils.isEmpty(dto.getComputationalName())) {
+			updateExploratoryLibraryFields(dto);
+		} else {
+			updateComputationalLibraryFields(dto);
+		}
+	}
 
-    private void updateExploratoryLibraryFields(LibInstallStatusDTO dto) {
-        for (LibInstallDTO lib : dto.getLibs()) {
-            try {
-                Document values = updateLibraryFields(lib, dto.getUptime());
+	private void updateExploratoryLibraryFields(LibInstallStatusDTO dto) {
+		for (LibInstallDTO lib : dto.getLibs()) {
+			try {
+				Document values = updateLibraryFields(lib, dto.getUptime());
 
-                updateOne(USER_INSTANCES,
-                        and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
-                                libraryCondition(lib.getGroup(), lib.getName())),
-                        new Document(SET, values));
-            } catch (Exception e) {
-                throw new DlabException(String.format("Could not update library %s for %s",
-                        lib, dto.getExploratoryName()), e);
-            }
-        }
-    }
+				updateOne(USER_INSTANCES,
+						and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
+								libraryCondition(lib.getGroup(), lib.getName())),
+						new Document(SET, values));
+			} catch (Exception e) {
+				throw new DlabException(String.format("Could not update library %s for %s",
+						lib, dto.getExploratoryName()), e);
+			}
+		}
+	}
 
-    private void updateComputationalLibraryFields(LibInstallStatusDTO dto) {
-        for (LibInstallDTO lib : dto.getLibs()) {
-            try {
-                Document values = updateComputationalLibraryFields(dto.getComputationalName(), lib, dto.getUptime());
+	private void updateComputationalLibraryFields(LibInstallStatusDTO dto) {
+		for (LibInstallDTO lib : dto.getLibs()) {
+			try {
+				Document values = updateComputationalLibraryFields(dto.getComputationalName(), lib, dto.getUptime());
 
-                updateOne(USER_INSTANCES,
-                        and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
-								eq(COMPUTATIONAL_LIBS + "." + dto.getComputationalName() + "." + LIB_GROUP,
-										lib.getGroup()),
-								eq(COMPUTATIONAL_LIBS + "." + dto.getComputationalName() + "." + LIB_NAME,
-										lib.getName())),
-                        new Document(SET, values));
-            } catch (Exception e) {
-                throw new DlabException(String.format("Could not update library %s for %s/%s",
-                        lib, dto.getExploratoryName(), dto.getComputationalName()), e);
-            }
-        }
-    }
+				updateOne(USER_INSTANCES,
+						and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
+								elemMatch(COMPUTATIONAL_LIBS + "." + dto.getComputationalName(),
+										and(eq(LIB_GROUP, lib.getGroup()), eq(LIB_NAME, lib.getName())))),
+						new Document(SET, values));
+			} catch (Exception e) {
+				throw new DlabException(String.format("Could not update library %s for %s/%s",
+						lib, dto.getExploratoryName(), dto.getComputationalName()), e);
+			}
+		}
+	}
 
-    private Document updateLibraryFields(LibInstallDTO lib, Date uptime) {
-        Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
-        if (lib.getVersion() != null) {
-            values.append(libraryFieldFilter(LIB_VERSION), lib.getVersion());
-        }
-        if (uptime != null) {
-            values.append(libraryFieldFilter(LIB_INSTALL_DATE), uptime);
-        }
+	private Document updateLibraryFields(LibInstallDTO lib, Date uptime) {
+		Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
+		if (lib.getVersion() != null) {
+			values.append(libraryFieldFilter(LIB_VERSION), lib.getVersion());
+		}
+		if (uptime != null) {
+			values.append(libraryFieldFilter(LIB_INSTALL_DATE), uptime);
+		}
 
-        if (lib.getErrorMessage() != null) {
-            values.append(libraryFieldFilter(LIB_ERROR_MESSAGE),
-                    DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
-        }
+		if (lib.getErrorMessage() != null) {
+			values.append(libraryFieldFilter(LIB_ERROR_MESSAGE),
+					DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
+		}
 
-        return values;
-    }
+		return values;
+	}
 
-    private Document updateComputationalLibraryFields(String computational, LibInstallDTO lib, Date uptime) {
-        Document values = new Document(computationalLibraryFieldFilter(computational, STATUS), lib.getStatus());
-        if (lib.getVersion() != null) {
-            values.append(computationalLibraryFieldFilter(computational, LIB_VERSION), lib.getVersion());
-        }
-        if (uptime != null) {
-            values.append(computationalLibraryFieldFilter(computational, LIB_INSTALL_DATE), uptime);
-        }
+	private Document updateComputationalLibraryFields(String computational, LibInstallDTO lib, Date uptime) {
+		Document values = new Document(computationalLibraryFieldFilter(computational, STATUS), lib.getStatus());
+		if (lib.getVersion() != null) {
+			values.append(computationalLibraryFieldFilter(computational, LIB_VERSION), lib.getVersion());
+		}
+		if (uptime != null) {
+			values.append(computationalLibraryFieldFilter(computational, LIB_INSTALL_DATE), uptime);
+		}
 
-        if (lib.getErrorMessage() != null) {
-            values.append(computationalLibraryFieldFilter(computational, LIB_ERROR_MESSAGE),
+		if (lib.getErrorMessage() != null) {
+			values.append(computationalLibraryFieldFilter(computational, LIB_ERROR_MESSAGE),
 					DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
 		}
 

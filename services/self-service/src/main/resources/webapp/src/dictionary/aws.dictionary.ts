@@ -25,7 +25,7 @@ export const NAMING_CONVENTION = {
     'account': '',
     'container': '',
     'data_engine': 'Deploy Spark Server / Deploy EMR',
-
+    'image': 'AMI',
     'data_engine_master_instance_size': 'Master instance shape',
     'data_engine_slave_instance_size': 'Slave instance shape',
     'master_node_shape': 'master_node_shape',
@@ -72,11 +72,9 @@ export const NAMING_CONVENTION = {
     'docker.dlab-dataengine': {
         'total_instance_number_min': 'min_spark_instance_count',
         'total_instance_number_max': 'max_spark_instance_count',
-        'data_engine_master_instance_size': 'Master node shape',
-        'data_engine_slave_instance_size': 'Slave node shape',
+        'data_engine_master_instance_size': 'Node shape',
         'instance_number': 'Total node number',
-        'master_node_shape': 'dataengine_master',
-        'slave_node_shape': 'dataengine_slave',
+        'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count',
     }
 };

@@ -18,20 +18,17 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.excludeId;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCreds;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import org.bson.Document;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.bson.Document;
-
-import com.epam.dlab.dto.exploratory.ExploratoryGitCreds;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
-import com.epam.dlab.exceptions.DlabException;
+import static com.epam.dlab.backendapi.dao.MongoCollections.GIT_CREDS;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.*;
 
 /** DAO for user exploratory.
  */
@@ -40,7 +37,7 @@ public class GitCredsDAO extends BaseDAO {
 
     /** Find and return the list of GIT credentials for user. 
      * @param user name.
-     * @return
+	 * @return GIT credentials DTO
      */
     public ExploratoryGitCredsDTO findGitCreds(String user) {
     	return findGitCreds(user, false);
@@ -49,14 +46,14 @@ public class GitCredsDAO extends BaseDAO {
     /** Find and return the list of GIT credentials for user. 
      * @param user name.
      * @param clearPassword clear user password if set to <b>true</b>.
-     * @return
+	 * @return GIT credentials DTO
      */
     public ExploratoryGitCredsDTO findGitCreds(String user, boolean clearPassword) {
     	Optional<ExploratoryGitCredsDTO> opt = findOne(GIT_CREDS,
     													eq(ID, user),
     													fields(include(FIELD_GIT_CREDS), excludeId()),
     													ExploratoryGitCredsDTO.class);
-    	ExploratoryGitCredsDTO creds = (opt.isPresent() ? opt.get() : new ExploratoryGitCredsDTO());
+		ExploratoryGitCredsDTO creds = (opt.orElseGet(ExploratoryGitCredsDTO::new));
     	List<ExploratoryGitCreds> list = creds.getGitCreds();
     	if (clearPassword && list != null) {
     		for (ExploratoryGitCreds cred : list) {
@@ -70,9 +67,8 @@ public class GitCredsDAO extends BaseDAO {
     /** Update the GIT credentials for user.
      * @param user name.
      * @param dto GIT credentials.
-     * @exception DlabException
      */
-    public void updateGitCreds(String user, ExploratoryGitCredsDTO dto) throws DlabException {
+	public void updateGitCreds(String user, ExploratoryGitCredsDTO dto) {
     	List<ExploratoryGitCreds> list = findGitCreds(user).getGitCreds();
     	if (list != null && dto.getGitCreds() != null) {
         	Collections.sort(dto.getGitCreds());
@@ -86,13 +82,8 @@ public class GitCredsDAO extends BaseDAO {
     			}
 			}
     	}
-    	
-    	Document d = new Document(SET,
-							convertToBson(dto)
-								.append(ID, user));
-    	updateOne(GIT_CREDS,
-    				eq(ID, user),
-    				d,
-    				true);
+
+		Document d = new Document(SET, convertToBson(dto).append(ID, user));
+		updateOne(GIT_CREDS, eq(ID, user), d, true);
     }
 }

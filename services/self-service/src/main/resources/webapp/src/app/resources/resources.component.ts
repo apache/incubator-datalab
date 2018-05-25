@@ -20,7 +20,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ResourcesGridComponent } from './resources-grid';
 import { UserAccessKeyService, UserResourceService, HealthStatusService, AppRoutingService } from '../core/services';
 import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
-import { HTTP_STATUS_CODES } from '../core/util';
+import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
 import { NavbarComponent } from '../shared';
 
 @Component({
@@ -35,10 +35,8 @@ export class ResourcesComponent implements OnInit {
   userUploadAccessKeyState: number;
   exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
   computationalResources: Array<ComputationalResourceImage> = [];
-  progressDialogConfig: any;
   healthStatus: any;
   billingEnabled: boolean;
-  backupAllowed: boolean;
 
   @ViewChild('keyUploadModal') keyUploadModal;
   @ViewChild('preloaderModal') preloaderModal;
@@ -61,8 +59,6 @@ export class ResourcesComponent implements OnInit {
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.checkInfrastructureCreationProgress();
-    this.progressDialogConfig = this.setProgressDialogConfiguration();
-
     this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
   }
 
@@ -94,6 +90,13 @@ export class ResourcesComponent implements OnInit {
   public manageUngit(): void {
     if (!this.manageUngitDialog.isOpened)
         this.manageUngitDialog.open({ isFooter: false });
+  }
+
+  public generateUserKey($event) {
+    this.userAccessKeyService.generateAccessKey().subscribe(data => {
+      FileUtils.downloadFile(data);
+      this.checkInfrastructureCreationProgress();
+    });
   }
 
   private toggleDialogs(keyUploadDialogToggle, preloaderDialogToggle, createAnalyticalToolDialogToggle) {
@@ -134,26 +137,16 @@ export class ResourcesComponent implements OnInit {
     }
   }
 
-  private setProgressDialogConfiguration() {
-    return {
-      message: 'Initial infrastructure is being created, <br/>please, wait...',
-      content: '<img src="assets/img/gif-spinner.gif" alt="">',
-      modal_size: 'modal-xs',
-      text_style: 'info-label',
-      aligning: 'text-center'
-    };
-  }
-
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe(
         (result: any) => {
           this.healthStatus = result.status;
           this.billingEnabled = result.billingEnabled;
-          this.backupAllowed = result.backupAllowed;
-
           this.resourcesGrid.healthStatus = this.healthStatus;
           this.resourcesGrid.billingEnabled = this.billingEnabled;
+
+          this.healthStatus === 'error' && this.checkInfrastructureCreationProgress();
         });
   }
 }

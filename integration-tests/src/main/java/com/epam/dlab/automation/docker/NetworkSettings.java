@@ -22,14 +22,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NetworkSettings {
 
-    @JsonProperty
-    private Networks Networks;
+	@JsonProperty("Networks")
+	private Networks networks;
 
     public Networks getNetworks() {
-        return Networks;
+		return networks;
     }
 
     public void setNetworks(Networks networks) {
-        this.Networks = networks;
+		this.networks = networks;
     }
 }

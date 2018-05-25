@@ -19,21 +19,15 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.domain;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
 import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
-
 import io.dropwizard.util.Duration;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /** Class to store the info about libraries.
  */
@@ -72,7 +66,7 @@ public class ExploratoryLibList {
 	 * @param imageName the name of docker's image.
 	 * @param content JSON string.
 	 */
-	public ExploratoryLibList(String imageName, String content) {
+	ExploratoryLibList(String imageName, String content) {
 		this.imageName = imageName;
 		if (content != null) {
 			setLibs(content);
@@ -81,10 +75,7 @@ public class ExploratoryLibList {
 	
 	/** Return the list of all groups. */
 	public List<String> getGroupList() {
-		List<String> list = new ArrayList<>();
-		for(String key : libs.keySet()) {
-			list.add(key);
-		}
+		List<String> list = new ArrayList<>(libs.keySet());
 		Collections.sort(list);
 		return list;
 	}
@@ -104,17 +95,17 @@ public class ExploratoryLibList {
 	
 	/** Return the full list of libraries for group.
 	 * @param content JSON string.
-	 * @exception DlabException
 	 */
-	private void setLibs(String content) throws DlabException {
+	private void setLibs(String content) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			synchronized (this) {
 				libs.clear();
 				@SuppressWarnings("unchecked")
 				Map<String, Map<String, String>> map = mapper.readValue(content, Map.class);
-				for (String groupName : map.keySet()) {
-					Map<String, String> group = map.get(groupName);
+				for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
+					Map<String, String> group = entry.getValue();
+					String groupName = entry.getKey();
 					log.debug("Update {} image with lib group {} with {} libraries", imageName, groupName,
 							(group != null) ? group.size() : null);
 					libs.put(groupName, new TreeMap<>(group));

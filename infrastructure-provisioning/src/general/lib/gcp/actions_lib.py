@@ -245,7 +245,7 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
-                        initial_user, ami_name, service_account_name, instance_class, network_tag, labels, static_ip='',
+                        initial_user, image_name, service_account_name, instance_class, network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30', gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
@@ -268,7 +268,7 @@ class GCPActions:
                     "type": "PERSISTENT",
                     "initializeParams": {
                         "diskSizeGb": primary_disk_size,
-                        "sourceImage": ami_name
+                        "sourceImage": image_name
                     }
                 },
                 {
@@ -287,7 +287,7 @@ class GCPActions:
                 "autoDelete": 'true',
                 "initializeParams": {
                     "diskSizeGb": primary_disk_size,
-                    "sourceImage": ami_name
+                    "sourceImage": image_name
                 },
                 "boot": 'true',
                 "mode": "READ_WRITE"
@@ -1037,7 +1037,7 @@ class GCPActions:
                 local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
                 venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
-                local('{0} && sudo -i {1} install -U pip'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install -U pip==9.0.3'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
                       .format(venv_command, pip_command))
@@ -1119,7 +1119,7 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir):
+def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
@@ -1129,6 +1129,13 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
+    try:
+        if memory_type == 'driver':
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
+    except:
+        sys.exit(1)
 
 
 def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):

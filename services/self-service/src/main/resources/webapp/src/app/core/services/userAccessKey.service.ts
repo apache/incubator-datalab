@@ -32,9 +32,22 @@ export class UserAccessKeyService {
       .map(response => response);
   }
 
+  public generateAccessKey(): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildGenerateAccessKey()
+      .map(response => response);
+  }
+
   public uploadUserAccessKey(data): Observable<Response> {
     return this.applicationServiceFacade
       .buildUploadUserAccessKeyRequest(data)
+      .map((response: Response) => response);
+  }
+
+  public reuploadUserAccessKey(data): Observable<Response> {
+    const param = '?is_primary_uploading=false';
+    return this.applicationServiceFacade
+      .buildReuploadUserAccessKeyRequest(data, param)
       .map((response: Response) => response);
   }
 }

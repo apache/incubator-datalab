@@ -19,100 +19,83 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.computational.ComputationalStartDTO;
+import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
-import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.*;
 
 @Singleton
 public class SparkClusterService extends DockerService implements DockerCommands {
 
-    private static final DataEngineType SPARK_ENGINE = DataEngineType.SPARK_STANDALONE;
+	private static final DataEngineType SPARK_ENGINE = DataEngineType.SPARK_STANDALONE;
 
-    @Inject
-    private ComputationalConfigure computationalConfigure;
+	@Inject
+	private ComputationalConfigure computationalConfigure;
 
-    public String create(UserInfo ui, ComputationalBase<?> dto) {
-        String uuid = DockerCommands.generateUUID();
-        folderListenerExecutor.start(configuration.getImagesDirectory(),
-                configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(CREATE, uuid, dto));
+	public String create(UserInfo ui, ComputationalBase<?> dto) {
+		return action(ui, dto, CREATE);
+	}
 
-        try {
-            commandExecutor.executeAsync(
-                    ui.getName(),
-                    uuid,
-                    commandBuilder.buildCommand(
-                            new RunDockerCommand()
-                                    .withInteractive()
-                                    .withName(nameContainer(dto.getEdgeUserName(), CREATE, dto.getComputationalName()))
-                                    .withVolumeForRootKeys(configuration.getKeyDirectory())
-                                    .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), SPARK_ENGINE.getName())
-                                    .withResource(SPARK_ENGINE.getName())
-                                    .withRequestId(uuid)
-                                    .withConfKeyName(configuration.getAdminKey())
-                                    .withActionCreate(DataEngineType.getDockerImageName(SPARK_ENGINE)),
-                            dto
-                    )
-            );
-        } catch (JsonProcessingException e) {
-            throw new DlabException("Could not create computational resource cluster", e);
-        }
-        return uuid;
+	public String terminate(UserInfo ui, ComputationalTerminateDTO dto) {
+		return action(ui, dto, TERMINATE);
+	}
 
-    }
+	public String stop(UserInfo ui, ComputationalStopDTO dto) {
+		return action(ui, dto, STOP);
+	}
 
-    public String terminate(UserInfo ui, ComputationalTerminateDTO dto) {
-        String uuid = DockerCommands.generateUUID();
-        folderListenerExecutor.start(configuration.getImagesDirectory(),
-                configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(TERMINATE, uuid, dto));
-        try {
-            commandExecutor.executeAsync(
-                    ui.getName(),
-                    uuid,
-                    commandBuilder.buildCommand(
-                            new RunDockerCommand()
-                                    .withInteractive()
-                                    .withName(nameContainer(dto.getEdgeUserName(), TERMINATE, dto.getComputationalName()))
-                                    .withVolumeForRootKeys(configuration.getKeyDirectory())
-                                    .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), SPARK_ENGINE.getName())
-                                    .withResource(SPARK_ENGINE.getName())
-                                    .withRequestId(uuid)
-                                    .withConfKeyName(configuration.getAdminKey())
-                                    .withActionTerminate(DataEngineType.getDockerImageName(SPARK_ENGINE)),
-                            dto
-                    )
-            );
-        } catch (JsonProcessingException e) {
-            throw new DlabException("Could not terminate computational resources cluster", e);
-        }
+	public String start(UserInfo ui, ComputationalStartDTO dto) {
+		return action(ui, dto, START);
+	}
 
-        return uuid;
-    }
+	private String action(UserInfo ui, ComputationalBase<?> dto, DockerAction action) {
+		String uuid = DockerCommands.generateUUID();
+		folderListenerExecutor.start(configuration.getImagesDirectory(),
+				configuration.getResourceStatusPollTimeout(),
+				getFileHandlerCallback(action, uuid, dto));
+		try {
+			final RunDockerCommand dockerCommand = new RunDockerCommand()
+					.withInteractive()
+					.withName(nameContainer(dto.getEdgeUserName(), action, dto.getComputationalName()))
+					.withVolumeForRootKeys(configuration.getKeyDirectory())
+					.withVolumeForResponse(configuration.getImagesDirectory())
+					.withVolumeForLog(configuration.getDockerLogDirectory(), SPARK_ENGINE.getName())
+					.withResource(SPARK_ENGINE.getName())
+					.withRequestId(uuid)
+					.withConfKeyName(configuration.getAdminKey())
+					.withImage(DataEngineType.getDockerImageName(SPARK_ENGINE))
+					.withAction(action);
 
-    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
-        return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
-    }
+			commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(dockerCommand, dto));
+		} catch (JsonProcessingException e) {
+			throw new DlabException("Could not" + action.toString() + "computational resources cluster", e);
+		}
 
-    private String nameContainer(String user, DockerAction action, String name) {
-        return nameContainer(user, action.toString(), "computational", name);
-    }
+		return uuid;
+	}
 
-    @Override
-    public String getResourceType() {
-        return Directories.DATA_ENGINE_LOG_DIRECTORY;
-    }
+	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
+		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
+	}
+
+	private String nameContainer(String user, DockerAction action, String name) {
+		return nameContainer(user, action.toString(), "computational", name);
+	}
+
+	@Override
+	public String getResourceType() {
+		return Directories.DATA_ENGINE_LOG_DIRECTORY;
+	}
 }

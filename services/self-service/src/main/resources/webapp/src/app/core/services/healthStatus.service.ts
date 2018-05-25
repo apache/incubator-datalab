@@ -74,7 +74,7 @@ export class HealthStatusService {
       .buildRecreateEdgeNodeRequest()
       .map((response: Response) => response);
   }
-
+  
   public isBillingEnabled(): Observable<boolean> {
     return this.applicationServiceFacade
     .buildGetEnvironmentHealthStatus()
@@ -87,6 +87,25 @@ export class HealthStatusService {
         }
       }
       return true;
+    });
+  }
+
+  public getActiveUsers(): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildGetActiveUsers()
+      .map((response: Response) => response.json())
+      .catch((error: any) => error);
+  }
+
+  public manageEnvironment(act, data): Observable<Response | {}> {
+    const action = `/${act}`;
+    return this.applicationServiceFacade
+      .buildManageEnvironment(action, data)
+      .map((response: Response) => response)
+      .catch((error: any) => {
+        return Observable.throw(
+            new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
+        );
     });
   }
 }

@@ -28,12 +28,11 @@ limitations under the License.
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-left: 20px;
+  margin-left: 5px;
 }
 
 .resource_wrap {
-  display: block;
-  float: none;
+  display: flex;
   margin-right: 170px;
 }
 
@@ -52,20 +51,54 @@ limitations under the License.
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  float: left;
 }
+.source .start-stop-action {
+  text-decoration: none;
+  align-self: center;
+  vertical-align: bottom;
+  font-size: 18px;
+  color: #36afd5;
+  margin-left: 3px;
+}
+
+.source .start-stop-action span {
+  cursor: pointer;
+}
+
+.source .start-stop-action span.not-allowed {
+  cursor: default;
+}
+
+.source .start-stop-action .not-allowed {
+  pointer-events: none;
+ }
 
 .source .remove_butt.disabled {
   color: #f5d3d3;
   pointer-events: none;
 }
 
-.arrow_icon {
+.arrow_icon, .schedule {
   position: absolute;
   right: 0;
-  top: 4px;
+  top: 0;
   color: #748ba3;
   cursor: pointer;
+}
+
+.schedule {
+  right: 30px;
+  top: 4px;
+  z-index: 1;
+}
+.schedule.active {
+  color: #49af38;
+}
+.schedule.not-allowed {
+  pointer-events: none;
+}
+.schedule i {
+  font-size: 18px;
 }
 
 .emt_status {

@@ -56,6 +56,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('costDetailsDialog') costDetailsDialog;
   @ViewChild('installLibs') installLibraries;
   @ViewChild('envScheduler') scheduler;
+  @ViewChild('createAmi') createAMI;
 
 
   public filteringColumns: Array<any> = [
@@ -135,6 +136,17 @@ export class ResourcesGridComponent implements OnInit {
     this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
     this.applyFilter_btnClick(this.filterForm);
     this.buildGrid();
+  }
+
+  isResourcesInProgress(notebook) {
+    if(notebook && notebook.resources.length) {
+      return notebook.resources.filter(resource => (
+        resource.status !== 'failed' 
+        && resource.status !== 'terminated'
+        && resource.status !== 'running'
+        && resource.status !== 'stopped')).length > 0;
+    }
+    return false;
   }
 
   filterActiveInstances(): FilterConfigurationModel {
@@ -284,7 +296,9 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'install') {
       this.installLibraries.open({ isFooter: false }, data);
     } else if (action === 'schedule') {
-      this.scheduler.open({ isFooter: false }, data);
+      this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
+    } else if (action === 'ami') {
+      this.createAMI.open({ isFooter: false }, data);
     }
   }
 

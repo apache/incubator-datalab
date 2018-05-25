@@ -26,14 +26,12 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
 import uuid
-from dlab.meta_lib import *
-from dlab.actions_lib import *
 import argparse
 import sys
 
 
-def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
-    print("Terminating data engine cluster")
+def stop_notebook(resource_group_name, notebook_name):
+    print("Stopping data engine cluster")
     cluster_list = []
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
@@ -41,18 +39,10 @@ def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
                 if notebook_name == vm.tags['notebook_name']:
                     if 'master' == vm.tags["Type"]:
                         cluster_list.append(vm.tags["Name"])
-                    AzureActions().remove_instance(resource_group_name, vm.name)
-                    print("Instance {} has been terminated".format(vm.name))
+                    AzureActions().stop_instance(resource_group_name, vm.name)
+                    print("Instance {} has been stopped".format(vm.name))
             except:
                 pass
-    except:
-        sys.exit(1)
-
-    print("Removing Data Engine kernels from notebook")
-    try:
-        for cluster_name in cluster_list:
-            AzureActions().remove_dataengine_kernels(resource_group_name, notebook_name, os_user, key_path,
-                                                     cluster_name)
     except:
         sys.exit(1)
 
@@ -87,13 +77,11 @@ if __name__ == "__main__":
         notebook_config['computational_name'] = ''
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
     logging.info('[STOP NOTEBOOK]')
     print('[STOP NOTEBOOK]')
     try:
-        stop_notebook(notebook_config['resource_group_name'], notebook_config['notebook_name'],
-                      os.environ['conf_os_user'], notebook_config['key_path'])
+        stop_notebook(notebook_config['resource_group_name'], notebook_config['notebook_name'])
     except Exception as err:
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)

@@ -54,6 +54,7 @@ if __name__ == "__main__":
                                                                 notebook_config['exploratory_name'])
         notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                os.environ['application'])
+        notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                       notebook_config['user_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -182,6 +183,23 @@ if __name__ == "__main__":
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    try:
+        logging.info('[POST CONFIGURING PROCESS]')
+        print('[POST CONFIGURING PROCESS')
+        if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None']:
+            params = "--hostname {} --keyfile {} --os_user {} --resource_group_name {} --notebook_name {}" \
+                .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
+                        notebook_config['resource_group_name'], notebook_config['instance_name'])
+            try:
+                local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+    except Exception as err:
+        append_result("Failed to post configuring instance.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     if notebook_config['shared_image_enabled'] == 'true':
         try:
             print('[CREATING IMAGE]')
@@ -242,7 +260,7 @@ if __name__ == "__main__":
                    "master_keyname": os.environ['conf_key_name'],
                    "tensorboard_log_dir": "/var/log/tensorboard",
                    "notebook_name": notebook_config['instance_name'],
-                   "notebook_image_name": notebook_config['expected_image_name'],
+                   "notebook_image_name": notebook_config['notebook_image_name'],
                    "instance_id": notebook_config['instance_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [

@@ -1,6 +1,6 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2018, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import { MaterialModule } from '../../shared/material.module';
 import { ModalModule, BubbleModule } from '../../shared';
 import { FormControlsModule } from '../../shared/form-controls';
 import { SchedulerComponent } from './scheduler.component';
+import { TimePickerModule } from '../../shared/time-picker';
 
 export * from './scheduler.component';
+export * from './scheduler.model';
 
 @NgModule({
   imports: [
@@ -35,7 +37,8 @@ export * from './scheduler.component';
     ModalModule,
     FormControlsModule,
     MaterialModule,
-    BubbleModule
+    BubbleModule,
+    TimePickerModule
   ],
   declarations: [SchedulerComponent],
   exports: [SchedulerComponent]

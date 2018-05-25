@@ -35,7 +35,7 @@ def ensure_pip(requisites):
         if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
-            sudo('pip install -U pip --no-cache-dir')
+            sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
         return True
@@ -53,26 +53,42 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
-        sudo('{} install -U pip setuptools'.format(pip_version))
-        sudo('{} install -U pip --no-cache-dir'.format(pip_version))
-        sudo('{} install --upgrade pip'.format(pip_version))
+        sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
+        sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
-            sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
+            sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -i -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
-            replaced_pip_pkg = pip_pkg.replace("_", "-")
-            sudo('{0} freeze | if ! grep -w {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, replaced_pip_pkg))
-            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, replaced_pip_pkg))
+            sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
+            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
+            changed_pip_pkg = False
+            if res == '':
+                changed_pip_pkg = pip_pkg.replace("_", "-").split('-')
+                changed_pip_pkg = changed_pip_pkg[0]
+                sudo(
+                    '{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(
+                        pip_version, changed_pip_pkg))
+                res = sudo(
+                    'cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
             if res:
+                res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if replaced_pip_pkg in i][0].split('==')[1]
+                if changed_pip_pkg:
+                    version = [i for i in ver if changed_pip_pkg.lower() in i][0].split('==')[1]
+                else:
+                    version = \
+                    [i for i in ver if pip_pkg.lower() in i][0].split(
+                        '==')[1]
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
             else:
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": err})
         return status
-    except:
-        return "Failed to install {} packages".format(pip_version)
-
+    except Exception as err:
+        append_result("Failed to install {} packages".format(pip_version), str(err))
+        print("Failed to install {} packages".format(pip_version))
+        sys.exit(1)
+        
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -261,7 +277,9 @@ def install_r_pkg(requisites):
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires"
     try:
         for r_pkg in requisites:
-            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\'  2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            if r_pkg == 'sparklyr':
+                run('sudo -i R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
@@ -363,24 +381,25 @@ def add_breeze_library_local(os_user):
         try:
             breeze_tmp_dir = '/tmp/breeze_tmp_local/'
             jars_dir = '/opt/jars/'
-            sudo('mkdir -p ' + breeze_tmp_dir)
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-natives_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-viz_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
-                 breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
-            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
-                 breeze_tmp_dir + 'jfreechart-1.0.19.jar')
-            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
-                 breeze_tmp_dir + 'jcommon-1.0.24.jar')
-            sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
-                 breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
-            sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
+            sudo('mkdir -p {}'.format(breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O \
+                    {2}breeze_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar -O \
+                    {2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_{0}/{1}/breeze-viz_{0}-{1}.jar -O \
+                    {2}breeze-viz_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_{0}/{1}/breeze-macros_{0}-{1}.jar -O \
+                    {2}breeze-macros_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_{0}/{1}/breeze-parent_{0}-{1}.jar -O \
+                    {2}breeze-parent_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar -O \
+                    {1}jfreechart-{0}.jar'.format('1.0.19', breeze_tmp_dir))
+            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar -O \
+                    {1}jcommon-{0}.jar'.format('1.0.24', breeze_tmp_dir))
+            sudo('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar -O \
+                    {1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir))
+            sudo('mv {0}* {1}'.format(breeze_tmp_dir, jars_dir))
+            sudo('touch /home/' + os_user + '/.ensure_dir/breeze_local_ensured')
         except:
             sys.exit(1)
 
@@ -451,6 +470,23 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
     sudo("systemctl restart zeppelin-notebook")
 
 
+def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        with settings(host_string='{}@{}'.format(os_user, hostname)):
+            instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+    else:
+        instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+    try:
+        if instance_memory > int(os.environ['dataengine_expl_instance_memory']):
+            spark_memory = instance_memory - int(os.environ['dataengine_os_expl_memory'])
+        else:
+            spark_memory = instance_memory * int(os.environ['dataengine_os_memory']) / 100
+        return spark_memory
+    except Exception as err:
+        print('Error:', str(err))
+        return err
+
+
 def replace_multi_symbols(string, symbol, symbol_cut=False):
     try:
         symbol_amount = 0
@@ -471,11 +507,71 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
         traceback.print_exc(file=sys.stdout)
 
 
-def update_pyopenssl_lib():
+def update_pyopenssl_lib(os_user):
+    if not exists('/home/{}/.ensure_dir/pyopenssl_updated'.format(os_user)):
+        try:
+            if exists('/usr/bin/pip3'):
+                sudo('pip3 install -U pyopenssl')
+            sudo('pip2 install -U pyopenssl')
+            sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
+        except:
+            sys.exit(1)
+
+
+def find_cluster_kernels():
     try:
-        print("Updating pyOpenssl lib")
-        if exists('/usr/bin/pip3'):
-            sudo('pip3 install -U pyopenssl')
-        sudo('pip2 install -U pyopenssl')
+        with settings(sudo_user='root'):
+            de = [i for i in sudo('find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | '
+                                  'cut -f 1 -d "/" | rev | xargs -r').split(' ') if i != '']
+            des =  [i for i in sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
+                                    'cut -f 1,2 -d "/" | rev | xargs -r').split(' ') if i != '']
+        return (de, des)
     except:
+        sys.exit(1)
+
+
+def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode='remote'):
+    try:
+        interpreters_config = '/opt/zeppelin/conf/interpreter.json'
+        local_interpreters_config = '/tmp/interpreter.json'
+        if interpreter_mode != 'remote':
+            get(local_interpreters_config, local_interpreters_config)
+        if multiple_clusters == 'true':
+            groups = [{"class": "org.apache.zeppelin.livy.LivySparkInterpreter", "name": "spark"},
+                      {"class": "org.apache.zeppelin.livy.LivyPySparkInterpreter", "name": "pyspark"},
+                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter", "name": "pyspark3"},
+                      {"class": "org.apache.zeppelin.livy.LivySparkSQLInterpreter", "name": "sql"}]
+            if r_enabled:
+                groups.append({"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"})
+        else:
+            groups = [{"class": "org.apache.zeppelin.spark.SparkInterpreter","name": "spark"},
+                      {"class": "org.apache.zeppelin.spark.PySparkInterpreter", "name": "pyspark"},
+                      {"class": "org.apache.zeppelin.spark.SparkSqlInterpreter", "name": "sql"}]
+            if r_enabled:
+                groups.append({"class": "org.apache.zeppelin.spark.SparkRInterpreter", "name": "r"})
+        r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%", "zeppelin.R.cmd": "R",
+                  "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
+        if interpreter_mode != 'remote':
+            data = json.loads(open(local_interpreters_config).read())
+        else:
+            data = json.loads(open(interpreters_config).read())
+        for i in data['interpreterSettings'].keys():
+            if data['interpreterSettings'][i]['group'] == 'md':
+                continue
+            if r_enabled == 'true':
+                data['interpreterSettings'][i]['properties'].update(r_conf)
+            data['interpreterSettings'][i]['interpreterGroup'] = groups
+
+        if interpreter_mode != 'remote':
+            with open(local_interpreters_config, 'w') as f:
+                f.write(json.dumps(data, indent=2))
+            put(local_interpreters_config, local_interpreters_config)
+            sudo('cp -f {0} {1}'.format(local_interpreters_config, interpreters_config))
+            sudo('systemctl restart zeppelin-notebook')
+        else:
+            with open(interpreters_config, 'w') as f:
+                f.write(json.dumps(data, indent=2))
+            local('sudo systemctl restart zeppelin-notebook')
+    except Exception as err:
+        print('Failed to update Zeppelin interpreters', str(err))
         sys.exit(1)

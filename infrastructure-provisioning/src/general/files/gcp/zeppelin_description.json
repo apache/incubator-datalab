@@ -24,7 +24,7 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Zeppelin 0.7.2",
+      "template_name": "Zeppelin 0.7.3",
       "description": "Base image with zeppelin node creation routines",
       "environment_type": "exploratory",
       "version": "zeppelin-0.7.2",

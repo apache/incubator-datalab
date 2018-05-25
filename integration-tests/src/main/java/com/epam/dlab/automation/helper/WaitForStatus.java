@@ -22,165 +22,183 @@ import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.jayway.restassured.path.json.JsonPath;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class WaitForStatus {
-    private final static Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
 
-    private static long getSsnRequestTimeout() {
-        return ConfigPropertyValue.isRunModeLocal() ? 1000 : 10000;
-    }
+	private static final Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
+	private static final String EXPLORATORY_PATH = "exploratory";
 
-    public static boolean selfService(Duration duration) throws InterruptedException {
-        HttpRequest request = new HttpRequest();
-        int actualStatus;
-        long timeout = duration.toMillis();
-        long expiredTime = System.currentTimeMillis() + timeout;
+	private static long getSsnRequestTimeout() {
+		return ConfigPropertyValue.isRunModeLocal() ? 1000 : 10000;
+	}
 
-        while ((actualStatus = request.webApiGet(NamingHelper.getSsnURL(), ContentType.TEXT).statusCode()) != HttpStatusCode.OK) {
-            if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
-                break;
-            }
-            Thread.sleep(getSsnRequestTimeout());
-        }
+	private WaitForStatus() {
+	}
 
-        if (actualStatus != HttpStatusCode.OK) {
-            LOGGER.info("ERROR: Timeout has been expired for SSN available. Timeout was {}", duration);
-            return false;
-        } else {
-            LOGGER.info("Current status code for SSN is {}", actualStatus);
-        }
+	public static boolean selfService(Duration duration) throws InterruptedException {
+		HttpRequest request = new HttpRequest();
+		int actualStatus;
+		long timeout = duration.toMillis();
+		long expiredTime = System.currentTimeMillis() + timeout;
 
-        return true;
-    }
+		while ((actualStatus = request.webApiGet(NamingHelper.getSsnURL(), ContentType.TEXT).statusCode()) !=
+				HttpStatusCode.OK) {
+			if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
+				break;
+			}
+			Thread.sleep(getSsnRequestTimeout());
+		}
 
-    public static int uploadKey(String url, String token, int status, Duration duration)
-            throws InterruptedException {
-        LOGGER.info(" Waiting until status code {} with URL {} with token {}", status, url, token);
-        HttpRequest request = new HttpRequest();
-        int actualStatus;
-        long timeout = duration.toMillis();
-        long expiredTime = System.currentTimeMillis() + timeout;
+		if (actualStatus != HttpStatusCode.OK) {
+			LOGGER.info("ERROR: Timeout has been expired for SSN available. Timeout was {}", duration);
+			return false;
+		} else {
+			LOGGER.info("Current status code for SSN is {}", actualStatus);
+		}
 
-        while ((actualStatus = request.webApiGet(url, token).getStatusCode()) == status) {
-            if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
-                break;
-            }
-            Thread.sleep(getSsnRequestTimeout());
-        }
+		return true;
+	}
 
-        if (actualStatus == status) {
-            LOGGER.info("ERROR: {}: Timeout has been expired for request.");
-            LOGGER.info("  URL is {}", url);
-            LOGGER.info("  token is {}", token);
-            LOGGER.info("  status is {}", status);
-            LOGGER.info("  timeout is {}", duration);
-        } else {
-            LOGGER.info(" Current status code for {} is {}", url, actualStatus);
-        }
+	public static int uploadKey(String url, String token, int status, Duration duration)
+			throws InterruptedException {
+		LOGGER.info(" Waiting until status code {} with URL {} with token {}", status, url, token);
+		HttpRequest request = new HttpRequest();
+		int actualStatus;
+		long timeout = duration.toMillis();
+		long expiredTime = System.currentTimeMillis() + timeout;
 
-        return actualStatus;
-    }
+		while ((actualStatus = request.webApiGet(url, token).getStatusCode()) == status) {
+			if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
+				break;
+			}
+			Thread.sleep(getSsnRequestTimeout());
+		}
 
-    public static String notebook(String url, String token, String notebookName, String status, Duration duration)
-            throws InterruptedException {
-        LOGGER.info("Waiting for status {} with URL {} with token {} for notebook {}", status, url, token, notebookName);
-        HttpRequest request = new HttpRequest();
-        String actualStatus;
-        long timeout = duration.toMillis();
-        long expiredTime = System.currentTimeMillis() + timeout;
+		if (actualStatus == status) {
+			LOGGER.info("ERROR: {}: Timeout has been expired for request.");
+			LOGGER.info("  URL is {}", url);
+			LOGGER.info("  token is {}", token);
+			LOGGER.info("  status is {}", status);
+			LOGGER.info("  timeout is {}", duration);
+		} else {
+			LOGGER.info(" Current status code for {} is {}", url, actualStatus);
+		}
 
-        do{
-            actualStatus = getNotebookStatus(request.webApiGet(url, token)
-                    .getBody()
-                    .jsonPath(), notebookName);
-            if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
-                break;
-            }
-            Thread.sleep(getSsnRequestTimeout());
-        }
-        while(status.contains(actualStatus));
+		return actualStatus;
+	}
 
-        if (status.contains(actualStatus)) {
-            LOGGER.info("ERROR: {}: Timeout has been expired for request.", notebookName);
-            LOGGER.info("  {}: URL is {}", notebookName, url);
-            LOGGER.info("  {}: token is {}", notebookName, token);
-            LOGGER.info("  {}: status is {}", notebookName, status);
-            LOGGER.info("  {}: timeout is {}", notebookName, duration);
-        } else {
-            LOGGER.info("{}: Current state for Notebook {} is {}", notebookName, notebookName, actualStatus);
-        }
+	public static String notebook(String url, String token, String notebookName, String status, Duration duration)
+			throws InterruptedException {
+		LOGGER.info("Waiting for status {} with URL {} with token {} for notebook {}", status, url, token,
+				notebookName);
+		HttpRequest request = new HttpRequest();
+		String actualStatus;
+		long timeout = duration.toMillis();
+		long expiredTime = System.currentTimeMillis() + timeout;
 
-        return actualStatus;
-    }
+		do {
+			actualStatus = getNotebookStatus(request.webApiGet(url, token)
+					.getBody()
+					.jsonPath(), notebookName);
+			if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
+				break;
+			}
+			Thread.sleep(getSsnRequestTimeout());
+		}
+		while (status.contains(actualStatus));
 
-    public static String cluster(String url, String token, String notebookName, String computationalName, String status, Duration duration)
-            throws InterruptedException {
-        LOGGER.info("{}: Waiting until status {} with URL {} with token {} for computational {} on notebook {}", notebookName, status, url, token, computationalName, notebookName);
-        HttpRequest request = new HttpRequest();
-        String actualStatus;
-        long timeout = duration.toMillis();
-        long expiredTime = System.currentTimeMillis() + timeout;
+		if (status.contains(actualStatus)) {
+			LOGGER.info("ERROR: {}: Timeout has been expired for request.", notebookName);
+			LOGGER.info("  {}: URL is {}", notebookName, url);
+			LOGGER.info("  {}: token is {}", notebookName, token);
+			LOGGER.info("  {}: status is {}", notebookName, status);
+			LOGGER.info("  {}: timeout is {}", notebookName, duration);
+		} else {
+			LOGGER.info("{}: Current state for Notebook {} is {}", notebookName, notebookName, actualStatus);
+		}
 
-        do{
-            actualStatus = getClusterStatus(request.webApiGet(url, token)
-                    .getBody()
-                    .jsonPath(), notebookName, computationalName);
-            if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
-                break;
-            }
-            Thread.sleep(getSsnRequestTimeout());
-        }
-        while(actualStatus.contains(status));
+		return actualStatus;
+	}
 
-        if (actualStatus.contains(status)) {
-            LOGGER.info("ERROR: Timeout has been expired for request.");
-            LOGGER.info("  URL is {}", url);
-            LOGGER.info("  token is {}", token);
-            LOGGER.info("  status is {}", status);
-            LOGGER.info("  timeout is {}", duration);
-        } else {
-            LOGGER.info("{}: Current state for cluster {} on notebook is {}", notebookName, computationalName, actualStatus);
-        }
+	public static String cluster(String url, String token, String notebookName, String computationalName, String
+			status, Duration duration)
+			throws InterruptedException {
+		LOGGER.info("{}: Waiting until status {} with URL {} with token {} for computational {} on notebook {}",
+				notebookName, status, url, token, computationalName, notebookName);
+		HttpRequest request = new HttpRequest();
+		String actualStatus;
+		long timeout = duration.toMillis();
+		long expiredTime = System.currentTimeMillis() + timeout;
 
-        return actualStatus;
-    }
+		do {
+			actualStatus = getClusterStatus(request.webApiGet(url, token)
+					.getBody()
+					.jsonPath(), notebookName, computationalName);
+			if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
+				break;
+			}
+			Thread.sleep(getSsnRequestTimeout());
+		}
+		while (actualStatus.contains(status));
 
-    public static String getClusterStatus(JsonPath json, String notebookName, String computationalName) {
+		if (actualStatus.contains(status)) {
+			LOGGER.info("ERROR: Timeout has been expired for request.");
+			LOGGER.info("  URL is {}", url);
+			LOGGER.info("  token is {}", token);
+			LOGGER.info("  status is {}", status);
+			LOGGER.info("  timeout is {}", duration);
+		} else {
+			LOGGER.info("{}: Current state for cluster {} on notebook is {}", notebookName, computationalName,
+					actualStatus);
+		}
 
-        List<Map<String, List<Map<String, String>>>> notebooks = json.getList("exploratory");
-        List<Map<String, List<Map<String, String>>>> filterred = notebooks.stream()
-                .filter(e -> notebookName.equals(e.get("exploratory_name"))).collect(Collectors.toList());
+		return actualStatus;
+	}
 
-        if (filterred == null || filterred.size() != 1) {
-            return "";
-        }
-        List<Map<String, String>> resources = filterred.get(0)
-                .get("computational_resources");
-        for (Map<String, String> resource : resources) {
-            String comp = resource.get("computational_name");
-            if (comp != null && comp.equals(computationalName)) {
-                return resource.get("status");
-            }
-        }
-        return "";
-    }
+	@SuppressWarnings("unchecked")
+	public static String getClusterStatus(JsonPath json, String notebookName, String computationalName) {
+		return (String) json.getList(EXPLORATORY_PATH)
+				.stream()
+				.filter(exploratoryNamePredicate(notebookName))
+				.flatMap(computationalResourcesStream())
+				.filter(computationalNamePredicate(computationalName))
+				.map(statusFieldPredicate())
+				.findAny()
+				.orElse(StringUtils.EMPTY);
+	}
 
-	public static String getNotebookStatus(JsonPath json, String notebookName) {
-        List<Map<String, String>> notebooks = json.getList("exploratory");
-        notebooks = notebooks.stream().filter(e -> notebookName.equals(e.get("exploratory_name"))).collect(Collectors.toList());
+	private static String getNotebookStatus(JsonPath json, String notebookName) {
+		List<Map<String, String>> notebooks = json.getList(EXPLORATORY_PATH);
+		return notebooks.stream().filter(exploratoryNamePredicate(notebookName))
+				.map(e -> e.get("status"))
+				.findAny()
+				.orElse(StringUtils.EMPTY);
+	}
 
-        if (notebooks == null || notebooks.size() != 1) {
-            return "";
-        }
-        Map<String, String> notebook = notebooks.get(0);
-        String status = notebook.get("status");
-        return (status == null ? "" : status);
-    }
+	private static Function<Object, Object> statusFieldPredicate() {
+		return cr -> (((HashMap) cr).get("status"));
+	}
+
+	private static Predicate<Object> computationalNamePredicate(String computationalName) {
+		return cr -> computationalName.equals(((HashMap) cr).get("computational_name"));
+	}
+
+	private static Function<Object, Stream<?>> computationalResourcesStream() {
+		return d -> ((List) ((HashMap) d).get("computational_resources")).stream();
+	}
+
+	private static Predicate<Object> exploratoryNamePredicate(String notebookName) {
+		return d -> notebookName.equals(((HashMap) d).get("exploratory_name"));
+	}
 }

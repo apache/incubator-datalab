@@ -90,6 +90,19 @@ export class UserResourceService {
       .map((response: Response) => response);
   }
 
+  public toggleStopStartAction(notebook: string, resource: string, action): Observable<Response> {
+    const url = `/${notebook}/${resource}/${action}`;
+    if (action === 'stop') {
+      return this.applicationServiceFacade
+        .buildStopSparkClusterAction(JSON.stringify(url))
+        .map((response: Response) => response);
+    } else if (action === 'start') {
+      return this.applicationServiceFacade
+        .buildStartSparkClusterAction(url)
+        .map((response: Response) => response);
+    }
+  }
+
   public getUserPreferences(): Observable<Response> {
     return this.applicationServiceFacade
       .buildGetUserPreferences()
@@ -100,6 +113,26 @@ export class UserResourceService {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildUpdateUserPreferences(body)
+      .map((response: Response) => response);
+  }
+
+  public getUserImages(image): Observable<Response> {
+    const body = `?docker_image=${image}`;
+    return this.applicationServiceFacade
+      .buildGetUserImages(body)
+      .map((response: Response) => response.json());
+  }
+
+  public getImagesList(): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildGetImagesList()
+      .map((response: Response) => response.json());
+  }
+
+  public createAMI(data): Observable<Response> {
+    const body = JSON.stringify(data);
+    return this.applicationServiceFacade
+      .buildCreateAMI(data)
       .map((response: Response) => response);
   }
 }

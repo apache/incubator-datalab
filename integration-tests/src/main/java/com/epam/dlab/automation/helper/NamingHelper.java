@@ -18,8 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.helper;
 
-import com.epam.dlab.automation.cloud.CloudException;
-
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -94,11 +93,12 @@ public class NamingHelper {
     public static String getEdgeName() {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
             case CloudProvider.AZURE_PROVIDER:
-                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge")
+			case CloudProvider.GCP_PROVIDER:
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge")
                         .replace('_', '-');
-            default:
+			default:
                 return null;
         }
     }
@@ -106,11 +106,12 @@ public class NamingHelper {
     public static String getNotebookInstanceName(String notebookName) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
             case CloudProvider.AZURE_PROVIDER:
-                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName)
+			case CloudProvider.GCP_PROVIDER:
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName)
                         .replace('_', '-');
-            default:
+			default:
                 return null;
         }
     }
@@ -119,11 +120,13 @@ public class NamingHelper {
 		if (DATA_ENGINE.equals(dataEngineType)) {
             switch (ConfigPropertyValue.getCloudProvider()) {
                 case CloudProvider.AWS_PROVIDER:
-                    return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
+					return String.join("-", getClusterInstanceNameForTestDES(notebookName, clusterName,
+							dataEngineType), "m");
                 case CloudProvider.AZURE_PROVIDER:
-                    return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m")
-                            .replace('_', '-');
-                default:
+				case CloudProvider.GCP_PROVIDER:
+					return String.join("-", getClusterInstanceNameForTestDES(notebookName, clusterName,
+							dataEngineType), "m").replace('_', '-');
+				default:
                     return null;
             }
     	}
@@ -135,28 +138,32 @@ public class NamingHelper {
     public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-				if (DATA_ENGINE.equals(dataEngineType)) {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
-                }
-                else {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
-                }
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName) :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName);
+
             case CloudProvider.AZURE_PROVIDER:
-				if (DATA_ENGINE.equals(dataEngineType)) {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName)
-                            .replace('_', '-');
-                }
-                else {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName)
-                            .replace('_', '-');
-                }
-            default:
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName).replace('_', '-') :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName).replace('_', '-');
+
+			case CloudProvider.GCP_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName).replace('_', '-') :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName, "m").replace('_', '-');
+			default:
                 return null;
         }
 
     }
 
-    public static String getNotebookContainerName(String notebookName, String action) {
+	public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
     
@@ -181,29 +188,35 @@ public class NamingHelper {
     public static String getStorageName() {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
                 return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
                         CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
             case CloudProvider.AZURE_PROVIDER:
                 return String.format("%s-%s-%s", serviceBaseName, "shared",
                         CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
-            default:
+			default:
                 return null;
         }
     }
-    
-    public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws CloudException {
-        return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
+
+	public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode)
+			throws IOException {
+		switch (ConfigPropertyValue.getCloudProvider()) {
+			case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.AZURE_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
+						CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
+
+			case CloudProvider.GCP_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
+						CloudHelper.getGcpDataprocClusterName(
+								CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode));
+			default:
+				return null;
+		}
     }
 
-    public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode) throws CloudException {
-		if (DATA_ENGINE.equals(dataEngineType)) {
-            return clusterInstanceName;
-        } else {
-            return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
-        }
-    }
-
-    public static String getNotebookTestTemplatesPath(String notebookName){
+	public static String getNotebookTestTemplatesPath(String notebookName) {
 		if (notebookName.contains(DEEPLEARNING)) {
             return "test_templates/deeplearning/";
 		} else if (notebookName.contains(JUPYTER)) {

@@ -16,42 +16,35 @@
 
 package com.epam.dlab.backendapi.dao.aws;
 
-import static com.epam.dlab.core.parser.ReportLine.*;
-import static com.mongodb.client.model.Accumulators.max;
-import static com.mongodb.client.model.Accumulators.min;
-import static com.mongodb.client.model.Accumulators.sum;
-import static com.mongodb.client.model.Aggregates.group;
-import static com.mongodb.client.model.Aggregates.match;
-import static com.mongodb.client.model.Aggregates.sort;
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.gte;
-import static com.mongodb.client.model.Filters.in;
-import static com.mongodb.client.model.Filters.lte;
-import static com.mongodb.client.model.Filters.regex;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.billing.BillingCalculationUtils;
+import com.epam.dlab.billing.DlabResourceType;
+import com.epam.dlab.core.BillingUtils;
+import com.google.common.collect.Lists;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
-import com.epam.dlab.backendapi.roles.RoleType;
-import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.core.BillingUtils;
-import com.epam.dlab.billing.DlabResourceType;
-import com.google.common.collect.Lists;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
+import static com.epam.dlab.core.parser.ReportLine.*;
+import static com.mongodb.client.model.Accumulators.*;
+import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 
 /** DAO for user billing.
  */
@@ -77,7 +70,7 @@ public class AwsBillingDAO extends BillingDAO {
     /** Build and returns the billing report.
      * @param userInfo user info
      * @param filter the filter for report data.
-     * @return
+	 * @return billing report
      */
     public Document getReport(UserInfo userInfo, AwsBillingFilter filter) {
     	// Create filter
@@ -94,16 +87,7 @@ public class AwsBillingDAO extends BillingDAO {
     	addCondition(conditions, FIELD_PRODUCT, filter.getProduct());
     	addCondition(conditions, DLAB_RESOURCE_TYPE, DlabResourceType.getResourceTypeIds(filter.getResourceType()));
 
-    	if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
-    		conditions.add(regex(FIELD_DLAB_ID, filter.getDlabId(), "i"));
-    	}
-
-    	if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
-    		conditions.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
-    	}
-    	if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
-    		conditions.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
-    	}
+		addAnotherConditionsIfNecessary(conditions, filter);
 
     	// Create aggregation conditions
 
@@ -182,6 +166,19 @@ public class AwsBillingDAO extends BillingDAO {
 												reportItems.get(0).getString(FIELD_CURRENCY_CODE)))
 				.append(FULL_REPORT, isFullReport);
     }
+
+	private void addAnotherConditionsIfNecessary(List<Bson> conditions, AwsBillingFilter filter) {
+		if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
+			conditions.add(regex(FIELD_DLAB_ID, filter.getDlabId(), "i"));
+		}
+
+		if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
+			conditions.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
+		}
+		if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
+			conditions.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
+		}
+	}
 
 	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, BillingDAO.ShapeInfo> shapes) {
 		// Add SSN and EDGE nodes

@@ -18,11 +18,15 @@ limitations under the License.
 
 package com.epam.dlab.automation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LoginDto {
 
     private String username;
     private String password;
-    private String access_token;
+
+	@JsonProperty("access_token")
+	private String accessToken;
     
     public String getUsername() {
         return username;
@@ -37,15 +41,15 @@ public class LoginDto {
     public void setPassword(String password) {
         this.password = password;
     }
-    
-    public String getAccess_token() {
-        return access_token;
+
+	public String getAccessToken() {
+		return accessToken;
     }
     
     public LoginDto(String username, String password) {
         this.username = username;
         this.password = password;
-        this.access_token = "";
+		this.accessToken = "";
     }
    
     public LoginDto(){

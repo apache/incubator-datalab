@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.computational;
 
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -34,22 +35,18 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
     private String dataEngineInstanceCount;
 
     @NotBlank
-    @JsonProperty("dataengine_slave")
-    private String dataEngineSlave;
-
-    @NotBlank
-    @JsonProperty("dataengine_master")
-    private String dataEngineMaster;
+    @JsonProperty("dataengine_instance_shape")
+    private String dataEngineInstanceShape;
 
     @Builder
     public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
-                                          String templateName, String status, Date uptime,
-                                          String dataEngineInstanceCount, String dataEngineSlave,
-                                          String dataEngineMaster) {
+										  String templateName, String status, Date uptime,
+										  SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
+										  String dataEngineInstanceCount, String dataEngineInstanceShape) {
 
-        super(computationalName, computationalId, imageName, templateName, status, uptime);
+		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
+				reuploadKeyRequired);
         this.dataEngineInstanceCount = dataEngineInstanceCount;
-        this.dataEngineSlave = dataEngineSlave;
-        this.dataEngineMaster = dataEngineMaster;
+        this.dataEngineInstanceShape = dataEngineInstanceShape;
     }
 }

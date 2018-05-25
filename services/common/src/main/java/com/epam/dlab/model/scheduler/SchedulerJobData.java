@@ -6,11 +6,17 @@ import lombok.Data;
 
 @Data
 public class SchedulerJobData {
-    @JsonProperty
+
+	@JsonProperty
     private final String user;
-    @JsonProperty("exploratory_name")
+
+	@JsonProperty("exploratory_name")
     private final String exploratoryName;
-    @JsonProperty("scheduler_data")
+
+	@JsonProperty("computational_name")
+	private final String computationalName;
+
+	@JsonProperty("scheduler_data")
     private final SchedulerJobDTO jobDTO;
 }
 

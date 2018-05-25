@@ -28,7 +28,9 @@ import { DetailDialogModule } from './../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
 import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
 import { InstallLibrariesModule } from './../exploratory/install-libraries';
+import { AmiCreateDialogModule } from './../exploratory/ami-create-dialog';
 import { SchedulerModule } from './../scheduler';
+import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 
 export * from './resources-grid.component';
 export * from './resources-grid.model';
@@ -48,6 +50,8 @@ export * from './filter-configuration.model';
     CostDetailsDialogModule,
     InstallLibrariesModule,
     SchedulerModule,
+    AmiCreateDialogModule,
+    UnderscorelessPipeModule,
     MaterialModule
   ],
   declarations: [ResourcesGridComponent],

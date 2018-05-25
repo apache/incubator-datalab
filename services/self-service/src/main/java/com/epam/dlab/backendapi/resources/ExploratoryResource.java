@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
@@ -49,92 +48,86 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class ExploratoryResource implements ExploratoryAPI {
 
-    @Inject
-    private ExploratoryService exploratoryService;
+	private ExploratoryService exploratoryService;
 
-    /**
-     * Creates the exploratory environment for user.
-     *
-     * @param userInfo user info.
-     * @param formDTO  description for the exploratory environment.
-     * @return {@link Response.Status#OK} request for provisioning service has been accepted.<br>
-     * {@link Response.Status#FOUND} request for provisioning service has been duplicated.
-     * @throws DlabException
-     */
-    @PUT
-    @RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
-    public Response create(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryCreateFormDTO formDTO) {
-        log.debug("Creating exploratory environment {} with name {} for user {}",
-                formDTO.getImage(), formDTO.getName(), userInfo.getName());
-        if (!UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, formDTO.getImage())) {
-            log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
-            throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
-        }
-        String uuid = exploratoryService.create(userInfo, getExploratory(formDTO));
-        RequestId.put(userInfo.getName(), uuid);
-        return Response.ok(uuid).build();
+	@Inject
+	public ExploratoryResource(ExploratoryService exploratoryService) {
+		this.exploratoryService = exploratoryService;
+	}
 
-    }
+	/**
+	 * Creates the exploratory environment for user.
+	 *
+	 * @param userInfo user info.
+	 * @param formDTO  description for the exploratory environment.
+	 * @return {@link Response.Status#OK} request for provisioning service has been accepted.<br>
+	 * {@link Response.Status#FOUND} request for provisioning service has been duplicated.
+	 */
+	@PUT
+	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
+	public Response create(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryCreateFormDTO formDTO) {
+		log.debug("Creating exploratory environment {} with name {} for user {}",
+				formDTO.getImage(), formDTO.getName(), userInfo.getName());
+		if (!UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, formDTO.getImage())) {
+			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
+			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
+		}
+		String uuid = exploratoryService.create(userInfo, getExploratory(formDTO));
+		return Response.ok(uuid).build();
+
+	}
 
 
-    /**
-     * Starts exploratory environment for user.
-     *
-     * @param userInfo user info.
-     * @param formDTO  description of exploratory action.
-     * @return Invocation response as JSON string.
-     * @throws DlabException
-     */
-    @POST
-    @RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
-    public String start(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryActionFormDTO formDTO) {
-        log.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(), userInfo.getName());
-        String uuid = exploratoryService.start(userInfo, formDTO.getNotebookInstanceName());
-        RequestId.put(userInfo.getName(), uuid);
-        return uuid;
-    }
+	/**
+	 * Starts exploratory environment for user.
+	 *
+	 * @param userInfo user info.
+	 * @param formDTO  description of exploratory action.
+	 * @return Invocation response as JSON string.
+	 */
+	@POST
+	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
+	public String start(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryActionFormDTO formDTO) {
+		log.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(), userInfo
+				.getName());
+		return exploratoryService.start(userInfo, formDTO.getNotebookInstanceName());
+	}
 
-    /**
-     * Stops exploratory environment for user.
-     *
-     * @param userInfo user info.
-     * @param name     name of exploratory environment.
-     * @return Invocation response as JSON string.
-     * @throws DlabException
-     */
-    @DELETE
-    @Path("/{name}/stop")
-    public String stop(@Auth UserInfo userInfo, @PathParam("name") String name) {
-        log.debug("Stopping exploratory environment {} for user {}", name, userInfo.getName());
-        String uuid = exploratoryService.stop(userInfo, name);
-        RequestId.put(userInfo.getName(), uuid);
-        return uuid;
-    }
+	/**
+	 * Stops exploratory environment for user.
+	 *
+	 * @param userInfo user info.
+	 * @param name     name of exploratory environment.
+	 * @return Invocation response as JSON string.
+	 */
+	@DELETE
+	@Path("/{name}/stop")
+	public String stop(@Auth UserInfo userInfo, @PathParam("name") String name) {
+		log.debug("Stopping exploratory environment {} for user {}", name, userInfo.getName());
+		return exploratoryService.stop(userInfo, name);
+	}
 
-    /**
-     * Terminates exploratory environment for user.
-     *
-     * @param userInfo user info.
-     * @param name     name of exploratory environment.
-     * @return Invocation response as JSON string.
-     * @throws DlabException
-     */
-    @DELETE
-    @Path("/{name}/terminate")
-    public String terminate(@Auth UserInfo userInfo, @PathParam("name") String name) {
-        log.debug("Terminating exploratory environment {} for user {}", name, userInfo.getName());
-        String uuid = exploratoryService.terminate(userInfo, name);
-        RequestId.put(userInfo.getName(), uuid);
-        return uuid;
-    }
+	/**
+	 * Terminates exploratory environment for user.
+	 *
+	 * @param userInfo user info.
+	 * @param name     name of exploratory environment.
+	 * @return Invocation response as JSON string.
+	 */
+	@DELETE
+	@Path("/{name}/terminate")
+	public String terminate(@Auth UserInfo userInfo, @PathParam("name") String name) {
+		log.debug("Terminating exploratory environment {} for user {}", name, userInfo.getName());
+		return exploratoryService.terminate(userInfo, name);
+	}
 
-    private Exploratory getExploratory(@Valid @NotNull ExploratoryCreateFormDTO formDTO) {
-        return Exploratory.builder()
-                .name(formDTO.getName())
-                .dockerImage(formDTO.getImage())
-                .imageName(formDTO.getImageName())
-                .templateName(formDTO.getTemplateName())
-                .version(formDTO.getVersion())
-                .shape(formDTO.getShape()).build();
-    }
+	private Exploratory getExploratory(@Valid @NotNull ExploratoryCreateFormDTO formDTO) {
+		return Exploratory.builder()
+				.name(formDTO.getName())
+				.dockerImage(formDTO.getImage())
+				.imageName(formDTO.getImageName())
+				.templateName(formDTO.getTemplateName())
+				.version(formDTO.getVersion())
+				.shape(formDTO.getShape()).build();
+	}
 }

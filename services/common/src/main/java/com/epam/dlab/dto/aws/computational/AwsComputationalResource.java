@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.aws.computational;
 
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -50,11 +51,13 @@ public class AwsComputationalResource extends UserComputationalResource {
 
     @Builder
     public AwsComputationalResource(String computationalName, String computationalId, String imageName,
-                                    String templateName, String status, Date uptime, String instanceId,
-                                    String masterShape, String slaveShape, Boolean slaveSpot,
-                                    Integer slaveSpotPctPrice, String slaveNumber, String version) {
+									String templateName, String status, Date uptime,
+									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
+									String instanceId, String masterShape, String slaveShape, Boolean slaveSpot,
+									Integer slaveSpotPctPrice, String slaveNumber, String version) {
 
-        super(computationalName, computationalId, imageName, templateName, status, uptime);
+		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
+				reuploadKeyRequired);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;

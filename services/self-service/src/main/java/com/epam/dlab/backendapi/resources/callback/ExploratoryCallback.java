@@ -41,67 +41,81 @@ import static com.epam.dlab.UserInstanceStatus.*;
 @Slf4j
 public class ExploratoryCallback {
 
-    @Inject
-    private ExploratoryDAO exploratoryDAO;
+	@Inject
+	private ExploratoryDAO exploratoryDAO;
 
-    @Inject
-    private ComputationalDAO computationalDAO;
+	@Inject
+	private ComputationalDAO computationalDAO;
 
-    /**
-     * Changes the status of exploratory environment.
-     *
-     * @param dto description of status.
-     * @return 200 OK - if request success.
-     * @throws DlabException
-     */
-    @POST
-    @Path(ApiCallbacks.STATUS_URI)
-    public Response status(ExploratoryStatusDTO dto) throws DlabException {
-        log.debug("Updating status for exploratory environment {} for user {} to {}",
-                dto.getExploratoryName(), dto.getUser(), dto.getStatus());
-        RequestId.checkAndRemove(dto.getRequestId());
-        UserInstanceStatus currentStatus;
+	@Inject
+	private RequestId requestId;
 
-        try {
-            currentStatus = exploratoryDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
-        } catch (DlabException e) {
-            log.error("Could not get current status for exploratory environment {} for user {}",
-                    dto.getExploratoryName(), dto.getUser(), e);
-            throw new DlabException("Could not get current status for exploratory environment " + dto.getExploratoryName() +
-                    " for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
-        }
-        log.debug("Current status for exploratory environment {} for user {} is {}",
-                dto.getExploratoryName(), dto.getUser(), currentStatus);
+	/**
+	 * Changes the status of exploratory environment.
+	 *
+	 * @param dto description of status.
+	 * @return 200 OK - if request success.
+	 */
+	@POST
+	@Path(ApiCallbacks.STATUS_URI)
+	public Response status(ExploratoryStatusDTO dto) {
+		log.debug("Updating status for exploratory environment {} for user {} to {}",
+				dto.getExploratoryName(), dto.getUser(), dto.getStatus());
+		requestId.checkAndRemove(dto.getRequestId());
+		UserInstanceStatus currentStatus;
 
-        try {
-            exploratoryDAO.updateExploratoryFields(dto);
-            if (currentStatus == TERMINATING) {
-                updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto.getStatus()));
-            } else if (currentStatus == STOPPING) {
-                updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), TERMINATED);
-            }
-        } catch (DlabException e) {
-            log.error("Could not update status for exploratory environment {} for user {} to {}",
-                    dto.getExploratoryName(), dto.getUser(), dto.getStatus(), e);
-            throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
-                    " for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
-        }
+		try {
+			currentStatus = exploratoryDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
+		} catch (DlabException e) {
+			log.error("Could not get current status for exploratory environment {} for user {}",
+					dto.getExploratoryName(), dto.getUser(), e);
+			throw new DlabException("Could not get current status for exploratory environment " + dto
+					.getExploratoryName() +
+					" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
+		}
+		log.debug("Current status for exploratory environment {} for user {} is {}",
+				dto.getExploratoryName(), dto.getUser(), currentStatus);
 
-        return Response.ok().build();
-    }
+		try {
+			exploratoryDAO.updateExploratoryFields(dto);
+			if (currentStatus == TERMINATING) {
+				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto
+						.getStatus()));
+			} else if (currentStatus == STOPPING) {
+				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto
+						.getStatus()), TERMINATED, FAILED, TERMINATED, STOPPED);
+			}
+		} catch (DlabException e) {
+			log.error("Could not update status for exploratory environment {} for user {} to {}",
+					dto.getExploratoryName(), dto.getUser(), dto.getStatus(), e);
+			throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
+					" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
+		}
 
-    /**
-     * Updates the computational status of exploratory environment.
-     *
-     * @param user            user name
-     * @param exploratoryName name of exploratory environment.
-     * @param status          status for exploratory environment.
-     */
-    private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus status) {
-        log.debug("updating status for all computational resources of {} for user {}: {}", exploratoryName, user, status);
-        computationalDAO.updateComputationalStatusesForExploratory(new ExploratoryStatusDTO()
-                .withUser(user)
-                .withExploratoryName(exploratoryName)
-                .withStatus(status));
-    }
+		return Response.ok().build();
+	}
+
+	/**
+	 * Updates the computational status of exploratory environment.
+	 *
+	 * @param user            user name
+	 * @param exploratoryName name of exploratory environment.
+	 * @param status          status for exploratory environment.
+	 */
+	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus status) {
+		log.debug("updating status for all computational resources of {} for user {}: {}", exploratoryName, user,
+				status);
+		computationalDAO.updateComputationalStatusesForExploratory(new ExploratoryStatusDTO()
+				.withUser(user)
+				.withExploratoryName(exploratoryName)
+				.withStatus(status));
+	}
+
+	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus
+			dataEngineStatus, UserInstanceStatus dataEngineServiceStatus, UserInstanceStatus... excludedStatuses) {
+		log.debug("updating status for all computational resources of {} for user {}: DataEngine {}, " +
+				"dataengine-service {}", exploratoryName, user, dataEngineStatus, dataEngineServiceStatus);
+		computationalDAO.updateComputationalStatusesForExploratory(user, exploratoryName, dataEngineStatus,
+				dataEngineServiceStatus, excludedStatuses);
+	}
 }

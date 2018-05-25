@@ -66,13 +66,11 @@ limitations under the License.
   </tr>
 
   <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
-    <!-- Need to be restored after debugging -->
-    <!-- (click)="(env.status != 'starting' && env.status != 'creating' && printDetailEnvironmentModal(env))" [ngClass]="{'not-allowed' : env.status == 'starting' || env.status == 'creating'}" -->
     <td (click)="printDetailEnvironmentModal(env)">{{env.name}}</td>
-    <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{env.status}}</td>
+    <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{ env.status | underscoreless }}</td>
     <td>{{env.shape}}</td>
     <td>
-      <computational-resources-list [resources]="env.resources" [environment]="env" (buildGrid)="buildGrid($event)"></computational-resources-list>
+      <computational-resources-list [resources]="env.resources" [environment]="env" [healthStatus]="healthStatus" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
     <td *ngIf="billingEnabled">
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
@@ -88,12 +86,15 @@ limitations under the License.
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
           <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
-                && env.status.toLowerCase() !== 'terminating'
-                && env.status.toLowerCase() !== 'terminated'">
+                && env.status !== 'terminating'
+                && env.status !== 'terminated'
+                && env.status !== 'creating_image'">
             <li (click)="exploratoryAction(env, 'stop')"
-                *ngIf="env.status.toLowerCase() !== 'stopped'
-                && env.status.toLowerCase() !== 'stopping'
-                && env.status.toLowerCase() !== 'starting'">
+                [ngClass]="{'not-allowed': isResourcesInProgress(env) }"
+                *ngIf="env.status !== 'stopped'
+                && env.status !== 'stopping'
+                && env.status !== 'starting'
+                && env.status !== 'creating_image'">
               <i class="material-icons">pause_circle_outline</i>
               <span>Stop</span>
             </li>
@@ -103,6 +104,7 @@ limitations under the License.
               <span>Run</span>
             </li>
             <li (click)="exploratoryAction(env, 'terminate')"
+                [ngClass]="{'not-allowed': isResourcesInProgress(env) }"
                 *ngIf="env.status.toLowerCase() === 'running'
                 || env.status.toLowerCase() === 'stopped'">
               <i class="material-icons">phonelink_off</i>
@@ -110,16 +112,24 @@ limitations under the License.
             </li>
             <li (click)="exploratoryAction(env, 'deploy')"
                 *ngIf="env.status != 'stopping'
-                && env.status != 'stopped'
-                && env.status != 'starting'">
+                && env.status !== 'stopped'
+                && env.status !== 'starting'
+                && env.status !== 'creating_image'">
               <i class="material-icons">memory</i>
               <span>Add compute</span>
             </li>
-            <!-- <li (click)="exploratoryAction(env, 'schedule')">
+            <li (click)="exploratoryAction(env, 'schedule')"
+                *ngIf="env.status.toLowerCase() === 'running'
+                || env.status.toLowerCase() === 'stopped'">
                 <i class="material-icons">schedule</i>
               <span>Scheduler</span>
-            </li> -->
+            </li>
           </div>
+          <li (click)="exploratoryAction(env, 'ami')"
+              *ngIf="env.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
+            <i class="material-icons">view_module</i>
+            <span>Create {{ DICTIONARY.image }}</span>
+          </li>
           <li (click)="exploratoryAction(env, 'install')">
             <i class="material-icons">developer_board</i>
             <span>Manage libraries</span>
@@ -135,4 +145,5 @@ limitations under the License.
 <detail-dialog #detailDialog></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
 <install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
-<dlab-scheduler #envScheduler></dlab-scheduler>
+<dlab-scheduler #envScheduler (buildGrid)="buildGrid($event)"></dlab-scheduler>
+<dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid($event)"></dlab-ami-create-dialog>

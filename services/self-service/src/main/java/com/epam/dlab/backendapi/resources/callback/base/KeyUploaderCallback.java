@@ -44,6 +44,8 @@ public class KeyUploaderCallback {
                     // Upload the key first time
                     log.debug("Delete the key for user {}", user);
                     keyDAO.deleteKey(user);
+                } else {
+                    keyDAO.updateEdgeStatus(user, status);
                 }
             }
         } catch (DlabException e) {

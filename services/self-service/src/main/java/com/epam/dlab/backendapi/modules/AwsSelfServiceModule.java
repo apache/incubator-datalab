@@ -28,10 +28,10 @@ import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
 import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
-import com.epam.dlab.backendapi.service.InfrastructureTemplatesService;
+import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.backendapi.service.aws.AwsBillingService;
 import com.epam.dlab.backendapi.service.aws.AwsInfrastructureInfoService;
-import com.epam.dlab.backendapi.service.aws.AwsInfrastructureTemplatesService;
+import com.epam.dlab.backendapi.service.aws.AwsInfrastructureTemplateService;
 import com.epam.dlab.cloud.CloudModule;
 import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
 import com.google.inject.Injector;
@@ -52,10 +52,11 @@ public class AwsSelfServiceModule extends CloudModule {
         bind(InfrastructureInfoService.class).to(AwsInfrastructureInfoService.class);
 		bind(SchedulerConfiguration.class).toInstance(
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
-        bind(InfrastructureTemplatesService.class).to(AwsInfrastructureTemplatesService.class);
+		bind(InfrastructureTemplateService.class).to(AwsInfrastructureTemplateService.class);
     }
 
     @Override
+	@SuppressWarnings("unchecked")
     public void init(Environment environment, Injector injector) {
         environment.jersey().register(injector.getInstance(EdgeCallbackAws.class));
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));

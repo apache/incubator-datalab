@@ -33,7 +33,6 @@ import java.util.*;
  * Provides user roles access to features.
  */
 public class UserRoles {
-	public static final String BACKUP = "/api/infrastructure/backup";
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoles.class);
 
 	private static final String ANY_USER = "$anyuser";
@@ -45,6 +44,7 @@ public class UserRoles {
 	 * Node name of user.
 	 */
 	private static final String USERS = "users";
+	private static final String ADMIN_ROLE_NAME = "admin";
 	/**
 	 * Single instance of the user roles.
 	 */
@@ -63,15 +63,14 @@ public class UserRoles {
 	 * Initialize user roles for all users.
 	 *
 	 * @param dao security DAO.
-	 * @throws DlabException
 	 */
 	public static void initialize(SecurityDAO dao, boolean defaultAccess) {
-		LOGGER.trace("Loading roles from database");
+		LOGGER.trace("Loading roles from database...");
 		if (userRoles == null) {
 			userRoles = new UserRoles();
 		}
 		userRoles.load(dao, defaultAccess);
-		LOGGER.trace("New roles is {}", getRoles());
+		LOGGER.trace("New roles are: {}", getRoles());
 	}
 
 	/**
@@ -87,10 +86,16 @@ public class UserRoles {
 	 * @param userInfo user info.
 	 * @param type     the type of role.
 	 * @param name     the name of role.
-	 * @return
+	 * @return boolean value
 	 */
 	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name) {
 		return checkAccess(userInfo, type, name, true);
+	}
+
+	public static boolean isAdmin(UserInfo userInfo) {
+		final List<UserRole> roles = UserRoles.getRoles();
+		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
+				(userRoles.hasAccessByGroup(userInfo, r) || userRoles.hasAccessByUserName(userInfo, r)));
 	}
 
 	/**
@@ -99,10 +104,10 @@ public class UserRoles {
 	 * @param userInfo user info.
 	 * @param type     the type of role.
 	 * @param name     the name of role.
-	 * @return
+	 * @return boolean value
 	 */
 	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
-		return (userRoles == null ? true : userRoles.hasAccess(userInfo, type, name, useDefault));
+		return (userRoles == null || userRoles.hasAccess(userInfo, type, name, useDefault));
 	}
 
 	/**
@@ -118,12 +123,13 @@ public class UserRoles {
 			for (Document d : docs) {
 				Set<String> groups = getAndRemoveSet(d, GROUPS);
 				Set<String> users = getAndRemoveSet(d, USERS);
+				String id = d.getString("_id");
 				for (RoleType type : RoleType.values()) {
 					@SuppressWarnings("unchecked")
 					List<String> names = d.get(type.getNodeName(), ArrayList.class);
 					if (names != null) {
 						for (String name : names) {
-							append(type, name, groups, users);
+							append(type, name, groups, users, id);
 						}
 					}
 				}
@@ -141,10 +147,11 @@ public class UserRoles {
 	 * @param name   the name of role.
 	 * @param groups the names of external groups.
 	 * @param users  the name of DLab's users.
+	 * @param id
 	 * @return role.
 	 */
-	private UserRole append(RoleType type, String name, Set<String> groups, Set<String> users) {
-		UserRole item = new UserRole(type, name, groups, users);
+	private UserRole append(RoleType type, String name, Set<String> groups, Set<String> users, String id) {
+		UserRole item = new UserRole(id, type, name, groups, users);
 		synchronized (roles) {
 			int index = Collections.binarySearch(roles, item);
 			if (index < 0) {
@@ -205,25 +212,26 @@ public class UserRoles {
 	 * @param userInfo   user info.
 	 * @param type       the type of role.
 	 * @param name       the name of role.
-	 * @param useDefault
-	 * @return
+	 * @param useDefault true/false
+	 * @return boolean value
 	 */
 	private boolean hasAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
 		if (userRoles == null) {
 			return true;
 		}
-		LOGGER.trace("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(), type, name);
+		LOGGER.trace("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(),
+				type, name);
 		UserRole role = get(type, name);
 		if (role == null) {
 			return checkDefault(useDefault);
 		}
-		if (role.getUsers() != null &&
-				userInfo.getName() != null &&
-				(role.getUsers().contains(ANY_USER) ||
-						role.getUsers().contains(userInfo.getName().toLowerCase()))) {
-			LOGGER.trace("Got access by name");
-			return true;
-		}
+		if (hasAccessByUserName(userInfo, role)) return true;
+		if (hasAccessByGroup(userInfo, role)) return true;
+		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
+		return false;
+	}
+
+	private boolean hasAccessByGroup(UserInfo userInfo, UserRole role) {
 		Set<String> groups = role.getGroups();
 		if (groups != null) {
 			if (groups.contains(ANY_USER)) {
@@ -236,7 +244,17 @@ public class UserRoles {
 				}
 			}
 		}
-		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
+		return false;
+	}
+
+	private boolean hasAccessByUserName(UserInfo userInfo, UserRole role) {
+		if (role.getUsers() != null &&
+				userInfo.getName() != null &&
+				(role.getUsers().contains(ANY_USER) ||
+						role.getUsers().contains(userInfo.getName().toLowerCase()))) {
+			LOGGER.trace("Got access by name");
+			return true;
+		}
 		return false;
 	}
 

@@ -20,6 +20,7 @@
 
 import argparse
 import json
+from botocore import exceptions
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
@@ -88,15 +89,14 @@ if __name__ == "__main__":
                 dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
         else:
             pre_defined_subnet_list = []
-            subnet_count = int(args.user_subnets_range.split('-')[1].replace(' ', '').split('.')[2]) - int(
-                args.user_subnets_range.split('-')[0].replace(' ', '').split('.')[2])
             subnet_cidr = args.user_subnets_range.split('-')[0].replace(' ', '')
             pre_defined_subnet_list.append(subnet_cidr)
-            for i in range(subnet_count):
+            while str(subnet_cidr) != args.user_subnets_range.split('-')[1].replace(' ', ''):
                 subnet = ipaddress.ip_network(u'{}'.format(subnet_cidr))
                 num_addr = subnet.num_addresses
                 first_ip = int(ipaddress.IPv4Address(u'{}'.format(subnet.network_address)))
-                next_subnet = ipaddress.ip_network(u'{}/24'.format(ipaddress.ip_address(first_ip + num_addr)))
+                next_subnet = ipaddress.ip_network(u'{}/{}'.format(ipaddress.ip_address(first_ip + num_addr),
+                                                                   args.prefix))
                 pre_defined_subnet_list.append(next_subnet.compressed)
                 subnet_cidr = next_subnet
             existed_subnet_list = []
@@ -118,7 +118,7 @@ if __name__ == "__main__":
             subnet_check = get_subnet_by_tag(tag)
         if not subnet_check:
             if subnet_id == '':
-                print("Creating subnet (0) in vpc (1) with tag (2)".
+                print("Creating subnet {0} in vpc {1} with tag {2}".
                       format(dlab_subnet_cidr, args.vpc_id, json.dumps(tag)))
                 subnet_id = create_subnet(args.vpc_id, dlab_subnet_cidr, tag)
         else:
@@ -130,7 +130,11 @@ if __name__ == "__main__":
             ec2 = boto3.resource('ec2')
             rt = get_route_table_by_tag(args.infra_tag_name, args.infra_tag_value)
             route_table = ec2.RouteTable(rt)
-            route_table.associate_with_subnet(SubnetId=subnet_id)
+            try:
+                route_table.associate_with_subnet(SubnetId=subnet_id)
+            except exceptions.ClientError as err:
+                if 'Resource.AlreadyAssociated' in str(err):
+                    print('Other route table is already associted with this subnet. Skipping...')
         else:
             print("Associating route_table with the subnet")
             ec2 = boto3.resource('ec2')

@@ -9,6 +9,7 @@
       ],
       "Memory optimized" : [
         {"Size": "S", "Description": "r3.xlarge", "Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4", "Spot": "true", "SpotPctPrice": "70"},
+        {"Size": "M", "Description": "r4.2xlarge", "Type": "r4.2xlarge","Ram": "61 GB","Cpu": "8", "Spot": "true", "SpotPctPrice": "70"},
         {"Size": "M", "Description": "r3.4xlarge", "Type": "r3.4xlarge","Ram": "122 GB","Cpu": "16", "Spot": "true", "SpotPctPrice": "70"},
         {"Size": "L", "Description": "r3.8xlarge", "Type": "r3.8xlarge","Ram": "244 GB","Cpu": "32", "Spot": "true", "SpotPctPrice": "70"}
       ],
@@ -23,8 +24,7 @@
     },
   "templates":
   [
-    {"version":"emr-5.2.0", "applications": [{"Name":"Hadoop", "Version": "2.7.3"}, {"Name":"Spark", "Version": "2.0.2"}, {"Name":"Hive", "Version": "2.1.0"}]},
-    {"version":"emr-5.3.1", "applications": [{"Name":"Hadoop", "Version": "2.7.3"}, {"Name":"Spark", "Version": "2.1.0"}, {"Name":"Hive", "Version": "2.1.1"}]},
-    {"version":"emr-5.6.0", "applications": [{"Name":"Hadoop", "Version": "2.7.3"}, {"Name":"Spark", "Version": "2.1.0"}, {"Name":"Hive", "Version": "2.1.1"}]}
+    {"version":"emr-5.6.0", "applications": [{"Name":"Hadoop", "Version": "2.7.3"}, {"Name":"Spark", "Version": "2.1.0"}, {"Name":"Hive", "Version": "2.1.1"}]},
+    {"version":"emr-5.12.0", "applications": [{"Name":"Hadoop", "Version": "2.8.3"}, {"Name":"Spark", "Version": "2.2.1"}, {"Name":"Hive", "Version": "2.3.2"}]}
   ]
 }

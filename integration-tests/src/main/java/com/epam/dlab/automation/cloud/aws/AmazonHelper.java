@@ -18,9 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.automation.cloud.aws;
 
-import com.epam.dlab.automation.cloud.CloudException;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.NamingHelper;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
@@ -32,6 +29,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Grant;
+import com.epam.dlab.automation.exceptions.CloudException;
+import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.dlab.automation.helper.NamingHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -55,8 +55,8 @@ public class AmazonHelper {
 	private static Region getRegion() {
 		return Region.getRegion(Regions.fromName(ConfigPropertyValue.getAwsRegion()));
 	}
-	
-	private static List<Instance> getInstances(String instanceName) throws CloudException {
+
+	private static List<Instance> getInstances(String instanceName) {
 		AWSCredentials credentials = getCredentials();
 		AmazonEC2 ec2 = new AmazonEC2Client(credentials);
 		ec2.setRegion(getRegion());
@@ -82,7 +82,7 @@ public class AmazonHelper {
 		return instances;
 	}
 
-    public static Instance getInstance(String instanceName) throws CloudException {
+	public static Instance getInstance(String instanceName) {
     	return (ConfigPropertyValue.isRunModeLocal() ?
     			new Instance()
             		.withPrivateDnsName("localhost")
@@ -95,7 +95,8 @@ public class AmazonHelper {
             	getInstances(instanceName).get(0));
     }
 
-    public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws CloudException, InterruptedException {
+	public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws
+			InterruptedException {
         LOGGER.info("Check status of instance {} on Amazon: {}", instanceName);
         if (ConfigPropertyValue.isRunModeLocal()) {
         	LOGGER.info("Amazon instance {} fake state is {}", instanceName, expAmazonState);

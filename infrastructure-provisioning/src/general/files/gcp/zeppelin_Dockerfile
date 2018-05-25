@@ -27,8 +27,8 @@ COPY general/scripts/gcp/zeppelin_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/gcp/interpreter_livy.json /root/templates/
 COPY general/templates/gcp/interpreter_spark.json /root/templates/
-COPY general/templates/azure/dataengine_interpreter_livy.json /root/templates/
-COPY general/templates/azure/dataengine_interpreter_spark.json /root/templates/
+COPY general/templates/os/dataengine_interpreter_livy.json /root/templates/
+COPY general/templates/os/dataengine_interpreter_spark.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/gcp/dataengine-service_interpreter_* /root/templates/

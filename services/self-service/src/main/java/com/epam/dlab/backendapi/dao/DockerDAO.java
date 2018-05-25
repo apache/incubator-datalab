@@ -18,11 +18,12 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.exceptions.DlabException;
 import org.bson.Document;
 
-import com.epam.dlab.exceptions.DlabException;
+import static com.epam.dlab.backendapi.dao.MongoCollections.DOCKER_ATTEMPTS;
 
-/** DAO write attempt of Docker {@link com.epam.dlab.backendapi.resources.DockerResource}
+/** DAO write attempt of Docker
  * */
 public class DockerDAO extends BaseDAO {
     public static final String RUN = "run";
@@ -30,9 +31,9 @@ public class DockerDAO extends BaseDAO {
     /** Write the attempt of docker action.
      * @param user user name.
      * @param action action of docker.
-     * @exception DlabException
+	 * @exception DlabException may be thrown
      */
-    public void writeDockerAttempt(String user, String action) throws DlabException {
+	public void writeDockerAttempt(String user, String action) {
         insertOne(DOCKER_ATTEMPTS, () -> new Document(USER, user).append("action", action));
     }
 }

@@ -41,6 +41,8 @@ public class LibraryCallback {
 
     @Inject
     private ExploratoryLibDAO libraryDAO;
+	@Inject
+	private RequestId requestId;
 
     /**
      * Changes the status of installed libraries for exploratory environment.
@@ -53,7 +55,7 @@ public class LibraryCallback {
     public Response libInstallStatus(LibInstallStatusDTO dto) {
         log.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
                 dto.getExploratoryName(), dto.getUser(), dto);
-        RequestId.checkAndRemove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
         try {
             libraryDAO.updateLibraryFields(dto);
         } catch (DlabException e) {
@@ -77,7 +79,7 @@ public class LibraryCallback {
     @Path("/update_lib_list")
     public Response updateLibList(LibListStatusDTO dto) {
         log.debug("Updating the list of libraries for image {}", dto.getImageName());
-        RequestId.checkAndRemove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
         try {
             if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
                 log.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());

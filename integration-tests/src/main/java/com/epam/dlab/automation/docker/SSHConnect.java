@@ -18,30 +18,30 @@ limitations under the License.
 
 package com.epam.dlab.automation.docker;
 
-import java.io.IOException;
-import java.util.Properties;
-
+import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.jcraft.jsch.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import java.util.Properties;
+
+import static java.lang.System.err;
+import static java.lang.System.out;
 
 public class SSHConnect {
-    private final static Logger LOGGER = LogManager.getLogger(SSHConnect.class);
-    public static final String LOCALHOST_IP = "127.0.0.1";
+	private static final Logger LOGGER = LogManager.getLogger(SSHConnect.class);
+	private static final String LOCALHOST_IP = ConfigPropertyValue.get("LOCALHOST_IP");
+	private static final String STRICT_HOST_KEY_CHECKING = "StrictHostKeyChecking";
+
+	private SSHConnect() {
+	}
 
     public static Session getConnect(String username, String host, int port) throws JSchException {
         Session session;
         JSch jsch = new JSch();
 
-        Properties config = new Properties(); 
-        config.put("StrictHostKeyChecking", "no");
+        Properties config = new Properties();
+		config.put(STRICT_HOST_KEY_CHECKING, "no");
         
         jsch.addIdentity(ConfigPropertyValue.getAccessKeyPrivFileName());
         session = jsch.getSession(username, host, port);
@@ -59,7 +59,7 @@ public class SSHConnect {
         JSch jsch = new JSch();
 
         Properties config = new Properties();
-        config.put("StrictHostKeyChecking", "no");
+		config.put(STRICT_HOST_KEY_CHECKING, "no");
 
         jsch.addIdentity(ConfigPropertyValue.getAccessKeyPrivFileName());
         session = jsch.getSession(username, host, port);
@@ -74,16 +74,14 @@ public class SSHConnect {
     public static ChannelSftp getChannelSftp(Session session) throws JSchException {
         Channel channel = session.openChannel("sftp");
         channel.connect();
-        ChannelSftp channelSftp =(ChannelSftp)channel;
-
-        return channelSftp;
+		return (ChannelSftp) channel;
     }
 
     public static Session getForwardedConnect(String username, String hostAlias, int port) throws JSchException {
         Session session;
         JSch jsch = new JSch();
         Properties config = new Properties();
-        config.put("StrictHostKeyChecking", "no");
+		config.put(STRICT_HOST_KEY_CHECKING, "no");
 
         jsch.addIdentity(ConfigPropertyValue.getAccessKeyPrivFileName());
         session = jsch.getSession(username, LOCALHOST_IP, port);
@@ -93,9 +91,8 @@ public class SSHConnect {
         LOGGER.info("Getting connected to {} through {}:{}", hostAlias, LOCALHOST_IP, port);
         return session;
     }
-    
-    public static ChannelExec setCommand(Session session, String command)
-            throws JSchException, IOException, InterruptedException {
+
+	public static ChannelExec setCommand(Session session, String command) throws JSchException {
         LOGGER.info("Setting command: {}", command);
 
         ChannelExec channelExec = (ChannelExec)session.openChannel("exec");
@@ -105,9 +102,9 @@ public class SSHConnect {
         return channelExec;
     }
 
-    public static AckStatus checkAck(ChannelExec channel) throws IOException, InterruptedException {
-        channel.setOutputStream(System.out, true);
-    	channel.setErrStream(System.err, true);
+	public static AckStatus checkAck(ChannelExec channel) throws InterruptedException {
+		channel.setOutputStream(out, true);
+		channel.setErrStream(err, true);
 
         int status;
         while(channel.getExitStatus() == -1) {
@@ -118,9 +115,8 @@ public class SSHConnect {
         return new AckStatus(status, "");
     }
 
-    public static AckStatus checkAck(ChannelSftp channel) throws IOException, InterruptedException {
-        channel.setOutputStream(System.out, true);
-//        channel.setErrStream(System.err, true);
+	public static AckStatus checkAck(ChannelSftp channel) throws InterruptedException {
+		channel.setOutputStream(out, true);
 
         int status;
         while(channel.getExitStatus() == -1) {

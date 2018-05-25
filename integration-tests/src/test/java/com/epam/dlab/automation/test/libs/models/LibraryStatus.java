@@ -77,11 +77,8 @@ public class LibraryStatus {
 			} else if (!status.equals(other.status))
 				return false;
 			if (resourceType == null) {
-				if (other.resourceType != null)
-					return false;
-			} else if (!resourceType.equals(other.resourceType))
-				return false;
-			return true;
+				return other.resourceType == null;
+			} else return resourceType.equals(other.resourceType);
 		}
 		@Override
 		public String toString() {

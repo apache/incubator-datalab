@@ -28,18 +28,22 @@ public class ApiPath {
     public static final String PROVISIONED_RES = "/api/infrastructure/info";
     public static final String COMPUTATIONAL_RES = "/api/infrastructure_provision/computational_resources/dataengine-service";
     public static final String COMPUTATIONAL_RES_SPARK = "/api/infrastructure_provision/computational_resources/dataengine";
-    public static final String STOP_NOTEBOOK = EXP_ENVIRONMENT + "/%s/stop";
-    public static final String TERMINATE_CLUSTER = "/api/infrastructure_provision/computational_resources/%s/%s/terminate";
-    public static final String TERMINATE_NOTEBOOK = EXP_ENVIRONMENT + "/%s/terminate";
+    private static final String STOP_NOTEBOOK = EXP_ENVIRONMENT + "/%s/stop";
+    private static final String TERMINATE_CLUSTER =
+			"/api/infrastructure_provision/computational_resources/%s/%s/terminate";
+	private static final String START_CLUSTER = "/api/infrastructure_provision/computational_resources/%s/%s/start";
+	private static final String STOP_CLUSTER = "/api/infrastructure_provision/computational_resources/%s/%s/stop";
+    private static final String TERMINATE_NOTEBOOK = EXP_ENVIRONMENT + "/%s/terminate";
     public static final String LIB_GROUPS = "/api/infrastructure_provision/exploratory_environment/lib_groups";
     public static final String LIB_LIST = "/api/infrastructure_provision/exploratory_environment/search/lib_list";
     public static final String LIB_INSTALL = "/api/infrastructure_provision/exploratory_environment/lib_install";
     public static final String LIB_LIST_EXPLORATORY_FORMATTED = "/api/infrastructure_provision/exploratory_environment/lib_list/formatted";
+    public static final String IMAGE_CREATION = "/api/infrastructure_provision/exploratory_environment/image";
 
     private ApiPath(){}
 
-          
-    public static String configureURL(String url, Object... args) {
+
+    private static String configureURL(String url, Object... args) {
         return String.format(url, args);        
     }
     
@@ -54,4 +58,12 @@ public class ApiPath {
     public static String getTerminateNotebookUrl(String serviceBaseName) {
         return configureURL(TERMINATE_NOTEBOOK, serviceBaseName);
     }
+
+	public static String getStartClusterUrl(String notebookName, String desName) {
+		return configureURL(START_CLUSTER, notebookName, desName);
+	}
+
+	public static String getStopClusterUrl(String notebookName, String desName) {
+		return configureURL(STOP_CLUSTER, notebookName, desName);
+	}
 }

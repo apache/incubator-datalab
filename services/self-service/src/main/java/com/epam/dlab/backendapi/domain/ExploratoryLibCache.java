@@ -19,29 +19,27 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.domain;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.LibListComputationalDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.rest.contracts.ComputationalAPI;
-import com.epam.dlab.rest.contracts.ExploratoryAPI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ComputationalAPI;
+import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import io.dropwizard.lifecycle.Managed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Cache of libraries for exploratory.
  */
@@ -52,6 +50,12 @@ public class ExploratoryLibCache implements Managed, Runnable {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+
+	@Inject
+	private RequestBuilder requestBuilder;
+
+	@Inject
+	private RequestId requestId;
 
     /** Instance of cache.
      */
@@ -78,14 +82,14 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	}
 
 	@Override
-	public void start() throws Exception {
+	public void start() {
 		if (libCache == null) {
 			libCache = this;
 		}
 	}
 
 	@Override
-	public void stop() throws Exception {
+	public void stop() {
 		if (libCache != null) {
 			synchronized (libCache) {
 				if (libCache.thread != null) {
@@ -102,7 +106,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	/** Return the list of libraries groups from cache.
 	 * @param userInfo the user info.
 	 * @param userInstance the notebook info.
-	 * @return
+	 * @return list of libraries groups
 	 */
 	public List<String> getLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		ExploratoryLibList libs = getLibs(userInfo, userInstance);
@@ -124,15 +128,12 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	 * @param userInfo the user info.
 	 * @param userInstance the notebook info.
 	 */
-	public ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance) {
+	private ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance) {
 		ExploratoryLibList libs;
 		String cacheKey = libraryCacheKey(userInstance);
 		synchronized (cache) {
+			cache.computeIfAbsent(cacheKey, libraries -> new ExploratoryLibList(cacheKey, null));
 			libs = cache.get(cacheKey);
-			if (libs == null) {
-				libs = new ExploratoryLibList(cacheKey, null);
-				cache.put(cacheKey, libs);
-			}
 			if (libs.isUpdateNeeded() && !libs.isUpdating()) {
 				libs.setUpdating();
 				requestLibList(userInfo, userInstance);
@@ -176,7 +177,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	}
 
 	/** Remove the list of libraries for docker image from cache.
-	 * @param imageName
+	 * @param imageName docker image name
 	 */
 	public void removeLibList(String imageName) {
 		synchronized (cache) {
@@ -198,14 +199,15 @@ public class ExploratoryLibCache implements Managed, Runnable {
             String uuid;
 			if (userInstance.getResources() != null && !userInstance.getResources().isEmpty()) {
 				UserComputationalResource userComputationalResource = userInstance.getResources().get(0);
-				LibListComputationalDTO dto = RequestBuilder.newLibComputationalList(userInfo, userInstance, userComputationalResource);
+				LibListComputationalDTO dto = requestBuilder.newLibComputationalList(userInfo, userInstance,
+						userComputationalResource);
                 uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
 			} else {
-				ExploratoryActionDTO<?> dto = RequestBuilder.newLibExploratoryList(userInfo, userInstance);
+				ExploratoryActionDTO<?> dto = requestBuilder.newLibExploratoryList(userInfo, userInstance);
 				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
 			}
 
-            RequestId.put(userInfo.getName(), uuid);
+			requestId.put(userInfo.getName(), uuid);
 
 		} catch (Exception e) {
 			LOGGER.warn("Ask docker for the status of resources for user {} and exploratory {} fails: {}",
@@ -224,7 +226,6 @@ public class ExploratoryLibCache implements Managed, Runnable {
 					cache.entrySet().removeIf(e -> e.getValue().isExpired());
 				}
 
-				// TODO race conditions
 				if (cache.size() == 0) {
 					synchronized (libCache) {
 						thread = null;
@@ -234,6 +235,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 				}
 			} catch (InterruptedException e) {
 				LOGGER.trace("Library cache thread has been interrupted");
+				Thread.currentThread().interrupt();
 				break;
 			} catch (Exception e) {
 				LOGGER.warn("Library cache thread unhandled error: {}", e.getLocalizedMessage(), e);

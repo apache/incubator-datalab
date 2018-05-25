@@ -25,6 +25,9 @@ limitations under the License.
   <bubble-up #actions position="bottom" class="mt-5">
     <ul class="list-menu" id="scrolling">
       <ng-template [ngIf]="listStructure === 'array'">
+        <li *ngIf="empty" (click)="selectOptions($event, null, 0)">
+          <a role="menuitem">None</a>
+        </li>
         <ng-template let-item ngFor [ngForOf]="items" let-index="index">
           <li role="presentation" (click)="selectOptions($event, item, index)">
             <a role="menuitem"><span [innerHTML]="item[byField]"></span></a>

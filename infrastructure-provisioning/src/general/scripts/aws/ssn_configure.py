@@ -45,8 +45,8 @@ if __name__ == "__main__":
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
-        ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_ami_id = get_ami_id(ssn_ami_name)
+        ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
+        ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
         sg_name = instance_name + '-SG'
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
+        params = "--hostname {} --keyfile {} --pip_packages 'boto3 backoff argparse fabric==1.14.0 awscli pymongo pyyaml' --user {} --region {}". \
             format(instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
                    os.environ['aws_region'])
 
@@ -289,7 +289,7 @@ if __name__ == "__main__":
         print("Subnet ID: {}".format(os.environ['aws_subnet_id']))
         print("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
         print("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
-        print("SSN AMI name: {}".format(ssn_ami_name))
+        print("SSN AMI name: {}".format(ssn_image_name))
         print("SSN bucket name: {}".format(user_bucket_name))
         print("Shared bucket name: {}".format(shared_bucket_name))
         print("Region: {}".format(region))

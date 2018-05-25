@@ -19,6 +19,8 @@
 import boto3
 import botocore
 from botocore.client import Config
+import backoff
+from botocore.exceptions import ClientError
 import time
 import sys
 import os
@@ -32,6 +34,17 @@ import traceback
 import urllib2
 import meta_lib
 import dlab.fab
+
+
+def backoff_log(err):
+    logging.info("Unable to create Tag: " + \
+                 str(err) + "\n Traceback: " + \
+                 traceback.print_exc(file=sys.stdout))
+    append_result(str({"error": "Unable to create Tag", \
+                       "error_message": str(err) + "\n Traceback: " + \
+                                        traceback.print_exc(file=sys.stdout)}))
+    traceback.print_exc(file=sys.stdout)
+
 
 def put_to_bucket(bucket_name, local_file, destination_file):
     try:
@@ -53,8 +66,20 @@ def create_s3_bucket(bucket_name, tag, region):
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
+        tags = list()
+        tags.append(tag)
+        tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
+                                                                         bucket_name})
+        if 'conf_additional_tags' in os.environ:
+            for tag in os.environ['conf_additional_tags'].split(';'):
+                tags.append(
+                    {
+                        'Key': tag.split(':')[0],
+                        'Value': tag.split(':')[1]
+                    }
+                )
         tagging = bucket.Tagging()
-        tagging.put(Tagging={'TagSet': [tag, {'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' + bucket_name}]})
+        tagging.put(Tagging={'TagSet': tags})
         tagging.reload()
         return bucket.name
     except Exception as err:
@@ -97,39 +122,42 @@ def remove_vpc(vpc_id):
         traceback.print_exc(file=sys.stdout)
 
 
+@backoff.on_exception(backoff.expo,
+                      botocore.exceptions.ClientError,
+                      max_tries=40,
+                      on_giveup=backoff_log)
 def create_tag(resource, tag, with_tag_res_id=True):
-    try:
-        ec2 = boto3.client('ec2')
-        if type(tag) == dict:
-            resource_name = tag.get('Value')
-            resource_tag = tag
-        else:
-            resource_name = json.loads(tag).get('Value')
-            resource_tag = json.loads(tag)
-        if type(resource) != list:
-            resource = [resource]
-        if with_tag_res_id:
-            ec2.create_tags(
-                Resources=resource,
-                Tags=[
-                    resource_tag,
-                    {
-                        'Key': os.environ['conf_tag_resource_id'],
-                        'Value': os.environ['conf_service_base_name'] + ':' + resource_name
-                    }
-                ]
+    print('Tags for the resource {} will be created'.format(resource))
+    tags_list = list()
+    ec2 = boto3.client('ec2')
+    if type(tag) == dict:
+        resource_name = tag.get('Value')
+        resource_tag = tag
+    else:
+        resource_name = json.loads(tag).get('Value')
+        resource_tag = json.loads(tag)
+    if type(resource) != list:
+        resource = [resource]
+    tags_list.append(resource_tag)
+    if with_tag_res_id:
+        tags_list.append(
+            {
+                'Key': os.environ['conf_tag_resource_id'],
+                'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+            }
+        )
+    if 'conf_additional_tags' in os.environ:
+        for tag in os.environ['conf_additional_tags'].split(';'):
+            tags_list.append(
+                {
+                    'Key': tag.split(':')[0],
+                    'Value': tag.split(':')[1]
+                }
             )
-        else:
-            ec2.create_tags(
-                Resources=resource,
-                Tags=[
-                    resource_tag
-                ]
-            )
-    except Exception as err:
-        logging.info("Unable to create Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
+    ec2.create_tags(
+        Resources=resource,
+        Tags=tags_list
+    )
 
 
 def remove_emr_tag(emr_id, tag):
@@ -516,7 +544,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
         client = boto3.client('iam')
-        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
+        service_base_name = os.environ['conf_service_base_name']
         roles_list = []
         for item in client.list_roles(MaxItems=250).get("Roles"):
             if item.get("RoleName").startswith(service_base_name + '-'):
@@ -542,7 +570,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-edge-Role' in iam_role:
                     if instance_type == 'edge' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + '{}'.format(scientist) + '-edge-Profile'
+                        role_profile_name = os.environ['conf_service_base_name'] + '-' + '{}'.format(scientist) + '-edge-Profile'
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -564,7 +592,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + "{}".format(scientist) + '-nb-de-Profile'
+                        role_profile_name = os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-nb-de-Profile'
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -1049,8 +1077,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
         if region == 'cn-north-1':
-            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip --no-cache-dir'.format(
-                python_version, python_version[0:3]))
+            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip=={} --no-cache-dir'.format(
+                python_version, python_version[0:3], os.environ['conf_pip_version']))
             local('sudo mv /etc/pip.conf /etc/back_pip.conf')
             local('sudo touch /etc/pip.conf')
             local('sudo echo "[global]" >> /etc/pip.conf')
@@ -1061,7 +1089,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         if region == 'cn-north-1':
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip --no-cache-dir'.format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip==9.0.3 --no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
                       format(pip_mirror))
@@ -1084,7 +1112,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 local('sudo rm -rf /opt/python/python{}/'.format(python_version))
                 sys.exit(1)
         else:
-            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
                   ' install boto boto3 NumPy SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir')
@@ -1142,7 +1170,7 @@ def ensure_local_jars(os_user, jars_dir):
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir):
+def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             if region == 'us-east-1':
@@ -1160,7 +1188,14 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
-
+    try:
+        if memory_type == 'driver':
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
+    except:
+        sys.exit(1)
+    
 
 def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
                                        user_name, endpoint_url, multiple_emrs):

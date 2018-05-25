@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +37,12 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class SchedulerJobResource {
 
-    @Inject
 	private SchedulerJobService schedulerJobService;
+
+	@Inject
+	public SchedulerJobResource(SchedulerJobService schedulerJobService) {
+		this.schedulerJobService = schedulerJobService;
+	}
 
 
 	/**
@@ -50,41 +53,75 @@ public class SchedulerJobResource {
 	 * @param dto             scheduler job data
 	 * @return response
 	 */
-    @POST
-    @Path("/{exploratoryName}")
-    public Response create(@Auth UserInfo userInfo, @PathParam("exploratoryName") String exploratoryName,
-                           SchedulerJobDTO dto) {
-		log.debug("Updating exploratory {} for user {} with new scheduler job data {}...",
-				exploratoryName, userInfo.getName(), dto);
-		schedulerJobService.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
-        return Response.ok().build();
-    }
+	@POST
+	@Path("/{exploratoryName}")
+	public Response updateExploratoryScheduler(@Auth UserInfo userInfo,
+											   @PathParam("exploratoryName") String exploratoryName,
+											   SchedulerJobDTO dto) {
+		schedulerJobService.updateExploratorySchedulerData(userInfo.getName(), exploratoryName, dto);
+		return Response.ok().build();
+	}
 
-    /**
-     * Returns scheduler job for dlab resource <code>exploratoryName<code/>
-     *
-     * @param userInfo          user info
-     * @param exploratoryName   name of exploratory resource
-     * @return scheduler job data
-     */
-    @GET
-    @Path("/{exploratoryName}")
-    public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
-                                                             @PathParam("exploratoryName") String exploratoryName) {
+	/**
+	 * Updates computational resource <code>computationalName<code/> affiliated with exploratory
+	 * <code>exploratoryName<code/> for user <code>userInfo<code/> with new scheduler job data
+	 *
+	 * @param userInfo          user info
+	 * @param exploratoryName   name of exploratory resource
+	 * @param computationalName name of computational resource
+	 * @param dto               scheduler job data
+	 * @return response
+	 */
+	@POST
+	@Path("/{exploratoryName}/{computationalName}")
+	public Response upsertComputationalScheduler(@Auth UserInfo userInfo,
+												 @PathParam("exploratoryName") String exploratoryName,
+												 @PathParam("computationalName") String computationalName,
+												 SchedulerJobDTO dto) {
+		schedulerJobService.updateComputationalSchedulerData(userInfo.getName(), exploratoryName,
+				computationalName, dto);
+		return Response.ok().build();
+	}
 
+
+	/**
+	 * Returns scheduler job for exploratory resource <code>exploratoryName<code/>
+	 *
+	 * @param userInfo        user info
+	 * @param exploratoryName name of exploratory resource
+	 * @return scheduler job data
+	 */
+	@GET
+	@Path("/{exploratoryName}")
+	public Response fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
+														   @PathParam("exploratoryName") String exploratoryName) {
 		log.debug("Loading scheduler job for user {} and exploratory {}...", userInfo.getName(), exploratoryName);
-		try {
-			SchedulerJobDTO job = schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(),
-					exploratoryName);
-			log.info("Scheduler job data: {}", job);
-            return job;
+		final SchedulerJobDTO schedulerJob =
+				schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), exploratoryName);
+		return Response.ok(schedulerJob).build();
+	}
 
-        } catch (Exception t) {
-			log.error("Cannot load scheduler job for user {} and exploratory {} an {}", userInfo.getName(),
-					exploratoryName, t);
-            throw new DlabException("Cannot load scheduler job: " + t.getLocalizedMessage(), t);
-        }
-    }
+	/**
+	 * Returns scheduler job for computational resource <code>computationalName<code/> affiliated with
+	 * exploratory <code>exploratoryName<code/>
+	 *
+	 * @param userInfo          user info
+	 * @param exploratoryName   name of exploratory resource
+	 * @param computationalName name of computational resource
+	 * @return scheduler job data
+	 */
+	@GET
+	@Path("/{exploratoryName}/{computationalName}")
+	public Response fetchSchedulerJobForComputationalResource(@Auth UserInfo userInfo,
+															  @PathParam("exploratoryName") String exploratoryName,
+															  @PathParam("computationalName") String
+																		  computationalName) {
+		log.debug("Loading scheduler job for user {}, exploratory {} and computational resource {}...",
+				userInfo.getName(), exploratoryName, computationalName);
+		final SchedulerJobDTO schedulerJob = schedulerJobService
+				.fetchSchedulerJobForComputationalResource(userInfo.getName(), exploratoryName, computationalName);
+		return Response.ok(schedulerJob).build();
+	}
 
 }
 

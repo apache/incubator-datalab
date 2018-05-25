@@ -43,8 +43,8 @@ def modify_conf_file():
             if line[0:2] == '# ':
                 conf_list[conf_list.index(line)] = line.replace('# ', '')
 
-        conf_file_modified = open('/tmp/dlab.ini.modified', 'w')
-        conf_file_modified.writelines(conf_list)
+        with open('/tmp/dlab.ini.modified', 'w') as conf_file_modified:
+            conf_file_modified.writelines(conf_list)
 
         config = ConfigParser.RawConfigParser()
         config.read('/tmp/dlab.ini.modified')
@@ -58,8 +58,8 @@ def modify_conf_file():
                     print('Such variable doesn`t exist!')
                     config.remove_option(section, option)
 
-        conf_file_final = open('{}sources/general/conf/overwrite.ini'.format(args.dlab_dir), 'w')
-        config.write(conf_file_final)
+        with open('{}sources/general/conf/overwrite.ini'.format(args.dlab_dir), 'w') as conf_file_final:
+            config.write(conf_file_final)
     except Exception as error:
         print('Error with modifying conf files:')
         print(str(error))

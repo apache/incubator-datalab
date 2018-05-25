@@ -41,6 +41,9 @@ public class ComputationalCallback {
     @Inject
     private ComputationalDAO computationalDAO;
 
+	@Inject
+	private RequestId requestId;
+
     /**
      * Updates the status of the computational resource for user.
      *
@@ -52,7 +55,7 @@ public class ComputationalCallback {
     public Response status(ComputationalStatusDTO dto) {
         log.debug("Updating status for computational resource {} for user {}: {}", dto.getComputationalName(), dto.getUser(), dto);
         String uuid = dto.getRequestId();
-        RequestId.checkAndRemove(uuid);
+		requestId.checkAndRemove(uuid);
 
         try {
             computationalDAO.updateComputationalFields(dto);
@@ -62,7 +65,7 @@ public class ComputationalCallback {
         }
         if (UserInstanceStatus.CONFIGURING == UserInstanceStatus.of(dto.getStatus())) {
             log.debug("Waiting for configuration of the computational resource {} for user {}", dto.getComputationalName(), dto.getUser());
-            RequestId.put(dto.getUser(), uuid);
+			requestId.put(dto.getUser(), uuid);
         }
         
         return Response.ok().build();

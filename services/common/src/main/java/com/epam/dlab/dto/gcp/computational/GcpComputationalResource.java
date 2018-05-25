@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.gcp.computational;
 
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -43,17 +44,25 @@ public class GcpComputationalResource extends UserComputationalResource {
     private String slaveNumber;
     @JsonProperty("total_master_instance_number")
     private String masterNumber;
+	@JsonProperty("total_preemptible_number")
+	private String preemptibleNumber;
     @JsonProperty("dataproc_version")
     private String version;
 
     @Builder
-    public GcpComputationalResource(String computationalName, String computationalId, String imageName, String templateName, String status, Date uptime, String instanceId, String masterShape, String slaveShape, String slaveNumber, String masterNumber, String version) {
-        super(computationalName, computationalId, imageName, templateName, status, uptime);
+	public GcpComputationalResource(String computationalName, String computationalId, String imageName,
+									String templateName, String status, Date uptime,
+									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
+									String instanceId, String masterShape, String slaveShape, String slaveNumber,
+									String masterNumber,String preemptibleNumber, String version) {
+		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
+				reuploadKeyRequired);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;
         this.slaveNumber = slaveNumber;
         this.masterNumber = masterNumber;
         this.version = version;
+        this.preemptibleNumber = preemptibleNumber;
     }
 }

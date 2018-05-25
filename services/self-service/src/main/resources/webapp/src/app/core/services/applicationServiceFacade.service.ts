@@ -30,8 +30,13 @@ export class ApplicationServiceFacade {
   private static readonly AUTHORIZE = 'authorize';
   private static readonly OAUTH = 'oauth';
   private static readonly ACCESS_KEY = 'access_key';
+  private static readonly ACTIVE_LIST = 'active_list';
+  private static readonly ENV = 'environment';
+  private static readonly ACCESS_KEY_GENERATE = 'access_key_generate';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
+  private static readonly IMAGE = 'image';
+  private static readonly SCHEDULER = 'scheduler';
   private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
@@ -93,9 +98,23 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGenerateAccessKey(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildUploadUserAccessKeyRequest(body: any): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
+      body,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildReuploadUserAccessKeyRequest(body: any, option: string): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY) + option,
       body,
       this.getRequestOptions(false, true));
   }
@@ -160,6 +179,20 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
       data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildStopSparkClusterAction(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildStartSparkClusterAction(params): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + params,
+      null,
       this.getRequestOptions(true, true));
   }
 
@@ -288,6 +321,56 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetUserImages(image): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      image,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetImagesList(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildCreateAMI(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetExploratorySchedule(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildSetExploratorySchedule(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetActiveUsers(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+
+  public buildManageEnvironment(action, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
+      data,
+      this.getRequestOptions(false, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -295,9 +378,12 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
+    this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user/active');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 
     this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
+    this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY_GENERATE, '/api/user/access_key/generate');
 
     // Exploratory Environment
     this.requestRegistry.Add(ApplicationServiceFacade.PROVISIONED_RESOURCES,
@@ -306,6 +392,10 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
       '/api/infrastructure_templates/exploratory_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
+      '/api/infrastructure_provision/exploratory_environment/image');
+    this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
+      '/api/infrastructure_provision/exploratory_environment/scheduler');
 
 
     // Computational Resources

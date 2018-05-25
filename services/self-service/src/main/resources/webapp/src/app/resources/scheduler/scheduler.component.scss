@@ -1,0 +1,87 @@
+/***************************************************************************
+
+Copyright (c) 2018, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.scheduler-dialog {
+  .mat-select-value {
+    color: #758da9;
+  }
+  .control-group {
+    .label.repeat {
+      width: 100%;
+    }
+    .week-day {
+      display: flex;
+      width: 50%;
+      padding: 5px 10px;
+      transition: all 0.4s ease-out;
+      &.Sunday {
+        order: 0;
+      }
+      &.Monday {
+        order: 1;
+      }
+      &.Tuesday {
+        order: 5;
+      }
+      &.Wednesday {
+        order: 6;
+      }
+      &.Thursday {
+        order: 0;
+      }
+      &.Friday {
+        order: 1;
+      }
+      &.Saturday {
+        order: 5;
+      }
+      &:hover {
+        color: #35afd5;
+      }
+    }
+    &.days-block {
+      padding-bottom: 0;
+    }
+    &.time-range {
+      padding-bottom: 0 !important;
+    }
+  }
+  .timezone-offset {
+    width: 100%;
+    padding-right: 10px;
+  }
+  .weekdays-note {
+    display: flex;
+    font-size: 12px;
+    color: #36afd5;
+    margin-bottom: 15px;
+  }
+  .inherit {
+    color: #718ba6;
+    font-size: 15px;
+    font-weight: 600;
+    .mat-slide-toggle-content {
+      padding: 5px;
+    }
+    .hold-label {
+      span {
+        font-size: 14px;
+      }
+    }
+  }
+}

@@ -29,9 +29,10 @@ limitations under the License.
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
     <td class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"
-            [ngClass]="{'disabled': env.status.toLowerCase() !== 'running' &&
-            env.status.toLowerCase() !== 'stopped' &&
-            env.status.toLowerCase() !== 'terminated'}">
+            [ngClass]="{'disabled': env.status.toLowerCase() !== 'running'
+            && env.status.toLowerCase() !== 'stopped'
+            && env.status.toLowerCase() !== 'terminated'
+            || !uploadKey}">
       </span>
 
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
@@ -48,6 +49,10 @@ limitations under the License.
             <i class="material-icons">refresh</i>
             <span>Recreate</span>
           </li>
+          <!-- <li *ngIf="!envInProgress" (click)="showReuploaKeydDialog()">
+            <i class="material-icons">sync_problem</i>
+            <span>Reupload key</span>
+          </li> -->
         </ul>
       </bubble-up>
     </td>
@@ -55,3 +60,5 @@ limitations under the License.
 </table>
 
 <confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
+
+<key-upload-dialog #keyReuploadDialog (generateUserKey)="generateUserKey($event)" [primaryUploading]="false"></key-upload-dialog>

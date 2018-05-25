@@ -28,6 +28,7 @@ import {
   MatCheckboxModule,
   MatChipsModule,
   MatDatepickerModule,
+  MatNativeDateModule,
   MatDialogModule,
   MatGridListModule,
   MatIconModule,
@@ -51,6 +52,7 @@ import {
   MatExpansionModule,
   MatStepperModule
 } from '@angular/material';
+import { DateAdapter } from '@angular/material';
 
 @NgModule({
   exports: [
@@ -62,6 +64,7 @@ import {
     MatCheckboxModule,
     MatChipsModule,
     MatDatepickerModule,
+    MatNativeDateModule,
     MatDialogModule,
     MatExpansionModule,
     MatFormFieldModule,

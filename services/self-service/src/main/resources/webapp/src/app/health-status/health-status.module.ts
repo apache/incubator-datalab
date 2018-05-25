@@ -20,10 +20,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from './../shared/material.module';
 
-import { NavbarModule, ModalModule } from './../shared';
+import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule } from './../shared';
 import { HealthStatusComponent } from './health-status.component';
 import { HealthStatusGridModule } from './health-status-grid/health-status-grid.module';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
+import {
+  ManageEnvironmentComponent,
+  ConfirmActionDialog
+} from './manage-environment/manage-environment-dilog.component';
 
 @NgModule({
   imports: [
@@ -31,9 +35,17 @@ import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
     NavbarModule,
     ModalModule,
     HealthStatusGridModule,
+    UploadKeyDialogModule,
+    ProgressDialogModule,
     MaterialModule
   ],
-  declarations: [HealthStatusComponent, BackupDilogComponent],
+  declarations: [
+    HealthStatusComponent,
+    BackupDilogComponent,
+    ManageEnvironmentComponent,
+    ConfirmActionDialog
+  ],
+  entryComponents: [ConfirmActionDialog],
   exports: [HealthStatusComponent]
 })
 export class HealthStatusModule {}

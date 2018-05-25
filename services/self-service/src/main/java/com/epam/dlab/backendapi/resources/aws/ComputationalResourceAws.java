@@ -49,123 +49,161 @@ import static com.epam.dlab.UserInstanceStatus.CREATING;
 @Slf4j
 public class ComputationalResourceAws implements ComputationalAPI {
 
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
-    @Inject
-    private ComputationalService computationalService;
+	@Inject
+	private SelfServiceApplicationConfiguration configuration;
+	@Inject
+	private ComputationalService computationalService;
 
-    /**
-     * Sends request to provisioning service for creation the computational resource for user.
-     *
-     * @param userInfo user info.
-     * @param formDTO  DTO info about creation of the computational resource.
-     * @return 200 OK - if request success, 302 Found - for duplicates, otherwise throws exception.
-     */
-    @PUT
-    @Deprecated
-    public Response create(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm formDTO) {
-        log.debug("Send request for creation the computational resource {} for user {}", formDTO.getName(), userInfo.getName());
-        validate(userInfo, formDTO);
 
-        AwsComputationalResource awsComputationalResource = AwsComputationalResource.builder()
-                .computationalName(formDTO.getName())
-                .imageName(formDTO.getImage())
-                .templateName(formDTO.getTemplateName())
-                .status(CREATING.toString())
-                .masterShape(formDTO.getMasterInstanceType())
-                .slaveShape(formDTO.getSlaveInstanceType())
-                .slaveSpot(formDTO.getSlaveInstanceSpot())
-                .slaveSpotPctPrice(formDTO.getSlaveInstanceSpotPctPrice())
-                .slaveNumber(formDTO.getInstanceCount())
-                .version(formDTO.getVersion()).build();
-        boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO, awsComputationalResource);
-        return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
-    }
+	/**
+	 * Asynchronously creates EMR cluster
+	 *
+	 * @param userInfo user info.
+	 * @param form     DTO info about creation of the computational resource.
+	 * @return 200 OK - if request success, 302 Found - for duplicates.
+	 * @throws IllegalArgumentException if docker image name is malformed
+	 */
+	@PUT
+	@Path("dataengine-service")
+	public Response createDataEngineService(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm form) {
 
-    /**
-     * Asynchronously creates EMR cluster
-     *
-     * @param userInfo user info.
-     * @param form     DTO info about creation of the computational resource.
-     * @return 200 OK - if request success, 302 Found - for duplicates.
-     * @throws IllegalArgumentException if docker image name is malformed
-     */
-    @PUT
-    @Path("dataengine-service")
-    public Response createDataEngineService(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm form) {
+		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
 
-        if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
-            return create(userInfo, form);
-        }
+			validate(userInfo, form);
 
-        throw new IllegalArgumentException("Malformed image " + form.getImage());
-    }
+			AwsComputationalResource awsComputationalResource = AwsComputationalResource.builder()
+					.computationalName(form.getName())
+					.imageName(form.getImage())
+					.templateName(form.getTemplateName())
+					.status(CREATING.toString())
+					.masterShape(form.getMasterInstanceType())
+					.slaveShape(form.getSlaveInstanceType())
+					.slaveSpot(form.getSlaveInstanceSpot())
+					.slaveSpotPctPrice(form.getSlaveInstanceSpotPctPrice())
+					.slaveNumber(form.getInstanceCount())
+					.version(form.getVersion()).build();
+			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
+					awsComputationalResource);
+			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
+		}
 
-    /**
-     * Asynchronously triggers creation of Spark cluster
-     *
-     * @param userInfo user info.
-     * @param form     DTO info about creation of the computational resource.
-     * @return 200 OK - if request success, 302 Found - for duplicates.
-     */
+		throw new IllegalArgumentException("Malformed image " + form.getImage());
+	}
 
-    @PUT
-    @Path("dataengine")
-    public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
-        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+	/**
+	 * Asynchronously triggers creation of Spark cluster
+	 *
+	 * @param userInfo user info.
+	 * @param form     DTO info about creation of the computational resource.
+	 * @return 200 OK - if request success, 302 Found - for duplicates.
+	 */
 
-        if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
-            log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
-            throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
-        }
+	@PUT
+	@Path("dataengine")
+	public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
+		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-        return computationalService.createSparkCluster(userInfo, form)
-                ? Response.ok().build()
-                : Response.status(Response.Status.FOUND).build();
-    }
+		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
+			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
+			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
+		}
 
-    /**
-     * Sends request to provisioning service for termination the computational resource for user.
-     *
-     * @param userInfo          user info.
-     * @param exploratoryName   name of exploratory.
-     * @param computationalName name of computational resource.
-     * @return 200 OK if operation is successfully triggered
-     */
-    @DELETE
-    @Path("/{exploratoryName}/{computationalName}/terminate")
-    public Response terminate(@Auth UserInfo userInfo,
-                              @PathParam("exploratoryName") String exploratoryName,
-                              @PathParam("computationalName") String computationalName) {
-        log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
+		return computationalService.createSparkCluster(userInfo, form)
+				? Response.ok().build()
+				: Response.status(Response.Status.FOUND).build();
+	}
 
-        computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+	/**
+	 * Sends request to provisioning service for termination the computational resource for user.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@DELETE
+	@Path("/{exploratoryName}/{computationalName}/terminate")
+	public Response terminate(@Auth UserInfo userInfo,
+							  @PathParam("exploratoryName") String exploratoryName,
+							  @PathParam("computationalName") String computationalName) {
+		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-        return Response.ok().build();
-    }
+		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
 
-    private void validate(@Auth UserInfo userInfo, AwsComputationalCreateForm formDTO) {
-        if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
-            log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
-            throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
-        }
+		return Response.ok().build();
+	}
 
-        int slaveInstanceCount = Integer.parseInt(formDTO.getInstanceCount());
-        if (slaveInstanceCount < configuration.getMinEmrInstanceCount() || slaveInstanceCount > configuration.getMaxEmrInstanceCount()) {
-            log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave instances. Minimum is {}, maximum is {}",
-                    formDTO.getName(), userInfo.getName(), configuration.getMinEmrInstanceCount(), configuration.getMaxEmrInstanceCount());
-            throw new DlabException("Limit exceeded to creation slave instances. Minimum is " + configuration.getMinEmrInstanceCount() +
-                    ", maximum is " + configuration.getMaxEmrInstanceCount() + ".");
-        }
+	/**
+	 * Sends request to provisioning service for stopping the computational resource for user.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@DELETE
+	@Path("/{exploratoryName}/{computationalName}/stop")
+	public Response stop(@Auth UserInfo userInfo,
+						 @PathParam("exploratoryName") String exploratoryName,
+						 @PathParam("computationalName") String computationalName) {
+		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
-        int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
-        if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct() || slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
-            log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value out of the boundaries. Minimum is {}, maximum is {}",
-                    formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(), configuration.getMaxEmrSpotInstanceBidPct());
-            throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " + configuration.getMinEmrSpotInstanceBidPct() +
-                    ", maximum is " + configuration.getMaxEmrSpotInstanceBidPct() + ".");
-        }
-    }
+		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
+
+		return Response.ok().build();
+	}
+
+	/**
+	 * Sends request to provisioning service for starting the computational resource for user.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@PUT
+	@Path("/{exploratoryName}/{computationalName}/start")
+	public Response start(@Auth UserInfo userInfo,
+						  @PathParam("exploratoryName") String exploratoryName,
+						  @PathParam("computationalName") String computationalName) {
+		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
+
+		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
+
+		return Response.ok().build();
+	}
+
+	private void validate(@Auth UserInfo userInfo, AwsComputationalCreateForm formDTO) {
+		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
+			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
+			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
+		}
+
+		int slaveInstanceCount = Integer.parseInt(formDTO.getInstanceCount());
+		if (slaveInstanceCount < configuration.getMinEmrInstanceCount() || slaveInstanceCount > configuration
+				.getMaxEmrInstanceCount()) {
+			log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave " +
+							"instances" +
+							". Minimum is {}, maximum is {}",
+					formDTO.getName(), userInfo.getName(), configuration.getMinEmrInstanceCount(), configuration
+							.getMaxEmrInstanceCount());
+			throw new DlabException("Limit exceeded to creation slave instances. Minimum is " + configuration
+					.getMinEmrInstanceCount() +
+					", maximum is " + configuration.getMaxEmrInstanceCount() + ".");
+		}
+
+		int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
+		if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct()
+				|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
+			log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value " +
+							"out of the boundaries. Minimum is {}, maximum is {}",
+					formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(), configuration
+							.getMaxEmrSpotInstanceBidPct());
+			throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
+					configuration.getMinEmrSpotInstanceBidPct() +
+					", maximum is " + configuration.getMaxEmrSpotInstanceBidPct() + ".");
+		}
+	}
 }

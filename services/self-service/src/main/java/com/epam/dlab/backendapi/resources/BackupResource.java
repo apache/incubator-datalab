@@ -3,7 +3,6 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
-import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.BackupService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.backup.EnvBackupDTO;
@@ -21,20 +20,28 @@ import java.util.UUID;
 
 @Slf4j
 @Path("/infrastructure/backup")
+@RolesAllowed("/api/infrastructure/backup")
 public class BackupResource {
 
+	private final BackupService backupService;
+	private final RequestBuilder requestBuilder;
+	private final RequestId requestId;
+
 	@Inject
-	private BackupService backupService;
+	public BackupResource(BackupService backupService, RequestBuilder requestBuilder, RequestId requestId) {
+		this.backupService = backupService;
+		this.requestBuilder = requestBuilder;
+		this.requestId = requestId;
+	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	@RolesAllowed(UserRoles.BACKUP)
 	public Response createBackup(@Auth UserInfo userInfo, @Valid BackupFormDTO backupFormDTO) {
 		log.debug("Creating backup for user {} with parameters {}", userInfo.getName(), backupFormDTO);
-		final EnvBackupDTO dto = RequestBuilder.newBackupCreate(backupFormDTO, UUID.randomUUID().toString());
+		final EnvBackupDTO dto = requestBuilder.newBackupCreate(backupFormDTO, UUID.randomUUID().toString());
 		final String uuid = backupService.createBackup(dto, userInfo);
-		RequestId.put(userInfo.getName(), uuid);
+		requestId.put(userInfo.getName(), uuid);
 		return Response.accepted(uuid).build();
 	}
 

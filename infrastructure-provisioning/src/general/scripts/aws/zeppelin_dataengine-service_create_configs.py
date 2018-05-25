@@ -51,6 +51,7 @@ parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -99,3 +100,4 @@ if __name__ == "__main__":
                           args.pip_mirror)
         configure_zeppelin_emr_interpreter(args.emr_version, args.cluster_name, args.region, spark_dir, args.os_user,
                                            yarn_dir, args.bucket, args.user_name, endpoint_url, args.multiple_clusters)
+        update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)

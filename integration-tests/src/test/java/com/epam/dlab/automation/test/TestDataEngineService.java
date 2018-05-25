@@ -66,16 +66,15 @@ public class TestDataEngineService {
 			executePythonScript2(ssnSession, clusterName,
 					new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
         } finally {
-	        if(ssnSession != null && !ssnSession.isConnected()) {
+            if (ssnSession != null && ssnSession.isConnected()) {
 	            ssnSession.disconnect();
 	        }
         }
     }
     
     //TODO refactor two methods and make one
-	private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile, String
-			notebookName)
-			throws JSchException, IOException, InterruptedException {
+	private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile,
+									  String notebookName) throws JSchException, InterruptedException {
         String command;
         AckStatus status;
 
@@ -91,9 +90,8 @@ public class TestDataEngineService {
         LOGGER.info("{}: Python script executed successfully ", notebookName);
     }
 
-	private void executePythonScript(String Ip, String cluster_name, String notebookTestFile, int assignedPort, String
-			notebookName)
-			throws JSchException, IOException, InterruptedException {
+	private void executePythonScript(String Ip, String cluster_name, String notebookTestFile, int assignedPort,
+									 String notebookName) throws JSchException, InterruptedException {
         String command;
         AckStatus status;
         Session session = SSHConnect.getForwardedConnect(ConfigPropertyValue.getClusterOsUser(), Ip, assignedPort);
@@ -280,14 +278,14 @@ public class TestDataEngineService {
                 fileNames.add(entry.getFilename());
             }
             if(fileNames.isEmpty()){
-                LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+				LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                         fileName, homeDirectoryAbsolutePath, "false");
                 return false;
             }
             LOGGER.info("In home directory {} of SSN there are following files: {}",
                     homeDirectoryAbsolutePath, fileNames);
             if(!isFileEmbeddedIntoFolder){
-                LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+				LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                         fileName, homeDirectoryAbsolutePath, fileNames.contains(fileName));
                 return fileNames.contains(fileName);
             }else{
@@ -297,12 +295,12 @@ public class TestDataEngineService {
                 for(int i = 0; i < partsOfPath.size(); i++){
                     String partOfPath = partsOfPath.get(i);
                     if(fileNames.isEmpty() || !fileNames.contains(partOfPath)){
-                        LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+						LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                                 fileName, homeDirectoryAbsolutePath, "false");
                         return false;
                     }else{
                         if(i == partsOfPath.size() - 1){
-                            LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+							LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                                     fileName, homeDirectoryAbsolutePath, "true");
                             return true;
                         }
@@ -327,7 +325,7 @@ public class TestDataEngineService {
                 channelSftp.disconnect();
             }
         }
-        LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+		LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                 fileName, homeDirectoryAbsolutePath, "false");
         return false;
     }

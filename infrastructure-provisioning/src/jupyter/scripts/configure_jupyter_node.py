@@ -86,8 +86,9 @@ if __name__ == "__main__":
     ensure_jre_jdk(args.os_user)
     print("Install Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
-    print("Installing R")
-    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+    if os.environ['notebook_r_enabled'] == 'true':
+        print("Installing R")
+        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
     ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
@@ -112,8 +113,9 @@ if __name__ == "__main__":
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
     print("Install Toree-Scala kernel for Jupyter")
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
-    print("Install R kernel for Jupyter")
-    ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
+    if os.environ['notebook_r_enabled'] == 'true':
+        print("Install R kernel for Jupyter")
+        ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
 
     # INSTALL UNGIT
     print("Install nodejs")
@@ -135,4 +137,4 @@ if __name__ == "__main__":
     
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
-    update_pyopenssl_lib()
+    update_pyopenssl_lib(args.os_user)

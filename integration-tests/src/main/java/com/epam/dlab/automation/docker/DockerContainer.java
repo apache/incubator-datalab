@@ -23,122 +23,148 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class DockerContainer {
-    
-    @JsonProperty
-    private String Id;
-    
-    @JsonProperty
-    private List<String> Names;
-    
-    @JsonProperty
-    private String Image;
-    
-    @JsonProperty
-    private String ImageID;
-    
-    @JsonProperty
-    private String Command;
-    
-    @JsonProperty
-    private int Created;
-    
-    @JsonProperty
-    private List<Object> Ports;
-    
-    @JsonProperty
-    private Labels Labels;
-    
-    @JsonProperty
-    private String State;
-    
-    @JsonProperty 
-    private String Status;
-    
-    @JsonProperty
-    private HostConfig HostConfig;
-    
-    @JsonProperty
-    private NetworkSettings NetworkSettings;
-    
-    @JsonProperty
-    private List<Object> Mounts;
-    
+
+	@JsonProperty("Id")
+	private String id;
+
+	@JsonProperty("Names")
+	private List<String> names;
+
+	@JsonProperty("Image")
+	private String image;
+
+	@JsonProperty("ImageID")
+	private String imageID;
+
+	@JsonProperty("Command")
+	private String command;
+
+	@JsonProperty("Created")
+	private int created;
+
+	@JsonProperty("Ports")
+	private List<Object> ports;
+
+	@JsonProperty("Labels")
+	private Labels labels;
+
+	@JsonProperty("State")
+	private String state;
+
+	@JsonProperty("Status")
+	private String status;
+
+	@JsonProperty("HostConfig")
+	private HostConfig hostConfig;
+
+	@JsonProperty("NetworkSettings")
+	private NetworkSettings networkSettings;
+
+	@JsonProperty("Mounts")
+	private List<Object> mounts;
+
+
     public String getId() {
-        return Id;
-    }
-    public void setId(String Id) {
-        this.Id = Id;
-    }
-    public List<String> getNames() {
-        return Names;
-    }
-    public void setNames(List<String> names) {
-        Names = names;
-    }
-    public String getImage() {
-        return Image;
-    }
-    public void setImage(String image) {
-        Image = image;
-    }
-    public String getImageID() {
-        return ImageID;
-    }
-    public void setImageID(String imageID) {
-        ImageID = imageID;
-    }
-    public String getCommand() {
-        return Command;
-    }
-    public void setCommand(String command) {
-        Command = command;
-    }
-    public int getCreated() {
-        return Created;
-    }
-    public void setCreated(int created) {
-        Created = created;
-    }
-    public List<Object> getPorts() {
-        return Ports;
-    }
-    public void setPorts(List<Object> ports) {
-        Ports = ports;
-    }
-    public Labels getLabels() {
-        return Labels;
-    }
-    public void setLabels(Labels labels) {
-        Labels = labels;
-    }
-    public String getState() {
-        return State;
-    }
-    public void setState(String state) {
-        State = state;
-    }
-    public String getStatus() {
-        return Status;
-    }
-    public void setStatus(String status) {
-        Status = status;
-    }
-    public HostConfig getHostConfig() {
-        return HostConfig;
-    }
-    public void setHostConfig(HostConfig hostConfig) {
-        HostConfig = hostConfig;
-    }
-    public NetworkSettings getNetworkSettings() {
-        return NetworkSettings;
-    }
-    public void setNetworkSettings(NetworkSettings networkSettings) {
-        NetworkSettings = networkSettings;
-    }
-    public List<Object> getMounts() {
-        return Mounts;
-    }
-    public void setMounts(List<Object> mounts) {
-        Mounts = mounts;
-    }
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public List<String> getNames() {
+		return names;
+	}
+
+	public void setNames(List<String> names) {
+		this.names = names;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	public String getImageID() {
+		return imageID;
+	}
+
+	public void setImageID(String imageID) {
+		this.imageID = imageID;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public int getCreated() {
+		return created;
+	}
+
+	public void setCreated(int created) {
+		this.created = created;
+	}
+
+	public List<Object> getPorts() {
+		return ports;
+	}
+
+	public void setPorts(List<Object> ports) {
+		this.ports = ports;
+	}
+
+	public Labels getLabels() {
+		return labels;
+	}
+
+	public void setLabels(Labels labels) {
+		this.labels = labels;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public HostConfig getHostConfig() {
+		return hostConfig;
+	}
+
+	public void setHostConfig(HostConfig hostConfig) {
+		this.hostConfig = hostConfig;
+	}
+
+	public NetworkSettings getNetworkSettings() {
+		return networkSettings;
+	}
+
+	public void setNetworkSettings(NetworkSettings networkSettings) {
+		this.networkSettings = networkSettings;
+	}
+
+	public List<Object> getMounts() {
+		return mounts;
+	}
+
+	public void setMounts(List<Object> mounts) {
+		this.mounts = mounts;
+	}
 }

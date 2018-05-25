@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertTrue;
 
@@ -60,6 +61,7 @@ public class TestServices {
 	// looks like running test in 1 thread mostly succeeds, running in 2 and more
 	// threads - usually fails.
 	private static final int N_THREADS = 10;
+	private static final long NOTEBOOK_CREATION_DELAY = 60000;
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
@@ -127,7 +129,7 @@ public class TestServices {
 	}
 
 	private void testLoginSsnService() throws Exception {
-		// ssnURL = "http://ec2-35-162-89-115.us-west-2.compute.amazonaws.com";
+
 		String cloudProvider = ConfigPropertyValue.getCloudProvider();
 
 		LOGGER.info("Check status of SSN node on {}: {}", cloudProvider.toUpperCase(), NamingHelper.getSsnName());
@@ -243,9 +245,16 @@ public class TestServices {
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
-		
+		if (CloudProvider.GCP_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+			LOGGER.debug("Image creation tests are skipped for all types of notebooks in GCP.");
+			notebookConfigs.forEach(config -> config.setImageTestRequired(false));
+		}
 		for (NotebookConfig notebookConfig : notebookConfigs) {
-			Thread.sleep(60000);
+			if (!ConfigPropertyValue.isRunModeLocal() &&
+					CloudProvider.AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
+				TimeUnit.SECONDS.sleep(NOTEBOOK_CREATION_DELAY / 1000);
+			}
 			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
@@ -258,7 +267,7 @@ public class TestServices {
 				executor.shutdown();
 				return;
 			} else {
-				Thread.sleep(checkThreadTimeout);
+				TimeUnit.SECONDS.sleep(checkThreadTimeout / 1000);
 			}
 		}
 	}

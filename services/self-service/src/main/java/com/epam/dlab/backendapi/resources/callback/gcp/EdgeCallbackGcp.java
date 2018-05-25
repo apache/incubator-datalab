@@ -5,6 +5,7 @@ import com.epam.dlab.backendapi.resources.callback.base.EdgeCallback;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
+import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -20,6 +21,9 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class EdgeCallbackGcp extends EdgeCallback {
 
+	@Inject
+	private RequestId requestId;
+
     public EdgeCallbackGcp() {
         log.info("{} is initialized", getClass().getSimpleName());
     }
@@ -33,7 +37,7 @@ public class EdgeCallbackGcp extends EdgeCallback {
     @POST
     @Path(ApiCallbacks.STATUS_URI)
     public Response status(UploadFileResult<EdgeInfoGcp> dto) {
-        RequestId.checkAndRemove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
         handleEdgeCallback(dto.getUser(), dto.getStatus());
         return Response.ok().build();
     }

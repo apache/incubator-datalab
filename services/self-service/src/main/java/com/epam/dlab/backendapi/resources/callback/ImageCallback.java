@@ -25,12 +25,15 @@ public class ImageCallback {
     @Inject
     private ImageExploratoryService imageExploratoryService;
 
+	@Inject
+	private RequestId requestId;
+
 
     @POST
     @Path("/image_status")
     public Response imageCreateStatus(ImageCreateStatusDTO dto) {
         log.debug("Updating status of image {} for user {} to {}", dto.getName(), dto.getUser(), dto);
-        RequestId.remove(dto.getRequestId());
+		requestId.remove(dto.getRequestId());
         imageExploratoryService.finishImageCreate(getImage(dto), dto.getExploratoryName(), dto.getImageCreateDTO().getIp());
         return Response.status(Response.Status.CREATED).build();
     }

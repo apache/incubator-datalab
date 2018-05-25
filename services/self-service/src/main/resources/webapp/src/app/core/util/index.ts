@@ -22,3 +22,4 @@ export * from './http-status-codes';
 export * from './sortUtil';
 export * from './errorMapUtils';
 export * from './dateUtils';
+export * from './fileUtils';
