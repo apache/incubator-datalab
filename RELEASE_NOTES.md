@@ -33,7 +33,7 @@
 - Rarely Notebook creation is not successful because of unabling to resolve the host on Microsoft Azure
 - Creation of Zeppelin from custom image fails on the step when cluster kernels are removing on Microsoft Azure
 - Start Notebook by scheduler does not work on Microsoft Azure when Data Lake enabled
-
+- Performing any action on data engine computational will result performing the same action for corresponding exploratory dataengines with the name, that start with computational name on which action was performed
 
 ## Known issues caused by cloud provider limitations in v1.9
 
