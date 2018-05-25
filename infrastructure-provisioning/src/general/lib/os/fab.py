@@ -58,9 +58,6 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -i -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
-            sudo(
-                '{0} install {1} --no-cache-dir 2>&1 | grep -w -i -E  "({2})"'.format(
-                    pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
             sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
@@ -91,7 +88,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         append_result("Failed to install {} packages".format(pip_version), str(err))
         print("Failed to install {} packages".format(pip_version))
         sys.exit(1)
-
+        
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
