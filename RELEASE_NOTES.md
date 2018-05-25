@@ -27,13 +27,13 @@
 
 - Remote kernel list for Data Engine is not updated after stop/start Data Engine
 - On GCP storage permissions aren't differentiated by users via Dataproc permissions (all users have R/W access to other users buckets)
-- Data engine service creation is not successful after environment has been recreated on GCP
+- Data Engine service creation is not successful after environment has been recreated on GCP
 - Rare problem during Notebook stopping/starting and creating clusters ( not possible to automatically determine credentials (GCP))
 - Occasional problem with not successful SSN creation on Microsoft Azure and Google Cloud Platform
 - Rarely Notebook creation is not successful because of unabling to resolve the host on Microsoft Azure
 - Creation of Zeppelin from custom image fails on the step when cluster kernels are removing on Microsoft Azure
 - Start Notebook by scheduler does not work on Microsoft Azure when Data Lake enabled
-- Performing any action on data engine computational will result performing the same action for corresponding exploratory dataengines with the name, that start with computational name on which action was performed
+- Performing any action on Data Engine computational will result performing the same action for corresponding exploratory Data Engines with the name, that start with computational name on which action was performed
 
 ## Known issues caused by cloud provider limitations in v1.9
 
