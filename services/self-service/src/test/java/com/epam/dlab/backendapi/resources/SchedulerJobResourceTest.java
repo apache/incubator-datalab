@@ -288,7 +288,8 @@ public class SchedulerJobResourceTest extends TestBase {
 		schedulerJobDTO.setEndTime(LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
 		schedulerJobDTO.setTerminateDateTime(
 				LocalDateTime.of(LocalDate.now(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES)));
-		schedulerJobDTO.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		schedulerJobDTO.setStartDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		schedulerJobDTO.setStopDaysRepeat(Arrays.asList(DayOfWeek.values()));
 		schedulerJobDTO.setSyncStartRequired(false);
 		return schedulerJobDTO;
 	}
