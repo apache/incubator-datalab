@@ -16,7 +16,7 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;

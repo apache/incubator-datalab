@@ -16,12 +16,12 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import org.junit.Before;

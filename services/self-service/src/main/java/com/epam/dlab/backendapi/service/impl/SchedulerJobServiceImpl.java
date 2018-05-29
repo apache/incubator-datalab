@@ -16,7 +16,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
@@ -27,6 +26,7 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
@@ -41,8 +41,8 @@ import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
+import static com.epam.dlab.dto.UserInstanceStatus.*;
 
 @Slf4j
 @Singleton

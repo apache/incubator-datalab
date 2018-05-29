@@ -27,7 +27,7 @@ import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageType;
-import com.epam.dlab.process.ProcessInfo;
+import com.epam.dlab.process.model.ProcessInfo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

@@ -42,6 +42,7 @@ public class TestBase {
 
 	protected <T> ResourceTestRule getResourceTestRuleInstance(T resourceInstance) {
 		return ResourceTestRule.builder()
+				.bootstrapLogging(false)
 				.setTestContainerFactory(new GrizzlyWebTestContainerFactory())
 				.addProvider(new AuthDynamicFeature(new OAuthCredentialAuthFilter.Builder<UserInfo>()
 						.setAuthenticator(authenticator)

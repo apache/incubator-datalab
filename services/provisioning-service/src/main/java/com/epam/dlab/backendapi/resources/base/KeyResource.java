@@ -23,8 +23,8 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.rest.contracts.KeyAPI;
-import com.epam.dlab.utils.FileUtils;
-import com.epam.dlab.utils.UsernameUtils;
+import com.epam.dlab.util.FileUtils;
+import com.epam.dlab.util.UsernameUtils;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 

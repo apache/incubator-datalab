@@ -1,30 +1,31 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.core.parser;
 
-import static junit.framework.TestCase.assertEquals;
-
+import com.epam.dlab.core.BillingUtils;
+import com.epam.dlab.exceptions.ParseException;
+import com.epam.dlab.model.aws.BillingResourceType;
+import com.epam.dlab.model.aws.ReportLine;
+import com.google.common.collect.Maps;
 import org.junit.Test;
 
-import com.epam.dlab.core.BillingUtils;
-import com.epam.dlab.exception.ParseException;
-import com.google.common.collect.Maps;
+import static junit.framework.TestCase.assertEquals;
 
 public class ReportLineTest {
 
@@ -41,11 +42,11 @@ public class ReportLineTest {
 		assertEquals("value1", r.getTags().get("tag1"));
 		assertEquals("value2", r.getTags().get("tag2"));
 	}
-	
+
 	@Test
 	public void set() throws ParseException {
 		ReportLine r = new ReportLine();
-		
+
 		r.setDlabId("dlabId");
 		r.setCost(12.34);
 		r.setCurrencyCode("USD");
@@ -61,24 +62,32 @@ public class ReportLineTest {
 	}
 
 	private void checkResourceType(String product, String resourceTypeId,
-			ResourceType expectedResourceType, String expectedResourceId) throws ParseException {
+								   BillingResourceType expectedResourceType, String expectedResourceId) throws
+			ParseException {
 		ReportLine r = new ReportLine();
 		r.setProduct(product);
 		r.setResourceTypeId(resourceTypeId);
-		
+
 		assertEquals(expectedResourceType, r.getResourceType());
 		assertEquals(expectedResourceId, r.getResourceId());
 	}
-	
+
 	@Test
 	public void resourceType() throws ParseException {
-		checkResourceType("Amazon Elastic Compute Cloud", "i-000c0e51d117e3b4a", ResourceType.COMPUTER, "i-000c0e51d117e3b4a");
-		checkResourceType("Amazon Elastic Compute Cloud", "vol-04c20f339836c56b6", ResourceType.STORAGE_EBS, "vol-04c20f339836c56b6");
-		checkResourceType("Amazon Elastic Compute Cloud", "34.208.106.54", ResourceType.IP_ADDRESS, "34.208.106.54");
+		checkResourceType("Amazon Elastic Compute Cloud", "i-000c0e51d117e3b4a", BillingResourceType.COMPUTER,
+				"i-000c0e51d117e3b4a");
+		checkResourceType("Amazon Elastic Compute Cloud", "vol-04c20f339836c56b6", BillingResourceType.STORAGE_EBS,
+				"vol-04c20f339836c56b6");
+		checkResourceType("Amazon Elastic Compute Cloud", "34.208.106.54", BillingResourceType.IP_ADDRESS,
+				"34.208.106.54");
 
-		checkResourceType("Amazon Elastic MapReduce", "arn:aws:elasticmapreduce:us-west-2:203753054073:cluster/j-1FOBGFRC8X4XY", ResourceType.CLUSTER, "j-1FOBGFRC8X4XY");
+		checkResourceType("Amazon Elastic MapReduce",
+				"arn:aws:elasticmapreduce:us-west-2:203753054073:cluster/j-1FOBGFRC8X4XY", BillingResourceType
+						.CLUSTER, "j-1FOBGFRC8X4XY");
 
-		checkResourceType("Amazon Simple Storage Service", "dlab-s3", ResourceType.STORAGE_BUCKET, "dlab-s3");
-		checkResourceType("AmazonCloudWatch", "arn:aws:logs:us-west-2:203753054073:log-group:CloudTrail/DefaultLogGroup", ResourceType.OTHER, "arn:aws:logs:us-west-2:203753054073:log-group:CloudTrail/DefaultLogGroup");
+		checkResourceType("Amazon Simple Storage Service", "dlab-s3", BillingResourceType.STORAGE_BUCKET, "dlab-s3");
+		checkResourceType("AmazonCloudWatch",
+				"arn:aws:logs:us-west-2:203753054073:log-group:CloudTrail/DefaultLogGroup", BillingResourceType.OTHER,
+				"arn:aws:logs:us-west-2:203753054073:log-group:CloudTrail/DefaultLogGroup");
 	}
 }

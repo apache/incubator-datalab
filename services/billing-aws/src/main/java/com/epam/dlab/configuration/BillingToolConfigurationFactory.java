@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.epam.dlab.core.BillingUtils;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

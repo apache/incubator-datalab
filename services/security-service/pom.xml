@@ -70,7 +70,15 @@ limitations under the License.
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.thomaskrille</groupId>
+            <artifactId>dropwizard-template-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-webapp-common</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.epam.dlab</groupId>
@@ -104,6 +112,16 @@ limitations under the License.
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${org.mongodb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aegisql</groupId>
+            <artifactId>conveyor</artifactId>
+            <version>${com.aegisql.conveyor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-utils</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

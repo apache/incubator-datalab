@@ -17,10 +17,10 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
-import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.rest.client.RESTService;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;

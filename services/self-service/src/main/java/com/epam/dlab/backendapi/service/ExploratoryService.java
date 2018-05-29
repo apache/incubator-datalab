@@ -16,8 +16,9 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.UserInstanceStatus;
+
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.model.exloratory.Exploratory;
 

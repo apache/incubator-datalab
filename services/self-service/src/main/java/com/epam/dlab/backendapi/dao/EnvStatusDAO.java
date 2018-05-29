@@ -18,7 +18,6 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
@@ -28,6 +27,7 @@ import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
@@ -45,12 +45,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.KeyDAO.EDGE_STATUS;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;

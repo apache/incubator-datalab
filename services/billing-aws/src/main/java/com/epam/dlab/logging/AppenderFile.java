@@ -21,7 +21,7 @@ package com.epam.dlab.logging;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;

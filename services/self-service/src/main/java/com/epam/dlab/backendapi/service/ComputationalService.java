@@ -16,10 +16,10 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 

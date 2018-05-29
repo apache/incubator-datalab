@@ -1,7 +1,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -11,6 +10,7 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.UserResourceService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
@@ -35,8 +35,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.*;
 
-import static com.epam.dlab.UserInstanceStatus.REUPLOADING_KEY;
-import static com.epam.dlab.UserInstanceStatus.RUNNING;
+import static com.epam.dlab.dto.UserInstanceStatus.REUPLOADING_KEY;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;

@@ -163,7 +163,9 @@ public class GitCredsResourceTest extends TestBase {
 
 	private ExploratoryGitCredsDTO getExploratoryGitCredsDTO() {
 		ExploratoryGitCredsDTO exploratoryGitCredsDTO = new ExploratoryGitCredsDTO();
-		exploratoryGitCredsDTO.setGitCreds(Collections.singletonList(new ExploratoryGitCreds()));
+		final ExploratoryGitCreds exploratoryGitCreds = new ExploratoryGitCreds();
+		exploratoryGitCreds.setHostname("host");
+		exploratoryGitCredsDTO.setGitCreds(Collections.singletonList(exploratoryGitCreds));
 		return exploratoryGitCredsDTO;
 	}
 }

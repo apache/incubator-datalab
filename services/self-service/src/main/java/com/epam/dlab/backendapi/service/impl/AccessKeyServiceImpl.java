@@ -16,7 +16,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
@@ -24,6 +23,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
@@ -41,9 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static com.epam.dlab.UserInstanceStatus.FAILED;
-import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
+import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_CREATE;
 
 @Singleton
@@ -103,7 +103,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			return createEdge(userInfo, key.getContent());
 		} catch (Exception e) {
 			log.error("Could not create the EDGE node for user {}", userInfo.getName(), e);
-			keyDAO.updateEdgeStatus(userInfo.getName(), UserInstanceStatus.FAILED.toString());
+			keyDAO.updateEdgeStatus(userInfo.getName(), FAILED.toString());
 			throw new DlabException("Could not upload the key and create EDGE node: " + e.getLocalizedMessage(), e);
 		}
 	}

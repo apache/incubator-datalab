@@ -21,8 +21,7 @@
 # java -jar billing-1.0.jar --help conf
 # java -jar billing-1.0.jar --help {adapter | parser | filter | logappender} [name]
 
-<#assign LOG_ROOT_DIR="/var/opt/dlab/log">
-<#assign DEV_MODE="false">
+billingEnabled: true
 
 host: localhost
 port: 27017
@@ -74,22 +73,20 @@ parser:
 
 
 # Logging configuration.
-#logging:
-  # Default logging level
-#  level: INFO
+logging:
+ # Default logging level
+  level: INFO
   # Logging levels for appenders.
-#  loggers:
-#    com.epam: DEBUG
-#    org.apache.http: WARN
-#    org.mongodb.driver: WARN
-#    org.hibernate: WARN
-  # Logging appenders
-#  appenders:
-#<#if DEV_MODE == "true">
-#    - type: console
-#</#if>
-#    - type: file
-#      currentLogFilename: ${LOG_ROOT_DIR}/ssn/billing.log
-#      archive: true
-#      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/billing-%d{yyyy-MM-dd}.log.gz
-#      archivedFileCount: 10
+  loggers:
+    com.epam: DEBUG
+    org.apache.http: WARN
+    org.mongodb.driver: WARN
+    org.hibernate: WARN
+ # Logging appenders
+  appenders:
+    #- type: console
+    - type: file
+      currentLogFilename: /var/opt/dlab/log/ssn/billing.log
+      archive: true
+      archivedLogFilenamePattern: $/var/opt/dlab/log/ssn/billing-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10

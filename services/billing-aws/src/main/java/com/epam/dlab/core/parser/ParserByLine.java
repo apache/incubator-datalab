@@ -20,10 +20,11 @@ package com.epam.dlab.core.parser;
 
 import com.epam.dlab.core.ModuleBase;
 import com.epam.dlab.core.aggregate.AggregateGranularity;
-import com.epam.dlab.exception.AdapterException;
-import com.epam.dlab.exception.GenericException;
-import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.exceptions.AdapterException;
+import com.epam.dlab.exceptions.GenericException;
+import com.epam.dlab.exceptions.InitializationException;
+import com.epam.dlab.exceptions.ParseException;
+import com.epam.dlab.model.aws.ReportLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

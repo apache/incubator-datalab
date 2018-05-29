@@ -26,7 +26,7 @@ import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.rest.contracts.EdgeAPI;
-import com.epam.dlab.utils.FileUtils;
+import com.epam.dlab.util.FileUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;

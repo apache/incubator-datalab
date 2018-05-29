@@ -16,8 +16,8 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.dto.UserInstanceStatus;
 
 public interface EdgeService {
 	String start(UserInfo userInfo);

@@ -23,7 +23,7 @@ import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
-import com.epam.dlab.mongo.MongoKeyWords;
+import com.epam.dlab.MongoKeyWords;
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import com.mongodb.client.AggregateIterable;

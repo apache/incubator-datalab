@@ -16,10 +16,10 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibListStatusDTO;
 import com.epam.dlab.exceptions.DlabException;

@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.epam.dlab.UserInstanceStatus.*;
+import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 

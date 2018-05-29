@@ -51,6 +51,8 @@ def yml_billing(path):
     try:
         with open(path, 'r') as config_yml_r:
             config_orig = config_yml_r.read()
+
+        config_orig = config_orig.replace('billingEnabled: false', 'billingEnabled: true')
         if args.cloud_provider == 'aws':
             config_orig = config_orig.replace('<BILLING_BUCKET_NAME>', args.billing_bucket)
             config_orig = config_orig.replace('<REPORT_PATH>', args.report_path)

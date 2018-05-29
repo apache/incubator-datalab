@@ -16,9 +16,9 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ImageCreateStatusDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.model.exloratory.Image;

@@ -18,8 +18,8 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
@@ -34,7 +34,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.UserInstanceStatus.*;
+import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;

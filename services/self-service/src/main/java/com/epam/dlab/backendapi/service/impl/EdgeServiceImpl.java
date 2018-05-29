@@ -16,7 +16,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -24,6 +23,7 @@ import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -31,8 +31,10 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.epam.dlab.UserInstanceStatus.*;
-import static com.epam.dlab.rest.contracts.EdgeAPI.*;
+import static com.epam.dlab.dto.UserInstanceStatus.*;
+import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_START;
+import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_STOP;
+import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_TERMINATE;
 
 @Singleton
 @Slf4j

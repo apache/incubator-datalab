@@ -16,7 +16,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
@@ -26,6 +25,7 @@ import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.exceptions.ResourceAlreadyExistException;

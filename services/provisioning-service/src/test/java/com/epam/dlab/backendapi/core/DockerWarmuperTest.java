@@ -22,7 +22,7 @@ import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.dto.imagemetadata.*;
-import com.epam.dlab.process.ProcessInfo;
+import com.epam.dlab.process.model.ProcessInfo;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;

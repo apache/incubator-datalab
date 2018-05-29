@@ -32,6 +32,19 @@ limitations under the License.
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.thomaskrille</groupId>
+            <artifactId>dropwizard-template-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-process</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -40,9 +53,21 @@ limitations under the License.
             <version>${org.mongodb.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-utils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-webapp-common</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${org.mockito.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
