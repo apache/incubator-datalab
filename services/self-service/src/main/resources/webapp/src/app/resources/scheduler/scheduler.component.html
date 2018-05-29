@@ -16,7 +16,7 @@ limitations under the License.
 
 -->
 
-<modal-dialog #bindDialog modalClass="scheduler-dialog modal-sm">
+<modal-dialog #bindDialog modalClass="scheduler-dialog modal-xl-s">
   <modal-header>
     <h4 class="modal-title">Scheduler
       <span *ngIf="destination">for
@@ -34,33 +34,21 @@ limitations under the License.
           </mat-slide-toggle>
         </div>
         <div class="row-wrap">
-          <div class="col">
+          <div class="col-3">
             <mat-form-field>
               <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
               <mat-datepicker-toggle [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }" matSuffix [for]="startDate"></mat-datepicker-toggle>
               <mat-datepicker #startDate></mat-datepicker>
             </mat-form-field>
           </div>
-          <div class="col">
+          <div class="col-3">
             <mat-form-field>
               <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date" formControlName="finishDate">
               <mat-datepicker-toggle matSuffix [for]="finishDate"></mat-datepicker-toggle>
               <mat-datepicker #finishDate></mat-datepicker>
             </mat-form-field>
           </div>
-        </div>
-
-        <div class="row-wrap">
-          <div class="control-group col time-range">
-            <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
-              [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"></dlab-time-picker>
-          </div>
-          <div class="control-group col time-range">
-            <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"
-              [disable]="!enableSchedule"></dlab-time-picker>
-          </div>
-          <div *ngIf="timeReqiered" class="danger_color m-bott-10"><span>At least one of time range fields should be selected</span></div>
-          <div class="col">
+          <div class="col-3">
             <mat-form-field class="timezone-offset">
               <mat-select
                 placeholder="Select offset"
@@ -71,16 +59,36 @@ limitations under the License.
             </mat-form-field>
           </div>
         </div>
-        <div class="control-group days-block">
+
+        <div class="row-wrap">
+          <div class="control-group col-3 time-range">
+            <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
+              [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"></dlab-time-picker>
+          </div>
+          <div class="control-group col-3 time-range">
+            <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"
+              [disable]="!enableSchedule"></dlab-time-picker>
+          </div>
+          <div *ngIf="timeReqiered" class="danger_color m-bott-10"><span>At least one of time range fields should be selected</span></div>
+          
+        </div>
+        <div class="control-group">
           <label class="label repeat" for="options">Repeat on :</label>
-          <div *ngFor="let day of weekdays; let i = index" class="week-day" [ngClass]="day">
-            <mat-slide-toggle
-                labelPosition="before"
-                [checked]="selectedWeekDays[day.toLowerCase()]"
-                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
-                (change)="onDaySelect($event, day)">
-              <span class="hold-label">{{ day }}</span>
-            </mat-slide-toggle>
+          <div class="days-block">
+            <label>Start date:</label>
+            <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
+              (change)="onDaySelect($event, day, 'start')"
+              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
+              [checked]="selectedStartWeekDays[day.toLowerCase()]">{{ day[0] }}
+            </mat-button-toggle>
+          </div>
+          <div class="days-block">
+            <label>Stop date:</label>
+            <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
+              (change)="onDaySelect($event, day, 'stop')"
+              [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
+              [checked]="selectedStopWeekDays[day.toLowerCase()]">{{ day[0] }}
+            </mat-button-toggle>
           </div>
         </div>
         <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>

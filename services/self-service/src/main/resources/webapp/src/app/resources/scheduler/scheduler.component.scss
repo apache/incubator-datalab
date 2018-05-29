@@ -20,6 +20,20 @@ limitations under the License.
   .mat-select-value {
     color: #758da9;
   }
+  .mat-form-field-flex {
+    width: 160px;
+  }
+  .mat-select-trigger {
+    width: 180px;
+  }
+  .col-3 {
+    width: 33%;
+    box-sizing: border-box;
+    padding: 0 5px;
+    &:last-child {
+      padding-right: 0;
+    }
+  }
   .control-group {
     .label.repeat {
       width: 100%;
@@ -54,11 +68,26 @@ limitations under the License.
         color: #35afd5;
       }
     }
-    &.days-block {
-      padding-bottom: 0;
-    }
     &.time-range {
       padding-bottom: 0 !important;
+    }
+    .days-block {
+      padding-bottom: 0;
+      margin: 15px 15px 0 0;
+      .mat-button-toggle-standalone {
+        box-shadow: none;
+        margin: 2px;
+        label {
+          background: rgba(196, 231, 243, 0.3);
+          .mat-button-toggle-label-content {
+            line-height: 26px;
+            padding: 0px 8px;
+            width: 26px;
+            font-size: 13px;
+            text-align: center;
+          }
+        }
+      }
     }
   }
   .timezone-offset {
