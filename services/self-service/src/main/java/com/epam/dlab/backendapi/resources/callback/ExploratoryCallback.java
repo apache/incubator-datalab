@@ -17,11 +17,17 @@
 package com.epam.dlab.backendapi.resources.callback;
 
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.auth.SystemUserInfoService;
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +47,20 @@ import static com.epam.dlab.UserInstanceStatus.*;
 @Slf4j
 public class ExploratoryCallback {
 
+	private static final String USER_INSTANCE_NOT_EXIST_MSG = "User instance with exploratory name %s for user %s " +
+			"doesn't exist";
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
-
 	@Inject
 	private ComputationalDAO computationalDAO;
-
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private SystemUserInfoService systemUserService;
+	@Inject
+	private ReuploadKeyService reuploadKeyService;
+	@Inject
+	private ExploratoryService exploratoryService;
 
 	/**
 	 * Changes the status of exploratory environment.
@@ -62,28 +74,23 @@ public class ExploratoryCallback {
 		log.debug("Updating status for exploratory environment {} for user {} to {}",
 				dto.getExploratoryName(), dto.getUser(), dto.getStatus());
 		requestId.checkAndRemove(dto.getRequestId());
-		UserInstanceStatus currentStatus;
 
-		try {
-			currentStatus = exploratoryDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
-		} catch (DlabException e) {
-			log.error("Could not get current status for exploratory environment {} for user {}",
-					dto.getExploratoryName(), dto.getUser(), e);
-			throw new DlabException("Could not get current status for exploratory environment " + dto
-					.getExploratoryName() +
-					" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
-		}
+		UserInstanceDTO instance = exploratoryService.getUserInstance(dto.getUser(), dto.getExploratoryName())
+				.orElseThrow(() -> new DlabException(String.format(USER_INSTANCE_NOT_EXIST_MSG,
+						dto.getExploratoryName(), dto.getUser())));
+
+		UserInstanceStatus currentStatus = UserInstanceStatus.of(instance.getStatus());
 		log.debug("Current status for exploratory environment {} for user {} is {}",
 				dto.getExploratoryName(), dto.getUser(), currentStatus);
 
 		try {
 			exploratoryDAO.updateExploratoryFields(dto);
 			if (currentStatus == TERMINATING) {
-				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto
-						.getStatus()));
+				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(),
+						UserInstanceStatus.of(dto.getStatus()));
 			} else if (currentStatus == STOPPING) {
-				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto
-						.getStatus()), TERMINATED, FAILED, TERMINATED, STOPPED);
+				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(),
+						UserInstanceStatus.of(dto.getStatus()), TERMINATED, FAILED, TERMINATED, STOPPED);
 			}
 		} catch (DlabException e) {
 			log.error("Could not update status for exploratory environment {} for user {} to {}",
@@ -91,7 +98,12 @@ public class ExploratoryCallback {
 			throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
 					" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
 		}
-
+		if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && instance.isReuploadKeyRequired()) {
+			ResourceData resourceData =
+					ResourceData.exploratoryResource(dto.getExploratoryId(), dto.getExploratoryName());
+			UserInfo userInfo = systemUserService.create(dto.getUser());
+			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
+		}
 		return Response.ok().build();
 	}
 

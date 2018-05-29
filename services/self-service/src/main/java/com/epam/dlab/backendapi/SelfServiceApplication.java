@@ -120,6 +120,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(BackupResource.class));
 		jersey.register(injector.getInstance(BackupCallback.class));
 		jersey.register(injector.getInstance(EnvironmentResource.class));
+		jersey.register(injector.getInstance(ReuploadKeyCallback.class));
 	}
 
 

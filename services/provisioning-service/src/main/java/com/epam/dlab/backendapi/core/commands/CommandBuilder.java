@@ -35,10 +35,10 @@ public class CommandBuilder {
             builder.append("echo -e '");
             try {
                 String str = JsonGenerator.generateJson(resourceBaseDTO);
-                LOGGER.info("Serialized DTO to: " +  str);
+				LOGGER.info("Serialized DTO to: {}", str);
                 builder.append(str);
             } catch (JsonProcessingException e) {
-                LOGGER.error("ERROR generating json from dockerRunParameters: " + e.getMessage());
+				LOGGER.error("ERROR generating json from dockerRunParameters: {}", e.getMessage());
                 throw e;
             }
             builder.append('\'');

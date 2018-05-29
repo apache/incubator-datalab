@@ -28,7 +28,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
@@ -42,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.UserInstanceStatus.*;
@@ -66,6 +67,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
+
 
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
@@ -112,18 +114,68 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	/**
-	 * Sets parameter 'reuploadKeyRequired' to 'true' for all user's instances which have status 'stopped' and
-	 * may be restarted in future (exploratories and Spark clusters).
+	 * Updates parameter 'reuploadKeyRequired' for corresponding user's exploratories with allowable statuses.
 	 *
-	 * @param user user.
+	 * @param user                user.
+	 * @param reuploadKeyRequired true/false.
+	 * @param exploratoryStatuses allowable exploratories' statuses.
 	 */
 	@Override
-	public void updateUserInstancesReuploadKeyFlag(String user) {
-		exploratoryDAO.updateReuploadKeyForExploratories(user, STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, RUNNING, DataEngineType.SPARK_STANDALONE,
-				STOPPED, true);
-		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, STOPPED, DataEngineType.SPARK_STANDALONE,
-				STOPPED, true);
+	public void updateExploratoriesReuploadKeyFlag(String user, boolean reuploadKeyRequired,
+												   UserInstanceStatus... exploratoryStatuses) {
+		exploratoryDAO.updateReuploadKeyForExploratories(user, reuploadKeyRequired, exploratoryStatuses);
+	}
+
+	/**
+	 * Returns list of user's exploratories and corresponding computational resources where both of them have
+	 * predefined statuses.
+	 *
+	 * @param user                user.
+	 * @param exploratoryStatus   status for exploratory environment.
+	 * @param computationalStatus status for computational resource affiliated with the exploratory.
+	 * @return list with user instances.
+	 */
+	@Override
+	public List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
+														  UserInstanceStatus computationalStatus) {
+		return getExploratoriesWithStatus(user, exploratoryStatus).stream()
+						.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
+						.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns user instance's data by it's name.
+	 *
+	 * @param user            user.
+	 * @param exploratoryName name of exploratory.
+	 * @return corresponding user instance's data or empty data if resource doesn't exist.
+	 */
+	@Override
+	public Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName) {
+		try {
+			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, exploratoryName));
+		} catch (DlabException e) {
+			log.warn("User instance with exploratory name {} for user {} not found.", exploratoryName, user);
+		}
+		return Optional.empty();
+	}
+
+	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
+																			 UserInstanceStatus computationalStatus) {
+		return userInstance.getResources().stream()
+				.filter(resource -> resource.getStatus().equals(computationalStatus.toString()))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns list of user's exploratories with predefined status.
+	 *
+	 * @param user   user.
+	 * @param status status for exploratory environment.
+	 * @return list of user's instances.
+	 */
+	private List<UserInstanceDTO> getExploratoriesWithStatus(String user, UserInstanceStatus status) {
+		return exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, true, status);
 	}
 
 	/**

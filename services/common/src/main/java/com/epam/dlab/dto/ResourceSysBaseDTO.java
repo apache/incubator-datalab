@@ -29,7 +29,7 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
     @JsonProperty("conf_key_dir")
     private String confKeyDir;
 
-    public String getServiceBaseName() {
+	public String getServiceBaseName() {
         return serviceBaseName;
     }
 

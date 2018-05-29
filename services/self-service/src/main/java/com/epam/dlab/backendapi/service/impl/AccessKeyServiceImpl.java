@@ -22,7 +22,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
-import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -45,7 +45,6 @@ import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_CREATE;
-import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
 
 @Singleton
 @Slf4j
@@ -61,9 +60,9 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	@Inject
 	private RequestId requestId;
 	@Inject
-	private ExploratoryService exploratoryService;
-	@Inject
 	private SelfServiceApplicationConfiguration configuration;
+	@Inject
+	private ReuploadKeyService reuploadKeyService;
 
 	@Override
 	public KeyLoadStatus getUserKeyStatus(String user) {
@@ -82,7 +81,8 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 				"The key reuploading for user {} is starting...", user);
 		keyDAO.upsertKey(user.getName(), keyContent, isPrimaryUploading);
 		try {
-			return isPrimaryUploading ? createEdge(user, keyContent) : reuploadKey(user, keyContent);
+			return isPrimaryUploading ? createEdge(user, keyContent) : reuploadKeyService.reuploadKey(user,
+					keyContent);
 		} catch (Exception e) {
 			log.error(isPrimaryUploading ? "The key uploading and EDGE node creating for user {} fails" :
 					"The key reuploading for user {} fails", user.getName(), e);
@@ -124,15 +124,6 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		}
 	}
 
-
-	private String reuploadKey(UserInfo user, String keyContent) {
-		UploadFile uploadFile = requestBuilder.newKeyReupload(user, keyContent);
-		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), uploadFile, String.class);
-		requestId.put(user.getName(), uuid);
-		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
-		return uuid;
-	}
-
 	private EdgeInfo getEdgeInfo(String userName) {
 		EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userName);
 		UserInstanceStatus status = UserInstanceStatus.of(edgeInfo.getEdgeStatus());
@@ -159,7 +150,6 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		UploadFile uploadFile = requestBuilder.newEdgeKeyUpload(user, keyContent);
 		String uuid = provisioningService.post(EDGE_CREATE, user.getAccessToken(), uploadFile, String.class);
 		requestId.put(user.getName(), uuid);
-		exploratoryService.updateUserInstancesReuploadKeyFlag(user.getName());
 		return uuid;
 	}
 }

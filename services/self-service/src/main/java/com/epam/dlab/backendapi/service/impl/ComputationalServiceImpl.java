@@ -42,6 +42,9 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.Optional;
+
 import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
 
@@ -52,6 +55,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	private static final String COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT = "Could not update the status of " +
 			"computational resource {} for user {}";
 	private static final String OP_NOT_SUPPORTED_DES = "Operation for data engine service is not supported";
+
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
@@ -175,6 +179,45 @@ public class ComputationalServiceImpl implements ComputationalService {
 	public void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
 		sparkAction(userInfo, exploratoryName, computationalName, STARTING,
 				ComputationalAPI.COMPUTATIONAL_START_SPARK);
+	}
+
+	/**
+	 * Updates parameter 'reuploadKeyRequired' for corresponding user's computational resources with allowable statuses
+	 * which are affiliated with exploratories with theirs allowable statuses.
+	 *
+	 * @param user                  user.
+	 * @param exploratoryStatuses   allowable exploratories' statuses.
+	 * @param computationalTypes    type list of computational resource.
+	 * @param reuploadKeyRequired   true/false.
+	 * @param computationalStatuses allowable statuses for computational resources.
+	 */
+	@Override
+	public void updateComputationalsReuploadKeyFlag(String user, List<UserInstanceStatus> exploratoryStatuses,
+													List<DataEngineType> computationalTypes,
+													boolean reuploadKeyRequired,
+													UserInstanceStatus... computationalStatuses) {
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, exploratoryStatuses, computationalTypes,
+				reuploadKeyRequired, computationalStatuses);
+	}
+
+	/**
+	 * Returns computational resource's data by name for user's exploratory.
+	 *
+	 * @param user              user.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return corresponding computational resource's data or empty data if resource doesn't exist.
+	 */
+	@Override
+	public Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
+																		String computationalName) {
+		try {
+			return Optional.of(computationalDAO.fetchComputationalFields(user, exploratoryName, computationalName));
+		} catch (DlabException e) {
+			log.warn("Computational resource {} affiliated with exploratory {} for user {} not found.",
+					computationalName, exploratoryName, user);
+		}
+		return Optional.empty();
 	}
 
 	private void sparkAction(UserInfo userInfo, String exploratoryName, String computationalName, UserInstanceStatus

@@ -57,8 +57,7 @@ public class InfrastructureInfoServiceBaseTest {
 
 	@Test
 	public void getUserResources() throws NoSuchFieldException, IllegalAccessException {
-		Document document = new Document();
-		Iterable<Document> documents = Collections.singletonList(document);
+		Iterable<Document> documents = Collections.singletonList(new Document());
 		when(expDAO.findExploratory(anyString())).thenReturn(documents);
 
 		EdgeInfo edgeInfo = new EdgeInfo();
@@ -78,8 +77,7 @@ public class InfrastructureInfoServiceBaseTest {
 
 	@Test
 	public void getUserResourcesWhenMethodGetEdgeInfoThrowsException() {
-		Document document = new Document();
-		Iterable<Document> documents = Collections.singletonList(document);
+		Iterable<Document> documents = Collections.singletonList(new Document());
 		when(expDAO.findExploratory(anyString())).thenReturn(documents);
 
 		EdgeInfo edgeInfo = new EdgeInfo();

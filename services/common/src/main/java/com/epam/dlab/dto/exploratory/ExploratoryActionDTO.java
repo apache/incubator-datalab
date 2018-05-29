@@ -43,7 +43,7 @@ public class ExploratoryActionDTO<T extends ExploratoryActionDTO<?>> extends Exp
 		return (T) this;
 	}
 
-    public String getNotebookInstanceName() {
+	public String getNotebookInstanceName() {
         return notebookInstanceName;
     }
 
@@ -60,8 +60,7 @@ public class ExploratoryActionDTO<T extends ExploratoryActionDTO<?>> extends Exp
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
-				.add("notebookInstanceName", notebookInstanceName)
-				.add("reuploadKeyRequired", reuploadKeyRequired);
+				.add("notebookInstanceName", notebookInstanceName);
     }
 
     @Override

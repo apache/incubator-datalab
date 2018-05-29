@@ -16,10 +16,15 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface ComputationalService {
 	/**
@@ -49,4 +54,12 @@ public interface ComputationalService {
 	void stopSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
 
 	void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
+
+	void updateComputationalsReuploadKeyFlag(String user, List<UserInstanceStatus> exploratoryStatuses,
+											 List<DataEngineType> computationalTypes,
+											 boolean reuploadKeyRequired,
+											 UserInstanceStatus... computationalStatuses);
+
+	Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
+																 String computationalName);
 }

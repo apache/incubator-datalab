@@ -29,7 +29,8 @@ public enum UserInstanceStatus {
 	TERMINATING("terminating"),
 	TERMINATED("terminated"),
 	FAILED("failed"),
-	CREATING_IMAGE("creating image");
+	CREATING_IMAGE("creating image"),
+	REUPLOADING_KEY("reuploading key");
 
 	private String name;
 

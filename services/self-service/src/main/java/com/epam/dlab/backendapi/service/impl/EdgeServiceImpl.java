@@ -51,6 +51,7 @@ public class EdgeServiceImpl implements EdgeService {
 	@Inject
 	private RequestId requestId;
 
+
 	@Override
 	public String start(UserInfo userInfo) {
 		log.debug("Starting EDGE node for user {}", userInfo.getName());
@@ -60,7 +61,6 @@ public class EdgeServiceImpl implements EdgeService {
 					userInfo.getName(), status);
 			throw new DlabException("Could not start EDGE node because the status of instance is " + status);
 		}
-
 		try {
 			return action(userInfo, EDGE_START, STARTING);
 		} catch (DlabException e) {
@@ -92,9 +92,9 @@ public class EdgeServiceImpl implements EdgeService {
 		log.debug("Terminating EDGE node for user {}", userInfo.getName());
 		UserInstanceStatus status = UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName()));
 		if (status == null) {
-			log.error("Could not terminate EDGE node for user {} because the status of instance is {}",
-					userInfo.getName(), status);
-			throw new DlabException("Could not terminate EDGE node because the status of instance is " + status);
+			log.error("Could not terminate EDGE node for user {} because the status of instance is null",
+					userInfo.getName());
+			throw new DlabException("Could not terminate EDGE node because the status of instance is null");
 		}
 
 		try {
@@ -103,6 +103,18 @@ public class EdgeServiceImpl implements EdgeService {
 			log.error("Could not terminate EDGE node for user {}", userInfo.getName(), e);
 			throw new DlabException("Could not terminate EDGE node: " + e.getLocalizedMessage(), e);
 		}
+	}
+
+	/**
+	 * Updates parameter 'reuploadKeyRequired' for user's edge node with allowable statuses.
+	 *
+	 * @param user                user.
+	 * @param reuploadKeyRequired true/false.
+	 * @param edgeStatuses        allowable statuses of edge node.
+	 */
+	@Override
+	public void updateReuploadKeyFlag(String user, boolean reuploadKeyRequired, UserInstanceStatus... edgeStatuses) {
+		keyDAO.updateEdgeReuploadKey(user, reuploadKeyRequired, edgeStatuses);
 	}
 
 	/**

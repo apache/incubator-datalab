@@ -26,6 +26,8 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.util.Collections;
+import java.util.Map;
 
 @Slf4j
 public class RESTService {
@@ -55,23 +57,33 @@ public class RESTService {
     }
 
     public <T> T get(String path, String accessToken, Class<T> clazz) {
-        Invocation.Builder builder = getBuilder(path, accessToken);
+		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap());
         log.debug("REST get secured {} {}", path, accessToken);
         return builder.get(clazz);
     }
 
     public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz) {
-        Invocation.Builder builder = getBuilder(path, accessToken);
-        log.debug("REST post secured {} {}", path, accessToken);
-        return builder.post(Entity.json(parameter), clazz);
-    }
+		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap());
+		log.debug("REST post secured {} {}", path, accessToken);
+		return builder.post(Entity.json(parameter), clazz);
+	}
+
+	public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz,
+					  Map<String, Object> queryParams) {
+		Invocation.Builder builder = getBuilder(path, accessToken, queryParams);
+		log.debug("REST post secured {} {}", path, accessToken);
+		return builder.post(Entity.json(parameter), clazz);
+	}
 
     private Invocation.Builder getBuilder(String path) {
-        return getBuilder(path, null);
-    }
+		return getBuilder(path, null, Collections.emptyMap());
+	}
 
-    private Invocation.Builder getBuilder(String path, String token) {
-        Invocation.Builder builder = getWebTarget(path)
+	private Invocation.Builder getBuilder(String path, String token, Map<String, Object> queryParams) {
+		WebTarget webTarget = getWebTarget(path);
+		queryParams.forEach(webTarget::queryParam);
+
+		Invocation.Builder builder = webTarget
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 

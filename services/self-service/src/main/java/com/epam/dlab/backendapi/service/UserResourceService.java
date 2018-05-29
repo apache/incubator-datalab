@@ -14,40 +14,17 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.reuploadkey;
 
-import com.epam.dlab.dto.ResourceSysBaseDTO;
+package com.epam.dlab.backendapi.service;
+
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.model.ResourceData;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
 
 import java.util.List;
 
-@Getter
-public class ReuploadKeyDTO extends ResourceSysBaseDTO<ReuploadKeyDTO> {
+public interface UserResourceService {
 
-	@JsonProperty
-	private String content;
+	List<ResourceData> convertToResourceData(List<UserInstanceDTO> userInstances);
 
-	@JsonProperty
-	private List<ResourceData> resources;
-
-	@JsonProperty
-	private String id;
-
-
-	public ReuploadKeyDTO withContent(String content){
-		this.content = content;
-		return this;
-	}
-
-	public ReuploadKeyDTO withResources(List<ResourceData> resources) {
-		this.resources = resources;
-		return this;
-	}
-
-	public ReuploadKeyDTO withId(String id){
-		this.id = id;
-		return this;
-	}
+	void updateReuploadKeyFlagForUserResources(String user, boolean reuploadKeyRequired);
 }

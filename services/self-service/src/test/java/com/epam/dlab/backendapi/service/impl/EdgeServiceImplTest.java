@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -220,6 +221,15 @@ public class EdgeServiceImplTest {
 		verify(keyDAO).updateEdgeStatus(USER, "failed");
 		verify(requestBuilder).newEdgeAction(userInfo);
 		verifyNoMoreInteractions(keyDAO, requestBuilder);
+	}
+
+	@Test
+	public void updateReuploadKeyFlag() {
+		doNothing().when(keyDAO).updateEdgeReuploadKey(anyString(), anyBoolean(), anyVararg());
+		edgeService.updateReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
+
+		verify(keyDAO).updateEdgeReuploadKey(USER, true, UserInstanceStatus.RUNNING);
+		verifyNoMoreInteractions(keyDAO);
 	}
 
 	private UserInfo getUserInfo() {

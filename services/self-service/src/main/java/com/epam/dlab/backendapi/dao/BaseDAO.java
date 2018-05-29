@@ -378,6 +378,10 @@ public class BaseDAO {
 		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors.toList());
 	}
 
+	List<String> statusList(List<UserInstanceStatus> statuses) {
+		return statuses.stream().map(UserInstanceStatus::toString).collect(Collectors.toList());
+	}
+
 	/**
 	 * Returns a unique id.
 	 */

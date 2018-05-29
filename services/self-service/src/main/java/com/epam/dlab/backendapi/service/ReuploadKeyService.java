@@ -16,15 +16,15 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
+import com.epam.dlab.model.ResourceData;
 
-public interface EdgeService {
-	String start(UserInfo userInfo);
+public interface ReuploadKeyService {
 
-	String stop(UserInfo userInfo);
+	String reuploadKey(UserInfo user, String keyContent);
 
-	String terminate(UserInfo userInfo);
+	void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData);
 
-	void updateReuploadKeyFlag(String user, boolean reuploadKeyRequired, UserInstanceStatus... edgeStatuses);
+	void updateResourceData(ReuploadKeyStatusDTO dto);
 }
