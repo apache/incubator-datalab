@@ -66,7 +66,7 @@ export class HealthStatusComponent implements OnInit {
     this.isAdmin = healthStatusList.admin;
 
     this.checkUserAccessKey();
-    // this.getExploratoryList();
+    this.getExploratoryList();
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {
