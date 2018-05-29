@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.resources.dto.gcp;
 
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
@@ -10,25 +26,25 @@ import org.hibernate.validator.constraints.NotBlank;
 @ToString(callSuper = true)
 public class GcpComputationalCreateForm extends ComputationalCreateFormDTO {
 
-    @NotBlank
-    @JsonProperty("dataproc_master_count")
-    private String masterInstanceCount;
+	@NotBlank
+	@JsonProperty("dataproc_master_count")
+	private String masterInstanceCount;
 
-    @NotBlank
-    @JsonProperty("dataproc_slave_count")
-    private String slaveInstanceCount;
+	@NotBlank
+	@JsonProperty("dataproc_slave_count")
+	private String slaveInstanceCount;
 
-    @NotBlank
-    @JsonProperty("dataproc_preemptible_count")
-    private String preemptibleCount;
+	@NotBlank
+	@JsonProperty("dataproc_preemptible_count")
+	private String preemptibleCount;
 
-    @JsonProperty("dataproc_master_instance_type")
-    private String masterInstanceType;
+	@JsonProperty("dataproc_master_instance_type")
+	private String masterInstanceType;
 
-    @JsonProperty("dataproc_slave_instance_type")
-    private String slaveInstanceType;
+	@JsonProperty("dataproc_slave_instance_type")
+	private String slaveInstanceType;
 
-    @NotBlank
-    @JsonProperty("dataproc_version")
-    private String version;
+	@NotBlank
+	@JsonProperty("dataproc_version")
+	private String version;
 }

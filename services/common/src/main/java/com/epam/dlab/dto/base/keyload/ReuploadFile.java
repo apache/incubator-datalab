@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.model.scheduler;
+package com.epam.dlab.dto.base.keyload;
 
-import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-public class SchedulerJobData {
-
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class ReuploadFile extends UploadFile {
 	@JsonProperty
-	private final String user;
-
-	@JsonProperty("exploratory_name")
-	private final String exploratoryName;
-
-	@JsonProperty("computational_name")
-	private final String computationalName;
-
-	@JsonProperty("scheduler_data")
-	private final SchedulerJobDTO jobDTO;
+	private String edgeUserName;
 }
-
