@@ -125,6 +125,26 @@ def get_instance_ip_address(tag_name, instance_name):
         traceback.print_exc(file=sys.stdout)
 
 
+def get_instance_ip_address_by_id(instance_id):
+    try:
+        ec2 = boto3.resource('ec2')
+        instances = ec2.instances.filter(
+            Filters = [{'Name': 'instance-id', 'Values': [instance_id]},
+                       {'Name': 'instance-state-name', 'Values': ['running']}])
+        ips = {}
+        for instance in instances:
+            public = getattr(instance, 'public_ip_address')
+            private = getattr(instance, 'private_ip_address')
+            ips = {'Public': public, 'Private': private}
+        if ips == {}:
+            raise Exception("Unable to find instance IP addresses with instance id: " + instance_id)
+        return ips
+    except Exception as err:
+        logging.error("Error with getting ip address by id: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting ip address by id", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
         actions_lib.create_aws_config_files()

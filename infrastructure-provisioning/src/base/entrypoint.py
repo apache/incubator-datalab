@@ -146,6 +146,10 @@ if __name__ == "__main__":
         with hide('running'):
             local("/bin/recreate.py")
 
+    elif args.action == 'reupload_key':
+        with hide('running'):
+            local("/bin/reupload_key.py")
+
     elif args.action == 'lib_install':
         with hide('running'):
             local("/bin/install_libs.py")
