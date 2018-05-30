@@ -22,9 +22,7 @@ import logging
 import json
 import os
 from dlab.actions_lib import *
-import boto3
 import sys
-import uuid
 
 
 def start_data_engine(cluster_name):

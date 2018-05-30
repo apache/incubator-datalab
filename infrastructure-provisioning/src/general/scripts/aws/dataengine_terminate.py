@@ -22,10 +22,8 @@ import logging
 import json
 import sys
 from dlab.fab import *
-from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
-import uuid
 
 
 def terminate_data_engine(tag_name, notebook_name,
