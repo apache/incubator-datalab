@@ -40,9 +40,11 @@ public class TestLibInstallStep extends TestLibStep {
     private final static Logger LOGGER = LogManager.getLogger(TestLibInstallStep.class);
     private String statusUrl;
     private Lib libToInstall;
+	private boolean isInstalled = true;
 
-    public TestLibInstallStep(String requestUrl, String statusUrl, String token, String notebookName, long initTimeoutSec,
-                              Lib libToInstall) {
+	public TestLibInstallStep(String requestUrl, String statusUrl, String token, String notebookName, long
+			initTimeoutSec,
+							  Lib libToInstall) {
 
         super(NamingHelper.getSelfServiceURL(requestUrl), token, notebookName, initTimeoutSec);
         this.statusUrl = NamingHelper.getSelfServiceURL(statusUrl);
@@ -134,14 +136,12 @@ public class TestLibInstallStep extends TestLibStep {
             	if ("installed".equals(libStatus.getStatus())) {
                     LOGGER.info("Library status of {} is {}", libToInstall, libStatusResponse);
                 } else if ("failed".equals(libStatus.getStatus())) {
-                    LibsHelper.incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest();
-                    if(LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest() == LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest()) {
-                        Assert.fail("Test for library installing is failed: there are not any installed library");
-                    }
                     LOGGER.warn("Failed status with proper error message happend for {}", libStatusResponse);
+					isInstalled = false;
                 } else {
-                    Assert.assertTrue(libStatus.getStatus().equals("installed"),
-                            "Lib " + libToInstall + " is not installed. Status " + libStatusResponse);
+					Assert.assertEquals("installed", libStatus.getStatus(), "Lib " + libToInstall + " is not " +
+							"installed" +
+							". Status " + libStatusResponse);
                 }
 			}
         } else {
@@ -150,4 +150,8 @@ public class TestLibInstallStep extends TestLibStep {
         }
         LOGGER.info(getDescription() + "passed");
     }
+
+	public boolean isLibraryInstalled() {
+		return isInstalled;
+	}
 }

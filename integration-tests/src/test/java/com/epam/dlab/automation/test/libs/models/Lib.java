@@ -21,8 +21,10 @@ package com.epam.dlab.automation.test.libs.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
+import lombok.EqualsAndHashCode;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode
 public class Lib {
 	@JsonProperty
 	private String group;
