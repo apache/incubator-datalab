@@ -60,6 +60,7 @@ public class BaseDAO {
 	static final String SET = "$set";
 	public static final String USER = "user";
 	protected static final String INSTANCE_ID = "instance_id";
+	protected static final String EDGE_STATUS = "edge_status";
 	public static final String STATUS = "status";
 	public static final String ERROR_MESSAGE = "error_message";
 	static final String TIMESTAMP = "timestamp";
