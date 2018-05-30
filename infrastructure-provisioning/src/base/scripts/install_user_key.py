@@ -35,11 +35,11 @@ args = parser.parse_args()
 
 
 def copy_key(config):
-    key = open('{}/{}.pub'.format(config['user_keydir'], config['user_keyname'])).read()
+    #key = open('{0}'.format(args.keyfile)).read()
     admin_key_pub = local('ssh-keygen -y -f {}'.format(args.keyfile), capture=True)
     sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
     sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
-    sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
+    #sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
 
 
 ##############
@@ -53,18 +53,20 @@ if __name__ == "__main__":
         env.host_string = '{}@{}'.format(args.user, args.hostname)
         deeper_config = json.loads(args.additional_config)
     except:
+        print('Fail connection')
         sys.exit(2)
 
     print("Ensuring safest ssh ciphers")
     try:
         ensure_ciphers()
     except:
+        print("Failed ensure ciphers")
         sys.exit(1)
 
     print("Installing users key...")
     try:
         copy_key(deeper_config)
     except:
-        print("Users keyfile {0}.pub could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
+        print("Users keyfile {0} could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
         sys.exit(1)
 

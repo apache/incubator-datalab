@@ -29,9 +29,16 @@ from fabric.api import *
 import multiprocessing
 
 
-def reupload_key(instance_id):
-    reupload_config['instance_ips'] = get_instance_private_ip_address_by_id(instance_id)
-    reupload_config['instance_private_ip'] = reupload_config['instance_ips']['Private']
+def reupload_key(instance_name):
+    reupload_config['instance_private_ip'] = False
+    if os.environ['conf_cloud_provider'] == 'aws':
+        reupload_config['instance_ips'] = get_instance_ip_address('Name', instance_name)
+        reupload_config['instance_private_ip'] = reupload_config['instance_ips']['Private']
+    elif os.environ['conf_cloud_provider'] == 'azure':
+        reupload_config['instance_private_ip'] = get_instance_ip_address(os.environ['conf_service_base_name'],
+                                                                  instance_name)
+    elif os.environ['conf_cloud_provider'] == 'gcp':
+        reupload_config['instance_private_ip'] = get_private_ip_address(instance_name)
     params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
         reupload_config['os_user'], reupload_config['instance_private_ip'], reupload_config['keyfile'],
         json.dumps(reupload_config['additional_config']))
@@ -62,7 +69,7 @@ if __name__ == "__main__":
 
         reupload_config['tag_name'] = reupload_config['service_base_name'] + '-Tag'
         reupload_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        reupload_config['resource_id'] = os.environ['resource_id']
+        reupload_config['resource_id'] = os.environ['list_instances_names']
         reupload_config['additional_config'] = {"user_keyname": reupload_config['edge_user_name'],
                                                 "user_keydir": os.environ['conf_key_dir']}
         if os.environ['conf_cloud_provider'] == 'aws':
