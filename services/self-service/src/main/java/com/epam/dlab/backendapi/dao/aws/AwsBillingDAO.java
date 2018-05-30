@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.util.UsernameUtils;
 import com.google.common.collect.Lists;
 import com.mongodb.client.AggregateIterable;
@@ -36,10 +37,11 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static com.epam.dlab.model.aws.ReportLine.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
+import static com.epam.dlab.model.aws.ReportLine.*;
 import static com.mongodb.client.model.Accumulators.*;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
@@ -136,6 +138,7 @@ public class AwsBillingDAO extends BillingDAO {
 
 			String resourceTypeId = DlabResourceType.getResourceTypeName(id.getString(DLAB_RESOURCE_TYPE));
 			String shapeName = generateShapeName(shape);
+			final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
 			String dateStart = d.getString(USAGE_DATE_START);
 			if (StringUtils.compare(usageDateStart, dateStart, false) > 0) {
 				usageDateStart = dateStart;
@@ -152,6 +155,7 @@ public class AwsBillingDAO extends BillingDAO {
 					.append(FIELD_DLAB_ID, resourceId)
 					.append(DLAB_RESOURCE_TYPE, resourceTypeId)
 					.append(SHAPE, shapeName)
+					.append(STATUS, status)
 					.append(FIELD_PRODUCT, id.getString(FIELD_PRODUCT))
 					.append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
 					.append(FIELD_COST, BillingCalculationUtils.formatDouble(cost))
@@ -191,13 +195,13 @@ public class AwsBillingDAO extends BillingDAO {
 		final String ssnShape = "t2.medium";
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
 			String serviceBaseName = settings.getServiceBaseName();
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape));
+			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape, null));
 			FindIterable<Document> docs = getCollection(USER_EDGE)
 					.find()
-					.projection(fields(include(ID)));
+					.projection(fields(include(ID, EDGE_STATUS)));
 			for (Document d : docs) {
 				shapes.put(String.join("-", serviceBaseName, UsernameUtils.removeDomain(d.getString(ID)), "edge"),
-						new BillingDAO.ShapeInfo(ssnShape));
+						new BillingDAO.ShapeInfo(ssnShape, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
 			}
 		}
 	}
