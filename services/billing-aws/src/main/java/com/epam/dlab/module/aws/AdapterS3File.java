@@ -110,6 +110,9 @@ public class AdapterS3File extends AdapterBase {
 	@JsonProperty
 	private String secretAccessKey;
 
+	@JsonProperty
+	private boolean awsJobEnabled;
+
 	/**
 	 * Return the name of bucket.
 	 */
@@ -235,7 +238,7 @@ public class AdapterS3File extends AdapterBase {
 		if (getMode() == Mode.READ) {
 			setLastModificationDate();
 			clientS3 = getAmazonClient();
-			S3FileList s3files = new S3FileList(bucket, getModuleData());
+			S3FileList s3files = new S3FileList(awsJobEnabled,bucket, getModuleData());
 			filelist = s3files.getFiles(clientS3);
 			currentFileIndex = (filelist.isEmpty() ? -1 : 0);
 			fileInputStream = null;

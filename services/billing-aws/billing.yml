@@ -38,6 +38,7 @@ adapterIn:
   - type: s3file
     bucket: <BILLING_BUCKET_NAME>
     path: <REPORT_PATH>
+    awsJobEnabled: false
     accountId: <ACCOUNT_ID>
     accessKeyId: <ACCESS_KEY_ID>
     secretAccessKey: <SECRET_ACCESS_KEY>
@@ -59,6 +60,7 @@ filter:
     currencyCode: USD
     columnDlabTag: user:<CONF_TAG_RESOURCE_ID>
     serviceBaseName: <CONF_SERVICE_BASE_NAME>
+
 
 # Parser of source data to common format.
 parser:
