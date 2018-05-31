@@ -1,0 +1,43 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Reupload user key</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>instance_id</name>
+          <description>names of instances</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Action</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>reupload_key</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>rand=`openssl rand -hex 10`;
+echo -e &apos;{&quot;edge_user_name&quot;:&quot;yevhen_hrabovskyi&quot;,&quot;conf_service_base_name&quot;:&quot;zhrab_ubuntu&quot;,&quot;conf_os_family&quot;:&quot;redhat&quot;,&quot;resource_id&quot;:&quot;&apos;${instance_id}&apos;&quot;}&apos; | sudo docker run -i -e &quot;conf_key_name=BDCC-DSS-POC&quot; -e &quot;conf_resource=edge&quot; -e &quot;request_id=${rand}&quot; -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/edge:/logs/edge docker.dlab-edge --action reupload_key
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

@@ -35,18 +35,17 @@ if __name__ == "__main__":
     reply['request_id'] = os.environ['request_id']
     if success:
         reply['status'] = 'ok'
+        reply['error_message'] = ''
     else:
         reply['status'] = 'failed'
+        try:
+            with open("/root/result.json") as f:
+                result = json.loads(f.read())
+                reply['error_message'] = result['error']
+        except:
+            result = {"error": "Failed to open result.json"}
+            reply['error_message'] = 'Failed to open result.json'
 
-    reply['error_message'] = False
-
-    try:
-        with open("/root/result.json") as f:
-            result = json.loads(f.read())
-            reply['error_message'] = ''
-    except:
-        result = {"error": "Failed to open result.json"}
-        reply['error_message'] = 'Failed to open result.json'
 
     if os.environ['conf_resource'] == 'ssn':
         log = "/response/{}.log".format(os.environ['request_id'])
