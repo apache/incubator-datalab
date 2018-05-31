@@ -31,7 +31,6 @@ import com.epam.dlab.automation.test.libs.LibsHelper;
 import com.epam.dlab.automation.test.libs.TestLibGroupStep;
 import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
-import com.epam.dlab.automation.test.libs.models.Lib;
 import com.epam.dlab.automation.test.libs.models.LibToSearchData;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -62,13 +61,13 @@ public class TestCallable implements Callable<Boolean> {
 	private final boolean imageTestRequired;
 	private int libsFailedToInstall = 0;
 
-	TestCallable(NotebookConfig notebookConfig, List<Lib> skippedLibraries) {
+	TestCallable(NotebookConfig notebookConfig) {
     	this.notebookTemplate = notebookConfig.getNotebookTemplate();
     	this.dataEngineType = notebookConfig.getDataEngineType();
         this.fullTest = notebookConfig.isFullTest();
 
 		this.notebookConfig = notebookConfig;
-		this.skippedLibraries = skippedLibraries;
+		this.skippedLibraries = notebookConfig.getSkippedLibraries();
 		this.imageTestRequired = notebookConfig.isImageTestRequired();
         
         this.token = NamingHelper.getSsnToken();
@@ -491,6 +490,7 @@ public class TestCallable implements Callable<Boolean> {
 		List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(
 				getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)), LibToSearchData.class);
 
+		LOGGER.debug("Skipped libraries for notebook {}: {}", notebookName, skippedLibraries);
 		int maxLibsFailedToInstall = libToSearchDataList.size();
 
 		for (LibToSearchData libToSearchData : libToSearchDataList) {

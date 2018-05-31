@@ -28,13 +28,11 @@ import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.jenkins.JenkinsService;
 import com.epam.dlab.automation.model.LoginDto;
 import com.epam.dlab.automation.model.NotebookConfig;
-import com.epam.dlab.automation.test.libs.models.Lib;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ResponseBody;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -44,7 +42,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -68,7 +65,7 @@ public class TestServices {
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
-	private List<Lib> skippedLibraries;
+
 
 	@BeforeClass
 	public void Setup() throws IOException {
@@ -80,10 +77,6 @@ public class TestServices {
 		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
 				new TypeReference<ArrayList<NotebookConfig>>() {
 				});
-		String skippedLibsContent = ConfigPropertyValue.getSkippedLibraries();
-		skippedLibraries = (StringUtils.isBlank(skippedLibsContent) ? Collections.emptyList() :
-				mapper.readValue(skippedLibsContent, new TypeReference<ArrayList<Lib>>() {
-				}));
 	}
 
 	@AfterClass
@@ -265,7 +258,7 @@ public class TestServices {
 				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
 				TimeUnit.SECONDS.sleep(NOTEBOOK_CREATION_DELAY / 1000);
 			}
-			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, skippedLibraries));
+			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
 		}

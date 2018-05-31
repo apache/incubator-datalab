@@ -76,7 +76,6 @@ public class ConfigPropertyValue {
 
 	private static final String JUPYTER_SCENARIO_FILES = "JUPYTER_SCENARIO_FILES";
 	private static final String NOTEBOOKS_TO_TEST = "NOTEBOOKS_TO_TEST";
-	private static final String SKIPPED_LIBRARIES = "SKIPPED_LIBRARIES";
 	private static final String EXECUTION_TREADS = "execution.threads";
 
     private static final String USE_JENKINS = "USE_JENKINS";
@@ -151,8 +150,7 @@ public class ConfigPropertyValue {
 			PropertiesResolver.overlapProperty(props, GCP_DLAB_PROJECT_ID, true);
             PropertiesResolver.overlapProperty(props, GCP_REGION, true);
             PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
-			PropertiesResolver.overlapProperty(props, SKIPPED_LIBRARIES, true);
-            PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
+			PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
             PropertiesResolver.overlapProperty(props, JENKINS_JOB_URL, !isUseJenkins());
             PropertiesResolver.overlapProperty(props, SSN_URL, isUseJenkins());
             PropertiesResolver.overlapProperty(props, SERVICE_BASE_NAME, isUseJenkins());
@@ -191,8 +189,7 @@ public class ConfigPropertyValue {
         printProperty(AZURE_DATALAKE_SHARED_ACCOUNT);
         printProperty(AZURE_STORAGE_SHARED_ACCOUNT);
         printProperty(NOTEBOOKS_TO_TEST);
-		printProperty(SKIPPED_LIBRARIES);
-        printProperty(CLUSTER_OS_USERNAME);
+		printProperty(CLUSTER_OS_USERNAME);
         printProperty(CLUSTER_OS_FAMILY);
         printProperty(CONF_TAG_RESOURCE_ID);
 
@@ -362,11 +359,7 @@ public class ConfigPropertyValue {
     	return get(NOTEBOOKS_TO_TEST);
     }
 
-	public static String getSkippedLibraries() {
-		return get(SKIPPED_LIBRARIES);
-	}
-
-    public static boolean isUseJenkins() {
+	public static boolean isUseJenkins() {
         String s = get(USE_JENKINS, "true");
     	return Boolean.valueOf(s);
     }
