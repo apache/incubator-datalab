@@ -31,7 +31,6 @@ import com.epam.dlab.automation.test.libs.LibsHelper;
 import com.epam.dlab.automation.test.libs.TestLibGroupStep;
 import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
-import com.epam.dlab.automation.test.libs.models.Lib;
 import com.epam.dlab.automation.test.libs.models.LibToSearchData;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -58,7 +57,9 @@ public class TestCallable implements Callable<Boolean> {
     private final String storageName;
     private final String notebookName, clusterName, dataEngineType;
     private final NotebookConfig notebookConfig;
+	private final List<Lib> skippedLibraries;
 	private final boolean imageTestRequired;
+	private int libsFailedToInstall = 0;
 
 	TestCallable(NotebookConfig notebookConfig) {
     	this.notebookTemplate = notebookConfig.getNotebookTemplate();
@@ -66,6 +67,7 @@ public class TestCallable implements Callable<Boolean> {
         this.fullTest = notebookConfig.isFullTest();
 
 		this.notebookConfig = notebookConfig;
+		this.skippedLibraries = notebookConfig.getSkippedLibraries();
 		this.imageTestRequired = notebookConfig.isImageTestRequired();
         
         this.token = NamingHelper.getSsnToken();
@@ -475,46 +477,54 @@ public class TestCallable implements Callable<Boolean> {
 		return true;
 	}
 
-   private void testLibs() throws Exception {
-       LOGGER.info("{}: install libraries  ...", notebookName);
+	private void testLibs() throws Exception {
+		LOGGER.info("{}: install libraries  ...", notebookName);
 
-       TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
-               getDuration(notebookConfig.getTimeoutLibGroups()).getSeconds(),
-               getTemplateTestLibFile(LibsHelper.getLibGroupsPath(notebookName)));
+		TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
+				getDuration(notebookConfig.getTimeoutLibGroups()).getSeconds(),
+				getTemplateTestLibFile(LibsHelper.getLibGroupsPath(notebookName)));
 
-       testLibGroupStep.init();
-       testLibGroupStep.verify();
+		testLibGroupStep.init();
+		testLibGroupStep.verify();
 
-	   List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(
-			   getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)), LibToSearchData.class);
+		List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(
+				getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)), LibToSearchData.class);
 
-       LibsHelper.setMaxQuantityOfLibInstallErrorsToFailTest(libToSearchDataList.size());
-       LibsHelper.setCurrentQuantityOfLibInstallErrorsToFailTest(0);
+		LOGGER.debug("Skipped libraries for notebook {}: {}", notebookName, skippedLibraries);
+		int maxLibsFailedToInstall = libToSearchDataList.size();
 
-       for (LibToSearchData libToSearchData : libToSearchDataList) {
-           TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
-        		   getDuration(notebookConfig.getTimeoutLibList()).getSeconds(), libToSearchData);
+		for (LibToSearchData libToSearchData : libToSearchDataList) {
+			TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
+					getDuration(notebookConfig.getTimeoutLibList()).getSeconds(), libToSearchData);
 
-           testLibListStep.init();
-           testLibListStep.verify();
+			testLibListStep.init();
+			testLibListStep.verify();
 
-           Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
+			Lib lib;
+			do {
+				lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
+			} while (skippedLibraries.contains(lib));
 
-		   TestLibInstallStep testLibInstallStep =
-				   new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY_FORMATTED,
-                   token, notebookName, getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds(), lib);
+			TestLibInstallStep testLibInstallStep =
+					new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY_FORMATTED,
+							token, notebookName, getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds(), lib);
 
-           testLibInstallStep.init();
-           testLibInstallStep.verify();
-		   LOGGER.info("{}: current quantity of failed libs to install: {}", notebookName,
-				   LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest());
-       }
-       LOGGER.info("{}: installed {} testing libraries from {}", notebookName,
-               (LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest() - LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest()),
-               LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest());
-   }
+			testLibInstallStep.init();
+			testLibInstallStep.verify();
+			if (!testLibInstallStep.isLibraryInstalled()) {
+				libsFailedToInstall++;
+			}
+			if (libsFailedToInstall == maxLibsFailedToInstall) {
+				Assert.fail("Test for library installing is failed: there are not any installed library");
+			}
 
-   private String getTemplateTestLibFile(String fileName) {
+			LOGGER.info("{}: current quantity of failed libs to install: {}", notebookName, libsFailedToInstall);
+		}
+		LOGGER.info("{}: installed {} testing libraries from {}", notebookName,
+				(maxLibsFailedToInstall - libsFailedToInstall), maxLibsFailedToInstall);
+	}
+
+	private String getTemplateTestLibFile(String fileName) {
         String absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), fileName).toString();
         LOGGER.info("Absolute file name is {}", absoluteFileName);
         return absoluteFileName;

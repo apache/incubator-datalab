@@ -23,7 +23,7 @@ import com.epam.dlab.automation.helper.NamingHelper;
 import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
-import com.epam.dlab.automation.test.libs.models.Lib;
+import com.epam.dlab.automation.model.Lib;
 import com.epam.dlab.automation.test.libs.models.LibSearchRequest;
 import com.epam.dlab.automation.test.libs.models.LibToSearchData;
 import com.jayway.restassured.response.Response;

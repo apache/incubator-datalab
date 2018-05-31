@@ -16,6 +16,7 @@
 
 package com.epam.dlab.automation.test.libs.models;
 
+import com.epam.dlab.automation.model.Lib;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
