@@ -28,6 +28,9 @@ limitations under the License.
 .mat-raised-button.butt.mini {
   width: 80px;
 }
+.mat-raised-button.butt.action {
+  width: 140px;
+}
 
 .mat-raised-button.butt i,
 .mat-raised-button.butt span i {
@@ -37,7 +40,7 @@ limitations under the License.
 }
 .mat-raised-button.butt.butt-success {
   background-color: #49af38;
-  margin-left: 15px;
+  margin-left: 25px;
   color: #fff;
 }
 .mat-raised-button.butt.butt-success.mini {
