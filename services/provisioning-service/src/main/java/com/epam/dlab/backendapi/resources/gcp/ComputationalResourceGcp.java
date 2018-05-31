@@ -76,7 +76,8 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 					commandBuilder.buildCommand(
 							new RunDockerCommand()
 									.withInteractive()
-									.withName(nameContainer(dto.getEdgeUserName(), CREATE, dto.getComputationalName()))
+									.withName(nameContainer(dto.getEdgeUserName(), CREATE,
+											dto.getExploratoryName(), dto.getComputationalName()))
 									.withVolumeForRootKeys(configuration.getKeyDirectory())
 									.withVolumeForResponse(configuration.getImagesDirectory())
 									.withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType
@@ -111,8 +112,8 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 					commandBuilder.buildCommand(
 							new RunDockerCommand()
 									.withInteractive()
-									.withName(nameContainer(dto.getEdgeUserName(), TERMINATE, dto.getComputationalName
-											()))
+									.withName(nameContainer(dto.getEdgeUserName(), TERMINATE,
+											dto.getExploratoryName(), dto.getComputationalName()))
 									.withVolumeForRootKeys(configuration.getKeyDirectory())
 									.withVolumeForResponse(configuration.getImagesDirectory())
 									.withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType
@@ -173,8 +174,8 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
 	}
 
-	private String nameContainer(String user, DockerAction action, String name) {
-		return nameContainer(user, action.toString(), "computational", name);
+	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {
+		return nameContainer(user, action.toString(), "computational", exploratoryName, name);
 	}
 
 	@Override
