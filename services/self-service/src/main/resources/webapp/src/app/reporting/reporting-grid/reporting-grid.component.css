@@ -49,6 +49,9 @@ limitations under the License.
 .th_type {
     width: 12%;
 }
+.th_rstatus {
+    width: 6%;
+}
 .th_charges {
     width: 8%;
 }
