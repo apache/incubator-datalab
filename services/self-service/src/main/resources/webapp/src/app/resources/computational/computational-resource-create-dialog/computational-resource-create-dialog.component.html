@@ -120,9 +120,9 @@ limitations under the License.
           <small class="danger_color">{{errorMessage}}</small>
         </div>
         <div class="text-center m-top-20">
-          <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt">Cancel</button>
+          <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!resourceForm.valid"
-                  class="butt butt-success" [ngClass]="{'not-allowed': !resourceForm.valid}">Create</button>
+                  class="butt butt-success action" [ngClass]="{'not-allowed': !resourceForm.valid}">Create</button>
         </div>
       </form>
     </div>

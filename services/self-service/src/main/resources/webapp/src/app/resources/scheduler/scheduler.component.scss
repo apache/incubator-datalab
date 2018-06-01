@@ -77,6 +77,13 @@ limitations under the License.
       .mat-button-toggle-standalone {
         box-shadow: none;
         margin: 2px;
+        &.mat-button-toggle-checked {
+          background-color: rgba(77, 184, 218, 0.62);
+          color: #ffffff;
+        }
+        &.mat-button-toggle-disabled.mat-button-toggle-checked {
+          background-color: #bdbdbd !important;
+        }
         label {
           background: rgba(196, 231, 243, 0.3);
           .mat-button-toggle-label-content {
