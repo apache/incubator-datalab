@@ -8,8 +8,26 @@
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>instance_id</name>
-          <description>names of instances</description>
-          <defaultValue></defaultValue>
+          <description>names of instances for azure, gcp and instance id for aws</description>
+          <defaultValue>zhrab-redhat-yevhen-hrabovskyi-edge</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>edge_user_name</name>
+          <description>edge user name</description>
+          <defaultValue>yevhen_hrabovskyi@epam.com</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>conf_service_base_name</name>
+          <description>service base name</description>
+          <defaultValue>zhrab-redhat</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>conf_os_family</name>
+          <description>os family: redhat, debian</description>
+          <defaultValue>redhat</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -34,7 +52,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-echo -e &apos;{&quot;edge_user_name&quot;:&quot;yevhen_hrabovskyi&quot;,&quot;conf_service_base_name&quot;:&quot;zhrab_ubuntu&quot;,&quot;conf_os_family&quot;:&quot;redhat&quot;,&quot;resource_id&quot;:&quot;&apos;${instance_id}&apos;&quot;}&apos; | sudo docker run -i -e &quot;conf_key_name=BDCC-DSS-POC&quot; -e &quot;conf_resource=edge&quot; -e &quot;request_id=${rand}&quot; -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/edge:/logs/edge docker.dlab-edge --action reupload_key
+echo &apos;{&quot;edge_user_name&quot;:&quot;&apos;${edge_user_name}&apos;&quot;,&quot;conf_service_base_name&quot;:&quot;&apos;${conf_service_base_name}&apos;&quot;,&quot;conf_os_family&quot;:&quot;&apos;${conf_os_family}&apos;&quot;,&quot;resource_id&quot;:&quot;&apos;${instance_id}&apos;&quot;}&apos; | sudo docker run -i -e &quot;conf_key_name=BDCC-DSS-POC&quot; -e &quot;conf_resource=edge&quot; -e &quot;request_id=${rand}&quot; -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/edge:/logs/edge docker.dlab-edge --action reupload_key
 </command>
     </hudson.tasks.Shell>
   </builders>
