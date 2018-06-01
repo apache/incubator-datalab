@@ -73,7 +73,7 @@ export class KeyUploadDialogModel {
   }
 
   private isValidKey(value): boolean {
-    if (value.toLowerCase().endsWith('.pub'))
+    if (value.toLowerCase().endsWith('.pub') || value.toLowerCase().endsWith('.pem'))
       return true;
     return false;
   }
