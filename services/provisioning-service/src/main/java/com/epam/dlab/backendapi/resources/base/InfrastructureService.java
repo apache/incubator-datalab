@@ -130,7 +130,7 @@ public abstract class InfrastructureService implements DockerCommands {
 														EnvResource
 																envResource) {
 		final String regex = String.format(CONTAINER_NAME_REGEX_FORMAT, username, envResource
-				.getResourceType().toString().toLowerCase(), Optional.ofNullable(envResource.getName()).orElse(""));
+				.getResourceType().name().toLowerCase(), Optional.ofNullable(envResource.getName()).orElse(""));
 		return runningContainerNames.stream().noneMatch(container -> container.matches(regex));
 	}
 
