@@ -35,10 +35,11 @@ def reupload_key(instance_id):
         reupload_config['instance_ips'] = get_instance_ip_address_by_id(instance_id)
         reupload_config['instance_private_ip'] = reupload_config['instance_ips']['Private']
     elif os.environ['conf_cloud_provider'] == 'azure':
-        reupload_config['instance_private_ip'] = get_instance_ip_address(os.environ['conf_service_base_name'],
+        reupload_config['instance_private_ip'] = AzureMeta().get_private_ip_address(os.environ['conf_service_base_name'],
                                                                          instance_id)
     elif os.environ['conf_cloud_provider'] == 'gcp':
-        reupload_config['instance_private_ip'] = get_private_ip_address(instance_id)
+        reupload_config['instance_private_ip'] = GCPMeta().get_private_ip_address(instance_id)
+
     params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
         reupload_config['os_user'], reupload_config['instance_private_ip'], reupload_config['keyfile'],
         json.dumps(reupload_config['additional_config']))
@@ -59,7 +60,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        create_aws_config_files()
+        if os.environ['conf_cloud_provider'] == 'aws':
+            create_aws_config_files()
         logging.info('[REUPLOADING USER SSH KEY]')
         print('[REUPLOADING USER SSH KEY]')
         reupload_config = dict()

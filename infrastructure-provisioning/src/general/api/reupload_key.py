@@ -61,7 +61,7 @@ if __name__ == "__main__":
         with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                    os.environ['request_id']), 'w') as response_file:
             response_file.write(json.dumps(reply))
-            print(json.dumps(reply))
+            #print(json.dumps(reply))
 
     try:
         local('chmod 666 /response/*')
