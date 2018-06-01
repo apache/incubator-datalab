@@ -54,7 +54,7 @@ limitations under the License.
 
 .dashboard_table tr td {
   font-size: 14px;
-  padding: 26px 14px;
+  padding: 20px 15px 16px;
 }
 
 .dashboard_table tr td,
@@ -219,7 +219,7 @@ limitations under the License.
 }
 
 .currency_details .material-icons {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .mat-icon-button .mat-icon,

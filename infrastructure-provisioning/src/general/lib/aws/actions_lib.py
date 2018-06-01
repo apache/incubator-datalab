@@ -473,11 +473,13 @@ def stop_ec2(tag_name, tag_value):
                      {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(tag_value)]}])
         instances = list(inst)
         if instances:
+            id_instances = list()
             for instance in instances:
-                client.stop_instances(InstanceIds=[instance.id])
-                waiter = client.get_waiter('instance_stopped')
-                waiter.wait(InstanceIds=[instance.id])
-                print("The instance {} has been stopped successfully".format(tag_value))
+                id_instances.append(instance.id)
+            client.stop_instances(InstanceIds=id_instances)
+            waiter = client.get_waiter('instance_stopped')
+            waiter.wait(InstanceIds=id_instances)
+            print("The instances {} have been stopped successfully".format(id_instances))
         else:
             print("There are no instances with {} name to stop".format(tag_value))
     except Exception as err:
@@ -495,11 +497,13 @@ def start_ec2(tag_name, tag_value):
                      {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(tag_value)]}])
         instances = list(inst)
         if instances:
+            id_instances = list()
             for instance in instances:
-                client.start_instances(InstanceIds=[instance.id])
-                waiter = client.get_waiter('instance_status_ok')
-                waiter.wait(InstanceIds=[instance.id])
-                print("The instance {} has been started successfully".format(tag_value))
+                id_instances.append(instance.id)
+            client.start_instances(InstanceIds=id_instances)
+            waiter = client.get_waiter('instance_status_ok')
+            waiter.wait(InstanceIds=id_instances)
+            print("The instances {} have been started successfully".format(id_instances))
         else:
             print("There are no instances with {} name to start".format(tag_value))
     except Exception as err:

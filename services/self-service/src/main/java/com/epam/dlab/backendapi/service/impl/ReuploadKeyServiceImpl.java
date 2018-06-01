@@ -16,7 +16,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -26,6 +25,7 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.service.UserResourceService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
@@ -45,9 +45,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static com.epam.dlab.UserInstanceStatus.REUPLOADING_KEY;
-import static com.epam.dlab.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
+import static com.epam.dlab.dto.UserInstanceStatus.REUPLOADING_KEY;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
 
 @Singleton
@@ -86,7 +86,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 		keyDAO.getEdgeInfoWhereStatusIn(user.getName(), RUNNING)
 				.ifPresent(edgeInfo -> {
 					resourcesForKeyReuploading.add(ResourceData.edgeResource(edgeInfo.getInstanceId()));
-					keyDAO.updateEdgeStatus(user.getName(), UserInstanceStatus.REUPLOADING_KEY.toString());
+					keyDAO.updateEdgeStatus(user.getName(), REUPLOADING_KEY.toString());
 				});
 		updateStatusForUserInstances(user.getName(), REUPLOADING_KEY);
 

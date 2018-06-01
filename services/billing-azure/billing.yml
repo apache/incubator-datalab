@@ -39,6 +39,8 @@ regionInfo: <REGION_INFO>
 initialDelay: 10
 period: 60
 
+billingEnabled: false
+
 aggregationOutputMongoDataSource:
     host: localhost
     port: 27017
@@ -46,3 +48,21 @@ aggregationOutputMongoDataSource:
     password: <MONGODB_PASSWORD>
     database: dlabdb
 
+# Logging configuration.
+logging:
+  # Default logging level
+  level: INFO
+  # Logging levels for appenders.
+  loggers:
+    com.epam: DEBUG
+    org.apache.http: WARN
+    org.mongodb.driver: WARN
+    org.hibernate: WARN
+  #Logging appenders
+  appenders:
+    #- type: console
+    - type: file
+      currentLogFilename: /var/opt/dlab/log/ssn/billing.log
+      archive: true
+      archivedLogFilenamePattern: /var/opt/dlab/log/ssn/billing-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10

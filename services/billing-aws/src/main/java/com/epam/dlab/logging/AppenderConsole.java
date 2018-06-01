@@ -18,7 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.logging;
 
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 

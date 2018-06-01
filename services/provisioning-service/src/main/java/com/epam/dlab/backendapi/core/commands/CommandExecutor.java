@@ -18,9 +18,9 @@
 
 package com.epam.dlab.backendapi.core.commands;
 
-import com.epam.dlab.process.DlabProcess;
-import com.epam.dlab.process.ProcessId;
-import com.epam.dlab.process.ProcessInfo;
+import com.epam.dlab.process.model.DlabProcess;
+import com.epam.dlab.process.model.ProcessId;
+import com.epam.dlab.process.model.ProcessInfo;
 import com.google.inject.Singleton;
 
 @Singleton

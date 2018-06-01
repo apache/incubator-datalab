@@ -19,7 +19,7 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.dto.ResourceBaseDTO;
-import com.epam.dlab.utils.JsonGenerator;
+import com.epam.dlab.util.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;

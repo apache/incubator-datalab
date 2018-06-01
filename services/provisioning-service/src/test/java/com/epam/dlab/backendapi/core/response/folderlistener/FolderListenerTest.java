@@ -18,18 +18,16 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.response.folderlistener;
 
-import static org.junit.Assert.assertEquals;
+import com.epam.dlab.backendapi.core.FileHandlerCallback;
+import com.epam.dlab.util.ServiceUtils;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Test;
-
-import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListener;
-import com.epam.dlab.backendapi.core.response.folderlistener.WatchItem;
-import com.epam.dlab.utils.ServiceUtils;
+import static org.junit.Assert.assertEquals;
 
 public class FolderListenerTest {
 	private final long maxWaitTimeoutMillis = 30000;

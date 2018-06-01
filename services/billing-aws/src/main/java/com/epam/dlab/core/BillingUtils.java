@@ -28,7 +28,7 @@ import java.util.Map;
 
 import com.epam.dlab.configuration.BillingToolConfigurationFactory;
 import com.epam.dlab.core.parser.ParserBase;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.logging.AppenderBase;
 import com.google.common.io.Resources;
 

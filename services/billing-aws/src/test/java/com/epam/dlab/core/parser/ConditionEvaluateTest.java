@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.exceptions.InitializationException;
+import com.epam.dlab.exceptions.ParseException;
 import com.google.common.collect.Lists;
 
 public class ConditionEvaluateTest {

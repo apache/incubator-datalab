@@ -16,19 +16,19 @@
 
 package com.epam.dlab.backendapi.resources.callback.base;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.epam.dlab.UserInstanceStatus.RUNNING;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 
 @Slf4j
 public class EdgeCallback {

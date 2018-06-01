@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.resources.gcp;
 
 import com.epam.dlab.auth.UserInfo;
@@ -60,7 +76,8 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 					commandBuilder.buildCommand(
 							new RunDockerCommand()
 									.withInteractive()
-									.withName(nameContainer(dto.getEdgeUserName(), CREATE, dto.getComputationalName()))
+									.withName(nameContainer(dto.getEdgeUserName(), CREATE,
+											dto.getExploratoryName(), dto.getComputationalName()))
 									.withVolumeForRootKeys(configuration.getKeyDirectory())
 									.withVolumeForResponse(configuration.getImagesDirectory())
 									.withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType
@@ -95,8 +112,8 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 					commandBuilder.buildCommand(
 							new RunDockerCommand()
 									.withInteractive()
-									.withName(nameContainer(dto.getEdgeUserName(), TERMINATE, dto.getComputationalName
-											()))
+									.withName(nameContainer(dto.getEdgeUserName(), TERMINATE,
+											dto.getExploratoryName(), dto.getComputationalName()))
 									.withVolumeForRootKeys(configuration.getKeyDirectory())
 									.withVolumeForResponse(configuration.getImagesDirectory())
 									.withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType
@@ -157,8 +174,8 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
 	}
 
-	private String nameContainer(String user, DockerAction action, String name) {
-		return nameContainer(user, action.toString(), "computational", name);
+	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {
+		return nameContainer(user, action.toString(), "computational", exploratoryName, name);
 	}
 
 	@Override

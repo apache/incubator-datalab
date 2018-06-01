@@ -31,13 +31,13 @@
     <dependencies>
         <dependency>
             <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure</artifactId>
+            <artifactId>azure-client-authentication</artifactId>
             <version>1.2.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.epam.dlab</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>dlab-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -45,6 +45,33 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${org.mongodb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.9.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-guava</artifactId>
+            <version>2.9.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.9.5</version>
         </dependency>
 
     </dependencies>
@@ -64,6 +91,10 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <minimizeJar>true</minimizeJar>
                             <filters>
+                                <filter>
+                                    <artifact>commons-logging:commons-logging</artifact>
+                                    <includes>**</includes>
+                                </filter>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
@@ -98,5 +129,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

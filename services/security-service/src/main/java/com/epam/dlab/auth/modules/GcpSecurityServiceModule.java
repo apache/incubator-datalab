@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.auth.modules;
 
 import com.epam.dlab.auth.SecurityServiceConfiguration;
@@ -7,9 +23,9 @@ import com.epam.dlab.auth.gcp.service.GcpAuthenticationService;
 import com.epam.dlab.auth.oauth2.Oauth2AuthenticationService;
 import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
 import com.epam.dlab.cloud.CloudModule;
-import com.epam.dlab.config.gcp.GcpLoginConfiguration;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.epam.dlab.config.gcp.GcpLoginConfiguration;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -27,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class GcpSecurityServiceModule extends CloudModule {
 	private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/plus.login", "email",
 			"profile", "https://www.googleapis.com/auth/plus.me");
-	private final GcpLoginConfiguration conf;
+	private final com.epam.dlab.config.gcp.GcpLoginConfiguration conf;
 
 	GcpSecurityServiceModule(SecurityServiceConfiguration conf) {
 		this.conf = conf.getGcpLoginConfiguration();

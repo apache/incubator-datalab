@@ -32,7 +32,6 @@
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

@@ -16,9 +16,8 @@
 
 package com.epam.dlab.billing;
 
-import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public enum DlabResourceType {
@@ -81,7 +80,7 @@ public enum DlabResourceType {
 
     public static List<String> getResourceTypeIds(List<String> names) {
         if (names == null || names.isEmpty()) {
-            return Lists.newArrayList();
+            return Collections.emptyList();
         }
 
         List<String> list = new ArrayList<>();

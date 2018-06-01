@@ -16,12 +16,9 @@
 
 package com.epam.dlab.billing.gcp;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class BillingApplicationGcp {
 
-    public static void main(String[] args) {
-        log.info("===========BILLING GCP APPLICATION=========");
-    }
+	public static void main(String[] args) {
+
+	}
 }

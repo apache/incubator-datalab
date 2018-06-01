@@ -32,7 +32,8 @@ limitations under the License.
             [ngClass]="{'disabled': env.status.toLowerCase() !== 'running'
             && env.status.toLowerCase() !== 'stopped'
             && env.status.toLowerCase() !== 'terminated'
-            || !uploadKey}">
+            || envInProgress
+            || !uploadKey }">
       </span>
 
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">

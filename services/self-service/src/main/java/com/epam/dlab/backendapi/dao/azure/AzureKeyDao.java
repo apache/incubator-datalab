@@ -16,8 +16,8 @@
 
 package com.epam.dlab.backendapi.dao.azure;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;

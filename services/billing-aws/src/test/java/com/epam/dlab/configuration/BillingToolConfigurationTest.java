@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import com.epam.dlab.core.AdapterBase.Mode;
 import com.epam.dlab.core.aggregate.AggregateGranularity;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.module.AdapterConsole;
 import com.epam.dlab.module.AdapterFile;
 import com.epam.dlab.module.ModuleName;
