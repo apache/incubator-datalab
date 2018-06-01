@@ -33,17 +33,12 @@
         <org.apache.jexl3.version>3.0</org.apache.jexl3.version>
         <com.amazonaws.version>1.11.48</com.amazonaws.version>
         <org.freemarker.version>2.3.22</org.freemarker.version>
-        <ch.qos.logback.version>1.2.3</ch.qos.logback.version>
-        <com.google.guava.version>19.0</com.google.guava.version>
-        <org.hibernate.validator.version>5.4.1.Final</org.hibernate.validator.version>
-        <org.glassfish.el.version>3.0.0</org.glassfish.el.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -58,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
+            <artifactId>aws-java-sdk-s3</artifactId>
             <version>${com.amazonaws.version}</version>
         </dependency>
         <dependency>
@@ -67,25 +62,63 @@
             <version>${org.freemarker.version}</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${ch.qos.logback.version}</version>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-model</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${com.google.guava.version}</version>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.0.Final</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>${org.hibernate.validator.version}</version>
+            <version>5.1.1.Final</version>
         </dependency>
-		<dependency>
-   			<groupId>org.glassfish</groupId>
-   			<artifactId>javax.el</artifactId>
-   			<version>${org.glassfish.el.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.9.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.9.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-guava</artifactId>
+            <version>2.9.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>24.1-jre</version>
+        </dependency>
+
+
     </dependencies>
     <build>
         <plugins>
@@ -100,36 +133,36 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <filters>
                                 <filter>
-                                	<artifact>org.hibernate:hibernate-validator</artifact>
-                                	<includes>**</includes>
+                                    <artifact>org.hibernate:hibernate-validator</artifact>
+                                    <includes>**</includes>
                                 </filter>
                                 <filter>
-                                	<artifact>org.glassfish:javax.el</artifact>
-                                	<includes>**</includes>
+                                    <artifact>org.glassfish.web:javax.el</artifact>
+                                    <includes>**</includes>
                                 </filter>
                                 <filter>
-                                	<artifact>org.jboss.logging:jboss-logging</artifact>
-                                	<includes>**</includes>
+                                    <artifact>org.jboss.logging:jboss-logging</artifact>
+                                    <includes>**</includes>
                                 </filter>
                                 <filter>
-                                	<artifact>com.fasterxml:classmate</artifact>
-                                	<includes>**</includes>
+                                    <artifact>com.fasterxml:classmate</artifact>
+                                    <includes>**</includes>
                                 </filter>
 
                                 <filter>
-                                	<artifact>javax.validation:validation-api</artifact>
-                                	<includes>**</includes>
+                                    <artifact>javax.validation:validation-api</artifact>
+                                    <includes>**</includes>
                                 </filter>
                                 <filter>
-                                	<artifact>commons-logging:commons-logging</artifact>
-                                	<includes>**</includes>
+                                    <artifact>commons-logging:commons-logging</artifact>
+                                    <includes>**</includes>
                                 </filter>
                                 <filter>
-                                	<artifact>com.fasterxml.jackson.core:jackson-databind</artifact>
-                                	<includes>**</includes>
+                                    <artifact>com.fasterxml.jackson.core:jackson-databind</artifact>
+                                    <includes>**</includes>
                                 </filter>
                             </filters>
                             <transformers>
@@ -137,7 +170,7 @@
                                     	implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer
                                     	implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.epam.dlab.BillingTool</mainClass>
+                                    <mainClass>com.epam.dlab.BillingScheduler</mainClass>
 									<manifestEntries>
 										<Created-By>&lt;EPAM&gt; Systems</Created-By>
 										<Name>com/epam/dlab</Name>

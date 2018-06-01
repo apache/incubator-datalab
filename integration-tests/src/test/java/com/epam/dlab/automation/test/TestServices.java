@@ -48,7 +48,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 @Test(singleThreaded = true)
 public class TestServices {
@@ -65,6 +65,7 @@ public class TestServices {
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
+
 
 	@BeforeClass
 	public void Setup() throws IOException {
@@ -147,8 +148,10 @@ public class TestServices {
 		LOGGER.info("{} instance state is running", cloudProvider.toUpperCase());
 
 		LOGGER.info("2. Waiting for SSN service ...");
-		Assert.assertEquals(WaitForStatus.selfService(ConfigPropertyValue.getTimeoutSSNStartup()), true,
-				"SSN service was not started");
+		Assert.assertTrue(WaitForStatus.selfService(ConfigPropertyValue.getTimeoutSSNStartup()), "SSN service was " +
+				"not" +
+				" " +
+				"started");
 		LOGGER.info("   SSN service is available");
 
 		LOGGER.info("3. Check login");
@@ -287,7 +290,7 @@ public class TestServices {
 				LOGGER.error("{} :\n {} ", exception, exception.getStackTrace());
 				exception.printStackTrace();
 			}
-			assertTrue(false, "There were failed tests with " + resExceptions.size() + " from " + futureTasks.size()
+			fail("There were failed tests with " + resExceptions.size() + " from " + futureTasks.size()
 					+ " notebooks, see stacktrace above.");
 		}
 	}

@@ -1,34 +1,35 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.core.parser;
 
-import static junit.framework.TestCase.assertEquals;
+import com.epam.dlab.core.BillingUtils;
+import com.epam.dlab.exceptions.InitializationException;
+import com.epam.dlab.exceptions.ParseException;
+import com.epam.dlab.model.aws.BillingResourceType;
+import com.epam.dlab.model.aws.ReportLine;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.junit.Test;
 
 import java.util.List;
 
-import org.junit.Test;
-
-import com.epam.dlab.core.BillingUtils;
-import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.exception.ParseException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static junit.framework.TestCase.assertEquals;
 
 public class CommonFormatTest {
 
@@ -45,23 +46,23 @@ public class CommonFormatTest {
 		final CommonFormat format = getInstance();
 		final List<String> values = Lists.newArrayList("value1", "value2", "value3", "value4");
 		final ReportLine r = format.toCommonFormat(values);
-		
+
 		assertEquals("value2", r.getDlabId());
 		assertEquals("value1", r.getUser());
 		assertEquals(2, r.getTags().size());
 		assertEquals("value4", r.getTags().get("sCol4"));
 		assertEquals("value3", r.getTags().get("sCol3"));
-		
+
 		assertEquals(123456.789, format.parseDouble("column1", "123 456.789"));
 		assertEquals("12345.678", CommonFormat.doubleToString(12345.678));
 	}
-	
+
 	@Test
 	public void rowToString() throws ParseException {
 		final List<String> values = Lists.newArrayList("val\"ue1", "\"val,;ue2\"", "value3", "value4");
 		String line = CommonFormat.rowToString(values);
 		assertEquals("\"val\\\"ue1\",\"\\\"val,;ue2\\\"\",\"value3\",\"value4\"", line);
-		
+
 		final ReportLine r = new ReportLine();
 		r.setDlabId("accountId");
 		r.setUser("user");
@@ -74,19 +75,19 @@ public class CommonFormatTest {
 		r.setResourceTypeId("i-1234567890abcdefg");
 		r.setTags(Maps.newLinkedHashMap(BillingUtils.stringsToMap("tag1", "value1", "tag2", "value2")));
 		line = CommonFormat.rowToString(r);
-		assertEquals("\"accountId\",\"user\",\"2016-03-20\",\"Amazon Elastic Compute Cloud\","+
-					"\"usageType\",\"56.7\",\"1234.56789\",\"USD\"," +
-					"\"COMPUTER\",\"i-1234567890abcdefg\","+
-					"\"value1\",\"value2\"", line);
+		assertEquals("\"accountId\",\"user\",\"2016-03-20\",\"Amazon Elastic Compute Cloud\"," +
+				"\"usageType\",\"56.7\",\"1234.56789\",\"USD\"," +
+				"\"COMPUTER\",\"i-1234567890abcdefg\"," +
+				"\"value1\",\"value2\"", line);
 	}
-	
+
 	@Test
 	public void toReportLine() throws InitializationException, ParseException {
 		final CommonFormat format = getInstance();
 		final List<String> values = Lists.newArrayList(
-			"accountId", "user", "2016-03-27",
-			"Amazon Elastic Compute Cloud", "usageType", "56.7", "1234.56789", "USD",
-			"i-1234567890abcdefg", "value1", "value2");
+				"accountId", "user", "2016-03-27",
+				"Amazon Elastic Compute Cloud", "usageType", "56.7", "1234.56789", "USD",
+				"i-1234567890abcdefg", "value1", "value2");
 		final ReportLine r = format.toReportLine(values);
 
 		assertEquals("accountId", r.getDlabId());
@@ -97,7 +98,7 @@ public class CommonFormatTest {
 		assertEquals(56.7, r.getUsage());
 		assertEquals(1234.56789, r.getCost());
 		assertEquals("USD", r.getCurrencyCode());
-		assertEquals(ResourceType.COMPUTER, r.getResourceType());
+		assertEquals(BillingResourceType.COMPUTER, r.getResourceType());
 		assertEquals("i-1234567890abcdefg", r.getResourceId());
 		assertEquals("value1", r.getTags().get("sCol4"));
 		assertEquals("value2", r.getTags().get("sCol3"));

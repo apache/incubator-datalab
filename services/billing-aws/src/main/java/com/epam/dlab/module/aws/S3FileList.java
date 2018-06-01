@@ -23,7 +23,7 @@ import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.epam.dlab.core.ModuleData;
-import com.epam.dlab.exception.AdapterException;
+import com.epam.dlab.exceptions.AdapterException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

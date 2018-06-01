@@ -16,11 +16,11 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
@@ -38,7 +38,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static com.epam.dlab.UserInstanceStatus.RUNNING;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)

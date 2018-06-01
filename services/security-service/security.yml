@@ -171,6 +171,14 @@ azureLoginConfiguration:
     permissionScope: <PERMISSION_SCOPE>
     # Authentication file that used for validation user permissions(query Microsoft API)
     managementApiAuthFile: <MANAGEMENT_API_AUTH_FILE>
+     # defines how authorization code is sent to DLab
+    responseMode: query
+    # Type of consent that requires interaction with user(consent,login are allowed)
+    prompt: consent
+    # Defines if try to log in user silently without user interaction (with "none" prompt). if false start with configured prompt
+    silent: true
+    # login page of DLab
+    loginPage: https://<LOGIN_PAGE>/
 
 <#elseif CLOUD_TYPE == "gcp">
 

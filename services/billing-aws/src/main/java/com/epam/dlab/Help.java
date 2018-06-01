@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.core.ModuleType;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 

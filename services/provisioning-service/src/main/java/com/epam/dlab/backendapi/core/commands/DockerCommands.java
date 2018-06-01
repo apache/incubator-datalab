@@ -34,6 +34,8 @@ public interface DockerCommands {
             .pipe(UnixCommand.grep("edge", "-v"))
             .toCMD();
 
+    String GET_RUNNING_CONTAINERS_FOR_USER = "docker ps --format \"{{.Names}}\" -f name=%s";
+
     ObjectMapper MAPPER = new ObjectMapper()
             .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 

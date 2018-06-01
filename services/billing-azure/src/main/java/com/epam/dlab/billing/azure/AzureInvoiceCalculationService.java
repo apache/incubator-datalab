@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,208 +44,216 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AzureInvoiceCalculationService {
 
-    /**
-     * According to Microsoft Azure documentation
-     * https://docs.microsoft.com/en-us/azure/active-directory/active-directory-configurable-token-lifetimes
-     * min TTL time of token 10 minutes
-     */
-    private static final long MAX_AUTH_TOKEN_TTL_MILLIS = 9L * 60L * 1000L;
+	/**
+	 * According to Microsoft Azure documentation
+	 * https://docs.microsoft.com/en-us/azure/active-directory/active-directory-configurable-token-lifetimes
+	 * min TTL time of token 10 minutes
+	 */
+	private static final long MAX_AUTH_TOKEN_TTL_MILLIS = 9L * 60L * 1000L;
 
-    private BillingConfigurationAzure billingConfigurationAzure;
-    private Map<String, AzureDlabBillableResource> billableResources;
+	private BillingConfigurationAzure billingConfigurationAzure;
+	private Map<String, AzureDlabBillableResource> billableResources;
 
-    /**
-     * Constructs service class
-     *
-     * @param billingConfigurationAzure contains <code>billing-azure</code> module configuration
-     * @param billableResources         resources that invoices should be calculated for
-     */
-    public AzureInvoiceCalculationService(BillingConfigurationAzure billingConfigurationAzure,
-                                          Set<AzureDlabBillableResource> billableResources) {
-        this.billingConfigurationAzure = billingConfigurationAzure;
-        this.billableResources = billableResources.stream().collect(Collectors.toMap(AzureDlabBillableResource::getId, e -> e));
-    }
+	/**
+	 * Constructs service class
+	 *
+	 * @param billingConfigurationAzure contains <code>billing-azure</code> module configuration
+	 * @param billableResources         resources that invoices should be calculated for
+	 */
+	public AzureInvoiceCalculationService(BillingConfigurationAzure billingConfigurationAzure,
+										  Set<AzureDlabBillableResource> billableResources) {
+		this.billingConfigurationAzure = billingConfigurationAzure;
+		this.billableResources = billableResources.stream().collect(Collectors.toMap(AzureDlabBillableResource::getId,
+                e -> e));
+	}
 
-    /**
-     * Prepares invoice records aggregated by day
-     *
-     * @param from start usage period
-     * @param to   end usage period
-     * @return list of invoice records for each meter category aggregated by day
-     */
-    public List<AzureDailyResourceInvoice> generateInvoiceData(String from, String to) {
+	/**
+	 * Prepares invoice records aggregated by day
+	 *
+	 * @param from start usage period
+	 * @param to   end usage period
+	 * @return list of invoice records for each meter category aggregated by day
+	 */
+	public List<AzureDailyResourceInvoice> generateInvoiceData(String from, String to) {
 
-        long refreshTokenTime = System.currentTimeMillis() + MAX_AUTH_TOKEN_TTL_MILLIS;
+		long refreshTokenTime = System.currentTimeMillis() + MAX_AUTH_TOKEN_TTL_MILLIS;
 
-        String authenticationToken = getNewToken();
-        AzureRateCardClient azureRateCardClient = new AzureRateCardClient(billingConfigurationAzure, authenticationToken);
-        AzureUsageAggregateClient azureUsageAggregateClient = new AzureUsageAggregateClient(billingConfigurationAzure, authenticationToken);
+		String authenticationToken = getNewToken();
+		AzureRateCardClient azureRateCardClient = new AzureRateCardClient(billingConfigurationAzure,
+                authenticationToken);
+		AzureUsageAggregateClient azureUsageAggregateClient = new AzureUsageAggregateClient(billingConfigurationAzure,
+                authenticationToken);
 
-        List<AzureDailyResourceInvoice> invoiceData = new ArrayList<>();
+		List<AzureDailyResourceInvoice> invoiceData = new ArrayList<>();
 
-        try {
+		try {
 
-            UsageAggregateResponse usageAggregateResponse = null;
-            Map<String, Meter> rates = transformRates(azureRateCardClient.getRateCard());
+			UsageAggregateResponse usageAggregateResponse = null;
+			Map<String, Meter> rates = transformRates(azureRateCardClient.getRateCard());
 
-            do {
+			do {
 
-                if (usageAggregateResponse != null && StringUtils.isNotEmpty(usageAggregateResponse.getNextLink())) {
-                    log.info("Get usage of resources using link {}", usageAggregateResponse.getNextLink());
-                    usageAggregateResponse = azureUsageAggregateClient.getUsageAggregateResponse(usageAggregateResponse.getNextLink());
-                    log.info("Received usage of resources. Items {} ", usageAggregateResponse.getValue() != null ?
-                            usageAggregateResponse.getValue().size() : 0);
-                    log.info("Next link is {}", usageAggregateResponse.getNextLink());
-                } else if (usageAggregateResponse == null) {
-                    log.info("Get usage of resources from {} to {}", from, to);
-                    usageAggregateResponse = azureUsageAggregateClient.getUsageAggregateResponse(from, to);
-                    log.info("Received usage of resources. Items {} ", usageAggregateResponse.getValue() != null ?
-                            usageAggregateResponse.getValue().size() : 0);
-                    log.info("Next link is {}", usageAggregateResponse.getNextLink());
-                }
+				if (usageAggregateResponse != null && StringUtils.isNotEmpty(usageAggregateResponse.getNextLink())) {
+					log.info("Get usage of resources using link {}", usageAggregateResponse.getNextLink());
+					usageAggregateResponse = azureUsageAggregateClient.getUsageAggregateResponse
+                            (usageAggregateResponse.getNextLink());
+					log.info("Received usage of resources. Items {} ", usageAggregateResponse.getValue() != null ?
+							usageAggregateResponse.getValue().size() : 0);
+					log.info("Next link is {}", usageAggregateResponse.getNextLink());
+				} else if (usageAggregateResponse == null) {
+					log.info("Get usage of resources from {} to {}", from, to);
+					usageAggregateResponse = azureUsageAggregateClient.getUsageAggregateResponse(from, to);
+					log.info("Received usage of resources. Items {} ", usageAggregateResponse.getValue() != null ?
+							usageAggregateResponse.getValue().size() : 0);
+					log.info("Next link is {}", usageAggregateResponse.getNextLink());
+				}
 
-                invoiceData.addAll(generateBillingInfo(rates, usageAggregateResponse));
+				invoiceData.addAll(generateBillingInfo(rates, usageAggregateResponse));
 
-                if (System.currentTimeMillis() > refreshTokenTime) {
-                    authenticationToken = getNewToken();
-                    azureUsageAggregateClient.setAuthToken(authenticationToken);
-                }
+				if (System.currentTimeMillis() > refreshTokenTime) {
+					authenticationToken = getNewToken();
+					azureUsageAggregateClient.setAuthToken(authenticationToken);
+				}
 
-            } while (StringUtils.isNotEmpty(usageAggregateResponse.getNextLink()));
+			} while (StringUtils.isNotEmpty(usageAggregateResponse.getNextLink()));
 
-        } catch (IOException | RuntimeException e) {
-            log.error("Cannot calculate billing information", e);
-            throw new DlabException("Cannot prepare invoice data", e);
-        }
+		} catch (IOException | RuntimeException | URISyntaxException e) {
+			log.error("Cannot calculate billing information", e);
+			throw new DlabException("Cannot prepare invoice data", e);
+		}
 
-        return invoiceData;
-    }
+		return invoiceData;
+	}
 
-    private List<AzureDailyResourceInvoice> generateBillingInfo(Map<String, Meter> rates, UsageAggregateResponse usageAggregateResponse) {
-        List<UsageAggregateRecord> usageAggregateRecordList = usageAggregateResponse.getValue();
-        List<AzureDailyResourceInvoice> invoices = new ArrayList<>();
+	private List<AzureDailyResourceInvoice> generateBillingInfo(Map<String, Meter> rates, UsageAggregateResponse
+            usageAggregateResponse) {
+		List<UsageAggregateRecord> usageAggregateRecordList = usageAggregateResponse.getValue();
+		List<AzureDailyResourceInvoice> invoices = new ArrayList<>();
 
-        if (usageAggregateRecordList != null && !usageAggregateRecordList.isEmpty()) {
-            log.info("Processing {} usage records", usageAggregateRecordList.size());
+		if (usageAggregateRecordList != null && !usageAggregateRecordList.isEmpty()) {
+			log.info("Processing {} usage records", usageAggregateRecordList.size());
 
 
-            usageAggregateRecordList = usageAggregateRecordList.stream().filter(e ->
-                    matchProperStructure(e) && isBillableDlabResource(e))
-                    .collect(Collectors.toList());
+			usageAggregateRecordList = usageAggregateRecordList.stream().filter(e ->
+					matchProperStructure(e) && isBillableDlabResource(e))
+					.collect(Collectors.toList());
 
-            log.info("Applicable records number is {}", usageAggregateRecordList.size());
+			log.info("Applicable records number is {}", usageAggregateRecordList.size());
 
-            for (UsageAggregateRecord record : usageAggregateRecordList) {
-                invoices.add(calculateInvoice(rates, record, record.getProperties().getParsedInstanceData()
-                        .getMicrosoftResources().getTags().get("Name")));
-            }
-        } else {
-            log.error("No usage records in response.");
-        }
+			for (UsageAggregateRecord record : usageAggregateRecordList) {
+				invoices.add(calculateInvoice(rates, record, record.getProperties().getParsedInstanceData()
+						.getMicrosoftResources().getTags().get("Name")));
+			}
+		} else {
+			log.error("No usage records in response.");
+		}
 
-        return invoices;
-    }
+		return invoices;
+	}
 
-    private Map<String, Meter> transformRates(RateCardResponse rateCardResponse) {
-        Map<String, Meter> rates = new HashMap<>();
-        for (Meter meter : rateCardResponse.getMeters()) {
-            rates.put(meter.getMeterId(), meter);
-        }
+	private Map<String, Meter> transformRates(RateCardResponse rateCardResponse) {
+		Map<String, Meter> rates = new HashMap<>();
+		for (Meter meter : rateCardResponse.getMeters()) {
+			rates.put(meter.getMeterId(), meter);
+		}
 
-        return rates;
-    }
+		return rates;
+	}
 
-    private boolean matchProperStructure(UsageAggregateRecord record) {
+	private boolean matchProperStructure(UsageAggregateRecord record) {
 
-        if (record.getProperties() == null) {
-            return false;
-        }
+		if (record.getProperties() == null) {
+			return false;
+		}
 
-        if (record.getProperties().getMeterId() == null || record.getProperties().getMeterId().isEmpty()) {
-            return false;
-        }
+		if (record.getProperties().getMeterId() == null || record.getProperties().getMeterId().isEmpty()) {
+			return false;
+		}
 
-        return !(record.getProperties().getParsedInstanceData() == null
-                || record.getProperties().getParsedInstanceData().getMicrosoftResources() == null
-                || record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags() == null
-                || record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags().isEmpty());
-    }
+		return !(record.getProperties().getParsedInstanceData() == null
+				|| record.getProperties().getParsedInstanceData().getMicrosoftResources() == null
+				|| record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags() == null
+				|| record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags().isEmpty());
+	}
 
-    private boolean isBillableDlabResource(UsageAggregateRecord record) {
-        String dlabId = record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags().get("Name");
-        return dlabId != null && !dlabId.isEmpty() && billableResources.containsKey(dlabId);
-    }
+	private boolean isBillableDlabResource(UsageAggregateRecord record) {
+		String dlabId = record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags().get("Name");
+		return dlabId != null && !dlabId.isEmpty() && billableResources.containsKey(dlabId);
+	}
 
-    private AzureDailyResourceInvoice calculateInvoice(Map<String, Meter> rates, UsageAggregateRecord record,
-                                                       String dlabId) {
+	private AzureDailyResourceInvoice calculateInvoice(Map<String, Meter> rates, UsageAggregateRecord record,
+													   String dlabId) {
 
-        AzureDlabBillableResource azureDlabBillableResource = billableResources.get(dlabId);
-        String meterId = record.getProperties().getMeterId();
-        Meter rateCard = rates.get(meterId);
+		AzureDlabBillableResource azureDlabBillableResource = billableResources.get(dlabId);
+		String meterId = record.getProperties().getMeterId();
+		Meter rateCard = rates.get(meterId);
 
-        if (rateCard != null) {
-            Map<String, Double> meterRates = rateCard.getMeterRates();
-            if (meterRates != null) {
-                Double rate = meterRates.get(AzureRateCardClient.MAIN_RATE_KEY);
-                if (rate != null) {
+		if (rateCard != null) {
+			Map<String, Double> meterRates = rateCard.getMeterRates();
+			if (meterRates != null) {
+				Double rate = meterRates.get(AzureRateCardClient.MAIN_RATE_KEY);
+				if (rate != null) {
 
-                    AzureDailyResourceInvoice azureDailyResourceInvoice = new AzureDailyResourceInvoice(azureDlabBillableResource);
-                    azureDailyResourceInvoice.setUsageStartDate(record.getProperties().getUsageStartTime());
-                    azureDailyResourceInvoice.setUsageEndDate(record.getProperties().getUsageEndTime());
-                    azureDailyResourceInvoice.setMeterCategory(record.getProperties().getMeterCategory());
-                    azureDailyResourceInvoice.setCost(
-                            BillingCalculationUtils.round(rate * record.getProperties().getQuantity(), 2));
-                    azureDailyResourceInvoice.setDay(getDay(record.getProperties().getUsageStartTime()));
-                    azureDailyResourceInvoice.setCurrencyCode(billingConfigurationAzure.getCurrency());
+					AzureDailyResourceInvoice azureDailyResourceInvoice = new AzureDailyResourceInvoice
+                            (azureDlabBillableResource);
+					azureDailyResourceInvoice.setUsageStartDate(record.getProperties().getUsageStartTime());
+					azureDailyResourceInvoice.setUsageEndDate(record.getProperties().getUsageEndTime());
+					azureDailyResourceInvoice.setMeterCategory(record.getProperties().getMeterCategory());
+					azureDailyResourceInvoice.setCost(
+							BillingCalculationUtils.round(rate * record.getProperties().getQuantity(), 2));
+					azureDailyResourceInvoice.setDay(getDay(record.getProperties().getUsageStartTime()));
+					azureDailyResourceInvoice.setCurrencyCode(billingConfigurationAzure.getCurrency());
 
-                    log.trace("Generated invoice for azure resource {}", azureDailyResourceInvoice);
+					log.trace("Generated invoice for azure resource {}", azureDailyResourceInvoice);
 
-                    return azureDailyResourceInvoice;
+					return azureDailyResourceInvoice;
 
-                } else {
-                    log.error("Rate Card {} has no rate for meter id {} and rate id {}. Skip record {}. Azure resource {}",
-                            rateCard, meterId, AzureRateCardClient.MAIN_RATE_KEY, record, azureDlabBillableResource);
-                }
-            } else {
-                log.error("Rate Card {} has no meter rates fro meter id {}. Skip record {}. Azure resource {}",
-                        rateCard, meterId, record, azureDlabBillableResource);
-            }
-        } else {
-            log.error("Meter rate {} form usage aggregate is not found in rate card. Skip record {}.  Azure resource {}",
-                    meterId, record, azureDlabBillableResource);
-        }
+				} else {
+					log.error("Rate Card {} has no rate for meter id {} and rate id {}. Skip record {}. Azure resource" +
+                                    " {}",
+							rateCard, meterId, AzureRateCardClient.MAIN_RATE_KEY, record, azureDlabBillableResource);
+				}
+			} else {
+				log.error("Rate Card {} has no meter rates fro meter id {}. Skip record {}. Azure resource {}",
+						rateCard, meterId, record, azureDlabBillableResource);
+			}
+		} else {
+			log.error("Meter rate {} form usage aggregate is not found in rate card. Skip record {}.  Azure resource " +
+                            "{}",
+					meterId, record, azureDlabBillableResource);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    private String getNewToken() {
-        try {
+	private String getNewToken() {
+		try {
 
-            log.info("Requesting authentication token ... ");
-            ApplicationTokenCredentials applicationTokenCredentials = new ApplicationTokenCredentials(
-                    billingConfigurationAzure.getClientId(),
-                    billingConfigurationAzure.getTenantId(),
-                    billingConfigurationAzure.getClientSecret(),
-                    AzureEnvironment.AZURE);
+			log.info("Requesting authentication token ... ");
+			ApplicationTokenCredentials applicationTokenCredentials = new ApplicationTokenCredentials(
+					billingConfigurationAzure.getClientId(),
+					billingConfigurationAzure.getTenantId(),
+					billingConfigurationAzure.getClientSecret(),
+					AzureEnvironment.AZURE);
 
-            return applicationTokenCredentials.getToken(AzureEnvironment.AZURE.resourceManagerEndpoint());
-        } catch (IOException e) {
-            log.error("Cannot retrieve authentication token due to", e);
-            throw new DlabException("Cannot retrieve authentication token", e);
-        }
-    }
+			return applicationTokenCredentials.getToken(AzureEnvironment.AZURE.resourceManagerEndpoint());
+		} catch (IOException e) {
+			log.error("Cannot retrieve authentication token due to", e);
+			throw new DlabException("Cannot retrieve authentication token", e);
+		}
+	}
 
-    private String getDay(String dateTime) {
+	private String getDay(String dateTime) {
 
-        if (dateTime != null) {
-            String[] parts = dateTime.split("T");
-            if (parts.length == 2) {
-                return parts[0];
-            }
-        }
+		if (dateTime != null) {
+			String[] parts = dateTime.split("T");
+			if (parts.length == 2) {
+				return parts[0];
+			}
+		}
 
-        log.error("Wrong usage date format {} ", dateTime);
-        return null;
-    }
+		log.error("Wrong usage date format {} ", dateTime);
+		return null;
+	}
 
 }

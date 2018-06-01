@@ -19,96 +19,75 @@ package com.epam.dlab.billing.azure.usage;
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 @Slf4j
 public class AzureUsageAggregateClient {
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private BillingConfigurationAzure billingConfigurationAzure;
-    private String authToken;
+	private ObjectMapper objectMapper = new ObjectMapper();
+	private BillingConfigurationAzure billingConfigurationAzure;
+	private String authToken;
 
-    public AzureUsageAggregateClient(BillingConfigurationAzure billingConfigurationAzure, String authToken) {
-        this.billingConfigurationAzure = billingConfigurationAzure;
-        this.authToken = authToken;
-    }
+	public AzureUsageAggregateClient(BillingConfigurationAzure billingConfigurationAzure, String authToken) {
+		this.billingConfigurationAzure = billingConfigurationAzure;
+		this.authToken = authToken;
+	}
 
-    public UsageAggregateResponse getUsageAggregateResponse(String from, String to) throws IOException {
-        Client client = null;
+	public UsageAggregateResponse getUsageAggregateResponse(String from, String to) throws IOException,
+			URISyntaxException {
+		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
-        try {
-            client = ClientBuilder.newClient();
-
-            UsageAggregateResponse usageAggregateResponse = client
-                    .target("https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Commerce/UsageAggregates")
-                    .resolveTemplate("subscriptionId", billingConfigurationAzure.getSubscriptionId())
-                    .queryParam("api-version", "2015-06-01-preview")
-                    .queryParam("reportedStartTime", from)
-                    .queryParam("reportedEndTime", to)
-                    .queryParam("aggregationGranularity", "daily")
-                    .queryParam("showDetails", false)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("Authorization", String.format("Bearer %s", authToken))
-                    .get(UsageAggregateResponse.class);
-
-            return postProcess(usageAggregateResponse);
-
-        } catch (ClientErrorException e) {
-            log.error("Cannot get usage details due to {}", (e.getResponse() != null && e.getResponse().hasEntity())
-                    ? e.getResponse().readEntity(String.class) : "");
-            log.error("Error during using Usage Details API", e);
-            throw e;
-        } catch (IOException | RuntimeException e) {
-            log.error("Cannot retrieve usage detail due to ", e);
-            throw e;
-        } finally {
-            if (client != null) {
-                client.close();
-            }
-        }
-    }
+			final URIBuilder uriBuilder = new URIBuilder("https://management.azure.com/subscriptions/" +
+					billingConfigurationAzure.getSubscriptionId() + "/providers/Microsoft" +
+					".Commerce/UsageAggregates")
+					.addParameter("api-version", "2015-06-01-preview")
+					.addParameter("reportedStartTime", from)
+					.addParameter("reportedEndTime", to)
+					.addParameter("aggregationGranularity", "daily")
+					.addParameter("showDetails", "false");
+			final HttpGet request = new HttpGet(uriBuilder.build());
+			request.addHeader("Authorization", String.format("Bearer %s", authToken));
+			request.addHeader(HttpHeaders.ACCEPT, "application/json");
+			final UsageAggregateResponse usageAggregateResponse = objectMapper.readValue(EntityUtils.toString
+					(httpClient.execute(request).getEntity()), UsageAggregateResponse.class);
+			return postProcess(usageAggregateResponse);
+		} catch (URISyntaxException e) {
+			log.error("Cannot retrieve usage detail due to ", e);
+			throw e;
+		}
+	}
 
 
-    public UsageAggregateResponse getUsageAggregateResponse(String nextUrl) throws IOException {
-        Client client = null;
+	public UsageAggregateResponse getUsageAggregateResponse(String nextUrl) throws IOException {
+		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+			final HttpGet request = new HttpGet(nextUrl);
+			request.addHeader("Authorization", String.format("Bearer %s", authToken));
+			request.addHeader(HttpHeaders.ACCEPT, "application/json");
+			final UsageAggregateResponse usageAggregateResponse = objectMapper.readValue(EntityUtils.toString
+					(httpClient.execute(request).getEntity()), UsageAggregateResponse.class);
+			return postProcess(usageAggregateResponse);
+		}
+	}
 
-        try {
-            client = ClientBuilder.newClient();
+	public void setAuthToken(String authToken) {
+		this.authToken = authToken;
+	}
 
-            UsageAggregateResponse usageAggregateResponse = client
-                    .target(nextUrl)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("Authorization", String.format("Bearer %s", authToken))
-                    .get(UsageAggregateResponse.class);
+	private UsageAggregateResponse postProcess(UsageAggregateResponse usageAggregateResponse) throws IOException {
+		for (UsageAggregateRecord usageAggregateRecord : usageAggregateResponse.getValue()) {
+			InstanceData instanceData = objectMapper.readValue(usageAggregateRecord.getProperties().getInstanceData(),
+					InstanceData.class);
 
-            return postProcess(usageAggregateResponse);
+			usageAggregateRecord.getProperties().setParsedInstanceData(instanceData);
+		}
 
-        } catch (IOException | RuntimeException e) {
-            log.error("Cannot retrieve rate card due to ", e);
-            throw e;
-        } finally {
-            if (client != null) {
-                client.close();
-            }
-        }
-    }
-
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
-    }
-
-    private UsageAggregateResponse postProcess(UsageAggregateResponse usageAggregateResponse) throws IOException {
-        for (UsageAggregateRecord usageAggregateRecord : usageAggregateResponse.getValue()) {
-            InstanceData instanceData = objectMapper.readValue(usageAggregateRecord.getProperties().getInstanceData(),
-                    InstanceData.class);
-
-            usageAggregateRecord.getProperties().setParsedInstanceData(instanceData);
-        }
-
-        return usageAggregateResponse;
-    }
+		return usageAggregateResponse;
+	}
 }

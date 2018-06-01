@@ -16,8 +16,8 @@
 
 package com.epam.dlab.backendapi.resources.callback.base;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.exceptions.DlabException;

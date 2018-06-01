@@ -27,7 +27,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.epam.dlab.core.parser.ParserBase;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.logging.AppenderBase;
 import com.epam.dlab.logging.AppenderConsole;
 import com.epam.dlab.logging.AppenderFile;

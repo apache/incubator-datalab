@@ -1,3 +1,21 @@
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -8,98 +26,22 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <profiles>
-        <profile>
-            <id>aws</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.epam.dlab</groupId>
-                    <artifactId>billing-aws</artifactId>
-                    <version>${project.parent.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.epam.dlab</groupId>
-                    <artifactId>security-aws</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>azure</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.epam.dlab</groupId>
-                    <artifactId>billing-azure</artifactId>
-                    <version>${project.parent.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.epam.dlab</groupId>
-                    <artifactId>security-azure</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>gcp</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.epam.dlab</groupId>
-                    <artifactId>billing-gcp</artifactId>
-                    <version>${project.parent.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.epam.dlab</groupId>
-                    <artifactId>security-gcp</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-
     <artifactId>self-service</artifactId>
 
     <properties>
-        <org.glassfish.jersey.media.version>2.23.1</org.glassfish.jersey.media.version>
         <com.fiestacabin.dropwizard.quartz.version>0.7.1</com.fiestacabin.dropwizard.quartz.version>
         <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
+        <org.glassfish.jersey.media.version>2.23.1</org.glassfish.jersey.media.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>security-azure</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>security-aws</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>security-gcp</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>billing-aws</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>billing-azure</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>provided</scope>
+            <groupId>de.thomaskrille</groupId>
+            <artifactId>dropwizard-template-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -109,7 +51,6 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-assets</artifactId>
-            <version>${io.dropwizard.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -118,9 +59,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-multipart</artifactId>
-            <version>${org.glassfish.jersey.media.version}</version>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-forms</artifactId>
+            <version>${io.dropwizard.version}</version>
         </dependency>
 
         <dependency>
@@ -132,6 +73,22 @@
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>${com.jcraft.jsch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-model</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-utils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-webapp-common</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
 

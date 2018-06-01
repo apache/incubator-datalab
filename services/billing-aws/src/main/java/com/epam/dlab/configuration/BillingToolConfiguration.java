@@ -25,8 +25,8 @@ import com.epam.dlab.core.FilterBase;
 import com.epam.dlab.core.ModuleBase;
 import com.epam.dlab.core.ModuleData;
 import com.epam.dlab.core.parser.ParserBase;
-import com.epam.dlab.exception.AdapterException;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.AdapterException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.mongo.MongoDbConnection;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -71,6 +71,9 @@ public class BillingToolConfiguration {
 	 */
 	@JsonProperty
 	private String password;
+
+	@JsonProperty
+	private boolean billingEnabled;
 
 	/**
 	 * Working data file name of modules.
@@ -279,6 +282,9 @@ public class BillingToolConfiguration {
 		return parser.build(in, out, f);
 	}
 
+	public boolean isBillingEnabled() {
+		return billingEnabled;
+	}
 
 	/**
 	 * Returns a string representation of the object.
@@ -293,7 +299,8 @@ public class BillingToolConfiguration {
 				.add("adapterOut", adapterOut)
 				.add("filter", filter)
 				.add("parser", parser)
-				.add("logging", logging);
+				.add("logging", logging)
+				.add("billingEnabled", billingEnabled);
 	}
 
 	@Override

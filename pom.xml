@@ -47,7 +47,6 @@ limitations under the License.
     <modules>
         <module>services/common</module>
         <module>services/billing-aws</module>
-        <module>services/security-service</module>
         <module>services/provisioning-service</module>
         <module>services/self-service</module>
         <module>services/billing-azure</module>
@@ -55,27 +54,33 @@ limitations under the License.
         <module>services/security-azure</module>
         <module>services/security-gcp</module>
         <module>services/security-aws</module>
+        <module>services/security-service</module>
+        <module>services/dlab-process</module>
+        <module>services/dlab-auth-common</module>
+        <module>services/dlab-rest-client</module>
+        <module>services/dlab-model</module>
+        <module>services/dlab-utils</module>
+        <module>services/dlab-webapp-common</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.apache.commons.version>3.5</org.apache.commons.version>
-        <io.dropwizard.version>1.0.2</io.dropwizard.version>
-        <com.google.inject.version>4.1.0</com.google.inject.version>
+        <io.dropwizard.version>1.3.2</io.dropwizard.version>
+        <com.google.inject.version>4.2.0</com.google.inject.version>
         <dropwizard-template-config.version>1.4.0</dropwizard-template-config.version>
         <com.aegisql.conveyor.version>1.1.7</com.aegisql.conveyor.version>
         <org.mongodb.version>3.3.0</org.mongodb.version>
         <junit.version>4.12</junit.version>
         <org.mockito.version>1.10.19</org.mockito.version>
-        <com.fasterxml.jackson.core.version>2.8.8</com.fasterxml.jackson.core.version>
-        <com.fasterxml.jackson.annotations.version>2.8.0</com.fasterxml.jackson.annotations.version>
-
         <java.version>1.8</java.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <lombok.version>1.16.18</lombok.version>
+        <hibernate.validator.version>5.4.2.Final</hibernate.validator.version>
+        <logback.version>1.2.3</logback.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -84,58 +89,56 @@ limitations under the License.
                 <artifactId>hamcrest-core</artifactId>
                 <version>1.3</version>
             </dependency>
+            <dependency>
+                <groupId>com.epam.dlab</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.thomaskrille</groupId>
+                <artifactId>dropwizard-template-config</artifactId>
+                <version>${dropwizard-template-config.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-assets</artifactId>
+                <version>${io.dropwizard.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>${com.google.inject.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.epam.dlab</groupId>
+                <artifactId>dlab-auth-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-jackson</artifactId>
+                <version>${io.dropwizard.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-util</artifactId>
+                <version>${io.dropwizard.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${org.apache.commons.version}</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>${com.google.inject.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.thomaskrille</groupId>
-            <artifactId>dropwizard-template-config</artifactId>
-            <version>${dropwizard-template-config.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aegisql</groupId>
-            <artifactId>conveyor</artifactId>
-            <version>${com.aegisql.conveyor.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-guava</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${com.fasterxml.jackson.annotations.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
