@@ -30,7 +30,17 @@ import multiprocessing
 
 
 def reupload_key(instance_id):
-    reupload_config['instance_private_ips'] = get_list_private_ip_by_conf_type_and_id(os.environ['conf_resource'] ,instance_id)
+    if os.environ['conf_cloud_provider'] == 'azure':
+        reupload_config['instance_private_ips'] = AzureMeta().get_list_private_ip_by_conf_type_and_id(os.environ['conf_resource'] ,instance_id)
+    elif os.environ['conf_cloud_provider'] == 'gcp':
+        reupload_config[
+            'instance_private_ips'] = GCPMeta().get_list_private_ip_by_conf_type_and_id(
+            os.environ['conf_resource'], instance_id)
+    else:
+        reupload_config[
+            'instance_private_ips'] = get_list_private_ip_by_conf_type_and_id(
+            os.environ['conf_resource'], instance_id)
+
     for ip in reupload_config['instance_private_ips']:
         params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
             reupload_config['os_user'], ip, reupload_config['keyfile'],
