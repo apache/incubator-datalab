@@ -30,7 +30,7 @@ import multiprocessing
 
 
 def reupload_key(instance_id):
-    reupload_config['instance_private_ips'] = get_list_private_ip_by_conf_type_and_id(reupload_config['conf_resource'] ,instance_id)
+    reupload_config['instance_private_ips'] = get_list_private_ip_by_conf_type_and_id(os.environ['conf_resource'] ,instance_id)
     for ip in reupload_config['instance_private_ips']:
         params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
             reupload_config['os_user'], ip, reupload_config['keyfile'],
@@ -46,7 +46,7 @@ def reupload_key(instance_id):
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
