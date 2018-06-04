@@ -44,7 +44,30 @@ limitations under the License.
     padding-top: 100px;
   }
   .search-box {
-    padding: 40px 25px 0;
+    display: flex;
+    padding: 25px 20px 10px;
+
+    .search-form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      .search {
+        height: 70%;
+        flex-grow: 1;
+        padding-bottom: 0;
+        flex-direction: column;
+        box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+        .chip-list {
+          width: 100%;
+          max-height: 50%;
+          overflow-y: auto;
+          .mat-form-field {
+            width: 100%;
+            padding: 5px 20px;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -52,8 +75,8 @@ limitations under the License.
   max-height: 45%;
   overflow-y: auto;
   overflow-x: hidden;
-  position: absolute;
-  width: calc(50% - 50px);
+  // position: absolute;
+  // width: calc(50% - 50px);
   .suggestions {
     text-decoration: none;
     list-style: none;
@@ -277,6 +300,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 @media screen and (min-width: 1281px) {
   .list-container {
-    max-height: 60%;
+    max-height: 50%;
   }
 }

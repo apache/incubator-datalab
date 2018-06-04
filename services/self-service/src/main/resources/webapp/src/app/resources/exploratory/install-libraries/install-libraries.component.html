@@ -23,7 +23,7 @@ limitations under the License.
   </modal-header>
   <modal-content>
 
-    <mat-tab-group mat-stretch-tabs #tabGroup class="content-box">
+    <!-- <mat-tab-group mat-stretch-tabs #tabGroup class="content-box">
       <mat-tab label="INFO">
         <div class="full-height libs-info">
           <mat-list class="full-height">
@@ -39,7 +39,7 @@ limitations under the License.
               <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
                 <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
               </div>
-              <!-- | libStatusSort -->
+
               <mat-list-item *ngFor="let lib of notebookLibs">
                 <div class="lib-name">
                   <strong>{{ lib.name }}</strong>
@@ -74,16 +74,16 @@ limitations under the License.
             </div>
             <div *ngIf="!notebookLibs?.length" class="scrollingList info">
               <p>You have no libraries installed</p>
-            </div>
+            </div> -->
             <!-- <div *ngIf="notebookFailedLibs.length > 1 && notebook?.status === 'running'" class="reinstall-all">
               <button mat-raised-button type="button" class="butt" (click)="model.confirmAction(notebookFailedLibs)" [disabled]="installingInProgress">
                 <i class="material-icons">replay</i>Reinstall all
               </button>
             </div> -->
-          </mat-list>
+          <!-- </mat-list>
         </div>
       </mat-tab>
-      <mat-tab label="LIBRARIES INSTALLATION">
+      <mat-tab label="LIBRARIES INSTALLATION"> -->
         <div class="info message m-top-10p" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
           <p>Please wait until DLab loads full list of available libraries for you...</p>
           <div class="uploading">
@@ -109,19 +109,73 @@ limitations under the License.
                   <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
                 </div>
               </div>
-              <div class="control-group">
+              <!-- <div class="control-group">
                 <label class="label">Search</label>
                 <div class="control">
                   <input type="text" [formControl]="libSearch" [value]="query" placeholder="Enter library name" [attr.disabled]="!destination ? true : null">
                 </div>
+              </div> -->
+
+
+              <div class="control-group search">
+                <div class="chip-list">
+                  <mat-form-field>
+                    <mat-chip-list #chipList>
+                      <mat-chip
+                        *ngFor="let item of model.selectedLibs"
+                        [selectable]="selectable"
+                        [removable]="removable"
+                        (removed)="removeSelectedLibrary(item)">
+                        {{ item.name }}
+                          <span *ngIf="item.version && item.version !== 'N/A'">&nbsp;{{ item.version }}</span>
+                          <strong>&nbsp;({{ groupsListMap[item.group] }})&nbsp;</strong>
+                          <a class="material-icons" (click)="removeSelectedLibrary(item)">clear</a>
+                      </mat-chip>
+                      <input class="enter-lib"
+                        placeholder="Enter library name"
+                        #libraryInput
+                        [formControl]="libSearch"
+                        [matChipInputFor]="chipList"
+                      />
+                    </mat-chip-list>
+                  </mat-form-field>
+                </div>
+
+                <div class="list-container" id="scrolling">
+                  <ul class="suggestions">
+                    <li *ngFor="let item of (filteredList | keys)">
+                      <a *ngIf="!isDuplicated(item)" (click)="selectLibrary(item)">{{ item.key }}
+                        <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                      </a>
+                      <span *ngIf="isInSelectedList || isInstalled" class="not-allowed">{{ item.key }}
+                        <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                      </span>
+    
+                      <strong *ngIf="isInSelectedList">selected
+                        <i class="material-icons">done</i>
+                      </strong>
+                      <strong *ngIf="isInstalled">installed
+                        <i class="material-icons">done</i>
+                      </strong>
+                    </li>
+                    <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
+                  </ul>
+                </div>
+
+              </div>
+              <div class="text-center m-top-15 m-bott-10 actions">
+                <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
+                <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
               </div>
             </div>
+
+
 
             <div class="list-container" id="scrolling">
               <!--<div class="loader-wrap" *ngIf="isFilteringProc && !model.isEmpty(filteredList)">
                 <div class="loader-lib">Loading...</div>
               </div>-->
-              <ul class="suggestions">
+              <!-- <ul class="suggestions">
                 <li *ngFor="let item of (filteredList | keys)">
                   <a *ngIf="!isDuplicated(item)" (click)="selectLibrary(item)">{{ item.key }}
                     <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
@@ -138,11 +192,11 @@ limitations under the License.
                   </strong>
                 </li>
                 <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
-              </ul>
+              </ul> -->
             </div>
           </div>
 
-          <div class="list-selected col" *ngIf="model.selectedLibs.length && libs_uploaded">
+          <!-- <div class="list-selected col" *ngIf="model.selectedLibs.length && libs_uploaded">
             <h4>List of Selected Libs
               <span *ngIf="destination && destination.name"> for
                 <strong>{{ destination.name }}</strong>
@@ -156,18 +210,18 @@ limitations under the License.
                 <a class="material-icons" (click)="removeSelectedLibrary(item)">clear</a>
               </mat-chip>
             </mat-chip-list>
-          </div>
+          </div> -->
         </div>
         <div class="info message error" *ngIf="processError">
           <small>{{ errorMessage }}</small>
         </div>
-        <div class="text-center m-top-30 m-bott-10 actions">
+        <div class="text-center m-top-15 m-bott-10 actions">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
           <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
         </div>
-      </mat-tab>
+      <!-- </mat-tab>
 
-    </mat-tab-group>
+    </mat-tab-group> -->
 
   </modal-content>
 </modal-dialog>
