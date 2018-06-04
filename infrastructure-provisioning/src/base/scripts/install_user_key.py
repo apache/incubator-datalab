@@ -28,21 +28,26 @@ import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
-parser.add_argument('--keyfile_admin', type=str, default='')
-parser.add_argument('--keyfile_user', type=str, default='')
+parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--user', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 args = parser.parse_args()
 
 
 def copy_key(config):
-    admin_key_pub = local('ssh-keygen -y -f {}'.format(args.keyfile_admin),
+    admin_key_pub = local('ssh-keygen -y -f {}'.format(args.keyfile),
                           capture=True)
-    key = open('{0}'.format(args.keyfile_user)).read()
     sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
     sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
-    sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
-
+    try:
+        user_key = '{}{}.pub'.format(
+            config.get('user_keydir'),
+            config.get('user_keyname'))
+        print(user_key)
+        key = open('{0}'.format(user_key)).read()
+        sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
+    except:
+        print('No user key')
 
 ##############
 # Run script #
@@ -51,7 +56,7 @@ if __name__ == "__main__":
     print("Configure connections")
     try:
         env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile_admin]
+        env.key_filename = [args.keyfile]
         env.host_string = '{}@{}'.format(args.user, args.hostname)
         deeper_config = json.loads(args.additional_config)
     except:

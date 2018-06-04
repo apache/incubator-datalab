@@ -40,8 +40,8 @@ def reupload_key(instance_id):
         reupload_config['instance_private_ips'] = get_list_private_ip_by_conf_type_and_id(os.environ['conf_resource'], instance_id)
 
     for ip in reupload_config['instance_private_ips']:
-        params = "--user {} --hostname {} --keyfile_admin '{}' --keyfile_user '{}' --additional_config '{}'".format(
-            reupload_config['os_user'], ip, reupload_config['keyfile_admin'], reupload_config['keyfile_user'],
+        params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
+            reupload_config['os_user'], ip, reupload_config['keyfile'],
             json.dumps(reupload_config['additional_config']))
         try:
             # Run script to manage git credentials
@@ -70,9 +70,7 @@ if __name__ == "__main__":
         reupload_config['edge_user_name'] = os.environ['edge_user_name']
 
         reupload_config['tag_name'] = reupload_config['service_base_name'] + '-Tag'
-        reupload_config['keyfile_admin'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        reupload_config['keyfile_user'] = '{}{}.pub'.format(
-            os.environ['conf_key_dir'], os.environ['edge_user_name'])
+        reupload_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         reupload_config['resource_id'] = os.environ['resource_id']
         reupload_config['additional_config'] = {"user_keyname": reupload_config['edge_user_name'],
                                                 "user_keydir": os.environ['conf_key_dir']}
