@@ -101,6 +101,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	public void updateResourceData(ReuploadKeyStatusDTO dto) {
 		String user = dto.getUser();
 		ResourceData resource = dto.getReuploadKeyCallbackDTO().getResource();
+		log.debug("Updating resource {} to status RUNNING...", resource.toString());
 		updateResourceStatus(user, resource, RUNNING);
 		if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
 			log.debug(REUPLOAD_KEY_UPDATE_MSG, resource.toString());
