@@ -72,7 +72,7 @@ if __name__ == "__main__":
         reupload_config['edge_user_name'] = os.environ['edge_user_name']
 
         reupload_config['tag_name'] = reupload_config['service_base_name'] + '-Tag'
-        reupload_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        reupload_config['keyfile'] = '{}{}.*'.format(os.environ['conf_key_dir'], os.environ['edge_user_name'])
         reupload_config['resource_id'] = os.environ['resource_id']
         reupload_config['additional_config'] = {"user_keyname": reupload_config['edge_user_name'],
                                                 "user_keydir": os.environ['conf_key_dir']}
