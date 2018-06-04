@@ -302,7 +302,7 @@ public class ReuploadKeyServiceImplTest {
 		try {
 			reuploadKeyService.reuploadKeyAction(userInfo, resource);
 		} catch (DlabException e) {
-			assertEquals("Couldn't reupload key to edge node for user test:\tCouldn't reupload key to edge",
+			assertEquals("Couldn't reupload key to edge_node for user test:\tCouldn't reupload key to edge",
 					e.getMessage());
 		}
 
@@ -405,7 +405,7 @@ public class ReuploadKeyServiceImplTest {
 		try {
 			reuploadKeyService.reuploadKeyAction(userInfo, resource);
 		} catch (DlabException e) {
-			assertEquals("Couldn't reupload key to computational resource compName affiliated with exploratory " +
+			assertEquals("Couldn't reupload key to computational_resource compName affiliated with exploratory " +
 					"explName for user test:\tCouldn't reupload key to cluster", e.getMessage());
 		}
 
@@ -428,7 +428,7 @@ public class ReuploadKeyServiceImplTest {
 
 	private ReuploadKeyStatusDTO getReuploadKeyStatusDTO(ResourceData resource, ReuploadKeyStatus status) {
 		return new ReuploadKeyStatusDTO().withReuploadKeyCallbackDto(
-				new ReuploadKeyCallbackDTO().withResource(resource)).withStatus(status).withUser(USER);
+				new ReuploadKeyCallbackDTO().withResource(resource)).withReuploadKeyStatus(status).withUser(USER);
 	}
 
 }

@@ -95,6 +95,7 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 				.withEdgeUserName(dto.getEdgeUserName())
 				.withServiceBaseName(dto.getServiceBaseName())
 				.withConfOsFamily(dto.getConfOsFamily())
+				.withResourceId(resource.getResourceId())
 				.withResource(resource);
 	}
 
@@ -103,7 +104,7 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 				.withEdgeUserName(dto.getEdgeUserName())
 				.withServiceBaseName(dto.getServiceBaseName())
 				.withConfOsFamily(dto.getConfOsFamily())
-				.withResourceId(dto.getResource().getResourceId());
+				.withResourceId(dto.getResourceId());
 	}
 
 }

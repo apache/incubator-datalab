@@ -83,7 +83,7 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 		return new ReuploadKeyStatusDTO()
 				.withRequestId(uuid)
 				.withReuploadKeyCallbackDto(dto)
-				.withStatus(status)
+				.withReuploadKeyStatus(status)
 				.withUser(user);
 	}
 
