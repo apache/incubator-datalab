@@ -84,7 +84,7 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
 				.withResource(callbackDto.getResource().getResourceType().toString())
 				.withRequestId(callbackDto.getId())
-				.withConfKeyName(callbackDto.getEdgeUserName())
+				.withConfKeyName(configuration.getAdminKey())
 				.withImage(configuration.getEdgeImage())
 				.withAction(action);
 	}
