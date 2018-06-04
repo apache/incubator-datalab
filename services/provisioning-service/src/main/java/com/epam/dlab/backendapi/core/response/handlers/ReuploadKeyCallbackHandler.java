@@ -63,7 +63,7 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	}
 
 	private void selfServicePost(ReuploadKeyStatusDTO statusDTO) {
-		log.debug("Send post request to self service {} for UUID {}, object is {}", uuid, statusDTO);
+		log.debug("Send post request to self service for UUID {}, object is {}", uuid, statusDTO);
 		try {
 			selfService.post(callbackUrl, statusDTO, Response.class);
 		} catch (Exception e) {
