@@ -805,3 +805,29 @@ def node_count(cluster_name):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
+def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
+    try:
+        private_list_ip = []
+        if conf_type == 'edge_node':
+                private_list_ip.append(
+                    get_instance_ip_address_by_id(
+                        instance_id).get('Private'))
+        elif conf_type == 'exploratory':
+            private_list_ip.append(
+                get_instance_ip_address('Name', instance_id).get('Private'))
+        elif conf_type == 'computational_resource':
+            group_tag_name = os.environ['conf_service_base_name'] + ':' + instance_id
+            print(group_tag_name)
+            id_list = get_ec2_list('user:tag', group_tag_name)
+            for id in id_list:
+                private_list_ip.append(
+                    get_instance_ip_address_by_id(id).get('Private'))
+        return private_list_ip
+    except Exception as err:
+        logging.error("Error getting private ip by conf_type and id: " + str(err) + "\n Traceback: " +
+                      traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error getting private ip by conf_type and id",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+

@@ -47,22 +47,17 @@ if __name__ == "__main__":
             reply['error_message'] = 'Failed to open result.json'
 
 
-    if os.environ['conf_resource'] == 'ssn':
-        log = "/response/{}.log".format(os.environ['request_id'])
 
-        with open("/response/{}.json".format(os.environ['request_id']), 'w') as response_file:
-            response_file.write(json.dumps(reply))
-            print(json.dumps(reply))
-    else:
-        log = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
-                                                                              os.environ['edge_user_name'],
-                                                                              os.environ['request_id'])
-
+    log = "/var/log/dlab/edge/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+                                                                          os.environ['edge_user_name'],
+                                                                          os.environ['request_id'])
+    try:
         with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                    os.environ['request_id']), 'w') as response_file:
             response_file.write(json.dumps(reply))
-            #print(json.dumps(reply))
-
+            print(json.dumps(reply))
+    except:
+        print('Can not write to responce')
     try:
         local('chmod 666 /response/*')
     except:
