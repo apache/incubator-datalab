@@ -106,7 +106,6 @@ public class ReuploadKeyServiceImplTest {
 		String expectedUuid = "someUuid";
 		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any()))
 				.thenReturn(expectedUuid);
-		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 
 		String keyContent = "keyContent";
 		String actualUuid = reuploadKeyService.reuploadKey(userInfo, keyContent);
@@ -125,9 +124,9 @@ public class ReuploadKeyServiceImplTest {
 						DataEngineType.CLOUD_SERVICE), RUNNING);
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
 		verify(provisioningService).post("/reupload_key", TOKEN, reuploadFile, String.class);
-		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(userResourceService, exploratoryService, keyDAO, exploratoryDAO, computationalDAO,
-				requestBuilder, provisioningService, requestId);
+				requestBuilder, provisioningService);
+		verifyZeroInteractions(requestId);
 	}
 
 	@Test
@@ -151,7 +150,6 @@ public class ReuploadKeyServiceImplTest {
 		String expectedUuid = "someUuid";
 		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any()))
 				.thenReturn(expectedUuid);
-		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
 
 		String keyContent = "keyContent";
 		String actualUuid = reuploadKeyService.reuploadKey(userInfo, keyContent);
@@ -169,9 +167,9 @@ public class ReuploadKeyServiceImplTest {
 						DataEngineType.CLOUD_SERVICE), RUNNING);
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
 		verify(provisioningService).post("/reupload_key", TOKEN, reuploadFile, String.class);
-		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(userResourceService, exploratoryService, keyDAO, exploratoryDAO, computationalDAO,
-				requestBuilder, provisioningService, requestId);
+				requestBuilder, provisioningService);
+		verifyZeroInteractions(requestId);
 	}
 
 	@Test
