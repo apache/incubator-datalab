@@ -230,7 +230,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.changeDetector.markForCheck();
         this.isInstallingInProgress(this.notebookLibs);
 
-        if (init && !this.notebookLibs.length) this.tabGroup.selectedIndex = 1;
+        // if (init && !this.notebookLibs.length) this.tabGroup.selectedIndex = 1;
       });
   }
 
@@ -281,7 +281,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.destination = null;
     this.groupsList = [];
 
-    if (!nActive) this.tabGroup.selectedIndex = 0;
+    // if (!nActive) this.tabGroup.selectedIndex = 0;
     clearTimeout(this.clear);
     clearInterval(this.clearCheckInstalling);
     this.clearCheckInstalling = undefined;
