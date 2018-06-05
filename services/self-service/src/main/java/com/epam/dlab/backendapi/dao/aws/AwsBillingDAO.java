@@ -195,7 +195,7 @@ public class AwsBillingDAO extends BillingDAO {
 		final String ssnShape = "t2.medium";
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
 			String serviceBaseName = settings.getServiceBaseName();
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape, null));
+			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
 			FindIterable<Document> docs = getCollection(USER_EDGE)
 					.find()
 					.projection(fields(include(ID, EDGE_STATUS)));
