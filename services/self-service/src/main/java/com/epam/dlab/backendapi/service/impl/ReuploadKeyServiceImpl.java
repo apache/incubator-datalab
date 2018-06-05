@@ -92,9 +92,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 
 		ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
 				resourcesForKeyReuploading);
-		String uuid = provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), reuploadKeyDTO, String.class);
-		requestId.put(user.getName(), uuid);
-		return uuid;
+		return provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), reuploadKeyDTO, String.class);
 	}
 
 	@Override
