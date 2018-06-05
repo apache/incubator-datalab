@@ -819,10 +819,10 @@ def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
         elif conf_type == 'computational_resource':
             group_tag_name = os.environ['conf_service_base_name'] + ':' + instance_id
             print(group_tag_name)
-            id_list = get_ec2_list('user:tag', group_tag_name)
-            for id in id_list:
+            instance_list = get_ec2_list('user:tag', group_tag_name)
+            for instance in instance_list:
                 private_list_ip.append(
-                    get_instance_ip_address_by_id(id).get('Private'))
+                    get_instance_ip_address_by_id(instance.id).get('Private'))
         return private_list_ip
     except Exception as err:
         logging.error("Error getting private ip by conf_type and id: " + str(err) + "\n Traceback: " +
