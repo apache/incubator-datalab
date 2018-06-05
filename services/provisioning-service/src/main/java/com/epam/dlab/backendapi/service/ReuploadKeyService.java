@@ -28,6 +28,8 @@ import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @Slf4j
 @Singleton
 public class ReuploadKeyService extends DockerService implements DockerCommands {
@@ -78,7 +80,7 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 	private RunDockerCommand buildRunDockerCommand(ReuploadKeyCallbackDTO callbackDto, DockerAction action) {
 		return new RunDockerCommand()
 				.withInteractive()
-				.withName(nameContainer(callbackDto.getEdgeUserName(), REUPLOAD_KEY_ACTION))
+				.withName(getContainerName(callbackDto.getEdgeUserName(), REUPLOAD_KEY_ACTION))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
 				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
@@ -105,6 +107,10 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 				.withServiceBaseName(dto.getServiceBaseName())
 				.withConfOsFamily(dto.getConfOsFamily())
 				.withResourceId(dto.getResourceId());
+	}
+
+	private String getContainerName(String... names) {
+		return String.join("_", names) + "_" + UUID.randomUUID().toString();
 	}
 
 }
