@@ -64,7 +64,7 @@ limitations under the License.
 
   <ng-template [ngIf]="reportData">
     <tr *ngFor="let line of reportData">
-      <td *ngIf="full_report">{{ line.user }}</td>
+      <td class="user-field" *ngIf="full_report">{{ line.user }}</td>
       <td class="env_name">{{ line[DICTIONARY.billing.dlabId] }}</td>
       <td>{{ line[DICTIONARY.billing.resourceType] }}</td>
       <td>
