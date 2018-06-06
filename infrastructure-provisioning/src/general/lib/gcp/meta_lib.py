@@ -590,7 +590,7 @@ class GCPMeta:
                 instance_id))
             elif conf_type == 'computational_resource':
                 instance_list = GCPMeta().get_list_instances(
-                    os.environ['gcp_region'])
+                    os.environ['gcp_zone'])
                 for instance in instance_list.get('items'):
                     if instance.get('labels') != None:
                         if instance.get('labels').get('name') == instance_id:
