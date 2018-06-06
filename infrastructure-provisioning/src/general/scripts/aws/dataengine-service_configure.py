@@ -135,7 +135,6 @@ if __name__ == "__main__":
     emr_conf['edge_instance_hostname'] = get_instance_private_ip_address(emr_conf['tag_name'],
                                                                          emr_conf['edge_instance_name'])
     emr_conf['os_user'] = 'ec2-user'
-
     try:
         jobs = []
         for instance in emr_conf['cluster_instances']:
