@@ -84,9 +84,7 @@ public class AwsBillingDAO extends BillingDAO {
 		List<Bson> conditions = new ArrayList<>();
 		boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing");
 		if (isFullReport) {
-			if (filter.getUser() != null) {
-				filter.getUser().replaceAll(String::toLowerCase);
-			}
+			usersToLowerCase(filter.getUser());
 		} else {
 			filter.setUser(Lists.newArrayList(userInfo.getName().toLowerCase()));
 		}
@@ -132,13 +130,14 @@ public class AwsBillingDAO extends BillingDAO {
 			Document id = (Document) d.get(ID);
 			String resourceId = id.getString(FIELD_DLAB_ID);
 			ShapeInfo shape = shapes.get(resourceId);
-			if (filterByShape && shape == null) {
+			final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
+			if ((filterByShape && shape == null) || (!filter.getStatuses().isEmpty() && filter.getStatuses().stream()
+					.noneMatch(s -> s.equals(status)))) {
 				continue;
 			}
 
 			String resourceTypeId = DlabResourceType.getResourceTypeName(id.getString(DLAB_RESOURCE_TYPE));
 			String shapeName = generateShapeName(shape);
-			final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
 			String dateStart = d.getString(USAGE_DATE_START);
 			if (StringUtils.compare(usageDateStart, dateStart, false) > 0) {
 				usageDateStart = dateStart;
@@ -177,6 +176,12 @@ public class AwsBillingDAO extends BillingDAO {
 				.append(FULL_REPORT, isFullReport);
 	}
 
+	private void usersToLowerCase(List<String> users) {
+		if (users != null) {
+			users.replaceAll(String::toLowerCase);
+		}
+	}
+
 	private void addAnotherConditionsIfNecessary(List<Bson> conditions, AwsBillingFilter filter) {
 		if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
 			conditions.add(regex(FIELD_DLAB_ID, filter.getDlabId(), "i"));
@@ -195,7 +200,7 @@ public class AwsBillingDAO extends BillingDAO {
 		final String ssnShape = "t2.medium";
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
 			String serviceBaseName = settings.getServiceBaseName();
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape, null));
+			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
 			FindIterable<Document> docs = getCollection(USER_EDGE)
 					.find()
 					.projection(fields(include(ID, EDGE_STATUS)));
