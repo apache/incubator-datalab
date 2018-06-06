@@ -78,7 +78,7 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 	private RunDockerCommand buildRunDockerCommand(ReuploadKeyCallbackDTO callbackDto, DockerAction action) {
 		return new RunDockerCommand()
 				.withInteractive()
-				.withName(nameContainer(callbackDto.getEdgeUserName(), REUPLOAD_KEY_ACTION))
+				.withName(getContainerName(callbackDto))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
 				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
@@ -105,6 +105,12 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 				.withServiceBaseName(dto.getServiceBaseName())
 				.withConfOsFamily(dto.getConfOsFamily())
 				.withResourceId(dto.getResourceId());
+	}
+
+	private String getContainerName(ReuploadKeyCallbackDTO callbackDto) {
+		return nameContainer(callbackDto.getEdgeUserName(), REUPLOAD_KEY_ACTION,
+				callbackDto.getResource().getResourceType().toString(),
+				callbackDto.getResource().getResourceId());
 	}
 
 }

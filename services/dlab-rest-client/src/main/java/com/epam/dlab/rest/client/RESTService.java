@@ -81,7 +81,9 @@ public class RESTService {
 
 	private Invocation.Builder getBuilder(String path, String token, Map<String, Object> queryParams) {
 		WebTarget webTarget = getWebTarget(path);
-		queryParams.forEach(webTarget::queryParam);
+		for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
+			webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
+		}
 
 		Invocation.Builder builder = webTarget
                 .request(MediaType.APPLICATION_JSON)

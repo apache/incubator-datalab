@@ -198,7 +198,7 @@ public class AzureBillingDAO extends BillingDAO {
 
 		final String ssnSize = settings.getAzureSsnInstanceSize();
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnSize)) {
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnSize, null));
+			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnSize, UserInstanceStatus.RUNNING));
 		}
 
 
