@@ -175,6 +175,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	/**
 	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.
+	 * All these clusters will obtain data which is equal to exploratory's except 'stopping' operation (it will be
+	 * performed automatically with notebook stopping since Spark clusters have such feature).
 	 *
 	 * @param user            user's name
 	 * @param exploratoryName name of exploratory resource
@@ -184,13 +186,15 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		List<String> correspondingSparkClusters = computationalDAO.getComputationalResourcesWhereStatusIn(user,
 				Collections.singletonList(DataEngineType.SPARK_STANDALONE), exploratoryName,
 				STARTING, RUNNING, STOPPING, STOPPED);
+		SchedulerJobDTO dtoWithoutStopData = getSchedulerJobWithoutStopData(dto);
 		for (String sparkName : correspondingSparkClusters) {
 			log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new " +
-					"scheduler job data {}...", sparkName, exploratoryName, user, nullableJobDto(dto));
+					"scheduler job data {}...", sparkName, exploratoryName, user, nullableJobDto(dtoWithoutStopData));
 			computationalDAO.updateSchedulerDataForComputationalResource(user, exploratoryName, sparkName,
-					nullableJobDto(dto));
+					nullableJobDto(dtoWithoutStopData));
 		}
 	}
+
 
 	/**
 	 * Pulls out scheduler jobs data to achieve target exploratory ('isAppliedForClusters' equals 'false') or
@@ -413,6 +417,18 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		} else if (desiredStatus == TERMINATED) {
 			return dto.getTerminateDateTime().toLocalTime();
 		} else return null;
+	}
+
+	private SchedulerJobDTO getSchedulerJobWithoutStopData(SchedulerJobDTO dto) {
+		SchedulerJobDTO convertedDto = new SchedulerJobDTO();
+		convertedDto.setBeginDate(dto.getBeginDate());
+		convertedDto.setFinishDate(dto.getFinishDate());
+		convertedDto.setStartTime(dto.getStartTime());
+		convertedDto.setStartDaysRepeat(dto.getStartDaysRepeat());
+		convertedDto.setTerminateDateTime(dto.getTerminateDateTime());
+		convertedDto.setTimeZoneOffset(dto.getTimeZoneOffset());
+		convertedDto.setSyncStartRequired(dto.isSyncStartRequired());
+		return convertedDto;
 	}
 
 	private SchedulerJobDTO nullableJobDto(SchedulerJobDTO dto) {

@@ -276,6 +276,8 @@ public class SchedulerJobServiceImplTest {
 		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
 				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, STARTING, RUNNING, STOPPING, STOPPED);
+		schedulerJobDTO.setEndTime(null);
+		schedulerJobDTO.setStopDaysRepeat(Collections.emptyList());
 		verify(computationalDAO).updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
 				COMPUTATIONAL_NAME, schedulerJobDTO);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
