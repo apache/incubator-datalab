@@ -74,7 +74,6 @@ if __name__ == "__main__":
         reupload_config['resource_id'] = os.environ['resource_id']
         reupload_config['additional_config'] = {"user_keyname": reupload_config['edge_user_name'],
                                                 "user_keydir": os.environ['conf_key_dir']}
-        #if os.environ['conf_cloud_provider'] == 'aws':
         try:
             reupload_key(reupload_config['resource_id'])
         except Exception as err:
