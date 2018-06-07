@@ -62,9 +62,9 @@ export class HealthStatusGridComponent implements OnInit {
           .recreateEdgeNode()
           .subscribe(() => this.buildGrid());
       }
-  }
+    }
 
-  showReuploaKeydDialog() {
-    this.keyReuploadDialog.open({ isFooter: false });
-  }
+    showReuploaKeydDialog() {
+      this.keyReuploadDialog.open({ isFooter: false });
+    }
 }

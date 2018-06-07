@@ -46,7 +46,7 @@ public class ReuploadKeyCallback {
 	@POST
 	@Path("/callback")
 	public Response reuploadKeyResponse(ReuploadKeyStatusDTO dto) {
-		requestId.checkAndRemove(dto.getRequestId());
+		requestId.remove(dto.getRequestId());
 		reuploadKeyService.updateResourceData(dto);
 		return Response.ok(uriInfo.getRequestUri()).build();
 	}

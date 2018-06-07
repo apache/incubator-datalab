@@ -50,10 +50,10 @@ limitations under the License.
             <i class="material-icons">refresh</i>
             <span>Recreate</span>
           </li>
-          <!-- <li *ngIf="!envInProgress" (click)="showReuploaKeydDialog()">
+          <li *ngIf="!envInProgress" (click)="showReuploaKeydDialog()">
             <i class="material-icons">sync_problem</i>
             <span>Reupload key</span>
-          </li> -->
+          </li>
         </ul>
       </bubble-up>
     </td>
@@ -62,4 +62,4 @@ limitations under the License.
 
 <confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
 
-<key-upload-dialog #keyReuploadDialog (generateUserKey)="generateUserKey($event)" [primaryUploading]="false"></key-upload-dialog>
+<key-upload-dialog #keyReuploadDialog [primaryUploading]="false" (checkInfrastructureCreationProgress)="buildGrid($event)"></key-upload-dialog>

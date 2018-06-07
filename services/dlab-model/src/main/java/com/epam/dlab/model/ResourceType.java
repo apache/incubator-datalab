@@ -17,8 +17,8 @@
 package com.epam.dlab.model;
 
 public enum ResourceType {
-	COMPUTATIONAL("computational resource"),
-	EDGE("edge node"),
+	COMPUTATIONAL("computational_resource"),
+	EDGE("edge_node"),
 	EXPLORATORY("exploratory");
 
 	private String name;

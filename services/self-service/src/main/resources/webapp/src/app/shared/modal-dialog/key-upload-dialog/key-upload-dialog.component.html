@@ -37,7 +37,7 @@ limitations under the License.
           <div class="col txt-r">
             <span mat-raised-button class="butt butt-file">
               <span class="upload-icon"></span> Upload
-              <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />
+              <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub,.pem" />
             </span>
 
             <button *ngIf="primaryUploading" mat-raised-button type="button" class="butt butt-generate" (click)="generateUserAccessKey_btnClick($event)">
