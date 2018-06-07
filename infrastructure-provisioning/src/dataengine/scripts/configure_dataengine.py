@@ -122,7 +122,7 @@ if __name__ == "__main__":
         ensure_scala(scala_link, args.scala_version, args.os_user)
     if (os.environ['application'] in ('jupyter', 'zeppelin')
         and os.environ['notebook_r_enabled'] == 'true') \
-            or os.environ['application'] == 'rstudio':
+            or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, '')
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
-    if os.environ['application'] in ('tensor', 'deeplearning'):
+    if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         print("Installing TensorFlow")
         install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
         print("Install Theano")
