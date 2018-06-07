@@ -91,6 +91,11 @@ limitations under the License.
             <version>${project.parent.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-mongo-migration</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.hamcrest</groupId>

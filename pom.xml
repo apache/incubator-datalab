@@ -61,6 +61,7 @@ limitations under the License.
         <module>services/dlab-model</module>
         <module>services/dlab-utils</module>
         <module>services/dlab-webapp-common</module>
+        <module>services/dlab-mongo-migration</module>
     </modules>
 
     <properties>
