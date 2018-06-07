@@ -16,11 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-.dashboard_table.reporting {
-  margin-bottom: 50px;
-  zoom: 0.85;
-}
-
 @-moz-document url-prefix() {
   .dashboard_table.reporting {
     transform: scale(0.85);
@@ -28,49 +23,65 @@ limitations under the License.
     width: 118% !important;
   }
 }
-.dashboard_table.reporting tr th {
-  font-size: 12px;
-}
-.reporting .filter-row .filter-field,
-.reporting .dropdown-multiselect button {
-  font-size: 14px;
-}
-.dashboard_table.reporting .th_shape {
-  width: 10%;
-}
-.env_name,
-.service {
-  width: 16%;
-  overflow: hidden;
-  word-wrap: break-word;
-}
-.th_user {
-  width: 15%;
-}
-.th_type {
-  width: 8%;
-}
-.th_rstatus {
-  width: 8%;
-}
-.th_charges {
-  width: 8%;
+
+.dashboard_table.reporting {
+  margin-bottom: 50px;
+  zoom: 0.85;
+  tr {
+    th {
+      font-size: 12px;
+    }
+    td {
+      font-size: 16px; 
+    }
+    &.filter-row {
+      .filter-field {
+        font-size: 14px;
+      }
+    }
+  }
+  .dropdown-multiselect {
+    button {
+      @extend .filter-field;
+    }
+  }
+  .th_shape {
+    width: 10%;
+  }
+  .th_user,
+  .env_name,
+  .service {
+    width: 15%;
+    overflow: hidden;
+    word-wrap: break-word;
+  }
+  .th_type {
+    width: 8%;
+  }
+  .th_rstatus {
+    width: 8%;
+  }
+  .th_charges {
+    width: 8%;
+  }
 }
 
 @media screen and (max-width: 1280px) {
-  .env_name,
-  .service,
-  .th_type,
-  .th_rstatus {
-    width: 10%;
-  }
-  .th_user {
-    width: 12%;
-  }
-  .th_charges {
-    width: 6%;
-  }
-  .user-field {
-    word-wrap: break-word;
+  .dashboard_table.reporting {
+    .env_name,
+    .service,
+    .th_type,
+    .th_rstatus {
+      width: 10%;
+    }
+    .th_user {
+      width: 12%;
+    }
+    .th_charges {
+      width: 6%;
+    }
+    .user-field {
+      word-wrap: break-word;
+    }
   }
 }
