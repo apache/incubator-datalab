@@ -56,7 +56,7 @@ limitations under the License.
 
 
           <div class="control-group search">
-            <div class="chip-list">
+            <!-- <div class="chip-list">
               <mat-form-field>
                 <mat-chip-list #chipList>
                   <mat-chip
@@ -77,9 +77,35 @@ limitations under the License.
                   />
                 </mat-chip-list>
               </mat-form-field>
-            </div>
+            </div> -->
 
-            <div class="list-container" id="scrolling">
+            <mat-form-field class="chip-list">
+                <input type="text" placeholder="Enter library name" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
+                <mat-icon matSuffix>search</mat-icon>
+                <mat-autocomplete #auto="matAutocomplete">
+                  <mat-option *ngFor="let item of (filteredList | keys)">
+                    <!-- {{ item }} -->
+                    <div>
+                      <a *ngIf="!isDuplicated(item)" (click)="selectLibrary(item)">{{ item.key }}
+                        <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                      </a>
+                      <span *ngIf="isInSelectedList || isInstalled" class="not-allowed">{{ item.key }}
+                        <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                      </span>
+
+                      <strong *ngIf="isInSelectedList">selected
+                        <i class="material-icons">done</i>
+                      </strong>
+                      <strong *ngIf="isInstalled">installed
+                        <i class="material-icons">done</i>
+                      </strong>
+                    </div>
+                    <div *ngIf="model.isEmpty(filteredList)">No matches found</div>
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+
+            <!-- <div class="list-container" id="scrolling">
               <ul class="suggestions">
                 <li *ngFor="let item of (filteredList | keys)">
                   <a *ngIf="!isDuplicated(item)" (click)="selectLibrary(item)">{{ item.key }}
@@ -98,7 +124,7 @@ limitations under the License.
                 </li>
                 <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
               </ul>
-            </div>
+            </div> -->
 
           </div>
           <div class="text-center m-top-15 m-bott-10 actions">

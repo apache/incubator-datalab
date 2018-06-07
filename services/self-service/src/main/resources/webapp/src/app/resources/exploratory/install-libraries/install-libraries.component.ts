@@ -82,7 +82,8 @@ export class InstallLibrariesComponent implements OnInit {
     this.libSearch.valueChanges
       .debounceTime(1000)
       .subscribe(newValue => {
-        this.query = newValue;
+        this.query = newValue || '';
+        debugger;
         this.filterList();
       });
     this.bindDialog.onClosing = () => {
