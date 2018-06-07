@@ -28,29 +28,6 @@ from dlab.actions_lib import *
 from fabric.api import *
 import multiprocessing
 
-
-def reupload_key(instance_id):
-    if os.environ['conf_cloud_provider'] == 'azure':
-        reupload_config['instance_private_ips'] = AzureMeta().get_list_private_ip_by_conf_type_and_id(os.environ['conf_resource'], instance_id)
-    elif os.environ['conf_cloud_provider'] == 'gcp':
-        reupload_config[
-            'instance_private_ips'] = GCPMeta().get_list_private_ip_by_conf_type_and_id(
-            os.environ['conf_resource'], instance_id)
-    else:
-        reupload_config['instance_private_ips'] = get_list_private_ip_by_conf_type_and_id(os.environ['conf_resource'], instance_id)
-
-    for ip in reupload_config['instance_private_ips']:
-        params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
-            reupload_config['os_user'], ip, reupload_config['keyfile'],
-            json.dumps(reupload_config['additional_config']))
-        try:
-            # Run script to manage git credentials
-            local("~/scripts/{}.py {}".format('install_user_key', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-
-
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
@@ -66,16 +43,19 @@ if __name__ == "__main__":
         print('[REUPLOADING USER SSH KEY]')
         reupload_config = dict()
         reupload_config['os_user'] = os.environ['conf_os_user']
-        reupload_config['service_base_name'] = os.environ['conf_service_base_name']
         reupload_config['edge_user_name'] = os.environ['edge_user_name']
-
-        reupload_config['tag_name'] = reupload_config['service_base_name'] + '-Tag'
         reupload_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         reupload_config['resource_id'] = os.environ['resource_id']
         reupload_config['additional_config'] = {"user_keyname": reupload_config['edge_user_name'],
                                                 "user_keydir": os.environ['conf_key_dir']}
+        print(reupload_config)
         try:
-            reupload_key(reupload_config['resource_id'])
+            params = "--conf_resource {} --instance_id {} --os_user '{}'" \
+                     " --keyfile '{}' --additional_config '{}'".format(
+                os.environ['conf_resource'], reupload_config['resource_id'],
+                reupload_config['os_user'],  reupload_config['keyfile'],
+                json.dumps(reupload_config['additional_config']))
+            local("~/scripts/{}.py {}".format('common_reupload_key', params))
         except Exception as err:
             traceback.print_exc()
             raise Exception
