@@ -23,7 +23,7 @@ import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dic
 @Component({
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
-  styleUrls: ['./reporting-grid.component.css',
+  styleUrls: ['./reporting-grid.component.scss',
               '../../resources/resources-grid/resources-grid.component.css']
 })
 export class ReportingGridComponent implements OnInit {
