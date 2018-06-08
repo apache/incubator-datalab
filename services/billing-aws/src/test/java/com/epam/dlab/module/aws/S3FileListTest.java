@@ -91,7 +91,7 @@ public class S3FileListTest {
 
 		);
 		when(result.getObjectSummaries()).thenReturn(objectSummaries);
-		final List<String> files = new S3FileList(false, null, moduleData).lastFilesPerBillingPeriod(result
+		final List<String> files = new S3FileList(true, null, moduleData).lastFilesPerBillingPeriod(result
 				.getObjectSummaries());
 
 		assertEquals(4, files.size());
