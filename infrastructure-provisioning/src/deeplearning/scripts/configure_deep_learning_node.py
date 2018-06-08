@@ -49,6 +49,7 @@ hadoop_version = args.hadoop_version
 nvidia_version = os.environ['notebook_nvidia_version']
 caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
+cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 keras_version = os.environ['notebook_keras_version']
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     print("Installing Caffe")
     install_caffe(args.os_user, args.region, caffe_version)
     print("Installing Caffe2")
-    install_caffe2(args.os_user, caffe2_version)
+    install_caffe2(args.os_user, caffe2_version, cmake_version)
     print("Installing Torch")
     install_torch(args.os_user)
     print("Install CNTK Python library")

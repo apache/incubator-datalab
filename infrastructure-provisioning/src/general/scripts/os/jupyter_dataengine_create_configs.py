@@ -124,7 +124,7 @@ def pyspark_kernel(args):
         f.write(text)
     local('touch /tmp/kernel_var.json')
     local(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/kernel_var.json".
         format(args.cluster_name, kernel_path, args.os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
@@ -144,7 +144,7 @@ def pyspark_kernel(args):
         f.write(text)
     local('touch /tmp/kernel_var.json')
     local(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/kernel_var.json".
         format(args.cluster_name, kernel_path, args.os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
