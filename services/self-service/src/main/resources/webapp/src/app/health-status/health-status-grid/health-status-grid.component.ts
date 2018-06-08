@@ -33,7 +33,8 @@ import { FileUtils } from '../../core/util';
 export class HealthStatusGridComponent implements OnInit {
 
    @Input() environmentsHealthStatuses: Array<EnvironmentStatusModel>;
-   @Input() envInProgress: boolean;
+   @Input() anyEnvInProgress: boolean;
+   @Input() notebookInProgress: boolean;
    @Input() uploadKey: boolean;
    @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
 

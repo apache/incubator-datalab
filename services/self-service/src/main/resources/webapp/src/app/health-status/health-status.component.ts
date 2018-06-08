@@ -32,7 +32,8 @@ export class HealthStatusComponent implements OnInit {
   healthStatus: string;
   billingEnabled: boolean;
   isAdmin: boolean;
-  envInProgress: boolean = false;
+  anyEnvInProgress: boolean = false;
+  notebookInProgress: boolean = false;
   usersList: Array<string> = [];
   uploadKey: boolean = true;
 
@@ -143,11 +144,19 @@ export class HealthStatusComponent implements OnInit {
   getExploratoryList() {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
-        this.envInProgress = this.isEnvironmentsInProgress(result);
+        this.anyEnvInProgress = this.isEnvironmentsInProgress(result);
+        this.notebookInProgress = this.isNotebookInProgress(result);
       });
   }
 
   isEnvironmentsInProgress(data): boolean {
+    return data.exploratory.some(el => {
+      return el.status === 'creating' || el.status === 'starting' || 
+        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring')
+    });
+  }
+
+  isNotebookInProgress(data): boolean {
     return data.exploratory.some(el => el.status === 'creating');
   }
 

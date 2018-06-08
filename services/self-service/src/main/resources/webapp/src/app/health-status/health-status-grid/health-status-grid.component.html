@@ -32,7 +32,7 @@ limitations under the License.
             [ngClass]="{'disabled': env.status.toLowerCase() !== 'running'
             && env.status.toLowerCase() !== 'stopped'
             && env.status.toLowerCase() !== 'terminated'
-            || envInProgress
+            || notebookInProgress
             || !uploadKey }">
       </span>
 
@@ -50,7 +50,7 @@ limitations under the License.
             <i class="material-icons">refresh</i>
             <span>Recreate</span>
           </li>
-          <li *ngIf="!envInProgress" (click)="showReuploaKeydDialog()">
+          <li *ngIf="!anyEnvInProgress" (click)="showReuploaKeydDialog()">
             <i class="material-icons">sync_problem</i>
             <span>Reupload key</span>
           </li>
