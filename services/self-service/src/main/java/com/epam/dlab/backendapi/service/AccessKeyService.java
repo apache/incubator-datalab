@@ -27,6 +27,6 @@ public interface AccessKeyService {
 
 	String recoverEdge(UserInfo userInfo);
 
-	String generateKey(UserInfo userInfo);
+	String generateKey(UserInfo userInfo, boolean createEdge);
 
 }

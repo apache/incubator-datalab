@@ -109,7 +109,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	@Override
-	public String generateKey(UserInfo userInfo) {
+	public String generateKey(UserInfo userInfo, boolean createEdge) {
 		log.debug("Generating new key pair for user {}", userInfo.getName());
 		try (ByteArrayOutputStream publicKeyOut = new ByteArrayOutputStream();
 			 ByteArrayOutputStream privateKeyOut = new ByteArrayOutputStream()) {

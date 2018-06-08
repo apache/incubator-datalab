@@ -72,17 +72,16 @@ public class KeyUploaderResource implements EdgeAPI {
 	 * and edge creating for user. Else if this param equals 'false', then only replacing keys in the database
 	 * will be performed (user's key will be reuploaded).
 	 *
-	 * @param userInfo            user info.
-	 * @param fileContent content of the user key.
-	 * @param isPrimaryUploading  true if key is being primarily uploaded, false - in case of reuploading
-	 *
+	 * @param userInfo           user info.
+	 * @param fileContent        content of the user key.
+	 * @param isPrimaryUploading true if key is being primarily uploaded, false - in case of reuploading
 	 * @return 200 Ok
 	 */
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response loadKey(@Auth UserInfo userInfo,
 							@FormDataParam("file") String fileContent,
-							@DefaultValue("true") @QueryParam("is_primary_uploading") boolean isPrimaryUploading) {
+							@QueryParam("is_primary_uploading") @DefaultValue("true") boolean isPrimaryUploading) {
 
 		validate(fileContent);
 		keyService.uploadKey(userInfo, fileContent, isPrimaryUploading);
@@ -105,8 +104,9 @@ public class KeyUploaderResource implements EdgeAPI {
 	@POST
 	@Path("/generate")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response generate(@Auth UserInfo userInfo) {
-		final Response.ResponseBuilder builder = Response.ok(keyService.generateKey(userInfo));
+	public Response generate(@Auth UserInfo userInfo,
+							 @QueryParam("is_primary_uploading") @DefaultValue("true") boolean isPrimaryUploading) {
+		final Response.ResponseBuilder builder = Response.ok(keyService.generateKey(userInfo, isPrimaryUploading));
 		builder.header(HttpHeaders.CONTENT_DISPOSITION, String.format(FILE_ATTACHMENT_FORMAT, userInfo.getName()));
 		return builder.build();
 	}
