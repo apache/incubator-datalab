@@ -272,7 +272,7 @@ public class AccessKeyServiceImplTest {
 		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).thenReturn(someUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(someUuid);
 
-		String actualPrivateKey = accessKeyService.generateKey(userInfo);
+		String actualPrivateKey = accessKeyService.generateKey(userInfo, true);
 		assertTrue(StringUtils.isNotEmpty(actualPrivateKey));
 
 		verify(keyDAO).upsertKey(eq(USER), anyString(), eq(true));
@@ -290,7 +290,7 @@ public class AccessKeyServiceImplTest {
 		doNothing().when(keyDAO).deleteKey(anyString());
 
 		try {
-			accessKeyService.generateKey(userInfo);
+			accessKeyService.generateKey(userInfo, true);
 		} catch (DlabException e) {
 			assertEquals("Could not upload the key and create EDGE node: ", e.getMessage());
 		}
