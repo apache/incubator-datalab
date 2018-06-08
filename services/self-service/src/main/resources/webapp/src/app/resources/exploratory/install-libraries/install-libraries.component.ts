@@ -159,6 +159,8 @@ export class InstallLibrariesComponent implements OnInit {
     this.model.selectedLibs.push({group: this.group, name: item.key, version: item.value});
 
     this.query = '';
+    this.libSearch.setValue('');
+
     this.filteredList = null;
   }
 
