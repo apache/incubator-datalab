@@ -88,13 +88,14 @@ export const NAMING_CONVENTION = {
 export class ReportingConfigModel {
 
   static getDefault(): ReportingConfigModel {
-      return new ReportingConfigModel([], [], [], [], '', '', '');
+      return new ReportingConfigModel([], [], [], [], [], '', '', '');
   }
 
   constructor(
       public user: Array<string>,
       public product: Array<string>,
       public resource_type: Array<string>,
+      public status: Array<string>,
       public shape: Array<string>,
       public date_start: string,
       public date_end: string,
@@ -105,6 +106,7 @@ export class ReportingConfigModel {
       this.user = [];
       this.product = [];
       this.resource_type = [];
+      this.status = [];
       this.shape = [];
       this.date_start = '';
       this.date_end = '';

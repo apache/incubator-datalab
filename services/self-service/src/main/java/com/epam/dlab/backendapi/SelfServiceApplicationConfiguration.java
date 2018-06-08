@@ -91,10 +91,13 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private boolean gcpOuauth2AuthenticationEnabled;
 	@JsonProperty
 	private long maxSessionDurabilityMilliseconds;
+	@JsonProperty
+	private boolean mongoMigrationEnabled;
 
 	public long getMaxSessionDurabilityMilliseconds() {
 		return maxSessionDurabilityMilliseconds;
 	}
+
 	@JsonProperty
 	private int privateKeySize = 2048;
 
@@ -191,5 +194,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isAzureUseLdap() {
 		return azureUseLdap;
+	}
+
+	public boolean isMongoMigrationEnabled() {
+		return mongoMigrationEnabled;
 	}
 }

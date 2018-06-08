@@ -26,6 +26,8 @@ import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.migration.mongo.DlabMongoMigration;
+import com.epam.dlab.mongo.MongoServiceFactory;
 import com.epam.dlab.rest.mappers.*;
 import com.epam.dlab.util.ServiceUtils;
 import com.fiestacabin.dropwizard.quartz.ManagedScheduler;
@@ -39,10 +41,12 @@ import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Self Service based on Dropwizard application.
  */
+@Slf4j
 public class SelfServiceApplication extends Application<SelfServiceApplicationConfiguration> {
 	private static Injector appInjector;
 
@@ -79,6 +83,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		setInjector(injector);
 
 		cloudModule.init(environment, injector);
+		if (configuration.isMongoMigrationEnabled()) {
+			environment.lifecycle().addServerLifecycleListener(server -> applyMongoMigration(configuration));
+		}
 		environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
 		environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
@@ -121,6 +128,13 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(BackupCallback.class));
 		jersey.register(injector.getInstance(EnvironmentResource.class));
 		jersey.register(injector.getInstance(ReuploadKeyCallback.class));
+	}
+
+	private void applyMongoMigration(SelfServiceApplicationConfiguration configuration) {
+		final MongoServiceFactory mongoFactory = configuration.getMongoFactory();
+
+		new DlabMongoMigration(mongoFactory.getHost(), mongoFactory.getPort(), mongoFactory.getUsername(),
+				mongoFactory.getPassword(), mongoFactory.getDatabase()).migrate();
 	}
 
 

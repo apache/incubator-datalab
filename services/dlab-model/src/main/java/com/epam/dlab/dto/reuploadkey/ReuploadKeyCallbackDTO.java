@@ -19,6 +19,7 @@ package com.epam.dlab.dto.reuploadkey;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.model.ResourceData;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 import lombok.Getter;
 
 @Getter
@@ -47,6 +48,14 @@ public class ReuploadKeyCallbackDTO extends ResourceSysBaseDTO<ReuploadKeyCallba
 	public ReuploadKeyCallbackDTO withResourceId(String resourceId) {
 		this.resourceId = resourceId;
 		return this;
+	}
+
+	@Override
+	public MoreObjects.ToStringHelper toStringHelper(Object self) {
+		return super.toStringHelper(self)
+				.add("resource", resource)
+				.add("resource_id", resourceId)
+				.add("id", id);
 	}
 }
 

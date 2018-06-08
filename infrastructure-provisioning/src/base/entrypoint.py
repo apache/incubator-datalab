@@ -67,12 +67,6 @@ if __name__ == "__main__":
             response_file.write(json.dumps(reply))
         sys.exit(1)
 
-    for option in passed_as_json:
-        try:
-            os.environ[option] = passed_as_json[option]
-        except:
-            os.environ[option] = str(passed_as_json[option])
-
     # Get config (defaults) from files. Will not overwrite any env
     for filename in os.listdir('/root/conf'):
         if filename.endswith('.ini'):
@@ -93,6 +87,12 @@ if __name__ == "__main__":
                 for option in config.options(section):
                     varname = "{0}_{1}".format(section, option)
                     os.environ[varname] = config.get(section, option)
+
+    for option in passed_as_json:
+        try:
+            os.environ[option] = passed_as_json[option]
+        except:
+            os.environ[option] = str(passed_as_json[option])
 
     # Pre-execution steps: checking for dry running
     dry_run = False
@@ -145,6 +145,10 @@ if __name__ == "__main__":
     elif args.action == 'recreate':
         with hide('running'):
             local("/bin/recreate.py")
+
+    elif args.action == 'reupload_key':
+        with hide('running'):
+            local("/bin/reupload_key.py")
 
     elif args.action == 'lib_install':
         with hide('running'):
