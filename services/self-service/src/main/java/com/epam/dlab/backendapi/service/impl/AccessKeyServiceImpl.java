@@ -116,7 +116,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			KeyPair pair = KeyPair.genKeyPair(new JSch(), KeyPair.RSA, configuration.getPrivateKeySize());
 			pair.writePublicKey(publicKeyOut, userInfo.getName());
 			pair.writePrivateKey(privateKeyOut);
-			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), true);
+			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), createEdge);
 			return new String(privateKeyOut.toByteArray());
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
