@@ -18,7 +18,10 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="modal-sm">
   <modal-header>
-    <h4 class="modal-title">Create initial infrastructure</h4>
+    <h4 class="modal-title">
+      <span *ngIf="primaryUploading">Create initial infrastructure</span>
+      <span *ngIf="!primaryUploading">Reupload key</span>
+    </h4>
   </modal-header>
   <modal-content>
     <div class="content-box">
@@ -51,7 +54,9 @@ limitations under the License.
         </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
-          <button mat-raised-button type="submit" class="butt butt-success action" [disabled]="!model.accessKeyFormValid">Create</button>
+          <button mat-raised-button type="submit" class="butt butt-success action" [disabled]="!model.accessKeyFormValid">
+            <span *ngIf="primaryUploading">Create</span><span *ngIf="!primaryUploading">Reupload</span>
+          </button>
         </div>
       </form>
     </div>
