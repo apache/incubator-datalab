@@ -140,7 +140,7 @@ if __name__ == "__main__":
             .format(instance_hostname, keyfile_name, os.environ['aws_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'], os.environ['notebook_r_mirror'])
         try:
-            local("~/scripts/{}.py {}".format('configure_tensor-rsudio_node', params))
+            local("~/scripts/{}.py {}".format('configure_tensor-rstudio_node', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -218,7 +218,8 @@ if __name__ == "__main__":
     ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensorboard_url = "http://" + ip_address + ":6006/"
-    jupyter_ip_url = "http://" + ip_address + ":8888/"
+    rstudio_ip_url = "http://" + ip_address + ":8787/"
+    rstudio_dns_url = "http://" + dns_name + ":8787/"
     ungit_ip_url = "http://" + ip_address + ":8085/"
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -234,7 +235,10 @@ if __name__ == "__main__":
     print("SG name: {}".format(notebook_config['security_group_name']))
     print("TensorBoard URL: {}".format(tensorboard_url))
     print("TensorBoard log dir: /var/log/tensorboard")
-    print("Jupyter URL: {}".format(jupyter_ip_url))
+    print("Rstudio URL: {}".format(rstudio_ip_url))
+    print("Rstudio URL: {}".format(rstudio_dns_url))
+    print("Rstudio user: {}".format(notebook_config['dlab_ssh_user']))
+    print("Rstudio pass: {}".format(notebook_config['rstudio_pass']))
     print("Ungit URL: {}".format(ungit_ip_url))
     print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
     print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], dns_name))
@@ -251,8 +255,8 @@ if __name__ == "__main__":
                "exploratory_url": [
                    {"description": "TensorBoard",
                     "url": tensorboard_url},
-                   {"description": "Jupyter",
-                    "url": jupyter_ip_url},
+                   {"description": "RStudio",
+                    "url": rstudio_ip_url},
                    {"description": "Ungit",
                     "url": ungit_ip_url}]}
         result.write(json.dumps(res))
