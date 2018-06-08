@@ -19,8 +19,9 @@ limitations under the License.
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 
 import { EnvironmentStatusModel } from '../environment-status.model';
-import { HealthStatusService } from '../../core/services';
+import { HealthStatusService, UserAccessKeyService } from '../../core/services';
 import { ConfirmationDialogType } from '../../shared';
+import { FileUtils } from '../../core/util';
 
 @Component({
   moduleId: module.id,
@@ -41,7 +42,8 @@ export class HealthStatusGridComponent implements OnInit {
    
 
     constructor(
-      private healthStatusService: HealthStatusService
+      private healthStatusService: HealthStatusService,
+      private userAccessKeyService: UserAccessKeyService,
     ) { }
 
     ngOnInit(): void { }
@@ -66,5 +68,12 @@ export class HealthStatusGridComponent implements OnInit {
 
     showReuploaKeydDialog() {
       this.keyReuploadDialog.open({ isFooter: false });
+    }
+
+    public generateUserKey($event) {
+      this.userAccessKeyService.regenerateAccessKey().subscribe(data => {
+        FileUtils.downloadFile(data);
+        this.buildGrid();
+      });
     }
 }

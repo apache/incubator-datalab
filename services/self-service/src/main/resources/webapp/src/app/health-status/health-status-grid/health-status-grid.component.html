@@ -62,4 +62,6 @@ limitations under the License.
 
 <confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
 
-<key-upload-dialog #keyReuploadDialog [primaryUploading]="false" (checkInfrastructureCreationProgress)="buildGrid($event)"></key-upload-dialog>
+<key-upload-dialog #keyReuploadDialog [primaryUploading]="false"
+      (checkInfrastructureCreationProgress)="buildGrid($event)"
+      (generateUserKey)="generateUserKey($event)"></key-upload-dialog>
