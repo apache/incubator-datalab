@@ -56,35 +56,12 @@ limitations under the License.
 
 
           <div class="control-group search">
-            <!-- <div class="chip-list">
-              <mat-form-field>
-                <mat-chip-list #chipList>
-                  <mat-chip
-                    *ngFor="let item of model.selectedLibs"
-                    [selectable]="selectable"
-                    [removable]="removable"
-                    (removed)="removeSelectedLibrary(item)">
-                    {{ item.name }}
-                      <span *ngIf="item.version && item.version !== 'N/A'">&nbsp;{{ item.version }}</span>
-                      <strong>&nbsp;({{ groupsListMap[item.group] }})&nbsp;</strong>
-                      <a class="material-icons" (click)="removeSelectedLibrary(item)">clear</a>
-                  </mat-chip>
-                  <input class="enter-lib"
-                    placeholder="Enter library name"
-                    #libraryInput
-                    [formControl]="libSearch"
-                    [matChipInputFor]="chipList"
-                  />
-                </mat-chip-list>
-              </mat-form-field>
-            </div> -->
-
             <mat-form-field class="chip-list">
               <input type="text" placeholder="Enter library name" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
               <mat-icon matSuffix>search</mat-icon>
-              <mat-autocomplete #auto="matAutocomplete">
+              <mat-autocomplete #auto="matAutocomplete" class="suggestions">
                 <mat-option *ngFor="let item of (filteredList | keys)" (click)="selectLibrary(item)">
-                  <div>
+                  <div class="option">
                     <a *ngIf="!isDuplicated(item)">{{ item.key }}
                       <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
                     </a>
@@ -100,15 +77,17 @@ limitations under the License.
                     </strong>
                   </div>
                 </mat-option>
-                <mat-option *ngIf="model.isEmpty(filteredList)" class="configuring">No matches found</mat-option>
+                <mat-option *ngIf="model.isEmpty(filteredList)">
+                  <span class="configuring">No matches found</span>
+                </mat-option>
               </mat-autocomplete>
             </mat-form-field>
-            <div class="list-selected col" *ngIf="model.selectedLibs.length && libs_uploaded">
-              <h4>List of Selected Libs
+            <div class="list-selected" *ngIf="model.selectedLibs.length && libs_uploaded">
+              <!-- <h4>List of Selected Libs
                 <span *ngIf="destination && destination.name"> for
                   <strong>{{ destination.name }}</strong>
                 </span>
-              </h4>
+              </h4> -->
               <mat-chip-list>
                 <mat-chip *ngFor="let item of model.selectedLibs">
                   {{ item.name }}
@@ -173,7 +152,7 @@ limitations under the License.
           </ul> -->
         </div>
       </div>
-          <div class="col">
+          <div class="col" *ngIf="!uploading">
               <!-- <table class="dashboard_table">
                 <tr>
                   <th>Name</th>
