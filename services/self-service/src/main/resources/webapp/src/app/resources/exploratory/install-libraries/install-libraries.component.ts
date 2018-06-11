@@ -79,11 +79,11 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.libSearch.disable();
     this.libSearch.valueChanges
       .debounceTime(1000)
       .subscribe(newValue => {
         this.query = newValue || '';
-        debugger;
         this.filterList();
       });
     this.bindDialog.onClosing = () => {
@@ -136,6 +136,7 @@ export class InstallLibrariesComponent implements OnInit {
         ? this.model.computational_name = this.destination.name
         : this.model.computational_name = null;
 
+      this.libSearch.enable();
       this.uploadLibGroups();
       this.getInstalledLibsByResource();
     }
@@ -285,6 +286,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.groupsList = [];
 
     // if (!nActive) this.tabGroup.selectedIndex = 0;
+    this.libSearch.disable();
     clearTimeout(this.clear);
     clearInterval(this.clearCheckInstalling);
     this.clearCheckInstalling = undefined;

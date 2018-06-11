@@ -80,13 +80,14 @@ limitations under the License.
             </div> -->
 
             <mat-form-field class="chip-list">
-                <input type="text" placeholder="Enter library name" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
+                <input type="text" placeholder="Enter library name" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto" 
+                [attr.disabled]="!destination ? true : null">
                 <mat-icon matSuffix>search</mat-icon>
                 <mat-autocomplete #auto="matAutocomplete">
-                  <mat-option *ngFor="let item of (filteredList | keys)">
+                  <mat-option *ngFor="let item of (filteredList | keys)" (click)="selectLibrary(item)">
                     <!-- {{ item }} -->
                     <div>
-                      <a *ngIf="!isDuplicated(item)" (click)="selectLibrary(item)">{{ item.key }}
+                      <a *ngIf="!isDuplicated(item)">{{ item.key }}
                         <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
                       </a>
                       <span *ngIf="isInSelectedList || isInstalled" class="not-allowed">{{ item.key }}
@@ -104,7 +105,22 @@ limitations under the License.
                   </mat-option>
                 </mat-autocomplete>
               </mat-form-field>
-
+              <div class="list-selected col" *ngIf="model.selectedLibs.length && libs_uploaded">
+                <h4>List of Selected Libs
+                  <span *ngIf="destination && destination.name"> for
+                    <strong>{{ destination.name }}</strong>
+                  </span>
+                </h4>
+                <mat-chip-list>
+                  <mat-chip *ngFor="let item of model.selectedLibs">
+                    {{ item.name }}
+                    <span *ngIf="item.version && item.version !== 'N/A'">&nbsp;{{ item.version }}</span>
+                    <strong>&nbsp;({{ groupsListMap[item.group] }})&nbsp;</strong>
+                    <a class="material-icons" (click)="removeSelectedLibrary(item)">clear</a>
+                  </mat-chip>
+                </mat-chip-list>
+              </div>
+    
             <!-- <div class="list-container" id="scrolling">
               <ul class="suggestions">
                 <li *ngFor="let item of (filteredList | keys)">
