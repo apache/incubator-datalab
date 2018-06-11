@@ -146,7 +146,7 @@ def get_object_count(bucket, prefix):
             count = 0
         return count
     except Exception as err:
-        logging.info("Unable to get objects from s3: " +
+        logging.error("Unable to get objects from s3: " +
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
@@ -159,7 +159,7 @@ def upload_jars_parser(args):
                                    ExtraArgs={'ServerSideEncryption': 'AES256'})
 
     except Exception as err:
-        logging.info("Unable to upload jars to s3: " +
+        logging.error("Unable to upload jars to s3: " +
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
@@ -179,7 +179,7 @@ def upload_user_key(args):
             ExtraArgs={'ServerSideEncryption': 'AES256'})
 
     except Exception as err:
-        logging.info("Unable to upload user key to s3: " +
+        logging.error("Unable to upload user key to s3: " +
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
@@ -193,7 +193,7 @@ def remove_user_key(args):
                              Key=args.edge_user_name + '.pub')
 
     except Exception as err:
-        logging.info("Unable to remove user key: " +
+        logging.error("Unable to remove user key: " +
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
@@ -213,7 +213,7 @@ def get_instance_by_ip(ip):
             return instance
 
     except Exception as err:
-        logging.info("Unable to get instance by ip: " +
+        logging.error("Unable to get instance by ip: " +
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
@@ -262,7 +262,7 @@ def parse_steps(step_string):
             steps.append(task)
         return steps
     except Exception as err:
-        logging.info("Failed to parse steps: " +
+        logging.error("Failed to parse steps: " +
                      str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
 
 
@@ -403,7 +403,7 @@ def build_emr_cluster(args):
             print("Cluster_id {}".format(result.get('JobFlowId')))
             return result.get('JobFlowId')
     except Exception as err:
-        logging.info("Failed to build EMR cluster: " +
+        logging.error("Failed to build EMR cluster: " +
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
@@ -450,14 +450,22 @@ if __name__ == "__main__":
         if args.slave_instance_spot == 'True':
             time.sleep(420)
             spot_instances_status = get_spot_instances_status(cluster_id)
-            if spot_instances_status[0]:
-                print("Spot instances status: {}".format(spot_instances_status[1]))
+            bool_, code, message = spot_instances_status
+            if bool_:
+                print("Spot instances status: {}, Message:{}".format(code,
+                                                                     message))
             else:
-                append_result("Error with Spot request: " + spot_instances_status[1])
+                print("SPOT REQUEST WASN'T FULFILLED, BECAUSE: "
+                      "STATUS CODE IS {}, MESSAGE IS {}".format(code,
+                                                                message))
+                append_result("Error with Spot request. "
+                              "Status code: {}, "
+                              "Message: {}".format(code,
+                                                   message))
                 sys.exit(1)
         if wait_emr(args.s3_bucket, args.name, args.emr_timeout):
             # Append Cluster's SGs to the Notebook server to grant access
-            sg_list=[]
+            sg_list = list()
             for i in current_sg:
                 sg_list.append(i['GroupId'])
             sg_master, sg_slave = emr_sg(cluster_id)

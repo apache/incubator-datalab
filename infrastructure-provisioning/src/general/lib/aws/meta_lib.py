@@ -757,11 +757,17 @@ def get_spot_instances_status(cluster_id):
     try:
         ec2 = boto3.client('ec2')
         response = ec2.describe_spot_instance_requests(Filters=[
-            {'Name': 'availability-zone-group', 'Values': [cluster_id]}]).get('SpotInstanceRequests')
-        for i in response:
-            if i.get('Status').get('Code') != 'request-canceled-and-instance-running':
-                return False, i.get('Status').get('Message')
-        return True, "Spot instances have been successfully created!"
+            {'Name': 'availability-zone-group', 'Values': [cluster_id]}]).get(
+            'SpotInstanceRequests')
+        if response:
+            for i in response:
+                if i.get('Status').get('Code') != 'fulfilled':
+                    return False, i.get('Status').get('Code'), \
+                           i.get('Status').get('Message')
+            return True, i.get('Status').get('Code'), \
+                   "Spot instances have been successfully created!"
+        return False, None, "Spot instances status weren't received " \
+                                  "for cluster id {}".format(cluster_id)
     except Exception as err:
         logging.error("Error with getting Spot instances status: " + str(err) + "\n Traceback: " +
                       traceback.print_exc(file=sys.stdout))
