@@ -89,10 +89,6 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
-    # INSTALL RSTUDIO
-    print("Install RStudio")
-    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
-
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
     install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
@@ -100,6 +96,10 @@ if __name__ == "__main__":
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
     install_keras(args.os_user, keras_version)
+
+    # INSTALL RSTUDIO
+    print("Install RStudio")
+    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")

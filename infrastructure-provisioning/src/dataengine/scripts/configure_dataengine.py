@@ -100,6 +100,8 @@ def start_spark(os_user, master_ip, node):
 ##############
 # Run script #
 ##############
+
+
 if __name__ == "__main__":
     print("Configure connections")
     env['connection_attempts'] = 100
