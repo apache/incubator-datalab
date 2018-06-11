@@ -56,6 +56,26 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
+        print('[INSTALLING USERs KEY ON SLAVE NODE]')
+        logging.info('[INSTALLING USERs KEY ON SLAVE NODE]')
+        additional_config = {"user_keyname": os.environ['edge_user_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            append_result("Failed installing users key")
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
+            GCPActions().remove_instance(slave_name, data_engine['zone'])
+        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        append_result("Failed to install ssh user key on slave.", str(err))
+        sys.exit(1)
+
+    try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
         print('[CONFIGURE PROXY ON ON SLAVE NODE]')
         additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
@@ -207,6 +227,26 @@ if __name__ == "__main__":
             GCPActions().remove_instance(slave_name, data_engine['zone'])
         GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
         append_result("Failed to create ssh user on master.", str(err))
+        sys.exit(1)
+
+    try:
+        print('[INSTALLING USERs KEY ON MASTER NODE]')
+        logging.info('[INSTALLING USERs KEY ON MASTER NODE]')
+        additional_config = {"user_keyname": os.environ['edge_user_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            append_result("Failed installing users key")
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
+            GCPActions().remove_instance(slave_name, data_engine['zone'])
+        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        append_result("Failed to install ssh user on master.", str(err))
         sys.exit(1)
 
     try:
