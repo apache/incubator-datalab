@@ -84,8 +84,8 @@ limitations under the License.
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
-            <div class="list-selected list-container" id="scrolling" *ngIf="model.selectedLibs.length && libs_uploaded">
-              <mat-chip-list>
+            <div class="list-selected list-container" id="scrolling">
+              <mat-chip-list *ngIf="model.selectedLibs.length && libs_uploaded">
                 <mat-chip *ngFor="let item of model.selectedLibs">
                   {{ item.name }}
                   <span *ngIf="item.version && item.version !== 'N/A'">&nbsp;{{ item.version }}</span>
@@ -96,7 +96,7 @@ limitations under the License.
             </div>
           </div>
         </div>
-
+      </div>
 
 
         <!-- <div > -->
@@ -122,9 +122,9 @@ limitations under the License.
             <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
           </ul> -->
         <!-- </div> -->
-      </div>
-        <div *ngIf="!uploading">
-            <!-- <div class="libs-info">
+      
+
+      <div class="libs-info" *ngIf="!uploading">
               <mat-list class="">
                 <mat-list-item class="list-header">
                   <div class="lib-name">Name</div>
@@ -175,8 +175,6 @@ limitations under the License.
                   <p>You have no libraries installed</p>
                 </div>
               </mat-list>
-            </div> -->
-
         </div>
         <div class="text-center m-top-15 m-bott-10 actions">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>

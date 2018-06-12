@@ -46,7 +46,7 @@ limitations under the License.
   .search-box {
     display: flex;
     padding: 25px 20px 10px;
-
+    // height: 45%;
     .search-form {
       display: flex;
       flex-direction: column;
@@ -58,7 +58,10 @@ limitations under the License.
       .control-group {
         width: 50%;
         &:first-child {
-          padding-right: 15px;
+          // padding-right: 15px;
+        }
+        .label {
+          width: 20%;
         }
       }
       .search {
@@ -112,14 +115,15 @@ limitations under the License.
       font-weight: 300;
       i {
         position: absolute;
-        top: -7px;
-        right: -22px;
-        color: #35afd5;
+        top: 9px;
+        right: -21px;
+        color: #35afd5
       }
     }
   }
   span {
     color: rgba(122, 146, 172, 0.6);
+    .configuring {color: #35afd5;}
   }
 }
 
@@ -133,6 +137,8 @@ limitations under the License.
 .list-selected {
   padding: 0 5px;
   font-family: 'Open Sans', sans-serif;
+  height: 130px;
+  overflow-y: auto;
   h4 {
     margin-bottom: 20px;
     font-size: 14px;
@@ -159,6 +165,22 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 /* Tab info */
 .libs-info {
+  height: 45%;
+  .mat-list {
+    height: 100%;
+    .scrollingList {
+      max-height: 80%;
+      height: 80%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      .info {
+        p {
+          text-align: center;
+          padding: 40px;
+        }
+      }
+    }
+  }
   .lib-name {
     width: 30%;
     strong {
@@ -222,17 +244,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   position: fixed;
   right: 0;
   bottom: 0;
-}
-
-.scrollingList {
-  // max-height: 85%;
-  // height: 85%;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.scrollingList.info p {
-  text-align: center;
-  padding: 40px;
 }
 
 .mat-tab-labels .mat-ink-bar {
@@ -305,5 +316,14 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 @media screen and (min-width: 1281px) {
   .list-container {
     // max-height: 50%;
+  }
+  .libs-info {
+    height: 60%;
+    .mat-list {
+      .scrollingList {
+        max-height: 100%;
+        height: 100%;
+      }
+    }
   }
 }
