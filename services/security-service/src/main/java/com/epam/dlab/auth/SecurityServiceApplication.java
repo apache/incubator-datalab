@@ -22,7 +22,7 @@ import com.epam.dlab.auth.modules.ModuleFactory;
 import com.epam.dlab.auth.modules.SecurityServiceModule;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.rest.mappers.AuthenticationExceptionMapper;
-import com.epam.dlab.utils.ServiceUtils;
+import com.epam.dlab.util.ServiceUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;

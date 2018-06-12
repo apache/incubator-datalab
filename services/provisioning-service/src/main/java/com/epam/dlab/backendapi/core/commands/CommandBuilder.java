@@ -19,7 +19,7 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.dto.ResourceBaseDTO;
-import com.epam.dlab.utils.JsonGenerator;
+import com.epam.dlab.util.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
@@ -35,10 +35,10 @@ public class CommandBuilder {
             builder.append("echo -e '");
             try {
                 String str = JsonGenerator.generateJson(resourceBaseDTO);
-                LOGGER.info("Serialized DTO to: " +  str);
+				LOGGER.info("Serialized DTO to: {}", str);
                 builder.append(str);
             } catch (JsonProcessingException e) {
-                LOGGER.error("ERROR generating json from dockerRunParameters: " + e.getMessage());
+				LOGGER.error("ERROR generating json from dockerRunParameters: {}", e.getMessage());
                 throw e;
             }
             builder.append('\'');

@@ -21,32 +21,9 @@ package com.epam.dlab.automation.test.libs;
 import com.epam.dlab.automation.helper.NamingHelper;
 
 public class LibsHelper {
+
 	private static final String LIB_GROUPS_JSON = "lib_groups.json";
 	private static final String LIB_LIST_JSON = "lib_list.json";
-
-    private static int currentQuantityOfLibInstallErrorsToFailTest;
-    private static int maxQuantityOfLibInstallErrorsToFailTest;
-
-
-    public static int getCurrentQuantityOfLibInstallErrorsToFailTest() {
-        return currentQuantityOfLibInstallErrorsToFailTest;
-    }
-
-    public static void setCurrentQuantityOfLibInstallErrorsToFailTest(int currentQuantityOfLibInstallErrorsToFailTest) {
-        LibsHelper.currentQuantityOfLibInstallErrorsToFailTest = currentQuantityOfLibInstallErrorsToFailTest;
-    }
-
-    public static int getMaxQuantityOfLibInstallErrorsToFailTest() {
-        return maxQuantityOfLibInstallErrorsToFailTest;
-    }
-
-    public static void setMaxQuantityOfLibInstallErrorsToFailTest(int maxQuantityOfLibInstallErrorsToFailTest) {
-        LibsHelper.maxQuantityOfLibInstallErrorsToFailTest = maxQuantityOfLibInstallErrorsToFailTest;
-    }
-
-    public static void incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest(){
-        currentQuantityOfLibInstallErrorsToFailTest++;
-    }
 
     public static String getLibGroupsPath(String notebookName){
 		if (notebookName.contains(NamingHelper.DEEPLEARNING)) {

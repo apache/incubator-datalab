@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.auth.UserInfo;
@@ -10,13 +26,16 @@ import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.base.keyload.ReuploadFile;
-import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.gcp.GcpCloudSettings;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
+import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exloratory.Exploratory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,6 +47,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -38,7 +58,7 @@ public class RequestBuilderTest {
 
 	private final String USER = "test";
 
-	private ReuploadFile expectedReuploadFile;
+	private ReuploadKeyDTO expectedReuploadKeyDTO;
 	private UserInfo userInfo;
 	private Exploratory exploratory;
 	private ExploratoryGitCredsDTO egcDto;
@@ -59,7 +79,7 @@ public class RequestBuilderTest {
 	@Before
 	public void setUp() {
 		userInfo = getUserInfo();
-		expectedReuploadFile = getReuploadFile();
+		expectedReuploadKeyDTO = getReuploadFile();
 		exploratory = Exploratory.builder().name("explName").build();
 		egcDto = new ExploratoryGitCredsDTO();
 		uiDto = new UserInstanceDTO();
@@ -147,10 +167,25 @@ public class RequestBuilderTest {
 	public void newKeyReuploadForAwsOrAzure() {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.AWS);
 
-		UploadFile actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent");
-		assertEquals(expectedReuploadFile, actualReuploadFile);
+		ReuploadKeyDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
+				Collections.singletonList(
+						new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
+		AwsCloudSettings cloudSettings = new AwsCloudSettings();
+		cloudSettings.setAwsIamUser(USER);
+		expectedReuploadKeyDTO.withCloudSettings(cloudSettings);
+		expectedReuploadKeyDTO.withId("someId");
+		expectedReuploadKeyDTO.withResources(Collections.singletonList(
+				new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
+		assertEquals(expectedReuploadKeyDTO.getId(), actualReuploadFile.getId());
+		assertEquals(expectedReuploadKeyDTO.getContent(), actualReuploadFile.getContent());
+		assertEquals(expectedReuploadKeyDTO.getResources(), actualReuploadFile.getResources());
+		assertEquals(expectedReuploadKeyDTO.getCloudSettings(), actualReuploadFile.getCloudSettings());
+		assertEquals(expectedReuploadKeyDTO.getConfKeyDir(), actualReuploadFile.getConfKeyDir());
+		assertEquals(expectedReuploadKeyDTO.getConfOsFamily(), actualReuploadFile.getConfOsFamily());
+		assertEquals(expectedReuploadKeyDTO.getEdgeUserName(), actualReuploadFile.getEdgeUserName());
+		assertEquals(expectedReuploadKeyDTO.getServiceBaseName(), actualReuploadFile.getServiceBaseName());
 
-		verify(configuration).getCloudProvider();
+		verify(configuration, times(2)).getCloudProvider();
 		verifyNoMoreInteractions(configuration);
 	}
 
@@ -159,10 +194,25 @@ public class RequestBuilderTest {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.GCP);
 		when(configuration.getMaxUserNameLength()).thenReturn(10);
 
-		UploadFile actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someContent");
-		assertEquals(expectedReuploadFile, actualReuploadFile);
+		ReuploadKeyDTO actualReuploadFile = requestBuilder.newKeyReupload(userInfo, "someId", "someContent",
+				Collections.singletonList(
+						new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
+		GcpCloudSettings cloudSettings = new GcpCloudSettings();
+		cloudSettings.setGcpIamUser(USER);
+		expectedReuploadKeyDTO.withCloudSettings(cloudSettings);
+		expectedReuploadKeyDTO.withId("someId");
+		expectedReuploadKeyDTO.withResources(Collections.singletonList(
+				new ResourceData(ResourceType.EXPLORATORY, "someId", "someName", null)));
+		assertEquals(expectedReuploadKeyDTO.getId(), actualReuploadFile.getId());
+		assertEquals(expectedReuploadKeyDTO.getContent(), actualReuploadFile.getContent());
+		assertEquals(expectedReuploadKeyDTO.getResources(), actualReuploadFile.getResources());
+		assertEquals(expectedReuploadKeyDTO.getCloudSettings(), actualReuploadFile.getCloudSettings());
+		assertEquals(expectedReuploadKeyDTO.getConfKeyDir(), actualReuploadFile.getConfKeyDir());
+		assertEquals(expectedReuploadKeyDTO.getConfOsFamily(), actualReuploadFile.getConfOsFamily());
+		assertEquals(expectedReuploadKeyDTO.getEdgeUserName(), actualReuploadFile.getEdgeUserName());
+		assertEquals(expectedReuploadKeyDTO.getServiceBaseName(), actualReuploadFile.getServiceBaseName());
 
-		verify(configuration).getCloudProvider();
+		verify(configuration, times(2)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
 		verifyNoMoreInteractions(configuration);
 	}
@@ -1181,10 +1231,7 @@ public class RequestBuilderTest {
 		return new UserInfo(USER, "token");
 	}
 
-	private ReuploadFile getReuploadFile() {
-		ReuploadFile reuploadFile = new ReuploadFile();
-		reuploadFile.setContent("someContent");
-		reuploadFile.setEdgeUserName(USER);
-		return reuploadFile;
+	private ReuploadKeyDTO getReuploadFile() {
+		return new ReuploadKeyDTO().withContent("someContent").withEdgeUserName(USER).withContent("someContent");
 	}
 }

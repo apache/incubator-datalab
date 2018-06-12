@@ -23,7 +23,7 @@ import { NgDateRangePickerModule } from 'ng-daterangepicker';
 import { MaterialModule } from './../shared/material.module';
 import { FormControlsModule } from './../shared/form-controls';
 import { ReportingComponent } from './reporting.component';
-import { NavbarModule, ModalModule } from './../shared';
+import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule } from './../shared';
 import { KeysPipeModule, LineBreaksPipeModule } from './../core/pipes';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
@@ -37,6 +37,8 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     KeysPipeModule,
     LineBreaksPipeModule,
     NgDateRangePickerModule,
+    UploadKeyDialogModule,
+    ProgressDialogModule,
     MaterialModule
   ],
   declarations: [

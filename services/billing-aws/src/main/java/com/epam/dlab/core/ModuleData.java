@@ -18,7 +18,7 @@
 
 package com.epam.dlab.core;
 
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.mongo.MongoConstants;
 import com.epam.dlab.mongo.MongoDbConnection;
 import com.google.common.base.MoreObjects;

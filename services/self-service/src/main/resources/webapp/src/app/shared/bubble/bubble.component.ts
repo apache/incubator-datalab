@@ -40,7 +40,7 @@ export class BubbleComponent implements OnDestroy {
   @Output() onHide: EventEmitter<any> = new EventEmitter();
 
   @HostBinding('class.is-visible') public isVisible = false;
-  @HostListener('click', ['$event']) onClick($event) {
+  @HostListener('click', ['$event']) onClick(event) {
     this.keepOpen && event.stopPropagation();
   }
 

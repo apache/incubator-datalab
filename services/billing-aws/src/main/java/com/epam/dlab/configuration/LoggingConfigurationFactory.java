@@ -22,7 +22,7 @@ import javax.validation.Valid;
 
 import org.slf4j.LoggerFactory;
 
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.logging.AppenderBase;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

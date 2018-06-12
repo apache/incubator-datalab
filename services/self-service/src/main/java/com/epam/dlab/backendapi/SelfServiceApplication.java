@@ -26,8 +26,10 @@ import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.migration.mongo.DlabMongoMigration;
+import com.epam.dlab.mongo.MongoServiceFactory;
 import com.epam.dlab.rest.mappers.*;
-import com.epam.dlab.utils.ServiceUtils;
+import com.epam.dlab.util.ServiceUtils;
 import com.fiestacabin.dropwizard.quartz.ManagedScheduler;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,14 +37,16 @@ import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Self Service based on Dropwizard application.
  */
+@Slf4j
 public class SelfServiceApplication extends Application<SelfServiceApplicationConfiguration> {
 	private static Injector appInjector;
 
@@ -64,6 +68,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 	@Override
 	public void initialize(Bootstrap<SelfServiceApplicationConfiguration> bootstrap) {
 		super.initialize(bootstrap);
+		bootstrap.addBundle(new MultiPartBundle());
 		bootstrap.addBundle(new AssetsBundle("/webapp/dist", "/", "index.html"));
 		bootstrap.addBundle(new TemplateConfigBundle(
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
@@ -78,6 +83,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		setInjector(injector);
 
 		cloudModule.init(environment, injector);
+		if (configuration.isMongoMigrationEnabled()) {
+			environment.lifecycle().addServerLifecycleListener(server -> applyMongoMigration(configuration));
+		}
 		environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
 		environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
@@ -92,7 +100,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(new ResourceConflictExceptionMapper());
 		jersey.register(new ResourceNotFoundExceptionMapper());
 		jersey.register(new ValidationExceptionMapper());
-		jersey.register(MultiPartFeature.class);
 		jersey.register(injector.getInstance(SecurityResource.class));
 		jersey.register(injector.getInstance(KeyUploaderResource.class));
 		jersey.register(injector.getInstance(EdgeResource.class));
@@ -120,6 +127,14 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(BackupResource.class));
 		jersey.register(injector.getInstance(BackupCallback.class));
 		jersey.register(injector.getInstance(EnvironmentResource.class));
+		jersey.register(injector.getInstance(ReuploadKeyCallback.class));
+	}
+
+	private void applyMongoMigration(SelfServiceApplicationConfiguration configuration) {
+		final MongoServiceFactory mongoFactory = configuration.getMongoFactory();
+
+		new DlabMongoMigration(mongoFactory.getHost(), mongoFactory.getPort(), mongoFactory.getUsername(),
+				mongoFactory.getPassword(), mongoFactory.getDatabase()).migrate();
 	}
 
 

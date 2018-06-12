@@ -1,6 +1,21 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
@@ -8,6 +23,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
@@ -25,7 +41,7 @@ import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import static com.epam.dlab.UserInstanceStatus.*;
+import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -176,7 +192,8 @@ public class SchedulerJobServiceImplTest {
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
 		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
-		schedulerJobDTO.setDaysRepeat(Collections.emptyList());
+		schedulerJobDTO.setStartDaysRepeat(Collections.emptyList());
+		schedulerJobDTO.setStopDaysRepeat(Collections.emptyList());
 		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
@@ -224,8 +241,8 @@ public class SchedulerJobServiceImplTest {
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getBeginDate() == null);
-		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
+		assertNull(schedulerJobDTO.getBeginDate());
+		assertNull(schedulerJobDTO.getTimeZoneOffset());
 
 		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
@@ -240,13 +257,14 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void updateSchedulerDataForUserAndExploratoryWithSyncStartRequiredParam() {
 		userInstance.withStatus("running");
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), anyVararg())).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
@@ -255,28 +273,33 @@ public class SchedulerJobServiceImplTest {
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, STARTING, RUNNING, STOPPING, STOPPED);
+		schedulerJobDTO.setEndTime(null);
+		schedulerJobDTO.setStopDaysRepeat(Collections.emptyList());
 		verify(computationalDAO).updateSchedulerDataForComputationalResource(USER, EXPLORATORY_NAME,
 				COMPUTATIONAL_NAME, schedulerJobDTO);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void updateSchedulerDataForUserAndExploratoryWithSyncStartRequiredParamButAbsenceClusters() {
 		userInstance.withStatus("running");
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
 		when(exploratoryDAO.updateSchedulerDataForUserAndExploratory(anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), anyVararg())).thenReturn(Collections.emptyList());
 
 		schedulerJobService.updateExploratorySchedulerData(USER, EXPLORATORY_NAME, schedulerJobDTO);
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateSchedulerDataForUserAndExploratory(USER, EXPLORATORY_NAME, schedulerJobDTO);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, STARTING, RUNNING, STOPPING, STOPPED);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
@@ -311,7 +334,8 @@ public class SchedulerJobServiceImplTest {
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
 		final SchedulerJobDTO schedulerJobDTO = getSchedulerJobDTO();
-		schedulerJobDTO.setDaysRepeat(null);
+		schedulerJobDTO.setStartDaysRepeat(null);
+		schedulerJobDTO.setStopDaysRepeat(null);
 		schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
 
@@ -370,8 +394,8 @@ public class SchedulerJobServiceImplTest {
 		when(computationalDAO.updateSchedulerDataForComputationalResource(anyString(), anyString(), anyString(),
 				any(SchedulerJobDTO.class))).thenReturn(mock(UpdateResult.class));
 
-		assertTrue(schedulerJobDTO.getBeginDate() == null);
-		assertTrue(schedulerJobDTO.getTimeZoneOffset() == null);
+		assertNull(schedulerJobDTO.getBeginDate());
+		assertNull(schedulerJobDTO.getTimeZoneOffset());
 
 		schedulerJobService.updateComputationalSchedulerData(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
 				schedulerJobDTO);
@@ -407,6 +431,7 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void executeStartExploratoryJobWithSparkClusters() {
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), anyBoolean()))
@@ -415,14 +440,15 @@ public class SchedulerJobServiceImplTest {
 		when(schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(anyString(), anyString()))
 				.thenReturn(Optional.of(schedulerJobDTO));
 		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), any(UserInstanceStatus.class))).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
 
 		LocalDate notebookBeginDate = schedulerJobDTO.getBeginDate();
 		LocalDate notebookFinishDate = schedulerJobDTO.getFinishDate();
 		LocalTime notebookStartTime = schedulerJobDTO.getStartTime();
 		LocalTime notebookEndTime = schedulerJobDTO.getEndTime();
-		List<DayOfWeek> notebookDaysRepeat = schedulerJobDTO.getDaysRepeat();
+		List<DayOfWeek> notebookStartDaysRepeat = schedulerJobDTO.getStartDaysRepeat();
+		List<DayOfWeek> notebookStopDaysRepeat = schedulerJobDTO.getStopDaysRepeat();
 		LocalDateTime notebookTerminateDateTime = schedulerJobDTO.getTerminateDateTime();
 		ZoneOffset notebookZoneOffset = schedulerJobDTO.getTimeZoneOffset();
 		boolean notebookIsSyncStartRequired = schedulerJobDTO.isSyncStartRequired();
@@ -434,7 +460,8 @@ public class SchedulerJobServiceImplTest {
 				notebookFinishDate.getDayOfMonth()));
 		clusterScheduler.setStartTime(LocalTime.of(notebookStartTime.getHour(), notebookStartTime.getMinute()));
 		clusterScheduler.setEndTime(LocalTime.of(notebookEndTime.getHour() + 1, notebookEndTime.getMinute()));
-		clusterScheduler.setDaysRepeat(new ArrayList<>(notebookDaysRepeat));
+		clusterScheduler.setStartDaysRepeat(new ArrayList<>(notebookStartDaysRepeat));
+		clusterScheduler.setStopDaysRepeat(new ArrayList<>(notebookStopDaysRepeat));
 		clusterScheduler.setTerminateDateTime(LocalDateTime.of(notebookTerminateDateTime.getYear() + 1,
 				notebookTerminateDateTime.getMonth(), notebookTerminateDateTime.getDayOfMonth(),
 				notebookTerminateDateTime.getHour(), notebookTerminateDateTime.getMinute()));
@@ -451,7 +478,8 @@ public class SchedulerJobServiceImplTest {
 
 		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.RUNNING), eq(false));
 		verify(schedulerJobDAO).fetchSingleSchedulerJobByUserAndExploratory(USER, EXPLORATORY_NAME);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, UserInstanceStatus.STOPPED);
 		verify(schedulerJobDAO).fetchSingleSchedulerJobForCluster(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verify(systemUserService, times(2)).create(USER);
@@ -462,6 +490,7 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void executeStartExploratoryJobWithSparkClustersWhenNotebookAndClusterSchedulersAreNotEqual() {
 		schedulerJobDTO.setSyncStartRequired(true);
 		when(schedulerJobDAO.getSchedulerJobsToAchieveStatus(any(UserInstanceStatus.class), anyBoolean()))
@@ -470,14 +499,15 @@ public class SchedulerJobServiceImplTest {
 		when(schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(anyString(), anyString()))
 				.thenReturn(Optional.of(schedulerJobDTO));
 		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
-		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(DataEngineType.class),
+		when(computationalDAO.getComputationalResourcesWhereStatusIn(anyString(), any(List.class),
 				anyString(), any(UserInstanceStatus.class))).thenReturn(Collections.singletonList(COMPUTATIONAL_NAME));
 
 		LocalDate notebookBeginDate = schedulerJobDTO.getBeginDate();
 		LocalDate notebookFinishDate = schedulerJobDTO.getFinishDate();
 		LocalTime notebookStartTime = schedulerJobDTO.getStartTime();
 		LocalTime notebookEndTime = schedulerJobDTO.getEndTime();
-		List<DayOfWeek> notebookDaysRepeat = schedulerJobDTO.getDaysRepeat();
+		List<DayOfWeek> notebookStartDaysRepeat = schedulerJobDTO.getStartDaysRepeat();
+		List<DayOfWeek> notebookStopDaysRepeat = schedulerJobDTO.getStopDaysRepeat();
 		LocalDateTime notebookTerminateDateTime = schedulerJobDTO.getTerminateDateTime();
 		ZoneOffset notebookZoneOffset = schedulerJobDTO.getTimeZoneOffset();
 		boolean notebookIsSyncStartRequired = schedulerJobDTO.isSyncStartRequired();
@@ -489,7 +519,8 @@ public class SchedulerJobServiceImplTest {
 				notebookFinishDate.getDayOfMonth()));
 		clusterScheduler.setStartTime(LocalTime.of(notebookStartTime.getHour() + 1, notebookStartTime.getMinute()));
 		clusterScheduler.setEndTime(LocalTime.of(notebookEndTime.getHour() + 1, notebookEndTime.getMinute()));
-		clusterScheduler.setDaysRepeat(new ArrayList<>(notebookDaysRepeat));
+		clusterScheduler.setStartDaysRepeat(new ArrayList<>(notebookStartDaysRepeat));
+		clusterScheduler.setStopDaysRepeat(new ArrayList<>(notebookStopDaysRepeat));
 		clusterScheduler.setTerminateDateTime(LocalDateTime.of(notebookTerminateDateTime.getYear() + 1,
 				notebookTerminateDateTime.getMonth(), notebookTerminateDateTime.getDayOfMonth(),
 				notebookTerminateDateTime.getHour(), notebookTerminateDateTime.getMinute()));
@@ -504,7 +535,8 @@ public class SchedulerJobServiceImplTest {
 
 		verify(schedulerJobDAO).getSchedulerJobsToAchieveStatus(refEq(UserInstanceStatus.RUNNING), eq(false));
 		verify(schedulerJobDAO).fetchSingleSchedulerJobByUserAndExploratory(USER, EXPLORATORY_NAME);
-		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER, DataEngineType.SPARK_STANDALONE,
+		verify(computationalDAO).getComputationalResourcesWhereStatusIn(USER,
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE),
 				EXPLORATORY_NAME, UserInstanceStatus.STOPPED);
 		verify(schedulerJobDAO).fetchSingleSchedulerJobForCluster(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verify(systemUserService).create(USER);
@@ -688,7 +720,8 @@ public class SchedulerJobServiceImplTest {
 		schedulerJobDTO.setEndTime(LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
 		schedulerJobDTO.setTerminateDateTime(
 				LocalDateTime.of(LocalDate.now(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES)));
-		schedulerJobDTO.setDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		schedulerJobDTO.setStartDaysRepeat(Arrays.asList(DayOfWeek.values()));
+		schedulerJobDTO.setStopDaysRepeat(Arrays.asList(DayOfWeek.values()));
 		schedulerJobDTO.setSyncStartRequired(false);
 		return schedulerJobDTO;
 	}

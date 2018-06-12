@@ -19,8 +19,9 @@ limitations under the License.
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 
 import { EnvironmentStatusModel } from '../environment-status.model';
-import { HealthStatusService } from '../../core/services';
+import { HealthStatusService, UserAccessKeyService } from '../../core/services';
 import { ConfirmationDialogType } from '../../shared';
+import { FileUtils } from '../../core/util';
 
 @Component({
   moduleId: module.id,
@@ -32,7 +33,9 @@ import { ConfirmationDialogType } from '../../shared';
 export class HealthStatusGridComponent implements OnInit {
 
    @Input() environmentsHealthStatuses: Array<EnvironmentStatusModel>;
-   @Input() envInProgress: boolean;
+   @Input() anyEnvInProgress: boolean;
+   @Input() notebookInProgress: boolean;
+   @Input() uploadKey: boolean;
    @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
 
    @ViewChild('confirmationDialog') confirmationDialog;
@@ -40,7 +43,8 @@ export class HealthStatusGridComponent implements OnInit {
    
 
     constructor(
-      private healthStatusService: HealthStatusService
+      private healthStatusService: HealthStatusService,
+      private userAccessKeyService: UserAccessKeyService,
     ) { }
 
     ngOnInit(): void { }
@@ -61,9 +65,16 @@ export class HealthStatusGridComponent implements OnInit {
           .recreateEdgeNode()
           .subscribe(() => this.buildGrid());
       }
-  }
+    }
 
-  showReuploaKeydDialog() {
-    this.keyReuploadDialog.open({ isFooter: false });
-  }
+    showReuploaKeydDialog() {
+      this.keyReuploadDialog.open({ isFooter: false });
+    }
+
+    public generateUserKey($event) {
+      this.userAccessKeyService.regenerateAccessKey().subscribe(data => {
+        FileUtils.downloadFile(data);
+        this.buildGrid();
+      });
+    }
 }

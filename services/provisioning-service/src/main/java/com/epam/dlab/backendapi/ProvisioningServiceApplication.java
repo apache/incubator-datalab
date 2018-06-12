@@ -25,10 +25,10 @@ import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.base.KeyResource;
 import com.epam.dlab.cloud.CloudModule;
-import com.epam.dlab.process.DlabProcess;
+import com.epam.dlab.process.model.DlabProcess;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
-import com.epam.dlab.utils.ServiceUtils;
+import com.epam.dlab.util.ServiceUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
@@ -40,47 +40,47 @@ import io.dropwizard.setup.Environment;
 
 public class ProvisioningServiceApplication extends Application<ProvisioningServiceApplicationConfiguration> {
 
-    public static void main(String[] args) throws Exception {
-        if (ServiceUtils.printAppVersion(ProvisioningServiceApplication.class, args)) {
-            return;
-        }
-        new ProvisioningServiceApplication().run(args);
-    }
+	public static void main(String[] args) throws Exception {
+		if (ServiceUtils.printAppVersion(ProvisioningServiceApplication.class, args)) {
+			return;
+		}
+		new ProvisioningServiceApplication().run(args);
+	}
 
-    @Override
-    public void initialize(Bootstrap<ProvisioningServiceApplicationConfiguration> bootstrap) {
-        bootstrap.addBundle(new TemplateConfigBundle(
-                new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
-        ));
-    }
+	@Override
+	public void initialize(Bootstrap<ProvisioningServiceApplicationConfiguration> bootstrap) {
+		bootstrap.addBundle(new TemplateConfigBundle(
+				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
+		));
+	}
 
-    @Override
+	@Override
 	public void run(ProvisioningServiceApplicationConfiguration configuration, Environment environment) {
-        DlabProcess.getInstance().setProcessTimeout(configuration.getProcessTimeout());
-        DlabProcess.getInstance().setMaxProcessesPerBox(configuration.getProcessMaxThreadsPerJvm());
-        DlabProcess.getInstance().setMaxProcessesPerUser(configuration.getProcessMaxThreadsPerUser());
+		DlabProcess.getInstance().setProcessTimeout(configuration.getProcessTimeout());
+		DlabProcess.getInstance().setMaxProcessesPerBox(configuration.getProcessMaxThreadsPerJvm());
+		DlabProcess.getInstance().setMaxProcessesPerUser(configuration.getProcessMaxThreadsPerUser());
 
-        CloudModule cloudModule = CloudModuleConfigurator.getCloudModule(configuration);
-        Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
-        cloudModule.init(environment, injector);
+		CloudModule cloudModule = CloudModuleConfigurator.getCloudModule(configuration);
+		Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
+		cloudModule.init(environment, injector);
 
-        injector.getInstance(SecurityFactory.class).configure(injector, environment);
+		injector.getInstance(SecurityFactory.class).configure(injector, environment);
 
-        environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));
-        environment.lifecycle().manage(injector.getInstance(DockerWarmuper.class));
+		environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));
+		environment.lifecycle().manage(injector.getInstance(DockerWarmuper.class));
 
-        JerseyEnvironment jersey = environment.jersey();
-        jersey.register(configuration.getCloudProvider());
-        jersey.register(new RuntimeExceptionMapper());
-        jersey.register(new JsonProcessingExceptionMapper());
+		JerseyEnvironment jersey = environment.jersey();
+		jersey.register(configuration.getCloudProvider());
+		jersey.register(new RuntimeExceptionMapper());
+		jersey.register(new JsonProcessingExceptionMapper());
 
-        jersey.register(injector.getInstance(DockerResource.class));
-        jersey.register(injector.getInstance(GitExploratoryResource.class));
-        jersey.register(injector.getInstance(LibraryResource.class));
-        jersey.register(injector.getInstance(InfrastructureResource.class));
-        jersey.register(injector.getInstance(ImageResource.class));
-        jersey.register(injector.getInstance(BackupResource.class));
+		jersey.register(injector.getInstance(DockerResource.class));
+		jersey.register(injector.getInstance(GitExploratoryResource.class));
+		jersey.register(injector.getInstance(LibraryResource.class));
+		jersey.register(injector.getInstance(InfrastructureResource.class));
+		jersey.register(injector.getInstance(ImageResource.class));
+		jersey.register(injector.getInstance(BackupResource.class));
 		jersey.register(injector.getInstance(KeyResource.class));
 
-    }
+	}
 }

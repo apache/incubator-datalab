@@ -45,7 +45,6 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.base.keyload.ReuploadFile;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
@@ -59,13 +58,16 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.exloratory.Exploratory;
-import com.epam.dlab.utils.UsernameUtils;
+import com.epam.dlab.util.UsernameUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.epam.dlab.cloud.CloudProvider.*;
@@ -172,11 +174,11 @@ public class RequestBuilder {
 		}
 	}
 
-	public UploadFile newKeyReupload(UserInfo userInfo, String content) {
-		ReuploadFile reuploadFile = new ReuploadFile();
-		reuploadFile.setContent(content);
-		reuploadFile.setEdgeUserName(getEdgeUserName(userInfo));
-		return reuploadFile;
+	public ReuploadKeyDTO newKeyReupload(UserInfo userInfo, String id, String content, List<ResourceData> resources) {
+		return newResourceSysBaseDTO(userInfo, ReuploadKeyDTO.class)
+				.withId(id)
+				.withContent(content)
+				.withResources(resources);
 	}
 
 	@SuppressWarnings("unchecked")

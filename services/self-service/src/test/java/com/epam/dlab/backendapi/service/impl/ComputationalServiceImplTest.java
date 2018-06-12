@@ -1,6 +1,21 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
@@ -10,6 +25,7 @@ import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.*;
@@ -28,10 +44,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static com.epam.dlab.UserInstanceStatus.CREATING;
-import static org.junit.Assert.assertEquals;
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 
@@ -103,7 +122,7 @@ public class ComputationalServiceImplTest {
 		SparkStandaloneClusterCreateForm sparkClusterCreateForm = (SparkStandaloneClusterCreateForm) formList.get(0);
 		boolean creationResult =
 				computationalService.createSparkCluster(userInfo, sparkClusterCreateForm);
-		assertEquals(true, creationResult);
+		assertTrue(creationResult);
 
 		verify(configuration).getMinSparkInstanceCount();
 		verify(configuration).getMaxSparkInstanceCount();
@@ -157,7 +176,7 @@ public class ComputationalServiceImplTest {
 
 		boolean creationResult =
 				computationalService.createSparkCluster(userInfo, (SparkStandaloneClusterCreateForm) formList.get(0));
-		assertEquals(false, creationResult);
+		assertFalse(creationResult);
 
 		verify(configuration).getMinSparkInstanceCount();
 		verify(configuration).getMaxSparkInstanceCount();
@@ -363,7 +382,7 @@ public class ComputationalServiceImplTest {
 
 		boolean creationResult =
 				computationalService.createDataEngineService(userInfo, formList.get(1), ucResource);
-		assertEquals(true, creationResult);
+		assertTrue(creationResult);
 
 		verify(computationalDAO).addComputational(eq(USER), eq(EXPLORATORY_NAME), refEq(ucResource));
 
@@ -385,7 +404,7 @@ public class ComputationalServiceImplTest {
 				.thenReturn(false);
 
 		boolean creationResult = computationalService.createDataEngineService(userInfo, formList.get(1), ucResource);
-		assertEquals(false, creationResult);
+		assertFalse(creationResult);
 
 		verify(computationalDAO).addComputational(eq(USER), eq(EXPLORATORY_NAME), refEq(ucResource));
 		verifyNoMoreInteractions(computationalDAO);
@@ -521,6 +540,48 @@ public class ComputationalServiceImplTest {
 		expectedException.expectMessage("Operation for data engine service is not supported");
 
 		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void updateComputationalsReuploadKeyFlag() {
+		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(), any(List.class),
+				any(List.class), anyBoolean(), anyVararg());
+
+		computationalService.updateComputationalsReuploadKeyFlag(USER, Collections.singletonList(RUNNING),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true, RUNNING);
+
+		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER, Collections.singletonList
+						(RUNNING),
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), true, RUNNING);
+		verifyNoMoreInteractions(computationalDAO);
+	}
+
+	@Test
+	public void getComputationalResource() {
+		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
+
+		Optional<UserComputationalResource> expectedResource = Optional.of(ucResource);
+		Optional<UserComputationalResource> actualResource =
+				computationalService.getComputationalResource(USER, EXPLORATORY_NAME, COMP_NAME);
+		assertEquals(expectedResource, actualResource);
+
+		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
+		verifyNoMoreInteractions(computationalDAO);
+	}
+
+	@Test
+	public void getComputationalResourceWithException() {
+		doThrow(new DlabException("Computational resource not found"))
+				.when(computationalDAO).fetchComputationalFields(anyString(), anyString(), anyString());
+
+		Optional<UserComputationalResource> expectedResource = Optional.empty();
+		Optional<UserComputationalResource> actualResource =
+				computationalService.getComputationalResource(USER, EXPLORATORY_NAME, COMP_NAME);
+		assertEquals(expectedResource, actualResource);
+
+		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
+		verifyNoMoreInteractions(computationalDAO);
 	}
 
 	private UserInfo getUserInfo() {

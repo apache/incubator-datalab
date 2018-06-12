@@ -86,11 +86,11 @@ public class VirtualMachineStatusChecker {
                 AmazonHelper.checkAmazonStatus(tagNameValue, AmazonInstanceState.STOPPED);
                 break;
             case CloudProvider.AZURE_PROVIDER:
-                AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED, restrictionMode);
+                AzureHelper.checkAzureStatus(tagNameValue, PowerState.DEALLOCATED, restrictionMode);
                 break;
             case CloudProvider.GCP_PROVIDER:
                 GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
-                        GcpInstanceState.STOPPED, restrictionMode,
+                        GcpInstanceState.TERMINATED, restrictionMode,
                         GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
                 break;
             default:

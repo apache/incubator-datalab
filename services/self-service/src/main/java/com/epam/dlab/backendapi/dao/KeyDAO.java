@@ -18,7 +18,8 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.UserInstanceStatus;
+
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
@@ -146,6 +147,15 @@ public abstract class KeyDAO extends BaseDAO {
 				.orElse(defaultValue);
 	}
 
+	public abstract Optional<? extends EdgeInfo> getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses);
+
+	protected <T extends EdgeInfo> Optional<T> getEdgeInfoWhereStatusIn(String user, Class<T> target,
+															  UserInstanceStatus... statuses) {
+		return findOne(USER_EDGE,
+				and(eq(ID, user), in(EDGE_STATUS, statusList(statuses))),
+				target);
+	}
+
 	/**
 	 * Finds and returns the status of user key.
 	 *
@@ -190,5 +200,18 @@ public abstract class KeyDAO extends BaseDAO {
 		return findOne(USER_EDGE, and(eq(ID, user), not(in(EDGE_STATUS, UserInstanceStatus.TERMINATING.toString(),
 				UserInstanceStatus.TERMINATED.toString()))))
 				.isPresent();
+	}
+
+	/**
+	 * Updates the field 'reupload_key_required' of EDGE node.
+	 *
+	 * @param user                user name
+	 * @param reuploadKeyRequired true/false
+	 * @param edgeStatuses        allowable edge statuses
+	 */
+	public void updateEdgeReuploadKey(String user, boolean reuploadKeyRequired, UserInstanceStatus... edgeStatuses) {
+		updateOne(USER_EDGE,
+				and(eq(ID, user), in(EDGE_STATUS, statusList(edgeStatuses))),
+				Updates.set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 }

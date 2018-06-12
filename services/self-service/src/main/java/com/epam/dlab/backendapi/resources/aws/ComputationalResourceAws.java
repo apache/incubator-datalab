@@ -38,7 +38,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static com.epam.dlab.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+
 
 /**
  * Provides the REST API for the computational resource on AWS.

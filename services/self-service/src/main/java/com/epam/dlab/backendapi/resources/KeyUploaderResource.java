@@ -19,13 +19,11 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.DlabValidationException;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
@@ -33,11 +31,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
 
 /**
  * Provides the REST API for upload the user key.
@@ -79,21 +72,17 @@ public class KeyUploaderResource implements EdgeAPI {
 	 * and edge creating for user. Else if this param equals 'false', then only replacing keys in the database
 	 * will be performed (user's key will be reuploaded).
 	 *
-	 * @param userInfo            user info.
-	 * @param uploadedInputStream content of the user key.
-	 * @param fileDetail          content type and content disposition of input data
-	 * @param isPrimaryUploading  true if key is being primarily uploaded, false - in case of reuploading
-	 *
+	 * @param userInfo           user info.
+	 * @param fileContent        content of the user key.
+	 * @param isPrimaryUploading true if key is being primarily uploaded, false - in case of reuploading
 	 * @return 200 Ok
 	 */
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response loadKey(@Auth UserInfo userInfo,
-							@FormDataParam("file") InputStream uploadedInputStream,
-							@FormDataParam("file") FormDataContentDisposition fileDetail,
-							@DefaultValue("true") @QueryParam("is_primary_uploading") boolean isPrimaryUploading) {
+							@FormDataParam("file") String fileContent,
+							@QueryParam("is_primary_uploading") @DefaultValue("true") boolean isPrimaryUploading) {
 
-		final String fileContent = getFileContent(uploadedInputStream, userInfo.getName());
 		validate(fileContent);
 		keyService.uploadKey(userInfo, fileContent, isPrimaryUploading);
 		return Response.ok().build();
@@ -115,19 +104,11 @@ public class KeyUploaderResource implements EdgeAPI {
 	@POST
 	@Path("/generate")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response generate(@Auth UserInfo userInfo) {
-		final Response.ResponseBuilder builder = Response.ok(keyService.generateKey(userInfo));
+	public Response generate(@Auth UserInfo userInfo,
+							 @QueryParam("is_primary_uploading") @DefaultValue("true") boolean isPrimaryUploading) {
+		final Response.ResponseBuilder builder = Response.ok(keyService.generateKey(userInfo, isPrimaryUploading));
 		builder.header(HttpHeaders.CONTENT_DISPOSITION, String.format(FILE_ATTACHMENT_FORMAT, userInfo.getName()));
 		return builder.build();
-	}
-
-	private String getFileContent(InputStream uploadedInputStream, String user) {
-		try (BufferedReader buffer = new BufferedReader(new InputStreamReader(uploadedInputStream))) {
-			return buffer.lines().collect(Collectors.joining("\n"));
-		} catch (IOException e) {
-			log.error("Could not upload the key for user {}", user, e);
-			throw new DlabException("Could not upload the key for user " + user + ": " + e.getLocalizedMessage(), e);
-		}
 	}
 
 	private void validate(String publicKey) {

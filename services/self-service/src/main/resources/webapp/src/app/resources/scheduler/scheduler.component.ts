@@ -38,7 +38,8 @@ import { SchedulerModel, WeekdaysModel } from './scheduler.model';
 })
 export class SchedulerComponent implements OnInit {
   public model: SchedulerModel;
-  public selectedWeekDays: WeekdaysModel = new WeekdaysModel(false, false, false, false, false, false, false);
+  public selectedStartWeekDays: WeekdaysModel = new WeekdaysModel(false, false, false, false, false, false, false);
+  public selectedStopWeekDays: WeekdaysModel = new WeekdaysModel(false, false, false, false, false, false, false);
   public notebook: any;
   public infoMessage: boolean = false;
   public timeReqiered: boolean = false;
@@ -90,7 +91,8 @@ export class SchedulerComponent implements OnInit {
           this.changeDetector.detectChanges();
           this.destination = (type === 'EXPLORATORY') ? this.notebook : resource;
           this.destination.type = type;
-          this.selectedWeekDays.setDegault();
+          this.selectedStartWeekDays.setDegault();
+          this.selectedStopWeekDays.setDegault();
 
           (this.destination.type === 'СOMPUTATIONAL')
             ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name)
@@ -103,8 +105,12 @@ export class SchedulerComponent implements OnInit {
       );
   }
 
-  public onDaySelect($event, day) {
-    this.selectedWeekDays[day.toLowerCase()] = $event.checked;
+  public onDaySelect($event, day, action) {
+    if (action === 'start') {
+      this.selectedStartWeekDays[day.toLowerCase()] = $event.source.checked;
+    } else if (action === 'stop') {
+      this.selectedStopWeekDays[day.toLowerCase()] = $event.source.checked;
+    }
   }
 
   public toggleInherit($event) {
@@ -120,6 +126,7 @@ export class SchedulerComponent implements OnInit {
 
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
+    this.timeReqiered = false;
     
     (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
       ? this.schedulerForm.get('startDate').enable()
@@ -134,23 +141,24 @@ export class SchedulerComponent implements OnInit {
       finishDate: this.schedulerForm.controls.finishDate.value
     };
 
-    if (!this.startTime && !this.endTime) {
+    if (!this.startTime && !this.endTime && this.enableSchedule) {
       this.timeReqiered = true;
       return false;
     }
-    const selectedDays = Object.keys(this.selectedWeekDays);
+    const selectedDays = Object.keys(this.selectedStartWeekDays);
     let parameters = {
       begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
       finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
       start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
       end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
-      days_repeat: selectedDays.filter(el => Boolean(this.selectedWeekDays[el])).map(day => day.toUpperCase()),
+      start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
+      stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
       timezone_offset: this.tzOffset,
       sync_start_required: this.inherit
     };
 
     if(!this.enableSchedule) {
-      parameters = { begin_date: null, finish_date: null, start_time: null, end_time: null, days_repeat: [], timezone_offset: null, sync_start_required: false };
+      parameters = { begin_date: null, finish_date: null, start_time: null, end_time: null, start_days_repeat: [], stop_days_repeat: [], timezone_offset: null, sync_start_required: false };
     }
 
     (this.destination.type === 'СOMPUTATIONAL')
@@ -176,9 +184,8 @@ export class SchedulerComponent implements OnInit {
     this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
       (params: any) => {
         if (params) {
-          params.days_repeat.filter(
-            key => (this.selectedWeekDays[key.toLowerCase()] = true)
-          );
+          params.start_days_repeat.filter(key => (this.selectedStartWeekDays[key.toLowerCase()] = true));
+          params.stop_days_repeat.filter(key => (this.selectedStopWeekDays[key.toLowerCase()] = true));
           this.inherit = params.sync_start_required;
           this.tzOffset = params.timezone_offset;
           this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;

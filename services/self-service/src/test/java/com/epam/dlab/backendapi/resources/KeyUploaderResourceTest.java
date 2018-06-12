@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
@@ -314,7 +330,7 @@ public class KeyUploaderResourceTest extends TestBase {
 
 	@Test
 	public void generateKey() {
-		when(keyService.generateKey(any(UserInfo.class))).thenReturn("someUuid");
+		when(keyService.generateKey(any(UserInfo.class), anyBoolean())).thenReturn("someUuid");
 
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/generate")
@@ -325,14 +341,32 @@ public class KeyUploaderResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).generateKey(getUserInfo());
+		verify(keyService).generateKey(getUserInfo(), true);
+		verifyNoMoreInteractions(keyService);
+	}
+
+	@Test
+	public void generateKeyWithoutEdgeCreation() {
+		when(keyService.generateKey(any(UserInfo.class), anyBoolean())).thenReturn("someUuid");
+
+		final Response response = resources.getJerseyTest()
+				.target("/user/access_key/generate")
+				.queryParam("is_primary_uploading", "false")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(""));
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(keyService).generateKey(getUserInfo(), false);
 		verifyNoMoreInteractions(keyService);
 	}
 
 	@Test
 	public void generateKeyWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(keyService.generateKey(any(UserInfo.class))).thenReturn("someUuid");
+		when(keyService.generateKey(any(UserInfo.class), anyBoolean())).thenReturn("someUuid");
 
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/generate")
@@ -343,14 +377,14 @@ public class KeyUploaderResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).generateKey(getUserInfo());
+		verify(keyService).generateKey(getUserInfo(), true);
 		verifyNoMoreInteractions(keyService);
 	}
 
 	@Test
 	public void generateKeyWithException() {
 		doThrow(new DlabException("Can not generate private/public key pair due to"))
-				.when(keyService).generateKey(any(UserInfo.class));
+				.when(keyService).generateKey(any(UserInfo.class), anyBoolean());
 
 		final Response response = resources.getJerseyTest()
 				.target("/user/access_key/generate")
@@ -361,7 +395,7 @@ public class KeyUploaderResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(keyService).generateKey(getUserInfo());
+		verify(keyService).generateKey(getUserInfo(), true);
 		verifyNoMoreInteractions(keyService);
 	}
 

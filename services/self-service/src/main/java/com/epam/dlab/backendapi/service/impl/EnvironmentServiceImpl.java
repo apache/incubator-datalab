@@ -1,6 +1,21 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvStatusDAO;
@@ -11,10 +26,12 @@ import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -65,7 +82,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private void checkState(String user, String action) {
 		final List<UserInstanceDTO> userInstances = exploratoryDAO
-				.fetchUserExploratoriesWhereStatusIn(user, UserInstanceStatus.CREATING,
+				.fetchUserExploratoriesWhereStatusIn(user,
+						Arrays.asList(UserInstanceStatus.CREATING,
+								UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
+						UserInstanceStatus.CREATING,
 						UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
 		if (UserInstanceStatus.STARTING.toString().equals(keyDAO.getEdgeStatus(user)) || !userInstances.isEmpty()) {
 			log.error(String.format(ERROR_MSG_FORMAT, action));

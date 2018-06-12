@@ -17,58 +17,86 @@
 package com.epam.dlab.billing.azure.rate;
 
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.*;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.function.Predicate;
 
 @Slf4j
 public class AzureRateCardClient {
-    public static final String MAIN_RATE_KEY = "0";
-    private BillingConfigurationAzure billingConfigurationAzure;
-    private String authToken;
+	private ObjectMapper objectMapper = new ObjectMapper();
+	public static final String MAIN_RATE_KEY = "0";
+	private BillingConfigurationAzure billingConfigurationAzure;
+	private String authToken;
 
-    public AzureRateCardClient(BillingConfigurationAzure billingConfigurationAzure, String authToken) {
-        this.billingConfigurationAzure = billingConfigurationAzure;
-        this.authToken = authToken;
-    }
+	public AzureRateCardClient(BillingConfigurationAzure billingConfigurationAzure, String authToken) {
+		this.billingConfigurationAzure = billingConfigurationAzure;
+		this.authToken = authToken;
+	}
 
-    public RateCardResponse getRateCard() {
-        Client client = null;
+	public RateCardResponse getRateCard() throws IOException, URISyntaxException {
 
-        try {
-            client = ClientBuilder.newClient();
+		try (CloseableHttpClient httpClient = HttpClients.custom()
+				.setRedirectStrategy(new CustomRedirectWithoutAuthorizationStrategy())
+				.build()) {
+			final URIBuilder uriBuilder = new URIBuilder("https://management.azure.com/subscriptions/" +
+					billingConfigurationAzure.getSubscriptionId() + "/providers/Microsoft.Commerce/RateCard")
+					.addParameter("api-version", "2016-08-31-preview")
+					.addParameter("$filter", String.format("OfferDurableId eq '%s' and Currency eq '%s' and Locale " +
+									"eq '%s' and RegionInfo eq '%s'", billingConfigurationAzure.getOfferNumber(),
+							billingConfigurationAzure.getCurrency(), billingConfigurationAzure.getLocale(),
+							billingConfigurationAzure.getRegionInfo()));
 
-            RateCardResponse rateCardResponse = client
-                    .target("https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Commerce/RateCard")
-                    .resolveTemplate("subscriptionId", billingConfigurationAzure.getSubscriptionId())
-                    .queryParam("api-version", "2016-08-31-preview")
-                    .queryParam("$filter",
-                            String.format("OfferDurableId eq '%s' and Currency eq '%s' and Locale eq '%s' and RegionInfo eq '%s'",
-                                    billingConfigurationAzure.getOfferNumber(), billingConfigurationAzure.getCurrency(),
-                                    billingConfigurationAzure.getLocale(), billingConfigurationAzure.getRegionInfo()))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("Authorization", String.format("Bearer %s", authToken))
-                    .get(RateCardResponse.class);
+			final HttpGet request = new HttpGet(uriBuilder.build());
+			request.addHeader("Authorization", String.format("Bearer %s", authToken));
+			request.addHeader(HttpHeaders.ACCEPT, "application/json");
+			return objectMapper.readValue(EntityUtils.toString
+					(httpClient.execute(request).getEntity()), RateCardResponse.class);
+		} catch (IOException | URISyntaxException e) {
+			log.error("Cannot retrieve rate card due to ", e);
+			throw e;
+		}
+	}
 
-            log.info("RateCard is retrieved. Meter counts is {}", rateCardResponse.getMeters().size());
+	class CustomRedirectWithoutAuthorizationStrategy extends DefaultRedirectStrategy {
+		@Override
+		public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context) throws
+				ProtocolException {
+			if (HttpGet.METHOD_NAME.equals(request.getRequestLine().getMethod())) {
+				return httpGetWithoutAuthorization(request, response, context);
+			} else {
+				return super.getRedirect(request, response, context);
+			}
+		}
 
-            return rateCardResponse;
+		private HttpUriRequest httpGetWithoutAuthorization(HttpRequest request, HttpResponse response, HttpContext
+				context) throws ProtocolException {
+			return new HttpGet(getLocationURI(request, response, context)) {
+				@Override
+				public void setHeaders(Header[] headers) {
+					super.setHeaders(filter(headers, h -> !h.getName().equals(HttpHeaders.AUTHORIZATION)));
+				}
 
-        } catch (ClientErrorException e) {
-            log.error("Cannot get rate card due to {}", (e.getResponse() != null && e.getResponse().hasEntity())
-                    ? e.getResponse().readEntity(String.class) : "");
-            log.error("Error during using RateCard API", e);
-            throw e;
-        } catch (RuntimeException e) {
-            log.error("Cannot retrieve rate card due to ", e);
-            throw e;
-        } finally {
-            if (client != null) {
-                client.close();
-            }
-        }
-    }
+				private Header[] filter(Header[] headers, Predicate<Header> predicate) {
+					return Arrays.stream(headers)
+							.filter(predicate)
+							.toArray(Header[]::new);
+				}
+			};
+		}
+	}
+
+
 }

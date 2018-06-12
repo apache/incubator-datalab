@@ -16,9 +16,11 @@
 
 package com.epam.dlab.backendapi.resources.dto.aws;
 
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,18 +28,20 @@ import java.util.List;
  */
 @Data
 public class AwsBillingFilter {
-    @JsonProperty
-    private List<String> user;
-    @JsonProperty("dlab_id")
-    private String dlabId;
-    @JsonProperty
-    private List<String> product;
-    @JsonProperty("resource_type")
-    private List<String> resourceType;
-    @JsonProperty
-    private List<String> shape;
-    @JsonProperty("date_start")
-    private String dateStart;
-    @JsonProperty("date_end")
-    private String dateEnd;
+	@JsonProperty
+	private List<String> user;
+	@JsonProperty("dlab_id")
+	private String dlabId;
+	@JsonProperty
+	private List<String> product;
+	@JsonProperty("resource_type")
+	private List<String> resourceType;
+	@JsonProperty
+	private List<String> shape;
+	@JsonProperty("date_start")
+	private String dateStart;
+	@JsonProperty("date_end")
+	private String dateEnd;
+	@JsonProperty("status")
+	private List<UserInstanceStatus> statuses = Collections.emptyList();
 }

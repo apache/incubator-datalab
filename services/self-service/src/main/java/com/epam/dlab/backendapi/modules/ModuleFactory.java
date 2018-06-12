@@ -18,7 +18,6 @@
 
 package com.epam.dlab.backendapi.modules;
 
-import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.AbstractModule;
@@ -26,33 +25,36 @@ import io.dropwizard.setup.Environment;
 
 public class ModuleFactory {
 
-    private ModuleFactory() {
-    }
+	private ModuleFactory() {
+	}
 
-    /**
-     * Instantiates an application configuration of SelfService for production or tests if
+	/**
+	 * Instantiates an application configuration of SelfService for production or tests if
 	 * the mock property of configuration is set to <b>true</b> and method
-	 * {@link ServiceConfiguration#isDevMode()} returns <b>true</b> value.
-     *
-     * @param configuration application configuration of SelfService.
-     * @param environment   environment of SelfService.
-     */
-    public static AbstractModule getModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
-        return configuration.isDevMode()
-                ? new DevModule(configuration, environment)
-                : new ProductionModule(configuration, environment);
-    }
+	 * {@link SelfServiceApplicationConfiguration#isMocked()}
+	 * returns <b>true</b> value.
+	 *
+	 * @param configuration application configuration of SelfService.
+	 * @param environment   environment of SelfService.
+	 */
+	public static AbstractModule getModule(SelfServiceApplicationConfiguration configuration, Environment
+			environment) {
+		return configuration.isDevMode()
+				? new DevModule(configuration, environment)
+				: new ProductionModule(configuration, environment);
+	}
 
-    public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration) {
-        switch (configuration.getCloudProvider()) {
-            case AWS:
-                return new AwsSelfServiceModule();
-            case AZURE:
-                return new AzureSelfServiceModule(configuration.getAzureLoginConfiguration());
-            case GCP:
-                return new GcpSelfServiceModule();
-            default:
-                throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
-        }
-    }
+	public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration) {
+		switch (configuration.getCloudProvider()) {
+			case AWS:
+				return new AwsSelfServiceModule();
+			case AZURE:
+				return new AzureSelfServiceModule(configuration.isAzureUseLdap(),
+						configuration.getMaxSessionDurabilityMilliseconds());
+			case GCP:
+				return new GcpSelfServiceModule();
+			default:
+				throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
+		}
+	}
 }

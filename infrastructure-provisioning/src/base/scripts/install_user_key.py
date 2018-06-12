@@ -19,6 +19,7 @@
 # ******************************************************************************
 
 from fabric.api import *
+from fabric.contrib.files import exists
 from dlab.fab import *
 import argparse
 import json
@@ -34,12 +35,19 @@ args = parser.parse_args()
 
 
 def copy_key(config):
-    key = open('{}/{}.pub'.format(config['user_keydir'], config['user_keyname'])).read()
-    if sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user)).succeeded:
-        return True
-    else:
-        return False
-
+    admin_key_pub = local('ssh-keygen -y -f {}'.format(args.keyfile),
+                          capture=True)
+    sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
+    sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
+    try:
+        user_key = '{}{}.pub'.format(
+            config.get('user_keydir'),
+            config.get('user_keyname'))
+        print(user_key)
+        key = open('{0}'.format(user_key)).read()
+        sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
+    except:
+        print('No user key')
 
 ##############
 # Run script #
@@ -52,18 +60,20 @@ if __name__ == "__main__":
         env.host_string = '{}@{}'.format(args.user, args.hostname)
         deeper_config = json.loads(args.additional_config)
     except:
+        print('Fail connection')
         sys.exit(2)
 
     print("Ensuring safest ssh ciphers")
     try:
         ensure_ciphers()
     except:
+        print("Failed ensure ciphers")
         sys.exit(1)
 
     print("Installing users key...")
-    if copy_key(deeper_config):
-        sys.exit(0)
-    else:
-        print("Users keyfile {0}.pub could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
+    try:
+        copy_key(deeper_config)
+    except:
+        print("Users keyfile {0} could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
         sys.exit(1)
 

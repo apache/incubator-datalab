@@ -19,9 +19,9 @@
 package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.cloud.CloudProvider;
-import com.epam.dlab.process.ProcessId;
-import com.epam.dlab.process.ProcessInfo;
-import com.epam.dlab.process.ProcessInfoBuilder;
+import com.epam.dlab.process.model.ProcessId;
+import com.epam.dlab.process.model.ProcessInfo;
+import com.epam.dlab.process.builder.ProcessInfoBuilder;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

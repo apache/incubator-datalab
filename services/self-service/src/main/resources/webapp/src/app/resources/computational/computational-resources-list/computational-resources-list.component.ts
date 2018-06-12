@@ -24,7 +24,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
   moduleId: module.id,
   selector: 'computational-resources-list',
   templateUrl: 'computational-resources-list.component.html',
-  styleUrls: ['./computational-resources-list.component.css']
+  styleUrls: ['./computational-resources-list.component.scss']
 })
 
 export class ComputationalResourcesListComponent {
@@ -34,18 +34,14 @@ export class ComputationalResourcesListComponent {
 
   @Input() resources: any[];
   @Input() environment: any[];
+  @Input() healthStatus: string;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
-  collapse: boolean = true;
   constructor(
     private userResourceService: UserResourceService,
     public dialog: MatDialog
   ) { }
-
-  toggleResourceList() {
-    this.collapse = !this.collapse;
-  }
 
   toggleResourceAction(resource, action) {
     if (action === 'stop' || action === 'terminate') {

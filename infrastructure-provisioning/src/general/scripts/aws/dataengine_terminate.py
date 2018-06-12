@@ -22,30 +22,33 @@ import logging
 import json
 import sys
 from dlab.fab import *
-from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
-import uuid
 
 
-def terminate_data_engine(tag_name, notebook_name, os_user, key_path, cluster_name):
+def terminate_data_engine(tag_name, notebook_name,
+                          os_user, key_path,
+                          cluster_name, remote_kernel_name):
     print("Terminating data engine cluster")
     try:
-        remove_ec2('Name', cluster_name + '*')
+        remove_ec2('user:tag', cluster_name)
     except:
         sys.exit(1)
 
     print("Removing Data Engine kernels from notebook")
     try:
-        remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name)
+        remove_dataengine_kernels(tag_name, notebook_name,
+                                  os_user, key_path, remote_kernel_name)
     except:
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'],
+                                               os.environ['edge_user_name'],
                                                os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    local_log_filepath = "/logs/" + \
+                         os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
@@ -53,6 +56,7 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     create_aws_config_files()
     data_engine = dict()
+    
     try:
         data_engine['exploratory_name'] = os.environ['exploratory_name']
     except:
@@ -65,18 +69,24 @@ if __name__ == "__main__":
     data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
     data_engine['user_name'] = os.environ['edge_user_name']
     data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-de-' + \
-        data_engine['exploratory_name'] + '-' + data_engine['computational_name']
+        data_engine['service_base_name'] + '-' + \
+        data_engine['user_name'] + '-de-' + \
+        data_engine['exploratory_name'] + '-' +\
+        data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
-    data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-
+    data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + \
+                              os.environ['conf_key_name'] + '.pem'
 
     try:
         logging.info('[TERMINATE DATA ENGINE]')
         print('[TERMINATE DATA ENGINE]')
         try:
-            terminate_data_engine(data_engine['tag_name'], data_engine['notebook_name'], os.environ['conf_os_user'],
-                                  data_engine['key_path'], data_engine['cluster_name'])
+            terminate_data_engine(data_engine['tag_name'],
+                                  data_engine['notebook_name'],
+                                  os.environ['conf_os_user'],
+                                  data_engine['key_path'], "{}:{}".format(
+                    os.environ['conf_service_base_name'],
+                    data_engine['cluster_name']), data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate Data Engine.", str(err))

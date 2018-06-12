@@ -1,0 +1,87 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+@-moz-document url-prefix() {
+  .dashboard_table.reporting {
+    transform: scale(0.85);
+    transform-origin: top left;
+    width: 118% !important;
+  }
+}
+
+.dashboard_table.reporting {
+  margin-bottom: 50px;
+  zoom: 0.85;
+  tr {
+    th {
+      font-size: 12px;
+    }
+    td {
+      font-size: 16px; 
+    }
+    &.filter-row {
+      .filter-field {
+        font-size: 14px;
+      }
+    }
+  }
+  .dropdown-multiselect {
+    button {
+      @extend .filter-field;
+    }
+  }
+  .th_shape {
+    width: 10%;
+  }
+  .th_user,
+  .env_name,
+  .service {
+    width: 15%;
+    overflow: hidden;
+    word-wrap: break-word;
+  }
+  .th_type {
+    width: 8%;
+  }
+  .th_rstatus {
+    width: 8%;
+  }
+  .th_charges {
+    width: 8%;
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .dashboard_table.reporting {
+    .env_name,
+    .service,
+    .th_type,
+    .th_rstatus {
+      width: 10%;
+    }
+    .th_user {
+      width: 12%;
+    }
+    .th_charges {
+      width: 6%;
+    }
+    .user-field {
+      word-wrap: break-word;
+    }
+  }
+}

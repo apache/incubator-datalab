@@ -27,7 +27,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import com.epam.dlab.core.BillingUtils;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 
 /** Json properties validator.
  * @param <T> Class for validation.

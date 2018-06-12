@@ -106,7 +106,8 @@ limitations under the License.
 .creating,
 .configuring,
 .installing,
-.creating_image {
+.creating_image,
+.reuploading {
   color: #35afd5;
 }
 
@@ -303,4 +304,9 @@ input[type='number'] {
   background: #e2747d;
   color: #fff;
   box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6);
+}
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }

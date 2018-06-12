@@ -18,7 +18,8 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
-import { HealthStatusService, BackupService, UserResourceService } from '../core/services';
+import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
+import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
   moduleId: module.id,
@@ -31,17 +32,23 @@ export class HealthStatusComponent implements OnInit {
   healthStatus: string;
   billingEnabled: boolean;
   isAdmin: boolean;
-  envInProgress: boolean = false;
+  anyEnvInProgress: boolean = false;
+  notebookInProgress: boolean = false;
   usersList: Array<string> = [];
+  uploadKey: boolean = true;
 
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
+  @ViewChild('keyUploadModal') keyUploadDialog;
+  @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
-    private userResourceService: UserResourceService
+    private userResourceService: UserResourceService,
+    private userAccessKeyService: UserAccessKeyService
   ) {}
 
   ngOnInit(): void {
@@ -59,15 +66,12 @@ export class HealthStatusComponent implements OnInit {
     this.billingEnabled = healthStatusList.billingEnabled;
     this.isAdmin = healthStatusList.admin;
 
+    this.checkUserAccessKey();
     this.getExploratoryList();
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {
-        return new EnvironmentStatusModel(
-          value.type,
-          value.resource_id,
-          value.status
-        );
+        return new EnvironmentStatusModel(value.type, value.resource_id, value.status);
       });
   }
 
@@ -77,7 +81,7 @@ export class HealthStatusComponent implements OnInit {
   }
 
   getActiveUsersList() {
-    return this.healthStatusService.getActiveUsers()
+    return this.healthStatusService.getActiveUsers();
   }
  
   openManageEnvironmentDialog() {
@@ -100,6 +104,36 @@ export class HealthStatusComponent implements OnInit {
       });
   }
 
+  public generateUserKey($event) {
+    this.userAccessKeyService.generateAccessKey().subscribe(
+      data => {
+        FileUtils.downloadFile(data);
+        this.buildGrid();
+      });
+  }
+
+  public checkUserAccessKey() {
+    this.userAccessKeyService.checkUserAccessKey()
+      .subscribe(
+        response => this.processAccessKeyStatus(response.status),
+        error => this.processAccessKeyStatus(error.status));
+  }
+
+  private processAccessKeyStatus(status: number) {
+    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
+      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+      this.uploadKey = false;
+    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
+      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+
+      setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
+    } else if (status === HTTP_STATUS_CODES.OK) {
+      this.preloaderDialog.close();
+      this.keyUploadDialog.close();
+      this.uploadKey = true;
+    }
+  }
+
   createBackup($event) {
     this.backupService.createBackup($event).subscribe(result => {
       this.getBackupStatus(result);
@@ -110,11 +144,19 @@ export class HealthStatusComponent implements OnInit {
   getExploratoryList() {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
-        this.envInProgress = this.isEnvironmentsInProgress(result);
+        this.anyEnvInProgress = this.isEnvironmentsInProgress(result);
+        this.notebookInProgress = this.isNotebookInProgress(result);
       });
   }
 
   isEnvironmentsInProgress(data): boolean {
+    return data.exploratory.some(el => {
+      return el.status === 'creating' || el.status === 'starting' || 
+        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring')
+    });
+  }
+
+  isNotebookInProgress(data): boolean {
     return data.exploratory.some(el => el.status === 'creating');
   }
 
