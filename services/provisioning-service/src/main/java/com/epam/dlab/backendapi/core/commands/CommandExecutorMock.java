@@ -79,7 +79,8 @@ public class CommandExecutorMock implements ICommandExecutor {
                     "docker.dlab-jupyter:latest",
                     "docker.dlab-rstudio:latest",
                     "docker.dlab-tensor:latest",
-                    "docker.dlab-zeppelin:latest");
+                    "docker.dlab-zeppelin:latest",
+                    "docker.dlab-tensor-rstudio:latest");
 
             list.addAll(getComputationalDockerImage());
 
