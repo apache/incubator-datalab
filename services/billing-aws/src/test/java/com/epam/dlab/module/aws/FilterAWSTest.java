@@ -41,6 +41,8 @@ public class FilterAWSTest {
 		FilterAWS filter = new FilterAWS();
 		String line = "parse me\",\"LineItem\",\" parse me";
 		assertEquals(line, filter.canParse(line));
+		line = "don't parse me";
+		assertEquals(null, filter.canParse(line));
 	}
 
 	@Test

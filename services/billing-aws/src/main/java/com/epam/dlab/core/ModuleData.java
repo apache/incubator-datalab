@@ -27,7 +27,6 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.UpdateOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -145,12 +144,9 @@ public class ModuleData {
 		modified = false;
 	}
 
-	public boolean wasProcessed(String fileName, Date modificationDate, String datePrefix) {
-		final Bson filePerBillingPeriodCondition = and(regex(ID_FIELD, "^" + datePrefix), gte(MODIFICATION_DATE,
-				modificationDate));
-		final Bson fileWithExactNameCondition = and(eq(ID_FIELD, fileName), gte(MODIFICATION_DATE, modificationDate));
+	public boolean wasProcessed(String fileName, Date modificationDate) {
 		final FindIterable<Document> documents = connection.getCollection(MongoConstants.BILLING_DATA_COLLECTION)
-				.find(or(fileWithExactNameCondition, filePerBillingPeriodCondition))
+				.find(and(eq(ID_FIELD, fileName), gte(MODIFICATION_DATE, modificationDate)))
 				.limit(1);
 		return documents.iterator().hasNext();
 	}
