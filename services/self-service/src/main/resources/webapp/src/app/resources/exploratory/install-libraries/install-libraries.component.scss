@@ -17,6 +17,21 @@ limitations under the License.
 ****************************************************************************/
 
 .install-libraries {
+  .dialog-header {
+    padding-left: 25px;
+  }
+  .loading-block {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    .uploading {
+      flex-direction: column;
+      align-items: center;
+      align-self: center;
+      list-style: none;
+      display: flex;
+    }
+  }
   .mat-list-item {
     height: auto !important;
 
@@ -45,7 +60,7 @@ limitations under the License.
   }
   .search-box {
     display: flex;
-    padding: 25px 20px 10px;
+    padding: 20px 25px 10px;
     // height: 45%;
     .search-form {
       display: flex;
@@ -166,6 +181,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 /* Tab info */
 .libs-info {
   height: 45%;
+  padding: 0 20px;
   .mat-list {
     height: 100%;
     .scrollingList {
