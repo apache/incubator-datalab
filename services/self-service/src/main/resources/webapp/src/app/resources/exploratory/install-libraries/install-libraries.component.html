@@ -32,19 +32,21 @@ limitations under the License.
       <p class="info message">Cannot install libraries: Exploratory
         <strong>{{ notebook?.name }}</strong> is not running</p>
     </div>
-    <div *ngIf="notebook?.status === 'running'" class="tab-content">
-      <div class="search-box col" *ngIf="!uploading">
+    <div *ngIf="notebook?.status === 'running'" class="tab-content lib-view-wrap">
+      <div class="search-box" *ngIf="!uploading">
         <div class="search-form">
-          <div class="control-group">
-            <label class="label">Select resource</label>
-            <div class="control">
-              <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+          <div>
+            <div class="control-group constol-select">
+              <label class="label">Select resource</label>
+              <div class="control">
+                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+              </div>
             </div>
-          </div>
-          <div class="control-group">
-            <label class="label">Select group</label>
-            <div class="control">
-              <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+            <div class="control-group control-select">
+              <label class="label">Select group</label>
+              <div class="control">
+                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+              </div>
             </div>
           </div>
           <!-- <div class="control-group">
@@ -55,7 +57,7 @@ limitations under the License.
           </div> -->
 
 
-          <div class="control-group search">
+          <div class="search">
             <mat-form-field class="chip-list">
               <input type="text" placeholder="Enter library name" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
               <mat-icon matSuffix>search</mat-icon>
@@ -82,12 +84,7 @@ limitations under the License.
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
-            <div class="list-selected" *ngIf="model.selectedLibs.length && libs_uploaded">
-              <!-- <h4>List of Selected Libs
-                <span *ngIf="destination && destination.name"> for
-                  <strong>{{ destination.name }}</strong>
-                </span>
-              </h4> -->
+            <div class="list-selected list-container" id="scrolling" *ngIf="model.selectedLibs.length && libs_uploaded">
               <mat-chip-list>
                 <mat-chip *ngFor="let item of model.selectedLibs">
                   {{ item.name }}
@@ -97,38 +94,12 @@ limitations under the License.
                 </mat-chip>
               </mat-chip-list>
             </div>
-    
-            <!-- <div class="list-container" id="scrolling">
-              <ul class="suggestions">
-                <li *ngFor="let item of (filteredList | keys)">
-                  <a *ngIf="!isDuplicated(item)" (click)="selectLibrary(item)">{{ item.key }}
-                    <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
-                  </a>
-                  <span *ngIf="isInSelectedList || isInstalled" class="not-allowed">{{ item.key }}
-                    <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
-                  </span>
-
-                  <strong *ngIf="isInSelectedList">selected
-                    <i class="material-icons">done</i>
-                  </strong>
-                  <strong *ngIf="isInstalled">installed
-                    <i class="material-icons">done</i>
-                  </strong>
-                </li>
-                <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
-              </ul>
-            </div> -->
-
-          </div>
-          <div class="text-center m-top-15 m-bott-10 actions">
-            <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
-            <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
           </div>
         </div>
 
 
 
-        <div class="list-container" id="scrolling">
+        <!-- <div > -->
           <!--<div class="loader-wrap" *ngIf="isFilteringProc && !model.isEmpty(filteredList)">
             <div class="loader-lib">Loading...</div>
           </div>-->
@@ -150,32 +121,11 @@ limitations under the License.
             </li>
             <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
           </ul> -->
-        </div>
+        <!-- </div> -->
       </div>
-          <div class="col" *ngIf="!uploading">
-              <!-- <table class="dashboard_table">
-                <tr>
-                  <th>Name</th>
-                  <th>Group</th>
-                  <th>Destination</th>
-                  <th>Destination</th>
-                  <th>Resource type</th>
-                  <th>Status</th>
-                </tr>
-                <tr *ngFor="let lib of notebookLibs">
-                  <td>
-                    <strong>{{ lib.name }}</strong>
-                    <span *ngIf="lib.version && lib.version !== 'N/A'">v.{{ lib.version }}</span>
-                  </td>
-                  <td>{{ groupsListMap[lib.group] }}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-              </table> -->
-
-            <div class="full-height libs-info">
-              <mat-list class="full-height">
+        <div *ngIf="!uploading">
+            <!-- <div class="libs-info">
+              <mat-list class="">
                 <mat-list-item class="list-header">
                   <div class="lib-name">Name</div>
                   <div class="lib-group">Group</div>
@@ -225,8 +175,12 @@ limitations under the License.
                   <p>You have no libraries installed</p>
                 </div>
               </mat-list>
-            </div>
+            </div> -->
 
+        </div>
+        <div class="text-center m-top-15 m-bott-10 actions">
+          <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
+          <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
         </div>
         <div class="info message error" *ngIf="processError">
           <small>{{ errorMessage }}</small>
