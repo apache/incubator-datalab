@@ -103,6 +103,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('yum install -y --nogpgcheck https://download2.rstudio.org/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            if os.environ['application'] == 'tensor-rstudio':
+                sudo("sed -i '/ExecStart/s|=|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /etc/systemd/system/rstudio-server.service")
+                sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
+                sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))

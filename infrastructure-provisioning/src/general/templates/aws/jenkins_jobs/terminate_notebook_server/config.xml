@@ -42,6 +42,7 @@ limitations under the License.
               <string>rstudio</string>
               <string>zeppelin</string>
               <string>tensor</string>
+              <string>tensor-rstudio</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>

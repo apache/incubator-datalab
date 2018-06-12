@@ -258,5 +258,7 @@ if __name__ == "__main__":
                    {"description": "RStudio",
                     "url": rstudio_ip_url},
                    {"description": "Ungit",
-                    "url": ungit_ip_url}]}
+                    "url": ungit_ip_url}],
+               "exploratory_user": notebook_config['dlab_ssh_user'],
+               "exploratory_pass": notebook_config['rstudio_pass']}
         result.write(json.dumps(res))
