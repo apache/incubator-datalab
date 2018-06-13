@@ -73,13 +73,14 @@ public class AzureBillingDAO extends BillingDAO {
 		pipeline.add(sortCriteria());
 
 		return prepareReport(
-				filter.getNodeSize() != null && !filter.getNodeSize().isEmpty(),
+				filter.getStatuses(), filter.getNodeSize() != null && !filter.getNodeSize().isEmpty(),
 				getCollection(MongoKeyWords.BILLING_DETAILS).aggregate(pipeline),
 				getShapes(filter.getNodeSize()))
 				.append(FULL_REPORT, isFullReport);
 	}
 
-	private Document prepareReport(boolean filterByShape, AggregateIterable<Document> agg,
+	private Document prepareReport(List<UserInstanceStatus> statuses, boolean filterByShape,
+								   AggregateIterable<Document> agg,
 								   Map<String, ShapeInfo> shapes) {
 
 		List<Document> reportItems = new ArrayList<>();
@@ -92,7 +93,9 @@ public class AzureBillingDAO extends BillingDAO {
 			Document id = (Document) d.get(MongoKeyWords.MONGO_ID);
 			String resourceId = id.getString(MongoKeyWords.DLAB_ID);
 			ShapeInfo shape = shapes.get(resourceId);
-			if (filterByShape && shape == null) {
+			final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
+			if ((filterByShape && shape == null) ||
+					(!statuses.isEmpty() && statuses.stream().noneMatch(s -> s.equals(status)))) {
 				continue;
 			}
 
@@ -107,7 +110,6 @@ public class AzureBillingDAO extends BillingDAO {
 
 			costTotal += d.getDouble(MongoKeyWords.COST);
 
-			final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
 			Document item = new Document()
 					.append(MongoKeyWords.DLAB_USER, id.getString(USER))
 					.append(MongoKeyWords.DLAB_ID, resourceId)
@@ -198,7 +200,7 @@ public class AzureBillingDAO extends BillingDAO {
 
 		final String ssnSize = settings.getAzureSsnInstanceSize();
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnSize)) {
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnSize, null));
+			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnSize, UserInstanceStatus.RUNNING));
 		}
 
 

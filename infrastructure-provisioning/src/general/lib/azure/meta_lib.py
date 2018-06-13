@@ -159,6 +159,21 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_instances_name_by_tag(self, resource_group_name, tag, value):
+        try:
+            list = []
+            for vm in self.compute_client.virtual_machines.list(resource_group_name):
+                if vm.tags.get(tag) == value:
+                    list.append(vm.name)
+            return list
+        except Exception as err:
+            logging.info(
+                "Unable to get instances by tag name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instances",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_datalake(self, resource_group_name, datalake_name):
         try:
             result = self.datalake_client.account.get(
@@ -511,6 +526,25 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_list_private_ip_by_conf_type_and_id(self, conf_type, instance_id):
+        try:
+            private_list_ip = []
+            if conf_type == 'edge_node' or conf_type == 'exploratory':
+                private_list_ip.append(AzureMeta().get_private_ip_address(os.environ['conf_service_base_name'], instance_id))
+            elif conf_type == 'computational_resource':
+                instance_list = AzureMeta().get_instances_name_by_tag(os.environ['conf_service_base_name'], 'Name', instance_id)
+                for instance in instance_list:
+                    private_list_ip.append(AzureMeta().get_private_ip_address(
+                        os.environ['conf_service_base_name'], instance))
+            return private_list_ip
+        except Exception as err:
+            logging.info(
+                "Error getting private ip by conf_type and id: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error getting private ip by conf_type and id",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
@@ -539,4 +573,5 @@ def node_count(cluster_name):
         append_result(str({"error": "Error with counting nodes in cluster",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 

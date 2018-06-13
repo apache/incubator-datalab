@@ -103,6 +103,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('yum install -y --nogpgcheck https://download2.rstudio.org/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            if os.environ['application'] == 'tensor-rstudio':
+                sudo("sed -i '/ExecStart/s|=|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /etc/systemd/system/rstudio-server.service")
+                sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
+                sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
@@ -252,9 +256,9 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('dracut --force')
             with settings(warn_only=True):
                 reboot(wait=150)
-            sudo('yum -y install gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
+            sudo('yum -y install dkms gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
-            sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
+            sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
             sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy --no-cache-dir'. format(os.environ['conf_pip_version']))
@@ -434,7 +438,7 @@ def install_caffe(os_user, region, caffe_version):
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
-def install_caffe2(os_user, caffe2_version):
+def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update-minimal --security -y')
@@ -445,27 +449,19 @@ def install_caffe2(os_user, caffe2_version):
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        sudo('git clone https://github.com/caffe2/caffe2')
-        submodules = ['third_party/pybind11', 'third_party/nccl', 'third_party/cub',
-              'third_party/eigen', 'third_party/googletest',
-              'third_party/nervanagpu', 'third_party/benchmark',
-              'third_party/protobuf', 'third_party/ios-cmake',
-              'third_party/NNPACK', 'third_party/gloo',
-              'third_party/pthreadpool', 'third_party/FXdiv',
-              'third_party/FP16', 'third_party/psimd',
-              'third_party/zstd', 'third_party/cpuinfo',
-              'third_party/python-enum', 'third_party/python-peachpy',
-              'third_party/python-six', 'third_party/ComputeLibrary',
-              'third_party/onnx']
-        with cd('/home/{}/caffe2/'.format(os_user)):
-            for module in submodules:
-                sudo('git submodule update --init {}'.format(module))
-        cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
-        with cd('/home/{}/caffe2/'.format(os_user)):
+        sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+            os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
+        sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
+        with cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
+            sudo('./bootstrap --prefix=/usr/local && make && make install')
+        sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
+        sudo('git clone https://github.com/pytorch/pytorch.git')
+        with cd('/home/{}/pytorch/'.format(os_user)):
+            sudo('git submodule update --init')
             with settings(warn_only=True):
                 sudo('git checkout v{}'.format(caffe2_version))
                 sudo('git submodule update --recursive')
-            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
+            sudo('mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(cmake_version))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

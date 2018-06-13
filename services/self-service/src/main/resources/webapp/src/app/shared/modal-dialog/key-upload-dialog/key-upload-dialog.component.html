@@ -18,7 +18,10 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="modal-sm">
   <modal-header>
-    <h4 class="modal-title">Create initial infrastructure</h4>
+    <h4 class="modal-title">
+      <span *ngIf="primaryUploading">Create initial infrastructure</span>
+      <span *ngIf="!primaryUploading">Reupload key</span>
+    </h4>
   </modal-header>
   <modal-content>
     <div class="content-box">
@@ -40,7 +43,7 @@ limitations under the License.
               <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />
             </span>
 
-            <button *ngIf="primaryUploading" mat-raised-button type="button" class="butt butt-generate" (click)="generateUserAccessKey_btnClick($event)">
+            <button mat-raised-button type="button" class="butt butt-generate" (click)="generateUserAccessKey_btnClick($event)">
               <i class="material-icons">move_to_inbox</i> Generate
             </button>
             <div *ngIf="model.accessKeyLabel.length" class="m-bott-10 m-top-10" [class.danger_color]="!model.accessKeyFormValid">{{model.accessKeyLabel}}</div>
@@ -50,8 +53,10 @@ limitations under the License.
           <small class="danger_color">{{errorMessage}}</small>
         </div>
         <div class="text-center m-top-30">
-          <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-          <button mat-raised-button type="submit" class="butt butt-success" [disabled]="!model.accessKeyFormValid">Create</button>
+          <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
+          <button mat-raised-button type="submit" class="butt butt-success action" [disabled]="!model.accessKeyFormValid">
+            <span *ngIf="primaryUploading">Create</span><span *ngIf="!primaryUploading">Reupload</span>
+          </button>
         </div>
       </form>
     </div>

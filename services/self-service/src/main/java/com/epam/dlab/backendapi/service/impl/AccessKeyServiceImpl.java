@@ -109,14 +109,14 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	@Override
-	public String generateKey(UserInfo userInfo) {
+	public String generateKey(UserInfo userInfo, boolean createEdge) {
 		log.debug("Generating new key pair for user {}", userInfo.getName());
 		try (ByteArrayOutputStream publicKeyOut = new ByteArrayOutputStream();
 			 ByteArrayOutputStream privateKeyOut = new ByteArrayOutputStream()) {
 			KeyPair pair = KeyPair.genKeyPair(new JSch(), KeyPair.RSA, configuration.getPrivateKeySize());
 			pair.writePublicKey(publicKeyOut, userInfo.getName());
 			pair.writePrivateKey(privateKeyOut);
-			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), true);
+			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), createEdge);
 			return new String(privateKeyOut.toByteArray());
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());

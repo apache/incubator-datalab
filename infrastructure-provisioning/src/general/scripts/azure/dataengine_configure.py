@@ -56,6 +56,27 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
+        print('[INSTALLING USERs KEY ON SLAVE]')
+        logging.info('[INSTALLING USERs KEY ON SLAVE]')
+        additional_config = {"user_keyname": os.environ['edge_user_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'],
+                                       data_engine['master_node_name'])
+        append_result("Failed to install user ssh key on slave.", str(err))
+        sys.exit(1)
+
+    try:
         logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
         print('[CLEANING INSTANCE FOR MASTER NODE]')
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
@@ -222,6 +243,27 @@ if __name__ == "__main__":
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         append_result("Failed to create ssh user on master.", str(err))
         sys.exit(1)
+
+    try:
+        print('[INSTALLING USERs KEY ON MASTER]')
+        logging.info('[INSTALLING USERs KEY ON MASTER]')
+        additional_config = {"user_keyname": os.environ['edge_user_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed to install ssh user key on master.", str(err))
+        sys.exit(1)
+
 
     try:
         logging.info('[CLEANING INSTANCE FOR MASTER NODE]')

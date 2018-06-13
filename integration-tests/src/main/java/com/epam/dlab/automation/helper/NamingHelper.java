@@ -166,11 +166,11 @@ public class NamingHelper {
 	public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
-    
-    public static String getClusterContainerName(String clusterName, String action) {
-    	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational", clusterName);
+
+	public static String getClusterContainerName(String notebookName, String clusterName, String action) {
+		return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational",
+				notebookName, clusterName);
     }
-    
     
     public static String generateRandomValue() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhmmss");

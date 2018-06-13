@@ -93,6 +93,8 @@ server:
       trustStorePath: ${TRUST_STORE_PATH}
       trustStorePassword: ${TRUST_STORE_PASSWORD}
 
+mongoMigrationEnabled: false
+
 logging:
   level: INFO
   loggers:

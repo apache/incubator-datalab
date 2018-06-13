@@ -178,11 +178,11 @@ limitations under the License.
 }
 
 .dialog-header {
-  padding-left: 20px;
+  padding-left: 30px;
   background: #f6fafe;
   border-bottom: 1px solid #edf1f5;
-  height: 50px;
-  line-height: 50px;
+  height: 54px;
+  line-height: 54px;
 }
 
 .header-white .dialog-header {
@@ -413,7 +413,6 @@ limitations under the License.
   text-overflow: ellipsis;
   font-weight: 600;
   color: #455c74;
-  line-height: 50px;
   font-size: 18px;
   background: #f6fafe;
 }

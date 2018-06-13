@@ -48,6 +48,7 @@ theano_version = os.environ['notebook_theano_version']
 keras_version = os.environ['notebook_keras_version']
 caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
+cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 python3_version = "3.4"
@@ -100,6 +101,8 @@ def start_spark(os_user, master_ip, node):
 ##############
 # Run script #
 ##############
+
+
 if __name__ == "__main__":
     print("Configure connections")
     env['connection_attempts'] = 100
@@ -122,7 +125,7 @@ if __name__ == "__main__":
         ensure_scala(scala_link, args.scala_version, args.os_user)
     if (os.environ['application'] in ('jupyter', 'zeppelin')
         and os.environ['notebook_r_enabled'] == 'true') \
-            or os.environ['application'] == 'rstudio':
+            or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
@@ -142,7 +145,7 @@ if __name__ == "__main__":
     configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, '')
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
-    if os.environ['application'] in ('tensor', 'deeplearning'):
+    if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         print("Installing TensorFlow")
         install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
         print("Install Theano")
@@ -155,7 +158,7 @@ if __name__ == "__main__":
         print("Installing Caffe")
         install_caffe(args.os_user, args.region, caffe_version)
         print("Installing Caffe2")
-        install_caffe2(args.os_user, caffe2_version)
+        install_caffe2(args.os_user, caffe2_version, cmake_version)
         print("Installing Torch")
         install_torch(args.os_user)
         print("Install CNTK Python library")

@@ -135,6 +135,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 						action(user, action);
 						break;
 					case CONFIGURE:
+					case REUPLOAD_KEY:
 						sleep(1000);
 						action(user, action);
 						break;

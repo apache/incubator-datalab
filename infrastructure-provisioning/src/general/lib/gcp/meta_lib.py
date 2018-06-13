@@ -582,6 +582,33 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def get_list_private_ip_by_conf_type_and_id(self, conf_type, instance_id):
+        try:
+            private_list_ip = []
+            if conf_type == 'edge_node' or conf_type == 'exploratory':
+                private_list_ip.append(GCPMeta().get_private_ip_address(
+                instance_id))
+            elif conf_type == 'computational_resource':
+                instance_list = GCPMeta().get_list_instances(
+                    os.environ['gcp_zone'])
+                for instance in instance_list.get('items'):
+                    if instance.get('labels') != None:
+                        if instance.get('labels').get('name') == instance_id:
+                            private_list_ip.append(
+                                instance.get('networkInterfaces')[0].get(
+                                    'networkIP'))
+            return private_list_ip
+        except Exception as err:
+            logging.info(
+                "Error getting private ip by conf_type and id: " + str(
+                    err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Error getting private ip by conf_type and id",
+                               "error_message": str(
+                                   err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:

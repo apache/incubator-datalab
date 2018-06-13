@@ -30,7 +30,8 @@ limitations under the License.
   </button>
 </div>
 
-<health-status-grid [envInProgress]="envInProgress"
+<health-status-grid [anyEnvInProgress]="anyEnvInProgress"
+                    [notebookInProgress]="notebookInProgress"
                     [uploadKey]="uploadKey"
                     [environmentsHealthStatuses]="environmentsHealthStatuses"
                     (refreshGrid)="buildGrid($event)"></health-status-grid>

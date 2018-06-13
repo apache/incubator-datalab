@@ -105,6 +105,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildRegenerateAccessKey(option): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE) + option,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildUploadUserAccessKeyRequest(body: any): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),

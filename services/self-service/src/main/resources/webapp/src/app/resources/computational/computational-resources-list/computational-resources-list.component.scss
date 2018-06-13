@@ -23,7 +23,7 @@ limitations under the License.
   .resource-wrap {
     display: flex;
     justify-content: space-between;
-    line-height: 26px;
+    height: 26px;
     .resource-name {
       width: 55%;
       white-space: nowrap;
@@ -35,21 +35,21 @@ limitations under the License.
       }
     }
     .resource-status {
-      width: 20%;
+      width: 30%;
       text-transform: capitalize;
     }
     .resource-actions {
-      width: 20%;
+      width: 15%;
       display: flex;
       justify-content: flex-end;
       a {
         text-decoration: none;
-        margin: 0 2px;
         color: #748ba3;
         font-size: 18px;
         text-align: center;
         i {
           font-size: 18px;
+          padding: 0 2px;
         }
       }
       .schedule {
@@ -65,7 +65,6 @@ limitations under the License.
         
         font-size: 18px;
         color: #36afd5;
-        margin-left: 3px;
         i {
           cursor: pointer;
           &.not-allowed {
@@ -76,7 +75,6 @@ limitations under the License.
       .remove_butt {
         cursor: pointer;
         color: #ef5c4b;
-
         &.disabled {
           color: #f5d3d3;
           pointer-events: none;

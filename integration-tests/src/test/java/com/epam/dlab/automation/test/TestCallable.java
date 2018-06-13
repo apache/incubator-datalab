@@ -240,7 +240,7 @@ public class TestCallable implements Callable<Boolean> {
 				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
 
 		Docker.checkDockerStatus(
-				NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
+				NamingHelper.getClusterContainerName(notebookName, clusterName, "create"), NamingHelper.getSsnIp());
     }
     LOGGER.info("{}:   Waiting until {} cluster {} has been configured ...", notebookName,dataEngineType,clusterName);
 
@@ -255,7 +255,7 @@ public class TestCallable implements Callable<Boolean> {
 		VirtualMachineStatusChecker.checkIfRunning(
 				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
 		Docker.checkDockerStatus(
-				NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
+				NamingHelper.getClusterContainerName(notebookName, clusterName, "create"), NamingHelper.getSsnIp());
     }
     if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AWS_PROVIDER)){
         LOGGER.info("{}:   Check bucket {}", notebookName, storageName);
@@ -619,7 +619,7 @@ public class TestCallable implements Callable<Boolean> {
 				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
 
 		Docker.checkDockerStatus(
-				NamingHelper.getClusterContainerName(clusterName, "start"), NamingHelper.getSsnIp());
+				NamingHelper.getClusterContainerName(notebookName, clusterName, "start"), NamingHelper.getSsnIp());
 	}
 
 	private void stopCluster() throws Exception {
@@ -645,7 +645,7 @@ public class TestCallable implements Callable<Boolean> {
 				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
 
 		Docker.checkDockerStatus(
-				NamingHelper.getClusterContainerName(clusterName, "stop"), NamingHelper.getSsnIp());
+				NamingHelper.getClusterContainerName(notebookName, clusterName, "stop"), NamingHelper.getSsnIp());
 	}
    
    private void terminateCluster(String clusterNewName) throws Exception {
@@ -671,7 +671,8 @@ public class TestCallable implements Callable<Boolean> {
 			   NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
 	   Docker.checkDockerStatus(
-			   NamingHelper.getClusterContainerName(clusterNewName, "terminate"), NamingHelper.getSsnIp());
+			   NamingHelper.getClusterContainerName(notebookName, clusterNewName, "terminate"),
+			   NamingHelper.getSsnIp());
    }
 
    private String redeployCluster(DeployClusterDto deployCluster) throws Exception {
@@ -704,7 +705,7 @@ public class TestCallable implements Callable<Boolean> {
 	   VirtualMachineStatusChecker.checkIfRunning(
 			   NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
-	   Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"),
+	   Docker.checkDockerStatus(NamingHelper.getClusterContainerName(notebookName, clusterNewName, "create"),
 			   NamingHelper.getSsnIp());
        return clusterNewName;
    }

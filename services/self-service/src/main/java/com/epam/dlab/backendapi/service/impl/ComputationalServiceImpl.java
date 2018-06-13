@@ -230,10 +230,11 @@ public class ComputationalServiceImpl implements ComputationalService {
 			log.debug("{} spark cluster {} for exploratory {}", compStatus.toString(), computationalName,
 					exploratoryName);
 			updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, compStatus);
-			final String exploratoryId = exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
+			final UserInstanceDTO exploratory = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+					exploratoryName);
 			final String uuid = provisioningService.post(provisioningEndpoint,
 					userInfo.getAccessToken(),
-					toProvisioningDto(userInfo, exploratoryName, computationalName, compStatus, exploratoryId),
+					toProvisioningDto(userInfo, computationalName, compStatus, exploratory),
 					String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} else {
@@ -243,13 +244,13 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	private ComputationalBase<? extends ComputationalBase<?>> toProvisioningDto(UserInfo userInfo, String
-			exploratoryName, String computationalName, UserInstanceStatus compStatus, String exploratoryId) {
+			computationalName, UserInstanceStatus compStatus, UserInstanceDTO exploratory) {
 		if (UserInstanceStatus.STARTING == compStatus) {
 			return requestBuilder
-					.newComputationalStart(userInfo, exploratoryName, exploratoryId, computationalName);
+					.newComputationalStart(userInfo, exploratory, computationalName);
 		} else if (UserInstanceStatus.STOPPING == compStatus) {
 			return requestBuilder
-					.newComputationalStop(userInfo, exploratoryName, exploratoryId, computationalName);
+					.newComputationalStop(userInfo, exploratory, computationalName);
 		} else {
 			throw new UnsupportedOperationException();
 		}

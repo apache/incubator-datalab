@@ -64,9 +64,6 @@ public class S3FileListTest {
 		list.add(array[0]);
 		list.add(array[1]);
 
-		S3FileList s3list = new S3FileList(false, null, null);
-		list.sort(String::compareTo);
-
 		assertEquals(array.length, list.size());
 		for (int i = 0; i < array.length; i++) {
 			assertEquals(array[i], list.get(i));

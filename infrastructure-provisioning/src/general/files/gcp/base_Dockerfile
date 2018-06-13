@@ -28,7 +28,7 @@ RUN	apt-get update && \
 # Install any python dependencies
 RUN pip install -UI pip==9.0.3 && \
     pip install boto3 fabric==1.14.0 fabvenv  argparse ujson jupyter pycrypto google-api-python-client google-cloud-storage \
-    pyyaml google-auth-httplib2
+    pyyaml google-auth-httplib2 oauth2client
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
