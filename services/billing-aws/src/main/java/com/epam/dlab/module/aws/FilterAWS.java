@@ -124,7 +124,7 @@ public class FilterAWS extends FilterBase {
 
 	@Override
 	public String canParse(String line) throws ParseException {
-		return (line.indexOf("\",\"LineItem\",\"") < 0 ? null : line);
+		return line;
 	}
 
 	@Override
