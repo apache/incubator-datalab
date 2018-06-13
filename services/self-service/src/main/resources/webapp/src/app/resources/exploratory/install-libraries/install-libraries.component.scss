@@ -30,6 +30,9 @@ limitations under the License.
       align-self: center;
       list-style: none;
       display: flex;
+      p {
+        font-size: 16px;;
+      }
     }
   }
   .mat-list-item {
@@ -72,9 +75,6 @@ limitations under the License.
       }
       .control-group {
         width: 50%;
-        &:first-child {
-          // padding-right: 15px;
-        }
         .label {
           width: 20%;
         }

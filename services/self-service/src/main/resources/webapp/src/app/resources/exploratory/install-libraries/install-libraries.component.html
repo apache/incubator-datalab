@@ -62,23 +62,25 @@ limitations under the License.
               <input type="text" placeholder="Enter library name" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
               <mat-icon matSuffix>search</mat-icon>
               <mat-autocomplete #auto="matAutocomplete" class="suggestions">
-                <mat-option *ngFor="let item of (filteredList | keys)">
-                  <div class="option" (click)="selectLibrary(item)" [ngClass]="{'not-allowed': (isInSelectedList || isInstalled)}">
-                    <a *ngIf="!isDuplicated(item)">{{ item.key }}
-                      <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
-                    </a>
-                    <span *ngIf="isInSelectedList || isInstalled" class="not-allowed">{{ item.key }}
-                      <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
-                    </span>
+                  <ng-template ngFor let-item [ngForOf]="(filteredList | keys)" let-i="index">
+                    <mat-option [ngClass]="{ 'not-allowed': isDuplicated(item) }">
+                      <div class="option" (click)="selectLibrary(item)">
+                        <a *ngIf="!isDuplicated(item)">{{ item.key }}
+                          <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                        </a>
+                        <span *ngIf="isInSelectedList || isInstalled">{{ item.key }}
+                          <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                        </span>
 
-                    <strong *ngIf="isInSelectedList">selected
-                      <i class="material-icons">done</i>
-                    </strong>
-                    <strong *ngIf="isInstalled">installed
-                      <i class="material-icons">done</i>
-                    </strong>
-                  </div>
-                </mat-option>
+                        <strong *ngIf="isInSelectedList">selected
+                          <i class="material-icons">done</i>
+                        </strong>
+                        <strong *ngIf="isInstalled">installed
+                          <i class="material-icons">done</i>
+                        </strong>
+                      </div>
+                    </mat-option>
+                  </ng-template> 
                 <mat-option *ngIf="model.isEmpty(filteredList)">
                   <span class="configuring">No matches found</span>
                 </mat-option>
