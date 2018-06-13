@@ -38,6 +38,7 @@ adapterIn:
   - type: s3file
     bucket: <BILLING_BUCKET_NAME>
     path: <REPORT_PATH>
+    awsJobEnabled: <AWS_JOB_ENABLED>
     accountId: <ACCOUNT_ID>
     accessKeyId: <ACCESS_KEY_ID>
     secretAccessKey: <SECRET_ACCESS_KEY>
@@ -57,8 +58,9 @@ adapterOut:
 filter:
   - type: aws
     currencyCode: USD
-    columnDlabTag: user:<CONF_TAG_RESOURCE_ID>
+    columnDlabTag: <CONF_TAG_RESOURCE_ID>
     serviceBaseName: <CONF_SERVICE_BASE_NAME>
+
 
 # Parser of source data to common format.
 parser:
@@ -66,9 +68,9 @@ parser:
     headerLineNo: 1
     skipLines: 1
     columnMapping: >-
-      dlab_id=user:user:tag;usage_date=UsageStartDate;product=ProductName;
-      usage_type=UsageType;usage=UsageQuantity;cost=BlendedCost;
-      resource_id=ResourceId;tags=Operation,ItemDescription
+      dlab_id=<DLAB_ID>;usage_date=<USAGE_DATE>;product=<PRODUCT>;
+      usage_type=<USAGE_TYPE>;usage=<USAGE>;cost=<COST>;
+      resource_id=<RESOURCE_ID>;tags=<TAGS>
     aggregate: day
 
 

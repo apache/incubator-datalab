@@ -247,14 +247,54 @@ if __name__ == "__main__":
         }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --service_base_name {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {} --mongo_parameters '{}'". \
-            format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
-                   os.environ['ssn_dlab_path'], dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'],
-                   os.environ['conf_resource'], os.environ['conf_service_base_name'],
-                   os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'], os.environ['aws_account_id'],
-                   os.environ['aws_billing_bucket'], os.environ['aws_report_path'], billing_enabled,
-                   json.dumps(mongo_parameters))
-
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--dlab_path {} " \
+                 "--os_user {} " \
+                 "--os_family {} " \
+                 "--request_id {} " \
+                 "--resource {} " \
+                 "--service_base_name {} " \
+                 "--tag_resource_id {} " \
+                 "--cloud_provider {} " \
+                 "--account_id {} " \
+                 "--billing_bucket {} " \
+                 "--aws_job_enabled {} " \
+                 "--report_path '{}' " \
+                 "--billing_enabled {} " \
+                 "--mongo_parameters '{}' " \
+                 "--dlab_id '{}' " \
+                 "--usage_date {} " \
+                 "--product {} " \
+                 "--usage_type {} " \
+                 "--usage {} " \
+                 "--cost {} " \
+                 "--resource_id {} " \
+                 "--tags {}". \
+            format(instance_hostname,
+                   "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
+                   os.environ['ssn_dlab_path'],
+                   dlab_ssh_user,
+                   os.environ['conf_os_family'],
+                   os.environ['request_id'],
+                   os.environ['conf_resource'],
+                   os.environ['conf_service_base_name'],
+                   os.environ['conf_tag_resource_id'],
+                   os.environ['conf_cloud_provider'],
+                   os.environ['aws_account_id'],
+                   os.environ['aws_billing_bucket'],
+                   os.environ['aws_job_enabled'],
+                   os.environ['aws_report_path'],
+                   billing_enabled,
+                   json.dumps(mongo_parameters),
+                   os.environ['dlab_id'],
+                   os.environ['usage_date'],
+                   os.environ['product'],
+                   os.environ['usage_type'],
+                   os.environ['usage'],
+                   os.environ['cost'],
+                   os.environ['resource_id'],
+                   os.environ['tags'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
@@ -262,6 +302,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Unable to configure UI.", str(err))
+        print(err)
         remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)
