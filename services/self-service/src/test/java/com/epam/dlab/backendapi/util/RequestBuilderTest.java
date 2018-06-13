@@ -1031,7 +1031,10 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newComputationalStop(userInfo, "explName", "explId", "compName");
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("explId");
+		exploratory.setExploratoryName("explName");
+		requestBuilder.newComputationalStop(userInfo, exploratory, "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1055,7 +1058,10 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newComputationalStop(userInfo, "explName", "explId", "compName");
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("explId");
+		exploratory.setExploratoryName("explName");
+		requestBuilder.newComputationalStop(userInfo, exploratory, "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1075,7 +1081,10 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newComputationalStop(userInfo, "explName", "explId", "compName");
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("explId");
+		exploratory.setExploratoryName("explName");
+		requestBuilder.newComputationalStop(userInfo, exploratory, "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
@@ -1095,7 +1104,11 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("explId");
+		exploratory.setExploratoryName("explName");
+
+		requestBuilder.newComputationalStart(userInfo, exploratory, "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1119,7 +1132,10 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("explId");
+		exploratory.setExploratoryName("explName");
+		requestBuilder.newComputationalStart(userInfo, exploratory, "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1139,7 +1155,10 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newComputationalStart(userInfo, "explName", "explId", "compName");
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("explId");
+		exploratory.setExploratoryName("explName");
+		requestBuilder.newComputationalStart(userInfo, exploratory, "compName");
 
 		verify(configuration, times(2)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
