@@ -468,13 +468,16 @@ public class ComputationalServiceImplTest {
 
 	@Test
 	public void stopSparkCluster() {
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("someId");
+		exploratory.setExploratoryName(EXPLORATORY_NAME);
 		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
 		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
-		when(exploratoryDAO.fetchExploratoryId(anyString(), anyString())).thenReturn("someId");
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(exploratory);
 
 		ComputationalStopDTO computationalStopDTO = new ComputationalStopDTO();
-		when(requestBuilder.newComputationalStop(any(UserInfo.class), anyString(), anyString(), anyString()))
+		when(requestBuilder.newComputationalStop(any(UserInfo.class), any(UserInstanceDTO.class), anyString()))
 				.thenReturn(computationalStopDTO);
 		when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
 				.thenReturn("someUuid");
@@ -484,8 +487,8 @@ public class ComputationalServiceImplTest {
 
 		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStopping, "self"));
-		verify(exploratoryDAO).fetchExploratoryId(USER, EXPLORATORY_NAME);
-		verify(requestBuilder).newComputationalStop(userInfo, EXPLORATORY_NAME, "someId", COMP_NAME);
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(requestBuilder).newComputationalStop(refEq(userInfo), refEq(exploratory), eq(COMP_NAME));
 		verify(provisioningService)
 				.post(eq("computational/stop/spark"), eq(TOKEN), refEq(computationalStopDTO), eq(String.class));
 		verify(requestId).put(USER, "someUuid");
@@ -506,13 +509,16 @@ public class ComputationalServiceImplTest {
 
 	@Test
 	public void startSparkCluster() {
+		final UserInstanceDTO exploratory = new UserInstanceDTO();
+		exploratory.setExploratoryId("someId");
+		exploratory.setExploratoryName(EXPLORATORY_NAME);
 		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
 		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
-		when(exploratoryDAO.fetchExploratoryId(anyString(), anyString())).thenReturn("someId");
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(exploratory);
 
 		ComputationalStartDTO computationalStartDTO = new ComputationalStartDTO();
-		when(requestBuilder.newComputationalStart(any(UserInfo.class), anyString(), anyString(), anyString()))
+		when(requestBuilder.newComputationalStart(any(UserInfo.class), any(UserInstanceDTO.class), anyString()))
 				.thenReturn(computationalStartDTO);
 		when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
 				.thenReturn("someUuid");
@@ -522,8 +528,8 @@ public class ComputationalServiceImplTest {
 
 		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStarting, "self"));
-		verify(exploratoryDAO).fetchExploratoryId(USER, EXPLORATORY_NAME);
-		verify(requestBuilder).newComputationalStart(userInfo, EXPLORATORY_NAME, "someId", COMP_NAME);
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(requestBuilder).newComputationalStart(refEq(userInfo), refEq(exploratory), eq(COMP_NAME));
 		verify(provisioningService)
 				.post(eq("computational/start/spark"), eq(TOKEN), refEq(computationalStartDTO), eq(String.class));
 		verify(requestId).put(USER, "someUuid");

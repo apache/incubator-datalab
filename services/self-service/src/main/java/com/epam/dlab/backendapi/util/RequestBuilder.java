@@ -343,7 +343,7 @@ public class RequestBuilder {
 	public <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo,
 																		 UserInstanceDTO userInstance,
 																		 UserComputationalResource
-																					 computationalResource) {
+																				 computationalResource) {
 
 		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
@@ -484,22 +484,23 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ComputationalBase<T>> T newComputationalStop(UserInfo userInfo,
-																   String exploratoryName,
-																   String exploratoryId,
+																   UserInstanceDTO exploratory,
 																   String computationalName) {
 		return (T) newResourceSysBaseDTO(userInfo, ComputationalStopDTO.class)
-				.withExploratoryName(exploratoryName)
+				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratoryId);
+				.withNotebookInstanceName(exploratory.getExploratoryId())
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()));
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalStart(UserInfo userInfo, String exploratoryName,
-																	String exploratoryId, String computationalName) {
+	public <T extends ComputationalBase<T>> T newComputationalStart(UserInfo userInfo, UserInstanceDTO exploratory,
+																	String computationalName) {
 		return (T) newResourceSysBaseDTO(userInfo, ComputationalStartDTO.class)
-				.withExploratoryName(exploratoryName)
+				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratoryId);
+				.withNotebookInstanceName(exploratory.getExploratoryId())
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()));
 	}
 
 	@SuppressWarnings("unchecked")
