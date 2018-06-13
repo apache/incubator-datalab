@@ -37,15 +37,6 @@ public class FilterAWSTest {
 	}
 
 	@Test
-	public void canParse() throws ParseException {
-		FilterAWS filter = new FilterAWS();
-		String line = "parse me\",\"LineItem\",\" parse me";
-		assertEquals(line, filter.canParse(line));
-		line = "don't parse me";
-		assertEquals(null, filter.canParse(line));
-	}
-
-	@Test
 	public void canAccept() throws ParseException {
 		FilterAWS filter = new FilterAWS();
 		filter.setCurrencyCode("currency");
