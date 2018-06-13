@@ -162,7 +162,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              locale, region_info, ldap_login, tenant_id,
              application_id, hostname, data_lake_name, subscription_id,
              validate_permission_scope, dlab_id, usage_date, product,
-             sage_type, usage, cost, resource_id, tags, report_path=''):
+             usage_type, usage, cost, resource_id, tags, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
