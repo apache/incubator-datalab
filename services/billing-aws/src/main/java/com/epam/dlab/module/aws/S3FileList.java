@@ -94,7 +94,7 @@ public class S3FileList {
 	public List<String> getFiles(AmazonS3 s3Client) throws AdapterException {
 		final List<S3ObjectSummary> objectSummaries = reportFilesInBillingBucket(s3Client);
 		return awsJobEnabled ? lastFilesPerBillingPeriod(objectSummaries) :
-				objectSummaries.stream().map(S3ObjectSummary::getKey).collect(toList());
+				objectSummaries.stream().map(S3ObjectSummary::getKey).sorted().collect(toList());
 	}
 
 	private List<S3ObjectSummary> reportFilesInBillingBucket(AmazonS3 s3Client) throws AdapterException {

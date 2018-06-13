@@ -18,9 +18,12 @@
 
 package com.epam.dlab.module.aws;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.epam.dlab.core.ModuleData;
+import com.epam.dlab.exceptions.AdapterException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,6 +37,8 @@ import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,28 +46,39 @@ import static org.mockito.Mockito.when;
 public class S3FileListTest {
 
 	@Test
-	public void sort() {
+	public void sort() throws AdapterException {
+		final AmazonS3Client s3Client = mock(AmazonS3Client.class);
+		final ListObjectsV2Result result = mock(ListObjectsV2Result.class);
+		final ModuleData moduleData = mock(ModuleData.class);
 		final String[] array = {
-				"report-prefix/report/20160101-20160131/123456789/report-1.csv",
-				"report-prefix/report/20160101-20160131/123456789/report-2.csv",
-				"report-prefix/report/20160101-20160131/123456789/report-3.csv",
-				"report-prefix/report/20160202-20160231/123456789/report.csv",
-				"report-prefix/report/20160202-20160301/123456789/report.csv",
-				"report-prefix/report/20160303-20160301/123456789/report-1.csv",
-				"report-prefix/report/20160303-20160301/123456789/report-2.csv",
-				"report-prefix/report/20160303-20160302/123456789/report-1.csv",
-				"report-prefix/report/20160303-20160302/123456789/report-2.csv"
+				"report-prefix/report/20160101-20160131/123456789/report-1.csv.zip",
+				"report-prefix/report/20160101-20160131/123456789/report-2.csv.zip",
+				"report-prefix/report/20160101-20160131/123456789/report-3.csv.zip",
+				"report-prefix/report/20160202-20160231/123456789/report.csv.zip",
+				"report-prefix/report/20160202-20160301/123456789/report.csv.zip",
+				"report-prefix/report/20160303-20160301/123456789/report-1.csv.zip",
+				"report-prefix/report/20160303-20160301/123456789/report-2.csv.zip",
+				"report-prefix/report/20160303-20160302/123456789/report-1.csv.zip",
+				"report-prefix/report/20160303-20160302/123456789/report-2.csv.zip"
 		};
-		List<String> list = new ArrayList<>();
-		list.add(array[8]);
-		list.add(array[2]);
-		list.add(array[5]);
-		list.add(array[4]);
-		list.add(array[7]);
-		list.add(array[3]);
-		list.add(array[6]);
-		list.add(array[0]);
-		list.add(array[1]);
+		final List<S3ObjectSummary> objectSummaries = Arrays.asList(
+				getObjectSummary(array[0], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[4], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[1], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[2], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[3], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[5], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[6], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[7], LocalDate.of(2018, 4, 4)),
+				getObjectSummary(array[8], LocalDate.of(2018, 4, 4))
+
+		);
+		when(s3Client.listObjectsV2(any(ListObjectsV2Request.class))).thenReturn(result);
+		when(result.getObjectSummaries()).thenReturn(objectSummaries);
+		when(moduleData.wasProcessed(any(),any(), anyString())).thenReturn(false);
+
+		S3FileList s3list = new S3FileList(false, "test", moduleData);
+		final List<String> list = s3list.getFiles(s3Client);
 
 		assertEquals(array.length, list.size());
 		for (int i = 0; i < array.length; i++) {
