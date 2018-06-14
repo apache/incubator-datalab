@@ -22,17 +22,17 @@ limitations under the License.
       <b>{{ notebook?.name }}</b> Libraries</h4>
   </modal-header>
   <modal-content>
+    <div class="info" *ngIf="notebook?.status !== 'running'">
+      <p class=" message">Cannot install libraries: Exploratory
+        <strong>{{ notebook?.name }}</strong> is not running</p>
+    </div>
     <div class="loading-block" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
       <div class="uploading">
         <p>Please wait until DLab loads full list of available libraries for you...</p>
         <img src="assets/img/gif-spinner.gif" alt="loading">
       </div>
     </div>
-    <div class="tab-content" *ngIf="notebook?.status !== 'running'">
-      <p class="info message">Cannot install libraries: Exploratory
-        <strong>{{ notebook?.name }}</strong> is not running</p>
-    </div>
-    <div *ngIf="notebook?.status === 'running'" class="tab-content lib-view-wrap">
+    <div *ngIf="notebook?.status === 'running'" class="lib-view-wrap">
       <div class="search-box" *ngIf="!uploading">
         <div class="search-form">
           <div>
@@ -125,67 +125,68 @@ limitations under the License.
           </ul> -->
         <!-- </div> -->
       
+    </div>
+    <div class="libs-info">
+        <!-- *ngIf="!uploading" -->
+      <mat-list>
+        <mat-list-item class="list-header">
+          <div class="lib-name">Name</div>
+          <div class="lib-group">Group</div>
+          <div class="lib-destination">Destination</div>
+          <div class="lib-resource-type">Resource type</div>
+          <div class="lib-status">Status</div>
+        </mat-list-item>
 
-      <div class="libs-info" *ngIf="!uploading">
-        <mat-list>
-          <mat-list-item class="list-header">
-            <div class="lib-name">Name</div>
-            <div class="lib-group">Group</div>
-            <div class="lib-destination">Destination</div>
-            <div class="lib-resource-type">Resource type</div>
-            <div class="lib-status">Status</div>
-          </mat-list-item>
+        <div class="scrollingList" id="scrolling" *ngIf="notebookLibs?.length">
+          <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
+            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
+          </div>
 
-          <div class="scrollingList" id="scrolling" *ngIf="notebookLibs?.length">
-            <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
-              <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
+          <mat-list-item *ngFor="let lib of notebookLibs">
+            <div class="lib-name">
+              <strong>{{ lib.name }}</strong>
+              <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
             </div>
-
-            <mat-list-item *ngFor="let lib of notebookLibs">
-              <div class="lib-name">
-                <strong>{{ lib.name }}</strong>
-                <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
-              </div>
-              <div class="lib-group">{{ groupsListMap[lib.group] }}</div>
-              <div class="st-group">
-                <ng-template let-item ngFor [ngForOf]="lib.status">
-                  <div class="wrap-col">
-                    <div class="lib-destination-col">{{ item.resource }}</div>
-                    <div class="lib-resource-type-col">{{ item.resourceType }}</div>
-                    <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
-                      <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
-                        <div>
-                          <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
-                            <i class="material-icons">replay</i>
-                          </span>
-                          <span class="not-allowed" *ngIf="installingInProgress" matTooltip="You can't reinstall library until previous process will be completed"
-                            matTooltipPosition="above">
-                            <i class="material-icons">replay</i>
-                          </span>
-                        </div>
-                        <div *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="showErrorMessage(item)">
-                          <i class="material-icons">error_outline</i>
-                        </div>
+            <div class="lib-group">{{ groupsListMap[lib.group] }}</div>
+            <div class="st-group">
+              <ng-template let-item ngFor [ngForOf]="lib.status">
+                <div class="wrap-col">
+                  <div class="lib-destination-col">{{ item.resource }}</div>
+                  <div class="lib-resource-type-col">{{ item.resourceType }}</div>
+                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
+                    <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
+                      <div>
+                        <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
+                          <i class="material-icons">replay</i>
+                        </span>
+                        <span class="not-allowed" *ngIf="installingInProgress" matTooltip="You can't reinstall library until previous process will be completed"
+                          matTooltipPosition="above">
+                          <i class="material-icons">replay</i>
+                        </span>
+                      </div>
+                      <div *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="showErrorMessage(item)">
+                        <i class="material-icons">error_outline</i>
                       </div>
                     </div>
                   </div>
-                </ng-template>
-              </div>
-            </mat-list-item>
-          </div>
-          <div *ngIf="!notebookLibs?.length" class="scrollingList info">
-            <p>You have no libraries installed</p>
-          </div>
-        </mat-list>
-      </div>
-      <div class="text-center m-top-15 m-bott-10 actions" *ngIf="!uploading">
-        <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
-        <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
-      </div>
-      <div class="info message error" *ngIf="processError">
-        <small>{{ errorMessage }}</small>
-      </div>
+                </div>
+              </ng-template>
+            </div>
+          </mat-list-item>
+        </div>
+        <div *ngIf="!notebookLibs?.length" class="scrollingList info message">
+          <p>You have no libraries installed</p>
+        </div>
+      </mat-list>
     </div>
+    <div class="text-center m-top-15 m-bott-10 actions" *ngIf="!uploading && notebook?.status === 'running'">
+      <button mat-raised-button type="button" class="butt action" (click)="close()">Close</button>
+      <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
+    </div>
+    <div class="info message error" *ngIf="processError">
+      <small>{{ errorMessage }}</small>
+    </div>
+    
   </modal-content>
 </modal-dialog>
 
