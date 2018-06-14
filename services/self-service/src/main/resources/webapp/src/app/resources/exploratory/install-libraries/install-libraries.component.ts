@@ -65,7 +65,6 @@ export class InstallLibrariesComponent implements OnInit {
   private clearCheckInstalling = undefined;
 
   @ViewChild('bindDialog') bindDialog;
-  @ViewChild('tabGroup') tabGroup;
   @ViewChild('groupSelect') group_select;
   @ViewChild('resourceSelect') resource_select;
 
@@ -233,8 +232,6 @@ export class InstallLibrariesComponent implements OnInit {
         this.notebookLibs = data ? data : [];
         this.changeDetector.markForCheck();
         this.isInstallingInProgress(this.notebookLibs);
-
-        // if (init && !this.notebookLibs.length) this.tabGroup.selectedIndex = 1;
       });
   }
 
@@ -285,7 +282,6 @@ export class InstallLibrariesComponent implements OnInit {
     this.destination = null;
     this.groupsList = [];
 
-    // if (!nActive) this.tabGroup.selectedIndex = 0;
     this.libSearch.disable();
     clearTimeout(this.clear);
     clearInterval(this.clearCheckInstalling);
