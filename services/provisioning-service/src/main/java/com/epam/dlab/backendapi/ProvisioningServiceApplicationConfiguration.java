@@ -28,138 +28,146 @@ import org.hibernate.validator.group.GroupSequenceProvider;
 @GroupSequenceProvider(ProvisioningServiceCloudConfigurationSequenceProvider.class)
 public class ProvisioningServiceApplicationConfiguration extends ServiceConfiguration implements Directories {
 
-    @NotEmpty
-    @JsonProperty
-    private String keyDirectory;
+	@NotEmpty
+	@JsonProperty
+	private String keyDirectory;
 
-    @NotEmpty
-    @JsonProperty
-    private String responseDirectory;
+	@NotEmpty
+	@JsonProperty
+	private String responseDirectory;
 
-    @NotEmpty
-    @JsonProperty
-    private String dockerLogDirectory;
+	@NotEmpty
+	@JsonProperty
+	private String dockerLogDirectory;
 
-    @JsonProperty
-    private Duration warmupPollTimeout = Duration.seconds(3);
+	@NotEmpty
+	@JsonProperty
+	private String handlerDirectory;
 
-    @JsonProperty
-    private Duration resourceStatusPollTimeout = Duration.minutes(3);
+	@JsonProperty
+	private Duration warmupPollTimeout = Duration.seconds(3);
 
-    @JsonProperty
-    private Duration keyLoaderPollTimeout = Duration.minutes(2);
+	@JsonProperty
+	private Duration resourceStatusPollTimeout = Duration.minutes(3);
 
-    @JsonProperty
-    private Duration requestEnvStatusTimeout = Duration.seconds(30);
+	@JsonProperty
+	private Duration keyLoaderPollTimeout = Duration.minutes(2);
 
-    @NotEmpty
-    @JsonProperty
-    private String adminKey;
+	@JsonProperty
+	private Duration requestEnvStatusTimeout = Duration.seconds(30);
 
-    @NotEmpty
-    @JsonProperty
-    private String edgeImage;
+	@NotEmpty
+	@JsonProperty
+	private String adminKey;
 
-    @JsonProperty
-    private Duration fileLengthCheckDelay = Duration.seconds(3);
+	@NotEmpty
+	@JsonProperty
+	private String edgeImage;
 
-    @NotEmpty(groups = AwsValidation.class)
-    @JsonProperty
-    private String emrEC2RoleDefault;
+	@JsonProperty
+	private Duration fileLengthCheckDelay = Duration.seconds(3);
 
-    @NotEmpty(groups = AwsValidation.class)
-    @JsonProperty
-    private String emrServiceRoleDefault;
+	@NotEmpty(groups = AwsValidation.class)
+	@JsonProperty
+	private String emrEC2RoleDefault;
 
-    @JsonProperty
-    private int processMaxThreadsPerJvm = 50;
+	@NotEmpty(groups = AwsValidation.class)
+	@JsonProperty
+	private String emrServiceRoleDefault;
 
-    @JsonProperty
-    private int processMaxThreadsPerUser = 5;
+	@JsonProperty
+	private int processMaxThreadsPerJvm = 50;
 
-    @JsonProperty
-    private Duration processTimeout = Duration.hours(3);
-    @JsonProperty
-    private String backupScriptPath;
-    @JsonProperty
-    private String backupDirectory;
+	@JsonProperty
+	private int processMaxThreadsPerUser = 5;
 
-    public String getKeyDirectory() {
-        return keyDirectory;
-    }
+	@JsonProperty
+	private Duration processTimeout = Duration.hours(3);
+	@JsonProperty
+	private String backupScriptPath;
+	@JsonProperty
+	private String backupDirectory;
 
-    public Duration getWarmupPollTimeout() {
-        return warmupPollTimeout;
-    }
+	public String getKeyDirectory() {
+		return keyDirectory;
+	}
 
-    public Duration getResourceStatusPollTimeout() {
-        return resourceStatusPollTimeout;
-    }
+	public Duration getWarmupPollTimeout() {
+		return warmupPollTimeout;
+	}
 
-    public Duration getKeyLoaderPollTimeout() {
-        return keyLoaderPollTimeout;
-    }
+	public Duration getResourceStatusPollTimeout() {
+		return resourceStatusPollTimeout;
+	}
 
-    /**
-     * Return the timeout for the check the status of environment resources.
-     */
-    public Duration getRequestEnvStatusTimeout() {
-        return requestEnvStatusTimeout;
-    }
+	public Duration getKeyLoaderPollTimeout() {
+		return keyLoaderPollTimeout;
+	}
 
-    public String getAdminKey() {
-        return adminKey;
-    }
+	/**
+	 * Return the timeout for the check the status of environment resources.
+	 */
+	public Duration getRequestEnvStatusTimeout() {
+		return requestEnvStatusTimeout;
+	}
 
-    public String getEdgeImage() {
-        return edgeImage;
-    }
+	public String getAdminKey() {
+		return adminKey;
+	}
 
-    public Duration getFileLengthCheckDelay() {
-        return fileLengthCheckDelay;
-    }
+	public String getEdgeImage() {
+		return edgeImage;
+	}
 
-    public String getEmrEC2RoleDefault() {
-        return emrEC2RoleDefault;
-    }
+	public Duration getFileLengthCheckDelay() {
+		return fileLengthCheckDelay;
+	}
 
-    public String getEmrServiceRoleDefault() {
-        return emrServiceRoleDefault;
-    }
+	public String getEmrEC2RoleDefault() {
+		return emrEC2RoleDefault;
+	}
 
-    public String getWarmupDirectory() {
-        return responseDirectory + WARMUP_DIRECTORY;
-    }
+	public String getEmrServiceRoleDefault() {
+		return emrServiceRoleDefault;
+	}
 
-    public String getImagesDirectory() {
-        return responseDirectory + IMAGES_DIRECTORY;
-    }
+	public String getWarmupDirectory() {
+		return responseDirectory + WARMUP_DIRECTORY;
+	}
 
-    public String getKeyLoaderDirectory() {
-        return responseDirectory + KEY_LOADER_DIRECTORY;
-    }
+	public String getImagesDirectory() {
+		return responseDirectory + IMAGES_DIRECTORY;
+	}
 
-    public String getDockerLogDirectory() {
-        return dockerLogDirectory;
-    }
+	public String getKeyLoaderDirectory() {
+		return responseDirectory + KEY_LOADER_DIRECTORY;
+	}
 
-    public int getProcessMaxThreadsPerJvm() {
-        return processMaxThreadsPerJvm;
-    }
+	public String getDockerLogDirectory() {
+		return dockerLogDirectory;
+	}
 
-    public int getProcessMaxThreadsPerUser() {
-        return processMaxThreadsPerUser;
-    }
+	public int getProcessMaxThreadsPerJvm() {
+		return processMaxThreadsPerJvm;
+	}
 
-    public Duration getProcessTimeout() {
-        return processTimeout;
-    }
+	public int getProcessMaxThreadsPerUser() {
+		return processMaxThreadsPerUser;
+	}
 
-    public String getBackupScriptPath() {
-        return backupScriptPath;
-    }
+	public Duration getProcessTimeout() {
+		return processTimeout;
+	}
 
-    public String getBackupDirectory() {
-        return backupDirectory;
-    }
+	public String getBackupScriptPath() {
+		return backupScriptPath;
+	}
+
+	public String getBackupDirectory() {
+		return backupDirectory;
+	}
+
+	public String getHandlerDirectory() {
+		return handlerDirectory;
+	}
 }
