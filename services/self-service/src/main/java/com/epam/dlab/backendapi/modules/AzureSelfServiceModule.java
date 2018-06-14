@@ -20,6 +20,7 @@ import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.auth.azure.AzureLoginUrlBuilder;
 import com.epam.dlab.auth.azure.AzureSecurityResource;
 import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
+import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
@@ -29,15 +30,24 @@ import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.KeyUploaderCallbackAzure;
-import com.epam.dlab.backendapi.service.AzureBillingService;
-import com.epam.dlab.backendapi.service.AzureInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
+import com.epam.dlab.backendapi.service.azure.AzureBillingService;
+import com.epam.dlab.backendapi.service.azure.AzureInfrastructureInfoService;
+import com.epam.dlab.backendapi.service.azure.AzureInfrastructureTemplateService;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
+import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
 import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.impl.StdSchedulerFactory;
 
 @Slf4j
 public class AzureSelfServiceModule extends CloudModule {
@@ -53,6 +63,9 @@ public class AzureSelfServiceModule extends CloudModule {
         bind(BillingService.class).to(AzureBillingService.class);
         bind((KeyDAO.class)).to(AzureKeyDao.class);
         bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
+		bind(SchedulerConfiguration.class).toInstance(
+				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
+		bind(InfrastructureTemplateService.class).to(AzureInfrastructureTemplateService.class);
 
         if (!azureLoginConfiguration.isUseLdap()) {
             bind(AzureLoginUrlBuilder.class).toInstance(new AzureLoginUrlBuilder(azureLoginConfiguration));
@@ -78,6 +91,12 @@ public class AzureSelfServiceModule extends CloudModule {
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
+				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+    }
+
+    @Provides
+    @Singleton
+    Scheduler provideScheduler() throws SchedulerException {
+        return StdSchedulerFactory.getDefaultScheduler();
     }
 }

@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import io.dropwizard.auth.Auth;
 
 import javax.ws.rs.Consumes;
@@ -26,17 +27,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/infrastructure")
+@Path(InfrasctructureAPI.INFRASTRUCTURE)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class InfrastructureResource {
 
-    /**
-     * Return status of provisioning service.
-     */
-    @GET
-    public Response status(@Auth UserInfo ui) {
-        return Response.status(Response.Status.OK).build();
-    }
+	/**
+	 * Return status of provisioning service.
+	 */
+	@GET
+	public Response status(@Auth UserInfo ui) {
+		return Response.status(Response.Status.OK).build();
+	}
 
 }

@@ -40,11 +40,17 @@ public class NotebookConfig {
     private String timeoutNotebookStartup = "20m";
 
     @JsonProperty("timeout_notebook_shutdown")
-    private String timeoutNotebookShutdown = "10m";
+    private String timeoutNotebookShutdown = "20m";
 
 
     @JsonProperty("timeout_cluster_create")
     private String timeoutClusterCreate = "60m";
+
+	@JsonProperty("timeout_cluster_startup")
+	private String timeoutClusterStartup = "20m";
+
+	@JsonProperty("timeout_cluster_stop")
+	private String timeoutClusterStop = "20m";
 
     @JsonProperty("timeout_cluster_terminate")
     private String timeoutClusterTerminate = "20m";
@@ -58,6 +64,12 @@ public class NotebookConfig {
 
     @JsonProperty("timeout_lib_install")
     private String timeoutLibInstall = "15m";
+
+	@JsonProperty("timeout_image_create")
+	private String timeoutImageCreate = "60m";
+
+	@JsonProperty("image_test_required")
+	private boolean imageTestRequired = false;
 
 
     public String getTimeoutNotebookCreate() {
@@ -92,6 +104,10 @@ public class NotebookConfig {
     	return timeoutLibInstall;
     }
 
+	public String getTimeoutImageCreate() {
+		return timeoutImageCreate;
+	}
+
     public String getNotebookTemplate() {
     	return notebookTemplate;
     }
@@ -101,19 +117,37 @@ public class NotebookConfig {
     	return dataEngineType;
     }
 
+	public String getTimeoutClusterStartup() {
+		return timeoutClusterStartup;
+	}
 
-    public boolean isFullTest() {
+	public String getTimeoutClusterStop() {
+		return timeoutClusterStop;
+	}
+
+	public boolean isFullTest() {
     	return fullTest;
     }
 
+	public boolean isImageTestRequired() {
+		return imageTestRequired;
+	}
 
-    @Override
+	public void setImageTestRequired(boolean imageTestRequired) {
+		this.imageTestRequired = imageTestRequired;
+	}
+
+
+	@Override
     public String toString() {
     	return MoreObjects.toStringHelper(this)
     			.add("timeoutClusterCreate", timeoutClusterCreate)
     			.add("timeoutClusterTerminate", timeoutClusterTerminate)
+				.add("timeoutClusterStartup", timeoutClusterStartup)
+				.add("timeoutClusterStop", timeoutClusterStop)
     			.add("timeoutLibGroups", timeoutLibGroups)
     			.add("timeoutLibInstall", timeoutLibInstall)
+				.add("timeoutImageCreate", timeoutImageCreate)
     			.add("timeoutLibList", timeoutLibList)
     			.add("timeoutNotebookCreate", timeoutNotebookCreate)
     			.add("timeoutNotebookShutdown", timeoutNotebookShutdown)
@@ -121,6 +155,7 @@ public class NotebookConfig {
     			.add("notebookTemplate", notebookTemplate)
     			.add("dataEngineType", dataEngineType)
     			.add("fullTest", fullTest)
+				.add("imageTestRequired", imageTestRequired)
     			.toString();
     }
 

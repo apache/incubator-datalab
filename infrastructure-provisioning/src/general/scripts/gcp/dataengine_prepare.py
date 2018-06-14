@@ -91,7 +91,7 @@ if __name__ == "__main__":
     data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
     data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
-    data_engine['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+    data_engine['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
     data_engine['gpu_accelerator_type'] = 'None'
     if os.environ['application'] in ('tensor', 'deeplearning'):
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
@@ -111,10 +111,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE MASTER NODE]')
         print('[CREATE MASTER NODE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} --primary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'".\
             format(data_engine['master_node_name'], data_engine['region'], data_engine['zone'], data_engine['vpc_name'],
                    data_engine['subnet_name'], data_engine['master_size'], data_engine['ssh_key_path'], initial_user,
-                   data_engine['dataengine_service_account_name'], data_engine['ami_name'], 'dataengine', '30',
+                   data_engine['dataengine_service_account_name'], data_engine['image_name'], 'dataengine', '30',
                    data_engine['gpu_accelerator_type'], data_engine['network_tag'],
                    json.dumps(data_engine['master_labels']))
         try:
@@ -132,11 +132,11 @@ if __name__ == "__main__":
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
             print('[CREATE SLAVE NODE {}]'.format(i + 1))
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'". \
+            params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} --primary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'". \
                 format(slave_name, data_engine['region'], data_engine['zone'],
                        data_engine['vpc_name'], data_engine['subnet_name'], data_engine['slave_size'],
                        data_engine['ssh_key_path'], initial_user, data_engine['dataengine_service_account_name'],
-                       data_engine['ami_name'], 'dataengine', '30', data_engine['gpu_accelerator_type'],
+                       data_engine['image_name'], 'dataengine', '30', data_engine['gpu_accelerator_type'],
                        data_engine['network_tag'], json.dumps(data_engine['slave_labels']))
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))

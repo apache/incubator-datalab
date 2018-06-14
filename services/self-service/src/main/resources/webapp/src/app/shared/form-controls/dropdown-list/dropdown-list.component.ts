@@ -17,7 +17,14 @@ limitations under the License.
 ****************************************************************************/
 
 import { Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { DropdownListModel } from './dropdown-list.model';
+
+export class DropdownListModel {
+  constructor(
+    public type: string,
+    public value: string,
+    public index: number
+  ) { }
+}
 
 @Component({
   moduleId: module.id,
@@ -35,11 +42,12 @@ export class DropdownListComponent {
   listStructure: string;
   items: any;
   map: any;
+  empty: boolean = false;s
 
   @Output() selectedItem: EventEmitter<{}> = new EventEmitter();
 
   public selectOptions($event: Event, value: any, index: number): void {
-    this.label = this.map ? this.map[value] : value[this.byField];
+    this.label = this.map ? this.map[value] : (this.empty && !value ? value : value[this.byField]);
     this.model.value = value;
     this.model.index = index;
 
@@ -47,7 +55,7 @@ export class DropdownListComponent {
     $event.preventDefault();
   }
 
-  public setDefaultOptions(items: any, label: string, type: string, byField: string, structure: string, map?: any) {
+  public setDefaultOptions(items: any, label: string, type: string, byField: string, structure: string, map?: any, empty?: boolean) {
     this.model = new DropdownListModel(type, '', 0);
     this.items = items;
     this.label = label;
@@ -56,6 +64,7 @@ export class DropdownListComponent {
     this.listStructure = structure;
 
     this.map = map;
+    this.empty = empty;
   }
 
   private onUpdate(): void {

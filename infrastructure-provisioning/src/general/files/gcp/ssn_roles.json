@@ -1,3 +1,9 @@
 [
-    "iam.serviceAccountUser"
+    "iam.serviceAccountUser",
+    "iam.serviceAccountAdmin",
+    "storage.admin",
+    "dataproc.editor",
+    "resourcemanager.projectIamAdmin",
+    "iam.roleAdmin",
+    "compute.instanceAdmin"
 ]

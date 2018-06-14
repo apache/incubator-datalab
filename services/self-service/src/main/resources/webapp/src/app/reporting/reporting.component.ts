@@ -19,21 +19,25 @@ limitations under the License.
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
-import { BillingReportService, HealthStatusService }  from './../core/services';
+import { BillingReportService, HealthStatusService, UserAccessKeyService }  from './../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
+import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
+  <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
   <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer *ngIf="data">
     Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
+
+  <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
+  <progress-dialog #preloaderModal></progress-dialog>
   `,
   styles: [`
     footer {
@@ -52,18 +56,24 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 })
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
 
   @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
+
+  @ViewChild('keyUploadModal') keyUploadDialog;
+  @ViewChild('preloaderModal') preloaderDialog;
 
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
   healthStatus: any;
+  billingEnabled: boolean;
 
   constructor(
     private billingReportService: BillingReportService,
-    private healthStatusService: HealthStatusService,) { }
+    private healthStatusService: HealthStatusService,
+    private userAccessKeyService: UserAccessKeyService) { }
 
   ngOnInit() {
     this.rebuildBillingReport();
@@ -75,7 +85,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getGeneralBillingData() {
-    localStorage.removeItem('report_config');
 
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
@@ -109,27 +118,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   exportBillingReport($event): void {
     this.billingReportService.downloadReport(this.reportData)
-      .subscribe(data => this.downloadFile(data));
-  }
-
-  downloadFile(data: any) {
-    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
-
-    let parsedResponse = data.text();
-    let blob = new Blob([parsedResponse], { type: 'text/csv' });
-    let url = window.URL.createObjectURL(blob);
-
-    if (navigator.msSaveOrOpenBlob) {
-        navigator.msSaveBlob(blob, fileName);
-    } else {
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-    window.URL.revokeObjectURL(url);
+      .subscribe(data => {
+        FileUtils.downloadFile(data);
+      });
   }
 
   getDefaultFilterConfiguration(data): void {
@@ -146,10 +137,15 @@ export class ReportingComponent implements OnInit, OnDestroy {
         if (item[DICTIONARY.billing.instance_size].indexOf('Master') > -1) {
           for (let shape of item[DICTIONARY.billing.instance_size].split('\n')) {
               shape = shape.replace('Master: ', '');
-              shape = shape.replace(/Slave:\s+\d+x/, '');
+              shape = shape.replace(/Slave:\s+\d+ x /, '');
               shape = shape.replace(/\s+/g, '');
 
               shapes.indexOf(shape) === -1 && shapes.push(shape);
+          }
+        } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
+          let parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+          if (shapes.indexOf(parsedShape) === -1) {
+            shapes.push(parsedShape);
           }
         } else {
           shapes.indexOf(item[DICTIONARY.billing.instance_size]) === -1 && shapes.push(item[DICTIONARY.billing.instance_size]);
@@ -159,9 +155,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item[DICTIONARY.billing.service] && services.indexOf(item[DICTIONARY.billing.service]) === -1)
         services.push(item[DICTIONARY.billing.service]);
     });
-    this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '', '');
-    this.reportingGrid.setConfiguration(this.filterConfiguration);
-    localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
+
+    if (!this.reportingGrid.filterConfiguration) {
+      this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '', '');
+      this.reportingGrid.setConfiguration(this.filterConfiguration);
+      localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
+    }
   }
 
   filterReport(event: ReportingConfigModel): void {
@@ -184,8 +183,41 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
+  public checkUserAccessKey() {
+    this.userAccessKeyService.checkUserAccessKey()
+      .subscribe(
+        response => this.processAccessKeyStatus(response.status),
+        error => this.processAccessKeyStatus(error.status));
+  }
+
+  public generateUserKey($event) {
+    this.userAccessKeyService.generateAccessKey().subscribe(
+      data => {
+        FileUtils.downloadFile(data);
+        this.rebuildBillingReport();
+      });
+  }
+
+  private processAccessKeyStatus(status: number) {
+    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
+      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
+      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+
+      setTimeout(() => this.rebuildBillingReport(), this.CHECK_ACCESS_KEY_TIMEOUT);
+    } else if (status === HTTP_STATUS_CODES.OK) {
+      this.preloaderDialog.close();
+      this.keyUploadDialog.close();
+    }
+  }
+
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
-      .subscribe((result) => this.healthStatus = result.status);
+      .subscribe((result: any) => {
+        this.healthStatus = result.status;
+        this.billingEnabled = result.billingEnabled;
+
+        this.checkUserAccessKey();
+      });
   }
 }

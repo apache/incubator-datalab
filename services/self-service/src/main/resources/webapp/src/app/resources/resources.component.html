@@ -16,19 +16,19 @@ limitations under the License.
 
 -->
 
-<dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
+<dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
   <div>
-    <button md-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus === 'error'" (click)="createNotebook_btnClick()">
+    <button mat-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus === 'error'" (click)="createNotebook_btnClick()">
       <i class="material-icons">add</i>Create new
     </button>
   </div>
   <div>
-    <button md-raised-button class="butt butt-tool" (click)="manageUngit()">
+    <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
       <i class="material-icons"></i>Git credentials
     </button>
-    <button md-raised-button class="butt butt-tool" (click)="toggleFiltering()">
+    <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()">
       <span *ngIf="!resourcesGrid.activeFiltering">
         <i class="material-icons">visibility_off</i> Show active
       </span>
@@ -36,7 +36,7 @@ limitations under the License.
         <i class="material-icons">visibility</i> Show all
       </span>
     </button>
-    <button md-raised-button class="butt" (click)="refreshGrid()">
+    <button mat-raised-button class="butt" (click)="refreshGrid()">
       <i class="material-icons">autorenew</i>Refresh
     </button>
   </div>
@@ -50,6 +50,7 @@ limitations under the License.
 <resources-grid></resources-grid>
 
 <exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid($event)"></exploratory-environment-create-dialog>
-<key-upload-dialog #keyUploadModal (checkInfrastructureCreationProgress)="checkInfrastructureCreationProgress($event)"></key-upload-dialog>
-<progress-dialog #preloaderModal [configs]="progressDialogConfig"></progress-dialog>
+<key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"
+                   (checkInfrastructureCreationProgress)="checkInfrastructureCreationProgress($event)"></key-upload-dialog>
+<progress-dialog #preloaderModal></progress-dialog>
 <dlab-manage-ungit #manageUngitDialog></dlab-manage-ungit>

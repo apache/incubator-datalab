@@ -45,16 +45,18 @@ if __name__ == "__main__":
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
-        ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_ami_id = get_ami_id(ssn_ami_name)
+        ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
+        ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
-        vpc_cidr = '172.31.0.0/16'
+        vpc_cidr = os.environ['conf_vpc_cidr']
         sg_name = instance_name + '-SG'
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
         billing_enabled = True
         dlab_ssh_user = os.environ['conf_os_user']
+        network_type = os.environ['conf_network_type']
+
         try:
             if os.environ['aws_vpc_id'] == '':
                 raise KeyError
@@ -101,11 +103,16 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
 
+        if network_type == 'private':
+            instance_hostname = get_instance_ip_address(tag_name, instance_name).get('Private')
+        else:
+            instance_hostname = get_instance_hostname(tag_name, instance_name)
+
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (get_instance_hostname(tag_name, instance_name), os.environ['conf_key_dir'] + os.environ['conf_key_name'] +
-             ".pem", initial_user, dlab_ssh_user, sudo_group)
+            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
+             dlab_ssh_user, sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -129,11 +136,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = get_instance_hostname(tag_name, instance_name)
-
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric==1.14.0 awscli pymongo pyyaml' --user {} --region {}". \
+        params = "--hostname {} --keyfile {} --pip_packages 'boto3 backoff argparse fabric==1.14.0 awscli pymongo pyyaml' --user {} --region {}". \
             format(instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
                    os.environ['aws_region'])
 
@@ -284,7 +289,7 @@ if __name__ == "__main__":
         print("Subnet ID: {}".format(os.environ['aws_subnet_id']))
         print("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
         print("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
-        print("SSN AMI name: {}".format(ssn_ami_name))
+        print("SSN AMI name: {}".format(ssn_image_name))
         print("SSN bucket name: {}".format(user_bucket_name))
         print("Shared bucket name: {}".format(shared_bucket_name))
         print("Region: {}".format(region))

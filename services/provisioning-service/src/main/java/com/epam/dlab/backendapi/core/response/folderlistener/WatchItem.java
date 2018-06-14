@@ -24,9 +24,11 @@ import java.util.concurrent.ExecutionException;
 
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.google.common.base.MoreObjects;
+import lombok.extern.slf4j.Slf4j;
 
 /** Class to store the file handler for processing.
  */
+@Slf4j
 public class WatchItem implements Comparable<WatchItem> {
 	
 	/** Status of file processing.
@@ -50,7 +52,7 @@ public class WatchItem implements Comparable<WatchItem> {
 		IS_CANCELED,
 		IS_INTERRUPTED,
 		IS_FAILED
-	};
+	}
 	
 	/** File handler for processing. */
 	private final FileHandlerCallback fileHandlerCallback;
@@ -144,6 +146,7 @@ public class WatchItem implements Comparable<WatchItem> {
 				futureResult = future.get();
 				return ItemStatus.IS_DONE;
 			} catch (InterruptedException e) {
+    			Thread.currentThread().interrupt();
 				return ItemStatus.IS_INTERRUPTED;
 			} catch (ExecutionException e) {
 				return ItemStatus.IS_FAILED;
@@ -177,7 +180,9 @@ public class WatchItem implements Comparable<WatchItem> {
 		if (futureResult == null && future != null && future.isDone()) {
 			try {
 				futureResult = future.get();
-			} catch (Exception e) { }
+			} catch (Exception e) {
+				log.error("Exception occurred during getting result: {}", e.getMessage());
+			}
 		}
 		return futureResult; 
 	}

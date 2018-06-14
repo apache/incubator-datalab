@@ -22,10 +22,8 @@ import com.epam.dlab.backendapi.core.DirectoriesCreator;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.modules.CloudModuleConfigurator;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
-import com.epam.dlab.backendapi.resources.DockerResource;
-import com.epam.dlab.backendapi.resources.GitExploratoryResource;
-import com.epam.dlab.backendapi.resources.InfrastructureResource;
-import com.epam.dlab.backendapi.resources.LibraryResource;
+import com.epam.dlab.backendapi.resources.*;
+import com.epam.dlab.backendapi.resources.base.KeyResource;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.process.DlabProcess;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
@@ -57,7 +55,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
     }
 
     @Override
-    public void run(ProvisioningServiceApplicationConfiguration configuration, Environment environment) throws Exception {
+	public void run(ProvisioningServiceApplicationConfiguration configuration, Environment environment) {
         DlabProcess.getInstance().setProcessTimeout(configuration.getProcessTimeout());
         DlabProcess.getInstance().setMaxProcessesPerBox(configuration.getProcessMaxThreadsPerJvm());
         DlabProcess.getInstance().setMaxProcessesPerUser(configuration.getProcessMaxThreadsPerUser());
@@ -80,6 +78,9 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         jersey.register(injector.getInstance(GitExploratoryResource.class));
         jersey.register(injector.getInstance(LibraryResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
+        jersey.register(injector.getInstance(ImageResource.class));
+        jersey.register(injector.getInstance(BackupResource.class));
+		jersey.register(injector.getInstance(KeyResource.class));
 
     }
 }

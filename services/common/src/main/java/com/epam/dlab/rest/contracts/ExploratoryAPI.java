@@ -28,4 +28,5 @@ public interface ExploratoryAPI {
     String EXPLORATORY_LIB_INSTALL = LIBRARY + EXPLORATORY + "/lib_install";
     String EXPLORATORY_LIB_LIST = LIBRARY + EXPLORATORY + "/lib_list";
     String EXPLORATORY_GIT_CREDS = EXPLORATORY + "/git_creds";
+    String EXPLORATORY_IMAGE = EXPLORATORY + "/image";
 }

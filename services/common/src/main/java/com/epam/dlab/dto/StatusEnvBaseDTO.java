@@ -22,7 +22,7 @@ package com.epam.dlab.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-abstract public class StatusEnvBaseDTO<T extends StatusEnvBaseDTO<?>> extends StatusBaseDTO<T> {
+public abstract class StatusEnvBaseDTO<T extends StatusEnvBaseDTO<?>> extends StatusBaseDTO<T> {
     @SuppressWarnings("unchecked")
     private final T self = (T) this;
     @JsonProperty("instance_id")
@@ -38,7 +38,7 @@ abstract public class StatusEnvBaseDTO<T extends StatusEnvBaseDTO<?>> extends St
         return instanceId;
     }
 
-    public void setInstanceId(String instanceId) {
+    private void setInstanceId(String instanceId) {
         this.instanceId = instanceId;
     }
 
@@ -77,7 +77,7 @@ abstract public class StatusEnvBaseDTO<T extends StatusEnvBaseDTO<?>> extends St
         return exploratoryTemplateName;
     }
 
-    public void setExploratoryTemplateName(String exploratoryTemplateName) {
+    private void setExploratoryTemplateName(String exploratoryTemplateName) {
         this.exploratoryTemplateName = exploratoryTemplateName;
     }
 

@@ -58,6 +58,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sudo('sed -i "s|R_VER|' + r_version + '|g" /tmp/r_template.json')
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/r_template.json')
             sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
+            sudo('ln -s /opt/spark/ /usr/local/spark')
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
             sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/.local')
             sudo('touch /home/' + os_user + '/.ensure_dir/r_local_kernel_ensured')
@@ -107,6 +108,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('touch /home/{}/.Rprofile'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
+            sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             sudo('rstudio-server start')
             sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
             sudo("sed -i '/exit 0/d' /etc/rc.local")
@@ -202,11 +207,13 @@ def ensure_python2_libraries(os_user):
                 sudo('pip2 install virtualenv --no-cache-dir')
                 sudo('apt-get install -y libssl-dev')
             try:
-                sudo('pip2 install ipython ipykernel --no-cache-dir')
+                sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('pip2 install ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('pip2 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('pip2 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip2 install boto3 --no-cache-dir')
+            sudo('pip2 install boto3 backoff --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
         except:
@@ -219,9 +226,11 @@ def ensure_python3_libraries(os_user):
             sudo('apt-get install python3-setuptools')
             sudo('apt install -y python3-pip')
             try:
-                sudo('pip3 install ipython ipykernel --no-cache-dir')
+                sudo('pip3 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('pip3 install ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('pip3 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv future --no-cache-dir')
@@ -335,6 +344,13 @@ def install_os_pkg(requisites):
         return "Fail to install OS packages"
 
 
+def remove_os_pkg(pkgs):
+    try:
+        sudo('apt remove --purge -y {}'.format(' '.join(pkgs)))
+    except:
+        sys.exit(1)
+
+
 def get_available_os_pkgs():
     try:
         os_pkgs = dict()
@@ -406,7 +422,21 @@ def install_caffe2(os_user, caffe2_version):
              'scipy setuptools tornado --no-cache-dir')
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
+        sudo('git clone https://github.com/caffe2/caffe2')
+        submodules = ['third_party/pybind11', 'third_party/nccl', 'third_party/cub',
+              'third_party/eigen', 'third_party/googletest',
+              'third_party/nervanagpu', 'third_party/benchmark',
+              'third_party/protobuf', 'third_party/ios-cmake',
+              'third_party/NNPACK', 'third_party/gloo',
+              'third_party/pthreadpool', 'third_party/FXdiv',
+              'third_party/FP16', 'third_party/psimd',
+              'third_party/zstd', 'third_party/cpuinfo',
+              'third_party/python-enum', 'third_party/python-peachpy',
+              'third_party/python-six', 'third_party/ComputeLibrary',
+              'third_party/onnx']
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            for module in submodules:
+                sudo('git submodule update --init {}'.format(module))
         cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
             with settings(warn_only=True):

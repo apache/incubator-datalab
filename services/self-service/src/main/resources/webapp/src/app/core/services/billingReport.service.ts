@@ -1,6 +1,6 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2017, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ export class BillingReportService {
         .catch((error: any) => error);
     }
 
-    public downloadReport(data): Observable<Response> {
+    public downloadReport(data): Observable<{} | Response> {
         return this.applicationServiceFacade
         .buildDownloadReportData(data)
         .map((response: Response) => response)

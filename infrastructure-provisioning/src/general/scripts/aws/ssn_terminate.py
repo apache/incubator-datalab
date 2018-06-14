@@ -31,7 +31,10 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    create_aws_config_files(generate_full_config=True)
+    if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
+        create_aws_config_files(generate_full_config=True)
+    else:
+        create_aws_config_files()
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
@@ -39,7 +42,7 @@ if __name__ == "__main__":
     ssn_conf['edge_sg'] = ssn_conf['service_base_name'] + "*" + '-edge'
     ssn_conf['nb_sg'] = ssn_conf['service_base_name'] + "*" + '-nb'
     ssn_conf['de_sg'] = ssn_conf['service_base_name'] + "*" + '-dataengine*'
-    ssn_conf['de-service_sg'] = ssn_conf['service_base_name'] + "*" + '-emr*'
+    ssn_conf['de-service_sg'] = ssn_conf['service_base_name'] + "*" + '-des-*'
 
     try:
         logging.info('[TERMINATE SSN]')

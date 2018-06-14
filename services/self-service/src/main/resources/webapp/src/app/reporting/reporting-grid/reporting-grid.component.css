@@ -20,6 +20,14 @@ limitations under the License.
     margin-bottom: 50px;
     zoom: 0.85;
 }
+
+@-moz-document url-prefix() {
+  .dashboard_table.reporting {
+    transform: scale(0.85);
+    transform-origin: top left;
+    width: 118% !important
+  }
+}
 .dashboard_table.reporting tr th {
     font-size: 12px;
 }

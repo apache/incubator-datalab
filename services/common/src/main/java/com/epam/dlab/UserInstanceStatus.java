@@ -19,23 +19,30 @@ limitations under the License.
 package com.epam.dlab;
 
 public enum UserInstanceStatus {
-    CREATING,
-    CREATED,
-    STARTING,
-    CONFIGURING,
-    RUNNING,
-    STOPPING,
-    STOPPED,
-    TERMINATING,
-    TERMINATED,
-    FAILED;
+	CREATING("creating"),
+	CREATED("created"),
+	STARTING("starting"),
+	CONFIGURING("configuring"),
+	RUNNING("running"),
+	STOPPING("stopping"),
+	STOPPED("stopped"),
+	TERMINATING("terminating"),
+	TERMINATED("terminated"),
+	FAILED("failed"),
+	CREATING_IMAGE("creating image");
 
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+	private String name;
 
-    public static UserInstanceStatus of(String status) {
+	UserInstanceStatus(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	public static UserInstanceStatus of(String status) {
         if (status != null) {
             for (UserInstanceStatus uis : UserInstanceStatus.values()) {
                 if (status.equalsIgnoreCase(uis.toString())) {

@@ -1,0 +1,81 @@
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
+<modal-dialog #bindDialog modalClass="backup-dialog modal-sm">
+  <modal-header>
+    <h4 class="modal-title">Backup options</h4>
+  </modal-header>
+  <modal-content>
+    <div class="content-box" *ngIf="backupOptions">
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
+          [checked]="backupOptions.configFiles[0] === 'all'"
+          (change)="onHoldChanged($event, 'configFiles')">
+          <span class="hold-label">Configuration files</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
+          [checked]="backupOptions.keys[0] === 'all'"
+          (change)="onHoldChanged($event, 'keys')">
+          <span class="hold-label">User keys</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
+          [checked]="backupOptions.databaseBackup"
+          (change)="onHoldChanged($event, 'databaseBackup')">
+          <span class="hold-label">Database</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
+          [checked]="backupOptions.certificates[0] === 'all'"
+          (change)="onHoldChanged($event, 'certificates')">
+          <span class="hold-label">SSL Certificates</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
+          [checked]="backupOptions.jars[0] === 'all'"
+          (change)="onHoldChanged($event, 'jars')">
+          <span class="hold-label">JAR files</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
+          [checked]="backupOptions.logsBackup"
+          (change)="onHoldChanged($event, 'logsBackup')">
+          <span class="hold-label">Log files</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="text-center m-top-30 m-bott-10">
+        <button mat-raised-button type="button" class="butt" (click)="bindDialog.close(); backupOptions.setDegault()">
+          Cancel
+        </button>
+        <button mat-raised-button type="button" (click)="applyOptions()" class="butt butt-success" [disabled]="!valid">Apply</button>
+      </div>
+    </div>
+  </modal-content>
+</modal-dialog>

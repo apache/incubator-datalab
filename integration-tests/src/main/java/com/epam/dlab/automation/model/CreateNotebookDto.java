@@ -28,7 +28,16 @@ public class CreateNotebookDto {
     private String templateName;
     private String shape;
     private String version;
-    
+	@JsonProperty("notebook_image_name")
+	private String imageName;
+
+	public String getImageName() {
+		return imageName;
+	}
+
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
 
 	public String getImage() {
 		return image;
@@ -71,6 +80,6 @@ public class CreateNotebookDto {
     }
     
     public CreateNotebookDto(){
-        
+		//This empty constructor is required for proper serialization/deserialization
     }
 }

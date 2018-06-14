@@ -25,7 +25,6 @@ import { Component, OnInit, ViewChild, Input } from '@angular/core';
 })
 
 export class ProgressDialogComponent implements OnInit {
-  @Input() configs: string;
   @Input() theBoundCallback: Function;
 
   @ViewChild('bindDialog') bindDialog;

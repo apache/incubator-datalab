@@ -35,7 +35,7 @@ parser.add_argument('--instance_size', type=str, default='')
 parser.add_argument('--ssh_key_path', type=str, default='')
 parser.add_argument('--initial_user', type=str, default='')
 parser.add_argument('--service_account_name', type=str, default='')
-parser.add_argument('--ami_name', type=str, default='')
+parser.add_argument('--image_name', type=str, default='')
 parser.add_argument('--primary_disk_size', type=str, default='12')
 parser.add_argument('--secondary_disk_size', type=str, default='30')
 parser.add_argument('--instance_class', type=str, default='')
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         else:
             print("Creating Instance {}".format(args.instance_name))
             GCPActions().create_instance(args.instance_name, args.region, args.zone, args.vpc_name, args.subnet_name,
-                                         args.instance_size, args.ssh_key_path, args.initial_user, args.ami_name,
+                                         args.instance_size, args.ssh_key_path, args.initial_user, args.image_name,
                                          args.service_account_name, args.instance_class, args.network_tag,
                                          json.loads(args.labels), args.static_ip, args.primary_disk_size,
                                          args.secondary_disk_size, args.gpu_accelerator_type)

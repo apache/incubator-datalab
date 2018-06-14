@@ -25,7 +25,7 @@ export const NAMING_CONVENTION = {
     'account': 'Account:',
     'container': 'Container:',
     'data_engine': 'Deploy Spark Server / Deploy HDInsight',
-
+    'image': 'image',
     'data_engine_master_instance_size': 'Head node size',
     'data_engine_slave_instance_size': 'Worker node size',
     'master_node_shape': 'azure_dataengine_master_size',
@@ -73,11 +73,9 @@ export const NAMING_CONVENTION = {
     'docker.dlab-dataengine': {
         'total_instance_number_min': 'min_spark_instance_count',
         'total_instance_number_max': 'max_spark_instance_count',
-        'data_engine_master_instance_size': 'Head node size',
-        'data_engine_slave_instance_size': 'Worker node size',
+        'data_engine_master_instance_size': 'Node size',
         'instance_number': 'Total node number',
-        'master_node_shape': 'dataengine_master',
-        'slave_node_shape': 'dataengine_slave',
+        'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count'
     }
 };

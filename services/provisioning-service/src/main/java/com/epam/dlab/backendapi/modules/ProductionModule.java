@@ -18,17 +18,19 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.ModuleBase;
+import com.epam.dlab.auth.SystemUserInfoService;
+import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.MetadataHolder;
 import com.epam.dlab.backendapi.core.commands.CommandExecutor;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
 import io.dropwizard.setup.Environment;
-
-import com.epam.dlab.ModuleBase;
 
 /**
  * Production class for an application configuration of SelfService.
@@ -41,7 +43,7 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
      * @param configuration application configuration of SelfService.
      * @param environment   environment of SelfService.
      */
-    public ProductionModule(ProvisioningServiceApplicationConfiguration configuration, Environment environment) {
+	ProductionModule(ProvisioningServiceApplicationConfiguration configuration, Environment environment) {
         super(configuration, environment);
     }
 
@@ -56,5 +58,7 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
         bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts.SELF_SERVICE_NAME));
         bind(MetadataHolder.class).to(DockerWarmuper.class);
         bind(ICommandExecutor.class).to(CommandExecutor.class).asEagerSingleton();
-    }
+		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
+		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
+	}
 }

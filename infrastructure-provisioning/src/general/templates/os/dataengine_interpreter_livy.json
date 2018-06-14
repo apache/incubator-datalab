@@ -1,0 +1,44 @@
+{
+  "name": "CLUSTER_NAME",
+  "group": "livy",
+  "properties": {
+    "zeppelin.livy.concurrentSQL": "false",
+    "livy.spark.home":"SPARK_HOME",
+    "zeppelin.interpreter.localRepo": "/opt/zeppelin/local-repo/2CAC665T6",
+    "zeppelin.livy.url": "http://localhost:LIVY_PORT",
+    "livy.spark.hadoop.fs.s3a.buffer.dir": "/tmp",
+    "zeppelin.spark.useHiveContext": "true",
+    "livy.spark.app.name": "Zeppelin",
+    "zeppelin.spark.printREPLOutput": "true",
+    "zeppelin.spark.maxResult": "1000",
+    "zeppelin.spark.concurrentSQL": "false",
+    "zeppelin.spark.importImplicit": "true",
+    "zeppelin.dep.localrepo": "local-repo",
+    "zeppelin.dep.additionalRemoteRepository": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
+    "livy.spark.hadoop.fs.s3a.fast.upload": "true"
+  },
+  "interpreterGroup": [
+    {
+      "class": "org.apache.zeppelin.livy.LivySparkInterpreter",
+      "name": "spark"
+    },
+    {
+      "class": "org.apache.zeppelin.livy.LivyPySparkInterpreter",
+      "name": "pyspark"
+    },
+    {
+      "class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter",
+      "name": "pyspark3"
+    }
+  ],
+  "dependencies": [],
+  "option": {
+    "remote": true,
+    "isExistingProcess": false,
+    "perNoteSession": false,
+    "perNoteProcess": false
+  },
+  "propertyValue": "",
+  "propertyKey": ""
+}
+

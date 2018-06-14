@@ -33,11 +33,12 @@ export class ComputationalResourceCreateModel {
 
   computational_resource_alias: string;
   computational_resource_count: number;
-  computational_resource_master_shape: string;
+  computational_resource_instance_shape: string;
   computational_resource_slave_shape: string;
   notebook_name: string;
   emr_slave_instance_spot: boolean;
   emr_slave_instance_price: number;
+  preemptible_inst: number;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
     new ResourceShapeTypesModel({}), '', '', '');
@@ -76,13 +77,22 @@ export class ComputationalResourceCreateModel {
     this.selectedItem = item;
   }
 
-  public setCreatingParams(name: string, count: number, shape_master: string, shape_slave: string, spot: boolean, price: number): void {
+  public setCreatingParams(
+    name: string,
+    count: number,
+    instance_shape: string,
+    shape_slave: string,
+    spot: boolean,
+    price: number,
+    preemptible_inst?: number
+  ): void {
     this.computational_resource_alias = name;
     this.computational_resource_count = count;
-    this.computational_resource_master_shape = shape_master;
+    this.computational_resource_instance_shape = instance_shape;
     this.computational_resource_slave_shape = shape_slave;
     this.emr_slave_instance_spot = spot;
     this.emr_slave_instance_price = price;
+    this.preemptible_inst = preemptible_inst || 0;
   }
 
   public loadTemplates(): void {
@@ -94,14 +104,14 @@ export class ComputationalResourceCreateModel {
 
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
             computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
-            
-            if (DICTIONARY.cloud_provider === 'aws')
+
+            if (DICTIONARY.cloud_provider !== 'azure')
               this.resourceImages.push(computationalResourceImage);
           }
-          
-          if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider === 'aws') {
+
+          if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider !== 'azure') {
             this.setSelectedClusterType(0);
-          } else if (DICTIONARY.cloud_provider !== 'aws') {
+          } else if (DICTIONARY.cloud_provider === 'azure') {
             this.selectedItem = computationalResourceImage;
             this.selectedImage = computationalResourceImage;
           }
@@ -114,7 +124,7 @@ export class ComputationalResourceCreateModel {
   public setSelectedClusterType(index) {
     this.selectedImage = this.resourceImages[index];
     this.templates = [];
-    
+
     for (let index = 0; index < this.selectedImage.application_templates.length; index++)
       this.templates.push(this.selectedImage.application_templates[index]);
 
@@ -148,7 +158,7 @@ export class ComputationalResourceCreateModel {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: this.computational_resource_alias,
         emr_instance_count: this.computational_resource_count,
-        emr_master_instance_type: this.computational_resource_master_shape,
+        emr_master_instance_type: this.computational_resource_instance_shape,
         emr_slave_instance_type: this.computational_resource_slave_shape,
         emr_version: this.selectedItem.version,
         notebook_name: this.notebook_name,
@@ -157,12 +167,24 @@ export class ComputationalResourceCreateModel {
         emr_slave_instance_spot: this.emr_slave_instance_spot,
         emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
       });
+    } else if (DICTIONARY.cloud_provider === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
+      return this.userResourceService.createComputationalResource_DataengineService({
+        name: this.computational_resource_alias,
+        template_name: this.selectedItem.template_name,
+        notebook_name: this.notebook_name,
+        image: this.selectedItem.image,
+        dataproc_master_instance_type:  this.computational_resource_instance_shape,
+        dataproc_slave_instance_type: this.computational_resource_slave_shape,
+        dataproc_version: this.selectedItem.version,
+        dataproc_master_count: 1,
+        dataproc_slave_count: (this.computational_resource_count - 1),
+        dataproc_preemptible_count: this.preemptible_inst,
+      });
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
         name: this.computational_resource_alias,
         dataengine_instance_count: this.computational_resource_count,
-        dataengine_master: this.computational_resource_master_shape,
-        dataengine_slave: this.computational_resource_slave_shape,
+        dataengine_instance_shape: this.computational_resource_instance_shape,
         notebook_name: this.notebook_name,
         image: this.selectedImage.image,
         template_name: this.selectedImage.template_name,

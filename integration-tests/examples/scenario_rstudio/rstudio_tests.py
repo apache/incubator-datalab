@@ -18,83 +18,75 @@
 #
 # ******************************************************************************
 
+import os, sys, json
 from fabric.api import *
 import argparse
-import boto3
-from botocore.client import Config
-import os
+
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket', type=str, default='')
-parser.add_argument('--cluster_name', type=str, default='')
+parser.add_argument('--storage', type=str, default='')
+parser.add_argument('--cloud', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--region', type=str, default='')
+parser.add_argument('--cluster_name', type=str, default='')
+parser.add_argument('--azure_storage_account', type=str, default='')
+parser.add_argument('--azure_datalake_account', type=str, default='')
 args = parser.parse_args()
 
 
-def get_files(s3client, s3resource, dist, bucket, local):
-    s3list = s3client.get_paginator('list_objects')
-    for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
-        if result.get('CommonPrefixes') is not None:
-            for subdir in result.get('CommonPrefixes'):
-                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
-        if result.get('Contents') is not None:
-            for file in result.get('Contents'):
-                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
-                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
-                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
-
-
 def prepare_templates():
-    templates_dir = '/home/{}/'.format(args.os_user)
-    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
-    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
-    get_files(s3client, s3resource, 'test_templates_rstudio', args.bucket, templates_dir)
-    local('mv /home/{0}/test_templates_rstudio /home/{0}/test_templates'.format(args.os_user))
+    local('mv /tmp/rstudio /home/{0}/test_templates'.format(args.os_user))
 
+def get_storage():
+    storages = {"aws": args.storage,
+                "azure": "{0}@{1}.blob.core.windows.net".format(args.storage, args.azure_storage_account),
+                "gcp": args.storage}
+    protocols = {"aws": "s3a", "azure": "wasbs", "gcp": "gs"}
+    if args.azure_datalake_account:
+        storages['azure'] = "{0}.azuredatalakestore.net/{1}".format(args.azure_datalake_account, args.storage)
+        protocols['azure'] = 'adl'
+    return (storages[args.cloud], protocols[args.cloud])
 
-def prepare_rscript(template_path, rscript_name):
+def prepare_rscript(template_path, rscript_name, kernel='remote'):
     with open(template_path, 'r') as f:
         text = f.read()
-    text = text.replace('S3_BUCKET', args.bucket)
-    text = text.replace('MASTER', 'yarn')
+    text = text.replace('WORKING_STORAGE', get_storage()[0])
+    text = text.replace('PROTOCOL_NAME', get_storage()[1])
+    if kernel == 'remote':
+        if '-de-' in args.cluster_name:
+            text = text.replace('MASTER', 'master')
+        elif '-des-' in args.cluster_name:
+            text = text.replace('MASTER', 'master = "yarn"')
+    elif kernel == 'local':
+        text = text.replace('MASTER', 'master = "local[*]"')
     with open('/home/{}/{}.r'.format(args.os_user, rscript_name), 'w') as f:
         f.write(text)
-
 
 def enable_local_kernel():
-    local('sed -i "s/^#//g" /home/{0}/.Renviron | sed -i "/emr/s/^/#/g" /home/{0}/.Renviron'.format(args.os_user))
-    local('rm -f metastore_db/db*')
-
-
-def enable_local_kernel_in_template(template_path, rscript_name):
-    with open(template_path, 'r') as f:
-        text = f.read()
-    text = text.replace('S3_BUCKET', args.bucket)
-    text = text.replace('MASTER', 'local[*]')
-    with open('/home/{}/{}.r'.format(args.os_user, rscript_name), 'w') as f:
-        f.write(text)
-
-
-def enable_remote_kernel():
-    local('sed -i "s/^#//g" /home/{0}/.Renviron | sed -i "/\/opt\/spark\//s/^/#/g" /home/{0}/.Renviron'.
-          format(args.os_user))
-
+    local("sed -i 's/^master/#master/' /home/{0}/.Rprofile".format(args.os_user))
+    local('''sed -i "s/^/#/g" /home/{0}/.Renviron'''.format(args.os_user))
+    local('''sed -i "/\/opt\/spark\//s/#//g" /home/{0}/.Renviron'''.format(args.os_user))
+    local('rm -f metastore_db/db* derby.log')
 
 def run_rscript(rscript_name):
-    local('R < ' + rscript_name + '.r --no-save')
+    local('R < /home/{0}/{1}.r --no-save'.format(args.os_user, rscript_name))
 
 
-prepare_templates()
-# Running on remote kernel
-prepare_rscript('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation')
-run_rscript('preparation')
-prepare_rscript('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization')
-run_rscript('visualization')
-# Running on local kernel
-enable_local_kernel()
-enable_local_kernel_in_template('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation')
-enable_local_kernel_in_template('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization')
-run_rscript('preparation')
-run_rscript('visualization')
+if __name__ == "__main__":
+    try:
+        prepare_templates()
+        # Running on remote kernel
+        prepare_rscript('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation', 'remote')
+        run_rscript('preparation')
+        prepare_rscript('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization', 'remote')
+        run_rscript('visualization')
+        # Running on local kernel
+        enable_local_kernel()
+        prepare_rscript('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation', 'local')
+        prepare_rscript('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization', 'local')
+        run_rscript('preparation')
+        run_rscript('visualization')
+    except Exception as err:
+        print('Error!', str(err))
+        sys.exit(1)
 
+    sys.exit(0)

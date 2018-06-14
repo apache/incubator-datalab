@@ -24,77 +24,21 @@ limitations under the License.
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>Service_base_name</name>
-          <description>unique infrastructure value that previously was used when ssn being provisioned</description>
-          <defaultValue>SBN</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>Resource_group_name</name>
-          <description>Azure resource group name</description>
-          <defaultValue>ARGN</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>Username</name>
           <description>name of the scientist</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>DataLake_enable</name>
-          <description>Provision DataLake storage instead of Blob storage</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>false</string>
-              <string>true</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>SSH_Key_Name</name>
-          <description>name of the uploaded ssh key file (without ".pem")</description>
-          <defaultValue>AKEY</defaultValue>
+          <name>Ad_User_Name</name>
+          <description>Name of AD user</description>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>SSN_SG_names</name>
-          <description>The names of the SSN Security Group to be accessible</description>
-          <defaultValue>SGI</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>vpc_name</name>
-          <description>Name of VPC where infrastructure is being deployed </description>
-          <defaultValue>VPC</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>subnet_name</name>
-          <description>Name of the public subnet where EDGE will be deployed</description>
-          <defaultValue>SNI</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>os_family</name>
-          <description>name of the linux distributive</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>debian</string>
-              <string>redhat</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>instance_shape</name>
           <description>value of the EDGE EC2 instance shape</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>Standard_DS1_v2</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>Region</name>
-          <description>Azure region where infrastructure was deployed</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>westus</string>
-              <string>westus2</string>
-              <string>eastus2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -120,7 +64,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/recreate_edge_node/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/UN/&apos;${Username}&apos;/g&apos; | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; | sed &apos;s/EIS/&apos;${instance_shape}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/edge:/logs/edge docker.dlab-edge --action $Action ;</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/recreate_edge_node/template.json | sed &apos;s/UN/&apos;${Username}&apos;/g&apos; | sed &apos;s/EIS/&apos;${instance_shape}&apos;/g&apos; | sed &apos;s/AUI/&apos;${Ad_User_Name}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/edge:/logs/edge docker.dlab-edge --action $Action ;</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

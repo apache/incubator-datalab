@@ -45,6 +45,8 @@ parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--r_version', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 dataproc_dir = '/opt/{}/jars/'.format(args.dataproc_version)
@@ -58,14 +60,13 @@ def r_kernel(args):
     local('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name))
     kernel_path = "{}/r_{}/kernel.json".format(kernels_dir, args.cluster_name)
     template_file = "/tmp/r_dataengine-service_template.json"
-    r_version = local("R --version | awk '/version / {print $3}'", capture = True)
 
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
     text = text.replace('SPARK_PATH', spark_path)
     text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
-    text = text.replace('R_KERNEL_VERSION', 'R-{}'.format(str(r_version)))
+    text = text.replace('R_KERNEL_VERSION', 'R-{}'.format(args.r_version))
     text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
     text = text.replace('YARN_CLI_TYPE', 'yarn')
     text = text.replace('SPARK_ACTION', 'session(master = \\\"yarn\\\")')
@@ -75,7 +76,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/{0}/{1}/spark/'.format(args.dataproc_version, args.cluster_name)
-    scala_version = local("dpkg -l scala | grep scala | awk '{print $3}'", capture=True)
+    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
     local('mkdir -p {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
     local('tar zxvf /tmp/toree_kernel.tar.gz -C {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
     kernel_path = '{0}toree_{1}/kernel.json'.format(kernels_dir, args.cluster_name)
@@ -118,6 +119,7 @@ if __name__ == "__main__":
         pyspark_kernel(kernels_dir, args.dataproc_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
         toree_kernel(args)
+        if args.r_enabled == 'true':
+            r_kernel(args)
         actions_lib.GCPActions().spark_defaults(args)
-        r_kernel(args)
         configuring_notebook(args.dataproc_version)

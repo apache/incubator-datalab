@@ -25,7 +25,6 @@ import { ClickOutsideModule } from '../../core/directives/click-outside/index';
 import { KeysPipeModule, UnderscorelessPipeModule } from '../../core/pipes';
 import { BubbleModule } from '../';
 
-
 export * from './multi-select-dropdown/multi-select-dropdown.component';
 export * from './dropdown-list/dropdown-list.component';
 
@@ -37,14 +36,7 @@ export * from './dropdown-list/dropdown-list.component';
     UnderscorelessPipeModule,
     BubbleModule
   ],
-  declarations: [
-    DropdownListComponent,
-    MultiSelectDropdownComponent
-  ],
-  exports: [
-    DropdownListComponent,
-    MultiSelectDropdownComponent
-  ]
+  declarations: [DropdownListComponent, MultiSelectDropdownComponent],
+  exports: [DropdownListComponent, MultiSelectDropdownComponent]
 })
-
-export class FormControlsModule { }
+export class FormControlsModule {}

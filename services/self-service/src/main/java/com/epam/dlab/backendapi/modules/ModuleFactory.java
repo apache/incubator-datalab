@@ -18,6 +18,7 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.AbstractModule;
@@ -30,8 +31,8 @@ public class ModuleFactory {
 
     /**
      * Instantiates an application configuration of SelfService for production or tests if
-     * the mock property of configuration is set to <b>true</b> and method {@link SelfServiceApplicationConfiguration#isMocked()}
-     * returns <b>true</b> value.
+	 * the mock property of configuration is set to <b>true</b> and method
+	 * {@link ServiceConfiguration#isDevMode()} returns <b>true</b> value.
      *
      * @param configuration application configuration of SelfService.
      * @param environment   environment of SelfService.
@@ -49,6 +50,7 @@ public class ModuleFactory {
             case AZURE:
                 return new AzureSelfServiceModule(configuration.getAzureLoginConfiguration());
             case GCP:
+                return new GcpSelfServiceModule();
             default:
                 throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
         }

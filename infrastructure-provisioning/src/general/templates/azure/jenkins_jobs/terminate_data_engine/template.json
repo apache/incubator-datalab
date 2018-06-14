@@ -1,11 +1,7 @@
 {
     "conf_resource": "dataengine",
     "request_id":"RID",
-    "conf_service_base_name":"SBN",
-    "azure_resource_group_name":"ARGN",
-    "azure_region":"CREG",
     "edge_user_name":"EUN",
     "notebook_instance_name":"NIN",
-    "conf_key_name":"KN",
     "computational_name": "CNAM"
 }

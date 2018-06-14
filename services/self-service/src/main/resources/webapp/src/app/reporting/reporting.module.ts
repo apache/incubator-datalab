@@ -18,12 +18,12 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 import { NgDateRangePickerModule } from 'ng-daterangepicker';
 
-import { ReportingComponent } from './reporting.component';
-import { NavbarModule, ModalModule } from './../shared';
+import { MaterialModule } from './../shared/material.module';
 import { FormControlsModule } from './../shared/form-controls';
+import { ReportingComponent } from './reporting.component';
+import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule } from './../shared';
 import { KeysPipeModule, LineBreaksPipeModule } from './../core/pipes';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
@@ -37,9 +37,15 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     KeysPipeModule,
     LineBreaksPipeModule,
     NgDateRangePickerModule,
-    MaterialModule.forRoot()
+    UploadKeyDialogModule,
+    ProgressDialogModule,
+    MaterialModule
   ],
-  declarations: [ReportingComponent, ReportingGridComponent, ToolbarComponent],
+  declarations: [
+    ReportingComponent,
+    ReportingGridComponent,
+    ToolbarComponent
+  ],
   exports: [ReportingComponent]
 })
 export class ReportingModule { }

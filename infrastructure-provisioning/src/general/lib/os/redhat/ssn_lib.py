@@ -158,7 +158,12 @@ def ensure_supervisor():
 def ensure_mongo():
     try:
         if not exists('{}tmp/mongo_ensured'.format(os.environ['ssn_dlab_path'])):
-            sudo('echo -e "[MongoDB]\nname=MongoDB Repository\nbaseurl=http://repo.mongodb.org/yum/redhat/7Server/mongodb-org/3.2/x86_64/\ngpgcheck=0\nenabled=1\n" > /etc/yum.repos.d/mongodb.repo')
+            sudo('echo -e "[mongodb-org-3.2]\nname=MongoDB Repository'
+                 '\nbaseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/3.2/x86_64/'
+                 '\ngpgcheck=1'
+                 '\nenabled=1'
+                 '\ngpgkey=https://www.mongodb.org/static/pgp/server-3.2.asc" '
+                 '> /etc/yum.repos.d/mongodb.repo')
             sudo('yum install -y mongodb-org')
             sudo('semanage port -a -t mongod_port_t -p tcp 27017')
             sudo('chkconfig mongod on')
@@ -248,7 +253,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                                     mongo_passwd, dlab_path, authentication_file, offer_number, currency, locale, region_info)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
-                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass {1} \
+                sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
                      -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
                 sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
                      -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))

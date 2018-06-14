@@ -22,77 +22,72 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.KeyAPI;
+import com.epam.dlab.utils.UsernameUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 public abstract class EdgeService implements DockerCommands {
-    private static final String KEY_EXTENTION = ".pub";
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    @Inject
-    protected RESTService selfService;
-    @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    private FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    private ICommandExecutor commandExecutor;
-    @Inject
-    private CommandBuilder commandBuilder;
 
-    @Override
-    public String getResourceType() {
-        return Directories.EDGE_LOG_DIRECTORY;
-    }
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI, DockerAction action) throws JsonProcessingException {
-        logger.debug("{} EDGE node for user {}: {}", action, username, dto);
-        String uuid = DockerCommands.generateUUID();
+	@Inject
+	protected RESTService selfService;
+	@Inject
+	private ProvisioningServiceApplicationConfiguration configuration;
+	@Inject
+	private FolderListenerExecutor folderListenerExecutor;
+	@Inject
+	private ICommandExecutor commandExecutor;
+	@Inject
+	private CommandBuilder commandBuilder;
 
-        folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
-                configuration.getKeyLoaderPollTimeout(),
-                getFileHandlerCallback(action, uuid, iamUser, callbackURI));
+	@Override
+	public String getResourceType() {
+		return Directories.EDGE_LOG_DIRECTORY;
+	}
 
-        RunDockerCommand runDockerCommand = new RunDockerCommand()
-                .withInteractive()
-                .withName(nameContainer(dto.getEdgeUserName(), action))
-                .withVolumeForRootKeys(configuration.getKeyDirectory())
-                .withVolumeForResponse(configuration.getKeyLoaderDirectory())
-                .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                .withResource(getResourceType())
-                .withRequestId(uuid)
-                .withConfKeyName(configuration.getAdminKey())
-                .withImage(configuration.getEdgeImage())
-                .withAction(action);
+	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI,
+							DockerAction action) throws JsonProcessingException {
+		logger.debug("{} EDGE node for user {}: {}", action, username, dto);
+		String uuid = DockerCommands.generateUUID();
 
-        commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
-        return uuid;
-    }
+		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
+				configuration.getKeyLoaderPollTimeout(),
+				getFileHandlerCallback(action, uuid, iamUser, callbackURI));
 
-    protected abstract FileHandlerCallback getFileHandlerCallback(DockerAction action,
-                                                                  String uuid, String user, String callbackURI);
+		RunDockerCommand runDockerCommand = new RunDockerCommand()
+				.withInteractive()
+				.withName(nameContainer(dto.getEdgeUserName(), action))
+				.withVolumeForRootKeys(getKeyDirectory())
+				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
+				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
+				.withResource(getResourceType())
+				.withRequestId(uuid)
+				.withConfKeyName(configuration.getAdminKey())
+				.withImage(configuration.getEdgeImage())
+				.withAction(action);
 
-    protected void saveKeyToFile(String edgeUsername, String content) throws IOException {
-        java.nio.file.Path keyFilePath = Paths.get(configuration.getKeyDirectory(), edgeUsername + KEY_EXTENTION).toAbsolutePath();
-        logger.debug("Saving key to {}", keyFilePath.toString());
-        try {
-            com.google.common.io.Files.createParentDirs(new File(keyFilePath.toString()));
-        } catch (IOException e) {
-            throw new DlabException("Can't create key folder " + keyFilePath + ": " + e.getLocalizedMessage(), e);
-        }
-        Files.write(keyFilePath, content.getBytes());
-    }
+		commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
+		return uuid;
+	}
 
-    private String nameContainer(String user, DockerAction action) {
-        return nameContainer(user, action.toString(), getResourceType());
-    }
+	protected abstract FileHandlerCallback getFileHandlerCallback(DockerAction action,
+																  String uuid, String user, String callbackURI);
+
+	private String nameContainer(String user, DockerAction action) {
+		return nameContainer(user, action.toString(), getResourceType());
+	}
+
+	protected String getKeyDirectory() {
+		return configuration.getKeyDirectory();
+	}
+
+	protected String getKeyFilename(String edgeUserName) {
+		return UsernameUtils.replaceWhitespaces(edgeUserName) + KeyAPI.KEY_EXTENTION;
+	}
 
 }

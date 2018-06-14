@@ -35,6 +35,11 @@ args = parser.parse_args()
 if __name__ == "__main__":
     spark_def_path = "/usr/lib/spark/conf/spark-defaults.conf"
 
+    os.system('touch /tmp/r_version')
+    r_ver = subprocess.check_output("R --version | awk '/version / {print $3}'", shell=True)
+    with open('/tmp/r_version', 'w') as outfile:
+        outfile.write(r_ver)
+
     os.system('touch /tmp/python_version')
     python_ver = subprocess.check_output("python3.5 -V 2>/dev/null | awk '{print $2}'", shell=True)
     if python_ver != '':
@@ -71,6 +76,8 @@ if __name__ == "__main__":
     os.system('gsutil -m cp {0} gs://{1}/{2}/{3}/'.format(spark_def_path, args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/python_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/spark_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
+    os.system('gsutil -m cp /tmp/r_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/hadoop_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/spark.tar.gz gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/spark-checksum.chk gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
+

@@ -18,47 +18,47 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.lt;
-
-import java.util.Date;
-import java.util.Optional;
-
-import org.bson.Document;
-
 import com.epam.dlab.backendapi.domain.RequestIdDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
+import org.bson.Document;
+
+import java.util.Date;
+import java.util.Optional;
+
+import static com.epam.dlab.backendapi.dao.MongoCollections.REQUEST_ID;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.lt;
 
 /** DAO for request id.
  */
 public class RequestIdDAO extends BaseDAO {
     private static final String EXPIRATION_TIME = "expirationTime";
-	
-	public RequestIdDTO get(String id) throws DlabException {
+
+	public RequestIdDTO get(String id) {
 		Optional<RequestIdDTO> opt = findOne(REQUEST_ID, eq(ID, id), RequestIdDTO.class);
 		if (!opt.isPresent()) {
 			throw new DlabException("Request id " + id + " not found.");
 		}
 		return opt.get();
     }
-    
-	public void put(RequestIdDTO requestId) throws DlabException {
+
+	public void put(RequestIdDTO requestId) {
 		getCollection(REQUEST_ID)
 			.insertOne(convertToBson(requestId));
     }
-    
-	public void delete(String id) throws DlabException {
+
+	public void delete(String id) {
 		getCollection(REQUEST_ID).deleteOne(eq(ID, id));
     }
-	
-	public void resetExpirationTime() throws DlabException {
+
+	public void resetExpirationTime() {
 		Date time = new Date();
 		getCollection(REQUEST_ID).updateMany(new Document(), Updates.set(EXPIRATION_TIME, time));
     }
-	
-	public long removeExpired() throws DlabException {
+
+	public long removeExpired() {
 		DeleteResult result = getCollection(REQUEST_ID)
 								.deleteMany(lt(EXPIRATION_TIME, new Date()));
 		return result.getDeletedCount();

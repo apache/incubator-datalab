@@ -49,106 +49,114 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class EnvStatusListener implements Managed {
 
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-    private final Cache<String, UserInfo> sessions;
-    private final EnvStatusDAO dao;
-    private final RESTService provisioningService;
-    private final StatusChecker statusChecker = new StatusChecker();
-    private final long checkEnvStatusTimeout;
+	private final Cache<String, UserInfo> sessions;
+	private final EnvStatusDAO dao;
+	private final RESTService provisioningService;
+	private final StatusChecker statusChecker = new StatusChecker();
+	private final long checkEnvStatusTimeout;
+	private final RequestBuilder requestBuilder;
 
-    @Inject
-    public EnvStatusListener(SelfServiceApplicationConfiguration configuration, EnvStatusDAO dao,
-                             @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
+	@Inject
+	private RequestId requestId;
 
-        this.sessions = CacheBuilder.newBuilder()
-                .expireAfterAccess(configuration.getInactiveUserTimeoutMillSec(), TimeUnit.MILLISECONDS)
-                .removalListener((RemovalNotification<String, Object> notification) ->
-                        log.info("User {} session is removed", notification.getKey()))
-                .build();
+	@Inject
+	public EnvStatusListener(SelfServiceApplicationConfiguration configuration, EnvStatusDAO dao,
+							 @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+							 RequestBuilder requestBuilder) {
 
-        this.dao = dao;
-        this.provisioningService = provisioningService;
-        this.checkEnvStatusTimeout = configuration.getCheckEnvStatusTimeout().toMilliseconds();
-    }
+		this.sessions = CacheBuilder.newBuilder()
+				.expireAfterAccess(configuration.getInactiveUserTimeoutMillSec(), TimeUnit.MILLISECONDS)
+				.removalListener((RemovalNotification<String, Object> notification) ->
+						log.info("User {} session is removed", notification.getKey()))
+				.build();
 
-    @Override
-    public void start() throws Exception {
-        executorService.scheduleAtFixedRate(new StatusChecker(), checkEnvStatusTimeout, checkEnvStatusTimeout,
-                TimeUnit.MILLISECONDS);
-    }
+		this.dao = dao;
+		this.provisioningService = provisioningService;
+		this.checkEnvStatusTimeout = configuration.getCheckEnvStatusTimeout().toMilliseconds();
+		this.requestBuilder = requestBuilder;
+	}
 
-    @Override
-    public void stop() throws Exception {
-        statusChecker.shouldStop = true;
-        if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-            executorService.shutdownNow();
-        }
-    }
+	@Override
+	public void start() {
+		executorService.scheduleAtFixedRate(new StatusChecker(), checkEnvStatusTimeout, checkEnvStatusTimeout,
+				TimeUnit.MILLISECONDS);
+	}
 
-    public void registerSession(UserInfo userInfo) {
-        UserInfo ui = getSession(userInfo.getName());
-        log.info("Register session(existing = {}) for {}", ui != null, userInfo.getName());
-        sessions.put(userInfo.getName(), userInfo);
-    }
+	@Override
+	public void stop() throws Exception {
+		statusChecker.shouldStop = true;
+		if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+			executorService.shutdownNow();
+		}
+	}
 
-    public void unregisterSession(UserInfo userInfo) {
-        log.info("Invalidate session for {}", userInfo.getName());
-        sessions.invalidate(userInfo.getName());
-    }
+	public void registerSession(UserInfo userInfo) {
+		UserInfo ui = getSession(userInfo.getName());
+		log.info("Register session(existing = {}) for {}", ui != null, userInfo.getName());
+		sessions.put(userInfo.getName(), userInfo);
+	}
 
-    public UserInfo getSession(String username) {
-        return sessions.getIfPresent(username);
-    }
+	public void unregisterSession(UserInfo userInfo) {
+		log.info("Invalidate session for {}", userInfo.getName());
+		sessions.invalidate(userInfo.getName());
+	}
 
-    /**
-     * Scheduled @{@link Runnable} that verifies status of users' resources
-     */
-    private class StatusChecker implements Runnable {
-        private volatile boolean shouldStop = false;
+	public UserInfo getSession(String username) {
+		return sessions.getIfPresent(username);
+	}
 
-        @Override
-        public void run() {
+	/**
+	 * Scheduled @{@link Runnable} that verifies status of users' resources
+	 */
+	private class StatusChecker implements Runnable {
+		private volatile boolean shouldStop = false;
 
-            log.debug("Start checking environment statuses");
+		@Override
+		public void run() {
 
-            sessions.cleanUp();
+			log.debug("Start checking environment statuses");
 
-            for (Map.Entry<String, UserInfo> entry : sessions.asMap().entrySet()) {
-                try {
-                    if (!shouldStop) {
-                        checkStatusThroughProvisioningService(entry.getValue());
-                    } else {
-                        log.info("Stopping env status listener");
-                    }
-                } catch (RuntimeException e) {
-                    log.error("Cannot check env status for user {}", entry.getKey(), e);
-                }
-            }
-        }
+			sessions.cleanUp();
 
-        /**
-         * Sends request to docker to check the status of user environment.
-         *
-         * @param userInfo username
-         * @return UUID associated with async operation
-         */
-        private String checkStatusThroughProvisioningService(UserInfo userInfo) {
+			for (Map.Entry<String, UserInfo> entry : sessions.asMap().entrySet()) {
+				try {
+					if (!shouldStop) {
+						checkStatusThroughProvisioningService(entry.getValue());
+					} else {
+						log.info("Stopping env status listener");
+					}
+				} catch (RuntimeException e) {
+					log.error("Cannot check env status for user {}", entry.getKey(), e);
+				}
+			}
+		}
 
-            String uuid = null;
-            EnvResourceList resourceList = dao.findEnvResources(userInfo.getName());
-            UserEnvironmentResources dto = RequestBuilder.newUserEnvironmentStatus(userInfo);
+		/**
+		 * Sends request to docker to check the status of user environment.
+		 *
+		 * @param userInfo username
+		 * @return UUID associated with async operation
+		 */
+		private String checkStatusThroughProvisioningService(UserInfo userInfo) {
 
-            log.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getName(), resourceList);
+			String uuid = null;
+			EnvResourceList resourceList = dao.findEnvResources(userInfo.getName());
+			UserEnvironmentResources dto = requestBuilder.newUserEnvironmentStatus(userInfo);
 
-            if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
-                dto.withResourceList(resourceList);
-                log.trace("Ask docker for the status of resources for user {}: {}", userInfo.getName(), dto);
-                uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(), dto, String.class);
-                RequestId.put(userInfo.getName(), uuid);
-            }
+			log.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getName(),
+					resourceList);
 
-            return uuid;
-        }
-    }
+			if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
+				dto.withResourceList(resourceList);
+				log.trace("Ask docker for the status of resources for user {}: {}", userInfo.getName(), dto);
+				uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(),
+						dto, String.class);
+				requestId.put(userInfo.getName(), uuid);
+			}
+
+			return uuid;
+		}
+	}
 }

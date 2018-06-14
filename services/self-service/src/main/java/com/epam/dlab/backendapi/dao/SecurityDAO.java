@@ -18,17 +18,18 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
-import static com.mongodb.client.model.Filters.ne;
-import static com.mongodb.client.model.Projections.exclude;
-import static com.mongodb.client.model.Projections.fields;
-
-import org.bson.Document;
-
 import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
+import org.bson.Document;
+
+import static com.epam.dlab.backendapi.dao.MongoCollections.LOGIN_ATTEMPTS;
+import static com.epam.dlab.backendapi.dao.MongoCollections.ROLES;
+import static com.mongodb.client.model.Filters.ne;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.fields;
 
 /** DAO write the attempt of user login into DLab.
  * */
@@ -37,20 +38,18 @@ public class SecurityDAO extends BaseDAO {
 	
 	/** Write the attempt of user login into Mongo database.
 	 * @param credentials user credentials.
-	 * @exception DlabException
 	 */
-    public void writeLoginAttempt(UserCredentialDTO credentials) throws DlabException {
+	public void writeLoginAttempt(UserCredentialDTO credentials) {
         insertOne(LOGIN_ATTEMPTS,
                 () -> new Document("login", credentials.getUsername()).append("iamlogin", UsernameUtils.removeDomain(credentials.getUsername())));
     }
     
     /** Return the roles or throw exception if roles collection does not exists.
-     * @throws DlabException
      */
-    public FindIterable<Document> getRoles() throws DlabException {
+	public FindIterable<Document> getRoles() {
     	if (!collectionExists(ROLES)) {
-    		throw new DlabException("Collection \"" + ROLES + "\" does not exists.");
+			throw new DlabException("Collection \"" + ROLES + "\" does not exist.");
     	}
-		return find(ROLES, ne(ID, "_Example"), fields(exclude(ID, "description")));
+		return find(ROLES, ne(ID, "_Example"), fields(exclude("description")));
     }
 }

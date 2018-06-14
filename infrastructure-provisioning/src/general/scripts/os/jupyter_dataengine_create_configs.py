@@ -40,6 +40,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
@@ -74,8 +75,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
-    scala_version = local("dpkg -l scala | grep scala | awk '{print $3}'", capture=True)
-
+    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
     local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
     local('tar zxvf /tmp/toree_kernel.tar.gz -C ' + kernels_dir + 'toree_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
@@ -159,4 +159,5 @@ if __name__ == "__main__":
         configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
         pyspark_kernel(args)
         toree_kernel(args)
-        r_kernel(args)
+        if args.r_enabled == 'true':
+            r_kernel(args)

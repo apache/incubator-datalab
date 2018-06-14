@@ -51,26 +51,21 @@ if __name__ == "__main__":
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['user_keyname'] = os.environ['edge_user_name']
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] + \
-                                           '-notebook-image'
-    notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + os.environ[
-        'edge_user_name'] + "-nb-Profile"
-    notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-SG"
-    notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+    notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
+                                                               os.environ['edge_user_name'],
+                                                               notebook_config['exploratory_name'], args.uuid)
+    notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                           os.environ['application'])
+    notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
+    notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
+        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
+    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+                                                                  os.environ['edge_user_name'])
+    notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-
-    print('Searching preconfigured images')
-    ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
-    if ami_id != '':
-        print('Preconfigured image found. Using: {}'.format(ami_id))
-        notebook_config['ami_id'] = ami_id
-    else:
-        notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-        print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_id']))
-
-    tag = {"Key": notebook_config['tag_name'], "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    tag = {"Key": notebook_config['tag_name'],
+           "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
 
     # generating variables regarding EDGE proxy on Notebook instance
@@ -201,20 +196,37 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[CREATING AMI]')
-        logging.info('[CREATING AMI]')
-        ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-        if ami_id == '':
-            print("Looks like it's first time we configure notebook server. Creating image.")
-            image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-                                                  instance_name=notebook_config['instance_name'],
-                                                  image_name=notebook_config['expected_ami_name'])
-            if image_id != '':
-                print("Image was successfully created. It's ID is {}".format(image_id))
+        logging.info('[POST CONFIGURING PROCESS]')
+        print('[POST CONFIGURING PROCESS')
+        if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None']:
+            params = "--hostname {} --keyfile {} --os_user {} --nb_tag_name {} --nb_tag_value {}" \
+                .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
+                        notebook_config['tag_name'], notebook_config['instance_name'])
+            try:
+                local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
+            except:
+                traceback.print_exc()
+                raise Exception
     except Exception as err:
-        append_result("Failed installing users key.", str(err))
+        append_result("Failed to post configuring instance.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
+
+    if notebook_config['shared_image_enabled'] == 'true':
+        try:
+            print('[CREATING AMI]')
+            ami_id = get_ami_id_by_name(notebook_config['expected_image_name'])
+            if ami_id == '':
+                print("Looks like it's first time we configure notebook server. Creating image.")
+                image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
+                                                      instance_name=notebook_config['instance_name'],
+                                                      image_name=notebook_config['expected_image_name'])
+                if image_id != '':
+                    print("Image was successfully created. It's ID is {}".format(image_id))
+        except Exception as err:
+            append_result("Failed creating image.", str(err))
+            remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+            sys.exit(1)
 
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
@@ -231,7 +243,7 @@ if __name__ == "__main__":
     print("Instance type: {}".format(notebook_config['instance_type']))
     print("Key name: {}".format(notebook_config['key_name']))
     print("User key name: {}".format(notebook_config['user_keyname']))
-    print("AMI name: {}".format(notebook_config['expected_ami_name']))
+    print("AMI name: {}".format(notebook_config['notebook_image_name']))
     print("Profile name: {}".format(notebook_config['role_profile_name']))
     print("SG name: {}".format(notebook_config['security_group_name']))
     print("TensorBoard URL: {}".format(tensorboard_url))
@@ -248,6 +260,7 @@ if __name__ == "__main__":
                "master_keyname": os.environ['conf_key_name'],
                "tensorboard_log_dir": "/var/log/tensorboard",
                "notebook_name": notebook_config['instance_name'],
+               "notebook_image_name": notebook_config['notebook_image_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "TensorBoard",

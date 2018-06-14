@@ -45,7 +45,7 @@ if __name__ == "__main__":
             edge_conf['vpc_name'] = os.environ['gcp_vpc_name']
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
-    edge_conf['vpc_cidr'] = '10.10.0.0/16'
+    edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
     edge_conf['subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
@@ -63,9 +63,9 @@ if __name__ == "__main__":
     edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
     edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name'])
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     edge_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -107,6 +107,7 @@ if __name__ == "__main__":
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_bucket(edge_conf['shared_bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
@@ -136,6 +137,7 @@ if __name__ == "__main__":
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_bucket(edge_conf['shared_bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
@@ -167,6 +169,7 @@ if __name__ == "__main__":
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_bucket(edge_conf['shared_bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
@@ -199,6 +202,7 @@ if __name__ == "__main__":
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_bucket(edge_conf['shared_bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
@@ -222,13 +226,16 @@ if __name__ == "__main__":
         print("Private IP: {}".format(edge_conf['private_ip']))
         print("Key name: {}".format(edge_conf['key_name']))
         print("Bucket name: {}".format(edge_conf['bucket_name']))
+        print("Shared bucket name: {}".format(edge_conf['shared_bucket_name']))
         print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": instance_hostname,
                    "public_ip": edge_conf['static_ip'],
                    "ip": edge_conf['private_ip'],
+                   "instance_id": edge_conf['instance_name'],
                    "key_name": edge_conf['key_name'],
                    "user_own_bucket_name": edge_conf['bucket_name'],
+                   "shared_bucket_name": edge_conf['shared_bucket_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_subnet": edge_conf['private_subnet_cidr'],

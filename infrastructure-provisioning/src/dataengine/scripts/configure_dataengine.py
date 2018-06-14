@@ -76,12 +76,26 @@ def start_spark(os_user, master_ip, node):
         if os.environ['application'] == 'deeplearning':
             sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
-            sudo('/opt/spark/sbin/start-master.sh')
-            sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
+            with cd('/opt/spark/sbin/'):
+                sudo("sed -i '/start-slaves.sh/d' start-all.sh")
+                sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> start-all.sh'''.format('{SPARK_HOME}', master_ip))
+            put('~/templates/spark-master.service', '/tmp/spark-master.service')
+            sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable spark-master.service')
+            sudo('systemctl start spark-master.service')
         if node == 'slave':
-            sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
+            with open('/root/templates/spark-slave.service', 'r') as f:
+                text = f.read()
+            text = text.replace('MASTER', 'spark://{}:7077'.format(master_ip))
+            with open('/root/templates/spark-slave.service', 'w') as f:
+                f.write(text)
+            put('~/templates/spark-slave.service', '/tmp/spark-slave.service')
+            sudo('mv /tmp/spark-slave.service /etc/systemd/system/spark-slave.service')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable spark-slave.service')
+            sudo('systemctl start spark-slave.service')
         sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
-
 
 ##############
 # Run script #
@@ -103,10 +117,14 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    print("Install Scala")
-    ensure_scala(scala_link, args.scala_version, args.os_user)
-    print("Installing R")
-    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+    if os.environ['application'] in ('jupyter', 'zeppelin'):
+        print("Install Scala")
+        ensure_scala(scala_link, args.scala_version, args.os_user)
+    if (os.environ['application'] in ('jupyter', 'zeppelin')
+        and os.environ['notebook_r_enabled'] == 'true') \
+            or os.environ['application'] == 'rstudio':
+        print("Installing R")
+        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
     ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
@@ -121,7 +139,7 @@ if __name__ == "__main__":
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, '')
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     if os.environ['application'] in ('tensor', 'deeplearning'):
@@ -164,6 +182,6 @@ if __name__ == "__main__":
         ensure_sbt(args.os_user)
         print("Install Breeze")
         add_breeze_library_local(args.os_user)
-    if os.environ['application'] == 'zeppelin':
+    if os.environ['application'] == 'zeppelin' and os.environ['notebook_r_enabled'] == 'true':
         print("Install additional R packages")
         install_r_packages(args.os_user)

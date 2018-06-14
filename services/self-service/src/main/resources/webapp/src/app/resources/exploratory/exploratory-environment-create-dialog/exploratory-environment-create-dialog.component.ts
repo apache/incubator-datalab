@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
@@ -38,6 +38,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   templateDescription: string;
   namePattern = '[-_a-zA-Z0-9]+';
   resourceGrid: any;
+  userImages: Array<any>;
   environment_shape: string;
 
   processError: boolean = false;
@@ -49,12 +50,14 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   @ViewChild('environment_name') environment_name;
   @ViewChild('templatesList') templates_list;
   @ViewChild('shapesList') shapes_list;
+  @ViewChild('imagesList') userImagesList;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     private userResourceService: UserResourceService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private changeDetector : ChangeDetectorRef
   ) {
     this.model = ExploratoryEnvironmentCreateModel.getDefault(userResourceService);
   }
@@ -71,7 +74,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   }
 
   providerMaxLength(control) {
-    if (DICTIONARY.cloud_provider === 'azure')
+    if (DICTIONARY.cloud_provider !== 'aws')
       return control.value.length <=10 ? null : { valid: false };
   }
 
@@ -92,6 +95,10 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
       this.model.selectedItem.template_name, 'template', 'template_name', 'array');
     this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
       this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
+
+    if (this.userImages && this.userImages.length > 0) {
+      this.userImagesList.setDefaultOptions(this.userImages, 'Select existing ' + DICTIONARY.image, 'ami', 'name', 'array', null, true);
+    }
   }
 
   onUpdate($event): void {
@@ -100,13 +107,19 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
       this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
         this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
       this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+
+      this.getImagesList();
     }
 
     if ($event.model.type === 'shape')
       this.environment_shape = $event.model.value.type;
   }
 
-  createExploratoryEnvironment_btnClick($event, data, valid, template) {
+  selectImage($event): void {
+    this.model.notebookImage = $event.model.value ? $event.model.value.fullName : null;
+  }
+
+  createExploratoryEnvironment_btnClick($event, data) {
     this.model.setCreatingParams(data.environment_name, this.environment_shape);
     this.model.confirmAction();
     $event.preventDefault();
@@ -131,9 +144,20 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
         () => {
           this.bindDialog.open(params);
           this.setDefaultParams();
+          this.getImagesList();
         },
         this.userResourceService);
     }
+  }
+
+  getImagesList() {
+    const image = this.model.selectedItem.image;
+    this.userResourceService.getUserImages(image)
+      .subscribe((res: any) => {
+        this.userImages = res;
+        this.changeDetector.detectChanges();
+        this.setDefaultParams();
+      });
   }
 
   public close(): void {

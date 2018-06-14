@@ -68,31 +68,29 @@ if __name__ == "__main__":
         data_engine['region'] = os.environ['azure_region']
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
-        data_engine['subnet_name'] = os.environ['azure_subnet_name']
-        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
-                                             '-subnet'
+        data_engine['private_subnet_name'] = '{}-{}-subnet'.format(data_engine['service_base_name'],
+                                                                   data_engine['user_name'])
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
                                                                     data_engine['vpc_name'],
                                                                     data_engine['private_subnet_name']).address_prefix
-        data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                    + data_engine['user_name'] + '-dataengine-master-sg'
-        data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                   + data_engine['user_name'] + '-dataengine-slave-sg'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
-                                          '-de-' + data_engine['exploratory_name'] + '-' + \
-                                          data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
-        data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
+        data_engine['master_security_group_name'] = '{}-{}-dataengine-master-sg'.format(data_engine['service_base_name'],
+                                                                                        data_engine['user_name'])
+        data_engine['slave_security_group_name'] = '{}-{}-dataengine-slave-sg'.format(data_engine['service_base_name'],
+                                                                                      data_engine['user_name'])
+        data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
+                                                              data_engine['user_name'],
+                                                              data_engine['exploratory_name'],
+                                                              data_engine['computational_name'])
+        data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
+        data_engine['slave_node_name'] = '{}-s'.format(data_engine['cluster_name'])
+        data_engine['master_network_interface_name'] = '{}-nif'.format(data_engine['master_node_name'])
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
-        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
-        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']), 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
-        data_engine['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
         data_engine['slave_tags'] = {"Name": data_engine['cluster_name'],
                                      "SBN": data_engine['service_base_name'],
                                      "User": data_engine['user_name'],
@@ -103,6 +101,22 @@ if __name__ == "__main__":
                                       "User": data_engine['user_name'],
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name']}
+        data_engine['primary_disk_size'] = '32'
+        data_engine['image_type'] = 'default'
+        data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(data_engine['service_base_name'],
+                                                                           os.environ['application'])
+        data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+                    else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
+
+        print('Searching pre-configured images')
+        if AzureMeta().get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']) and \
+                        os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
+            data_engine['image_name'] = data_engine['notebook_image_name']
+            data_engine['image_type'] = 'pre-configured'
+            print('Pre-configured image found. Using: {}'.format(data_engine['notebook_image_name']))
+        else:
+            data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
+            print('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
@@ -122,14 +136,18 @@ if __name__ == "__main__":
         if 'NC' in data_engine['master_size']:
             data_engine['instance_storage_account_type'] = 'Standard_LRS'
 
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}'". \
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
+            --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
+            --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+            --instance_type {} --user_name {} --instance_storage_account_type {} --image_name {} \
+            --image_type {} --tags '{}'". \
             format(data_engine['master_node_name'], data_engine['master_size'], data_engine['region'],
                    data_engine['vpc_name'], data_engine['master_network_interface_name'],
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                   data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                   data_engine['instance_storage_account_type'], data_engine['ami_name'],
-                   json.dumps(data_engine['master_tags']))
+                   data_engine['public_ssh_key'], data_engine['primary_disk_size'], 'dataengine',
+                   data_engine['user_name'], data_engine['instance_storage_account_type'],
+                   data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['master_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -153,13 +171,17 @@ if __name__ == "__main__":
             if 'NC' in data_engine['slave_size']:
                 data_engine['instance_storage_account_type'] = 'Standard_LRS'
 
-            params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}'". \
+            params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
+                --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
+                --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+                --instance_type {} --user_name {} --instance_storage_account_type {} --image_name {} \
+                --image_type {} --tags '{}'". \
                 format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                       data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                       data_engine['instance_storage_account_type'], data_engine['ami_name'],
-                       json.dumps(data_engine['slave_tags']))
+                       data_engine['public_ssh_key'], data_engine['primary_disk_size'], 'dataengine',
+                       data_engine['user_name'], data_engine['instance_storage_account_type'],
+                       data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['slave_tags']))
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
             except:
@@ -175,4 +197,3 @@ if __name__ == "__main__":
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         append_result("Failed to create slave instances.", str(err))
         sys.exit(1)
-

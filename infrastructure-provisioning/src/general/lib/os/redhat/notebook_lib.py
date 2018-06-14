@@ -45,11 +45,22 @@ def enable_proxy(proxy_host, proxy_port):
         sys.exit(1)
 
 
+def downgrade_python_version():
+    try:
+       sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
+        version = [pkg.vr for pkg in pl.installed if pkg.name == \'python\']; \
+        os.system(\'yum -y downgrade python python-devel-2.7.5-58.el7.x86_64 python-libs-2.7.5-58.el7.x86_64\') \
+        if version != [] and version[0] == \'2.7.5-68.el7\' else False"')
+    except:
+        sys.exit(1)
+
+
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
     if not exists('/home/{}/.ensure_dir/r_kernel_ensured'.format(os_user)):
         try:
             sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/.local')
             run('R -e "IRkernel::installspec()"')
+            sudo('ln -s /opt/spark/ /usr/local/spark')
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
             r_version = sudo("R --version | awk '/version / {print $3}'")
             put(templates_dir + 'r_template.json', '/tmp/r_template.json')
@@ -98,6 +109,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('touch /home/{}/.Rprofile'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
+            sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             sudo('rstudio-server start')
             sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
             sudo("sed -i '/exit 0/d' /etc/rc.local")
@@ -193,14 +208,17 @@ def ensure_python2_libraries(os_user):
             sudo('yum install -y python-setuptools python-wheel')
             sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxml2-devel libxslt-devel --nogpgcheck')
             try:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython ipykernel --no-cache-dir')
+                sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('echo y | python2 -m pip uninstall backports.shutil_get_terminal_size')
             sudo('python2 -m pip install backports.shutil_get_terminal_size --no-cache-dir')
             sudo('pip2 install -UI pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip2 install boto3 --no-cache-dir')
+            sudo('pip2 install boto3 backoff --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
+            downgrade_python_version()
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
         except:
             sys.exit(1)
@@ -215,9 +233,11 @@ def ensure_python3_libraries(os_user):
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
             try:
-                sudo('python3.5 -m pip install ipython ipykernel --no-cache-dir')
+                sudo('python3.5 -m pip install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('python3.5 -m pip install ipython==5.0.0 ipykernel --no-cache-dir')
+                sudo('python3.5 -m pip install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
             sys.exit(1)
@@ -329,14 +349,25 @@ def install_os_pkg(requisites):
         return "Fail to install OS packages"
 
 
+def remove_os_pkg(pkgs):
+    try:
+        sudo('yum remove -y {}'.format(' '.join(pkgs)))
+    except:
+        sys.exit(1)
+
+
 def get_available_os_pkgs():
     try:
         sudo('yum update-minimal --security -y --skip-broken')
+        downgrade_python_version()
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
-        yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
+        yum_re = re.sub\
+            (r'\w*\s\w*\D\s\w*.\w*.\s\w*.\w*.\w.\w*.\w*.\w*', '', yum_raw)
+        yum_list = yum_re.replace("'", "\"")
         os_pkgs = json.loads(yum_list)
         return os_pkgs
-    except:
+    except Exception as err:
+        append_result("Failed to get available os packages.", str(err))
         sys.exit(1)
 
 
@@ -414,7 +445,21 @@ def install_caffe2(os_user, caffe2_version):
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        sudo('git clone --recursive https://github.com/caffe2/caffe2')
+        sudo('git clone https://github.com/caffe2/caffe2')
+        submodules = ['third_party/pybind11', 'third_party/nccl', 'third_party/cub',
+              'third_party/eigen', 'third_party/googletest',
+              'third_party/nervanagpu', 'third_party/benchmark',
+              'third_party/protobuf', 'third_party/ios-cmake',
+              'third_party/NNPACK', 'third_party/gloo',
+              'third_party/pthreadpool', 'third_party/FXdiv',
+              'third_party/FP16', 'third_party/psimd',
+              'third_party/zstd', 'third_party/cpuinfo',
+              'third_party/python-enum', 'third_party/python-peachpy',
+              'third_party/python-six', 'third_party/ComputeLibrary',
+              'third_party/onnx']
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            for module in submodules:
+                sudo('git submodule update --init {}'.format(module))
         cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
             with settings(warn_only=True):

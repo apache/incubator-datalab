@@ -18,19 +18,16 @@ limitations under the License.
 
 package com.epam.dlab.automation.docker;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class Networks {
-    
-    @JsonProperty("Bridge")
-    private Bridge Bridge;
+
+	private Bridge bridge;
 
     public Bridge getBridge() {
-        return Bridge;
+		return bridge;
     }
 
     public void setBridge(Bridge bridge) {
-        this.Bridge = bridge;
+		this.bridge = bridge;
     }
 
 }

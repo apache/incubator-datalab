@@ -22,6 +22,7 @@ import { RouterModule, Router } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { HttpModule, Http, XHRBackend, RequestOptions } from '@angular/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
@@ -41,6 +42,7 @@ import { CoreModule } from './core/core.module';
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     LoginModule,
     ResourcesModule,
@@ -50,6 +52,7 @@ import { CoreModule } from './core/core.module';
     ReportingModule,
     RouterModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
     CoreModule.forRoot()
   ],
   providers: [{

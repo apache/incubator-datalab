@@ -46,6 +46,7 @@ parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -80,7 +81,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
-    scala_version = local("dpkg -l scala | grep scala | awk '{print $3}'", capture=True)
+    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
     if args.emr_version == 'emr-4.3.0' or args.emr_version == 'emr-4.6.0' or args.emr_version == 'emr-4.8.0':
         local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
         kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
@@ -149,7 +150,7 @@ def add_breeze_library_emr(args):
           breeze_tmp_dir + 'jfreechart-1.0.19.jar')
     local('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
           breeze_tmp_dir + 'jcommon-1.0.24.jar')
-    local('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+    local('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
           breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
     local('sudo mv ' + breeze_tmp_dir + '* ' + new_jars_directory_path)
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.emr_version +
@@ -168,7 +169,8 @@ if __name__ == "__main__":
         pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
         toree_kernel(args)
+        if args.r_enabled == 'true':
+            r_kernel(args)
         spark_defaults(args)
-        r_kernel(args)
         configuring_notebook(args.emr_version)
         add_breeze_library_emr(args)

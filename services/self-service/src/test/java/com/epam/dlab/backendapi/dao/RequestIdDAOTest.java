@@ -17,19 +17,14 @@
  ****************************************************************************/
 package com.epam.dlab.backendapi.dao;
 
-import static com.epam.dlab.backendapi.dao.MongoCollections.REQUEST_ID;
-import static org.junit.Assert.assertEquals;
+import com.epam.dlab.backendapi.domain.RequestIdDTO;
+import org.junit.*;
 
 import java.util.Date;
 import java.util.UUID;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.epam.dlab.backendapi.domain.RequestIdDTO;
+import static com.epam.dlab.backendapi.dao.MongoCollections.REQUEST_ID;
+import static org.junit.Assert.assertEquals;
 
 @Ignore
 public class RequestIdDAOTest extends DAOTestBase {
@@ -56,7 +51,7 @@ public class RequestIdDAOTest extends DAOTestBase {
     }
 
     @Test
-    public void test() throws InterruptedException {
+	public void test() {
     	RequestIdDTO dto = new RequestIdDTO()
     			.withId(UUID.randomUUID().toString())
     			.withUser("user1")
@@ -75,7 +70,6 @@ public class RequestIdDAOTest extends DAOTestBase {
     	RequestIdDTO dto2 = dao.get(dto.getId());
         assertEquals(expirationTime, dto2.getExpirationTime());
         
-        Thread.sleep(1);
         long deleteCount = dao.removeExpired();
         assertEquals(1, deleteCount);
     }

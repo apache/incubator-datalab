@@ -22,7 +22,7 @@ from fabric.api import *
 from fabric.contrib.files import exists
 
 
-def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel'):
+def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip'):
     try:
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories and installing requested tools: {}".format(requisites))
@@ -31,9 +31,17 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
                 sudo('systemctl stop firewalld.service')
             sudo('setenforce 0')
             sudo("sed -i '/^SELINUX=/s/SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config")
+            mirror = 'mirror.centos.org'
+            with cd('/etc/yum.repos.d/'):
+                sudo('echo "[Centos-repo]" > centOS-base.repo')
+                sudo('echo "name=Centos 7 Repository" >> centOS-base.repo')
+                sudo('echo "baseurl=http://{}/centos/7/os/x86_64/" >> centOS-base.repo'.format(mirror))
+                sudo('echo "enabled=1" >> centOS-base.repo')
+                sudo('echo "gpgcheck=1" >> centOS-base.repo')
+                sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centOS-base.repo'.format(mirror))
             sudo('yum update-minimal --security -y')
             sudo('yum -y install wget')
-            sudo('wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm')
+            sudo('wget --no-check-certificate https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm')
             sudo('rpm -ivh epel-release-latest-7.noarch.rpm')
             sudo('yum repolist')
             sudo('yum -y install python-pip gcc')

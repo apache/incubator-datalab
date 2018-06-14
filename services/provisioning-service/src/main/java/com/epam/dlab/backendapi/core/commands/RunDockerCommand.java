@@ -22,7 +22,8 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RunDockerCommand implements DockerCommand {
+public class RunDockerCommand implements CmdCommand {
+    public static final String EDGE_USER_NAME_FORMAT = "-e \"edge_user_name=%s\"";
     private String command = "docker run";
     private List<String> options = new LinkedList<>();
     private String image;
@@ -209,7 +210,7 @@ public class RunDockerCommand implements DockerCommand {
     }
 
     public RunDockerCommand withEdgeUserName(String edgeUserName) {
-        options.add(String.format("-e \"edge_user_name=%s\"", edgeUserName));
+        options.add(String.format(EDGE_USER_NAME_FORMAT, edgeUserName));
         return this;
     }
 
@@ -219,7 +220,7 @@ public class RunDockerCommand implements DockerCommand {
     }
 
     public RunDockerCommand withNotebookUserName(String notebookUserName) {
-        options.add(String.format("-e \"edge_user_name=%s\"", notebookUserName));
+        options.add(String.format(EDGE_USER_NAME_FORMAT, notebookUserName));
         return this;
     }
 
@@ -239,7 +240,7 @@ public class RunDockerCommand implements DockerCommand {
     }
 
     public RunDockerCommand withUserKeyName(String userKeyName) {
-        options.add(String.format("-e \"edge_user_name=%s\"", userKeyName));
+        options.add(String.format(EDGE_USER_NAME_FORMAT, userKeyName));
         return this;
     }
 

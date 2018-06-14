@@ -13,9 +13,9 @@
             <id>aws</id>
             <dependencies>
                 <dependency>
-                    <groupId>com.amazonaws</groupId>
-                    <artifactId>aws-java-sdk-iam</artifactId>
-                    <version>${aws-java-sdk-iam.version}</version>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-aws</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -29,6 +29,16 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>gcp</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-gcp</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <artifactId>security-service</artifactId>
@@ -36,7 +46,6 @@
     <properties>
         <org.apache.directory.api.version>1.0.0-RC1</org.apache.directory.api.version>
         <jython-standalone.version>2.7.0</jython-standalone.version>
-        <aws-java-sdk-iam.version>1.11.48</aws-java-sdk-iam.version>
     </properties>
 
     <dependencies>
@@ -47,7 +56,19 @@
         </dependency>
         <dependency>
             <groupId>com.epam.dlab</groupId>
+            <artifactId>security-aws</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
             <artifactId>security-azure</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-gcp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -65,12 +86,6 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${org.mongodb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-iam</artifactId>
-            <version>${aws-java-sdk-iam.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

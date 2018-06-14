@@ -18,12 +18,12 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ModalModule } from '../../../shared/modal-dialog';
-import { ComputationalResourceCreateDialogComponent } from './computational-resource-create-dialog.component';
+import { MaterialModule } from '../../../shared/material.module';
 import { FormControlsModule } from '../../../shared/form-controls';
+import { ComputationalResourceCreateDialogComponent } from './computational-resource-create-dialog.component';
 
 export * from './computational-resource-create-dialog.component';
 export * from './computational-resource-create.model';
@@ -35,9 +35,9 @@ export * from './computational-resource-create.model';
     FormsModule,
     ReactiveFormsModule,
     FormControlsModule,
-    MaterialModule.forRoot()],
+    MaterialModule
+  ],
   declarations: [ComputationalResourceCreateDialogComponent],
   exports: [ComputationalResourceCreateDialogComponent]
 })
-
-export class ComputationalResourceCreateDialogModule { }
+export class ComputationalResourceCreateDialogModule {}

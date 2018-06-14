@@ -27,7 +27,9 @@ public enum DockerAction {
     LIB_LIST,
     LIB_INSTALL,
     GIT_CREDS,
-    STATUS;
+    CREATE_IMAGE,
+    STATUS,
+    REUPLOAD_KEY;
 
     public static DockerAction of(String action) {
         if (action != null) {

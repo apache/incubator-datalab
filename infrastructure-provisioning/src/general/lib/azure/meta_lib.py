@@ -28,7 +28,6 @@ from azure.datalake.store import core, lib
 from azure.graphrbac import GraphRbacManagementClient
 from azure.common.credentials import ServicePrincipalCredentials
 import azure.common.exceptions as AzureExceptions
-import meta_lib
 import logging
 import traceback
 import sys
@@ -479,6 +478,24 @@ class AzureMeta:
             logging.info(
                 "Unable to get image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_instance_image(self, resource_group_name, instance_name):
+        try:
+            instance = self.compute_client.virtual_machines.get(
+                resource_group_name, instance_name)
+            image = instance.storage_profile.image_reference
+            if image.id == None:
+                return ('default')
+            image = image.id.split("/")
+            image = image[-1]
+            return (image)
+        except Exception as err:
+            logging.info(
+                "Unable to get instance image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance image",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

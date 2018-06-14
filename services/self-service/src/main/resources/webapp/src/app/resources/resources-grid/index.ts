@@ -18,8 +18,8 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 
+import { MaterialModule } from './../../shared/material.module';
 import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from './../computational/computational-resources-list';
 import { ModalModule, ConfirmationDialogModule, BubbleModule } from './../../shared';
@@ -28,6 +28,9 @@ import { DetailDialogModule } from './../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
 import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
 import { InstallLibrariesModule } from './../exploratory/install-libraries';
+import { AmiCreateDialogModule } from './../exploratory/ami-create-dialog';
+import { SchedulerModule } from './../scheduler';
+import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 
 export * from './resources-grid.component';
 export * from './resources-grid.model';
@@ -46,10 +49,12 @@ export * from './filter-configuration.model';
     FormControlsModule,
     CostDetailsDialogModule,
     InstallLibrariesModule,
-    MaterialModule.forRoot()
+    SchedulerModule,
+    AmiCreateDialogModule,
+    UnderscorelessPipeModule,
+    MaterialModule
   ],
   declarations: [ResourcesGridComponent],
   exports: [ResourcesGridComponent]
 })
-
-export class ResourcesGridModule { }
+export class ResourcesGridModule {}

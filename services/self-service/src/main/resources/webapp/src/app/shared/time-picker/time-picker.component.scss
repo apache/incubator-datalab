@@ -1,0 +1,324 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+@-webkit-keyframes bounce {
+  from {
+    opacity: 0;
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+  }
+
+  70% {
+    opacity: 1;
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+  }
+
+  to {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce {
+  from {
+    opacity: 0;
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+  }
+
+  70% {
+    opacity: 1;
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+  }
+
+  to {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+.time-picker {
+  .time-select{
+    .not-allowed {
+      pointer-events: none;
+    }
+  }
+  .button {
+    padding: 0;
+    margin: 0;
+    min-width: 44px;
+  }
+  mat-icon {
+    cursor: pointer;
+  }
+}
+
+.timepicker-dialog.mat-dialog-content {
+  margin: -24px;
+  padding: 0;
+}
+.timepicker-dialog .mat-button-ripple.mat-button-ripple-round.mat-ripple {
+  border-radius: 50%;
+}
+
+.time-cover {
+  max-height: 100%;
+  min-height: 350px;
+  .container {
+    padding: 15px;
+    min-width: 160px;
+    width: 160px;
+    &.mat-toolbar-single-row {
+      width: 100%;
+    }
+  }
+  .selected-time {
+    font-size: 3.5rem;
+    font-weight: 400;
+    display: flex;
+  }
+  .selected-meridiem {
+    font-size: 1rem;
+    line-height: 1.3rem;
+    padding-top: 2rem;
+  }
+  .cover-block {
+    width: 100%;
+    padding: 6px;
+    .actions {
+      padding: 40px 40px 0;
+    }
+  }
+}
+
+.selected-time > span,
+.selected-meridiem > span {
+  outline: 0;
+  opacity: 0.5;
+}
+
+.selected-time > span:not(.active),
+.selected-meridiem > span:not(.active) {
+  cursor: pointer;
+}
+
+.selected-time > span.active,
+.selected-meridiem > span.active {
+  opacity: 1;
+}
+
+.animation.ng-enter {
+  -webkit-transition: all 0.3s cubic-bezier(0.35, 0, 0.25, 1);
+  transition: all 0.3s cubic-bezier(0.35, 0, 0.25, 1);
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+  -webkit-animation-name: bounce;
+  animation-name: bounce;
+}
+
+.ticker-wrap {
+  height: 100%;
+  padding: 0 24px;
+  .ticker {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 24px;
+    background: #ededed;
+    .ticker-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: block;
+    }
+    .ticker-center {
+      height: 6px;
+      width: 6px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      border-radius: 50%;
+    }
+    .pointer {
+      box-shadow: none;
+      width: 1px;
+      height: 50%;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0 auto;
+      padding: 0;
+      transform-origin: top center;
+      transition: transform 200ms;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .ticker-step {
+      display: block;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      transition: transform 200ms;
+      .mat-mini-fab {
+        box-shadow: none;
+        background-color: transparent;
+      }
+    }
+    .ticker-selected {
+      position: absolute;
+      bottom: -19px;
+      left: -19px;
+      min-width: 0;
+      min-height: 0;
+      pointer-events: none;
+      box-shadow: none;
+      cursor: none;
+    }
+  }
+}
+
+.ticker-deg0 {
+  top: 0%;
+  left: 50%;
+}
+
+.ticker-deg15 {
+  top: 1.70370869%;
+  left: 62.94095226%;
+}
+
+.ticker-deg30 {
+  top: 6.69872981%;
+  left: 75%;
+}
+
+.ticker-deg45 {
+  top: 14.64466094%;
+  left: 85.35533905%;
+}
+
+.ticker-deg60 {
+  top: 25%;
+  left: 93.30127019%;
+}
+
+.ticker-deg75 {
+  top: 37.05904774%;
+  left: 98.29629131%;
+}
+
+.ticker-deg90 {
+  top: 50%;
+  left: 100%;
+}
+
+.ticker-deg105 {
+  top: 62.94095226%;
+  left: 98.29629131%;
+}
+
+.ticker-deg120 {
+  top: 75%;
+  left: 93.30127019%;
+}
+
+.ticker-deg135 {
+  top: 85.35533906%;
+  left: 85.35533906%;
+}
+
+.ticker-deg150 {
+  top: 93.30127019%;
+  left: 75%;
+}
+
+.ticker-deg165 {
+  top: 98.29629131%;
+  left: 62.94095226%;
+}
+
+.ticker-deg180 {
+  top: 100%;
+  left: 50%;
+}
+
+.ticker-deg195 {
+  top: 98.29629131%;
+  left: 37.05904774%;
+}
+
+.ticker-deg210 {
+  top: 93.30127019%;
+  left: 25%;
+}
+
+.ticker-deg225 {
+  top: 85.35533906%;
+  left: 14.64466094%;
+}
+
+.ticker-deg240 {
+  top: 75%;
+  left: 6.69872981%;
+}
+
+.ticker-deg255 {
+  top: 62.94095226%;
+  left: 1.703708686%;
+}
+
+.ticker-deg270 {
+  top: 50%;
+  left: 0%;
+}
+
+.ticker-deg285 {
+  top: 37.05904774%;
+  left: 1.703708686%;
+}
+
+.ticker-deg300 {
+  top: 25%;
+  left: 6.69872981%;
+}
+
+.ticker-deg315 {
+  top: 14.64466094%;
+  left: 14.64466094%;
+}
+
+.ticker-deg330 {
+  top: 6.69872981%;
+  left: 25%;
+}
+
+.ticker-deg345 {
+  top: 1.703708686%;
+  left: 37.05904774%;
+}
+
+.ticker-deg360 {
+  top: 0%;
+  left: 50%;
+}
