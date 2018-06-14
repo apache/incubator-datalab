@@ -56,7 +56,9 @@ limitations under the License.
     flex-direction: column;
   }
 }
-
+.error {
+  padding: 15px 20px;
+}
 .uploading {
   margin: 0 auto;
 }
