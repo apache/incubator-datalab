@@ -542,7 +542,7 @@ public class RequestBuilder {
 	 */
 	private String getApplicationNameFromImage(String imageName) {
 		if (imageName != null) {
-			int pos = imageName.lastIndexOf('-');
+			int pos = imageName.indexOf('-');
 			if (pos > 0) {
 				return imageName.substring(pos + 1);
 			}
