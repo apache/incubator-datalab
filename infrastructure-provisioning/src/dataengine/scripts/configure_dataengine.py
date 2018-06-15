@@ -72,7 +72,7 @@ def start_spark(os_user, master_ip, node):
         if not exists('/opt/spark/conf/spark-env.sh'):
             sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
-        if os.environ['application'] == 'tensor':
+        if os.environ['application'] in ('tensor', 'tensor-rstudio'):
             sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
         if os.environ['application'] == 'deeplearning':
             sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
