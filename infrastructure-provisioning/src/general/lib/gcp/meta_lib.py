@@ -31,8 +31,7 @@ import logging
 import traceback
 import sys, time
 
-
-class GCPActions:
+class GCPMeta:
     def __init__(self, auth_type='service_account'):
         SCOPES = ['https://www.googleapis.com/auth/compute', 'https://www.googleapis.com/auth/iam',
                                        'https://www.googleapis.com/auth/cloud-platform']
