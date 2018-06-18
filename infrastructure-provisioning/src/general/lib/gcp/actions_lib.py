@@ -24,7 +24,7 @@ from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors
 #from google.oauth2 import service_account
-import google.autht
+import google.auth
 from dlab.fab import *
 import google.auth
 import meta_lib
