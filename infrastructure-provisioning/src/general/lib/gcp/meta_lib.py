@@ -34,20 +34,31 @@ import sys, time
 
 class GCPMeta:
     def __init__(self, auth_type='service_account'):
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/root/service_account.json"
-        credentials, project = google.auth.default()
-        if credentials.requires_scopes:
-            credentials = credentials.with_scopes(
-                ['https://www.googleapis.com/auth/compute',
-                 'https://www.googleapis.com/auth/iam',
-                 'https://www.googleapis.com/auth/cloud-platform'])
-        self.project = project
-        self.service = build('compute', 'v1', credentials=credentials)
-        self.service_iam = build('iam', 'v1', credentials=credentials)
-        self.dataproc = build('dataproc', 'v1', credentials=credentials)
-        self.service_storage = build('storage', 'v1', credentials=credentials)
-        self.storage_client = storage.Client(credentials=credentials)
-        self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
+        self.auth_type = auth_type
+        self.project = os.environ['gcp_project_id']
+
+        if os.environ['conf_resource'] == 'ssn':
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/root/service_account.json"
+            credentials, project = google.auth.default()
+            if credentials.requires_scopes:
+                credentials = credentials.with_scopes(
+                    ['https://www.googleapis.com/auth/compute',
+                     'https://www.googleapis.com/auth/iam',
+                     'https://www.googleapis.com/auth/cloud-platform'])
+            self.project = project
+            self.service = build('compute', 'v1', credentials=credentials)
+            self.service_iam = build('iam', 'v1', credentials=credentials)
+            self.dataproc = build('dataproc', 'v1', credentials=credentials)
+            self.service_storage = build('storage', 'v1', credentials=credentials)
+            self.storage_client = storage.Client(credentials=credentials)
+            self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
+        else:
+            self.service = build('compute', 'v1')
+            self.service_iam = build('iam', 'v1')
+            self.dataproc = build('dataproc', 'v1')
+            self.service_storage = build('storage', 'v1')
+            self.storage_client = storage.Client()
+            self.service_resource = build('cloudresourcemanager', 'v1')
 
     def wait_for_operation(self, operation, region='', zone=''):
         print('Waiting for operation to finish...')
