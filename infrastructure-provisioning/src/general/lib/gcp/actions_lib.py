@@ -23,6 +23,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors
+from google.oauth2 import service_account
 from dlab.fab import *
 import meta_lib
 import os
@@ -38,19 +39,21 @@ import dlab.common_lib
 
 class GCPActions:
     def __init__(self, auth_type='service_account'):
+        SCOPES = ['https://www.googleapis.com/auth/compute', 'https://www.googleapis.com/auth/iam',
+                                       'https://www.googleapis.com/auth/cloud-platform']
+        SERVICE_ACCOUNT_FILE = '/root/service_account.json'
 
         self.auth_type = auth_type
         self.project = os.environ['gcp_project_id']
         if os.environ['conf_resource'] == 'ssn':
             self.key_file = '/root/service_account.json'
-            credentials = ServiceAccountCredentials.from_json_keyfile_name(
-                self.key_file, scopes=('https://www.googleapis.com/auth/compute', 'https://www.googleapis.com/auth/iam',
-                                       'https://www.googleapis.com/auth/cloud-platform'))
+            credentials = service_account.Credentials.from_service_account_file(
+                SERVICE_ACCOUNT_FILE, scopes=SCOPES)
             self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
-            self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
+            self.storage_client = storage.Client.from_service_account_file(SERVICE_ACCOUNT_FILE)
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
             self.service = build('compute', 'v1')
