@@ -48,7 +48,7 @@ class GCPActions:
                 ['https://www.googleapis.com/auth/compute',
                  'https://www.googleapis.com/auth/iam',
                  'https://www.googleapis.com/auth/cloud-platform'])
-
+        self.project = project
         self.service = build('compute', 'v1', credentials=credentials)
         self.service_iam = build('iam', 'v1', credentials=credentials)
         self.dataproc = build('dataproc', 'v1', credentials=credentials)
