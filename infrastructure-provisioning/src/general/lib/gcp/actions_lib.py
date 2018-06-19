@@ -39,6 +39,17 @@ import urllib2
 import dlab.fab
 import dlab.common_lib
 
+def get_gcp_cred(atempts):
+    try:
+        credentials, project = google.auth.default()
+        return credentials, project
+    except Exception as err:
+        atempts = atempts - 1
+        if atempts != 0:
+            get_gcp_cred()
+        else:
+            raise err
+
 class GCPActions:
     def __init__(self, auth_type='service_account'):
         self.auth_type = auth_type
@@ -60,8 +71,8 @@ class GCPActions:
             self.storage_client = storage.Client(credentials=credentials)
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
-            os.environ['GCE_METADATA_TIMEOUT '] = 10
-            credentials, project = google.auth.default()
+            atempts = 5
+            credentials, project = get_gcp_cred(atempts)
             self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
