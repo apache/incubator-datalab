@@ -39,7 +39,7 @@ def get_gcp_cred(atempts):
     except Exception as err:
         atempts = atempts - 1
         if atempts != 0:
-            get_gcp_cred()
+            get_gcp_cred(atempts)
         else:
             raise err
 
