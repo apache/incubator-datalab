@@ -66,11 +66,14 @@ public class FolderListener implements Runnable {
 	 * @param fileHandlerCallback  File handler for processing.
 	 * @param timeoutMillis        Timeout waiting for the file creation in milliseconds.
 	 * @param fileLengthCheckDelay Timeout waiting for the file writing in milliseconds.
+	 * @param callbackHandlerDao   callbackHandlerDao for handlers
 	 * @return Instance of the file handler.
 	 */
 	public static WatchItem listen(String directoryName, FileHandlerCallback fileHandlerCallback,
-								   long timeoutMillis, long fileLengthCheckDelay, CallbackHandlerDao dao) {
-		return listen(directoryName, fileHandlerCallback, timeoutMillis, fileLengthCheckDelay, null, dao);
+								   long timeoutMillis, long fileLengthCheckDelay,
+								   CallbackHandlerDao callbackHandlerDao) {
+		return listen(directoryName, fileHandlerCallback, timeoutMillis, fileLengthCheckDelay, null,
+				callbackHandlerDao);
 	}
 
 	/**
@@ -84,11 +87,11 @@ public class FolderListener implements Runnable {
 	 * @param timeoutMillis        Timeout waiting for the file creation in milliseconds.
 	 * @param fileLengthCheckDelay Timeout waiting for the file writing in milliseconds.
 	 * @param fileName             file name.
-	 * @param dao                  dao for handlers
+	 * @param callbackHandlerDao   callbackHandlerDao for handlers
 	 * @return Instance of the file handler.
 	 */
 	public static WatchItem listen(String directoryName, FileHandlerCallback fileHandlerCallback, long timeoutMillis,
-								   long fileLengthCheckDelay, String fileName, CallbackHandlerDao dao) {
+								   long fileLengthCheckDelay, String fileName, CallbackHandlerDao callbackHandlerDao) {
 		FolderListener listener;
 		WatchItem item;
 
@@ -112,7 +115,7 @@ public class FolderListener implements Runnable {
 			}
 			LOGGER.debug("Folder listener \"{}\" not found. Create new listener and append file handler for UUID {}",
 					directoryName, fileHandlerCallback.getUUID());
-			listener = new FolderListener(directoryName, dao);
+			listener = new FolderListener(directoryName, callbackHandlerDao);
 			item = listener.itemList.append(fileHandlerCallback, timeoutMillis, fileLengthCheckDelay, fileName);
 			listeners.add(listener);
 			listener.start();
