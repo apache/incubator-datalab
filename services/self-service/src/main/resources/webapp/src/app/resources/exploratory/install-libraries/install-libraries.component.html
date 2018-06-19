@@ -57,7 +57,8 @@ limitations under the License.
                   <ng-template ngFor let-item [ngForOf]="(filteredList | keys)" let-i="index">
                     <mat-option [ngClass]="{ 'not-allowed': isDuplicated(item) }">
                       <div class="option" (click)="selectLibrary(item)">
-                        <a *ngIf="!isDuplicated(item)">{{ item.key }}
+                        <a *ngIf="!isDuplicated(item)">
+                          <span [innerHTML]="item.key | highlight:query"></span>
                           <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
                         </a>
                         <span *ngIf="isInSelectedList || isInstalled">{{ item.key }}

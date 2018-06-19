@@ -16,8 +16,22 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
-export * from './highlight.pipe';
+
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {PipeTransform, Pipe} from '@angular/core';
+
+@Pipe({ name: 'highlight' })
+export class HighLightPipe implements PipeTransform {
+  transform(text: string, search: string): string {
+    return search ? text.replace(new RegExp(search, 'i'), `<span class="highlight">${search}</span>`) : text;
+  }
+}
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [HighLightPipe],
+  exports: [HighLightPipe]
+})
+
+export class HighLightPipeModule { }
