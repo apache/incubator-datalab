@@ -53,12 +53,14 @@ class GCPMeta:
             self.storage_client = storage.Client(credentials=credentials)
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
-            self.service = build('compute', 'v1')
-            self.service_iam = build('iam', 'v1')
-            self.dataproc = build('dataproc', 'v1')
-            self.service_storage = build('storage', 'v1')
-            self.storage_client = storage.Client()
-            self.service_resource = build('cloudresourcemanager', 'v1')
+            os.environ['GCE_METADATA_TIMEOUT '] = 10
+            credentials, project = google.auth.default()
+            self.service = build('compute', 'v1', credentials=credentials)
+            self.service_iam = build('iam', 'v1', credentials=credentials)
+            self.dataproc = build('dataproc', 'v1', credentials=credentials)
+            self.service_storage = build('storage', 'v1', credentials=credentials)
+            self.storage_client = storage.Client(credentials=credentials)
+            self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
 
     def wait_for_operation(self, operation, region='', zone=''):
         print('Waiting for operation to finish...')
