@@ -47,7 +47,8 @@ public class FolderListenerExecutor {
 	 * @param fileHandlerCallback handler for the file processing.
 	 */
 	public void start(String directory, Duration timeout, FileHandlerCallback fileHandlerCallback) {
+		CallbackHandlerDao dao = configuration.isHandlersPersistenceEnabled() ? handlerDao : null;
 		listen(directory, fileHandlerCallback, timeout.toMilliseconds(),
-				configuration.getFileLengthCheckDelay().toMilliseconds(), handlerDao);
+				configuration.getFileLengthCheckDelay().toMilliseconds(), dao);
 	}
 }
