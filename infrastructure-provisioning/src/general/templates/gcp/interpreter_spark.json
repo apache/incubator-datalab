@@ -106,6 +106,43 @@
         "users": [],
         "isUserImpersonate": false
       }
+    },
+    "2DG931872": {
+      "id": "2DG931872",
+      "name": "sh",
+      "group": "sh",
+      "properties": {
+        "zeppelin.interpreter.output.limit": "102400",
+        "shell.working.directory.user.home": "false",
+        "zeppelin.shell.keytab.location": "",
+        "shell.command.timeout.millisecs": "60000",
+        "zeppelin.interpreter.localRepo": "/opt/zeppelin/local-repo/2DG931872",
+        "zeppelin.shell.principal": "",
+        "zeppelin.shell.auth.type": ""
+      },
+      "status": "READY",
+      "interpreterGroup": [
+        {
+          "name": "sh",
+          "class": "org.apache.zeppelin.shell.ShellInterpreter",
+          "defaultInterpreter": false,
+          "editor": {
+            "language": "sh",
+            "editOnDblClick": false
+          }
+        }
+      ],
+      "dependencies": [],
+      "option": {
+        "remote": true,
+        "port": -1,
+        "perNote": "shared",
+        "perUser": "shared",
+        "isExistingProcess": false,
+        "setPermission": false,
+        "users": [],
+        "isUserImpersonate": false
+      }
     }
   },
   "interpreterBindings": {
