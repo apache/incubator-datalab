@@ -18,51 +18,54 @@ package com.epam.dlab.dto;
 
 import com.epam.dlab.dto.base.CloudSettings;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-abstract public class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
-    @SuppressWarnings("unchecked")
-    private final T self = (T) this;
-    @JsonProperty("edge_user_name")
-    private String edgeUserName;
-    @JsonProperty
-    private CloudSettings cloudSettings;
 
-    public String getEdgeUserName() {
-        return edgeUserName;
-    }
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+public abstract class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
+	@SuppressWarnings("unchecked")
+	private final T self = (T) this;
+	@JsonProperty("edge_user_name")
+	private String edgeUserName;
+	@JsonProperty
+	private CloudSettings cloudSettings;
 
-    public void setEdgeUserName(String edgeUserName) {
-        this.edgeUserName = edgeUserName;
-    }
+	public String getEdgeUserName() {
+		return edgeUserName;
+	}
 
-    public T withEdgeUserName(String edgeUserName) {
-        setEdgeUserName(edgeUserName);
-        return self;
-    }
+	public void setEdgeUserName(String edgeUserName) {
+		this.edgeUserName = edgeUserName;
+	}
 
-    public CloudSettings getCloudSettings() {
-        return cloudSettings;
-    }
+	public T withEdgeUserName(String edgeUserName) {
+		setEdgeUserName(edgeUserName);
+		return self;
+	}
 
-    public void setCloudSettings(CloudSettings cloudSettings) {
-        this.cloudSettings = cloudSettings;
-    }
+	public CloudSettings getCloudSettings() {
+		return cloudSettings;
+	}
 
-    public T withCloudSettings(CloudSettings cloudSettings) {
-        setCloudSettings(cloudSettings);
-        return self;
-    }
+	public void setCloudSettings(CloudSettings cloudSettings) {
+		this.cloudSettings = cloudSettings;
+	}
 
-    public ToStringHelper toStringHelper(Object self) {
-        return MoreObjects.toStringHelper(self)
-                .add("edgeUserName", edgeUserName)
-                .add("cloudSettings", cloudSettings);
-    }
+	public T withCloudSettings(CloudSettings cloudSettings) {
+		setCloudSettings(cloudSettings);
+		return self;
+	}
 
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
-    }
+	public ToStringHelper toStringHelper(Object self) {
+		return MoreObjects.toStringHelper(self)
+				.add("edgeUserName", edgeUserName)
+				.add("cloudSettings", cloudSettings);
+	}
+
+	@Override
+	public String toString() {
+		return toStringHelper(this).toString();
+	}
 }

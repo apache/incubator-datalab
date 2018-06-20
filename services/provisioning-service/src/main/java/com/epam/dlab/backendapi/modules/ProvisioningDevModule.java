@@ -20,17 +20,22 @@ import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.MetadataHolder;
 import com.epam.dlab.backendapi.core.commands.CommandExecutorMock;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
+import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
-import com.epam.dlab.auth.contract.SecurityAPI;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 import com.google.inject.name.Names;
 import io.dropwizard.setup.Environment;
 
@@ -66,6 +71,8 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 		bind(ICommandExecutor.class).toInstance(new CommandExecutorMock(configuration.getCloudProvider()));
 		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
 		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
+		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
+		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
 	}
 
 	/**

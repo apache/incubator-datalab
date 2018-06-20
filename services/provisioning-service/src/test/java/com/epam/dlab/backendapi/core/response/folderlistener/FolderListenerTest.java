@@ -122,7 +122,7 @@ public class FolderListenerTest {
 		
 		handleResult = false;
 		fHandler = new FileHandler(uuid.toString());
-		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay);
+		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay, null);
 		FolderListener listener = FolderListener.getListeners().get(0);
 		assertEquals(false, listener.isListen());
 		assertEquals(true, listener.isAlive());
@@ -131,7 +131,7 @@ public class FolderListenerTest {
 		uuid = 2;
 		createFile(uuid.toString());
 		fHandler = new FileHandler(uuid.toString());
-		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay);
+		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay, null);
 		processFile(item);
 		assertEquals(true, listener.isListen());
 		assertEquals(false, item.getFutureResultSync());
@@ -142,7 +142,7 @@ public class FolderListenerTest {
 		handleResult = true;
 		createFile(uuid.toString());
 		fHandler = new FileHandler(uuid.toString());
-		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay);
+		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay, null);
 		processFile(item);
 		assertEquals(true, item.getFutureResultSync());
 		assertEquals(true, item.getFutureResult());
@@ -151,7 +151,8 @@ public class FolderListenerTest {
 		uuid = 4;
 		createFile(uuid.toString());
 		fHandler = new FileHandler(uuid.toString());
-		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay, getFileName(uuid.toString()));
+		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay, getFileName(uuid
+				.toString()), null);
 		
 		long expiredTime = System.currentTimeMillis() + maxWaitTimeoutMillis;
 		while (item.getFuture() == null) {

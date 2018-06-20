@@ -104,7 +104,7 @@ public class ComputationalConfigure implements DockerCommands {
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String originalUuid, ComputationalBase<?>
 			dto) {
-		return new ComputationalCallbackHandler(this, selfService, action, originalUuid, dto);
+		return new ComputationalConfigureCallbackHandler(selfService, action, originalUuid, dto);
 	}
 
 	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {
