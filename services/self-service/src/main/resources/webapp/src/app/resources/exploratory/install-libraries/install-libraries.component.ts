@@ -269,6 +269,7 @@ export class InstallLibrariesComponent implements OnInit {
   private resetDialog(nActive?): void {
     this.group = '';
     this.query = '';
+    this.libSearch.setValue('');
 
     this.processError = false;
     this.isFilteringProc = false;
