@@ -31,17 +31,14 @@ from googleapiclient import errors
 import logging
 import traceback
 import sys, time
+import backoff
 
-def get_gcp_cred(atempts):
-    try:
-        credentials, project = google.auth.default()
-        return credentials, project
-    except Exception as err:
-        atempts = atempts - 1
-        if atempts != 0:
-            get_gcp_cred(atempts)
-        else:
-            raise err
+@backoff.on_exception(backoff.expo,
+                      google.auth.exceptions.DefaultCredentialsError,
+                      max_tries=15)
+def get_gcp_cred():
+    credentials, project = google.auth.default()
+    return credentials, project
 
 class GCPMeta:
     def __init__(self, auth_type='service_account'):
@@ -56,7 +53,6 @@ class GCPMeta:
                     ['https://www.googleapis.com/auth/compute',
                      'https://www.googleapis.com/auth/iam',
                      'https://www.googleapis.com/auth/cloud-platform'])
-            self.project = project
             self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
@@ -64,8 +60,7 @@ class GCPMeta:
             self.storage_client = storage.Client(credentials=credentials)
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
-            atempts = 5
-            credentials, project = get_gcp_cred(atempts)
+            credentials, project = get_gcp_cred()
             self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
