@@ -67,12 +67,14 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 			return baseStatus;
 		}
 
-		baseStatus
-				.withInstanceId(instanceId(resultNode.get(INSTANCE_ID_FIELD)))
-				.withComputationalId(getTextValue(resultNode.get(COMPUTATIONAL_ID_FIELD)));
-		if (UserInstanceStatus.of(baseStatus.getStatus()) == UserInstanceStatus.RUNNING) {
-			baseStatus.withStatus(UserInstanceStatus.CONFIGURING);
-			computationalConfigure.configure(getUUID(), getDto());
+		if (DockerAction.CREATE == getAction()) {
+			baseStatus
+					.withInstanceId(instanceId(resultNode.get(INSTANCE_ID_FIELD)))
+					.withComputationalId(getTextValue(resultNode.get(COMPUTATIONAL_ID_FIELD)));
+			if (UserInstanceStatus.of(baseStatus.getStatus()) == UserInstanceStatus.RUNNING) {
+				baseStatus.withStatus(UserInstanceStatus.CONFIGURING);
+				computationalConfigure.configure(getUUID(), getDto());
+			}
 		}
 		return baseStatus;
 	}
