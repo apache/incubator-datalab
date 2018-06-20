@@ -23,6 +23,7 @@ import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService } from '../../../core/services';
 import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   moduleId: module.id,
@@ -31,6 +32,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 })
 
 export class ConfirmationDialogComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
   model: ConfirmationDialogModel;
   isAliveResources: boolean;
   processError: boolean = false;
@@ -57,6 +59,8 @@ export class ConfirmationDialogComponent implements OnInit {
 
   public open(param, notebook: any, type: ConfirmationDialogType) {
     this.confirmationType = type;
+    console.log(notebook);
+    
     this.model = new ConfirmationDialogModel(type, notebook, (response: Response) => {
       if (response.status === HTTP_STATUS_CODES.OK) {
         this.close();

@@ -29,7 +29,7 @@ limitations under the License.
     <div class="content-box">
       <p>{{ model.title }}</p>
 
-      <div *ngIf="model.notebook.resources && dataengines.length" class="row-wrap m-bott-10">
+      <!-- <div *ngIf="model.notebook.resources && dataengines.length" class="row-wrap m-bott-10">
         <div class="col"><p>Following dataengines will be stopped:</p></div>
         <div class="col">
           <ul>
@@ -62,7 +62,22 @@ limitations under the License.
                 [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating'"> &#9642; {{ resource.computational_name }}</li>
           </ul>
         </div>
-      </div>
+      </div> -->
+
+      <mat-list>
+        <mat-list-item class="list-header">
+          <div class="cluster">Cluster</div>
+          <div class="status">Further status</div>
+          <div class="size">Size</div>
+        </mat-list-item>
+        <div class="scrolling-content" id="scrolling">
+          <mat-list-item *ngFor="let resource of model.notebook.resources">
+            <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
+            <div class="status">{{ resource.status }}</div>
+            <div class="size">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
+          </mat-list-item>
+        </div>
+      </mat-list>
 
       <div class="m-top-20">
         <p *ngIf="model.notebook.name">Do you want to proceed?</p>
