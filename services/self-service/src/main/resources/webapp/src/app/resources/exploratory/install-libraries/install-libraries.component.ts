@@ -65,7 +65,6 @@ export class InstallLibrariesComponent implements OnInit {
   private clearCheckInstalling = undefined;
 
   @ViewChild('bindDialog') bindDialog;
-  @ViewChild('tabGroup') tabGroup;
   @ViewChild('groupSelect') group_select;
   @ViewChild('resourceSelect') resource_select;
 
@@ -79,10 +78,11 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.libSearch.disable();
     this.libSearch.valueChanges
       .debounceTime(1000)
       .subscribe(newValue => {
-        this.query = newValue;
+        this.query = newValue || '';
         this.filterList();
       });
     this.bindDialog.onClosing = () => {
@@ -135,6 +135,7 @@ export class InstallLibrariesComponent implements OnInit {
         ? this.model.computational_name = this.destination.name
         : this.model.computational_name = null;
 
+      this.libSearch.enable();
       this.uploadLibGroups();
       this.getInstalledLibsByResource();
     }
@@ -158,6 +159,8 @@ export class InstallLibrariesComponent implements OnInit {
     this.model.selectedLibs.push({group: this.group, name: item.key, version: item.value});
 
     this.query = '';
+    this.libSearch.setValue('');
+
     this.filteredList = null;
   }
 
@@ -229,8 +232,6 @@ export class InstallLibrariesComponent implements OnInit {
         this.notebookLibs = data ? data : [];
         this.changeDetector.markForCheck();
         this.isInstallingInProgress(this.notebookLibs);
-
-        if (init && !this.notebookLibs.length) this.tabGroup.selectedIndex = 1;
       });
   }
 
@@ -268,6 +269,7 @@ export class InstallLibrariesComponent implements OnInit {
   private resetDialog(nActive?): void {
     this.group = '';
     this.query = '';
+    this.libSearch.setValue('');
 
     this.processError = false;
     this.isFilteringProc = false;
@@ -281,7 +283,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.destination = null;
     this.groupsList = [];
 
-    if (!nActive) this.tabGroup.selectedIndex = 0;
+    this.libSearch.disable();
     clearTimeout(this.clear);
     clearInterval(this.clearCheckInstalling);
     this.clearCheckInstalling = undefined;
