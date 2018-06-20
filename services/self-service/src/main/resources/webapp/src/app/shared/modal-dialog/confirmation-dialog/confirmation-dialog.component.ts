@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
@@ -28,7 +28,9 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 @Component({
   moduleId: module.id,
   selector: 'confirmation-dialog',
-  templateUrl: 'confirmation-dialog.component.html'
+  templateUrl: 'confirmation-dialog.component.html',
+  styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 
 export class ConfirmationDialogComponent implements OnInit {

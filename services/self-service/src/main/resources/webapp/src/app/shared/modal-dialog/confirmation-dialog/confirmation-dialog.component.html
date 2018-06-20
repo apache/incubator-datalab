@@ -27,7 +27,7 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div class="content-box">
-      <p>{{ model.title }}</p>
+      <p class="info">{{ model.title }}</p>
 
       <!-- <div *ngIf="model.notebook.resources && dataengines.length" class="row-wrap m-bott-10">
         <div class="col"><p>Following dataengines will be stopped:</p></div>
@@ -64,7 +64,7 @@ limitations under the License.
         </div>
       </div> -->
 
-      <mat-list>
+      <mat-list class="resources">
         <mat-list-item class="list-header">
           <div class="cluster">Cluster</div>
           <div class="status">Further status</div>
@@ -79,7 +79,7 @@ limitations under the License.
         </div>
       </mat-list>
 
-      <div class="m-top-20">
+      <div class="text-center m-top-20">
         <p *ngIf="model.notebook.name">Do you want to proceed?</p>
         <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
       </div>
