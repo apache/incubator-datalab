@@ -20,7 +20,7 @@ limitations under the License.
   <modal-header>
     <h4 class="modal-title">
       <span *ngIf="model.notebook.name">
-        <span>{{ (confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
+        <span>{{ confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
       </span>
       <span *ngIf="model.notebook.type === 'Edge Node'">
         <i class="material-icons">priority_high</i>Warning
