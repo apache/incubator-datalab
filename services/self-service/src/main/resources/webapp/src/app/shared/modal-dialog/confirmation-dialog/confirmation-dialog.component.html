@@ -19,7 +19,9 @@ limitations under the License.
 <modal-dialog #bindDialog modalClass="confirmation-dialog modal-md">
   <modal-header>
     <h4 class="modal-title">
-      <span *ngIf="model.notebook.name">Exploratory Environment: {{ model.notebook.name }}</span>
+      <span *ngIf="model.notebook.name">
+        <span>{{ (confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
+      </span>
       <span *ngIf="model.notebook.type === 'Edge Node'">
         <i class="material-icons">priority_high</i>Warning
       </span>
@@ -28,41 +30,6 @@ limitations under the License.
   <modal-content>
     <div class="content-box">
       <p class="info">{{ model.title }}</p>
-
-      <!-- <div *ngIf="model.notebook.resources && dataengines.length" class="row-wrap m-bott-10">
-        <div class="col"><p>Following dataengines will be stopped:</p></div>
-        <div class="col">
-          <ul>
-            <li *ngFor="let resource of dataengines"> &#9642; {{ resource.computational_name }}</li>
-          </ul>
-        </div>
-      </div>
-
-      <div *ngIf="model.notebook.resources && dataengineServices.length" class="row-wrap m-bott-10">
-        <div class="col"><p>Following dataengine services will be terminated:</p></div>
-        <div class="col">
-          <ul>
-            <li *ngFor="let resource of dataengineServices"> &#9642; {{ resource.computational_name }}</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="row-wrap" *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources" [hidden]="model.notebook.type">
-        <div class="col"><p>Computational resources:</p></div>
-        <span class="col">none</span>
-      </div>
-
-      <div *ngIf="confirmationType && isAliveResources" class="row-wrap" [hidden]="model.notebook.type">
-        <div class="col" >
-          <p>Computational resources:</p>
-        </div>
-        <div class="col">
-          <ul *ngIf="model.notebook.resources && model.notebook.resources.length > 0 && isAliveResources">
-            <li *ngFor="let resource of model.notebook.resources"
-                [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating'"> &#9642; {{ resource.computational_name }}</li>
-          </ul>
-        </div>
-      </div> -->
 
       <mat-list class="resources" [hidden]="model.notebook.type === 'Edge Node'">
         <mat-list-item class="list-header">
@@ -75,8 +42,7 @@ limitations under the License.
             <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
             <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
                   'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">{{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
-            <div class="si
-            ze">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
+            <div class="size">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
           </mat-list-item>
         </div>
         <div *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources"
