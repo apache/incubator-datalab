@@ -34,31 +34,15 @@ limitations under the License.
     .status {
       width: 35%;
     }
+    .scrolling-content {
+      max-height: 200px;
+    }
+  }
+  .empty-list {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    color: #35afd5;
+    padding: 15px;
   }
 }
-
-
-// .truncate-name {
-//   overflow: hidden;
-//   text-overflow: ellipsis;
-//   max-width: 60%;
-//   display: inline-block;
-//   vertical-align: bottom;
-// }
-// .confirmation-dialog 
-
-// .confirmation-dialog li {
-//   font-size: 14px;
-//   color: #9cadbe;
-//   word-wrap: break-word;
-//   width: 90%;
-//   display: inline-block;
-//   white-space: nowrap;
-//   overflow: hidden;
-//   vertical-align: middle;
-//   text-overflow: ellipsis;
-// }
-
-// .confirmation-dialog.dialog-container {
-//   width: 550px;
-// }

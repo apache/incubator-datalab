@@ -20,7 +20,7 @@ limitations under the License.
   <modal-header>
     <h4 class="modal-title">
       <span *ngIf="model.notebook.name">Exploratory Environment: {{ model.notebook.name }}</span>
-      <span *ngIf="model.notebook.type">
+      <span *ngIf="model.notebook.type === 'Edge Node'">
         <i class="material-icons">priority_high</i>Warning
       </span>
     </h4>
@@ -64,18 +64,24 @@ limitations under the License.
         </div>
       </div> -->
 
-      <mat-list class="resources">
+      <mat-list class="resources" [hidden]="model.notebook.type === 'Edge Node'">
         <mat-list-item class="list-header">
           <div class="cluster">Cluster</div>
           <div class="status">Further status</div>
           <div class="size">Size</div>
         </mat-list-item>
         <div class="scrolling-content" id="scrolling">
-          <mat-list-item *ngFor="let resource of model.notebook.resources">
+          <mat-list-item *ngFor="let resource of model.notebook.resources" [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || resource.status === 'stopped'">
             <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
-            <div class="status">{{ resource.status }}</div>
-            <div class="size">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
+            <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
+                  'terminated': resource.image === 'docker.dlab-dataengine-service' }">{{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
+            <div class="si
+            ze">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
           </mat-list-item>
+        </div>
+        <div *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources"
+              [hidden]="model.notebook.type" class="empty-list">
+            <span>You have no active resources</span>
         </div>
       </mat-list>
 
