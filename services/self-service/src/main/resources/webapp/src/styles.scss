@@ -107,7 +107,8 @@ limitations under the License.
 .configuring,
 .installing,
 .creating_image,
-.reuploading {
+.reuploading,
+.highlight {
   color: #35afd5;
 }
 
@@ -247,6 +248,9 @@ input[type='number'] {
 }
 .m-top-10 {
   margin-top: 10px;
+}
+.m-top-15 {
+  margin-top: 15px;
 }
 .m-top-20 {
   margin-top: 20px;

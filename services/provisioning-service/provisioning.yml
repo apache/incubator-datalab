@@ -22,6 +22,7 @@ backupScriptPath: /opt/dlab/tmp/backup.py
 backupDirectory: /opt/dlab/tmp/result
 keyDirectory: ${KEYS_DIR}
 responseDirectory: /opt/dlab/tmp
+handlerDirectory: /opt/dlab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 25s
 resourceStatusPollTimeout: 300m
@@ -39,6 +40,8 @@ emrServiceRoleDefault: EMR_DefaultRole
 processMaxThreadsPerJvm: 50
 processMaxThreadsPerUser: 5
 processTimeout: 180m
+
+handlersPersistenceEnabled: false
 
 server:
   requestLog:

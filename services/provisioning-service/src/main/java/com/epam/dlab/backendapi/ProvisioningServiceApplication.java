@@ -20,15 +20,20 @@ package com.epam.dlab.backendapi;
 import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.core.DirectoriesCreator;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
+import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
 import com.epam.dlab.backendapi.modules.CloudModuleConfigurator;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.base.KeyResource;
+import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.process.model.DlabProcess;
+import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
 import com.epam.dlab.util.ServiceUtils;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
@@ -66,8 +71,18 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 
 		injector.getInstance(SecurityFactory.class).configure(injector, environment);
 
+		final ObjectMapper mapper = injector.getInstance(ObjectMapper.class);
+		final InjectableValues.Std injectableValues = new InjectableValues.Std();
+		injectableValues.addValue(RESTService.class, injector.getInstance(RESTService.class));
+		injectableValues.addValue(ComputationalConfigure.class, injector.getInstance(ComputationalConfigure.class));
+		mapper.setInjectableValues(injectableValues);
+
 		environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));
+		if (configuration.isHandlersPersistenceEnabled()) {
+			environment.lifecycle().manage(injector.getInstance(RestoreCallbackHandlerService.class));
+		}
 		environment.lifecycle().manage(injector.getInstance(DockerWarmuper.class));
+
 
 		JerseyEnvironment jersey = environment.jersey();
 		jersey.register(configuration.getCloudProvider());

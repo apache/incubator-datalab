@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -45,9 +46,13 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
     private static final String EXPLORATORY_USER_FIELD = "exploratory_user";
     private static final String EXPLORATORY_PASSWORD_FIELD = "exploratory_pass";
 
+    @JsonProperty
     private final String exploratoryName;
 
-    public ExploratoryCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
+	@JsonCreator
+    public ExploratoryCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
+									  @JsonProperty("uuid")String uuid, @JsonProperty("user") String user,
+									  @JsonProperty("exploratoryName") String exploratoryName) {
         super(selfService, user, uuid, action);
         this.exploratoryName = exploratoryName;
     }

@@ -560,6 +560,8 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         for i in data['interpreterSettings'].keys():
             if data['interpreterSettings'][i]['group'] == 'md':
                 continue
+            elif data['interpreterSettings'][i]['group'] == 'sh':
+                continue
             if r_enabled == 'true':
                 data['interpreterSettings'][i]['properties'].update(r_conf)
             data['interpreterSettings'][i]['interpreterGroup'] = groups

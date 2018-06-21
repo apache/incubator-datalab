@@ -24,6 +24,8 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,10 +47,15 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 
     private static final String OK_STATUS = "ok";
 
+    @JsonIgnore
     private final RESTService selfService;
+    @JsonProperty
     private final String user;
+    @JsonProperty
     private final String uuid;
+    @JsonProperty
     private final DockerAction action;
+    @JsonProperty
     private final Class<T> resultType;
 
     @SuppressWarnings("unchecked")
