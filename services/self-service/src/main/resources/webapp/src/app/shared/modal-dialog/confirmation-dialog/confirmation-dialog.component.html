@@ -74,7 +74,7 @@ limitations under the License.
           <mat-list-item *ngFor="let resource of model.notebook.resources" [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || resource.status === 'stopped'">
             <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
             <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
-                  'terminated': resource.image === 'docker.dlab-dataengine-service' }">{{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
+                  'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">{{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
             <div class="si
             ze">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
           </mat-list-item>
