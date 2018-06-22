@@ -145,9 +145,10 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 						break;
 					case LIB_LIST:
 						action(user, action);
-						copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json", cloudProvider.getName
-                                        ()),
-								"notebook_lib_list_pkgs.json", parser.getResponsePath());
+						copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json",
+								cloudProvider.getName()),
+								String.join("_", "notebook_lib_list_pkgs", uuid) +
+										JSON_FILE_ENDING, parser.getResponsePath());
 						break;
 					case LIB_INSTALL:
 						parser.getVariables().put("lib_install", getResponseLibInstall(true));
