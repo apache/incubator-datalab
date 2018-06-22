@@ -89,17 +89,21 @@ limitations under the License.
                 && env.status !== 'terminating'
                 && env.status !== 'terminated'
                 && env.status !== 'creating_image'">
-            <li (click)="exploratoryAction(env, 'stop')"
-                [ngClass]="{'not-allowed': isResourcesInProgress(env) }"
-                *ngIf="env.status !== 'stopped'
-                && env.status !== 'stopping'
-                && env.status !== 'starting'
-                && env.status !== 'creating_image'">
-              <i class="material-icons">pause_circle_outline</i>
-              <span>Stop</span>
+            <li *ngIf="env.status !== 'stopped' && env.status !== 'stopping'
+                && env.status !== 'starting' && env.status !== 'creating_image'"
+                matTooltip="Cant' stop"
+                matTooltipPosition="above"
+                [matTooltipDisabled]="!isResourcesInProgress(env)">
+                <div (click)="exploratoryAction(env, 'stop')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+                  <i class="material-icons">pause_circle_outline</i>
+                  <span>Stop</span>
+                </div>
             </li>
             <li (click)="exploratoryAction(env, 'run')"
-                *ngIf="env.status.toLowerCase() === 'stopped'">
+                [ngClass]="{'not-allowed': isResourcesInProgress(env) }"
+                *ngIf="env.status.toLowerCase() === 'stopped' || env.status.toLowerCase() === 'stopping'"
+              >
+              <span *ngIf="isResourcesInProgress(env)" matTooltip="Cant' run" matTooltipPosition="above"></span>
               <i class="material-icons">play_circle_outline</i>
               <span>Run</span>
             </li>
