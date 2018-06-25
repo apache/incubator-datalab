@@ -76,17 +76,17 @@ export class ConfirmationDialogModel {
   }
 
   private setup(confirmationType: ConfirmationDialogType, notebook: any, fnProcessResults: any, fnProcessErrors: any): void {
-    const defaultStopMessage = 'Exploratory Environment will be stopped';
+    const defaultStopMessage = 'Notebook server will be stopped.';
+    const containRunningResourcesStopMessage = 'Notebook server will be stopped and all computational resources will be stopped/terminated.';
 
-    const containRunningResourcesTerminateMessage = 'Exploratory Environment and all connected computational resources\
-     will be terminated.';
-    const defaultTerminateMessage = 'Exploratory Environment will be terminated.';
+    const defaultTerminateMessage = 'Notebook server will be terminated.';
+    const containRunningResourcesTerminateMessage = 'Notebook server and all computational resources will be terminated.';
 
     const edgeNodeStopMessage = 'Edge node will be stopped. You will need to start it later to proceed working with DLAB.';
 
     switch (confirmationType) {
       case ConfirmationDialogType.StopExploratory: {
-        this.title = defaultStopMessage;
+        this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesStopMessage : defaultStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
           .subscribe((response: Response) => fnProcessResults(response),

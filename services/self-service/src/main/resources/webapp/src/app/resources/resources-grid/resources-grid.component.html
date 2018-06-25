@@ -89,26 +89,32 @@ limitations under the License.
                 && env.status !== 'terminating'
                 && env.status !== 'terminated'
                 && env.status !== 'creating_image'">
-            <li (click)="exploratoryAction(env, 'stop')"
-                [ngClass]="{'not-allowed': isResourcesInProgress(env) }"
-                *ngIf="env.status !== 'stopped'
-                && env.status !== 'stopping'
-                && env.status !== 'starting'
-                && env.status !== 'creating_image'">
-              <i class="material-icons">pause_circle_outline</i>
-              <span>Stop</span>
+            <li *ngIf="env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'starting' && env.status !== 'creating_image'"
+                matTooltip="Unable to stop notebook because at least one computational resource is in progress"
+                matTooltipPosition="above"
+                [matTooltipDisabled]="!isResourcesInProgress(env)">
+                <div (click)="exploratoryAction(env, 'stop')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+                  <i class="material-icons">pause_circle_outline</i>
+                  <span>Stop</span>
+                </div>
             </li>
-            <li (click)="exploratoryAction(env, 'run')"
-                *ngIf="env.status.toLowerCase() === 'stopped'">
-              <i class="material-icons">play_circle_outline</i>
-              <span>Run</span>
+            <li *ngIf="env.status.toLowerCase() === 'stopped' || env.status.toLowerCase() === 'stopping'"
+                matTooltip="Unable to run notebook until it will be stopped"
+                matTooltipPosition="above"
+                [matTooltipDisabled]="!isResourcesInProgress(env)">
+              <div (click)="exploratoryAction(env, 'run')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+                <i class="material-icons">play_circle_outline</i>
+                <span>Run</span>
+              </div>
             </li>
-            <li (click)="exploratoryAction(env, 'terminate')"
-                [ngClass]="{'not-allowed': isResourcesInProgress(env) }"
-                *ngIf="env.status.toLowerCase() === 'running'
-                || env.status.toLowerCase() === 'stopped'">
-              <i class="material-icons">phonelink_off</i>
-              <span>Terminate</span>
+            <li *ngIf="env.status.toLowerCase() === 'running' || env.status.toLowerCase() === 'stopped'"
+                matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+                matTooltipPosition="above"
+                [matTooltipDisabled]="!isResourcesInProgress(env)">
+              <div (click)="exploratoryAction(env, 'terminate')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+                <i class="material-icons">phonelink_off</i>
+                <span>Terminate</span>
+              </div>
             </li>
             <li (click)="exploratoryAction(env, 'deploy')"
                 *ngIf="env.status != 'stopping'

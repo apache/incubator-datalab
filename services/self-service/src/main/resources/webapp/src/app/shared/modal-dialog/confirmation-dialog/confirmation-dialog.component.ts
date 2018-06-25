@@ -16,21 +16,25 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService } from '../../../core/services';
 import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   moduleId: module.id,
   selector: 'confirmation-dialog',
-  templateUrl: 'confirmation-dialog.component.html'
+  templateUrl: 'confirmation-dialog.component.html',
+  styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 
 export class ConfirmationDialogComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
   model: ConfirmationDialogModel;
   isAliveResources: boolean;
   processError: boolean = false;
@@ -57,6 +61,8 @@ export class ConfirmationDialogComponent implements OnInit {
 
   public open(param, notebook: any, type: ConfirmationDialogType) {
     this.confirmationType = type;
+    console.log(notebook);
+    
     this.model = new ConfirmationDialogModel(type, notebook, (response: Response) => {
       if (response.status === HTTP_STATUS_CODES.OK) {
         this.close();
