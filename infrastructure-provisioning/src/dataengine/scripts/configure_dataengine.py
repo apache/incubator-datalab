@@ -60,6 +60,11 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 
+cuda_version = os.environ['notebook_cuda_version']
+cuda_file_name = os.environ['notebook_cuda_file_name']
+cudnn_version = os.environ['notebook_cudnn_version']
+cudnn_file_name = os.environ['notebook_cudnn_file_name']
+
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
@@ -147,7 +152,9 @@ if __name__ == "__main__":
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         print("Installing TensorFlow")
-        install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
+        install_tensor(args.os_user, cuda_version, cuda_file_name,
+                       cudnn_version, cudnn_file_name, tensorflow_version,
+                       templates_dir, nvidia_version)
         print("Install Theano")
         install_theano(args.os_user, theano_version)
         print("Installing Keras")
