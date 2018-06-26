@@ -18,6 +18,7 @@ package com.epam.dlab.dto.gcp.keyload;
 
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,7 +31,8 @@ public class UploadFileGcp extends UploadFile {
     @JsonProperty
     private final EdgeCreateGcp edge;
 
-    public UploadFileGcp(EdgeCreateGcp edge, String content) {
+	@JsonCreator
+	public UploadFileGcp(@JsonProperty("edge") EdgeCreateGcp edge, @JsonProperty("content") String content) {
         super(content);
         this.edge = edge;
     }
