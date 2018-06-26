@@ -42,7 +42,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   full_list: any;
   template_description: string;
   shapes: any;
-  spotInstance: boolean = false;
+  spotInstance: boolean = true;
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
   delimitersRegex = /[-_]?/g;
@@ -105,6 +105,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.model.setSelectedClusterType($event.model.index);
       this.setDefaultParams();
       this.getComputationalResourceLimits();
+        if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+          this.spotInstancesSelect.nativeElement['checked'] = true;
+          this.selectSpotInstances();
+        }
     }
 
     if (this.shapes[$event.model.type])
@@ -142,8 +146,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 
-  public selectSpotInstances($event): void {
-    if ($event.target.checked) {
+  public selectSpotInstances($event?): void {
+    if ($event ? $event.target.checked : this.spotInstancesSelect.nativeElement['checked']) {
       const filtered = this.filterAvailableSpots();
 
       this.slave_shapes_list.setDefaultOptions(filtered, this.shapePlaceholder(filtered, 'description'),
@@ -151,7 +155,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.shapes.slave_shape = this.shapePlaceholder(filtered, 'type');
 
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
-      this.resourceForm.controls['instance_price'].setValue(this.shapePlaceholder(filtered, 'price'));
+      this.resourceForm.controls['instance_price'].setValue(50);
     } else {
       this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
         this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
