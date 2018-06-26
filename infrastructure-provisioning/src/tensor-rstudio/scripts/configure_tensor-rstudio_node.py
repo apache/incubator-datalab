@@ -41,10 +41,14 @@ args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
 hadoop_version = os.environ['notebook_hadoop_version']
-tensorflow_version = os.environ['notebook_tensorflow_version']
+tensorflow_version = '1.8.0'
 nvidia_version = os.environ['notebook_nvidia_version']
 theano_version = os.environ['notebook_theano_version']
-keras_version = os.environ['notebook_keras_version']
+keras_version = '2.1.6'
+cuda_version = '9.0'
+cuda_file_name = 'cuda_9.0.176_384.81_linux-run'
+cudnn_version = '7.1.4'
+cudnn_file_name = 'cudnn-9.0-linux-x64-v7.1.tgz'
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -57,7 +61,7 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
-          'Rcpp', 'rmarkdown', 'base64enc', 'tibble', 'tensorflow', 'kerasR']
+          'Rcpp', 'rmarkdown', 'base64enc', 'tibble', 'tensorflow']
 
 
 ##############
@@ -91,7 +95,9 @@ if __name__ == "__main__":
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
-    install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
+    install_tensor(args.os_user, cuda_version, cuda_file_name,
+                   cudnn_version, cudnn_file_name, tensorflow_version,
+                   templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
