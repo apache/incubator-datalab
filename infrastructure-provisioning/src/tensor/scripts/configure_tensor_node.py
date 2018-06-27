@@ -57,6 +57,10 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
 gitlab_certfile = os.environ['conf_gitlab_certfile']
+cuda_version = os.environ['notebook_cuda_version']
+cuda_file_name = os.environ['notebook_cuda_file_name']
+cudnn_version = os.environ['notebook_cudnn_version']
+cudnn_file_name = os.environ['notebook_cudnn_file_name']
 
 
 ##############
@@ -88,7 +92,9 @@ if __name__ == "__main__":
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
-    install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
+    install_tensor(args.os_user, cuda_version, cuda_file_name,
+                   cudnn_version, cudnn_file_name, tensorflow_version,
+                   templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
