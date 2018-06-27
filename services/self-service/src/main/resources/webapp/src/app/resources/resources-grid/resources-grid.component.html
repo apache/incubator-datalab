@@ -101,8 +101,8 @@ limitations under the License.
             <li *ngIf="env.status.toLowerCase() === 'stopped' || env.status.toLowerCase() === 'stopping'"
                 matTooltip="Unable to run notebook until it will be stopped"
                 matTooltipPosition="above"
-                [matTooltipDisabled]="!isResourcesInProgress(env)">
-              <div (click)="exploratoryAction(env, 'run')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+                [matTooltipDisabled]="!isResourcesInProgress(env) && env.status.toLowerCase() !== 'stopping'">
+              <div (click)="exploratoryAction(env, 'run')" [ngClass]="{'not-allowed': isResourcesInProgress(env) || env.status.toLowerCase() === 'stopping' }">
                 <i class="material-icons">play_circle_outline</i>
                 <span>Run</span>
               </div>

@@ -54,7 +54,8 @@ export class ConfirmationDialogModel {
       for (let i = 0; i < resources.length; i++) {
         if (resources[i].status.toLowerCase() != 'failed'
           && resources[i].status.toLowerCase() != 'terminated'
-          && resources[i].status.toLowerCase() != 'terminating')
+          && resources[i].status.toLowerCase() != 'terminating'
+          && resources[i].status.toLowerCase() != 'stopped')
             return true;
       }
     }
