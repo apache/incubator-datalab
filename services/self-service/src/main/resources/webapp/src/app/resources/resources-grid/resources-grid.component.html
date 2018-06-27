@@ -102,7 +102,7 @@ limitations under the License.
                 matTooltip="Unable to run notebook until it will be stopped"
                 matTooltipPosition="above"
                 [matTooltipDisabled]="!isResourcesInProgress(env)">
-              <div (click)="exploratoryAction(env, 'run')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+              <div (click)="exploratoryAction(env, 'run')" [ngClass]="{'not-allowed': isResourcesInProgress(env) || env.status.toLowerCase() === 'stopping' }">
                 <i class="material-icons">play_circle_outline</i>
                 <span>Run</span>
               </div>
