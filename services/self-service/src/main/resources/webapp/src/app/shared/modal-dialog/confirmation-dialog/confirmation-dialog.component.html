@@ -38,7 +38,7 @@ limitations under the License.
           <div class="size">Size</div>
         </mat-list-item>
         <div class="scrolling-content" id="scrolling">
-          <mat-list-item *ngFor="let resource of model.notebook.resources" [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || resource.status === 'stopped'">
+          <mat-list-item *ngFor="let resource of model.notebook.resources" [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || (resource.status === 'stopped' && !confirmationType)">
             <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
             <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
                   'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">{{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
