@@ -18,12 +18,9 @@
 
 from pprint import pprint
 from googleapiclient.discovery import build
-#from oauth2client.client import GoogleCredentials
-#from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
 from google.cloud import exceptions
 import google.auth
-#from google.oauth2 import service_account
 from dlab.fab import *
 import actions_lib
 import os, re

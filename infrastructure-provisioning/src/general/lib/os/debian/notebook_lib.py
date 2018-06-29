@@ -28,6 +28,7 @@ import sys
 from dlab.notebook_lib import *
 from dlab.fab import *
 from dlab.common_lib import *
+import backoff
 import os
 import re
 
@@ -65,6 +66,9 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
         except:
             sys.exit(1)
 
+@backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
+def add_marruter_key():
+    sudo('add-apt-repository -y ppa:marutter/rrutter')
 
 def ensure_r(os_user, r_libs, region, r_mirror):
     if not exists('/home/' + os_user + '/.ensure_dir/r_ensured'):
@@ -73,7 +77,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = r_mirror
             else:
                 r_repository = 'http://cran.us.r-project.org'
-            sudo('add-apt-repository -y ppa:marutter/rrutter')
+            add_marruter_key()
             sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
@@ -137,13 +141,18 @@ def ensure_matplot(os_user):
         except:
             sys.exit(1)
 
+@backoff.on_exception(backoff.expo, SystemExit, max_tries=5)
+def add_sbt_key():
+    sudo(
+        'apt-key adv --keyserver keyserver.ubuntu.com --keyserver-options http-proxy=$http_proxy'
+        ' --recv-keys 2EE0EA64E40A89B84B2DF73499E82A75642AC823')
 
 def ensure_sbt(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             sudo('apt-get install -y apt-transport-https')
             sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
-            sudo('apt-key adv --keyserver keyserver.ubuntu.com --keyserver-options http-proxy=$http_proxy --recv-keys 2EE0EA64E40A89B84B2DF73499E82A75642AC823')
+            add_sbt_key()
             sudo('apt-get update')
             sudo('apt-get install -y sbt')
             sudo('touch /home/' + os_user + '/.ensure_dir/sbt_ensured')
