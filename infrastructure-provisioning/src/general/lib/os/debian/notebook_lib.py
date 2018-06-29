@@ -239,8 +239,10 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
-    if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
+def install_tensor(os_user, cuda_version, cuda_file_name,
+                   cudnn_version, cudnn_file_name, tensorflow_version,
+                   templates_dir, nvidia_version):
+    if not exists('/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
         try:
             # install nvidia drivers
             sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
@@ -253,15 +255,15 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
-            sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
-            sudo('mv /usr/local/cuda-8.0 /opt/')
-            sudo('ln -s /opt/cuda-8.0 /usr/local/cuda-8.0')
-            sudo('rm -f /opt/cuda_8.0.44_linux-run')
+            sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy --no-cache-dir'. format(os.environ['conf_pip_version']))
+            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
+            sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
+            sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
+            sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
+            sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            cudnn = 'cudnn-8.0-linux-x64-v6.0.tgz'
-            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/{0} -O /tmp/{0}'.format(cudnn))
-            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn))
+            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
+            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             sudo('mkdir -p /opt/cudnn/include')
             sudo('mkdir -p /opt/cudnn/lib64')
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
@@ -269,17 +271,18 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
             run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
-            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl --no-cache-dir')
-            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
-            sudo('mkdir /var/log/tensorboard; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard')
-            put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
-            sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/tensorboard.service")
+            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
+            put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
+            sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
             sudo("chmod 644 /tmp/tensorboard.service")
             sudo('\cp /tmp/tensorboard.service /etc/systemd/system/')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
-            sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
+            sudo('touch /home/{}/.ensure_dir/tensor_ensured'.format(os_user))
+
         except:
             sys.exit(1)
 

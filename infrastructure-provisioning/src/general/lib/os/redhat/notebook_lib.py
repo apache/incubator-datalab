@@ -251,7 +251,7 @@ def ensure_python3_libraries(os_user):
 def install_tensor(os_user, cuda_version, cuda_file_name,
                    cudnn_version, cudnn_file_name, tensorflow_version,
                    templates_dir, nvidia_version):
-    if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
+    if not exists('/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
         try:
             # install nvidia drivers
             sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
