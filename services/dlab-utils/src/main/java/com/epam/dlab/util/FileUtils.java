@@ -22,7 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 public class FileUtils {
@@ -45,5 +48,23 @@ public class FileUtils {
 		java.nio.file.Path filePath = Paths.get(directory, filename).toAbsolutePath();
 		log.debug("Deleting file from {}", filePath.toString());
 		Files.deleteIfExists(filePath);
+	}
+
+	public static void deleteFile(String absolutePath) {
+		log.debug("Deleting file from {}", absolutePath);
+		try {
+			Files.deleteIfExists(Paths.get(absolutePath));
+		} catch (IOException e) {
+			log.error("Problems occured with deleting file {} due to: {}", absolutePath, e.getLocalizedMessage());
+		}
+	}
+
+	public static Optional<String> getIfExistsSimilar(String filename, String directory) {
+		try (final Stream<Path> pathStream = Files.list(Paths.get(directory))) {
+			return pathStream.map(Path::toString).filter(path -> path.contains(filename)).findAny();
+		} catch (IOException e) {
+			log.error("Problems occured with accessing directory {} due to: {}", directory, e.getLocalizedMessage());
+		}
+		return Optional.empty();
 	}
 }

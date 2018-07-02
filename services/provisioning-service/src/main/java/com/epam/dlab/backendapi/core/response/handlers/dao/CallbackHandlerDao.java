@@ -26,7 +26,7 @@ import java.util.List;
 
 public interface CallbackHandlerDao {
 
-	void save(PersistentFileHandler handlerCallback);
+	void upsert(PersistentFileHandler handlerCallback);
 
 	List<PersistentFileHandler> findAll();
 
