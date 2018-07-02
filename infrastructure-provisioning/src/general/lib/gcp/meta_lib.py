@@ -18,10 +18,9 @@
 
 from pprint import pprint
 from googleapiclient.discovery import build
-from oauth2client.client import GoogleCredentials
-from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
 from google.cloud import exceptions
+import google.auth
 from dlab.fab import *
 import actions_lib
 import os, re
@@ -29,31 +28,42 @@ from googleapiclient import errors
 import logging
 import traceback
 import sys, time
+import backoff
 
+@backoff.on_exception(backoff.expo,
+                      google.auth.exceptions.DefaultCredentialsError,
+                      max_tries=15)
+def get_gcp_cred():
+    credentials, project = google.auth.default()
+    return credentials, project
 
 class GCPMeta:
     def __init__(self, auth_type='service_account'):
-
         self.auth_type = auth_type
         self.project = os.environ['gcp_project_id']
+
         if os.environ['conf_resource'] == 'ssn':
-            self.key_file = '/root/service_account.json'
-            credentials = ServiceAccountCredentials.from_json_keyfile_name(
-                self.key_file, scopes=('https://www.googleapis.com/auth/compute', 'https://www.googleapis.com/auth/iam',
-                                       'https://www.googleapis.com/auth/cloud-platform'))
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/root/service_account.json"
+            credentials, project = google.auth.default()
+            if credentials.requires_scopes:
+                credentials = credentials.with_scopes(
+                    ['https://www.googleapis.com/auth/compute',
+                     'https://www.googleapis.com/auth/iam',
+                     'https://www.googleapis.com/auth/cloud-platform'])
             self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
-            self.service_storage = build('storage', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
-            self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
+            self.service_storage = build('storage', 'v1', credentials=credentials)
+            self.storage_client = storage.Client(credentials=credentials)
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
-            self.service = build('compute', 'v1')
-            self.service_iam = build('iam', 'v1')
-            self.service_storage = build('storage', 'v1')
-            self.dataproc = build('dataproc', 'v1')
-            self.storage_client = storage.Client()
-            self.service_resource = build('cloudresourcemanager', 'v1')
+            credentials, project = get_gcp_cred()
+            self.service = build('compute', 'v1', credentials=credentials)
+            self.service_iam = build('iam', 'v1', credentials=credentials)
+            self.dataproc = build('dataproc', 'v1', credentials=credentials)
+            self.service_storage = build('storage', 'v1', credentials=credentials)
+            self.storage_client = storage.Client(credentials=credentials)
+            self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
 
     def wait_for_operation(self, operation, region='', zone=''):
         print('Waiting for operation to finish...')
