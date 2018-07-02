@@ -23,7 +23,6 @@ from google.cloud import storage
 from googleapiclient import errors
 import google.auth
 from dlab.fab import *
-import google.auth
 import meta_lib
 import os
 import json

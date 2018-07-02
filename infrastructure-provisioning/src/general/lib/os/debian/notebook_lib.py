@@ -141,11 +141,10 @@ def ensure_matplot(os_user):
         except:
             sys.exit(1)
 
-@backoff.on_exception(backoff.expo, SystemExit, max_tries=5)
+@backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
 def add_sbt_key():
     sudo(
-        'apt-key adv --keyserver keyserver.ubuntu.com --keyserver-options http-proxy=$http_proxy'
-        ' --recv-keys 2EE0EA64E40A89B84B2DF73499E82A75642AC823')
+        'apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823')
 
 def ensure_sbt(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
