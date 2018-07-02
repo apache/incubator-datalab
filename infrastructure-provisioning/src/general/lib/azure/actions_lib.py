@@ -740,6 +740,7 @@ class AzureActions:
             result = self.compute_client.virtual_machines.create_or_update(
                 resource_group_name, instance_name, parameters
             ).wait()
+            AzureActions().tag_disks(resource_group_name, instance_name)
             return result
         except Exception as err:
             logging.info(
@@ -748,6 +749,15 @@ class AzureActions:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def tag_disks(self, resource_group_name, instance_name):
+        postfix_list = ['-volume-primary', '-volume-secondary', '-volume-tertiary']
+        disk_list = meta_lib.AzureMeta().get_vm_disks(resource_group_name, instance_name)
+        for inx, disk in enumerate(disk_list):
+            tags_copy = disk.tags.copy()
+            tags_copy['Name'] = tags_copy['Name'] + postfix_list[inx]
+            disk.tags = tags_copy
+            self.compute_client.disks.create_or_update(resource_group_name, disk.name, disk)
 
     def stop_instance(self, resource_group_name, instance_name):
         try:

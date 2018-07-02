@@ -244,12 +244,16 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
-                        initial_user, image_name, service_account_name, instance_class, network_tag, labels, static_ip='',
-                        primary_disk_size='12', secondary_disk_size='30', gpu_accelerator_type='None'):
+    def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size,
+                        ssh_key_path,
+                        initial_user, image_name, service_account_name, instance_class, network_tag,
+                        labels, static_ip='',
+                        primary_disk_size='12', secondary_disk_size='30',
+                        gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name,
+                                                                       self.project)
         access_configs = ''
         if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
@@ -261,6 +265,8 @@ class GCPActions:
             GCPActions().create_disk(instance_name, zone, secondary_disk_size)
             disks = [
                 {
+                    "name": instance_name,
+                    "tag_name": instance_name + '-volume-primary',
                     "deviceName": instance_name + '-primary',
                     "autoDelete": "true",
                     "boot": "true",
@@ -272,17 +278,23 @@ class GCPActions:
                     }
                 },
                 {
+                    "name": instance_name + '-secondary',
+                    "tag_name": instance_name + '-volume-secondary',
                     "deviceName": instance_name + '-secondary',
                     "autoDelete": "true",
                     "boot": "false",
                     "mode": "READ_WRITE",
                     "type": "PERSISTENT",
                     "interface": "SCSI",
-                    "source": "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
+                    "source": "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project,
+                                                                                  zone,
+                                                                                  instance_name)
                 }
             ]
         else:
             disks = [{
+                "name": instance_name,
+                "tag_name": instance_name + '-volume-primary',
                 "deviceName": instance_name + '-primary',
                 "autoDelete": 'true',
                 "initializeParams": {
@@ -326,29 +338,59 @@ class GCPActions:
             instance_params['guestAccelerators'] = [
                 {
                     "acceleratorCount": 1,
-                    "acceleratorType": "projects/{0}/zones/{1}/acceleratorTypes/{2}".format(self.project, zone, gpu_accelerator_type)
+                    "acceleratorType": "projects/{0}/zones/{1}/acceleratorTypes/{2}".format(
+                        self.project, zone, gpu_accelerator_type)
                 }
             ]
             instance_params['scheduling'] = {
                 "onHostMaintenance": "terminate",
                 "automaticRestart": "true"
             }
-        request = self.service.instances().insert(project=self.project, zone=zone, body=instance_params)
+        request = self.service.instances().insert(project=self.project, zone=zone,
+                                                  body=instance_params)
         try:
             result = request.execute()
             meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Instance {} created.'.format(instance_name))
-            request = self.service.instances().get(instance=instance_name, project=self.project, zone=zone)
+            request = self.service.instances().get(instance=instance_name, project=self.project,
+                                                   zone=zone)
             res = request.execute()
             instance_tag = {"items": [network_tag], "fingerprint": res['tags']['fingerprint']}
-            request = self.service.instances().setTags(instance=instance_name, project=self.project, zone=zone,
+            request = self.service.instances().setTags(instance=instance_name, project=self.project,
+                                                       zone=zone,
                                                        body=instance_tag)
+            GCPActions().set_disks_tag(disks, zone, labels)
             request.execute()
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create Instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def set_disks_tag(self, disks, zone, labels):
+        try:
+            for disk in disks:
+                labels['name'] = disk['tag_name']
+                request = self.service.disks().get(disk=disk['name'], project=self.project,
+                                                   zone=zone)
+                finger_print = request.execute()['labelFingerprint']
+                label = {
+                    "labels": labels,
+                    "labelFingerprint": finger_print
+                }
+                request = self.service.disks().setLabels(resource=disk['name'],
+                                                         project=self.project,
+                                                         zone=zone,
+                                                         body=label)
+                request.execute()
+        except Exception as err:
+            logging.info(
+                "Unable to create add tags: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to add tags",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -705,6 +747,44 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def set_cluster_volume_tag(self, clusteName, region, zone):
+        try:
+            print('Setting volume tags')
+            print clusteName + ':' + region + ':' + zone
+            result = self.dataproc.projects().regions().clusters().list(
+                projectId=self.project,
+                region=region).execute()
+            clusters = result.get('clusters')
+            dataproc_instances = []
+            labels = ''
+            for cluster in clusters:
+                if cluster['clusterName'] == clusteName:
+                    print cluster
+                    labels = cluster.get('labels')
+                    master_instances = cluster.get('config').get('masterConfig').get('instanceNames')
+                    slave_instances = cluster.get('config').get('workerConfig').get('instanceNames')
+                    for instance in master_instances:
+                        param = {}
+                        param['name'] = instance
+                        param['tag_name'] = instance + '-volume-primary'
+                        dataproc_instances.append(param)
+                    for instance in slave_instances:
+                        param = {}
+                        param['name'] = instance
+                        param['tag_name'] = instance + '-volume-primary'
+                        dataproc_instances.append(param)
+            GCPActions().set_disks_tag(dataproc_instances, zone, labels)
+        except Exception as err:
+            logging.info(
+                "Unable to tag volume dataproc cluster: " + str(
+                    err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to tag volume dataproc cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
     def delete_dataproc_cluster(self, cluster_name, region):
         request = self.dataproc.projects().regions().clusters().delete(projectId=self.project, region=region, clusterName=cluster_name)
         try:
@@ -736,6 +816,9 @@ class GCPActions:
         try:
             result = request.execute()
             time.sleep(15)
+            GCPActions().set_cluster_volume_tag(cluster_name,
+                                                os.environ['gcp_region'],
+                                                os.environ['gcp_zone'])
             return result
         except Exception as err:
             logging.info(

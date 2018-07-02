@@ -160,6 +160,7 @@ def create_tag(resource, tag, with_tag_res_id=True):
     )
 
 
+
 def remove_emr_tag(emr_id, tag):
     try:
         emr = boto3.client('emr')
@@ -303,6 +304,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
             tag = {'Key': 'Name', 'Value': definitions.node_name}
             create_tag(instance.id, tag)
             create_tag(instance.id, instance_tag)
+            tag_intance_volume(instance.id, definitions.node_name, instance_tag)
             return instance.id
         return ''
     except Exception as err:
@@ -310,6 +312,51 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         append_result(str({"error": "Unable to create EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def tag_intance_volume(instance_id, node_name, instance_tag):
+    try:
+        print('volume tagging')
+        volume_list = meta_lib.get_instance_attr(instance_id, 'block_device_mappings')
+        counter = 0
+        instance_tag_value = instance_tag.get('Value')
+        for volume in volume_list:
+            if counter == 1:
+                volume_postfix = '-volume-secondary'
+            else:
+                volume_postfix = '-volume-primary'
+            tag = {'Key': 'Name',
+                   'Value': node_name + volume_postfix}
+            volume_tag = instance_tag
+            volume_tag['Value'] = instance_tag_value + volume_postfix
+            volume_id = volume.get('Ebs').get('VolumeId')
+            create_tag(volume_id, tag)
+            create_tag(volume_id, volume_tag)
+            counter += 1
+    except Exception as err:
+        logging.info(
+            "Unable to tag volumes: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+        append_result(str({"error": "Unable to tag volumes",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def tag_emr_volume(cluster_id, node_name, billing_tag):
+    try:
+        client = boto3.client('emr')
+        cluster = client.list_instances(ClusterId=cluster_id)
+        instances = cluster['Instances']
+        for instance in instances:
+            instance_tag = {'Key': os.environ['conf_service_base_name'] + '-Tag',
+                            'Value': node_name}
+            tag_intance_volume(instance['Ec2InstanceId'], node_name, instance_tag)
+    except Exception as err:
+        logging.info(
+            "Unable to tag emr volumes: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+        append_result(str({"error": "Unable to tag emr volumes",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def create_iam_role(role_name, role_profile, region, service='ec2'):
     conn = boto3.client('iam')
