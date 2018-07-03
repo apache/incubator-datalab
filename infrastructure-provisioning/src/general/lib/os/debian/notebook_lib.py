@@ -257,6 +257,15 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             with settings(warn_only=True):
                 reboot(wait=150)
             sudo('apt-get -y install dkms linux-image-extra-`uname -r`')
+            kernel_version = sudo('uname -r')
+            if kernel_version == '4.15.0-1013-azure':
+                sudo(
+                    'wget http://mirrors.kernel.org/ubuntu/pool/main/l/linux-azure/linux-modules-extra-4.15.0-1013-azure_4.15.0-1013.13~16.04.2_amd64.deb '
+                    '-O /tmp/linux-modules-extra-4.15.0-1013-azure_4.15.0-1013.13~16.04.2_amd64.deb')
+                sudo(
+                    'dpkg -i /tmp/linux-modules-extra-4.15.0-1013-azure_4.15.0-1013.13~16.04.2_amd64.deb')
+            else:
+                sudo('apt-get -y install linux-image-extra-`uname -r`')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
