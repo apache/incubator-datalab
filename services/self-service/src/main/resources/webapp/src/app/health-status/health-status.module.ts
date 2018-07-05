@@ -28,6 +28,7 @@ import {
   ManageEnvironmentComponent,
   ConfirmActionDialog
 } from './manage-environment/manage-environment-dilog.component';
+import { ToastModule } from 'ng2-toastr/ng2-toastr';
 
 @NgModule({
   imports: [
@@ -37,7 +38,8 @@ import {
     HealthStatusGridModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
-    MaterialModule
+    MaterialModule,
+    ToastModule.forRoot()
   ],
   declarations: [
     HealthStatusComponent,

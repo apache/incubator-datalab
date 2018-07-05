@@ -19,7 +19,8 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "dlab",
       "styles": [
-        "styles.scss"
+        "styles.scss",
+        "../node_modules/ng2-toastr/bundles/ng2-toastr.min.css"
       ],
       "scripts": [
         "../node_modules/hammerjs/hammer.min.js"
