@@ -35,6 +35,7 @@ parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -96,7 +97,7 @@ if __name__ == "__main__":
 
     # INSTALL JUPYTER NOTEBOOK
     print("Install Jupyter")
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
@@ -134,7 +135,15 @@ if __name__ == "__main__":
     ensure_sbt(args.os_user)
     print("Install Breeze")
     add_breeze_library_local(args.os_user)
-    
+
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    # configure reverse proxy
+    # print("Configure reverse-proxy")
+    # sudo('sed -i "s/.#c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{}\/\'/" /home/dlab-user/.local/share/jupyter/jupyter_notebook_config.py'.format(
+    #         args.exploratory_name))
+    # sudo("service jupyter-notebook.service restart")
+
+

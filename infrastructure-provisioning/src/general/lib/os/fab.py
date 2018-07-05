@@ -140,7 +140,7 @@ def put_resource_status(resource, status, dlab_path, os_user, hostname):
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
-def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version):
+def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
             sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
@@ -153,6 +153,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 run('mkdir -p ~/.jupyter/custom/')
                 run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
+            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
             sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
@@ -179,6 +180,14 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo("systemctl start jupyter-notebook")
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
+            sys.exit(1)
+    else:
+        try:
+            sudo(
+                'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(exploratory_name, jupyter_conf_file))
+            sudo("systemctl restart jupyter-notebook")
+        except Exception as err:
+            print(err)
             sys.exit(1)
 
 

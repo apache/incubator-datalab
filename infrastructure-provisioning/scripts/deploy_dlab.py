@@ -79,6 +79,7 @@ parser.add_argument('--usage_type', type=str, default='UsageType', help='Column 
 parser.add_argument('--usage', type=str, default='UsageQuantity', help='Column name in report file that contains usage tag')
 parser.add_argument('--cost', type=str, default='BlendedCost', help='Column name in report file that contains cost tag')
 parser.add_argument('--resource_id', type=str, default='ResourceId', help='Column name in report file that contains dlab resource id tag')
+parser.add_argument('--ldap_pass', type=str, default='', help='Ldap password for nginx reverse proxy setup')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
@@ -97,7 +98,7 @@ def generate_docker_command():
     attrs = vars(args)
     for i in attrs:
         if attrs[i] and i != 'action' and i != 'key_path' and i != 'workspace_path' and i != 'gcp_service_account_path':
-            command.append('-e "{}={}" '.format(i, attrs[i]))
+            command.append("-e '{}={}' ".format(i, attrs[i]))
     command.append('-e "conf_resource=ssn" ')
     command.append('docker.dlab-ssn ')
     command.append('--action {} '.format(args.action))

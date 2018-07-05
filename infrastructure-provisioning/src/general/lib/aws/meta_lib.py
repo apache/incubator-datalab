@@ -462,11 +462,12 @@ def get_emr_id_by_name(name):
         traceback.print_exc(file=sys.stdout)
 
 
-def get_emr_instances_list(cluster_id, only_master=False):
+def get_emr_instances_list(cluster_id, instance_type=''):
+    #instance_type 'MASTER' or 'CORE'
     try:
         emr = boto3.client('emr')
-        if only_master:
-            instances = emr.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
+        if instance_type != '':
+            instances = emr.list_instances(ClusterId=cluster_id, InstanceGroupTypes=[instance_type])
         else:
             instances = emr.list_instances(ClusterId=cluster_id)
         return instances.get('Instances')
