@@ -314,3 +314,44 @@ input[type='number'] {
   white-space: nowrap;
   overflow: hidden;
 }
+
+
+toast-container {
+  #toast-container {
+    > div.toast {
+      box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      border-radius: 2px;
+      background-color: #fff;
+      padding: 12px 20px;
+      overflow: inherit;
+      margin: 0 0 15px;
+      &::before {
+        position: absolute;
+        left: -15px;
+        top: -12px;
+        font-family: "Material Icons";
+        background-color: #fff;
+        width: 30px;
+        height: 30px;
+        padding: 7px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      }
+      &.toast-success {
+        background-image: none;
+        color: #49af38;
+        &::before {
+          content: "done";
+        }
+      }
+      &.toast-error {
+        background-image: none;
+        color: #e2747d;
+        &::before {
+          content: "priority_high";
+        }
+      }
+    }
+  }
+}
