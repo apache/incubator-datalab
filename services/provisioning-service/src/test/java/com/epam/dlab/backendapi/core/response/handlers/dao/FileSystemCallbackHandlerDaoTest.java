@@ -80,7 +80,7 @@ public class FileSystemCallbackHandlerDaoTest {
 
 		fileSystemCallbackHandlerDao.upsert(persistentFileHandler);
 
-		verify(configuration).getHandlerDirectory();
+		verify(configuration, times(2)).getHandlerDirectory();
 		verify(mapper).writeValueAsBytes(refEq(persistentFileHandler));
 		assertTrue(new File(handlersFolders + File.separator + "LibListCallbackHandler_uuid.json").exists());
 		verifyNoMoreInteractions(mapper, configuration, dao);

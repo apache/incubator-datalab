@@ -53,7 +53,7 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 
 	@Override
 	public void upsert(PersistentFileHandler handlerCallback) {
-		deleteIfExistsSimilar(handlerCallback);
+		removeWithUUID(handlerCallback.getHandler().getUUID());
 		final String fileName = fileName(handlerCallback.getHandler().getId());
 		final String absolutePath = getAbsolutePath(fileName);
 		saveToFile(handlerCallback, fileName, absolutePath);
@@ -82,9 +82,16 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 		}
 	}
 
-	private void deleteIfExistsSimilar(PersistentFileHandler handlerCallback) {
-		FileUtils.getIfExistsSimilar(handlerCallback.getHandler().getUUID(),
-				configuration.getHandlerDirectory()).ifPresent(FileUtils::deleteFile);
+	private void removeWithUUID(String uuid) {
+		try (final Stream<Path> pathStream = Files.list(Paths.get(configuration.getHandlerDirectory()))) {
+			pathStream.map(Path::toString)
+					.filter(path -> path.contains(uuid))
+					.findAny()
+					.ifPresent(FileUtils::deleteFile);
+		} catch (IOException e) {
+			log.error("Problem occurred with accessing directory {} due to: {}", configuration.getHandlerDirectory(),
+					e.getLocalizedMessage());
+		}
 	}
 
 	private String getAbsolutePath(String fileName) {
