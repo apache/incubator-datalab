@@ -21,6 +21,8 @@ package com.epam.dlab.automation.helper;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamingHelper {
@@ -33,6 +35,8 @@ public class NamingHelper {
 	public static final String RSTUDIO = "rstudio";
 	public static final String ZEPPELIN = "zeppelin";
 
+	private static final Map<String, String> SIMPLE_NOTEBOOK_NAMES = new HashMap<>();
+
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
     private static String serviceBaseName;
@@ -40,9 +44,21 @@ public class NamingHelper {
     private static String ssnIp;
     private static String ssnToken;
 
+	static {
+		SIMPLE_NOTEBOOK_NAMES.put(DEEPLEARNING, "dl");
+		SIMPLE_NOTEBOOK_NAMES.put(JUPYTER, "jup");
+		SIMPLE_NOTEBOOK_NAMES.put(TENSOR, "tf");
+		SIMPLE_NOTEBOOK_NAMES.put(RSTUDIO, "rs");
+		SIMPLE_NOTEBOOK_NAMES.put(ZEPPELIN, "zep");
+	}
+
     private NamingHelper(){}
-    
-    public static String getServiceBaseName() {
+
+	public static Map<String, String> getSimpleNotebookNames() {
+		return SIMPLE_NOTEBOOK_NAMES;
+	}
+
+	public static String getServiceBaseName() {
     	return serviceBaseName;
     }
     
@@ -178,7 +194,8 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-        return String.join("_", notebokTemplateName, String.valueOf(idCounter.incrementAndGet()));
+		return String.join("_", SIMPLE_NOTEBOOK_NAMES.get(notebokTemplateName),
+				String.valueOf(idCounter.incrementAndGet()));
     }
     
     public static String getSelfServiceURL(String path) {
@@ -262,6 +279,4 @@ public class NamingHelper {
 		}
 		return true;
 	}
-
-
 }
