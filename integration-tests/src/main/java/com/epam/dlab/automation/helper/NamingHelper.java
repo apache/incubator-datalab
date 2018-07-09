@@ -35,7 +35,7 @@ public class NamingHelper {
 	public static final String RSTUDIO = "rstudio";
 	public static final String ZEPPELIN = "zeppelin";
 
-	private static final Map<String, String> simpleNotebookNames = new HashMap<>();
+	public static final Map<String, String> simpleNotebookNames = new HashMap<>();
 
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
