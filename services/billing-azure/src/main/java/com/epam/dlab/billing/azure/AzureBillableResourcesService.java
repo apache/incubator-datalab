@@ -25,17 +25,17 @@ import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Filters;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.fields;
 
 /**
  * Helps to retrieve billable resources that are created in scope of DLab usage. Uses MongoDB as data source
@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class AzureBillableResourcesService {
+	private static final String[] USER_INSTANCES_EXCLUDED_FIELDS = {"scheduler_data", "computational_resources" +
+			".scheduler_data"};
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	private MongoDbBillingClient mongoDbBillingClient;
@@ -83,12 +85,12 @@ public class AzureBillableResourcesService {
 		billableResources.addAll(getEdgeAndStorageAccount());
 		billableResources.addAll(getNotebooksAndClusters());
 
-		List<AzureDlabBillableResource> list = billableResources.stream().collect(Collectors.toList());
+		List<AzureDlabBillableResource> list = new ArrayList<>(billableResources);
 		list.sort(Comparator.comparing(AzureDlabBillableResource::getId));
 
 		try {
 			log.debug("Billable resources is \n {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString
-                    (list));
+					(list));
 		} catch (JsonProcessingException e) {
 			log.debug("Error during pretty printing. Show simple list", e);
 			log.debug("Billable resources is {}", list);
@@ -129,9 +131,9 @@ public class AzureBillableResourcesService {
 		return Sets.newHashSet(
 				AzureDlabBillableResource.builder().id(serviceBaseName + "-ssn").type(DlabResourceType.SSN).build(),
 				AzureDlabBillableResource.builder().id(ssnStorageAccountTagName).type(DlabResourceType
-                        .SSN_STORAGE_ACCOUNT).build(),
+						.SSN_STORAGE_ACCOUNT).build(),
 				AzureDlabBillableResource.builder().id(sharedStorageAccountTagName).type(DlabResourceType
-                        .COLLABORATION_STORAGE_ACCOUNT).build()
+						.COLLABORATION_STORAGE_ACCOUNT).build()
 		);
 	}
 
@@ -195,9 +197,12 @@ public class AzureBillableResourcesService {
 		Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
 		try {
+			final FindIterable<Document> userInstanceDocuments = mongoDbBillingClient.getDatabase()
+					.getCollection(MongoKeyWords.NOTEBOOK_COLLECTION)
+					.find()
+					.projection(fields(exclude(USER_INSTANCES_EXCLUDED_FIELDS)));
 			List<UserInstanceDTO> userInstanceDTOS = objectMapper.readValue(
-					objectMapper.writeValueAsString(mongoDbBillingClient.getDatabase()
-							.getCollection(MongoKeyWords.NOTEBOOK_COLLECTION).find()),
+					objectMapper.writeValueAsString(userInstanceDocuments),
 					new com.fasterxml.jackson.core.type.TypeReference<List<UserInstanceDTO>>() {
 					});
 
