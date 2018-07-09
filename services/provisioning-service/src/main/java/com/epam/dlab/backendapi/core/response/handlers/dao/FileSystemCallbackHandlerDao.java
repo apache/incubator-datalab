@@ -23,6 +23,7 @@ package com.epam.dlab.backendapi.core.response.handlers.dao;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.response.handlers.PersistentFileHandler;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.util.FileUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -51,12 +52,11 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 	private ObjectMapper mapper;
 
 	@Override
-	public void save(PersistentFileHandler handlerCallback) {
-
+	public void upsert(PersistentFileHandler handlerCallback) {
+		removeWithUUID(handlerCallback.getHandler().getUUID());
 		final String fileName = fileName(handlerCallback.getHandler().getId());
 		final String absolutePath = getAbsolutePath(fileName);
 		saveToFile(handlerCallback, fileName, absolutePath);
-
 	}
 
 	@Override
@@ -79,6 +79,18 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 		} catch (Exception e) {
 			log.error("Can not remove handler {} due to: {}", handlerId, e.getMessage(), e);
 			throw new DlabException("Can not remove handler " + handlerId + " due to: " + e.getMessage());
+		}
+	}
+
+	private void removeWithUUID(String uuid) {
+		try (final Stream<Path> pathStream = Files.list(Paths.get(configuration.getHandlerDirectory()))) {
+			pathStream.map(Path::toString)
+					.filter(path -> path.contains(uuid))
+					.findAny()
+					.ifPresent(FileUtils::deleteFile);
+		} catch (IOException e) {
+			log.error("Problem occurred with accessing directory {} due to: {}", configuration.getHandlerDirectory(),
+					e.getLocalizedMessage());
 		}
 	}
 
