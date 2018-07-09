@@ -178,7 +178,8 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-        return String.join("_", notebokTemplateName, String.valueOf(idCounter.incrementAndGet()));
+		return String.join("_", getNotebookSimpleName(notebokTemplateName),
+				String.valueOf(idCounter.incrementAndGet()));
     }
     
     public static String getSelfServiceURL(String path) {
@@ -261,6 +262,23 @@ public class NamingHelper {
 			return true;
 		}
 		return true;
+	}
+
+	private static String getNotebookSimpleName(String notebokTemplateName) {
+		switch (notebokTemplateName) {
+			case JUPYTER:
+				return "jup";
+			case TENSOR:
+				return "tf";
+			case DEEPLEARNING:
+				return "dl";
+			case RSTUDIO:
+				return "rs";
+			case ZEPPELIN:
+				return "zep";
+			default:
+				return null;
+		}
 	}
 
 
