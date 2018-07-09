@@ -21,6 +21,8 @@ package com.epam.dlab.automation.helper;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamingHelper {
@@ -33,12 +35,22 @@ public class NamingHelper {
 	public static final String RSTUDIO = "rstudio";
 	public static final String ZEPPELIN = "zeppelin";
 
+	private static final Map<String, String> simpleNotebookNames = new HashMap<>();
+
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
     private static String serviceBaseName;
     private static String ssnURL;
     private static String ssnIp;
     private static String ssnToken;
+
+	static {
+		simpleNotebookNames.put(DEEPLEARNING, "dl");
+		simpleNotebookNames.put(JUPYTER, "jup");
+		simpleNotebookNames.put(TENSOR, "tf");
+		simpleNotebookNames.put(RSTUDIO, "rs");
+		simpleNotebookNames.put(ZEPPELIN, "zep");
+	}
 
     private NamingHelper(){}
     
@@ -178,7 +190,7 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-		return String.join("_", getNotebookSimpleName(notebokTemplateName),
+		return String.join("_", simpleNotebookNames.get(notebokTemplateName),
 				String.valueOf(idCounter.incrementAndGet()));
     }
     
@@ -263,23 +275,4 @@ public class NamingHelper {
 		}
 		return true;
 	}
-
-	private static String getNotebookSimpleName(String notebokTemplateName) {
-		switch (notebokTemplateName) {
-			case JUPYTER:
-				return "jup";
-			case TENSOR:
-				return "tf";
-			case DEEPLEARNING:
-				return "dl";
-			case RSTUDIO:
-				return "rs";
-			case ZEPPELIN:
-				return "zep";
-			default:
-				return null;
-		}
-	}
-
-
 }
