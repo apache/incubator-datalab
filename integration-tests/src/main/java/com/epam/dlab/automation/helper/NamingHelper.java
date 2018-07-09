@@ -35,7 +35,7 @@ public class NamingHelper {
 	public static final String RSTUDIO = "rstudio";
 	public static final String ZEPPELIN = "zeppelin";
 
-	public static final Map<String, String> simpleNotebookNames = new HashMap<>();
+	private static final Map<String, String> SIMPLE_NOTEBOOK_NAMES = new HashMap<>();
 
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
@@ -45,16 +45,20 @@ public class NamingHelper {
     private static String ssnToken;
 
 	static {
-		simpleNotebookNames.put(DEEPLEARNING, "dl");
-		simpleNotebookNames.put(JUPYTER, "jup");
-		simpleNotebookNames.put(TENSOR, "tf");
-		simpleNotebookNames.put(RSTUDIO, "rs");
-		simpleNotebookNames.put(ZEPPELIN, "zep");
+		SIMPLE_NOTEBOOK_NAMES.put(DEEPLEARNING, "dl");
+		SIMPLE_NOTEBOOK_NAMES.put(JUPYTER, "jup");
+		SIMPLE_NOTEBOOK_NAMES.put(TENSOR, "tf");
+		SIMPLE_NOTEBOOK_NAMES.put(RSTUDIO, "rs");
+		SIMPLE_NOTEBOOK_NAMES.put(ZEPPELIN, "zep");
 	}
 
     private NamingHelper(){}
-    
-    public static String getServiceBaseName() {
+
+	public static Map<String, String> getSimpleNotebookNames() {
+		return SIMPLE_NOTEBOOK_NAMES;
+	}
+
+	public static String getServiceBaseName() {
     	return serviceBaseName;
     }
     
@@ -190,7 +194,7 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-		return String.join("_", simpleNotebookNames.get(notebokTemplateName),
+		return String.join("_", SIMPLE_NOTEBOOK_NAMES.get(notebokTemplateName),
 				String.valueOf(idCounter.incrementAndGet()));
     }
     

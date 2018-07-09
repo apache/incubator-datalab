@@ -28,29 +28,29 @@ public class LibsHelper {
 	private static final String LIB_LIST_JSON = "lib_list.json";
 
     public static String getLibGroupsPath(String notebookName){
-		if (notebookName.contains(NamingHelper.simpleNotebookNames.get(DEEPLEARNING))) {
+		if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(DEEPLEARNING))) {
 			return DEEPLEARNING + "/" + LIB_GROUPS_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(JUPYTER))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(JUPYTER))) {
 			return JUPYTER + "/" + LIB_GROUPS_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(RSTUDIO))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(RSTUDIO))) {
 			return RSTUDIO + "/" + LIB_GROUPS_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(TENSOR))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(TENSOR))) {
 			return TENSOR + "/" + LIB_GROUPS_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(ZEPPELIN))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(ZEPPELIN))) {
 			return ZEPPELIN + "/" + LIB_GROUPS_JSON;
 		} else return LIB_GROUPS_JSON;
     }
 
     public static String getLibListPath(String notebookName){
-		if (notebookName.contains(NamingHelper.simpleNotebookNames.get(DEEPLEARNING))) {
+		if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(DEEPLEARNING))) {
 			return DEEPLEARNING + "/" + LIB_LIST_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(JUPYTER))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(JUPYTER))) {
 			return JUPYTER + "/" + LIB_LIST_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(RSTUDIO))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(RSTUDIO))) {
 			return RSTUDIO + "/" + LIB_LIST_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(TENSOR))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(TENSOR))) {
 			return TENSOR + "/" + LIB_LIST_JSON;
-		} else if (notebookName.contains(NamingHelper.simpleNotebookNames.get(ZEPPELIN))) {
+		} else if (notebookName.contains(NamingHelper.getSimpleNotebookNames().get(ZEPPELIN))) {
 			return NamingHelper.ZEPPELIN + "/" + LIB_LIST_JSON;
 		} else return LIB_LIST_JSON;
     }
