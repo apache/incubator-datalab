@@ -54,9 +54,9 @@ public class TestDataEngineService {
         COMMAND_RUN_PYTHON = CloudHelper.getPythonTestingScript();
         COMMAND_RUN_PYTHON2 = CloudHelper.getPythonTestingScript2();
     }
-    
-    
-    public void run(String notebookName, String clusterName) throws Exception {
+
+
+	public void run(String notebookName, String notebookTemplate, String clusterName) throws Exception {
         Session ssnSession = null;
         try {
             LOGGER.info("{}: Copying test data copy scripts {} to SSN {}...",
@@ -64,7 +64,8 @@ public class TestDataEngineService {
             ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), NamingHelper.getSsnIp(), 22);
             copyFileToSSN(ssnSession, PropertiesResolver.getNotebookTestDataCopyScriptLocation(), "");
 			executePythonScript2(ssnSession, clusterName,
-					new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
+					new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(),
+					notebookName, notebookTemplate);
         } finally {
             if (ssnSession != null && ssnSession.isConnected()) {
 	            ssnSession.disconnect();
@@ -74,12 +75,13 @@ public class TestDataEngineService {
     
     //TODO refactor two methods and make one
 	private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile,
-									  String notebookName) throws JSchException, InterruptedException {
+									  String notebookName, String notebookTemplate) throws JSchException,
+			InterruptedException {
         String command;
         AckStatus status;
 
         command = String.format(COMMAND_RUN_PYTHON2, ConfigPropertyValue.getClusterOsUser(), notebookTestFile,
-        			NamingHelper.getStorageName());
+				NamingHelper.getStorageName(), notebookTemplate);
         LOGGER.info("{}: Executing command {}...", notebookName, command);
 
         ChannelExec runScript = SSHConnect.setCommand(ssnSession, command);

@@ -144,16 +144,15 @@ public class CloudHelper {
     public static String getPythonTestingScript2(){
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                return "/usr/bin/python /home/%s/%s --storage %s --cloud aws";
+				return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud aws";
             case CloudProvider.AZURE_PROVIDER:
                 if(ConfigPropertyValue.getAzureDatalakeEnabled().equalsIgnoreCase("true")){
-                    return "/usr/bin/python /home/%s/%s --storage %s --cloud azure --azure_datalake_account "
-                            + ConfigPropertyValue.getAzureDatalakeSharedAccount();
-                }
-                else return "/usr/bin/python /home/%s/%s --storage %s --cloud azure --azure_storage_account "
-                        + ConfigPropertyValue.getAzureStorageSharedAccount();
+					return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud azure " +
+							"--azure_datalake_account " + ConfigPropertyValue.getAzureDatalakeSharedAccount();
+                } else return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud azure " +
+						"--azure_storage_account " + ConfigPropertyValue.getAzureStorageSharedAccount();
             case CloudProvider.GCP_PROVIDER:
-                return "/usr/bin/python /home/%s/%s --storage %s --cloud gcp";
+				return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud gcp";
             default:
                 return null;
         }
