@@ -126,7 +126,7 @@ public class TestCallable implements Callable<Boolean> {
 			if (!ConfigPropertyValue.isRunModeLocal()) {
 
 				TestDataEngineService test = new TestDataEngineService();
-				test.run(notebookName, actualClusterName);
+				test.run(notebookName, notebookTemplate, actualClusterName);
 
 				String notebookScenarioFilesLocation = PropertiesResolver.getPropertyByName(
 						String.format(PropertiesResolver.NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE,
