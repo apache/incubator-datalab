@@ -366,6 +366,7 @@ def install_os_pkg(requisites):
         return "Fail to install OS packages"
 
 
+@backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
 def remove_os_pkg(pkgs):
     try:
         sudo('apt remove --purge -y {}'.format(' '.join(pkgs)))
