@@ -25,6 +25,7 @@ import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.util.JsonGenerator;
 import com.epam.dlab.util.ServiceUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
@@ -106,11 +107,12 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 	}
 
 	public void run() {
-		LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid, command);
+		LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid,
+				JsonGenerator.getProtectedJson(command));
 
 		responseFileName = null;
 		parser = new CommandParserMock(command, uuid);
-		LOGGER.debug("Parser is {}", parser);
+		LOGGER.debug("Parser is {}", JsonGenerator.getProtectedJson(parser.toString()));
 		DockerAction action = DockerAction.of(parser.getAction());
 		LOGGER.debug("Action is {}", action);
 
