@@ -78,7 +78,7 @@ def upload_azure_blob():
         secret_key = storage_client.storage_accounts.list_keys(resource_group_name, args.azure_storage_account).keys[0].value
         block_blob_service = BlockBlobService(account_name=args.azure_storage_account, account_key=secret_key)
         for f in dataset_file:
-            block_blob_service.create_blob_from_path(args.storage, '/{0}_dataset/{1}'.format(args.notebook, f), '/tmp/{0}'.format(f))
+            block_blob_service.create_blob_from_path(args.storage, '{0}_dataset/{1}'.format(args.notebook, f), '/tmp/{0}'.format(f))
     except Exception as err:
         print('Failed to upload test dataset to blob storage', str(err))
         sys.exit(1)
