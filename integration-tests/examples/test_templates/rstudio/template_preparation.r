@@ -5,7 +5,7 @@ output_directory <- "rstudio"
 protocol_name <- "PROTOCOL_NAME"
 
 bucket_path <- function(file_path) {
-    sprintf("%s://%s/%s", protocol_name, working_storage, file_path)
+    sprintf("%s://%s/rstudio_dataset/%s", protocol_name, working_storage, file_path)
 }
 
 full_path <- function(file_path) {
