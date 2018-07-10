@@ -18,6 +18,7 @@ package com.epam.dlab.dto.exploratory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -155,7 +156,7 @@ public class ExploratoryGitCreds implements Comparable<ExploratoryGitCreds> {
 	}
 
 	@Override
-	public int compareTo(ExploratoryGitCreds obj) {
+	public int compareTo(@Nullable ExploratoryGitCreds obj) {
 		if (obj == null) {
 			return 1;
 		}
@@ -165,8 +166,7 @@ public class ExploratoryGitCreds implements Comparable<ExploratoryGitCreds> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		return (obj instanceof ExploratoryGitCreds ?
-				(this.compareTo((ExploratoryGitCreds) obj) == 0) : false);
+		return (obj instanceof ExploratoryGitCreds && (this.compareTo((ExploratoryGitCreds) obj) == 0));
 
 	}
 
