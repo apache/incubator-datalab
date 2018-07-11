@@ -30,15 +30,16 @@ import traceback
 import sys, time
 import backoff
 
-@backoff.on_exception(backoff.expo,
-                      google.auth.exceptions.DefaultCredentialsError,
-                      max_tries=15)
-def get_gcp_cred():
-    credentials, project = google.auth.default()
-    return credentials, project
 
 class GCPMeta:
     def __init__(self, auth_type='service_account'):
+        @backoff.on_exception(backoff.expo,
+                              google.auth.exceptions.DefaultCredentialsError,
+                              max_tries=15)
+        def get_gcp_cred():
+            credentials, project = google.auth.default()
+            return credentials, project
+
         self.auth_type = auth_type
         self.project = os.environ['gcp_project_id']
 
@@ -54,7 +55,7 @@ class GCPMeta:
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
-            self.storage_client = storage.Client(credentials=credentials)
+            self.storage_client = storage.Client(project=project, credentials=credentials)
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
             credentials, project = get_gcp_cred()
@@ -62,7 +63,7 @@ class GCPMeta:
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
-            self.storage_client = storage.Client(credentials=credentials)
+            self.storage_client = storage.Client(project=project, credentials=credentials)
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
 
     def wait_for_operation(self, operation, region='', zone=''):
