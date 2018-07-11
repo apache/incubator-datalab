@@ -43,7 +43,7 @@ def download_dataset():
 def upload_aws():
     try:
         for f in dataset_file:
-            local('aws s3 cp /tmp/{0} s3://{1}/{2}_dataset --sse AES256'.format(f, args.storage, args.notebook))
+            local('aws s3 cp /tmp/{0} s3://{1}/{2}_dataset/ --sse AES256'.format(f, args.storage, args.notebook))
     except Exception as err:
         print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)
@@ -86,7 +86,7 @@ def upload_azure_blob():
 def upload_gcp():
     try:
         for f in dataset_file:
-            local('gsutil -m cp /tmp/{0} gs://{1}/{2}_dataset'.format(f, args.storage, args.notebook))
+            local('gsutil -m cp /tmp/{0} gs://{1}/{2}_dataset/'.format(f, args.storage, args.notebook))
     except Exception as err:
         print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)
