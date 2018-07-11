@@ -17,20 +17,18 @@
  */
 package com.epam.dlab.util;
 
-import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JsonGeneratorTest {
+public class SecurityUtilsTest {
 
 	@Test
-	public void generateJsonTest() throws JsonProcessingException {
-		ReuploadKeyDTO dto = new ReuploadKeyDTO();
-		dto.withContent("someContent").withId("someId").withEdgeUserName("edgeUserName").withServiceBaseName("SBN");
-		String actual = JsonGenerator.generateJson(dto);
-		String expected = "{\"@class\":\"com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO\",\"content\":\"someContent\"," +
-				"\"id\":\"someId\",\"edge_user_name\":\"edgeUserName\",\"conf_service_base_name\":\"SBN\"}";
+	public void hideCredsTest() {
+		String[] strings = {"bash", "-c", "\"edge_user_name\":\"edgeUserName\",\"conf_service_base_name\":\"SBN\", " +
+				"\"password\":\"12345\""};
+		String actual = SecurityUtils.hideCreds(strings);
+		String expected = "bash -c \"edge_user_name\":\"edgeUserName\",\"conf_service_base_name\":\"SBN\", " +
+				"\"password\":\"***\" ";
 		Assert.assertEquals(expected, actual);
 	}
 }

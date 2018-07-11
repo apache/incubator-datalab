@@ -20,31 +20,31 @@ package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.util.JsonGenerator;
+import com.epam.dlab.util.SecurityUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Singleton
 public class CommandBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommandBuilder.class);
 
-    public String buildCommand(RunDockerCommand runDockerCommand, ResourceBaseDTO<?> resourceBaseDTO) throws JsonProcessingException {
-        StringBuilder builder = new StringBuilder();
-        if (resourceBaseDTO != null) {
-            builder.append("echo -e '");
-            try {
-                String str = JsonGenerator.generateJson(resourceBaseDTO);
-				LOGGER.info("Serialized DTO to: {}", JsonGenerator.getProtectedJson(str));
-                builder.append(str);
-            } catch (JsonProcessingException e) {
-				LOGGER.error("ERROR generating json from dockerRunParameters: {}", e.getMessage());
-                throw e;
-            }
-            builder.append('\'');
-            builder.append(" | ");
-        }
-        builder.append(runDockerCommand.toCMD());
-        return builder.toString();
-    }
+	public String buildCommand(RunDockerCommand runDockerCommand, ResourceBaseDTO<?> resourceBaseDTO) throws JsonProcessingException {
+		StringBuilder builder = new StringBuilder();
+		if (resourceBaseDTO != null) {
+			builder.append("echo -e '");
+			try {
+				String str = JsonGenerator.generateJson(resourceBaseDTO);
+				log.info("Serialized DTO to: {}", SecurityUtils.hideCreds(str));
+				builder.append(str);
+			} catch (JsonProcessingException e) {
+				log.error("ERROR generating json from dockerRunParameters: {}", e.getMessage());
+				throw e;
+			}
+			builder.append('\'');
+			builder.append(" | ");
+		}
+		builder.append(runDockerCommand.toCMD());
+		return builder.toString();
+	}
 }
