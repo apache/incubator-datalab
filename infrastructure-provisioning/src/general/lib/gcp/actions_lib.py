@@ -347,6 +347,9 @@ class GCPActions:
         if instance_class == 'notebook':
             del instance_params['networkInterfaces'][0]['accessConfigs']
         if gpu_accelerator_type != 'None':
+            request = self.service.acceleratorTypes().list(project=self.project, zone = zone)
+            result = request.execute().get('items')
+            gpu_accelerator_type = result[0].get('name')
             instance_params['guestAccelerators'] = [
                 {
                     "acceleratorCount": 1,
