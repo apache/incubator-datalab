@@ -46,6 +46,11 @@
             <version>1.7.25</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-utils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
     </dependencies>
 

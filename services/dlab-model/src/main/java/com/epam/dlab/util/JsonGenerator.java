@@ -35,10 +35,6 @@ public final class JsonGenerator {
 		return generateJson(resourceBaseDTO, false);
 	}
 
-	public static String getProtectedJson(String json) {
-		return json.replaceAll("\"password\":\".*\"", "\"password\":\"\\*\\*\\*\"");
-	}
-
 	private static String generateJson(ResourceBaseDTO<?> resourceBaseDTO, boolean pretty) throws
             JsonProcessingException {
 		if (pretty) {
