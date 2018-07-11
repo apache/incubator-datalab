@@ -35,8 +35,7 @@ public class CloudHelper {
 
     private CloudHelper(){}
 
-    public static String getInstancePublicIP(String name, boolean restrictionMode)
-            throws CloudException, IOException {
+	public static String getInstancePublicIP(String name, boolean restrictionMode) throws IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return AmazonHelper.getInstance(name).getPublicIpAddress();
@@ -58,8 +57,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getInstancePrivateIP(String name, boolean restrictionMode)
-            throws CloudException, IOException {
+	public static String getInstancePrivateIP(String name, boolean restrictionMode) throws IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return AmazonHelper.getInstance(name).getPrivateIpAddress();
@@ -80,8 +78,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getInstanceNameByCondition(String name, boolean restrictionMode) throws CloudException,
-            IOException {
+	static String getInstanceNameByCondition(String name, boolean restrictionMode) throws IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 Instance instance = AmazonHelper.getInstance(name);
@@ -158,7 +155,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getStorageNameAppendix(){
+	static String getStorageNameAppendix() {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return "bucket";
@@ -196,7 +193,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getGcpDataprocClusterName(String gcpDataprocMasterNodeName) {
+	static String getGcpDataprocClusterName(String gcpDataprocMasterNodeName) {
         return gcpDataprocMasterNodeName != null ?
                 gcpDataprocMasterNodeName.substring(0, gcpDataprocMasterNodeName.lastIndexOf('-')) : null;
 	}
