@@ -133,7 +133,9 @@ public class AzureBillableResourcesService {
 				AzureDlabBillableResource.builder().id(ssnStorageAccountTagName).type(DlabResourceType
 						.SSN_STORAGE_ACCOUNT).build(),
 				AzureDlabBillableResource.builder().id(sharedStorageAccountTagName).type(DlabResourceType
-						.COLLABORATION_STORAGE_ACCOUNT).build()
+						.COLLABORATION_STORAGE_ACCOUNT).build(),
+				AzureDlabBillableResource.builder().id(serviceBaseName + "-ssn-volume-primary")
+						.type(DlabResourceType.VOLUME).build()
 		);
 	}
 
@@ -187,9 +189,18 @@ public class AzureBillableResourcesService {
 					.id(edgeInfoAzure.getInstanceId())
 					.type(DlabResourceType.EDGE)
 					.user(edgeInfoAzure.getId()).build());
+
+			billableResources.add(AzureDlabBillableResource.builder()
+					.id(serviceBaseName + "-" + edgeUserSimpleName(edgeInfoAzure) + "-edge-volume-primary")
+					.type(DlabResourceType.VOLUME)
+					.user(edgeInfoAzure.getId()).build());
 		}
 
 		return billableResources;
+	}
+
+	private String edgeUserSimpleName(EdgeInfoAzure edgeInfoAzure) {
+		return edgeInfoAzure.getId().replaceAll("@.*", "");
 	}
 
 	private Set<AzureDlabBillableResource> getNotebooksAndClusters() {
@@ -227,6 +238,8 @@ public class AzureBillableResourcesService {
 					.user(userInstanceDTO.getUser())
 					.notebookId(userInstanceDTO.getExploratoryId())
 					.resourceName(userInstanceDTO.getExploratoryName()).build());
+			notebookResources.addAll(getVolumes(userInstanceDTO, userInstanceDTO.getExploratoryId(), "Volume primary",
+					"Volume secondary"));
 
 			if (userInstanceDTO.getResources() != null && !userInstanceDTO.getResources().isEmpty()) {
 				for (UserComputationalResource userComputationalResource : userInstanceDTO.getResources()) {
@@ -238,6 +251,11 @@ public class AzureBillableResourcesService {
 								.user(userInstanceDTO.getUser())
 								.notebookId(userInstanceDTO.getExploratoryId())
 								.resourceName(userComputationalResource.getComputationalName()).build());
+						final List<AzureDlabBillableResource> volumes = getVolumes(userInstanceDTO,
+								userComputationalResource.getComputationalId(),
+								userComputationalResource.getComputationalName() + " volume primary",
+								userComputationalResource.getComputationalName() + " volume secondary");
+						notebookResources.addAll(volumes);
 
 					} else {
 						log.error("Computational with empty id {} is found in notebook {}. Skip it.",
@@ -251,5 +269,24 @@ public class AzureBillableResourcesService {
 		}
 
 		return notebookResources;
+	}
+
+	private List<AzureDlabBillableResource> getVolumes(UserInstanceDTO userInstanceDTO, String exploratoryId, String
+			primaryVolumeName, String secondaryVolumeName) {
+
+		return Arrays.asList(
+				AzureDlabBillableResource.builder()
+						.id(exploratoryId + "-volume-primary")
+						.type(DlabResourceType.VOLUME)
+						.user(userInstanceDTO.getUser())
+						.notebookId(userInstanceDTO.getExploratoryId())
+						.resourceName(primaryVolumeName).build(),
+				AzureDlabBillableResource.builder()
+						.id(exploratoryId + "-volume-secondary")
+						.type(DlabResourceType.VOLUME)
+						.user(userInstanceDTO.getUser())
+						.notebookId(userInstanceDTO.getExploratoryId())
+						.resourceName(secondaryVolumeName).build()
+		);
 	}
 }

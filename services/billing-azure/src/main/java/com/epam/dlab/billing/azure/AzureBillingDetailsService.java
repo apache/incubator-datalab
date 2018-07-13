@@ -79,7 +79,8 @@ public class AzureBillingDetailsService {
 											Filters.eq(MongoKeyWords.DLAB_USER, user),
 											Filters.in(MongoKeyWords.RESOURCE_TYPE,
 													DlabResourceType.EXPLORATORY.toString(),
-													DlabResourceType.COMPUTATIONAL.toString())
+													DlabResourceType.COMPUTATIONAL.toString(),
+													DlabResourceType.VOLUME.toString())
 									)
 							),
 
@@ -93,9 +94,9 @@ public class AzureBillingDetailsService {
 									MongoKeyWords.METER_CATEGORY),
 									Accumulators.sum(MongoKeyWords.COST, MongoKeyWords.prepend$(MongoKeyWords.COST)),
 									Accumulators.min(MongoKeyWords.USAGE_FROM, MongoKeyWords.prepend$(MongoKeyWords
-                                            .USAGE_DAY)),
+											.USAGE_DAY)),
 									Accumulators.max(MongoKeyWords.USAGE_TO, MongoKeyWords.prepend$(MongoKeyWords
-                                            .USAGE_DAY))
+											.USAGE_DAY))
 							),
 
 							Aggregates.sort(Sorts.ascending(
@@ -151,12 +152,15 @@ public class AzureBillingDetailsService {
 
 			billingDetails.stream()
 					.filter(e -> DlabResourceType.EXPLORATORY.toString().equals(e.getString(MongoKeyWords
-                            .RESOURCE_TYPE)))
+							.RESOURCE_TYPE)))
 					.forEach(aggregator);
 
 			billingDetails.stream()
 					.filter(e -> DlabResourceType.COMPUTATIONAL.toString().equals(e.getString(MongoKeyWords
-                            .RESOURCE_TYPE)))
+							.RESOURCE_TYPE))).forEach(aggregator);
+
+			billingDetails.stream()
+					.filter(e -> DlabResourceType.VOLUME.toString().equals(e.getString(MongoKeyWords.RESOURCE_TYPE)))
 					.forEach(aggregator);
 
 
