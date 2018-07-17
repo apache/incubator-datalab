@@ -35,8 +35,7 @@ public class CloudHelper {
 
     private CloudHelper(){}
 
-    public static String getInstancePublicIP(String name, boolean restrictionMode)
-            throws CloudException, IOException {
+	public static String getInstancePublicIP(String name, boolean restrictionMode) throws IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return AmazonHelper.getInstance(name).getPublicIpAddress();
@@ -58,8 +57,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getInstancePrivateIP(String name, boolean restrictionMode)
-            throws CloudException, IOException {
+	public static String getInstancePrivateIP(String name, boolean restrictionMode) throws IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return AmazonHelper.getInstance(name).getPrivateIpAddress();
@@ -80,8 +78,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getInstanceNameByCondition(String name, boolean restrictionMode) throws CloudException,
-            IOException {
+	static String getInstanceNameByCondition(String name, boolean restrictionMode) throws IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 Instance instance = AmazonHelper.getInstance(name);
@@ -144,22 +141,21 @@ public class CloudHelper {
     public static String getPythonTestingScript2(){
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                return "/usr/bin/python /home/%s/%s --storage %s --cloud aws";
+				return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud aws";
             case CloudProvider.AZURE_PROVIDER:
                 if(ConfigPropertyValue.getAzureDatalakeEnabled().equalsIgnoreCase("true")){
-                    return "/usr/bin/python /home/%s/%s --storage %s --cloud azure --azure_datalake_account "
-                            + ConfigPropertyValue.getAzureDatalakeSharedAccount();
-                }
-                else return "/usr/bin/python /home/%s/%s --storage %s --cloud azure --azure_storage_account "
-                        + ConfigPropertyValue.getAzureStorageSharedAccount();
+					return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud azure " +
+							"--azure_datalake_account " + ConfigPropertyValue.getAzureDatalakeSharedAccount();
+                } else return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud azure " +
+						"--azure_storage_account " + ConfigPropertyValue.getAzureStorageSharedAccount();
             case CloudProvider.GCP_PROVIDER:
-                return "/usr/bin/python /home/%s/%s --storage %s --cloud gcp";
+				return "/usr/bin/python /home/%s/%s --storage %s --notebook %s --cloud gcp";
             default:
                 return null;
         }
     }
 
-    public static String getStorageNameAppendix(){
+	static String getStorageNameAppendix() {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return "bucket";
@@ -197,7 +193,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getGcpDataprocClusterName(String gcpDataprocMasterNodeName) {
+	static String getGcpDataprocClusterName(String gcpDataprocMasterNodeName) {
         return gcpDataprocMasterNodeName != null ?
                 gcpDataprocMasterNodeName.substring(0, gcpDataprocMasterNodeName.lastIndexOf('-')) : null;
 	}

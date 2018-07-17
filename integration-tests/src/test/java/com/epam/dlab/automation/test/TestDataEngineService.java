@@ -39,10 +39,9 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
-public class TestDataEngineService {
+class TestDataEngineService {
     private final static Logger LOGGER = LogManager.getLogger(TestDataEngineService.class);
     
     private final static String COMMAND_COPY_TO_NOTEBOOK;
@@ -54,9 +53,9 @@ public class TestDataEngineService {
         COMMAND_RUN_PYTHON = CloudHelper.getPythonTestingScript();
         COMMAND_RUN_PYTHON2 = CloudHelper.getPythonTestingScript2();
     }
-    
-    
-    public void run(String notebookName, String clusterName) throws Exception {
+
+
+	void run(String notebookName, String notebookTemplate, String clusterName) throws Exception {
         Session ssnSession = null;
         try {
             LOGGER.info("{}: Copying test data copy scripts {} to SSN {}...",
@@ -64,7 +63,8 @@ public class TestDataEngineService {
             ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), NamingHelper.getSsnIp(), 22);
             copyFileToSSN(ssnSession, PropertiesResolver.getNotebookTestDataCopyScriptLocation(), "");
 			executePythonScript2(ssnSession, clusterName,
-					new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
+					new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(),
+					notebookName, notebookTemplate);
         } finally {
             if (ssnSession != null && ssnSession.isConnected()) {
 	            ssnSession.disconnect();
@@ -74,12 +74,13 @@ public class TestDataEngineService {
     
     //TODO refactor two methods and make one
 	private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile,
-									  String notebookName) throws JSchException, InterruptedException {
+									  String notebookName, String notebookTemplate) throws JSchException,
+			InterruptedException {
         String command;
         AckStatus status;
 
         command = String.format(COMMAND_RUN_PYTHON2, ConfigPropertyValue.getClusterOsUser(), notebookTestFile,
-        			NamingHelper.getStorageName());
+				NamingHelper.getStorageName(), notebookTemplate);
         LOGGER.info("{}: Executing command {}...", notebookName, command);
 
         ChannelExec runScript = SSHConnect.setCommand(ssnSession, command);
@@ -120,8 +121,8 @@ public class TestDataEngineService {
         }
     }
 
-	public void run2(String ssnIP, String noteBookIp, String clusterName, File notebookScenarioDirectory,
-					 File notebookTemplatesDirectory, String notebookName)
+	void run2(String ssnIP, String noteBookIp, String clusterName, File notebookScenarioDirectory,
+			  File notebookTemplatesDirectory, String notebookName)
             throws JSchException, IOException, InterruptedException {
 		LOGGER.info("Python tests for directories {} and {} will be started ...", notebookScenarioDirectory,
 				notebookTemplatesDirectory);
@@ -144,7 +145,7 @@ public class TestDataEngineService {
     	String [] scenarioFiles = notebookScenarioDirectory.list();
         assertNotNull(scenarioFiles, "Notebook " + notebookName + " scenario directory is empty!");
 
-        assertTrue(scenarioFiles.length == 1, "The python script location " + notebookScenarioDirectory +
+		assertEquals(1, scenarioFiles.length, "The python script location " + notebookScenarioDirectory +
 				" found more more then 1 file, expected 1 *.py file, but found multiple files: " +
 				Arrays.toString(scenarioFiles));
         assertTrue(scenarioFiles[0].endsWith(".py"), "The python script was not found");
@@ -216,7 +217,7 @@ public class TestDataEngineService {
 							.getName()));
         } catch (SftpException e) {
             LOGGER.error("An error occured during copying file to SSN: {}", e);
-            assertTrue(false, "Copying file " + file.getName() + " to SSN is failed");
+			fail("Copying file " + file.getName() + " to SSN is failed");
         } finally {
             if(channelSftp != null && channelSftp.isConnected()) {
                 channelSftp.disconnect();
@@ -253,7 +254,7 @@ public class TestDataEngineService {
                     " wasn't created in SSN!");
         } catch (SftpException e) {
             LOGGER.error("An error occured during creation directory in SSN: {}", e);
-            assertTrue(false, "Creating directory " + newDirectoryAbsolutePath + " in SSN is failed");
+			fail("Creating directory " + newDirectoryAbsolutePath + " in SSN is failed");
         } finally {
             if(channelSftp != null && channelSftp.isConnected()) {
                 channelSftp.disconnect();
@@ -389,7 +390,7 @@ public class TestDataEngineService {
     }
 
 	private void copyFileToNotebook(Session session, String filename, String ip, String notebookName)
-			throws JSchException, IOException, InterruptedException {
+			throws JSchException, InterruptedException {
     	String command = String.format(COMMAND_COPY_TO_NOTEBOOK,
     			"keys/"+ Paths.get(ConfigPropertyValue.getAccessKeyPrivFileName()).getFileName().toString(),
                 filename,
