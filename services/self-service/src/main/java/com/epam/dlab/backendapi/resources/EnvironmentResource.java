@@ -48,6 +48,14 @@ public class EnvironmentResource {
 		return Response.ok(environmentService.getActiveUsers()).build();
 	}
 
+	@GET
+	@Path("user/all")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAllUsers(@Auth UserInfo userInfo) {
+		log.debug("Admin {} requested information about all users", userInfo.getName());
+		return Response.ok(environmentService.getAllUsers()).build();
+	}
+
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -61,10 +69,88 @@ public class EnvironmentResource {
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("all/terminate")
+	public Response terminateAll(@Auth UserInfo userInfo) {
+		log.info("Admin {} is terminating all user's environment", userInfo.getName());
+		environmentService.terminateAll();
+		return Response.ok().build();
+	}
+
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("stop")
 	public Response stopEnv(@Auth UserInfo userInfo, @NotEmpty String user) {
 		log.info("User {} is stopping {} environment", userInfo.getName(), user);
 		environmentService.stopEnvironment(user);
+		return Response.ok().build();
+	}
+
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("all/stop")
+	public Response stopAll(@Auth UserInfo userInfo) {
+		log.info("Admin {} is stopping all user's environment", userInfo.getName());
+		environmentService.stopAll();
+		return Response.ok().build();
+	}
+
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("stop/edge")
+	public Response stopEdge(@Auth UserInfo userInfo, @NotEmpty String user) {
+		log.info("Admin {} is stopping edge of user {}", userInfo.getName(), user);
+		environmentService.stopEdge(user);
+		return Response.ok().build();
+	}
+
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("stop/{exploratoryName}")
+	public Response stopNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
+								 @PathParam("exploratoryName") String exploratoryName) {
+		log.info("Admin {} is stopping notebook {} of user {}", userInfo.getName(), exploratoryName, user);
+		environmentService.stopExploratory(user, exploratoryName);
+		return Response.ok().build();
+	}
+
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("stop/{exploratoryName}/{computationalName}")
+	public Response stopCluster(@Auth UserInfo userInfo, @NotEmpty String user,
+								@PathParam("exploratoryName") String exploratoryName,
+								@PathParam("computationalName") String computationalName) {
+		log.info("Admin {} is stopping Spark cluster {} affiliated with exploratory {} of user {}", userInfo.getName(),
+				computationalName, exploratoryName, user);
+		environmentService.stopComputational(user, exploratoryName, computationalName);
+		return Response.ok().build();
+	}
+
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("terminate/{exploratoryName}")
+	public Response terminateNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
+									  @PathParam("exploratoryName") String exploratoryName) {
+		log.info("Admin {} is terminating notebook {} of user {}", userInfo.getName(), exploratoryName, user);
+		environmentService.terminateExploratory(user, exploratoryName);
+		return Response.ok().build();
+	}
+
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("terminate/{exploratoryName}/{computationalName}")
+	public Response terminateCluster(@Auth UserInfo userInfo, @NotEmpty String user,
+									 @PathParam("exploratoryName") String exploratoryName,
+									 @PathParam("computationalName") String computationalName) {
+		log.info("Admin {} is terminating computational resource {} affiliated with exploratory {} of user {}",
+				userInfo.getName(), computationalName, exploratoryName, user);
+		environmentService.terminateComputational(user, exploratoryName, computationalName);
 		return Response.ok().build();
 	}
 }
