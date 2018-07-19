@@ -37,6 +37,7 @@ export class ResourcesComponent implements OnInit {
   computationalResources: Array<ComputationalResourceImage> = [];
   healthStatus: any;
   billingEnabled: boolean;
+  admin: boolean;
 
   @ViewChild('keyUploadModal') keyUploadModal;
   @ViewChild('preloaderModal') preloaderModal;
@@ -143,6 +144,7 @@ export class ResourcesComponent implements OnInit {
         (result: any) => {
           this.healthStatus = result.status;
           this.billingEnabled = result.billingEnabled;
+          this.  = result.admin;
           this.resourcesGrid.healthStatus = this.healthStatus;
           this.resourcesGrid.billingEnabled = this.billingEnabled;
 
