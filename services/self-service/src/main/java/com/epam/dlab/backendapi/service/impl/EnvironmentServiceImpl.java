@@ -21,12 +21,13 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvStatusDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.exceptions.ResourceConflictException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Inject
 	private ExploratoryService exploratoryService;
 	@Inject
+	private ComputationalService computationalService;
+	@Inject
 	private SystemUserInfoService systemUserInfoService;
 	@Inject
 	private KeyDAO keyDAO;
@@ -61,12 +64,47 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
+	public Set<String> getAllUsers() {
+		log.debug("Getting all users...");
+		return envStatusDAO.fetchAllUsers();
+	}
+
+	@Override
+	public void stopAll() {
+		log.debug("Stopping environment for all users...");
+		getAllUsers().forEach(this::stopEnvironment);
+	}
+
+	@Override
 	public void stopEnvironment(String user) {
 		log.debug("Stopping environment for user {}", user);
 		checkState(user, "stop");
 		exploratoryDAO.fetchRunningExploratoryFields(user)
 				.forEach(this::stopNotebook);
 		stopEdge(user);
+	}
+
+	@Override
+	public void stopEdge(String user) {
+		if (UserInstanceStatus.RUNNING.toString().equals(keyDAO.getEdgeStatus(user))) {
+			edgeService.stop(systemUserInfoService.create(user));
+		}
+	}
+
+	@Override
+	public void stopExploratory(String user, String exploratoryName) {
+		stopNotebook(exploratoryDAO.fetchExploratoryFields(user, exploratoryName));
+	}
+
+	@Override
+	public void stopComputational(String user, String exploratoryName, String computationalName) {
+		stopDataengine(user, exploratoryName, computationalName);
+	}
+
+	@Override
+	public void terminateAll() {
+		log.debug("Terminating environment for all users...");
+		getAllUsers().forEach(this::terminateEnvironment);
 	}
 
 	@Override
@@ -78,6 +116,16 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 					UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
 					.forEach(this::terminateNotebook);
 		}
+	}
+
+	@Override
+	public void terminateExploratory(String user, String exploratoryName) {
+		terminateNotebook(exploratoryDAO.fetchExploratoryFields(user, exploratoryName));
+	}
+
+	@Override
+	public void terminateComputational(String user, String exploratoryName, String computationalName) {
+		terminateCluster(user, exploratoryName, computationalName);
 	}
 
 	private void checkState(String user, String action) {
@@ -102,19 +150,23 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		return nodeExists;
 	}
 
-	private void stopEdge(String user) {
-		if (UserInstanceStatus.RUNNING.toString().equals(keyDAO.getEdgeStatus(user))) {
-			edgeService.stop(systemUserInfoService.create(user));
-		}
-	}
-
 	private void stopNotebook(UserInstanceDTO instance) {
 		final UserInfo userInfo = systemUserInfoService.create(instance.getUser());
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
+	private void stopDataengine(String user, String exploratoryName, String computationalName) {
+		final UserInfo userInfo = systemUserInfoService.create(user);
+		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
+	}
+
 	private void terminateNotebook(UserInstanceDTO instance) {
 		final UserInfo userInfo = systemUserInfoService.create(instance.getUser());
 		exploratoryService.terminate(userInfo, instance.getExploratoryName());
+	}
+
+	private void terminateCluster(String user, String exploratoryName, String computationalName) {
+		final UserInfo userInfo = systemUserInfoService.create(user);
+		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
 	}
 }
