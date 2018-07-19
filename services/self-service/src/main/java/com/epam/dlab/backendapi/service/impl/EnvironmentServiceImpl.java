@@ -98,7 +98,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	@Override
 	public void stopComputational(String user, String exploratoryName, String computationalName) {
-		stopSparkCluster(user, exploratoryName, computationalName);
+		stopDataengine(user, exploratoryName, computationalName);
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
-	private void stopSparkCluster(String user, String exploratoryName, String computationalName) {
+	private void stopDataengine(String user, String exploratoryName, String computationalName) {
 		final UserInfo userInfo = systemUserInfoService.create(user);
 		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
 	}
