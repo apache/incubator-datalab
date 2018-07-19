@@ -19,18 +19,22 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarModule } from './../shared';
+import { NavbarModule, ConfirmationDialogModule, BubbleModule, UploadKeyDialogModule } from './../shared';
 
 import { ManagementComponent } from './management.component';
+import { ManagementGridComponent } from './management-grid/management-grid.component';
 
 export * from './management.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    NavbarModule
+    NavbarModule,
+    ConfirmationDialogModule,
+    BubbleModule,
+    UploadKeyDialogModule
   ],
-  declarations: [ManagementComponent],
+  declarations: [ManagementComponent, ManagementGridComponent],
   exports: [ManagementComponent]
 })
 export class ManagenementModule { }
