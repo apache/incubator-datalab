@@ -370,7 +370,6 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-
   public buildManageEnvironment(action, data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
