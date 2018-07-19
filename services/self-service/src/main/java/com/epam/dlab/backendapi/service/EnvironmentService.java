@@ -16,6 +16,8 @@
 
 package com.epam.dlab.backendapi.service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface EnvironmentService {
@@ -23,6 +25,8 @@ public interface EnvironmentService {
 	Set<String> getAllUsers();
 
 	Set<String> getActiveUsers();
+
+	Map<String, List<Object>> getAllEnv();
 
 	void stopAll();
 

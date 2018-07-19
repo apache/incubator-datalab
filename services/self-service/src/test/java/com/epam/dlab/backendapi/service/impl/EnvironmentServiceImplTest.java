@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import org.junit.Rule;
@@ -36,10 +37,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -119,6 +117,28 @@ public class EnvironmentServiceImplTest {
 		expectedException.expectMessage("Users not found");
 
 		environmentService.getAllUsers();
+	}
+
+	@Test
+	public void getAllEnv() {
+		List<UserInstanceDTO> instances = getUserInstances();
+		when(exploratoryDAO.getInstances()).thenReturn(instances);
+		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		EdgeInfo edgeInfo = new EdgeInfo();
+		edgeInfo.setEdgeStatus("running");
+		edgeInfo.setInstanceId("someId");
+		when(keyDAO.getEdgeInfo(anyString())).thenReturn(edgeInfo);
+
+		Map<String, List<Object>> actualEnv = environmentService.getAllEnv();
+		assertTrue(actualEnv.containsKey(USER));
+		assertEquals(3, actualEnv.get(USER).size());
+		instances.forEach(instance -> assertTrue(actualEnv.get(USER).contains(instance)));
+		assertTrue(actualEnv.get(USER).contains(edgeInfo));
+
+		verify(exploratoryDAO).getInstances();
+		verify(envStatusDAO).fetchAllUsers();
+		verify(keyDAO).getEdgeInfo(USER);
+		verifyNoMoreInteractions(exploratoryDAO, envStatusDAO, keyDAO);
 	}
 
 	@Test
