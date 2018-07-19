@@ -48,14 +48,6 @@ public class EnvironmentResource {
 		return Response.ok(environmentService.getActiveUsers()).build();
 	}
 
-	@GET
-	@Path("user/all")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAllUsers(@Auth UserInfo userInfo) {
-		log.debug("Admin {} requested information about all users", userInfo.getName());
-		return Response.ok(environmentService.getAllUsers()).build();
-	}
-
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -124,8 +116,8 @@ public class EnvironmentResource {
 	public Response stopCluster(@Auth UserInfo userInfo, @NotEmpty String user,
 								@PathParam("exploratoryName") String exploratoryName,
 								@PathParam("computationalName") String computationalName) {
-		log.info("Admin {} is stopping Spark cluster {} affiliated with exploratory {} of user {}", userInfo.getName(),
-				computationalName, exploratoryName, user);
+		log.info("Admin {} is stopping computational resource {} affiliated with exploratory {} of user {}",
+				userInfo.getName(), computationalName, exploratoryName, user);
 		environmentService.stopComputational(user, exploratoryName, computationalName);
 		return Response.ok().build();
 	}
