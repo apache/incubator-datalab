@@ -85,6 +85,38 @@ public class EnvironmentResourceTest extends TestBase {
 	}
 
 	@Test
+	public void getAllEnv() {
+		when(environmentService.getAllEnv()).thenReturn(Collections.emptyMap());
+		final Response response = resources.getJerseyTest()
+				.target("/environment/all")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(environmentService).getAllEnv();
+		verifyNoMoreInteractions(environmentService);
+	}
+
+	@Test
+	public void getAllEnvWithFailedAuth() throws AuthenticationException {
+		authFailSetup();
+		when(environmentService.getAllEnv()).thenReturn(Collections.emptyMap());
+		final Response response = resources.getJerseyTest()
+				.target("/environment/all")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verifyZeroInteractions(environmentService);
+	}
+
+	@Test
 	public void terminateEnv() {
 		doNothing().when(environmentService).terminateEnvironment(anyString());
 		final Response response = resources.getJerseyTest()

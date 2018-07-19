@@ -48,6 +48,14 @@ public class EnvironmentResource {
 		return Response.ok(environmentService.getActiveUsers()).build();
 	}
 
+	@GET
+	@Path("all")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAllEnv(@Auth UserInfo userInfo) {
+		log.debug("Admin {} requested information about all user's environment", userInfo.getName());
+		return Response.ok(environmentService.getAllEnv()).build();
+	}
+
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)

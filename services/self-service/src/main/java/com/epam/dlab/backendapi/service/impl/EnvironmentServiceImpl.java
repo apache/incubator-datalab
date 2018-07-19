@@ -32,9 +32,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Singleton
 @Slf4j
@@ -67,6 +67,14 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public Set<String> getAllUsers() {
 		log.debug("Getting all users...");
 		return envStatusDAO.fetchAllUsers();
+	}
+
+	@Override
+	public Map<String, List<Object>> getAllEnv() {
+		log.debug("Getting all user's environment...");
+		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
+		return getAllUsers().stream().collect(Collectors.toMap(Function.identity(), user -> getUserEnv(user,
+				expList)));
 	}
 
 	@Override
@@ -168,5 +176,13 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private void terminateCluster(String user, String exploratoryName, String computationalName) {
 		final UserInfo userInfo = systemUserInfoService.create(user);
 		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+	}
+
+	private List<Object> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
+		List<Object> envList = new ArrayList<>();
+		envList.add(keyDAO.getEdgeInfo(user));
+		envList.addAll(allInstances.stream().filter(instance -> instance.getUser().equals(user))
+				.collect(Collectors.toList()));
+		return envList;
 	}
 }
