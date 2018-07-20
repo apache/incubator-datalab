@@ -205,7 +205,17 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the info of exploratory.
+	 * Finds and returns the info about all exploratories in database.
+	 **/
+	public List<UserInstanceDTO> getInstances() {
+		return stream(getCollection(USER_INSTANCES)
+				.find())
+				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Finds and returns the info of exploratory (without info about computational resources).
 	 *
 	 * @param user            user name.
 	 * @param exploratoryName the name of exploratory.
