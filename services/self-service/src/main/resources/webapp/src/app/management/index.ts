@@ -20,9 +20,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarModule, ConfirmationDialogModule, BubbleModule, UploadKeyDialogModule } from './../shared';
+import { MaterialModule } from './../shared/material.module';
 
 import { ManagementComponent } from './management.component';
-import { ManagementGridComponent } from './management-grid/management-grid.component';
+import { ManagementGridComponent, ConfirmationDialog } from './management-grid/management-grid.component';
+import { ComputationalResourcesModule } from '../resources/computational/computational-resources-list';
 
 export * from './management.component';
 
@@ -31,10 +33,13 @@ export * from './management.component';
     CommonModule,
     NavbarModule,
     ConfirmationDialogModule,
+    ComputationalResourcesModule,
     BubbleModule,
+    MaterialModule,
     UploadKeyDialogModule
   ],
-  declarations: [ManagementComponent, ManagementGridComponent],
+  declarations: [ManagementComponent, ManagementGridComponent, ConfirmationDialog],
+  entryComponents: [ConfirmationDialog],
   exports: [ManagementComponent]
 })
 export class ManagenementModule { }

@@ -18,6 +18,7 @@ limitations under the License.
 
 import { Component, OnInit } from '@angular/core';
 import { HealthStatusService, ManageEnvironmentsService }  from './../core/services';
+import { EnvironmentModel }  from './management.model';
 
 @Component({
   selector: 'environments-management',
@@ -29,17 +30,46 @@ export class ManagementComponent implements OnInit {
   public billingEnabled: boolean;
   public admin: boolean;
 
+  public allEnvironmentData: Array<any>;
+
   constructor(
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService
   ) { }
 
   ngOnInit() {
+    this.buildGrid();
+  }
+  
+  public buildGrid() {
     this.getEnvironmentHealthStatus();
+    this.getAllEnvironmentData();
   }
 
-  public buildGrid() {
-    debugger;
+  private getAllEnvironmentData() {
+    this.manageEnvironmentsService.getAllEnvironmentData().subscribe(
+      (result: any) => {
+        console.log(result);
+        this.allEnvironmentData = this.loadEnvironmentList(result['vira_vitanska@epam.com']);
+
+        console.log(this.allEnvironmentData);
+        
+      }
+    )
+  }
+
+  private loadEnvironmentList(data): Array<EnvironmentModel> {
+    // this.checkUserAccessKey();
+
+    if (data)
+      return data.map(value => {
+        return new EnvironmentModel(
+          value.exploratory_name,
+          value.status,
+          value.shape,
+          value.computational_resources,
+          value.user)
+      });
   }
 
   private getEnvironmentHealthStatus() {
