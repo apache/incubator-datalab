@@ -18,14 +18,48 @@ limitations under the License.
 
 <table class="dashboard_table">
   <tr>
-    <th class="th_name">Type</th>
+    <th>User</th>
+    <th class="th_name">Name</th>
     <th class="th_status">Status</th>
     <th>Shape</th>
     <th>Computational resources</th>
-    <th>User</th>
     <th class="th_actions">Action</th>
   </tr>
 
+  <tr *ngFor="let env of allEnvironmentData">
+    <td>{{ env.user }}</td>
+    <td>{{ env.name }}</td>
+    <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
+    <td>{{ env.shape }}</td>
+    <td>
+      <div class="source" *ngIf="env.resources">
+        <div *ngIf="!env.resources?.length">
+          <span *ngIf="!env.resources.length" class="no-details">no details</span>
+        </div>
+        <div *ngIf="env.resources?.length">
+          <div *ngFor="let resource of env.resources" class="resource-wrap">
+            <div class="resource-name">
+              <a class="detailed-link">
+                {{ resource.computational_name }}
+              </a>
+            </div>
+            <span ngClass="{{resource.status.toLowerCase() || ''}}" class="resource-status">{{ resource.status }}</span>
+            <div class="resource-actions">
+              <a class="start-stop-action">
+                <i class="material-icons" (click)="toggleResourceAction(env, resource, 'stop')">pause_circle_outline</i>
+              </a>
+
+              <a class="remove_butt" (click)="toggleResourceAction(env, resource, 'terminate')">
+                <i class="material-icons">highlight_off</i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+    <td class="settings">
+      <span #settings class="actions"></span>
+
+    </td>
+  </tr>
 </table>
-
-

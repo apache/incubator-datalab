@@ -16,18 +16,22 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
 
 import { HealthStatusService, UserAccessKeyService } from '../../core/services';
-import { ConfirmationDialogType } from '../../shared';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'management-grid',
   templateUrl: 'management-grid.component.html',
   styleUrls: ['./management-grid.component.scss',
-              '../../resources/resources-grid/resources-grid.component.css']
+              '../../resources/resources-grid/resources-grid.component.css',
+              '../../resources/computational/computational-resources-list/computational-resources-list.component.scss']
 })
 export class ManagementGridComponent implements OnInit {
+
+   @Input() allEnvironmentData: Array<any>;
+   @Input() resources: Array<any>;
    @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
 
    @ViewChild('confirmationDialog') confirmationDialog;
@@ -35,15 +39,46 @@ export class ManagementGridComponent implements OnInit {
    
 
     constructor(
-      private healthStatusService: HealthStatusService,
-      private userAccessKeyService: UserAccessKeyService,
+      public dialog: MatDialog
     ) { }
 
-    ngOnInit(): void {
-      this.buildGrid();
-    }
+    ngOnInit(): void { }
     
     buildGrid(): void {
       this.refreshGrid.emit();
     }
+
+    toggleResourceAction(environment, resource, action) {
+      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource}, width: '550px' });
+      dialogRef.afterClosed().subscribe(result => {
+        console.log(environment, result);
+      });
+    }
+}
+
+@Component({
+  selector: 'confirmation-dialog',
+  template: `
+  <div mat-dialog-content class="content">
+
+    <p>Computational resource <strong> {{ data.resource.computational_name }}</strong> will be 
+      <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
+      <span *ngIf="data.action === 'stop'">stopped.</span>
+    </p>
+    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+  </div>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+    <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
+  </div>
+  `,
+  styles: [`
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+  `]
+})
+export class ConfirmationDialog {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmationDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 }
