@@ -24,8 +24,20 @@ import { ApplicationServiceFacade } from './';
 
 @Injectable()
 export class ManageEnvironmentsService {
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
-
-  
+  getAllEnvironmentData(): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildGetAllEnvironmentData()
+      .map(response => response.json())
+      .catch((error: any) => {
+        return Observable.throw(
+          new Error(
+            `{"status": "${error.status}", "statusText": "${error.statusText}", "message": "${
+              error._body
+            }"}`
+          )
+        );
+      });
+  }
 }
