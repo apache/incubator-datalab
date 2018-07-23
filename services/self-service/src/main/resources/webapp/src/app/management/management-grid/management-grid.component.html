@@ -46,10 +46,10 @@ limitations under the License.
             <span ngClass="{{resource.status.toLowerCase() || ''}}" class="resource-status">{{ resource.status }}</span>
             <div class="resource-actions">
               <a class="start-stop-action">
-                <i class="material-icons" (click)="toggleResourceAction(env, resource, 'stop')">pause_circle_outline</i>
+                <i class="material-icons" (click)="toggleResourceAction(env, 'stop', resource)">pause_circle_outline</i>
               </a>
 
-              <a class="remove_butt" (click)="toggleResourceAction(env, resource, 'terminate')">
+              <a class="remove_butt" (click)="toggleResourceAction(env, 'terminate', resource)">
                 <i class="material-icons">highlight_off</i>
               </a>
             </div>
@@ -59,7 +59,18 @@ limitations under the License.
     </td>
     <td class="settings">
       <span #settings class="actions" (click)="actions.toggle($event, settings)"></span>
-      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left"></bubble-up>
+      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+        <ul class="list-unstyled">
+          <li (click)="toggleResourceAction(env, 'stop')">
+            <i class="material-icons">pause_circle_outline</i>
+            <span>Stop</span>
+          </li>
+          <li (click)="toggleResourceAction(env, 'terminate')">
+            <i class="material-icons">phonelink_off</i>
+            <span>Terminate</span>
+          </li>
+        </ul>
+      </bubble-up>
     </td>
   </tr>
 

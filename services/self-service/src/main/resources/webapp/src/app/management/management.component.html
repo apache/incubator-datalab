@@ -23,4 +23,4 @@ limitations under the License.
     </button>
 </div>
 
-<management-grid (refreshGrid)="buildGrid($event)" [allEnvironmentData]="allEnvironmentData"></management-grid>
+<management-grid (refreshGrid)="buildGrid($event)" (actionToggle)="manageEnvironmentAction($event)" [allEnvironmentData]="allEnvironmentData"></management-grid>

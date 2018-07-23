@@ -30,7 +30,7 @@ export class ManagementComponent implements OnInit {
   public billingEnabled: boolean;
   public admin: boolean;
 
-  public allEnvironmentData: Array<any>;
+  public allEnvironmentData: Array<EnvironmentModel>;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -58,7 +58,6 @@ export class ManagementComponent implements OnInit {
 
   private loadEnvironmentList(data): Array<EnvironmentModel> {
     // this.checkUserAccessKey();
-
     if (data)
       return data.map(value => {
         return new EnvironmentModel(
@@ -78,6 +77,16 @@ export class ManagementComponent implements OnInit {
         this.admin = result.admin;
 
         // this.checkUserAccessKey();
+      });
+  }
+
+  manageEnvironmentAction($event) {
+    console.log($event);
+    
+    this.manageEnvironmentsService
+      .environmentManagement($event.environment.user, $event.action, $event.environment.name, $event.resource.computational_name)
+      .subscribe(res => {
+        debugger;
       });
   }
 }

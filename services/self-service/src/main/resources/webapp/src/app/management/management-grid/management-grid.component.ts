@@ -21,6 +21,12 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } fro
 import { HealthStatusService, UserAccessKeyService } from '../../core/services';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
+export interface ManageAction {
+  action: string;
+  environment: string;
+  resource: string;
+}
+
 @Component({
   selector: 'management-grid',
   templateUrl: 'management-grid.component.html',
@@ -33,14 +39,13 @@ export class ManagementGridComponent implements OnInit {
    @Input() allEnvironmentData: Array<any>;
    @Input() resources: Array<any>;
    @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
+   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
    @ViewChild('confirmationDialog') confirmationDialog;
    @ViewChild('keyReuploadDialog') keyReuploadDialog;
    
 
-    constructor(
-      public dialog: MatDialog
-    ) { }
+    constructor(public dialog: MatDialog) { }
 
     ngOnInit(): void { }
     
@@ -48,12 +53,12 @@ export class ManagementGridComponent implements OnInit {
       this.refreshGrid.emit();
     }
 
-    toggleResourceAction(environment, resource, action) {
-      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource}, width: '550px' });
-      dialogRef.afterClosed().subscribe(result => {
-        console.log(environment, result);
-      });
-    }
+    toggleResourceAction(environment, action, resource?) {
+        const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource}, width: '550px' });
+        dialogRef.afterClosed().subscribe(result => {
+            this.actionToggle.emit({action, environment, resource});
+        });
+      }
 }
 
 @Component({
