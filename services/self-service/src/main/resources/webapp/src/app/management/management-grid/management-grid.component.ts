@@ -43,20 +43,20 @@ export class ManagementGridComponent implements OnInit {
 
    @ViewChild('confirmationDialog') confirmationDialog;
    @ViewChild('keyReuploadDialog') keyReuploadDialog;
-   
 
     constructor(public dialog: MatDialog) { }
 
     ngOnInit(): void { }
-    
+
     buildGrid(): void {
       this.refreshGrid.emit();
     }
 
     toggleResourceAction(environment, action, resource?) {
-        const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource}, width: '550px' });
+      let resource_name = resource ? resource.computational_name : environment.name;
+        const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource_name, user: environment.user}, width: '550px' });
         dialogRef.afterClosed().subscribe(result => {
-            this.actionToggle.emit({action, environment, resource});
+          result && this.actionToggle.emit({action, environment, resource});
         });
       }
 }
@@ -66,7 +66,7 @@ export class ManagementGridComponent implements OnInit {
   template: `
   <div mat-dialog-content class="content">
 
-    <p>Computational resource <strong> {{ data.resource.computational_name }}</strong> will be 
+    <p>Resource <strong> {{ data.resource }}</strong> of user <strong> {{ data.user }} </strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>

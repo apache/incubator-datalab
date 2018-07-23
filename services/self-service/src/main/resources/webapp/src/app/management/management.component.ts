@@ -84,7 +84,7 @@ export class ManagementComponent implements OnInit {
     console.log($event);
     
     this.manageEnvironmentsService
-      .environmentManagement($event.environment.user, $event.action, $event.environment.name, $event.resource.computational_name)
+      .environmentManagement($event.environment.user, $event.action, $event.environment.name === 'EDGE_NODE' ? 'edge' : $event.environment.name, $event.resource ? $event.resource.computational_name : null)
       .subscribe(res => {
         debugger;
       });

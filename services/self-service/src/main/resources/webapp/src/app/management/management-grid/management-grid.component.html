@@ -45,11 +45,13 @@ limitations under the License.
             </div>
             <span ngClass="{{resource.status.toLowerCase() || ''}}" class="resource-status">{{ resource.status }}</span>
             <div class="resource-actions">
-              <a class="start-stop-action">
-                <i class="material-icons" (click)="toggleResourceAction(env, 'stop', resource)">pause_circle_outline</i>
+              <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine' && env.status === 'running'">
+                <i class="material-icons" (click)="toggleResourceAction(env, 'stop', resource)"
+                [ngClass]="{'not-allowed' : resource.status !== 'running'}">pause_circle_outline</i>
               </a>
 
-              <a class="remove_butt" (click)="toggleResourceAction(env, 'terminate', resource)">
+              <a class="remove_butt" (click)="toggleResourceAction(env, 'terminate', resource)"
+                [ngClass]="{'disabled' : env.status === 'terminated' || env.status === 'failled' }">
                 <i class="material-icons">highlight_off</i>
               </a>
             </div>
@@ -61,11 +63,24 @@ limitations under the License.
       <span #settings class="actions" (click)="actions.toggle($event, settings)"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
-          <li (click)="toggleResourceAction(env, 'stop')">
+          <li (click)="toggleResourceAction(env, 'stop')" *ngIf="env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'starting' && env.status !== 'creating_image'">
             <i class="material-icons">pause_circle_outline</i>
             <span>Stop</span>
           </li>
-          <li (click)="toggleResourceAction(env, 'terminate')">
+
+
+          <!-- <li *ngIf="env.status.toLowerCase() === 'running' || env.status.toLowerCase() === 'stopped'"
+              matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+              matTooltipPosition="above"
+              [matTooltipDisabled]="!isResourcesInProgress(env)">
+            <div (click)="exploratoryAction(env, 'terminate')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+              <i class="material-icons">phonelink_off</i>
+              <span>Terminate</span>
+            </div>
+          </li> -->
+
+
+          <li (click)="toggleResourceAction(env, 'terminate')" *ngIf="env.status.toLowerCase() === 'running' || env.status.toLowerCase() === 'stopped'">
             <i class="material-icons">phonelink_off</i>
             <span>Terminate</span>
           </li>
