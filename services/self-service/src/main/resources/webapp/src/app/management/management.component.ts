@@ -49,11 +49,9 @@ export class ManagementComponent implements OnInit {
   private getAllEnvironmentData() {
     this.manageEnvironmentsService.getAllEnvironmentData().subscribe(
       (result: any) => {
-        console.log(result);
-        this.allEnvironmentData = this.loadEnvironmentList(result['vira_vitanska@epam.com']);
+        this.allEnvironmentData = this.loadEnvironmentList(result);
 
         console.log(this.allEnvironmentData);
-        
       }
     )
   }
@@ -64,7 +62,7 @@ export class ManagementComponent implements OnInit {
     if (data)
       return data.map(value => {
         return new EnvironmentModel(
-          value.exploratory_name,
+          value.resource_name || value.resource_type,
           value.status,
           value.shape,
           value.computational_resources,
