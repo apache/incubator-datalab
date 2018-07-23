@@ -369,7 +369,7 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
       null,
       this.getRequestOptions(true, true));
-  }
+    }
 
   public buildManageEnvironment(action, data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
@@ -383,6 +383,13 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.FULL_ACTIVE_LIST),
       null,
       this.getRequestOptions(true, true));
+    }
+
+  public buildEnvironmentManagement(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENV) + param,
+      data,
+      this.getRequestOptions(false, true));
   }
 
   private setupRegistry(): void {

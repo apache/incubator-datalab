@@ -40,4 +40,20 @@ export class ManageEnvironmentsService {
         );
       });
   }
+
+  environmentManagement(data, action: string, resource: string, computational?: string): Observable<{} | Response> {
+    const params = computational ? `/${action}/${resource}/${computational}` : `/${action}/${resource}`;
+    return this.applicationServiceFacade
+      .buildEnvironmentManagement(params, data)
+      .map((response: Response) => response)
+      .catch((error: any) => {
+        return Observable.throw(
+          new Error(
+            `{"status": "${error.status}", "statusText": "${error.statusText}", "message": "${
+              error._body
+            }"}`
+          )
+        );
+      });
+  }
 }
