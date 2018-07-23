@@ -69,30 +69,10 @@ public class EnvironmentResource {
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("all/terminate")
-	public Response terminateAll(@Auth UserInfo userInfo) {
-		log.info("Admin {} is terminating all user's environment", userInfo.getName());
-		environmentService.terminateAll();
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
 	@Path("stop")
 	public Response stopEnv(@Auth UserInfo userInfo, @NotEmpty String user) {
 		log.info("User {} is stopping {} environment", userInfo.getName(), user);
 		environmentService.stopEnvironment(user);
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("all/stop")
-	public Response stopAll(@Auth UserInfo userInfo) {
-		log.info("Admin {} is stopping all user's environment", userInfo.getName());
-		environmentService.stopAll();
 		return Response.ok().build();
 	}
 

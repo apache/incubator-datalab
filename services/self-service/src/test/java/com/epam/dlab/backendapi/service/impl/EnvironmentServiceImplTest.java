@@ -21,6 +21,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvStatusDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
@@ -29,6 +30,7 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
+import com.epam.dlab.model.ResourceEnum;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,7 +39,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -124,16 +129,29 @@ public class EnvironmentServiceImplTest {
 		List<UserInstanceDTO> instances = getUserInstances();
 		when(exploratoryDAO.getInstances()).thenReturn(instances);
 		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+
 		EdgeInfo edgeInfo = new EdgeInfo();
 		edgeInfo.setEdgeStatus("running");
 		edgeInfo.setInstanceId("someId");
 		when(keyDAO.getEdgeInfo(anyString())).thenReturn(edgeInfo);
 
-		Map<String, List<Object>> actualEnv = environmentService.getAllEnv();
-		assertTrue(actualEnv.containsKey(USER));
-		assertEquals(3, actualEnv.get(USER).size());
-		instances.forEach(instance -> assertTrue(actualEnv.get(USER).contains(instance)));
-		assertTrue(actualEnv.get(USER).contains(edgeInfo));
+		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
+				.withResourceStatus(UserInstanceStatus.of(edgeInfo.getEdgeStatus())).withUser(USER);
+
+		UserResourceInfo notebook1 = new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
+				.withResourceName(instances.get(0).getExploratoryName())
+				.withResourceStatus(UserInstanceStatus.of(instances.get(0).getStatus())).withUser(instances.get(0)
+						.getUser());
+		UserResourceInfo notebook2 = new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
+				.withResourceName(instances.get(1).getExploratoryName())
+				.withResourceStatus(UserInstanceStatus.of(instances.get(1).getStatus())).withUser(instances.get(1)
+						.getUser());
+
+		List<UserResourceInfo> resources = Arrays.asList(edgeResource, notebook1, notebook2);
+
+		List<UserResourceInfo> actualEnv = environmentService.getAllEnv();
+		assertEquals(3, actualEnv.size());
+		resources.forEach(resource -> assertTrue(actualEnv.contains(resource)));
 
 		verify(exploratoryDAO).getInstances();
 		verify(envStatusDAO).fetchAllUsers();
@@ -306,16 +324,14 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void stopExploratory() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(getUserInstances().get(0));
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 
 		environmentService.stopExploratory(USER, EXPLORATORY_NAME_1);
 
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME_1);
 		verify(systemUserInfoService).create(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verifyNoMoreInteractions(exploratoryDAO, systemUserInfoService, exploratoryService);
+		verifyNoMoreInteractions(systemUserInfoService, exploratoryService);
 	}
 
 	@Test
@@ -484,16 +500,14 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void terminateExploratory() {
 		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(getUserInstances().get(0));
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
 
 		environmentService.terminateExploratory(USER, EXPLORATORY_NAME_1);
 
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME_1);
 		verify(systemUserInfoService).create(USER);
 		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verifyNoMoreInteractions(exploratoryDAO, systemUserInfoService, exploratoryService);
+		verifyNoMoreInteractions(systemUserInfoService, exploratoryService);
 	}
 
 	@Test

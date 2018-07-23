@@ -21,20 +21,26 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvStatusDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.ResourceConflictException;
+import com.epam.dlab.model.ResourceEnum;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Singleton
 @Slf4j
@@ -70,11 +76,11 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
-	public Map<String, List<Object>> getAllEnv() {
+	public List<UserResourceInfo> getAllEnv() {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-		return getAllUsers().stream().collect(Collectors.toMap(Function.identity(), user -> getUserEnv(user,
-				expList)));
+		return getAllUsers().stream().map(user -> getUserEnv(user, expList)).flatMap(Collection::stream)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -101,7 +107,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	@Override
 	public void stopExploratory(String user, String exploratoryName) {
-		stopNotebook(exploratoryDAO.fetchExploratoryFields(user, exploratoryName));
+		stopNotebook(new UserInstanceDTO().withUser(user).withExploratoryName(exploratoryName));
 	}
 
 	@Override
@@ -128,7 +134,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	@Override
 	public void terminateExploratory(String user, String exploratoryName) {
-		terminateNotebook(exploratoryDAO.fetchExploratoryFields(user, exploratoryName));
+		terminateNotebook(new UserInstanceDTO().withUser(user).withExploratoryName(exploratoryName));
 	}
 
 	@Override
@@ -149,15 +155,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		}
 	}
 
-	private boolean terminateEdge(String user) {
-		final boolean nodeExists = keyDAO.edgeNodeExist(user);
-		if (nodeExists) {
-			edgeService.terminate(systemUserInfoService.create(user));
-			exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATING);
-		}
-		return nodeExists;
-	}
-
 	private void stopNotebook(UserInstanceDTO instance) {
 		final UserInfo userInfo = systemUserInfoService.create(instance.getUser());
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
@@ -166,6 +163,15 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private void stopDataengine(String user, String exploratoryName, String computationalName) {
 		final UserInfo userInfo = systemUserInfoService.create(user);
 		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
+	}
+
+	private boolean terminateEdge(String user) {
+		final boolean nodeExists = keyDAO.edgeNodeExist(user);
+		if (nodeExists) {
+			edgeService.terminate(systemUserInfoService.create(user));
+			exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATING);
+		}
+		return nodeExists;
 	}
 
 	private void terminateNotebook(UserInstanceDTO instance) {
@@ -178,11 +184,21 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
 	}
 
-	private List<Object> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
-		List<Object> envList = new ArrayList<>();
-		envList.add(keyDAO.getEdgeInfo(user));
-		envList.addAll(allInstances.stream().filter(instance -> instance.getUser().equals(user))
-				.collect(Collectors.toList()));
-		return envList;
+	private List<UserResourceInfo> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
+		EdgeInfo edgeInfo = keyDAO.getEdgeInfo(user);
+		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
+				.withResourceStatus(UserInstanceStatus.of(edgeInfo.getEdgeStatus()))
+				.withUser(user);
+		return Stream.concat(Stream.of(edgeResource), allInstances.stream()
+				.filter(instance -> instance.getUser().equals(user)).map(this::toUserResourceInfo))
+				.collect(Collectors.toList());
+	}
+
+	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {
+		return new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
+				.withResourceName(userInstance.getExploratoryName())
+				.withResourceStatus(UserInstanceStatus.of(userInstance.getStatus()))
+				.withCompResources(userInstance.getResources())
+				.withUser(userInstance.getUser());
 	}
 }
