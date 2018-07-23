@@ -20,68 +20,86 @@ import com.epam.dlab.dto.ResourceEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-abstract public class ComputationalBase<T extends ComputationalBase<?>> extends ResourceEnvBaseDTO<T> {
-    @SuppressWarnings("unchecked")
-    private final T self = (T) this;
+import java.util.Map;
 
-    @JsonProperty("computational_name")
-    private String computationalName;
+public abstract class ComputationalBase<T extends ComputationalBase<?>> extends ResourceEnvBaseDTO<T> {
+	@SuppressWarnings("unchecked")
+	private final T self = (T) this;
 
-    @JsonProperty("notebook_instance_name")
-    private String notebookInstanceName;
+	@JsonProperty("computational_name")
+	private String computationalName;
 
-    @JsonProperty("notebook_template_name")
-    private String notebookTemplateName;
+	@JsonProperty("notebook_instance_name")
+	private String notebookInstanceName;
 
-    public String getComputationalName() {
-        return computationalName;
-    }
+	@JsonProperty("notebook_template_name")
+	private String notebookTemplateName;
 
-    public void setComputationalName(String computationalName) {
-        this.computationalName = computationalName;
-    }
+	@JsonProperty
+	private Map<String, Object> config;
 
-    public T withComputationalName(String computationalName) {
-        setComputationalName(computationalName);
-        return self;
-    }
+	public Map<String, Object> getConfig() {
+		return config;
+	}
 
-    public String getNotebookInstanceName() {
-        return notebookInstanceName;
-    }
+	public void setConfig(Map<String, Object> config) {
+		this.config = config;
+	}
 
-    public void setNotebookInstanceName(String notebookInstanceName) {
-        this.notebookInstanceName = notebookInstanceName;
-    }
+	public String getComputationalName() {
+		return computationalName;
+	}
 
-    public T withNotebookInstanceName(String notebookInstanceName) {
-        setNotebookInstanceName(notebookInstanceName);
-        return self;
-    }
+	public void setComputationalName(String computationalName) {
+		this.computationalName = computationalName;
+	}
 
-    public String getNotebookTemplateName() {
-        return notebookTemplateName;
-    }
+	public T withComputationalName(String computationalName) {
+		setComputationalName(computationalName);
+		return self;
+	}
 
-    public void setNotebookTemplateName(String notebookTemplateName) {
-        this.notebookTemplateName = notebookTemplateName;
-    }
+	public String getNotebookInstanceName() {
+		return notebookInstanceName;
+	}
 
-    public T withNotebookTemplateName(String notebookTemplateName) {
-        setNotebookTemplateName(notebookTemplateName);
-        return self;
-    }
+	public void setNotebookInstanceName(String notebookInstanceName) {
+		this.notebookInstanceName = notebookInstanceName;
+	}
 
-    @Override
-    public ToStringHelper toStringHelper(Object self) {
-        return super.toStringHelper(self)
-                .add("computationalName", computationalName)
-                .add("notebookInstanceName", notebookInstanceName)
-                .add("notebookTemplateName", notebookTemplateName);
-    }
+	public T withNotebookInstanceName(String notebookInstanceName) {
+		setNotebookInstanceName(notebookInstanceName);
+		return self;
+	}
 
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
-    }
+	public String getNotebookTemplateName() {
+		return notebookTemplateName;
+	}
+
+	public void setNotebookTemplateName(String notebookTemplateName) {
+		this.notebookTemplateName = notebookTemplateName;
+	}
+
+	public T withNotebookTemplateName(String notebookTemplateName) {
+		setNotebookTemplateName(notebookTemplateName);
+		return self;
+	}
+
+	public T withConfig(Map<String, Object> config) {
+		setConfig(config);
+		return self;
+	}
+
+	@Override
+	public ToStringHelper toStringHelper(Object self) {
+		return super.toStringHelper(self)
+				.add("computationalName", computationalName)
+				.add("notebookInstanceName", notebookInstanceName)
+				.add("notebookTemplateName", notebookTemplateName);
+	}
+
+	@Override
+	public String toString() {
+		return toStringHelper(this).toString();
+	}
 }

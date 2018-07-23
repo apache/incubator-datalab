@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -57,9 +58,9 @@ public class GcpComputationalResource extends UserComputationalResource {
 									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
 									String masterNumber, String preemptibleNumber, String version,
-									List<ResourceURL> resourceURL) {
+									List<ResourceURL> resourceURL, Map<String, Object> config) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL);
+				reuploadKeyRequired, resourceURL, config);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;
