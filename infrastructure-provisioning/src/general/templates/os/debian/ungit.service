@@ -3,7 +3,7 @@ Description=ungit
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/ungit --port=8085 --no-b
+ExecStart=/usr/bin/ungit --port=8085 --no-b --ungitBindIp=0.0.0.0
 User=OS_USR
 Group=OS_USR
 WorkingDirectory=/home/OS_USR/
