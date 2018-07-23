@@ -259,8 +259,8 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     jupyter_ip_url = "http://" + ip_address + ":8888/"
     jupyter_dns_url = "http://" + dns_name + ":8888/"
-    jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
-    jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
+    jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}".format(notebook_config['exploratory_name'])
+    jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/"
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -277,8 +277,8 @@ if __name__ == "__main__":
     print("Jupyter URL: {}".format(jupyter_ip_url))
     print("Jupyter URL: {}".format(jupyter_dns_url))
     print("Ungit URL: {}".format(ungit_ip_url))
-    print("ReverseProxyNotebook {}".format(jupyter_notebook_acces_url))
-    print("ReverseProxyUngit {}".format(jupyter_ungit_acces_url))
+    print("ReverseProxyNotebook".format(jupyter_notebook_acces_url))
+    print("ReverseProxyUngit".format(jupyter_ungit_acces_url))
     print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
           format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
     print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.

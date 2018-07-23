@@ -54,11 +54,12 @@ if __name__ == "__main__":
     try:
         edge_ip = args.hostname
         nginx_version = os.environ['reverse_proxy_nginx_version']
-        ldap_ip = os.environ['reverse_proxy_ldap_host']
-        ldap_dn = os.environ['reverse_proxy_ldap_dn']
-        ldap_user_pass = os.environ['ldap_pass']
-        ldap_user = os.environ['reverse_proxy_ldap_user']
-        install_nginx_ldap(edge_ip ,nginx_version, ldap_ip, ldap_dn, ldap_user_pass, ldap_user)
+
+        ldap_hostname = os.environ['ldap_host']
+        ldap_dn = os.environ['ldap_dn']
+        ldap_user_pass = os.environ['ldap_admin_password']
+        ldap_user = os.environ['ldap_user']
+        install_nginx_ldap(edge_ip, nginx_version, ldap_hostname, ldap_dn, ldap_user_pass, ldap_user)
     except Exception as err:
         print("Failed install nginx: " + str(err))
         sys.exit(1)
