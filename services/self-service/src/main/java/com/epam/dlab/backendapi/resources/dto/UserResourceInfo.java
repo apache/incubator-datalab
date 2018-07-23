@@ -17,7 +17,6 @@
  */
 package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.model.ResourceEnum;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -37,8 +36,11 @@ public class UserResourceInfo {
 	@JsonProperty("resource_name")
 	private String resourceName;
 
+	@JsonProperty("shape")
+	private String resourceShape;
+
 	@JsonProperty("status")
-	private UserInstanceStatus resourceStatus;
+	private String resourceStatus;
 
 	@JsonProperty("computational_resources")
 	private List<UserComputationalResource> computationalResources = Collections.emptyList();
@@ -57,7 +59,12 @@ public class UserResourceInfo {
 		return this;
 	}
 
-	public UserResourceInfo withResourceStatus(UserInstanceStatus resourceStatus) {
+	public UserResourceInfo withResourceShape(String resourceShape) {
+		setResourceShape(resourceShape);
+		return this;
+	}
+
+	public UserResourceInfo withResourceStatus(String resourceStatus) {
 		setResourceStatus(resourceStatus);
 		return this;
 	}
