@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -153,6 +154,10 @@ public class ModuleData {
 				.find(or(fileWithExactNameCondition, filePerBillingPeriodCondition))
 				.limit(1);
 		return documents.iterator().hasNext();
+	}
+
+	public void closeMongoConnection() throws IOException {
+		connection.close();
 	}
 
 
