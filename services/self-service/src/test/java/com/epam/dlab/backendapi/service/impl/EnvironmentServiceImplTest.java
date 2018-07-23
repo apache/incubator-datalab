@@ -136,15 +136,15 @@ public class EnvironmentServiceImplTest {
 		when(keyDAO.getEdgeInfo(anyString())).thenReturn(edgeInfo);
 
 		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-				.withResourceStatus(UserInstanceStatus.of(edgeInfo.getEdgeStatus())).withUser(USER);
+				.withResourceStatus(edgeInfo.getEdgeStatus()).withUser(USER);
 
 		UserResourceInfo notebook1 = new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
 				.withResourceName(instances.get(0).getExploratoryName())
-				.withResourceStatus(UserInstanceStatus.of(instances.get(0).getStatus())).withUser(instances.get(0)
+				.withResourceStatus(instances.get(0).getStatus()).withUser(instances.get(0)
 						.getUser());
 		UserResourceInfo notebook2 = new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
 				.withResourceName(instances.get(1).getExploratoryName())
-				.withResourceStatus(UserInstanceStatus.of(instances.get(1).getStatus())).withUser(instances.get(1)
+				.withResourceStatus(instances.get(1).getStatus()).withUser(instances.get(1)
 						.getUser());
 
 		List<UserResourceInfo> resources = Arrays.asList(edgeResource, notebook1, notebook2);

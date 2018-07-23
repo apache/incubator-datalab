@@ -187,7 +187,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private List<UserResourceInfo> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
 		EdgeInfo edgeInfo = keyDAO.getEdgeInfo(user);
 		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-				.withResourceStatus(UserInstanceStatus.of(edgeInfo.getEdgeStatus()))
+				.withResourceStatus(edgeInfo.getEdgeStatus())
 				.withUser(user);
 		return Stream.concat(Stream.of(edgeResource), allInstances.stream()
 				.filter(instance -> instance.getUser().equals(user)).map(this::toUserResourceInfo))
@@ -197,7 +197,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {
 		return new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
 				.withResourceName(userInstance.getExploratoryName())
-				.withResourceStatus(UserInstanceStatus.of(userInstance.getStatus()))
+				.withResourceShape(userInstance.getShape())
+				.withResourceStatus(userInstance.getStatus())
 				.withCompResources(userInstance.getResources())
 				.withUser(userInstance.getUser());
 	}
