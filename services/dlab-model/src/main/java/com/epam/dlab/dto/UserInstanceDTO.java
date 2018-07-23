@@ -17,7 +17,6 @@
 package com.epam.dlab.dto;
 
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -54,7 +53,7 @@ public class UserInstanceDTO {
 	@JsonProperty
 	private String shape;
 	@JsonProperty("exploratory_url")
-	private List<ExploratoryURL> exploratoryUrl;
+	private List<ResourceURL> resourceUrl;
 	@JsonProperty("up_time")
 	private Date uptime;
 	@JsonProperty("computational_resources")
@@ -135,8 +134,8 @@ public class UserInstanceDTO {
 	/**
 	 * Sets the URL of exploratory.
 	 */
-	public UserInstanceDTO withExploratoryUrl(List<ExploratoryURL> exploratoryUrl) {
-		setExploratoryUrl(exploratoryUrl);
+	public UserInstanceDTO withExploratoryUrl(List<ResourceURL> resourceUrl) {
+		setResourceUrl(resourceUrl);
 		return this;
 	}
 

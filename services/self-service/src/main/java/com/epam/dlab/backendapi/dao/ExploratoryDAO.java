@@ -20,12 +20,8 @@ package com.epam.dlab.backendapi.dao;
 
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
-import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.dto.StatusEnvBaseDTO;
-import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Singleton;
@@ -385,8 +381,8 @@ public class ExploratoryDAO extends BaseDAO {
 			values.append(EXPLORATORY_ID, dto.getExploratoryId());
 		}
 
-		if (dto.getExploratoryUrl() != null) {
-			values.append(EXPLORATORY_URL, dto.getExploratoryUrl().stream()
+		if (dto.getResourceUrl() != null) {
+			values.append(EXPLORATORY_URL, dto.getResourceUrl().stream()
 					.map(url -> {
 								LinkedHashMap<String, String> map = new LinkedHashMap<>();
 								map.put(EXPLORATORY_URL_DESC, url.getDescription());
@@ -396,9 +392,9 @@ public class ExploratoryDAO extends BaseDAO {
 					).collect(Collectors.toList()));
 		} else if (dto.getPrivateIp() != null) {
 			UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
-			if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getExploratoryUrl() != null) { // IP was
+			if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getResourceUrl() != null) { // IP was
 				// changed
-				values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
+				values.append(EXPLORATORY_URL, inst.getResourceUrl().stream()
 						.map(url -> replaceIp(dto.getPrivateIp(), inst, url))
 						.collect(Collectors.toList()));
 			}
@@ -424,8 +420,8 @@ public class ExploratoryDAO extends BaseDAO {
 		if (!inst.getPrivateIp().equals(ip)) {
 			Document values = new Document();
 			values.append(EXPLORATORY_PRIVATE_IP, ip);
-			if (inst.getExploratoryUrl() != null) {
-				values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
+			if (inst.getResourceUrl() != null) {
+				values.append(EXPLORATORY_URL, inst.getResourceUrl().stream()
 						.map(url -> replaceIp(ip, inst, url)
 						).collect(Collectors.toList()));
 			}
@@ -437,7 +433,7 @@ public class ExploratoryDAO extends BaseDAO {
 
 	}
 
-	private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ExploratoryURL url) {
+	private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ResourceURL url) {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put(EXPLORATORY_URL_DESC, url.getDescription());
 		map.put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(), ip));

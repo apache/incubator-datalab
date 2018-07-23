@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.computational;
 
+import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -25,6 +26,7 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -42,10 +44,11 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
     public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
 										  String templateName, String status, Date uptime,
 										  SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
-										  String dataEngineInstanceCount, String dataEngineInstanceShape) {
+										  String dataEngineInstanceCount, String dataEngineInstanceShape,
+										  List<ResourceURL> resourceURL) {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired);
+				reuploadKeyRequired, resourceURL);
         this.dataEngineInstanceCount = dataEngineInstanceCount;
         this.dataEngineInstanceShape = dataEngineInstanceShape;
     }
