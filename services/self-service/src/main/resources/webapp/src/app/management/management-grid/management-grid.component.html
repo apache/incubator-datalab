@@ -69,7 +69,7 @@ limitations under the License.
             <i class="material-icons">pause_circle_outline</i>
             <span>Stop</span>
           </li>
-          <li (click)="toggleResourceAction(env, 'terminate')" *ngIf="env.name === 'EDGE_NODE'"
+          <li (click)="toggleResourceAction(env, 'terminate')" *ngIf="env.name !== 'edge node'"
             [ngClass]="{'not-allowed' : env.status.toLowerCase() !== 'running' && env.status.toLowerCase() !== 'stopped'}">
             <i class="material-icons">phonelink_off</i>
             <span>Terminate</span>
