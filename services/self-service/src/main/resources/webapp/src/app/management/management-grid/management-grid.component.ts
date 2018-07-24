@@ -16,9 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
-
-import { HealthStatusService, UserAccessKeyService } from '../../core/services';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject, ViewEncapsulation } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 export interface ManageAction {
@@ -30,35 +28,41 @@ export interface ManageAction {
 @Component({
   selector: 'management-grid',
   templateUrl: 'management-grid.component.html',
-  styleUrls: ['./management-grid.component.scss',
-              '../../resources/resources-grid/resources-grid.component.css',
-              '../../resources/computational/computational-resources-list/computational-resources-list.component.scss']
+  styleUrls: [
+    './management-grid.component.scss',
+    '../../resources/resources-grid/resources-grid.component.css',
+    '../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
+  ],
+  encapsulation: ViewEncapsulation.None
 })
 export class ManagementGridComponent implements OnInit {
+  @Input() allEnvironmentData: Array<any>;
+  @Input() resources: Array<any>;
+  @Input() uploadKey: boolean;
+  @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
+  @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
-   @Input() allEnvironmentData: Array<any>;
-   @Input() resources: Array<any>;
-   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
-   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
+  @ViewChild('confirmationDialog') confirmationDialog;
+  @ViewChild('keyReuploadDialog') keyReuploadDialog;
 
-   @ViewChild('confirmationDialog') confirmationDialog;
-   @ViewChild('keyReuploadDialog') keyReuploadDialog;
+  constructor(public dialog: MatDialog) {}
 
-    constructor(public dialog: MatDialog) { }
+  ngOnInit(): void {}
 
-    ngOnInit(): void { }
+  buildGrid(): void {
+    this.refreshGrid.emit();
+  }
 
-    buildGrid(): void {
-      this.refreshGrid.emit();
-    }
-
-    toggleResourceAction(environment, action, resource?) {
-      let resource_name = resource ? resource.computational_name : environment.name;
-        const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource_name, user: environment.user}, width: '550px' });
-        dialogRef.afterClosed().subscribe(result => {
-          result && this.actionToggle.emit({action, environment, resource});
-        });
-      }
+  toggleResourceAction(environment, action, resource?) {
+    let resource_name = resource ? resource.computational_name : environment.name;
+    const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
+      data: { action, resource_name, user: environment.user },
+      width: '550px'
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      result && this.actionToggle.emit({ action, environment, resource });
+    });
+  }
 }
 
 @Component({
@@ -66,7 +70,7 @@ export class ManagementGridComponent implements OnInit {
   template: `
   <div mat-dialog-content class="content">
 
-    <p>Resource <strong> {{ data.resource }}</strong> of user <strong> {{ data.user }} </strong> will be 
+    <p>Resource <strong> {{ data.resource_name }}</strong> of user <strong> {{ data.user }} </strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
@@ -77,13 +81,20 @@ export class ManagementGridComponent implements OnInit {
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
-  styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-  `]
+  styles: [
+    `
+      .content {
+        color: #718ba6;
+        padding: 20px 50px;
+        font-size: 14px;
+        font-weight: 400;
+      }
+    `
+  ]
 })
 export class ConfirmationDialog {
   constructor(
     public dialogRef: MatDialogRef<ConfirmationDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+  ) {}
 }

@@ -15,3 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+
+.dashboard_table {
+  .th_user,
+  .th_name {
+    width: 20%;
+  }
+  .th_shape,
+  .th_status {
+    width: 12% !important;
+  }
+}
+.source .resource-wrap .resource-name .detailed-link {
+  cursor: default !important;
+}

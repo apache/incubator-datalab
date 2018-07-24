@@ -23,4 +23,6 @@ limitations under the License.
     </button>
 </div>
 
-<management-grid (refreshGrid)="buildGrid($event)" (actionToggle)="manageEnvironmentAction($event)" [allEnvironmentData]="allEnvironmentData"></management-grid>
+<management-grid [allEnvironmentData]="allEnvironmentData" [uploadKey]="uploadKey" (refreshGrid)="buildGrid($event)" (actionToggle)="manageEnvironmentAction($event)"></management-grid>
+<key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
+<progress-dialog #preloaderModal></progress-dialog>

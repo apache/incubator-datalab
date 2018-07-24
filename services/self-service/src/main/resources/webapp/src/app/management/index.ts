@@ -19,7 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarModule, ConfirmationDialogModule, BubbleModule, UploadKeyDialogModule } from './../shared';
+import { NavbarModule, ConfirmationDialogModule, BubbleModule, UploadKeyDialogModule, ProgressDialogModule } from './../shared';
 import { MaterialModule } from './../shared/material.module';
 
 import { ManagementComponent } from './management.component';
@@ -35,8 +35,9 @@ export * from './management.component';
     ConfirmationDialogModule,
     ComputationalResourcesModule,
     BubbleModule,
-    MaterialModule,
-    UploadKeyDialogModule
+    UploadKeyDialogModule,
+    ProgressDialogModule,
+    MaterialModule
   ],
   declarations: [ManagementComponent, ManagementGridComponent, ConfirmationDialog],
   entryComponents: [ConfirmationDialog],
