@@ -166,6 +166,27 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print('[INSTALLING NGINX REVERSE PROXY]')
+        logging.info('[INSTALLING NGINX REVERSE PROXY]')
+        params = "--hostname {} --keyfile {} --user {}" \
+            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed installing users key. Excpeption: " + str(err))
+        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+        remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        remove_sgroups(edge_conf['dataengine_instances_name'])
+        remove_sgroups(edge_conf['notebook_instance_name'])
+        remove_sgroups(edge_conf['instance_name'])
+        remove_s3('edge', os.environ['edge_user_name'])
+        sys.exit(1)
+
+    try:
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))

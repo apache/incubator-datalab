@@ -72,6 +72,8 @@ if __name__ == "__main__":
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+    edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get(
+        'Public')
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:
@@ -135,8 +137,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --region {} --os_user {}" \
-                 .format(instance_hostname, keyfile_name, os.environ['aws_region'], notebook_config['dlab_ssh_user'])
+        params = "--hostname {} --keyfile {} " \
+                 "--region {} --os_user {} " \
+                 "--exploratory_name {}" \
+                 .format(instance_hostname, keyfile_name,
+                         os.environ['aws_region'], notebook_config['dlab_ssh_user'],
+                         notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
         except:
@@ -196,6 +202,25 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': True
+        }
+        params = "--edge_hostname {} --keyfile {} --os_user {} --type {} --exploratory_name {} --additional_info '{}'"\
+            .format(edge_instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], 'jupyter',notebook_config['exploratory_name'], json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     if notebook_config['shared_image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
@@ -217,6 +242,9 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensorboard_url = "http://" + ip_address + ":6006/"
     jupyter_ip_url = "http://" + ip_address + ":8888/"
+    jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
+    tensorboard_acces_url = "http://" + edge_instance_ip + "/{}-tensor/".format(notebook_config['exploratory_name'])
+    jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/"
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -247,10 +275,12 @@ if __name__ == "__main__":
                "notebook_image_name": notebook_config['notebook_image_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
-                   {"description": "TensorBoard",
-                    "url": tensorboard_url},
                    {"description": "Jupyter",
                     "url": jupyter_ip_url},
-                   {"description": "Ungit",
-                    "url": ungit_ip_url}]}
+                   {"description": "JupyterUI",
+                    "url": jupyter_notebook_acces_url},
+                   {"description": "TensorBoardUI",
+                    "url": tensorboard_acces_url},
+                   {"description": "UngitUI",
+                    "url": jupyter_ungit_acces_url}]}
         result.write(json.dumps(res))
