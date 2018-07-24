@@ -18,6 +18,7 @@
 
 package com.epam.dlab.dto.exploratory;
 
+import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
@@ -26,7 +27,7 @@ import java.util.List;
 
 public class ExploratoryStatusDTO extends StatusEnvBaseDTO<ExploratoryStatusDTO> {
     @JsonProperty("exploratory_url")
-    private List<ExploratoryURL> exploratoryUrl;
+	private List<ResourceURL> resourceUrl;
     @JsonProperty("exploratory_user")
     private String exploratoryUser;
     @JsonProperty("exploratory_pass")
@@ -47,16 +48,16 @@ public class ExploratoryStatusDTO extends StatusEnvBaseDTO<ExploratoryStatusDTO>
         return this;
     }
 
-    public List<ExploratoryURL> getExploratoryUrl() {
-        return exploratoryUrl;
+	public List<ResourceURL> getResourceUrl() {
+		return resourceUrl;
     }
 
-    public void setExploratoryUrl(List<ExploratoryURL> exploratoryUrl) {
-        this.exploratoryUrl = exploratoryUrl;
+	public void setResourceUrl(List<ResourceURL> resourceUrl) {
+		this.resourceUrl = resourceUrl;
     }
 
-    public ExploratoryStatusDTO withExploratoryUrl(List<ExploratoryURL> exploratoryUrl) {
-        setExploratoryUrl(exploratoryUrl);
+	public ExploratoryStatusDTO withExploratoryUrl(List<ResourceURL> resourceUrl) {
+		setResourceUrl(resourceUrl);
         return this;
     }
 
@@ -89,7 +90,7 @@ public class ExploratoryStatusDTO extends StatusEnvBaseDTO<ExploratoryStatusDTO>
     @Override
     public ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
-                .add("exploratoryUrl", exploratoryUrl)
+				.add("exploratoryUrl", resourceUrl)
                 .add("exploratoryUser", exploratoryUser)
                 .add("exploratoryPassword", exploratoryPassword);
     }

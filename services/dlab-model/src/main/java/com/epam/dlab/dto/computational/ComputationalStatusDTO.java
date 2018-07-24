@@ -18,11 +18,16 @@ limitations under the License.
 
 package com.epam.dlab.dto.computational;
 
+import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.util.List;
+
 public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatusDTO> {
+	@JsonProperty("computational_url")
+	private List<ResourceURL> resourceUrl;
     @JsonProperty("computational_id")
     private String computationalId;
     @JsonProperty("computational_name")
@@ -41,6 +46,10 @@ public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatus
         return this;
     }
 
+	public List<ResourceURL> getResourceUrl() {
+		return resourceUrl;
+	}
+
     public String getComputationalName() {
         return computationalName;
     }
@@ -48,6 +57,15 @@ public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatus
     public void setComputationalName(String computationalName) {
         this.computationalName = computationalName;
     }
+
+	public void setResourceUrl(List<ResourceURL> resourceUrl) {
+		this.resourceUrl = resourceUrl;
+	}
+
+	public ComputationalStatusDTO withComputationalUrl(List<ResourceURL> resourceUrl) {
+		setResourceUrl(resourceUrl);
+		return this;
+	}
 
     public ComputationalStatusDTO withComputationalName(String computationalName) {
         setComputationalName(computationalName);
@@ -57,6 +75,7 @@ public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatus
     @Override
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
+				.add("ComputationalUrl", resourceUrl)
     	        .add("computationalId", computationalId)
     	        .add("computationalName", computationalName);
     }

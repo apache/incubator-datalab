@@ -17,10 +17,10 @@
  ****************************************************************************/
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
@@ -36,8 +36,7 @@ import static com.epam.dlab.backendapi.dao.BaseDAO.USER;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 @Ignore
@@ -149,13 +148,13 @@ public class ExploratoryDAOTest extends DAOTestBase {
 
 		infExpDAO.insertOne(USER_INSTANCES, instance1);
 		UserInstanceStatus status = infExpDAO.fetchExploratoryStatus("user1", "exp_name_1");
-		assertEquals(status, null);
+		assertNull(status);
 	}
 
 	@Test
 	public void fetchExploratoryStatusNotFound() {
 		UserInstanceStatus status = infExpDAO.fetchExploratoryStatus("user1", "exp_name_1");
-		assertEquals(status, null);
+		assertNull(status);
 	}
 
 	@Test(expected = DlabException.class)
@@ -292,10 +291,10 @@ public class ExploratoryDAOTest extends DAOTestBase {
 		status.setUser("user1");
 		status.setExploratoryName("exp_name_1");
 		status.setExploratoryId("exp2");
-		List<ExploratoryURL> urls = new ArrayList<ExploratoryURL>();
-		urls.add(new ExploratoryURL("www.exp1.com", "desc1"));
-		urls.add(new ExploratoryURL("www.exp2.com", "desc2"));
-		status.setExploratoryUrl(urls);
+		List<ResourceURL> urls = new ArrayList<>();
+		urls.add(new ResourceURL("desc1", "www.exp1.com"));
+		urls.add(new ResourceURL("desc2", "www.exp2.com"));
+		status.setResourceUrl(urls);
 		status.setStatus("running");
 		status.setUptime(new Date(100));
 
@@ -309,9 +308,9 @@ public class ExploratoryDAOTest extends DAOTestBase {
 
 		UserInstanceDTO instance = testInstance1.get();
 		assertEquals(instance.getExploratoryId(), status.getExploratoryId());
-		assertEquals(instance.getExploratoryUrl().size(), status.getExploratoryUrl().size());
-		assertEquals(instance.getExploratoryUrl().get(0), status.getExploratoryUrl().get(0));
-		assertEquals(instance.getExploratoryUrl().get(1), status.getExploratoryUrl().get(1));
+		assertEquals(instance.getResourceUrl().size(), status.getResourceUrl().size());
+		assertEquals(instance.getResourceUrl().get(0), status.getResourceUrl().get(0));
+		assertEquals(instance.getResourceUrl().get(1), status.getResourceUrl().get(1));
 		assertEquals(instance.getStatus(), status.getStatus());
 		assertEquals(instance.getUptime(), status.getUptime());
 	}
@@ -319,9 +318,9 @@ public class ExploratoryDAOTest extends DAOTestBase {
 	@Test
 	public void updateExploratoryUrlByIpSuccess() {
 
-		List<ExploratoryURL> urls = new ArrayList<>();
-		urls.add(new ExploratoryURL("www.192.168.100.1.com", "desc1"));
-		urls.add(new ExploratoryURL("www.192.168.100.1.com", "desc2"));
+		List<ResourceURL> urls = new ArrayList<>();
+		urls.add(new ResourceURL("desc1", "www.192.168.100.1.com"));
+		urls.add(new ResourceURL("desc2", "www.192.168.100.1.com"));
 
 		UserInstanceDTO instance1 = new UserInstanceDTO()
 				.withUser("user1")
@@ -351,23 +350,23 @@ public class ExploratoryDAOTest extends DAOTestBase {
 		UserInstanceDTO instance = testInstance1.get();
 
 		// these urls will be final, cause they depends from PrivateIp
-		List<ExploratoryURL> urlsNew = new ArrayList<>();
-		urlsNew.add(new ExploratoryURL("www.192.168.100.1.com", "desc1"));
-		urlsNew.add(new ExploratoryURL("www.192.168.100.1.com", "desc2"));
+		List<ResourceURL> urlsNew = new ArrayList<>();
+		urlsNew.add(new ResourceURL("desc1", "www.192.168.100.1.com"));
+		urlsNew.add(new ResourceURL("desc2", "www.192.168.100.1.com"));
 
 		assertEquals(instance.getExploratoryId(), status.getExploratoryId());
-		assertEquals(instance.getExploratoryUrl().size(), urlsNew.size());
-		assertEquals(instance.getExploratoryUrl().get(0), urlsNew.get(0));
-		assertEquals(instance.getExploratoryUrl().get(1), urlsNew.get(1));
+		assertEquals(instance.getResourceUrl().size(), urlsNew.size());
+		assertEquals(instance.getResourceUrl().get(0), urlsNew.get(0));
+		assertEquals(instance.getResourceUrl().get(1), urlsNew.get(1));
 		assertEquals(instance.getPrivateIp(), status.getPrivateIp());
 	}
 
 	@Test
 	public void updateExploratoryUrlByUrlSuccess() {
 
-		List<ExploratoryURL> urls = new ArrayList<>();
-		urls.add(new ExploratoryURL("www.192.168.100.1.com", "desc1"));
-		urls.add(new ExploratoryURL("www.192.168.100.1.com", "desc2"));
+		List<ResourceURL> urls = new ArrayList<>();
+		urls.add(new ResourceURL("desc1", "www.192.168.100.1.com"));
+		urls.add(new ResourceURL("desc2", "www.192.168.100.1.com"));
 
 		UserInstanceDTO instance1 = new UserInstanceDTO()
 				.withUser("user1")
@@ -383,7 +382,7 @@ public class ExploratoryDAOTest extends DAOTestBase {
 		status.setExploratoryName("exp_name_1");
 		status.setExploratoryId("exp2");
 
-		status.setExploratoryUrl(urls);
+		status.setResourceUrl(urls);
 
 		UpdateResult result = infExpDAO.updateExploratoryFields(status);
 		assertEquals(result.getModifiedCount(), 1);
@@ -396,9 +395,9 @@ public class ExploratoryDAOTest extends DAOTestBase {
 		UserInstanceDTO instance = testInstance1.get();
 
 		assertEquals(instance.getExploratoryId(), status.getExploratoryId());
-		assertEquals(instance.getExploratoryUrl().size(), urls.size());
-		assertEquals(instance.getExploratoryUrl().get(0), urls.get(0));
-		assertEquals(instance.getExploratoryUrl().get(1), urls.get(1));
+		assertEquals(instance.getResourceUrl().size(), urls.size());
+		assertEquals(instance.getResourceUrl().get(0), urls.get(0));
+		assertEquals(instance.getResourceUrl().get(1), urls.get(1));
 
 	}
 }

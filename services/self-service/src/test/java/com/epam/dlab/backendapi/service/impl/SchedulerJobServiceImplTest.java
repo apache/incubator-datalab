@@ -459,7 +459,7 @@ public class SchedulerJobServiceImplTest {
 		clusterScheduler.setFinishDate(LocalDate.of(notebookFinishDate.getYear() + 1, notebookFinishDate.getMonth(),
 				notebookFinishDate.getDayOfMonth()));
 		clusterScheduler.setStartTime(LocalTime.of(notebookStartTime.getHour(), notebookStartTime.getMinute()));
-		clusterScheduler.setEndTime(LocalTime.of(notebookEndTime.getHour() + 1, notebookEndTime.getMinute()));
+		clusterScheduler.setEndTime(LocalTime.of((notebookEndTime.getHour() + 1) % 24, notebookEndTime.getMinute()));
 		clusterScheduler.setStartDaysRepeat(new ArrayList<>(notebookStartDaysRepeat));
 		clusterScheduler.setStopDaysRepeat(new ArrayList<>(notebookStopDaysRepeat));
 		clusterScheduler.setTerminateDateTime(LocalDateTime.of(notebookTerminateDateTime.getYear() + 1,
@@ -517,8 +517,9 @@ public class SchedulerJobServiceImplTest {
 				notebookBeginDate.getDayOfMonth()));
 		clusterScheduler.setFinishDate(LocalDate.of(notebookFinishDate.getYear() + 1, notebookFinishDate.getMonth(),
 				notebookFinishDate.getDayOfMonth()));
-		clusterScheduler.setStartTime(LocalTime.of(notebookStartTime.getHour() + 1, notebookStartTime.getMinute()));
-		clusterScheduler.setEndTime(LocalTime.of(notebookEndTime.getHour() + 1, notebookEndTime.getMinute()));
+		clusterScheduler.setStartTime(LocalTime.of((notebookStartTime.getHour() + 1) % 24,
+				notebookStartTime.getMinute()));
+		clusterScheduler.setEndTime(LocalTime.of((notebookEndTime.getHour() + 1) % 24, notebookEndTime.getMinute()));
 		clusterScheduler.setStartDaysRepeat(new ArrayList<>(notebookStartDaysRepeat));
 		clusterScheduler.setStopDaysRepeat(new ArrayList<>(notebookStopDaysRepeat));
 		clusterScheduler.setTerminateDateTime(LocalDateTime.of(notebookTerminateDateTime.getYear() + 1,
