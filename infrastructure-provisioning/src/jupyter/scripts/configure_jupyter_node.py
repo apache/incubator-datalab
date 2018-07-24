@@ -58,7 +58,7 @@ jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
-toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz'
+toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0-incubating-rc5/toree-pip/toree-0.2.0.tar.gz'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
@@ -140,10 +140,5 @@ if __name__ == "__main__":
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
 
-    # configure reverse proxy
-    # print("Configure reverse-proxy")
-    # sudo('sed -i "s/.#c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{}\/\'/" /home/dlab-user/.local/share/jupyter/jupyter_notebook_config.py'.format(
-    #         args.exploratory_name))
-    # sudo("service jupyter-notebook.service restart")
 
 

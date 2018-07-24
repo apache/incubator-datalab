@@ -187,7 +187,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(exploratory_name, jupyter_conf_file))
             sudo("systemctl restart jupyter-notebook")
         except Exception as err:
-            print(err)
+            print('Error:', str(err))
             sys.exit(1)
 
 

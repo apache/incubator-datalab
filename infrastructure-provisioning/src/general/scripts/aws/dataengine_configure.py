@@ -356,7 +356,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        spark_master_acces_url = "http://" + edge_instance_ip + "/{}/".format(data_engine['computational_name'] + '_' + data_engine['exploratory_name'])
+        spark_master_acces_url = "http://" + edge_instance_ip + "/{}/".format(data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(data_engine['service_base_name']))
@@ -370,7 +370,7 @@ if __name__ == "__main__":
                    "instance_id": get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name']),
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine",
-                   "exploratory_url": spark_master_acces_url}
+                   "computational_name": spark_master_acces_url}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:

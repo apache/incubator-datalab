@@ -44,7 +44,6 @@ def modify_conf_file(args):
         if "'" not in os.environ[os_var] and os_var != 'aws_access_key' and os_var != 'aws_secret_access_key':
             variables_list[os_var] = os.environ[os_var]
     local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
-    #sudo("sed -i 's|LDAP_PASS|{}|g' {}sources/general/conf/dlab.ini".format(args.ldap_pass, args.dlab_path))
     local('scp -i {} /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(args.keyfile,
                                                                                                  env.host_string))
     sudo("python /tmp/configure_conf_file.py --dlab_dir {} --variables_list '{}'".format(
@@ -96,7 +95,7 @@ if __name__ == "__main__":
     try:
         modify_conf_file(args)
     except Exception as err:
-        print err
+        print('Error:', str(err))
         sys.exit(1)
 
     print("Installing docker daemon")

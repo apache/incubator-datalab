@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['computational_name'] + '_' + emr_conf['exploratory_name'])
+        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] + '_' + emr_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(emr_conf['service_base_name']))
@@ -253,7 +253,7 @@ if __name__ == "__main__":
                    "key_name": emr_conf['key_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
                    "Action": "Create new EMR cluster",
-                   "exploratory_url": emr_master_acces_url}
+                   "computational_name": emr_master_acces_url}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:

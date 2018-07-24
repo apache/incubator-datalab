@@ -94,4 +94,3 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_user_pass,
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
         sys.exit(1)
-

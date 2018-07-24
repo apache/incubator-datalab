@@ -19,10 +19,8 @@
 # ******************************************************************************
 
 import logging
-import traceback
 from fabric.api import *
 import argparse
-import json
 import sys
 import os
 from dlab.edge_lib import install_nginx_ldap
@@ -61,6 +59,6 @@ if __name__ == "__main__":
         ldap_user_pass = os.environ['ldap_admin_password']
         install_nginx_ldap(edge_ip, nginx_version, ldap_hostname, ldap_dn, ldap_user_pass, ldap_user)
     except Exception as err:
-        print("Failed install nginx: " + str(err))
+        print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)
 

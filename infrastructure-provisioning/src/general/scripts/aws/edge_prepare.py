@@ -163,12 +163,6 @@ if __name__ == "__main__":
             },
             {
                 "PrefixListIds": [],
-                "FromPort": 389,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
-                "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
                 "FromPort": 80,
                 "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
