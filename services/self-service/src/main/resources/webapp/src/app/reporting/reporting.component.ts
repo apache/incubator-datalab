@@ -29,7 +29,7 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
+  <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="admin"></dlab-navbar>
   <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer *ngIf="data">
@@ -69,6 +69,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   healthStatus: any;
   billingEnabled: boolean;
+  admin: boolean;
 
   constructor(
     private billingReportService: BillingReportService,
@@ -219,6 +220,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.healthStatus = result.status;
         this.billingEnabled = result.billingEnabled;
+        this.admin = result.admin;
 
         this.checkUserAccessKey();
       });

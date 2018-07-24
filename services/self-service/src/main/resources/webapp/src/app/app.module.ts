@@ -34,8 +34,10 @@ import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
 import { ReportingModule } from './reporting/reporting.module';
+import { ManagenementModule } from './management';
 
 import { CoreModule } from './core/core.module';
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -50,6 +52,7 @@ import { CoreModule } from './core/core.module';
     NotFoundModule,
     HealthStatusModule,
     ReportingModule,
+    ManagenementModule,
     RouterModule,
     AppRoutingModule,
     BrowserAnimationsModule,
