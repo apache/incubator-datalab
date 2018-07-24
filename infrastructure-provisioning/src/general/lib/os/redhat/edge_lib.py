@@ -42,7 +42,7 @@ def configure_http_proxy_server(config):
     except:
         return False
 
-def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_user_pass, ldap_user):
+def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username, ldap_user):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
             sudo('yum install -y wget')
@@ -77,8 +77,10 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_user_pass,
             put('/root/templates', '/opt/dlab', use_sudo=True)
             sudo('sed -i \'s/LDAP_IP/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_ip))
             sudo('sed -i \'s/LDAP_DN/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_dn))
-            sudo('sed -i \'s/LDAP_USER_PASSWORD/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_user_pass))
-            sudo('sed -i \'s/LDAP_USER/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_user))
+            sudo('sed -i \'s/LDAP_OU/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_ou))
+            sudo('sed -i \'s/LDAP_SERVICE_PASSWORD/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_service_pass))
+            sudo('sed -i \'s/LDAP_SERVICE_USERNAME/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_service_username))
+            sudo('sed -i \'s/LDAP_USERNAME/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_user))
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
             sudo('cp /opt/dlab/templates/nginx.conf /etc/nginx/')
             sudo('mkdir /etc/nginx/conf.d')

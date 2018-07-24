@@ -257,8 +257,8 @@ if __name__ == "__main__":
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    jupyter_ip_url = "http://" + ip_address + ":8888/"
-    jupyter_dns_url = "http://" + dns_name + ":8888/"
+    jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
+    jupyter_dns_url = "http://" + dns_name + ":8888/{}/".format(notebook_config['exploratory_name'])
     jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
     jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/"

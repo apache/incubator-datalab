@@ -134,9 +134,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
         print('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {} --r_mirror {}" \
-            .format(instance_hostname, keyfile_name, os.environ['aws_region'], notebook_config['rstudio_pass'],
-                    os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'], os.environ['notebook_r_mirror'])
+        params = "--hostname {}  --keyfile {} " \
+                 "--region {} --rstudio_pass {} " \
+                 "--rstudio_version {} --os_user {} " \
+                 "--r_mirror {} --exploratory_name {}" \
+            .format(instance_hostname, keyfile_name,
+                    os.environ['aws_region'], notebook_config['rstudio_pass'],
+                    os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
+                    os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
         except:
