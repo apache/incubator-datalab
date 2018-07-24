@@ -94,7 +94,8 @@ if __name__ == "__main__":
     print('Modifying configuration files')
     try:
         modify_conf_file(args)
-    except:
+    except Exception as err:
+        print('Error:', str(err))
         sys.exit(1)
 
     print("Installing docker daemon")

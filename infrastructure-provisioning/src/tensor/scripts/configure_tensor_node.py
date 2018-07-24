@@ -34,6 +34,7 @@ parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
@@ -102,7 +103,7 @@ if __name__ == "__main__":
 
     # INSTALL JUPYTER NOTEBOOK
     print("Install Jupyter")
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")

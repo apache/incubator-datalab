@@ -66,9 +66,12 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
         except:
             sys.exit(1)
 
-@backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
+@backoff.on_exception(backoff.expo, SystemExit, max_tries=20)
 def add_marruter_key():
-    sudo('add-apt-repository -y ppa:marutter/rrutter')
+    try:
+        sudo('add-apt-repository -y ppa:marutter/rrutter')
+    except:
+        sys.exit(1)
 
 def ensure_r(os_user, r_libs, region, r_mirror):
     if not exists('/home/' + os_user + '/.ensure_dir/r_ensured'):
