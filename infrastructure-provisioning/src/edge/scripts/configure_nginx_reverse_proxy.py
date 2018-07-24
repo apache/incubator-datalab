@@ -56,7 +56,7 @@ if __name__ == "__main__":
         ldap_hostname = os.environ['ldap_hostname']
         ldap_dn = os.environ['ldap_dn']
         ldap_user = os.environ['ldap_user']
-        ldap_user_pass = os.environ['ldap_admin_password']
+        ldap_user_pass = os.environ['ldap_service_password']
         install_nginx_ldap(edge_ip, nginx_version, ldap_hostname, ldap_dn, ldap_user_pass, ldap_user)
     except Exception as err:
         print("Failed install nginx reverse proxy: " + str(err))
