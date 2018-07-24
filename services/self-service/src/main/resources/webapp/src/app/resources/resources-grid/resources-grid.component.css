@@ -160,7 +160,7 @@ limitations under the License.
   height: 16px;
   display: inline-block;
   text-align: center;
-  zoom: 1.2;
+  margin-top: 2px;
   cursor: pointer;
 }
 

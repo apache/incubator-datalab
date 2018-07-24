@@ -268,13 +268,9 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             with settings(warn_only=True):
                 reboot(wait=150)
             sudo('apt-get -y install dkms')
-            kernel_version = run('uname -r')
-            if kernel_version == '4.15.0-1013-azure':
-                sudo(
-                    'wget http://mirrors.kernel.org/ubuntu/pool/main/l/linux-azure/linux-modules-extra-4.15.0-1013-azure_4.15.0-1013.13~16.04.2_amd64.deb '
-                    '-O /tmp/linux-modules-extra-4.15.0-1013-azure_4.15.0-1013.13_16.04.2_amd64.deb')
-                sudo(
-                    'dpkg -i /tmp/linux-modules-extra-4.15.0-1013-azure_4.15.0-1013.13_16.04.2_amd64.deb')
+            kernel_version = run('uname -r | tr -d "[..0-9-]"')
+            if kernel_version == 'azure':
+                sudo('apt-get -y install linux-modules-extra-`uname -r`')
             else:
                 sudo('apt-get -y install linux-image-extra-`uname -r`')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
@@ -373,6 +369,7 @@ def install_os_pkg(requisites):
         return "Fail to install OS packages"
 
 
+@backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
 def remove_os_pkg(pkgs):
     try:
         sudo('apt remove --purge -y {}'.format(' '.join(pkgs)))

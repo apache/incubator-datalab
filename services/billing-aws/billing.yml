@@ -90,5 +90,5 @@ logging:
     - type: file
       currentLogFilename: /var/opt/dlab/log/ssn/billing.log
       archive: true
-      archivedLogFilenamePattern: $/var/opt/dlab/log/ssn/billing-%d{yyyy-MM-dd}.log.gz
+      archivedLogFilenamePattern: /var/opt/dlab/log/ssn/billing-%d{yyyy-MM-dd}.log.gz
       archivedFileCount: 10

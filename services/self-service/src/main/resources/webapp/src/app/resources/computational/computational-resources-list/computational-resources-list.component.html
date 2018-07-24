@@ -18,10 +18,10 @@ limitations under the License.
 
 <div class="source">
 
-    <div *ngIf="!resources.length">
+    <div *ngIf="!resources?.length">
       <span *ngIf="!resources.length" class="no-details">no details</span>
     </div>
-    <div *ngIf="resources.length">
+    <div *ngIf="resources?.length">
       <div *ngFor="let resource of resources" class="resource-wrap">
         <div class="resource-name">
           <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">

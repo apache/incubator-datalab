@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.gcp.computational;
 
+import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Stores info about the user's computational resources for notebook.
@@ -54,9 +56,10 @@ public class GcpComputationalResource extends UserComputationalResource {
 									String templateName, String status, Date uptime,
 									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
-									String masterNumber,String preemptibleNumber, String version) {
+									String masterNumber, String preemptibleNumber, String version,
+									List<ResourceURL> resourceURL) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired);
+				reuploadKeyRequired, resourceURL);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;

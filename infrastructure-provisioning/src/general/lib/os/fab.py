@@ -337,7 +337,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
 def install_ungit(os_user):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
-            sudo('npm -g install ungit')
+            sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')

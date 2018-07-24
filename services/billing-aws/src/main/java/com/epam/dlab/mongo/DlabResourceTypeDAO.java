@@ -21,6 +21,7 @@ package com.epam.dlab.mongo;
 import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
 import com.epam.dlab.core.BillingUtils;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.exceptions.ParseException;
 import com.epam.dlab.model.aws.ReportLine;
@@ -47,6 +48,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 public class DlabResourceTypeDAO implements MongoConstants {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DlabResourceTypeDAO.class);
+	private static final String VOLUME_PRIMARY_SUFFIX = "-volume-primary";
+	private static final String VOLUME_SECONDARY_SUFFIX = "-volume-secondary";
 
 	/**
 	 * Mongo database connection.
@@ -129,12 +132,13 @@ public class DlabResourceTypeDAO implements MongoConstants {
 	 *
 	 * @throws InitializationException
 	 */
-	private void setResourceList() throws InitializationException {
+	private void setResourceList() {
 		resourceList = new ResourceItemList();
 
 		// Add SSN
 		String sbName = getServiceBaseName();
 		resourceList.append(sbName + "-ssn", "SSN", DlabResourceType.SSN, null, null);
+		resourceList.append(sbName + "-ssn-volume-primary", "SSN volume", DlabResourceType.VOLUME, null, null);
 		resourceList.append(getBucketName(sbName) + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null,
 				null);
 
@@ -149,6 +153,8 @@ public class DlabResourceTypeDAO implements MongoConstants {
 			String username = d.getString(FIELD_ID);
 			resourceList.append(sbName + "-" + BillingUtils.getSimpleUserName(username) + "-edge", "EDGE Node",
 					DlabResourceType.EDGE, username, null);
+			resourceList.append(sbName + "-" + BillingUtils.getSimpleUserName(username) + "-edge-volume-primary",
+					"EDGE Volume", DlabResourceType.VOLUME, username, null);
 			resourceList.append(getBucketName(d.getString(FIELD_EDGE_BUCKET)), "EDGE bucket", DlabResourceType
 					.EDGE_BUCKET, username, null);
 		}
@@ -158,7 +164,9 @@ public class DlabResourceTypeDAO implements MongoConstants {
 				FIELD_EXPLORATORY_NAME,
 				FIELD_EXPLORATORY_ID,
 				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_COMPUTATIONAL_ID,
-				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_COMPUTATIONAL_NAME),
+				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_COMPUTATIONAL_NAME,
+				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_IMAGE,
+				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_DATAENGINE_INSTANCE_COUNT),
 				excludeId());
 		docs = connection.getCollection(COLLECTION_USER_INSTANCES).find().projection(projection);
 		for (Document exp : docs) {
@@ -167,6 +175,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 			String exploratoryId = exp.getString(FIELD_EXPLORATORY_ID);
 			resourceList.append(exploratoryId, exploratoryName, DlabResourceType.EXPLORATORY, username,
 					exploratoryName);
+			appendExploratoryVolumes(username, exploratoryName, exploratoryId);
 
 			// Add computational
 			@SuppressWarnings("unchecked")
@@ -177,11 +186,49 @@ public class DlabResourceTypeDAO implements MongoConstants {
 			for (Document comp : compList) {
 				String computationalId = comp.getString(FIELD_COMPUTATIONAL_ID);
 				String computationalName = comp.getString(FIELD_COMPUTATIONAL_NAME);
+				final DataEngineType dataEngineType = DataEngineType.fromDockerImageName(comp.getString(FIELD_IMAGE));
 				resourceList.append(computationalId, computationalName, DlabResourceType.COMPUTATIONAL, username,
 						exploratoryName);
+				if (DataEngineType.CLOUD_SERVICE == dataEngineType) {
+					appendDataengineServiceVolumes(username, exploratoryName, computationalId, computationalName);
+				} else {
+					appendDataengineVolumes(username, exploratoryName, comp, computationalId, computationalName);
+				}
 			}
 		}
 		LOGGER.debug("resourceList is {}", resourceList);
+	}
+
+	private void appendExploratoryVolumes(String username, String exploratoryName, String exploratoryId) {
+		resourceList.append(exploratoryId + VOLUME_PRIMARY_SUFFIX, "Volume primary", DlabResourceType.VOLUME,
+				username, exploratoryName);
+		resourceList.append(exploratoryId + VOLUME_SECONDARY_SUFFIX, "Volume secondary", DlabResourceType.VOLUME,
+				username, exploratoryName);
+	}
+
+	private void appendDataengineServiceVolumes(String username, String exploratoryName, String computationalId,
+												String computationalName) {
+		resourceList.append(computationalId + VOLUME_PRIMARY_SUFFIX, computationalName + " volume primary",
+				DlabResourceType.VOLUME, username, exploratoryName);
+		resourceList.append(computationalId + VOLUME_SECONDARY_SUFFIX, computationalName + " volume secondary",
+				DlabResourceType.VOLUME, username, exploratoryName);
+	}
+
+	private void appendDataengineVolumes(String username, String exploratoryName, Document comp, String
+			computationalId, String computationalName) {
+		resourceList.append(computationalId + "-m-volume-primary", computationalName + " master volume primary",
+				DlabResourceType.VOLUME, username, exploratoryName);
+		resourceList.append(computationalId + "-m-volume-secondary", computationalName + " master volume secondary",
+				DlabResourceType.VOLUME, username, exploratoryName);
+		final Integer instanceCount = Integer.valueOf(comp.getString(FIELD_DATAENGINE_INSTANCE_COUNT));
+		for (int i = instanceCount - 1; i > 0; i--) {
+			final String slaveId = computationalId + "-s" + i;
+			final String slaveName = computationalName + "-s" + i;
+			resourceList.append(slaveId + VOLUME_PRIMARY_SUFFIX, slaveName + " volume primary", DlabResourceType
+					.VOLUME, username, exploratoryName);
+			resourceList.append(slaveId + VOLUME_SECONDARY_SUFFIX, slaveName + " volume secondary", DlabResourceType
+					.VOLUME, username, exploratoryName);
+		}
 	}
 
 
@@ -278,7 +325,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 					.append(ReportLine.FIELD_COST, d.getDouble(ReportLine.FIELD_COST));
 			totals.add(total);
 		}
-		if (totals.size() > 0) {
+		if (!totals.isEmpty()) {
 			LOGGER.debug("{} documents will be inserted into collection {}", totals.size(), COLLECTION_BILLING_TOTAL);
 			collection.insertMany(totals);
 		}
@@ -302,8 +349,6 @@ public class DlabResourceTypeDAO implements MongoConstants {
 			return result;
 		}
 	}
-
-	;
 
 	/**
 	 * Update exploratory cost in Mongo DB.
@@ -361,7 +406,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		Bson values = Updates.combine(
 				Updates.set(ReportLine.FIELD_COST, BillingCalculationUtils.formatDouble(costTotal)),
 				Updates.set(FIELD_CURRENCY_CODE, currencyCode),
-				Updates.set(COLLECTION_BILLING, (billing.size() > 0 ? billing : null)));
+				Updates.set(COLLECTION_BILLING, (!billing.isEmpty() ? billing : null)));
 		cExploratory.updateOne(
 				and(and(eq(FIELD_USER, user),
 						eq(FIELD_EXPLORATORY_NAME, exploratoryName))),

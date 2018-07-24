@@ -36,11 +36,13 @@ public interface MongoConstants {
     public static final String COLLECTION_USER_INSTANCES = "userInstances";
     public static final String FIELD_EXPLORATORY_NAME = "exploratory_name";
     public static final String FIELD_USER = "user";
+	public static final String FIELD_IMAGE = "image";
     public static final String FIELD_EXPLORATORY_ID = "exploratory_id";
     public static final String FIELD_CURRENCY_CODE = "currency_code";
     public static final String FIELD_COMPUTATIONAL_RESOURCES = "computational_resources";
     public static final String FIELD_COMPUTATIONAL_ID = "computational_id";
     public static final String FIELD_COMPUTATIONAL_NAME = "computational_name";
+	String FIELD_DATAENGINE_INSTANCE_COUNT = "dataengine_instance_count";
 
     /** Collection billing. */
     public static final String COLLECTION_BILLING = "billing";

@@ -21,6 +21,7 @@
 package com.epam.dlab.backendapi.core.response.handlers.dao;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.PersistentFileHandler;
@@ -49,7 +50,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class FileSystemCallbackHandlerDaoTest {
 
-	private static final String HANDLERS_FOLDER = "/opt/handlers";
 	@Mock
 	private ObjectMapper mapper;
 	@Mock
@@ -71,18 +71,45 @@ public class FileSystemCallbackHandlerDaoTest {
 
 
 	@Test
-	public void save() throws IOException {
+	public void upsert() throws IOException {
 		final String handlersFolders = getHandlersFolder();
 		when(configuration.getHandlerDirectory()).thenReturn(handlersFolders);
 		when(mapper.writeValueAsBytes(any())).thenReturn("{'test': 'test'}".getBytes());
 		final PersistentFileHandler persistentFileHandler = new PersistentFileHandler(new LibListCallbackHandler(null,
 				DockerAction.LIB_LIST, "uuid", "test", "das"), 1L, "/opt/test");
 
-		fileSystemCallbackHandlerDao.save(persistentFileHandler);
+		fileSystemCallbackHandlerDao.upsert(persistentFileHandler);
 
-		verify(configuration).getHandlerDirectory();
+		verify(configuration, times(2)).getHandlerDirectory();
 		verify(mapper).writeValueAsBytes(refEq(persistentFileHandler));
 		assertTrue(new File(handlersFolders + File.separator + "LibListCallbackHandler_uuid.json").exists());
+		verifyNoMoreInteractions(mapper, configuration, dao);
+	}
+
+	@Test
+	public void upsertTwoSimilarHandlers() throws IOException {
+		final String handlersFolders = getHandlersFolder();
+		when(configuration.getHandlerDirectory()).thenReturn(handlersFolders);
+		when(mapper.writeValueAsBytes(any())).thenReturn("{'test': 'test'}".getBytes());
+		final PersistentFileHandler persistentFileHandler1 = new PersistentFileHandler(new DockerWarmuper()
+				.new DockerFileHandlerCallback("sameUUID"), 1L, "/opt/test");
+		final PersistentFileHandler persistentFileHandler2 = new PersistentFileHandler(new LibListCallbackHandler(null,
+				DockerAction.LIB_LIST, "sameUUID", "test", "das1"), 1L, "/opt/test");
+		final PersistentFileHandler persistentFileHandler3 = new PersistentFileHandler(new LibListCallbackHandler(null,
+				DockerAction.LIB_LIST, "anotherUUID", "test", "das2"), 1L, "/opt/test");
+
+
+		fileSystemCallbackHandlerDao.upsert(persistentFileHandler1);
+		fileSystemCallbackHandlerDao.upsert(persistentFileHandler2);
+		fileSystemCallbackHandlerDao.upsert(persistentFileHandler3);
+
+		verify(configuration, times(6)).getHandlerDirectory();
+		verify(mapper).writeValueAsBytes(refEq(persistentFileHandler1));
+		verify(mapper).writeValueAsBytes(refEq(persistentFileHandler2));
+		verify(mapper).writeValueAsBytes(refEq(persistentFileHandler3));
+		assertTrue(new File(handlersFolders + File.separator + "LibListCallbackHandler_sameUUID.json").exists());
+		assertTrue(new File(handlersFolders + File.separator + "LibListCallbackHandler_anotherUUID.json").exists());
+		assertFalse(new File(handlersFolders + File.separator + "DockerFileHandlerCallback_sameUUID.json").exists());
 		verifyNoMoreInteractions(mapper, configuration, dao);
 	}
 

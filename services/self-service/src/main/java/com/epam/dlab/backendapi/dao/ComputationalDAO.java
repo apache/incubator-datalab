@@ -18,10 +18,7 @@ package com.epam.dlab.backendapi.dao;
 
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
-import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.dto.StatusEnvBaseDTO;
-import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -31,16 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
-import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
 import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
@@ -60,6 +53,9 @@ public class ComputationalDAO extends BaseDAO {
 	static final String IMAGE = "image";
 	public static final String COMPUTATIONAL_NOT_FOUND_MSG = "Computational resource %s affiliated with exploratory " +
 			"%s for user %s not found";
+	private static final String COMPUTATIONAL_URL = "computational_url";
+	private static final String COMPUTATIONAL_URL_DESC = "description";
+	private static final String COMPUTATIONAL_URL_URL = "url";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -287,6 +283,9 @@ public class ComputationalDAO extends BaseDAO {
 			if (dto.getComputationalId() != null) {
 				values.append(computationalFieldFilter(COMPUTATIONAL_ID), dto.getComputationalId());
 			}
+			if (dto.getResourceUrl() != null && !dto.getResourceUrl().isEmpty()) {
+				values.append(computationalFieldFilter(COMPUTATIONAL_URL), getResourceUrlData(dto));
+			}
 			return updateOne(USER_INSTANCES, and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
 					elemMatch(COMPUTATIONAL_RESOURCES,
 							and(eq(COMPUTATIONAL_NAME, dto.getComputationalName()),
@@ -295,6 +294,18 @@ public class ComputationalDAO extends BaseDAO {
 		} catch (Exception t) {
 			throw new DlabException("Could not update computational resource status", t);
 		}
+	}
+
+	private List<Map<String, String>> getResourceUrlData(ComputationalStatusDTO dto) {
+		return dto.getResourceUrl().stream()
+				.map(this::toUrlDocument).collect(Collectors.toList());
+	}
+
+	private LinkedHashMap<String, String> toUrlDocument(ResourceURL url) {
+		LinkedHashMap<String, String> map = new LinkedHashMap<>();
+		map.put(COMPUTATIONAL_URL_DESC, url.getDescription());
+		map.put(COMPUTATIONAL_URL_URL, url.getUrl());
+		return map;
 	}
 
 

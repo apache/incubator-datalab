@@ -32,6 +32,7 @@ import { ManageUngitService } from './services/manageUngit.service';
 import { BillingReportService } from './services/billingReport.service';
 import { BackupService } from './services/backup.service';
 import { SchedulerService } from './services/scheduler.service';
+import { ManageEnvironmentsService } from './services/managementEnvironments.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -59,6 +60,7 @@ export class CoreModule {
         BillingReportService,
         BackupService,
         SchedulerService,
+        ManageEnvironmentsService,
         ApplicationServiceFacade
       ]
     };

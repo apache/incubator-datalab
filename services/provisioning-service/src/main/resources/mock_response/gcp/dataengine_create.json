@@ -5,7 +5,13 @@
       "instance_id": "${CLUSTER_ID}",
       "key_name": "${CONF_KEY_NAME}",
       "hostname": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-${EXPLORATORY_NAME}-${COMPUTATIONAL_NAME}",
-      "Action": "Create new Data Engine"
+      "Action": "Create new Data Engine",
+      "computational_url": [
+        {
+          "url": "http://172.31.48.131:8080/",
+          "description": "Spark job tracker url"
+        }
+      ]
     },
     "log": "/var/log/dlab/dataengine/dataengine_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },

@@ -176,6 +176,10 @@ public class EnvStatusDAO extends BaseDAO {
 		).collect(Collectors.toSet());
 	}
 
+	public Set<String> fetchAllUsers() {
+		return stream(find(USER_INSTANCES)).map(d -> d.getString(USER)).collect(Collectors.toSet());
+	}
+
 	@SuppressWarnings("unchecked")
 	private void updateUserResourceStatuses(String user, EnvResourceList list, Document exp) {
 		final String exploratoryName = exp.getString(EXPLORATORY_NAME);

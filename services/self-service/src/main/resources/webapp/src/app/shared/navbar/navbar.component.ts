@@ -38,6 +38,7 @@ export class NavbarComponent implements OnInit {
 
   @Input() healthStatus: string;
   @Input() billingEnabled: boolean;
+  @Input() admin: boolean;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
