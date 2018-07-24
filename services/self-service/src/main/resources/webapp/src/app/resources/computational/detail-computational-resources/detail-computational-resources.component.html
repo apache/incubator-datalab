@@ -70,6 +70,12 @@ limitations under the License.
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
         </div>
+        <div class="links_block">
+          <p *ngFor="let item of resource.computational_url">
+            <strong><b class="highlight">&#9642;</b> {{ item.description }}:</strong>
+            <a href="{{item.url}}" target="_blank">{{ item.url }}</a>
+          </p>
+        </div>
       </div>
       <div class="row-wrap detail-info content-box" *ngIf="resource.error_message">
         <p class="failed">{{resource.error_message}}</p>
