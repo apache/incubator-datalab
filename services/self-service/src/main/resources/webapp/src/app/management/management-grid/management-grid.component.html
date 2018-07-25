@@ -62,7 +62,7 @@ limitations under the License.
     </td>
     <td class="settings">
       <span #settings class="actions" (click)="actions.toggle($event, settings)"
-            [ngClass]="{'disabled': !uploadKey || env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping'}"></span>
+            [ngClass]="{'disabled': !uploadKey || isResourcesInProgress(env) || env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping'}"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
           <li (click)="toggleResourceAction(env, 'stop')" [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating_image'}">

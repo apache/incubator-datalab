@@ -63,6 +63,17 @@ export class ManagementGridComponent implements OnInit {
       result && this.actionToggle.emit({ action, environment, resource });
     });
   }
+
+  isResourcesInProgress(notebook) {
+    if(notebook && notebook.resources.length) {
+      return notebook.resources.filter(resource => (
+        resource.status !== 'failed'
+        && resource.status !== 'terminated'
+        && resource.status !== 'running'
+        && resource.status !== 'stopped')).length > 0;
+    }
+    return false;
+  }
 }
 
 @Component({
