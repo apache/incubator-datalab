@@ -134,9 +134,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
         print('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {} --r_mirror {}" \
-            .format(instance_hostname, keyfile_name, os.environ['aws_region'], notebook_config['rstudio_pass'],
-                    os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'], os.environ['notebook_r_mirror'])
+        params = "--hostname {}  --keyfile {} " \
+                 "--region {} --rstudio_pass {} " \
+                 "--rstudio_version {} --os_user {} " \
+                 "--r_mirror {} --exploratory_name {}" \
+            .format(instance_hostname, keyfile_name,
+                    os.environ['aws_region'], notebook_config['rstudio_pass'],
+                    os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
+                    os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
         except:
@@ -238,7 +243,7 @@ if __name__ == "__main__":
     rstudio_dns_url = "http://" + dns_name + ":8787/"
     rstudio_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
     rstudio_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
-    ungit_ip_url = "http://" + ip_address + ":8085/"
+    ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))
@@ -271,11 +276,14 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "RStudio",
-                    "url": rstudio_ip_url},
-                   {"description": "RStudioUI",
                     "url": rstudio_notebook_acces_url},
-                   {"description": "UngitUI",
-                    "url": rstudio_ungit_acces_url}],
+                   {"description": "Ungit",
+                    "url": rstudio_ungit_acces_url},
+                   {"description": "RStudio (via tunnel)",
+                    "url": rstudio_ip_url},
+                   {"description": "Ungit (via tunnel)",
+                    "url": ungit_ip_url}
+               ],
                "exploratory_user": notebook_config['dlab_ssh_user'],
                "exploratory_pass": notebook_config['rstudio_pass']}
         result.write(json.dumps(res))

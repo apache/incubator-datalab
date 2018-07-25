@@ -81,7 +81,8 @@ parser.add_argument('--cost', type=str, default='BlendedCost', help='Column name
 parser.add_argument('--resource_id', type=str, default='ResourceId', help='Column name in report file that contains dlab resource id tag')
 parser.add_argument('--ldap_hostname', type=str, default='', help='Ldap instance hostname')
 parser.add_argument('--ldap_dn', type=str, default='', help='Ldap distinguished name (dc=example,dc=com)')
-parser.add_argument('--ldap_user', type=str, default='', help='Ldap admin user name')
+parser.add_argument('--ldap_ou', type=str, default='', help='Ldap organisation unit (ou=People)')
+parser.add_argument('--ldap_service_username', type=str, default='', help='Ldap admin user name')
 parser.add_argument('--ldap_service_password', type=str, default='', help='Ldap password for admin user')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],

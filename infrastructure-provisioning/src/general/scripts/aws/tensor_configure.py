@@ -241,11 +241,11 @@ if __name__ == "__main__":
     ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensorboard_url = "http://" + ip_address + ":6006/"
-    jupyter_ip_url = "http://" + ip_address + ":8888/"
+    jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
     jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
     tensorboard_acces_url = "http://" + edge_instance_ip + "/{}-tensor/".format(notebook_config['exploratory_name'])
     jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
-    ungit_ip_url = "http://" + ip_address + ":8085/"
+    ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))
@@ -276,11 +276,16 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Jupyter",
-                    "url": jupyter_ip_url},
-                   {"description": "JupyterUI",
                     "url": jupyter_notebook_acces_url},
-                   {"description": "TensorBoardUI",
+                   {"description": "TensorBoard",
                     "url": tensorboard_acces_url},
-                   {"description": "UngitUI",
-                    "url": jupyter_ungit_acces_url}]}
+                   {"description": "Ungit",
+                    "url": jupyter_ungit_acces_url},
+                   {"description": "Jupyter (via tunnel)",
+                    "url": jupyter_ip_url},
+                   {"description": "TensorBoard (via tunnel)",
+                    "url": tensorboard_url},
+                   {"description": "Ungit (via tunnel)",
+                    "url": ungit_ip_url}
+               ]}
         result.write(json.dumps(res))

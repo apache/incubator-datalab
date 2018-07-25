@@ -370,7 +370,10 @@ if __name__ == "__main__":
                    "instance_id": get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name']),
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine",
-                   "computational_name": spark_master_acces_url}
+                   "computational_url": [
+                       {"description": "SPARK Master",
+                        "url": spark_master_acces_url}
+                   ]}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:
