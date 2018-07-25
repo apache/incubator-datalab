@@ -177,7 +177,8 @@ public class EnvStatusDAO extends BaseDAO {
 	}
 
 	public Set<String> fetchAllUsers() {
-		return stream(find(USER_INSTANCES)).map(d -> d.getString(USER)).collect(Collectors.toSet());
+		return stream(find(USER_EDGE)).map(d -> d.getString(ID))
+				.collect(Collectors.toSet());
 	}
 
 	@SuppressWarnings("unchecked")

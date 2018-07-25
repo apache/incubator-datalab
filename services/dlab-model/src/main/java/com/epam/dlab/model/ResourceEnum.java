@@ -17,6 +17,21 @@
  */
 package com.epam.dlab.model;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum ResourceEnum {
-	EDGE_NODE, NOTEBOOK
+	EDGE_NODE("edge node"),
+	NOTEBOOK("notebook");
+
+	private String name;
+
+	ResourceEnum(String name) {
+		this.name = name;
+	}
+
+	@JsonValue
+	@Override
+	public String toString() {
+		return name;
+	}
 }
