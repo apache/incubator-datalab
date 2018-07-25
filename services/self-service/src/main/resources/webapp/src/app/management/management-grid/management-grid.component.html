@@ -28,7 +28,7 @@ limitations under the License.
 
   <tr *ngFor="let env of allEnvironmentData">
     <td>{{ env.user }}</td>
-    <td>{{ env.name }}</td>
+    <td [ngClass]="{'capitalize': env.name === 'edge node'}">{{ env.name }}</td>
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
     <td>{{ env.shape }}</td>
     <td>
