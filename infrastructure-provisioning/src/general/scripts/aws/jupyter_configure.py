@@ -261,7 +261,7 @@ if __name__ == "__main__":
     jupyter_dns_url = "http://" + dns_name + ":8888/{}/".format(notebook_config['exploratory_name'])
     jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
     jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
-    ungit_ip_url = "http://" + ip_address + ":8085/"
+    ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))
@@ -294,9 +294,12 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Jupyter",
-                    "url": jupyter_ip_url},
-                   {"description": "JupyterUI",
                     "url": jupyter_notebook_acces_url},
-                   {"description": "UngitUI",
-                    "url": jupyter_ungit_acces_url}]}
+                   {"description": "Ungit",
+                    "url": jupyter_ungit_acces_url},
+                   {"description": "Jupyter (via tunnel)",
+                    "url": jupyter_ip_url},
+                   {"description": "Ungit (via tunnel)",
+                    "url": ungit_ip_url}
+               ]}
         result.write(json.dumps(res))

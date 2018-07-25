@@ -37,6 +37,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--rstudio_pass', type=str, default='')
 parser.add_argument('--rstudio_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']

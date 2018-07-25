@@ -253,7 +253,10 @@ if __name__ == "__main__":
                    "key_name": emr_conf['key_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
                    "Action": "Create new EMR cluster",
-                   "computational_name": emr_master_acces_url}
+                   "computational_url": [
+                       {"description": "EMR Master",
+                        "url": emr_master_acces_url}
+                   ]}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:
