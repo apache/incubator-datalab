@@ -108,3 +108,6 @@ logging:
       archive: true
       archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
       archivedFileCount: 10
+
+clusterInactivityCheckerEnabled: true
+clusterInactivityCheckingTimeout: 120m

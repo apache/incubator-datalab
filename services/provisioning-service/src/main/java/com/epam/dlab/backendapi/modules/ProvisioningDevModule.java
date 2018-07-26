@@ -35,7 +35,6 @@ import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
 import com.google.inject.name.Names;
 import io.dropwizard.setup.Environment;
 
@@ -78,6 +77,7 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 	/**
 	 * Creates and returns the mock object for authentication service.
 	 */
+	@SuppressWarnings("unchecked")
 	private RESTService createAuthenticationService() {
 		return new RESTService() {
 			@Override
