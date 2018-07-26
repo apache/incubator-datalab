@@ -55,8 +55,6 @@ export class ManagementComponent implements OnInit {
   }
 
   public manageEnvironmentAction($event) {
-    console.log($event);
-
     this.manageEnvironmentsService
       .environmentManagement(
         $event.environment.user,
