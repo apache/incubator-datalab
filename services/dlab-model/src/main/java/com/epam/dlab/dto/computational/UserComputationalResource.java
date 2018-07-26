@@ -50,4 +50,6 @@ public class UserComputationalResource {
 	private boolean reuploadKeyRequired = false;
 	@JsonProperty("computational_url")
 	private List<ResourceURL> resourceUrl;
+	@JsonProperty("last_activity")
+	private Date lastActivity;
 }

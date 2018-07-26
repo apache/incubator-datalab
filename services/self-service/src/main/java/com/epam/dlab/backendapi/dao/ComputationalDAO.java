@@ -56,6 +56,7 @@ public class ComputationalDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_URL = "computational_url";
 	private static final String COMPUTATIONAL_URL_DESC = "description";
 	private static final String COMPUTATIONAL_URL_URL = "url";
+	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -285,6 +286,9 @@ public class ComputationalDAO extends BaseDAO {
 			}
 			if (dto.getResourceUrl() != null && !dto.getResourceUrl().isEmpty()) {
 				values.append(computationalFieldFilter(COMPUTATIONAL_URL), getResourceUrlData(dto));
+			}
+			if (dto.getLastActivity() != null) {
+				values.append(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY), dto.getLastActivity());
 			}
 			return updateOne(USER_INSTANCES, and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
 					elemMatch(COMPUTATIONAL_RESOURCES,
