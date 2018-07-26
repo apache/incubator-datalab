@@ -18,6 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject, ViewEncapsulation } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ConfirmationDialogType } from '../../shared';
 
 export interface ManageAction {
   action: string;
@@ -54,19 +55,38 @@ export class ManagementGridComponent implements OnInit {
   }
 
   toggleResourceAction(environment, action, resource?) {
-    let resource_name = resource ? resource.computational_name : environment.name;
-    const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
-      data: { action, resource_name, user: environment.user },
-      width: '550px'
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      result && this.actionToggle.emit({ action, environment, resource });
-    });
+    if (resource) {
+      let resource_name = resource ? resource.computational_name : environment.name;
+      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
+        data: { action, resource_name, user: environment.user },
+        width: '550px'
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        result && this.actionToggle.emit({ action, environment, resource });
+      });
+    } else {
+      if (action === 'stop') {
+        this.confirmationDialog.open({ isFooter: false }, environment, environment.name === 'edge node' ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory);
+      } else if (action === 'terminate') {
+        this.confirmationDialog.open({ isFooter: false }, environment, ConfirmationDialogType.TerminateExploratory);
+      }
+    }
+  }
+
+  isResourcesInProgress(notebook) {
+    if(notebook && notebook.resources.length) {
+      return notebook.resources.filter(resource => (
+        resource.status !== 'failed'
+        && resource.status !== 'terminated'
+        && resource.status !== 'running'
+        && resource.status !== 'stopped')).length > 0;
+    }
+    return false;
   }
 }
 
 @Component({
-  selector: 'confirmation-dialog',
+  selector: 'confirm-dialog',
   template: `
   <div mat-dialog-content class="content">
 

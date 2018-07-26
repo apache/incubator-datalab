@@ -21,19 +21,21 @@ import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
-import { UserResourceService, HealthStatusService } from '../../../core/services';
+import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 
 export class ConfirmationDialogModel {
   private title: string;
   private notebook: any;
   private confirmAction: Function;
+  private manageAction: Function;
   private userResourceService: UserResourceService;
   private healthStatusService: HealthStatusService;
+  private manageEnvironmentsService: ManageEnvironmentsService;
 
   static getDefault(): ConfirmationDialogModel {
     return new
       ConfirmationDialogModel(
-      ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, null, null);
+      ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, false, null, null, null);
   }
 
   constructor(
@@ -41,11 +43,15 @@ export class ConfirmationDialogModel {
     notebook: any,
     fnProcessResults: any,
     fnProcessErrors: any,
+    manageAction,
     userResourceService: UserResourceService,
-    healthStatusService: HealthStatusService
+    healthStatusService: HealthStatusService,
+    manageEnvironmentsService: ManageEnvironmentsService
   ) {
     this.userResourceService = userResourceService;
     this.healthStatusService = healthStatusService;
+    this.manageEnvironmentsService = manageEnvironmentsService;
+    this.manageAction = manageAction;
     this.setup(confirmationType, notebook, fnProcessResults, fnProcessErrors);
   }
 
@@ -64,16 +70,22 @@ export class ConfirmationDialogModel {
   }
 
 
-  private stopExploratory(): Observable<Response> {
-    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
+  private stopExploratory(): Observable<{} | Response> {
+    return this.manageAction 
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.name)
+      : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
-  private terminateExploratory(): Observable<Response> {
-    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
+  private terminateExploratory(): Observable<{} | Response> {
+    return this.manageAction 
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'terminate', this.notebook.name)
+      : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
-  private stopEdgeNode(): Observable<Response> {
-    return this.healthStatusService.suspendEdgeNode();
+  private stopEdgeNode(): Observable<{} | Response> {
+    return this.manageAction 
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', 'edge')
+      : this.healthStatusService.suspendEdgeNode();
   }
 
   private setup(confirmationType: ConfirmationDialogType, notebook: any, fnProcessResults: any, fnProcessErrors: any): void {

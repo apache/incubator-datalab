@@ -339,7 +339,6 @@ def install_ungit(os_user, notebook_name):
         try:
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
-            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(notebook_name))
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
             run('git config --global user.name "Example User"')
@@ -361,6 +360,7 @@ def install_ungit(os_user, notebook_name):
             sys.exit(1)
     run('git config --global http.proxy $http_proxy')
     run('git config --global https.proxy $https_proxy')
+    sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(notebook_name))
 
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):
