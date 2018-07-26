@@ -37,7 +37,7 @@ limitations under the License.
         <div class="detail-info" *ngIf="!notebook.error_message">
           <p>Edge Node IP Address {{notebook.ip}}</p>
           <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
-          <p>Open following URL(s) in your browser to access this box after creating a tunnel:</p>
+          <p>Open following URL(s) in your browser to access this box:</p>
           <div class="links_block">
             <p *ngFor="let item of notebook.url">
               <strong><b class="highlight">&#9642;</b> {{item.description}}:</strong>
