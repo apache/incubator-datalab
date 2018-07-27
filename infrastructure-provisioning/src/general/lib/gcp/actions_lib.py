@@ -765,7 +765,7 @@ class GCPActions:
     def set_cluster_volume_tag(self, clusteName, region, zone):
         try:
             print('Setting volume tags')
-            print clusteName + ':' + region + ':' + zone
+            print(clusteName + ':' + region + ':' + zone)
             result = self.dataproc.projects().regions().clusters().list(
                 projectId=self.project,
                 region=region).execute()
@@ -774,7 +774,7 @@ class GCPActions:
             labels = ''
             for cluster in clusters:
                 if cluster['clusterName'] == clusteName:
-                    print cluster
+                    print(cluster)
                     labels = cluster.get('labels')
                     master_instances = cluster.get('config').get('masterConfig').get('instanceNames')
                     slave_instances = cluster.get('config').get('workerConfig').get('instanceNames')
@@ -1136,6 +1136,7 @@ class GCPActions:
                 venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
                 local('{0} && sudo -i {1} install -U pip==9.0.3'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install install pyzmq==16.0.4'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
                       .format(venv_command, pip_command))
