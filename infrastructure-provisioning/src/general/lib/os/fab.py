@@ -342,9 +342,9 @@ def install_ungit(os_user, notebook_name):
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             http_proxy = run('echo $http_proxy')
             sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
-            sudo("cp -f /tmp/ungit.service /etc/systemd/system/ungit.service")
-            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /etc/systemd/system/ungit.service".format(
+            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
                 notebook_name))
+            sudo("mv -f /tmp/ungit.service /etc/systemd/system/ungit.service")
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
             run('mkdir -p ~/.git/templates/hooks')
@@ -364,8 +364,7 @@ def install_ungit(os_user, notebook_name):
             sys.exit(1)
     else:
         try:
-            sudo('cp -f /tmp/ungit.service /etc/systemd/system/ungit.service')
-            sudo("sed -i 's||{}|' /etc/systemd/system/ungit.service".format(
+            sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
             sudo('systemctl daemon-reload')
             sudo('systemctl restart ungit.service')

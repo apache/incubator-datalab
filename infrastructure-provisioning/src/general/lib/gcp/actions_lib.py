@@ -765,7 +765,7 @@ class GCPActions:
     def set_cluster_volume_tag(self, clusteName, region, zone):
         try:
             print('Setting volume tags')
-            print clusteName + ':' + region + ':' + zone
+            print(clusteName + ':' + region + ':' + zone)
             result = self.dataproc.projects().regions().clusters().list(
                 projectId=self.project,
                 region=region).execute()
@@ -774,7 +774,7 @@ class GCPActions:
             labels = ''
             for cluster in clusters:
                 if cluster['clusterName'] == clusteName:
-                    print cluster
+                    print(cluster)
                     labels = cluster.get('labels')
                     master_instances = cluster.get('config').get('masterConfig').get('instanceNames')
                     slave_instances = cluster.get('config').get('workerConfig').get('instanceNames')
