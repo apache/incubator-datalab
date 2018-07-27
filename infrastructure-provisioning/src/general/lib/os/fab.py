@@ -54,17 +54,12 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
         sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
-        sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version,
-                                                           os.environ['conf_pip_version']))
+        sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
-            sudo(
-                '{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -i -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(
-                    pip_version, pip_pkg, error_parser))
+            sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -i -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
-            sudo(
-                '{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(
-                    pip_version, pip_pkg))
+            sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
             changed_pip_pkg = False
             if res == '':
@@ -83,13 +78,11 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = [i for i in ver if changed_pip_pkg.lower() in i][0].split('==')[1]
                 else:
                     version = \
-                        [i for i in ver if pip_pkg.lower() in i][0].split(
-                            '==')[1]
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version,
-                               "status": "installed"})
+                    [i for i in ver if pip_pkg.lower() in i][0].split(
+                        '==')[1]
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
             else:
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed",
-                               "error_message": err})
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": err})
         return status
     except Exception as err:
         append_result("Failed to install {} packages".format(pip_version), str(err))
@@ -131,8 +124,7 @@ def append_result(error, exception=''):
     with open("/root/result.json") as f:
         data = json.load(f)
     if exception:
-        data['error'] = data['error'] + " [Error-" + st + "]:" + error + " Exception: " + str(
-            exception)
+        data['error'] = data['error'] + " [Error-" + st + "]:" + error + " Exception: " + str(exception)
     else:
         data['error'] = data['error'] + " [Error-" + st + "]:" + error
     with open("/root/result.json", 'w') as f:
@@ -145,8 +137,7 @@ def put_resource_status(resource, status, dlab_path, os_user, hostname):
     keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
-    sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource,
-                                                                                           status))
+    sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
@@ -162,24 +153,19 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 run('mkdir -p ~/.jupyter/custom/')
                 run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
-            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name,
-                                                                           jupyter_conf_file))
+            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
             sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
-            sudo(
-                'echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
+            sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
-            sudo(
-                'echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
+            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
             put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
             sudo("chmod 644 /tmp/jupyter-notebook.service")
             if os.environ['application'] == 'tensor':
-                sudo(
-                    "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
             elif os.environ['application'] == 'deeplearning':
-                sudo(
-                    "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
-                    "/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
-                    "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
+                     "/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
+                     "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
@@ -198,8 +184,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
     else:
         try:
             sudo(
-                'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(
-                    exploratory_name, jupyter_conf_file))
+                'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(exploratory_name, jupyter_conf_file))
             sudo("systemctl restart jupyter-notebook")
         except Exception as err:
             print('Error:', str(err))
@@ -215,9 +200,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
-            sudo(
-                'sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(
-                    os_user))
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
             sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
         except:
@@ -233,17 +216,14 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
-            sudo(
-                'sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(
-                    os_user))
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
         except:
             sys.exit(1)
 
 
-def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_version, bucket,
-                   user_name, region, os_user='',
+def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
                    application='', pip_mirror=''):
     spark_path = '/opt/{0}/{1}/spark/'.format(dataengine_service_version, cluster_name)
     local('mkdir -p {0}pyspark_{1}/'.format(kernels_dir, cluster_name))
@@ -261,9 +241,8 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/kernel_var.json')
-    local(
-        "PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json".
-        format(dataengine_service_version, cluster_name, kernel_path, os_user))
+    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json".
+          format(dataengine_service_version, cluster_name, kernel_path, os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
@@ -280,28 +259,22 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
         text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_PATH',
-                            '/opt/python/python' + python_version[:5] + '/bin/python' +
+        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
                             python_version[:3])
         text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
-        local(
-            "PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json"
-            .format(dataengine_service_version, cluster_name, kernel_path, os_user))
+        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json"
+              .format(dataengine_service_version, cluster_name, kernel_path, os_user))
         local('sudo mv /tmp/kernel_var.json {}'.format(kernel_path))
 
 
 def ensure_ciphers():
-    sudo(
-        'echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
-    sudo(
-        'echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
-    sudo(
-        'echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
-    sudo(
-        'echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
+    sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
+    sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
+    sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
+    sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
     try:
         sudo('service ssh restart')
     except:
@@ -314,25 +287,17 @@ def install_r_pkg(requisites):
     try:
         for r_pkg in requisites:
             if r_pkg == 'sparklyr':
-                run(
-                    'sudo -i R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(
-                        r_pkg, error_parser))
-            sudo(
-                'R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(
-                    r_pkg, error_parser))
+                run('sudo -i R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
-            sudo(
-                'R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(
-                    r_pkg))
+            sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
-                status.append(
-                    {"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
+                status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
             else:
-                status.append(
-                    {"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": err})
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": err})
         return status
     except:
         return "Fail to install R packages"
@@ -341,8 +306,7 @@ def install_r_pkg(requisites):
 def get_available_r_pkgs():
     try:
         r_pkgs = dict()
-        sudo(
-            'R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+        sudo('R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
         get("/tmp/r.csv", "r.csv")
         with open('r.csv', 'rb') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
@@ -353,8 +317,7 @@ def get_available_r_pkgs():
         sys.exit(1)
 
 
-def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version,
-                              spark_version):
+def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
     if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
         try:
             sudo('pip install ' + toree_link + ' --no-cache-dir')
@@ -485,13 +448,12 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         conf = [i for i in conf if cluster_name not in i]
         comment_all = lambda x: x if x.startswith('#master') else '#{}'.format(x)
         uncomment = lambda x: x[1:] if not x.startswith('#master') else x
-        conf = [comment_all(i) for i in conf]
-        conf = [uncomment(i) for i in conf]
+        conf =[comment_all(i) for i in conf]
+        conf =[uncomment(i) for i in conf]
         last_spark = max([conf.index(i) for i in conf if 'master=' in i] or [0])
         active_cluster = conf[last_spark].split('"')[-2] if last_spark != 0 else None
-        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if
-                                    conf[l].startswith("#")] \
-               + [conf[l] for l in range(last_spark, len(conf)) if not conf[l].startswith('#')]
+        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")] \
+                                 + [conf[l] for l in range(last_spark, len(conf)) if not conf[l].startswith('#')]
         with open('.Rprofile', 'w') as f:
             for line in conf:
                 f.write('{}\n'.format(line))
@@ -507,15 +469,14 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
             conf = [activate_cluster(i) for i in conf]
         else:
             last_spark = max([conf.index(i) for i in conf if 'SPARK_HOME' in i])
-            conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if
-                                        conf[l].startswith("#")]
+            conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
         with open('.Renviron', 'w') as f:
             for line in conf:
                 f.write('{}\n'.format(line))
         put('.Renviron', '/home/{}/.Renviron'.format(os_user))
         if len(conf) == 1:
-            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
-            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
         sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
     except:
         sys.exit(1)
@@ -562,12 +523,10 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
             string = string[:-1]
         return string
     except Exception as err:
-        logging.info("Error with replacing multi symbols: " + str(
-            err) + "\n Traceback: " + traceback.print_exc(
+        logging.info("Error with replacing multi symbols: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
         append_result(str({"error": "Error with replacing multi symbols",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -587,8 +546,8 @@ def find_cluster_kernels():
         with settings(sudo_user='root'):
             de = [i for i in sudo('find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | '
                                   'cut -f 1 -d "/" | rev | xargs -r').split(' ') if i != '']
-            des = [i for i in sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
-                                   'cut -f 1,2 -d "/" | rev | xargs -r').split(' ') if i != '']
+            des =  [i for i in sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
+                                    'cut -f 1,2 -d "/" | rev | xargs -r').split(' ') if i != '']
         return (de, des)
     except:
         sys.exit(1)
@@ -602,22 +561,18 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
             get(local_interpreters_config, local_interpreters_config)
         if multiple_clusters == 'true':
             groups = [{"class": "org.apache.zeppelin.livy.LivySparkInterpreter", "name": "spark"},
-                      {"class": "org.apache.zeppelin.livy.LivyPySparkInterpreter",
-                       "name": "pyspark"},
-                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter",
-                       "name": "pyspark3"},
+                      {"class": "org.apache.zeppelin.livy.LivyPySparkInterpreter", "name": "pyspark"},
+                      {"class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter", "name": "pyspark3"},
                       {"class": "org.apache.zeppelin.livy.LivySparkSQLInterpreter", "name": "sql"}]
             if r_enabled:
-                groups.append(
-                    {"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"})
+                groups.append({"class": "org.apache.zeppelin.livy.LivySparkRInterpreter", "name": "sparkr"})
         else:
-            groups = [{"class": "org.apache.zeppelin.spark.SparkInterpreter", "name": "spark"},
+            groups = [{"class": "org.apache.zeppelin.spark.SparkInterpreter","name": "spark"},
                       {"class": "org.apache.zeppelin.spark.PySparkInterpreter", "name": "pyspark"},
                       {"class": "org.apache.zeppelin.spark.SparkSqlInterpreter", "name": "sql"}]
             if r_enabled:
                 groups.append({"class": "org.apache.zeppelin.spark.SparkRInterpreter", "name": "r"})
-        r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%",
-                  "zeppelin.R.cmd": "R",
+        r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%", "zeppelin.R.cmd": "R",
                   "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
         if interpreter_mode != 'remote':
             data = json.loads(open(local_interpreters_config).read())
