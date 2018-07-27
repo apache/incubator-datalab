@@ -17,20 +17,26 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
 import com.epam.dlab.rest.contracts.InfrasctructureAPI;
+import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.UUID;
 
 @Path(InfrasctructureAPI.INFRASTRUCTURE)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class InfrastructureResource {
+
+	@Inject
+	private CheckInactivityService checkInactivityService;
 
 	/**
 	 * Return status of provisioning service.
@@ -38,6 +44,13 @@ public class InfrastructureResource {
 	@GET
 	public Response status(@Auth UserInfo ui) {
 		return Response.status(Response.Status.OK).build();
+	}
+
+	@POST
+	@Path("check_inactivity")
+	public String checkClusterInactivity(@Auth UserInfo ui, List<ComputationalCheckInactivityDTO> instances) {
+		checkInactivityService.checkClusterAction(ui.getName(), instances, DockerAction.CHECK_INACTIVITY);
+		return UUID.randomUUID().toString();
 	}
 
 }

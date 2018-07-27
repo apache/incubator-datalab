@@ -84,4 +84,9 @@ public interface SchedulerJobService {
 	 * @param isAppliedForClusters true/false
 	 */
 	void executeTerminateResourceJob(boolean isAppliedForClusters);
+
+	/**
+	 * Executes check cluster inactivity job for all running clusters.
+	 */
+	String executeCheckClusterInactivityJob();
 }

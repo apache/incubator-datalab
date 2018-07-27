@@ -91,9 +91,10 @@ public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatus
     @Override
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
-				.add("ComputationalUrl", resourceUrl)
+				.add("computationalUrl", resourceUrl)
     	        .add("computationalId", computationalId)
-    	        .add("computationalName", computationalName);
+				.add("computationalName", computationalName)
+				.add("lastActivity", lastActivity);
     }
     
     @Override

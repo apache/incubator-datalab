@@ -28,12 +28,16 @@ import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,6 +46,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
+import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 
 @Slf4j
@@ -70,6 +75,10 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Inject
 	private SystemUserInfoService systemUserService;
+
+	@Inject
+	@Named(PROVISIONING_SERVICE_NAME)
+	private RESTService provisioningService;
 
 	@Override
 	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
@@ -172,6 +181,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 					changeResourceStatusTo(UserInstanceStatus.TERMINATED, job, isAppliedForClusters));
 		}
 	}
+
+	@Override
+	public String executeCheckClusterInactivityJob() {
+		List<ComputationalCheckInactivityDTO> transformedInstances =
+				computationalService.getComputationalCheckInactivityList(exploratoryDAO.getInstances());
+		return provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY, transformedInstances,
+				String.class);
+	}
+
+
 
 	/**
 	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.

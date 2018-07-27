@@ -17,17 +17,29 @@
  */
 package com.epam.dlab.backendapi.schedulers.computational;
 
+import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
+import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
+/**
+ * There realized integration with Quartz scheduler framework and defined check cluster inactivity scheduler job which
+ * executes every time specified. If in 'self-service.yml' option 'clusterInactivityCheckerEnabled' equals 'true' then
+ * this job we be executing every time predefined in option 'clusterInactivityCheckingTimeout'. Otherwise, it will
+ * never execute.
+ */
 @Slf4j
 @Scheduled
 public class CheckInactivityComputationalJob implements Job {
 
+	@Inject
+	private SchedulerJobService schedulerJobService;
+
 	@Override
 	public void execute(JobExecutionContext context) {
 		log.info("Starting check inactivity cluster job...");
+		schedulerJobService.executeCheckClusterInactivityJob();
 	}
 }

@@ -19,8 +19,11 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.computational.CheckInactivityClustersStatusDTO;
+import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 
 import java.util.List;
@@ -62,4 +65,8 @@ public interface ComputationalService {
 
 	Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
 																 String computationalName);
+
+	List<ComputationalCheckInactivityDTO> getComputationalCheckInactivityList(List<UserInstanceDTO> instances);
+
+	void processData(CheckInactivityClustersStatusDTO dto);
 }

@@ -33,6 +33,8 @@ public class ApiCallbacks {
     public static final String IMAGE_STATUS_URI = IMAGE + "/image_status";
     public static final String BACKUP_URI = API + "/infrastructure/backup" + STATUS_URI;
 	public static final String REUPLOAD_KEY_URI = API + "/infrastructure/reupload_key/callback";
+	public static final String CHECK_INACTIVITY_CLUSTERS_URI = API + "/infrastructure/check_inactivity/clusters" +
+			"/callback";
 
     private ApiCallbacks() {
     }
