@@ -50,8 +50,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        ldap_user = 'uid={}'.format(os.environ['aws_iam_user'])
-        install_nginx_ldap(args.hostname, os.environ['reverse_proxy_nginx_version'], os.environ['ldap_hostname'], os.environ['ldap_dn'], os.environ['ldap_ou'], os.environ['ldap_service_password'], os.environ['ldap_service_username'], ldap_user)
+        install_nginx_ldap(args.hostname, os.environ['reverse_proxy_nginx_version'],
+                           os.environ['ldap_hostname'], os.environ['ldap_dn'],
+                           os.environ['ldap_ou'], os.environ['ldap_service_password'],
+                           os.environ['ldap_service_username'], os.environ['aws_iam_user'])
     except Exception as err:
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)
