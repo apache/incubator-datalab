@@ -393,9 +393,10 @@ def install_ungit(os_user, notebook_name):
             run('echo "spark-warehouse/" >> ~/.gitignore')
             run('echo "metastore_db/" >> ~/.gitignore')
             run('echo "derby.log" >> ~/.gitignore')
-            sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
+            sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')
+            sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
         except:
             sys.exit(1)
     else:
