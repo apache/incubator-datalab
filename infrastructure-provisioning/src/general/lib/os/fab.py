@@ -88,7 +88,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         append_result("Failed to install {} packages".format(pip_version), str(err))
         print("Failed to install {} packages".format(pip_version))
         sys.exit(1)
-        
+
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -340,6 +340,10 @@ def install_ungit(os_user, notebook_name):
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
+            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /etc/systemd/system/ungit.service".format(
+                notebook_name))
+            http_proxy = run('echo $http_proxy')
+            sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
             sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
@@ -358,9 +362,16 @@ def install_ungit(os_user, notebook_name):
             sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
         except:
             sys.exit(1)
+    else:
+        try:
+            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /etc/systemd/system/ungit.service".format(
+                notebook_name))
+            sudo('systemctl daemon-reload')
+            sudo('systemctl restart ungit.service')
+        except:
+            sys.exit(1)
     run('git config --global http.proxy $http_proxy')
     run('git config --global https.proxy $https_proxy')
-    sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(notebook_name))
 
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):
