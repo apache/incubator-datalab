@@ -8,6 +8,8 @@ User=OS_USR
 Group=OS_USR
 WorkingDirectory=/home/OS_USR/
 PIDFile=/var/run/ungit.pid
+Environment="HTTPS_PROXY=PROXY_HOST"
+Environment="HTTP_PROXY=PROXY_HOST"
 
 [Install]
 WantedBy=multi-user.target
