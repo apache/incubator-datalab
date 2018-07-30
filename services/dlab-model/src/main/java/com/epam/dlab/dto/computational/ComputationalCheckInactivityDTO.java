@@ -20,12 +20,11 @@ package com.epam.dlab.dto.computational;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.base.MoreObjects;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class ComputationalCheckInactivityDTO extends ComputationalBase<ComputationalCheckInactivityDTO> {
 
 	@JsonProperty("exploratory_id")
@@ -34,8 +33,18 @@ public class ComputationalCheckInactivityDTO extends ComputationalBase<Computati
 	@JsonProperty("type")
 	private DataEngineType type;
 
+	@JsonSetter
+	public void setType(@JsonProperty("type") String type) {
+		this.type = DataEngineType.fromString(type);
+	}
+
+	public void setType(DataEngineType type) {
+		this.type = type;
+	}
+
+
 	public ComputationalCheckInactivityDTO withExploratoryId(String exploratoryId) {
-		setExploratoryId(exploratoryId);
+		this.exploratoryId = exploratoryId;
 		return this;
 	}
 

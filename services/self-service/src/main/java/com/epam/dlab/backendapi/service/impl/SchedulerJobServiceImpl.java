@@ -29,6 +29,7 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
+import com.epam.dlab.dto.computational.PersistentCheckInactivityDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -186,10 +187,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
 		List<ComputationalCheckInactivityDTO> transformedInstances =
 				computationalService.getComputationalCheckInactivityList(exploratoryDAO.getInstances());
+		PersistentCheckInactivityDTO persistentCheckInactivityDTO =
+				new PersistentCheckInactivityDTO(transformedInstances);
 		return provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-				userInfo.getAccessToken(), transformedInstances, String.class);
+				userInfo.getAccessToken(), persistentCheckInactivityDTO, String.class);
 	}
-
 
 
 	/**

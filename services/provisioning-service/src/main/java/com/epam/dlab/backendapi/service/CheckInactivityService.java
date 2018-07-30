@@ -39,6 +39,7 @@ public class CheckInactivityService extends DockerService implements DockerComma
 	public void checkClusterAction(String userName, List<ComputationalCheckInactivityDTO> instances,
 								   DockerAction action) {
 		log.debug("Admin {} is checking inactivity for clusters...", userName);
+		log.debug("Obtained {} instances: {}", instances.size(), instances);
 
 		long count = instances
 				.stream()
