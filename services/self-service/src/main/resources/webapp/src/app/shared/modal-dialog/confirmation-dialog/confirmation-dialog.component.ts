@@ -29,7 +29,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   moduleId: module.id,
   selector: 'confirmation-dialog',
   templateUrl: 'confirmation-dialog.component.html',
-  styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.css'],
+  styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 

@@ -20,19 +20,17 @@ limitations under the License.
   <modal-header></modal-header>
   <modal-content>
     <div *ngIf="notebook">
-      <div class="detail-header-wrap">
-        <table class="detail-header">
-          <tr>
-            <td>{{notebook.template_name}}</td>
-            <td>
-              <span class="status" ngClass="{{notebook.status || ''}}">
-                {{notebook.status}}
-              </span>
-            </td>
-            <td>{{notebook.shape}}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="detail-header">
+        <tr>
+          <td>{{notebook.template_name}}</td>
+          <td>
+            <span class="status" ngClass="{{notebook.status || ''}}">
+              {{notebook.status}}
+            </span>
+          </td>
+          <td>{{notebook.shape}}</td>
+        </tr>
+      </table>
       <div  class="content-box">
         <div class="detail-info" *ngIf="!notebook.error_message">
           <p>Edge Node IP Address {{notebook.ip}}</p>
