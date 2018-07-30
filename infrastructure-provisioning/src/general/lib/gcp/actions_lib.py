@@ -1138,8 +1138,8 @@ class GCPActions:
                 local('{0} && sudo -i {1} install -U pip==9.0.3'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install install pyzmq==16.0.4'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
-                local('{0} && sudo -i {1} install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
-                      .format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install boto boto3 NumPy=={2} SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
+                      .format(venv_command, pip_command, os.environ['notebook_numpy_version']))
                 if application == 'deeplearning':
                     local('{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(venv_command, pip_command))
                     python_without_dots = python_version.replace('.', '')
