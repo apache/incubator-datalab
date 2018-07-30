@@ -367,8 +367,8 @@ def install_ungit(os_user, notebook_name):
             sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
             http_proxy = run('echo $http_proxy')
-            sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY=\"{}\"|g' /etc/systemd/system/ungit.service".format(http_proxy))
-            sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY=\"{}\"|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             sudo('systemctl daemon-reload')
             sudo('systemctl restart ungit.service')
         except:
