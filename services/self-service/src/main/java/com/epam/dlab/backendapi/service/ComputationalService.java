@@ -68,5 +68,5 @@ public interface ComputationalService {
 
 	List<ComputationalCheckInactivityDTO> getComputationalCheckInactivityList(List<UserInstanceDTO> instances);
 
-	void processData(CheckInactivityClustersStatusDTO dto);
+	void stopOrTerminateClustersByCondition(CheckInactivityClustersStatusDTO dto);
 }

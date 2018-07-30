@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.SchedulerJobDTO;
 
 public interface SchedulerJobService {
@@ -88,5 +89,5 @@ public interface SchedulerJobService {
 	/**
 	 * Executes check cluster inactivity job for all running clusters.
 	 */
-	String executeCheckClusterInactivityJob();
+	String executeCheckClusterInactivityJob(UserInfo userInfo);
 }

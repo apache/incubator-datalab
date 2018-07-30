@@ -183,11 +183,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	@Override
-	public String executeCheckClusterInactivityJob() {
+	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
 		List<ComputationalCheckInactivityDTO> transformedInstances =
 				computationalService.getComputationalCheckInactivityList(exploratoryDAO.getInstances());
-		return provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY, transformedInstances,
-				String.class);
+		return provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
+				userInfo.getAccessToken(), transformedInstances, String.class);
 	}
 
 

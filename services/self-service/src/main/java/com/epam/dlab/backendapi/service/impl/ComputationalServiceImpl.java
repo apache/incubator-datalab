@@ -238,31 +238,32 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@Override
-	public void processData(CheckInactivityClustersStatusDTO dto) {
+	public void stopOrTerminateClustersByCondition(CheckInactivityClustersStatusDTO dto) {
 		if (dto.getCheckInactivityClustersStatus() == CheckInactivityClustersStatus.COMPLETED &&
 				dto.getLastActivityDate() != null) {
 			LocalDateTime lastActivityDate = dto.getLastActivityDate().toInstant()
 					.atZone(ZoneId.systemDefault()).toLocalDateTime();
 			DataEngineType dataEngineType = dto.getCheckInactivityClusterCallbackDTO().getType();
-			Optional<UserComputationalResource> compResource =
-					getComputationalResource(dto.getCheckInactivityClusterCallbackDTO().getEdgeUserName(),
-							dto.getCheckInactivityClusterCallbackDTO().getExploratoryName(),
-							dto.getCheckInactivityClusterCallbackDTO().getComputationalName());
-			if (compResource.isPresent()) {
-				LocalDateTime now = LocalDateTime.now();
-				if (lastActivityDate.plus(configuration.getClusterInactivityCheckingTimeout().toMinutes(),
-						ChronoUnit.MINUTES).isBefore(now)) {
-					UserInfo userInfo =
-							systemUserInfoService.create(dto.getCheckInactivityClusterCallbackDTO().getEdgeUserName());
-					if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
-						terminateComputationalEnvironment(userInfo,
-								dto.getCheckInactivityClusterCallbackDTO().getExploratoryName(),
-								dto.getCheckInactivityClusterCallbackDTO().getComputationalName());
-					} else if (dataEngineType == DataEngineType.SPARK_STANDALONE) {
-						stopSparkCluster(userInfo, dto.getCheckInactivityClusterCallbackDTO().getExploratoryName(),
-								dto.getCheckInactivityClusterCallbackDTO().getComputationalName());
-					}
-				}
+			String user = dto.getCheckInactivityClusterCallbackDTO().getEdgeUserName();
+			String exploratoryName = dto.getCheckInactivityClusterCallbackDTO().getExploratoryName();
+			String computationalName = dto.getCheckInactivityClusterCallbackDTO().getComputationalName();
+			getComputationalResource(user, exploratoryName, computationalName)
+					.ifPresent(cr -> turnOffClustersByCondition(lastActivityDate, dataEngineType, user,
+							exploratoryName,
+							computationalName));
+		}
+	}
+
+	private void turnOffClustersByCondition(LocalDateTime lastActivityDate, DataEngineType dataEngineType, String user,
+											String exploratoryName, String computationalName) {
+		LocalDateTime now = LocalDateTime.now();
+		if (lastActivityDate.plus(configuration.getClusterInactivityCheckingTimeout().toMinutes(),
+				ChronoUnit.MINUTES).isBefore(now)) {
+			UserInfo userInfo = systemUserInfoService.create(user);
+			if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
+				terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+			} else if (dataEngineType == DataEngineType.SPARK_STANDALONE) {
+				stopSparkCluster(userInfo, exploratoryName, computationalName);
 			}
 		}
 	}
