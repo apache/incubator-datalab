@@ -277,7 +277,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy=={} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
+            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
             sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
