@@ -66,6 +66,16 @@ def create_s3_bucket(bucket_name, tag, region):
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
+        boto3.client('s3').put_bucket_encryption(Bucket=bucket_name, ServerSideEncryptionConfiguration={
+            'Rules': [
+                {
+                    'ApplyServerSideEncryptionByDefault': {
+                        'SSEAlgorithm': 'AES256'
+                    }
+                },
+            ]
+        })
+        s3.get_bucket_encryption(bucket_name)
         tags = list()
         tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
