@@ -1186,7 +1186,7 @@ def get_cluster_python_version(region, bucket, user_name, cluster_name):
         sys.exit(1)
 
 
-def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
+def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
     try:
         GCPActions().install_python(bucket, user_name, cluster_name, application)
     except:

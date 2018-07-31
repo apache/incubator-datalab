@@ -45,6 +45,7 @@ parser.add_argument('--excluded_lines', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
+parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
@@ -167,7 +168,7 @@ if __name__ == "__main__":
         yarn(args, yarn_dir)
         install_emr_spark(args)
         pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
-                       args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
+                       args.user_name, args.region, args.os_user, args.application, args.pip_mirror, args.numpy_version)
         toree_kernel(args)
         if args.r_enabled == 'true':
             r_kernel(args)

@@ -75,8 +75,9 @@ if __name__ == "__main__":
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
     r_enabled = os.environ['notebook_r_enabled']
+    numpy_version = os.environ['notebook_numpy_version']
     sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket +
          " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
          spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
-         " --pip_mirror " + args.pip_mirror + " --application " + args.application + " --r_enabled " + r_enabled)
+         " --pip_mirror " + args.pip_mirror + " --numpy_version " + numpy_version + " --application " + args.application + " --r_enabled " + r_enabled)

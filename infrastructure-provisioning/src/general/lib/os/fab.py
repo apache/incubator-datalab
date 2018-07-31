@@ -224,7 +224,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
 
 
 def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
-                   application='', pip_mirror=''):
+                   application='', pip_mirror='', numpy_version='1.14.3'):
     spark_path = '/opt/{0}/{1}/spark/'.format(dataengine_service_version, cluster_name)
     local('mkdir -p {0}pyspark_{1}/'.format(kernels_dir, cluster_name))
     kernel_path = '{0}pyspark_{1}/kernel.json'.format(kernels_dir, cluster_name)
@@ -248,7 +248,7 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     with file('/tmp/python_version') as f:
         python_version = f.read()
     if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
+        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror, numpy_version)
         local('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name))
         kernel_path = '{0}py3spark_{1}/kernel.json'.format(kernels_dir, cluster_name)
         template_file = "/tmp/pyspark_dataengine-service_template.json"
