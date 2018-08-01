@@ -1150,7 +1150,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip==9.0.3 --no-cache-dir'.format(pip_mirror))
-                local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==16.0.4')
+                local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
                       format(pip_mirror))
@@ -1174,7 +1174,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 sys.exit(1)
         else:
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
-            local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==16.0.4')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
                   ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(numpy_version))
