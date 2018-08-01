@@ -146,6 +146,9 @@ def ensure_matplot(os_user):
             sudo('apt-get build-dep -y python-matplotlib')
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
+            if os.environ['application'] in ('tensor', 'deeplearning'):
+                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.5 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
             sys.exit(1)
