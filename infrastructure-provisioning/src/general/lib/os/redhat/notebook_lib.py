@@ -141,6 +141,7 @@ def ensure_matplot(os_user):
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
                 sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.5 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
         except:
             sys.exit(1)
