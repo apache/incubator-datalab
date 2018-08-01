@@ -38,6 +38,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [DLab billing report](#billing_page)
 
+[DLab Environment Management Page](#environment_management)
+
 [Web UI filters](#filter)
 
 [Scheduler](#scheduler)
@@ -301,7 +303,7 @@ After you confirm your intent to Stop the spark cluster - the status will be cha
 ------------------
 ## Terminate Computational resource <a name="computational_terminate"></a>
 
-To release cluster computational resources click on ![cross](doc/cross_icon.png) button close to Computational resource alias. Confirm decommissioning of Computational resource by hitting Yes:
+To release cluster computational resources click on <img src="doc/cross_icon.png" alt="cross" width="16"> button close to Computational resource alias. Confirm decommissioning of Computational resource by hitting Yes:
 
 <p align="center"> 
     <img src="doc/emr_terminate_confirm.png" alt="Computational resource terminate confirm" width="400">
@@ -461,7 +463,45 @@ You can also filter data by each column:
 **Note:** Administrator can see billing report of all users, and only he can see/filter "User" column.
 
 In the footer of billing report, you can see Total cost for all environments.
---------------------
+
+--------------------------------
+# DLab Environment Management Page <a name="environment_management"></a>
+
+DLab Environment Management page is an administration page allowing admins to show the list of all users` environments and to stop/terminate all of hem of separate specific resource.
+
+To access Environment management page either navigate to it via main menu:
+
+<p align="center"> 
+    <img src="doc/main_menu_env.png" alt="Main menu" width="250">
+</p>
+
+<p align="center"> 
+    <img src="doc/environment_management.png" alt="Environment management">
+</p>
+
+To Stop or Terminate the Notebook click on a gear icon gear in the Actions column for a needed Notebook and hit Stop or Terminate action:
+<p align="center"> 
+    <img src="doc/manage_env_actions.png" alt="Manage environment actions" width="160">
+</p>
+
+Any Computational resources except for Spark clusters will be automatically terminated and Spark clusters will be stopped in case of Stop action hitting, and all resources will be killed in case of Terminate action hitting.
+
+To stop or release specific cluster click an appropriate button close to cluster alias.
+
+<p align="center"> 
+    <img src="doc/managemanage_resource_actions.png" alt="Manage resource action" width="300">
+</p>
+
+Confirm stopping/decommissioning of the Computational resource by hitting Yes:
+
+<p align="center"> 
+    <img src="doc/manage_env_confirm.png" alt="Manage environment action confirm" width="400">
+</p>
+
+**NOTE:** terminate action is available only for notebooks and computational resources, not for Edge Nodes.
+
+--------------------------------
+
 # Web UI filters <a name="filters"></a>
 
 You can leverage functionality of build-in UI filter to quickly manage the analytical tools and computational resources, which you only want to see in your dashboard.
@@ -503,7 +543,7 @@ After clicking you will see popup with the following fields:
     <img src="doc/notebook_scheduler.png" alt="Notebook scheduler" width="400">
 </p>
 
-Also scheduler can be configured for a spark cluster. To configure scheduler for spark cluster  ![scheduler_computational](doc/icon_scheduler_computational.png) should be clicked (near computational status):
+Also scheduler can be configured for a spark cluster. To configure scheduler for spark cluster <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16"> should be clicked (near computational status):
 
 <p align="center"> 
     <img src="doc/computational_scheduler_create.png" alt="Computational scheduler create" width="400">
