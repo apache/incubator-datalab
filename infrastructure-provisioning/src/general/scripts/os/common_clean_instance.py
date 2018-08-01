@@ -93,6 +93,16 @@ def clean_tensor():
         print('Error:', str(err))
         sys.exit(1)
 
+def clean_tensor_rstudio():
+    try:
+        clean_rstudio()
+        sudo('systemctl stop tensorboard')
+        sudo('systemctl disable tensorboard')
+        sudo('systemctl daemon-reload')
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
+
 if __name__ == "__main__":
     print('Configure connections')
     env['connection_attempts'] = 100
@@ -129,6 +139,8 @@ if __name__ == "__main__":
                 clean_rstudio()
             elif args.application in ('tensor', 'deeplearning'):
                 clean_tensor()
+            elif args.application == ('tensor-rstudio'):
+                clean_tensor_rstudio()
     else:
         print('Found default ami, do not make clean')
 
