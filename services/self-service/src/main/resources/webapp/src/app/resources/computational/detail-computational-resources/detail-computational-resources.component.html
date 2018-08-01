@@ -20,22 +20,20 @@ limitations under the License.
   <modal-header></modal-header>
   <modal-content>
     <div *ngIf="resource">
-      <div class="detail-header-wrap">
-        <table class="detail-header">
-          <tr>
-            <td class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
-              <div class="hint-title">{{resource.computational_name}}</div>
-              <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{resource.computational_name}}</div>
+      <table class="detail-header">
+        <tr>
+          <td class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
+            <div class="hint-title ellipsis">{{resource.computational_name}}</div>
+            <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{resource.computational_name}}</div>
+          </td>
+            <td>
+              <span class="status" [ngClass]="resource.status || ''">
+                {{resource.status}}
+              </span>
             </td>
-              <td>
-                <span class="status" [ngClass]="resource.status || ''">
-                  {{resource.status}}
-                </span>
-              </td>
-            <td>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</td>
-          </tr>
-        </table>
-      </div>
+          <td>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</td>
+        </tr>
+      </table>
       <div class="detail-info content-box" *ngIf="!resource.error_message">
         <div class="row-wrap">
           <div class="col"><p>Cluster type:</p></div>
@@ -70,9 +68,9 @@ limitations under the License.
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
         </div>
-        <div class="links_block">
+        <div class="m-top-10">
           <p *ngFor="let item of resource.computational_url">
-            <strong><b class="highlight">&#9642;</b> {{ item.description }}:</strong>
+            <strong>{{ item.description }}:</strong>
             <a href="{{item.url}}" target="_blank">{{ item.url }}</a>
           </p>
         </div>
