@@ -36,7 +36,7 @@ limitations under the License.
     }
   }
   .info {
-    height: 45%;
+    height: 40%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -67,7 +67,6 @@ limitations under the License.
 .search-box {
   display: flex;
   padding: 20px 25px 10px;
-  // height: 45%;
   .search-form {
     display: flex;
     flex-direction: column;
@@ -164,7 +163,6 @@ limitations under the License.
     color: #718ba6;
   }
   mat-chip-list .mat-chip-list-wrapper {
-    // max-height: 95%;
     overflow-y: auto;
     padding: 3px;
   }
@@ -187,8 +185,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .mat-list {
     height: 100%;
     .scrollingList {
-      max-height: 80%;
-      height: 80%;
+      max-height: 88%;
+      height: 88%;
       overflow-y: auto;
       overflow-x: hidden;
       .info {
@@ -268,80 +266,13 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   background-color: #35afd5;
 }
 
-.loader-wrap {
-  height: 30px;
-}
-.loader-lib,
-.loader-lib:before,
-.loader-lib:after {
-  background: #35afd5;
-  -webkit-animation: load1 1s infinite ease-in-out;
-  animation: load1 1s infinite ease-in-out;
-  width: 0.4em;
-  height: 3em;
-}
-.loader-lib {
-  color: #35afd5;
-  text-indent: -9999em;
-  margin: 0 auto;
-  position: relative;
-  font-size: 4px;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
-.loader-lib:before,
-.loader-lib:after {
-  position: absolute;
-  top: 0;
-  content: '';
-}
-.loader-lib:before {
-  left: -1.5em;
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-.loader-lib:after {
-  left: 1.5em;
-}
-@-webkit-keyframes load1 {
-  0%,
-  80%,
-  100% {
-    box-shadow: 0 0;
-    height: 4em;
-  }
-  40% {
-    box-shadow: 0 -2em;
-    height: 5em;
-  }
-}
-@keyframes load1 {
-  0%,
-  80%,
-  100% {
-    box-shadow: 0 0;
-    height: 4em;
-  }
-  40% {
-    box-shadow: 0 -2em;
-    height: 5em;
-  }
-}
 
 @media screen and (min-width: 1281px) {
-  .list-container {
-    // max-height: 50%;
-  }
   .libs-info {
     height: 60%;
-    .mat-list {
-      .scrollingList {
-        max-height: 85%;
-        height: 85%;
-      }
+    .scrollingList {
+      max-height: 90%;
+      height: 90%;
     }
   }
 }

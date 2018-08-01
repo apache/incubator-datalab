@@ -22,16 +22,14 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div *ngIf="notebook">
-      <div class="detail-header-wrap">
-        <table class="detail-header">
-          <tr>
-            <td matTooltip="{{ notebook.name }}" matTooltipPosition="above">{{ notebook.name }}</td>
-            <td>{{ notebook.template_name }}</td>
-            <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
-            <td>{{ notebook.shape }}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="detail-header">
+        <tr>
+          <td matTooltip="{{ notebook.name }}" matTooltipPosition="above">{{ notebook.name }}</td>
+          <td>{{ notebook.template_name }}</td>
+          <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
+          <td>{{ notebook.shape }}</td>
+        </tr>
+      </table>
       <div class="billing-detail content-box">
         <mat-list>
             <mat-list-item class="list-header">
