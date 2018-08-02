@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ConfirmationDialogType } from '../../shared';
 
@@ -33,10 +33,9 @@ export interface ManageAction {
     './management-grid.component.scss',
     '../../resources/resources-grid/resources-grid.component.css',
     '../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
-  ],
-  encapsulation: ViewEncapsulation.None
+  ]
 })
-export class ManagementGridComponent implements OnInit {
+export class ManagementGridComponent {
   @Input() allEnvironmentData: Array<any>;
   @Input() resources: Array<any>;
   @Input() uploadKey: boolean;
@@ -47,8 +46,6 @@ export class ManagementGridComponent implements OnInit {
   @ViewChild('keyReuploadDialog') keyReuploadDialog;
 
   constructor(public dialog: MatDialog) {}
-
-  ngOnInit(): void {}
 
   buildGrid(): void {
     this.refreshGrid.emit();
@@ -89,7 +86,6 @@ export class ManagementGridComponent implements OnInit {
   selector: 'confirm-dialog',
   template: `
   <div mat-dialog-content class="content">
-
     <p>Resource <strong> {{ data.resource_name }}</strong> of user <strong> {{ data.user }} </strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
