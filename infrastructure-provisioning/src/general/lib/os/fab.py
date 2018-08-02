@@ -441,8 +441,6 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')
-    sudo(
-        'echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> /etc/yum/pluginconf.d/priorities.conf')
 
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):
