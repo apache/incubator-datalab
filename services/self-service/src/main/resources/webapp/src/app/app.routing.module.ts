@@ -40,7 +40,7 @@ const routes: Routes = [{
     component: HealthStatusComponent,
     canActivate: [AuthorizationGuard]
   }, {
-    path: 'reporting',
+    path: 'billing_report',
     component: ReportingComponent,
     canActivate: [AuthorizationGuard, CloudProviderGuard]
   }, {
