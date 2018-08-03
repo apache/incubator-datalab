@@ -19,11 +19,15 @@
 # ******************************************************************************
 
 import argparse
+import os
+
+import backoff
 from fabric.api import *
 from fabric.contrib.files import exists
+
 from dlab.meta_lib import *
-import os
 from dlab.fab import *
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
@@ -36,12 +40,21 @@ parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='false')
 args = parser.parse_args()
 
+@backoff.on_exception(backoff.expo, SystemExit, max_time=200)
+def try_put():
+    try:
+        put(scripts_dir + 'rstudio_dataengine_create_configs.py',
+            '/tmp/rstudio_dataengine_create_configs.py')
+        put(templates_dir + 'notebook_spark-defaults_local.conf',
+            '/tmp/notebook_spark-defaults_local.conf')
+    except:
+        sys.exit(1)
+
 
 def configure_notebook(keyfile, hoststring):
     scripts_dir = '/root/scripts/'
     templates_dir = '/root/templates/'
-    put(scripts_dir + 'rstudio_dataengine_create_configs.py', '/tmp/rstudio_dataengine_create_configs.py')
-    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+    try_put()
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
     run('echo "spark.executor.memory {0}m" >> /tmp/notebook_spark-defaults_local.conf'.format(spark_memory))
