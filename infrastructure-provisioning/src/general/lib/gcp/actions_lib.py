@@ -1118,7 +1118,7 @@ class GCPActions:
         except:
             sys.exit(1)
 
-    def install_python(self, bucket, user_name, cluster_name, application):
+    def install_python(self, bucket, user_name, cluster_name, application, numpy_version='1.14.3'):
         try:
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
             with file('/tmp/python_version') as f:
@@ -1139,7 +1139,7 @@ class GCPActions:
                 local('{0} && sudo -i {1} install pyzmq==17.0.0'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install boto boto3 NumPy=={2} SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
-                      .format(venv_command, pip_command, os.environ['notebook_numpy_version']))
+                      .format(venv_command, pip_command, numpy_version))
                 if application == 'deeplearning':
                     local('{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(venv_command, pip_command))
                     python_without_dots = python_version.replace('.', '')
