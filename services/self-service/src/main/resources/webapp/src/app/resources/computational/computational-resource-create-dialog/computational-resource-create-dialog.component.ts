@@ -30,7 +30,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   moduleId: module.id,
   selector: 'computational-resource-create-dialog',
   templateUrl: 'computational-resource-create-dialog.component.html',
-  styleUrls: ['./computational-resource-create-dialog.component.css'],
+  styleUrls: ['./computational-resource-create-dialog.component.css']
 })
 
 export class ComputationalResourceCreateDialogComponent implements OnInit {
@@ -65,6 +65,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   @ViewChild('shapesSlaveList') slave_shapes_list;
   @ViewChild('spotInstancesCheck') spotInstancesSelect;
   @ViewChild('preemptibleNode') preemptible;
+  @ViewChild('configurationNode') configuration;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
@@ -118,7 +119,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
     this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
-      this.spotInstance, data.instance_price, data.preemptible_instance_number);
+      this.spotInstance, data.instance_price, data.preemptible_instance_number, data.configuration_parameters);
     this.model.confirmAction();
     $event.preventDefault();
     return false;
@@ -165,6 +166,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public selectPreemptibleNodes($event) {
     if ($event.target.checked)
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
+  }
+
+  public selectConfiguration($event) {
+    this.bindDialog.modalClass = (($event.target.checked) ? 'modal-xl' : 'modal-lg'); 
+      this.resourceForm.controls['configuration_parameters'].setValue({});
   }
 
   private filterAvailableSpots() {
@@ -223,7 +229,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0, [this.validPreemptibleRange.bind(this)]],
-      instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
+      instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
+      configuration_parameters: ['', [this.validConfiguration.bind(this)]]
     });
   }
 
@@ -290,6 +297,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       return this.spotInstancesSelect.nativeElement['checked']
         ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
         : control.value;
+  }
+
+  private validConfiguration(control) {
+    return false
   }
 
   private checkDuplication(control) {

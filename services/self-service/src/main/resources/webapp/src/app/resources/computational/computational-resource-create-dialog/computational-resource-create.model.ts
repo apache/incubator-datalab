@@ -39,6 +39,7 @@ export class ComputationalResourceCreateModel {
   emr_slave_instance_spot: boolean;
   emr_slave_instance_price: number;
   preemptible_inst: number;
+  config: any;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
     new ResourceShapeTypesModel({}), '', '', '');
@@ -84,7 +85,8 @@ export class ComputationalResourceCreateModel {
     shape_slave: string,
     spot: boolean,
     price: number,
-    preemptible_inst?: number
+    preemptible_inst?: number,
+    config?: any
   ): void {
     this.computational_resource_alias = name;
     this.computational_resource_count = count;
@@ -93,6 +95,7 @@ export class ComputationalResourceCreateModel {
     this.emr_slave_instance_spot = spot;
     this.emr_slave_instance_price = price;
     this.preemptible_inst = preemptible_inst || 0;
+    this.config = config || null;
   }
 
   public loadTemplates(): void {
@@ -165,7 +168,8 @@ export class ComputationalResourceCreateModel {
         image: this.selectedItem.image,
         template_name: this.selectedItem.template_name,
         emr_slave_instance_spot: this.emr_slave_instance_spot,
-        emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
+        emr_slave_instance_spot_pct_price: this.emr_slave_instance_price,
+        config: this.config
       });
     } else if (DICTIONARY.cloud_provider === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
@@ -179,6 +183,7 @@ export class ComputationalResourceCreateModel {
         dataproc_master_count: 1,
         dataproc_slave_count: (this.computational_resource_count - 1),
         dataproc_preemptible_count: this.preemptible_inst,
+        config: this.config
       });
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
@@ -188,6 +193,7 @@ export class ComputationalResourceCreateModel {
         notebook_name: this.notebook_name,
         image: this.selectedImage.image,
         template_name: this.selectedImage.template_name,
+        config: this.config
       });
     }
   };
