@@ -1,49 +1,62 @@
 # DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## New features in v1.9
+## New features in v2.0
+All Cloud platforms:
+- added possibility to go to links (Notebook UI, ungit, Tensorboard) without opening tunnel to Edge on AWS
+- implemented environment management page
+- added possibility to generate a key during key reuploading
 
-- Implemented automatic ssh key pair generation for user
-- Added ability to stop Data Engine based computational resources
-- Implemented packages installation from RStudio console
-- DLab administrator can now stop or terminate particular users environment
-- Usage of certain instance shapes for Notebooks can be configured for per user group
-
-## Improvements in v1.9
-
-- Added possibility to install Python packages for RStudio
-- Implemented scheduler for Notebooks and Data Engines based computational resources that allows to automatically start/stop user resources 
-- It is not possible to create images out of existing Notebooks, which reduces time to configure new Notebooks (by reusing images with previously installed libraries and packages)
+AWS:
+- added new "RStudio with TensorFlow" template on AWS
+- Data Engine/Data Engine Service job tracker URL is displayed on Web UI on AWS
+- added possibility to use AWS default reporting as a source for DLAB billing
 
 
-## Bug fixes in v1.9
+## Improvements in v2.0
 
-- Fixed a bug that prevented to install Sparklyr (r package) and tkinter  (yum) libraries on RStudio
-- Fixed a bug that prevented users to upload a key to Edge node after Edge node has been terminated by administrator
-- Fixed a bug when terminating environment of particular user, Data Engine Services computational resources were also terminated for other users on AWS
-- Fixed a bug when available lib list was not retrieved for Data Engine Service based computational resources on AWS
+All Cloud platforms:
+- it is now possible to separately configure start and stop schedules for analytical resources
+- added shell interpreter for Zeppelin
+
+AWS:
+- optimized starting/stopping duration of Data Engine service
+
+MS Azure and AWS:
+- DLab's billing report, now indicates costs associated with any mounted storage of analytical tool
 
 
-## Known issues in v1.9
+## Bug fixes in v2.0
+AWS:
+- when computational resource name is part of a name of any other computational resource - it will correspondingly affected during stop/terminate actions (e.g. stopping EMR1 will stop EMR11, terminating EMR1 will terminate EMR11)
 
-- Remote kernel list for Data Engine is not updated after stop/start Data Engine
-- On GCP storage permissions aren't differentiated by users via Dataproc permissions (all users have R/W access to other users buckets)
-- Data Engine service creation is not successful after environment has been recreated on GCP
-- Rare problem during Notebook stopping/starting and creating clusters ( not possible to automatically determine credentials (GCP))
-- Occasional problem with not successful SSN creation on Microsoft Azure and Google Cloud Platform
-- Rarely Notebook creation is not successful because of unabling to resolve the host on Microsoft Azure
-- Creation of Zeppelin from custom image fails on the step when cluster kernels are removing on Microsoft Azure
-- Start Notebook by scheduler does not work on Microsoft Azure when Data Lake enabled
-- Performing any action on Data Engine computational will result performing the same action for corresponding exploratory Data Engines with the name, that start with computational name on which action was performed
+GCP:
+- fixed occasionally reproducible problem: failure in Notebook stopping/starting and failure in creation of computational resources (it was not possible to automatically determine credentials)
 
-## Known issues caused by cloud provider limitations in v1.9
 
-- Microsoft Azure resource name length should not exceed 80 chars
-- GCP resource name length should not exceed 64 chars
-- DeepLearning, TensorFlow templates are not supported on Microsoft Azure for Red Hat Enterprise Linux
-- Low priority Virtual Machines are not supported yet on Microsoft Azure
-- Billing is not available on GCP
-  
-**NOTE:** DLab has not been tested on GCP for Red Hat Enterprise Linux
+## Known issues in v2.0
+All Cloud platforms:
+- remote kernel list for Data Engine is not updated after stop/start Data Engine
+
+GCP:
+- storage permissions aren't differentiated by users via Dataproc permissions (all users have R/W access to other users buckets)
+- data engine service creation is failing after environment has been recreated
+
+Microsoft Azure:
+- creation of Zeppelin from custom image fails on the step when cluster kernels are removing
+- start Notebook by scheduler does not work when Data Lake is enabled 
+
+## Known issues caused by cloud provider limitations in v2.0
+
+Microsoft Azure:
+- resource name length should not exceed 80 chars
+- TensorFlow templates are not supported for Red Hat Enterprise Linux
+- low priority Virtual Machines are not supported yet
+- occasionally billing data is not available for Notebook secondary disk
+
+GCP:
+- resource name length should not exceed 64 chars
+- billing data is not available
+- **NOTE:** DLab has not been tested on GCP for Red Hat Enterprise Linux
 
 
 
