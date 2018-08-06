@@ -94,7 +94,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             local(''' sudo echo "export SPARK_HOME=''' + cluster_dir + '''spark/" >> ''' + livy_path + '''conf/livy-env.sh''')
             local(''' sudo echo "export PYSPARK3_PYTHON=python3.5" >> ''' +
                   livy_path + '''conf/livy-env.sh''')
-            template_file = "/tmp/dataengine_interpreter.json"
+            template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
             fr = open(template_file, 'r+')
             text = fr.read()
             text = text.replace('CLUSTER_NAME', cluster_name)
@@ -107,7 +107,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             for _ in range(5):
                 try:
                     local("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
-                          "@/tmp/dataengine_interpreter.json http://localhost:8080/api/interpreter/setting")
+                          "@/tmp/{}/dataengine_interpreter.json http://localhost:8080/api/interpreter/setting".format(args.cluster_name))
                     break
                 except:
                     local('sleep 5')
@@ -122,7 +122,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             local("sudo systemctl enable livy-server-" + str(livy_port))
             local('sudo systemctl start livy-server-' + str(livy_port))
         else:
-            template_file = "/tmp/dataengine_interpreter.json"
+            template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
             p_versions = ["2", "3.5"]
             for p_version in p_versions:
                 fr = open(template_file, 'r+')
@@ -167,9 +167,9 @@ def install_remote_livy(args):
 
 if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-    install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
+    install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                              args.datalake_enabled)
-    configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
     if args.multiple_clusters == 'true':
         install_remote_livy(args)
     configure_zeppelin_dataengine_interpreter(args.cluster_name, cluster_dir, args.os_user,

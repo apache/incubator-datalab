@@ -41,26 +41,30 @@ def configure_notebook(keyfile, hoststring):
     templates_dir = '/root/templates/'
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
-    put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/pyspark_dataengine_template.json')
-    put(templates_dir + 'r_dataengine_template.json', '/tmp/r_dataengine_template.json')
-    put(templates_dir + 'toree_dataengine_template.json','/tmp/toree_dataengine_template.json')
-    put(scripts_dir + 'jupyter_dataengine_create_configs.py', '/tmp/jupyter_dataengine_create_configs.py')
-    put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
-    put(templates_dir + 'toree_dataengine_template.json', '/tmp/toree_dataengine_template.json')
-    put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
-    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+    run('mkdir -p /tmp/{}/'.format(args.cluster_name))
+    put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
+    put(templates_dir + 'r_dataengine_template.json', '/tmp/{}/r_dataengine_template.json'.format(args.cluster_name))
+    put(templates_dir + 'toree_dataengine_template.json','/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
+    if not exists('/tmp/jupyter_dataengine_create_configs.py'):
+        put(scripts_dir + 'jupyter_dataengine_create_configs.py', '/tmp/jupyter_dataengine_create_configs.py'.format(args.cluster_name))
+    put(files_dir + 'toree_kernel.tar.gz', '/tmp/{}/toree_kernel.tar.gz'.format(args.cluster_name))
+    put(templates_dir + 'toree_dataengine_template.json', '/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
+    put(templates_dir + 'run_template.sh', '/tmp/{}/run_template.sh'.format(args.cluster_name))
+    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
-    run('echo "spark.executor.memory {0}m" >> /tmp/notebook_spark-defaults_local.conf'.format(spark_memory))
-    sudo('\cp /tmp/jupyter_dataengine_create_configs.py /usr/local/bin/jupyter_dataengine_create_configs.py')
-    sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/dlab/')
-    run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(keyfile, hoststring))
-    run('chmod a+x /tmp/dlab_libs/*')
-    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
-    if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+    run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
+    if not exists('/usr/local/bin/jupyter_dataengine_create_configs.py'):
+        sudo('\cp /tmp/jupyter_dataengine_create_configs.py /usr/local/bin/jupyter_dataengine_create_configs.py')
+        sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
+    if not exists('/usr/lib/python2.7/dlab/'):
+        sudo('mkdir -p /usr/lib/python2.7/dlab/')
+        run('mkdir -p /tmp/dlab_libs/')
+        local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(keyfile, hoststring))
+        run('chmod a+x /tmp/dlab_libs/*')
+        sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+        if exists('/usr/lib64'):
+            sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
 
 
 if __name__ == "__main__":

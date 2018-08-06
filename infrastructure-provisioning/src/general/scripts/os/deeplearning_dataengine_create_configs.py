@@ -57,7 +57,7 @@ def pyspark_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + args.cluster_name + "/kernel.json"
-    template_file = "/tmp/pyspark_dataengine_template.json"
+    template_file = "/tmp/{}/pyspark_dataengine_template.json".format(args.cluster_name)
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
@@ -69,15 +69,15 @@ def pyspark_kernel(args):
     text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/kernel_var.json')
+    local('touch /tmp/{}/kernel_var.json').format(args.cluster_name)
     local(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/kernel_var.json".
+        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json".
         format(args.cluster_name, kernel_path, args.os_user))
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+    local('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path)
 
     local('mkdir -p ' + kernels_dir + 'py3spark_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "py3spark_" + args.cluster_name + "/kernel.json"
-    template_file = "/tmp/pyspark_dataengine_template.json"
+    template_file = "/tmp/{]/pyspark_dataengine_template.json".format(args.cluster_name)
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
@@ -89,11 +89,11 @@ def pyspark_kernel(args):
     text = text.replace('PYTHON_PATH', '/usr/bin/python3.5')
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/kernel_var.json')
+    local('touch /tmp/{}/kernel_var.json'.format(args.cluster_name))
     local(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/kernel_var.json".
+        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json".
         format(args.cluster_name, kernel_path, args.os_user))
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+    local('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path)
 
 
 if __name__ == "__main__":
@@ -101,8 +101,8 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
+        install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                                  args.datalake_enabled)
         ensure_dataengine_tensorflow_jars(local_jars_dir)
-        configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+        configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
         pyspark_kernel(args)
