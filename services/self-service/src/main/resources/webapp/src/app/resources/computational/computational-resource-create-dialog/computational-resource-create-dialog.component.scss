@@ -59,3 +59,45 @@ limitations under the License.
 .checkbox-group .config-details.show {
   height: 100%;
 }
+
+.form-wrapper {
+  display: flex;
+}
+
+
+.modal-lg {
+  .general-form {
+    width: 100%;
+  }
+  .additional-form {
+    width: 0;
+  }
+}
+
+.modal-xl {
+  .general-form {
+    width: 60%;
+  }
+  .additional-form {
+    width: 40%;
+    padding: 10px 0 5px 15px;
+
+    .checkbox-group {
+      height: 100%;
+
+      label {
+        color: #718ba6;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      textarea {
+        height: 90%;
+        background: #f8f8f8 !important;
+        padding-top: 5px;
+        margin-top: 5px;
+        resize: none;
+      }
+    }
+  }
+}

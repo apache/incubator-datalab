@@ -16,13 +16,13 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
 import { ComputationalResourceCreateModel } from './';
 import { UserResourceService } from '../../../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { ErrorMapUtils, HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
@@ -30,7 +30,8 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   moduleId: module.id,
   selector: 'computational-resource-create-dialog',
   templateUrl: 'computational-resource-create-dialog.component.html',
-  styleUrls: ['./computational-resource-create-dialog.component.css']
+  styleUrls: ['./computational-resource-create-dialog.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 
 export class ComputationalResourceCreateDialogComponent implements OnInit {
@@ -118,8 +119,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
-    this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
-      this.spotInstance, data.instance_price, data.preemptible_instance_number, data.configuration_parameters);
+    this.model.setCreatingParams(
+      data.cluster_alias_name,
+      data.instance_number,
+      shape_master, shape_slave,
+      this.spotInstance,
+      data.instance_price,
+      data.preemptible_instance_number,
+      data.configuration_parameters ? JSON.parse(data.configuration_parameters) : null);
     this.model.confirmAction();
     $event.preventDefault();
     return false;
@@ -169,8 +176,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectConfiguration($event) {
-    this.bindDialog.modalClass = (($event.target.checked) ? 'modal-xl' : 'modal-lg'); 
-      this.resourceForm.controls['configuration_parameters'].setValue({});
+    this.bindDialog.modalClass = (($event.target.checked) ? 'modal-xl' : 'modal-lg');
+
+    !$event.target.checked && this.resourceForm.controls['configuration_parameters'].setValue('');
   }
 
   private filterAvailableSpots() {
@@ -300,7 +308,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validConfiguration(control) {
-    return false
+    if (this.configuration)
+      return this.configuration.nativeElement['checked']
+        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+        : null;
   }
 
   private checkDuplication(control) {
@@ -359,6 +370,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.initFormModel();
     this.getComputationalResourceLimits();
     this.model.resetModel();
+    this.bindDialog.modalClass = 'modal-lg';
 
     if (this.PROVIDER === 'aws')
       this.spotInstancesSelect.nativeElement['checked'] = false;
