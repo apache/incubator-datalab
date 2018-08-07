@@ -69,7 +69,7 @@ def pyspark_kernel(args):
     text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/{}/kernel_var.json').format(args.cluster_name)
+    local('touch /tmp/{}/kernel_var.json'.format(args.cluster_name))
     local(
         "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json".
         format(args.cluster_name, kernel_path, args.os_user))
@@ -77,7 +77,7 @@ def pyspark_kernel(args):
 
     local('mkdir -p ' + kernels_dir + 'py3spark_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "py3spark_" + args.cluster_name + "/kernel.json"
-    template_file = "/tmp/{]/pyspark_dataengine_template.json".format(args.cluster_name)
+    template_file = "/tmp/{}/pyspark_dataengine_template.json".format(args.cluster_name)
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
