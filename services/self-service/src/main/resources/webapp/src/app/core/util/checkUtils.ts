@@ -1,6 +1,6 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2018, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './collections/dictionary/dictionary';
 
-export * from './http-status-codes';
-export * from './sortUtil';
-export * from './errorMapUtils';
-export * from './dateUtils';
-export * from './fileUtils';
-export * from './checkUtils';
+export class CheckUtils {
+  public static isJSON(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+  }
+}
