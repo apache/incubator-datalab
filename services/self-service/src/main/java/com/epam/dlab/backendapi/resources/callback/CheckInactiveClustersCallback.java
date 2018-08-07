@@ -46,8 +46,9 @@ public class CheckInactiveClustersCallback {
 
 	@POST
 	public Response checkInactiveClusterResponse(CheckInactivityClustersStatusDTO dto) {
-		requestId.remove(dto.getRequestId());
+		requestId.checkAndRemove(dto.getRequestId());
 		computationalService.stopOrTerminateClustersByCondition(dto);
+		computationalService.updateLastActivityForClusters(dto);
 		return Response.ok(uriInfo.getRequestUri()).build();
 	}
 }

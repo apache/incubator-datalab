@@ -19,8 +19,10 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
@@ -28,8 +30,6 @@ import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
-import com.epam.dlab.dto.computational.PersistentCheckInactivityDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -76,6 +76,12 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Inject
 	private SystemUserInfoService systemUserService;
+
+	@Inject
+	private EnvDAO envDAO;
+
+	@Inject
+	private RequestId requestId;
 
 	@Inject
 	@Named(PROVISIONING_SERVICE_NAME)
@@ -185,12 +191,10 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Override
 	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
-		List<ComputationalCheckInactivityDTO> transformedInstances =
-				computationalService.getComputationalCheckInactivityList(exploratoryDAO.getInstances());
-		PersistentCheckInactivityDTO persistentCheckInactivityDTO =
-				new PersistentCheckInactivityDTO(transformedInstances);
-		return provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-				userInfo.getAccessToken(), persistentCheckInactivityDTO, String.class);
+		String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
+				userInfo.getAccessToken(), envDAO.findRunningClusters(), String.class);
+		requestId.put(userInfo.getName(), uuid);
+		return uuid;
 	}
 
 

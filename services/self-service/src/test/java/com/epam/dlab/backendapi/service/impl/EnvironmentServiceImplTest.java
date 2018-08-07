@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
@@ -60,7 +60,7 @@ public class EnvironmentServiceImplTest {
 	private static final String STOPPED_STATE = "stopped";
 
 	@Mock
-	private EnvStatusDAO envStatusDAO;
+	private EnvDAO envDAO;
 	@Mock
 	private ExploratoryDAO exploratoryDAO;
 	@Mock
@@ -82,19 +82,19 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void getActiveUsers() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchActiveEnvUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchActiveEnvUsers();
 		final Set<String> activeUsers = environmentService.getActiveUsers();
 
 		assertEquals(1, activeUsers.size());
 		assertTrue(activeUsers.contains(USER));
 
-		verify(envStatusDAO).fetchActiveEnvUsers();
-		verifyNoMoreInteractions(envStatusDAO);
+		verify(envDAO).fetchActiveEnvUsers();
+		verifyNoMoreInteractions(envDAO);
 	}
 
 	@Test
 	public void getActiveUsersWithException() {
-		doThrow(new DlabException("Users not found")).when(envStatusDAO).fetchActiveEnvUsers();
+		doThrow(new DlabException("Users not found")).when(envDAO).fetchActiveEnvUsers();
 
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Users not found");
@@ -104,19 +104,19 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void getAllUsers() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		final Set<String> users = environmentService.getAllUsers();
 
 		assertEquals(1, users.size());
 		assertTrue(users.contains(USER));
 
-		verify(envStatusDAO).fetchAllUsers();
-		verifyNoMoreInteractions(envStatusDAO);
+		verify(envDAO).fetchAllUsers();
+		verifyNoMoreInteractions(envDAO);
 	}
 
 	@Test
 	public void getAllUsersWithException() {
-		doThrow(new DlabException("Users not found")).when(envStatusDAO).fetchAllUsers();
+		doThrow(new DlabException("Users not found")).when(envDAO).fetchAllUsers();
 
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Users not found");
@@ -128,7 +128,7 @@ public class EnvironmentServiceImplTest {
 	public void getAllEnv() {
 		List<UserInstanceDTO> instances = getUserInstances();
 		when(exploratoryDAO.getInstances()).thenReturn(instances);
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 
 		EdgeInfo edgeInfo = new EdgeInfo();
 		edgeInfo.setEdgeStatus("running");
@@ -154,14 +154,14 @@ public class EnvironmentServiceImplTest {
 		resources.forEach(resource -> assertTrue(actualEnv.contains(resource)));
 
 		verify(exploratoryDAO).getInstances();
-		verify(envStatusDAO).fetchAllUsers();
+		verify(envDAO).fetchAllUsers();
 		verify(keyDAO).getEdgeInfo(USER);
-		verifyNoMoreInteractions(exploratoryDAO, envStatusDAO, keyDAO);
+		verifyNoMoreInteractions(exploratoryDAO, envDAO, keyDAO);
 	}
 
 	@Test
 	public void stopAll() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
@@ -171,7 +171,7 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.stopAll();
 
-		verify(envStatusDAO).fetchAllUsers();
+		verify(envDAO).fetchAllUsers();
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
 		verify(systemUserInfoService, times(3)).create(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
@@ -182,13 +182,13 @@ public class EnvironmentServiceImplTest {
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(envStatusDAO, keyDAO, exploratoryDAO, edgeService, exploratoryService);
+		verifyNoMoreInteractions(envDAO, keyDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void stopAllWithWrongResourceState() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), any(List.class), anyVararg()))
 				.thenReturn(getUserInstances());
 		expectedException.expect(ResourceConflictException.class);
@@ -198,7 +198,7 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void stopAllWithEdgeStarting() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn("starting");
 		expectedException.expect(ResourceConflictException.class);
 
@@ -207,7 +207,7 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void stopAllWithoutEdge() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
@@ -217,7 +217,7 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.stopAll();
 
-		verify(envStatusDAO).fetchAllUsers();
+		verify(envDAO).fetchAllUsers();
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
 		verify(systemUserInfoService, times(2)).create(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
@@ -227,7 +227,7 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
+		verifyNoMoreInteractions(keyDAO, envDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
@@ -292,7 +292,7 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
+		verifyNoMoreInteractions(keyDAO, envDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
@@ -350,7 +350,7 @@ public class EnvironmentServiceImplTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void terminateAll() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), any(List.class), anyVararg()))
 				.thenReturn(Collections.emptyList());
@@ -361,7 +361,7 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateAll();
 
-		verify(envStatusDAO).fetchAllUsers();
+		verify(envDAO).fetchAllUsers();
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(anyString(), any(List.class), anyVararg());
 		verify(systemUserInfoService).create(USER);
 		verify(keyDAO).edgeNodeExist(USER);
@@ -371,13 +371,13 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
+		verifyNoMoreInteractions(keyDAO, envDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void terminateAllWithoutEdge() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), any(List.class),
 				eq(UserInstanceStatus.CREATING), eq(UserInstanceStatus.STARTING))).thenReturn(Collections.emptyList());
@@ -390,7 +390,7 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.terminateAll();
 
-		verify(envStatusDAO).fetchAllUsers();
+		verify(envDAO).fetchAllUsers();
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER, UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING);
 		verify(systemUserInfoService, times(2)).create(USER);
@@ -402,13 +402,13 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
+		verifyNoMoreInteractions(keyDAO, envDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void terminateAllWithWrongResourceState() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), any(List.class), anyVararg()))
 				.thenReturn(getUserInstances());
 		expectedException.expect(ResourceConflictException.class);
@@ -418,7 +418,7 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void terminateAllWithEdgeStarting() {
-		doReturn(Collections.singleton(USER)).when(envStatusDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn("starting");
 		expectedException.expect(ResourceConflictException.class);
 
@@ -447,7 +447,7 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
+		verifyNoMoreInteractions(keyDAO, envDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test
@@ -476,7 +476,7 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(keyDAO, envStatusDAO, exploratoryDAO, edgeService, exploratoryService);
+		verifyNoMoreInteractions(keyDAO, envDAO, exploratoryDAO, edgeService, exploratoryService);
 	}
 
 	@Test

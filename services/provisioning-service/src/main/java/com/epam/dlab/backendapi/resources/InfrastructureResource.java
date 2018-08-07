@@ -19,7 +19,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.service.CheckInactivityService;
-import com.epam.dlab.dto.computational.PersistentCheckInactivityDTO;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -27,7 +27,7 @@ import io.dropwizard.auth.Auth;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.UUID;
+import java.util.List;
 
 @Path(InfrasctructureAPI.INFRASTRUCTURE)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -47,10 +47,7 @@ public class InfrastructureResource {
 
 	@POST
 	@Path("check_inactivity")
-	public String checkClusterInactivity(@Auth UserInfo ui,
-										 PersistentCheckInactivityDTO persistentCheckInactivityDTO) {
-		checkInactivityService.checkClusterAction(ui.getName(), persistentCheckInactivityDTO.getDtoList(),
-				DockerAction.CHECK_INACTIVITY);
-		return UUID.randomUUID().toString();
+	public String checkClusterInactivity(@Auth UserInfo ui, List<EnvResource> resources) {
+		return checkInactivityService.checkClusterAction(ui.getName(), resources, DockerAction.CHECK_INACTIVITY);
 	}
 }

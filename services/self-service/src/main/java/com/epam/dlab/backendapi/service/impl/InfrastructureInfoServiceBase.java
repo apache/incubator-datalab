@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
@@ -39,7 +39,7 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	@Inject
 	private KeyDAO keyDAO;
 	@Inject
-	private EnvStatusDAO envDAO;
+	private EnvDAO envDAO;
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
 

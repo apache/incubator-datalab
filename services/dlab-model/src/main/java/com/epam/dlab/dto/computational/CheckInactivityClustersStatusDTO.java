@@ -18,21 +18,26 @@
 package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.status.EnvResource;
 import com.google.common.base.MoreObjects;
 import lombok.Getter;
 
-import java.util.Date;
+import java.util.List;
 
 @Getter
 public class CheckInactivityClustersStatusDTO extends StatusBaseDTO<CheckInactivityClustersStatusDTO> {
 
-	private CheckInactivityClusterCallbackDTO checkInactivityClusterCallbackDTO;
+	private String id;
+	private List<EnvResource> clusters;
 	private CheckInactivityClustersStatus checkInactivityClustersStatus;
-	private Date lastActivityDate;
 
-	public CheckInactivityClustersStatusDTO withCheckInactivityClusterCallbackDTO(CheckInactivityClusterCallbackDTO
-																						  checkInactivityClusterCallbackDTO) {
-		this.checkInactivityClusterCallbackDTO = checkInactivityClusterCallbackDTO;
+	public CheckInactivityClustersStatusDTO withId(String id) {
+		this.id = id;
+		return this;
+	}
+
+	public CheckInactivityClustersStatusDTO withClusters(List<EnvResource> clusters) {
+		this.clusters = clusters;
 		return this;
 	}
 
@@ -42,16 +47,11 @@ public class CheckInactivityClustersStatusDTO extends StatusBaseDTO<CheckInactiv
 		return this;
 	}
 
-	public CheckInactivityClustersStatusDTO withLastActivityDate(Date lastActivityDate) {
-		this.lastActivityDate = lastActivityDate;
-		return this;
-	}
-
 	@Override
 	public MoreObjects.ToStringHelper toStringHelper(Object self) {
 		return super.toStringHelper(self)
-				.add("checkInactivityClusterCallbackDTO", checkInactivityClusterCallbackDTO)
-				.add("checkInactivityClustersStatus", checkInactivityClustersStatus)
-				.add("lastActivityDate", lastActivityDate);
+				.add("id", id)
+				.add("clusters", clusters)
+				.add("checkInactivityClustersStatus", checkInactivityClustersStatus);
 	}
 }

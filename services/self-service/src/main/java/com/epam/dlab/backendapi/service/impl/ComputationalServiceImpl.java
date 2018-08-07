@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.service.ComputationalService;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -33,6 +34,7 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.*;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -44,9 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
+import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -82,6 +83,9 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Inject
 	private SystemUserInfoService systemUserInfoService;
+
+	@Inject
+	private ExploratoryService exploratoryService;
 
 
 	@Override
@@ -229,32 +233,50 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@Override
-	public List<ComputationalCheckInactivityDTO> getComputationalCheckInactivityList(List<UserInstanceDTO> instances) {
-		return instances.stream().filter(e -> Objects.nonNull(e.getResources()) && !e.getResources().isEmpty())
-				.map(this::cutUnusedClusters)
-				.map(this::toComputationalCheckInactivityDtoList)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
-	}
-
-	@Override
 	public void stopOrTerminateClustersByCondition(CheckInactivityClustersStatusDTO dto) {
 		if (dto.getCheckInactivityClustersStatus() == CheckInactivityClustersStatus.COMPLETED &&
-				dto.getLastActivityDate() != null) {
-			LocalDateTime lastActivityDate = dto.getLastActivityDate().toInstant()
-					.atZone(ZoneId.systemDefault()).toLocalDateTime();
-			DataEngineType dataEngineType = dto.getCheckInactivityClusterCallbackDTO().getType();
-			String user = dto.getCheckInactivityClusterCallbackDTO().getEdgeUserName();
-			String exploratoryName = dto.getCheckInactivityClusterCallbackDTO().getExploratoryName();
-			String computationalName = dto.getCheckInactivityClusterCallbackDTO().getComputationalName();
-			getComputationalResource(user, exploratoryName, computationalName)
-					.ifPresent(cr -> turnOffClustersByCondition(lastActivityDate, dataEngineType, user,
-							exploratoryName,
-							computationalName));
+				!dto.getClusters().isEmpty()) {
+			List<String> ids = getIds(dto.getClusters());
+			List<UserInstanceDTO> instances = exploratoryService.getInstancesByComputationalIds(ids);
+			instances.forEach(this::turnOffClustersAffiliatedWithExploratory);
 		}
 	}
 
-	private void turnOffClustersByCondition(LocalDateTime lastActivityDate, DataEngineType dataEngineType, String user,
+	@Override
+	public void updateLastActivityForClusters(CheckInactivityClustersStatusDTO dto) {
+		log.debug("Updating last activity date for clusters...");
+		List<String> ids = getIds(dto.getClusters());
+		List<UserInstanceDTO> instances = exploratoryService.getInstancesByComputationalIds(ids);
+		instances.forEach(this::updateLastActivityForClustersAffiliatedWithInstance);
+	}
+
+	private void updateLastActivityForClustersAffiliatedWithInstance(UserInstanceDTO ui) {
+		ui.getResources().forEach(cr -> updateLastActivityForCluster(ui.getUser(), ui.getExploratoryName(),
+				cr.getComputationalName(), cr.getLastActivity()));
+	}
+
+	private void updateLastActivityForCluster(String user, String exploratoryName, String computationalName,
+											  Date lastActivity) {
+		computationalDAO.updateLastActivityForCluster(user, exploratoryName, computationalName, lastActivity);
+	}
+
+	private void turnOffClustersAffiliatedWithExploratory(UserInstanceDTO ui) {
+		ui.getResources().forEach(cr ->
+				turnOffClustersByCondition(convertedToLocalDate(cr.getLastActivity()),
+						DataEngineType.fromDockerImageName(cr.getImageName()), ui.getUser(), ui.getExploratoryName(),
+						cr.getComputationalName()));
+	}
+
+	private LocalDateTime convertedToLocalDate(Date date) {
+		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
+
+	private List<String> getIds(List<EnvResource> resources) {
+		return resources.stream().map(EnvResource::getId).collect(Collectors.toList());
+	}
+
+	private void turnOffClustersByCondition(LocalDateTime lastActivityDate,
+											DataEngineType dataEngineType, String user,
 											String exploratoryName, String computationalName) {
 		LocalDateTime now = LocalDateTime.now();
 		if (lastActivityDate.plus(configuration.getClusterInactivityCheckingTimeout().toMinutes(),
@@ -266,27 +288,6 @@ public class ComputationalServiceImpl implements ComputationalService {
 				stopSparkCluster(userInfo, exploratoryName, computationalName);
 			}
 		}
-	}
-
-	private UserInstanceDTO cutUnusedClusters(UserInstanceDTO instance) {
-		List<UserComputationalResource> clusters =
-				instance.getResources().stream().filter(cluster -> UserInstanceStatus.of(cluster.getStatus()) == RUNNING)
-						.collect(Collectors.toList());
-		return new UserInstanceDTO().withUser(instance.getUser()).withExploratoryName(instance.getExploratoryName())
-				.withExploratoryId(instance.getExploratoryId()).withResources(clusters);
-	}
-
-	private List<ComputationalCheckInactivityDTO> toComputationalCheckInactivityDtoList(UserInstanceDTO instance) {
-		return instance.getResources().stream().map(cr -> toComputationalCheckInactivityDto(instance.getUser(),
-				instance.getExploratoryName(), instance.getExploratoryId(), cr)).collect(Collectors.toList());
-	}
-
-	private ComputationalCheckInactivityDTO toComputationalCheckInactivityDto(String user, String exploratoryName,
-																			  String exploratoryId,
-																			  UserComputationalResource compResource) {
-		return new ComputationalCheckInactivityDTO().withEdgeUserName(user).withExploratoryName(exploratoryName)
-				.withExploratoryId(exploratoryId).withComputationalName(compResource.getComputationalName())
-				.withType(DataEngineType.fromDockerImageName(compResource.getImageName()));
 	}
 
 	private void sparkAction(UserInfo userInfo, String exploratoryName, String computationalName, UserInstanceStatus

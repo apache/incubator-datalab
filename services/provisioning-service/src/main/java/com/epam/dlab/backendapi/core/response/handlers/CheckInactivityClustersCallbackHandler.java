@@ -21,28 +21,29 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.dto.computational.CheckInactivityClusterCallbackDTO;
 import com.epam.dlab.dto.computational.CheckInactivityClustersStatus;
 import com.epam.dlab.dto.computational.CheckInactivityClustersStatusDTO;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.core.Response;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 public class CheckInactivityClustersCallbackHandler implements FileHandlerCallback {
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 	private static final String STATUS_FIELD = "status";
-	private static final String LAST_ACTIVITY_FIELD = "last_activity";
+	private static final String CLUSTERS_FIELD = "clusters";
 	private static final String ERROR_MESSAGE_FIELD = "error_message";
 	@JsonProperty
 	private final String uuid;
@@ -77,32 +78,30 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean handle(String fileName, byte[] content) throws Exception {
 		final String fileContent = new String(content);
 		log.debug("Got file {} while waiting for UUID {}, check inactivity clusters response: {}", fileName, uuid,
 				fileContent);
 
-		final JsonNode jsonNode = MAPPER.readTree(fileContent);
-		final String status = jsonNode.get(STATUS_FIELD).textValue();
+		final JsonNode treeNode = MAPPER.readTree(fileContent);
+		final String status = treeNode.get(STATUS_FIELD).textValue();
 		CheckInactivityClustersStatusDTO checkInactivityClustersStatusDTO;
 		if ("ok".equals(status)) {
-			String lastActivityDate = jsonNode.get(LAST_ACTIVITY_FIELD).textValue();
-			Date date = getDate(lastActivityDate);
+			final JsonNode clustersNode = treeNode.get(CLUSTERS_FIELD);
+			ObjectReader reader = MAPPER.readerFor(new TypeReference<List<EnvResource>>() {
+			});
+			List<EnvResource> clusters = reader.readValue(clustersNode);
 			checkInactivityClustersStatusDTO =
-					buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.COMPLETED)
-					.withLastActivityDate(date);
+					buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.COMPLETED, clusters);
 		} else {
 			checkInactivityClustersStatusDTO =
-					buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.FAILED)
-					.withErrorMessage(jsonNode.get(ERROR_MESSAGE_FIELD).textValue());
+					buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.FAILED,
+							Collections.emptyList())
+							.withErrorMessage(treeNode.get(ERROR_MESSAGE_FIELD).textValue());
 		}
 		selfServicePost(checkInactivityClustersStatusDTO);
 		return "ok".equals(status);
-	}
-
-	private Date getDate(String stringDateValue) throws ParseException {
-		DateFormat formatter = new SimpleDateFormat("d-MMM-yyyy,HH:mm:ss");
-		return formatter.parse(stringDateValue);
 	}
 
 	private void selfServicePost(CheckInactivityClustersStatusDTO statusDTO) {
@@ -118,14 +117,15 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 
 	@Override
 	public void handleError(String errorMessage) {
-		buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.FAILED)
+		buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.FAILED, Collections.emptyList())
 				.withErrorMessage(errorMessage);
 	}
 
-	private CheckInactivityClustersStatusDTO buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus status) {
+	private CheckInactivityClustersStatusDTO buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus status,
+																				   List<EnvResource> clusters) {
 		return new CheckInactivityClustersStatusDTO()
-				.withRequestId(uuid)
-				.withCheckInactivityClusterCallbackDTO(dto)
+				.withId(uuid)
+				.withClusters(clusters)
 				.withCheckInactivityClustersStatus(status)
 				.withUser(user);
 	}

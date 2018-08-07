@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserEnvironmentResources;
@@ -52,7 +52,7 @@ public class EnvStatusListener implements Managed {
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
 	private final Cache<String, UserInfo> sessions;
-	private final EnvStatusDAO dao;
+	private final EnvDAO dao;
 	private final RESTService provisioningService;
 	private final StatusChecker statusChecker = new StatusChecker();
 	private final long checkEnvStatusTimeout;
@@ -62,7 +62,7 @@ public class EnvStatusListener implements Managed {
 	private RequestId requestId;
 
 	@Inject
-	public EnvStatusListener(SelfServiceApplicationConfiguration configuration, EnvStatusDAO dao,
+	public EnvStatusListener(SelfServiceApplicationConfiguration configuration, EnvDAO dao,
 							 @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
 							 RequestBuilder requestBuilder) {
 

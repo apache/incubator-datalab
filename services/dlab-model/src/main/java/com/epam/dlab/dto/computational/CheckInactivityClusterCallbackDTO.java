@@ -17,28 +17,26 @@
  */
 package com.epam.dlab.dto.computational;
 
-import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.status.EnvResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
-public class CheckInactivityClusterCallbackDTO extends ComputationalBase<CheckInactivityClusterCallbackDTO> {
+public class CheckInactivityClusterCallbackDTO extends ResourceBaseDTO<CheckInactivityClusterCallbackDTO> {
 
-	@JsonProperty("exploratory_id")
-	private String exploratoryId;
+	@JsonProperty
+	private List<EnvResource> clusters;
 
 	@JsonProperty
 	private String id;
 
-	@JsonProperty("type")
-	private DataEngineType type;
-
-	public CheckInactivityClusterCallbackDTO withExploratoryId(String exploratoryId) {
-		setExploratoryId(exploratoryId);
+	public CheckInactivityClusterCallbackDTO withClusters(List<EnvResource> clusters) {
+		setClusters(clusters);
 		return this;
 	}
 
@@ -47,22 +45,12 @@ public class CheckInactivityClusterCallbackDTO extends ComputationalBase<CheckIn
 		return this;
 	}
 
-	public CheckInactivityClusterCallbackDTO withType(DataEngineType type) {
-		setType(type);
-		return this;
-	}
-
-	@Override
-	public MoreObjects.ToStringHelper toStringHelper(Object self) {
-		return super.toStringHelper(self)
-				.add("exploratoryId", exploratoryId)
-				.add("id", id)
-				.add("type", type);
-	}
-
 	@Override
 	public String toString() {
-		return toStringHelper(this).toString();
+		return toStringHelper(this)
+				.add("clusters", clusters)
+				.add("id", id)
+				.toString();
 	}
 
 }

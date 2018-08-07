@@ -41,13 +41,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @Ignore
-public class EnvStatusDAOTest extends DAOTestBase {
+public class EnvDAOTest extends DAOTestBase {
     private ExploratoryDAO expDAO;
     private ComputationalDAO compDAO;
-    private EnvStatusDAO envDAO;
+	private EnvDAO envDAO;
     private KeyDAO keyDAO;
-    
-    public EnvStatusDAOTest() {
+
+	public EnvDAOTest() {
         super(USER_EDGE, USER_INSTANCES);
     }
 
@@ -64,7 +64,7 @@ public class EnvStatusDAOTest extends DAOTestBase {
         testInjector.injectMembers(expDAO);
         compDAO = new ComputationalDAO();
         testInjector.injectMembers(compDAO);
-        envDAO = new EnvStatusDAO();
+		envDAO = new EnvDAO();
         testInjector.injectMembers(envDAO);
         keyDAO = new AwsKeyDao();
         testInjector.injectMembers(keyDAO);

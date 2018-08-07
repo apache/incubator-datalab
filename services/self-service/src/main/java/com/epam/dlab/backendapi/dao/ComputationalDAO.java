@@ -250,6 +250,11 @@ public class ComputationalDAO extends BaseDAO {
 		} while (result.getModifiedCount() > 0);
 	}
 
+	public void updateLastActivityForCluster(String user, String exploratoryName, String computationalName,
+											 Date lastActivity) {
+		updateComputationalField(user, exploratoryName, computationalName, COMPUTATIONAL_LAST_ACTIVITY, lastActivity);
+	}
+
 	private Bson computationalFilter(String user, String exploratoryName, String computationalStatus, String
 			computationalImage, UserInstanceStatus[] excludedStatuses) {
 		final String[] statuses = Arrays.stream(excludedStatuses)
