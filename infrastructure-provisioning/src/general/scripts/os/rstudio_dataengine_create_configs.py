@@ -82,8 +82,8 @@ def configure_rstudio():
 
 if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-    install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
+    install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                              args.datalake_enabled)
-    configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
     configure_rstudio()
 
