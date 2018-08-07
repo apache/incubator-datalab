@@ -88,7 +88,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         append_result("Failed to install {} packages".format(pip_version), str(err))
         print("Failed to install {} packages".format(pip_version))
         sys.exit(1)
-        
+
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -224,7 +224,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
 
 
 def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
-                   application='', pip_mirror=''):
+                   application='', pip_mirror='', numpy_version='1.14.3'):
     spark_path = '/opt/{0}/{1}/spark/'.format(dataengine_service_version, cluster_name)
     local('mkdir -p {0}pyspark_{1}/'.format(kernels_dir, cluster_name))
     kernel_path = '{0}pyspark_{1}/kernel.json'.format(kernels_dir, cluster_name)
@@ -248,7 +248,7 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     with file('/tmp/python_version') as f:
         python_version = f.read()
     if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
+        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror, numpy_version)
         local('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name))
         kernel_path = '{0}py3spark_{1}/kernel.json'.format(kernels_dir, cluster_name)
         template_file = "/tmp/pyspark_dataengine-service_template.json"
@@ -340,7 +340,11 @@ def install_ungit(os_user, notebook_name):
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
+            http_proxy = run('echo $http_proxy')
+            sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
+            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
+                notebook_name))
+            sudo("mv -f /tmp/ungit.service /etc/systemd/system/ungit.service")
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
             run('mkdir -p ~/.git/templates/hooks')
@@ -358,9 +362,19 @@ def install_ungit(os_user, notebook_name):
             sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
         except:
             sys.exit(1)
+    else:
+        try:
+            sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
+                notebook_name))
+            http_proxy = run('echo $http_proxy')
+            sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            sudo('systemctl daemon-reload')
+            sudo('systemctl restart ungit.service')
+        except:
+            sys.exit(1)
     run('git config --global http.proxy $http_proxy')
     run('git config --global https.proxy $https_proxy')
-    sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(notebook_name))
 
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):

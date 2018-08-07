@@ -29,7 +29,7 @@ limitations under the License.
       <mat-menu #menu="matMenu" [overlapTrigger]="false">
         <a class="nav-item" mat-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
         <a class="nav-item" mat-menu-item [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a>
-        <a *ngIf="billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/reporting']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Reporting</a>
+        <a *ngIf="billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/billing_report']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
         <a *ngIf="admin" class="nav-item" mat-menu-item [routerLink]="['/environment_management']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
       </mat-menu>
     </nav>

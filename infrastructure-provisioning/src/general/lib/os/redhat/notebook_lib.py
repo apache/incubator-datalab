@@ -139,8 +139,8 @@ def ensure_matplot(os_user):
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
-                sudo('python2.7 -m pip install -U numpy --no-cache-dir')
+                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.5 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -182,8 +182,8 @@ def ensure_additional_python_libs(os_user):
             sudo('yum clean all')
             sudo('yum install -y zlib-devel libjpeg-turbo-devel --nogpgcheck')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-                sudo('python3.5 -m pip install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
+                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.5 -m pip install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
                 sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
@@ -264,7 +264,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy --no-cache-dir'. format(os.environ['conf_pip_version']))
+            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
             sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
@@ -380,9 +380,9 @@ def get_available_os_pkgs():
 def install_opencv(os_user):
     if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
         sudo('yum install -y cmake python34 python34-devel python34-pip gcc gcc-c++')
-        sudo('pip2 install numpy --no-cache-dir')
-        sudo('pip3.4 install numpy --no-cache-dir')
-        sudo('pip3.5 install numpy --no-cache-dir')
+        sudo('pip2 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip3.4 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip3.5 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         run('git clone https://github.com/opencv/opencv.git')
         with cd('/home/{}/opencv/'.format(os_user)):
             run('git checkout 3.2.0')
@@ -445,10 +445,10 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update-minimal --security -y')
         sudo('yum install -y --nogpgcheck automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
-             'requests scikit-image scipy setuptools tornado future --no-cache-dir')
-        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
-             'requests scikit-image scipy setuptools tornado future --no-cache-dir')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
