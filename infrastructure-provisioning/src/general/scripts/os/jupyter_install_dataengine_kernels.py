@@ -57,7 +57,7 @@ def configure_notebook(keyfile, hoststring):
         sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
     if not exists('/usr/lib/python2.7/dlab/'):
         sudo('mkdir -p /usr/lib/python2.7/dlab/')
-        put('/usr/lib/python2.7/dlab/', '/usr/lib/python2.7/dlab/', use_sudo=True)
+        put('/usr/lib/python2.7/dlab/*', '/usr/lib/python2.7/dlab/', use_sudo=True)
         sudo('chmod a+x /usr/lib/python2.7/dlab/*')
         if exists('/usr/lib64'):
             sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
