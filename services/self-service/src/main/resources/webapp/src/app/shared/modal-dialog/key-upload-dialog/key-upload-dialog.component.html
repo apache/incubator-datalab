@@ -29,7 +29,8 @@ limitations under the License.
         <div class="row-wrap upload-key">
           <div class="col">
             <label class="control-label">
-              Upload public key to start environment creation
+              <span *ngIf="primaryUploading; else reupload">Upload public key to start environment creation</span>
+              <ng-template #reupload>Reupload public key to start environment creation</ng-template>
             </label>
             <div>
               <a href="#/help/publickeyguide" target="_blank">
@@ -55,7 +56,8 @@ limitations under the License.
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
           <button mat-raised-button type="submit" class="butt butt-success action" [disabled]="!model.accessKeyFormValid">
-            <span *ngIf="primaryUploading">Create</span><span *ngIf="!primaryUploading">Reupload</span>
+            <span *ngIf="primaryUploading; else reupload_label">Create</span>
+            <ng-template #reupload_label>Reupload</ng-template>
           </button>
         </div>
       </form>
