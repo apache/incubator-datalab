@@ -82,7 +82,8 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.slaveNumber(formDTO.getSlaveInstanceCount())
 					.masterNumber(formDTO.getMasterInstanceCount())
 					.preemptibleNumber(formDTO.getPreemptibleCount())
-					.version(formDTO.getVersion()).build();
+					.version(formDTO.getVersion())
+					.checkInactivityRequired(formDTO.isCheckInactivityRequired()).build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
 					gcpComputationalResource);
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
@@ -172,6 +173,29 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 
 		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
 
+		return Response.ok().build();
+	}
+
+	/**
+	 * Updates 'check_inactivity_required' parameter for user's computational resource in database.
+	 *
+	 * @param userInfo                user info.
+	 * @param exploratoryName         name of exploratory.
+	 * @param computationalName       name of computational resource.
+	 * @param checkInactivityRequired true/false.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@POST
+	@Path("/{exploratoryName}/{computationalName}/check_inactivity")
+	public Response updateCheckInactivity(@Auth UserInfo userInfo,
+										  @PathParam("exploratoryName") String exploratoryName,
+										  @PathParam("computationalName") String computationalName,
+										  @QueryParam("check_inactivity") boolean checkInactivityRequired) {
+		log.debug("Updating check inactivity cluster flag to {} for computational resource {} affiliated with " +
+						"exploratory {} for user {}", checkInactivityRequired, computationalName, exploratoryName,
+				userInfo.getName());
+		computationalService.updateCheckInactivityFlag(userInfo, exploratoryName, computationalName,
+				checkInactivityRequired);
 		return Response.ok().build();
 	}
 

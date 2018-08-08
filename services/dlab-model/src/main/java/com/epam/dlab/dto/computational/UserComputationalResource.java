@@ -52,4 +52,6 @@ public class UserComputationalResource {
 	private List<ResourceURL> resourceUrl;
 	@JsonProperty("last_activity")
 	private Date lastActivity;
+	@JsonProperty("check_inactivity_required")
+	private boolean checkInactivityRequired;
 }

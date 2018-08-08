@@ -192,7 +192,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Override
 	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
-		List<EnvResource> runningClusters = envDAO.findRunningClusters();
+		List<EnvResource> runningClusters = envDAO.findRunningClustersForCheckInactivity();
 		if (!runningClusters.isEmpty()) {
 			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
 					userInfo.getAccessToken(), runningClusters, String.class);

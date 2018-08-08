@@ -67,4 +67,7 @@ public interface ComputationalService {
 	void stopOrTerminateClustersByCondition(CheckInactivityClustersStatusDTO dto);
 
 	void updateLastActivityForClusters(CheckInactivityClustersStatusDTO dto);
+
+	void updateCheckInactivityFlag(UserInfo userInfo, String exploratoryName, String computationalName,
+								   boolean checkInactivityRequired);
 }

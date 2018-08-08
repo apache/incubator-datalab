@@ -108,10 +108,11 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<EnvResource> findRunningClusters() {
+	public List<EnvResource> findRunningClustersForCheckInactivity() {
 		return stream(find(USER_INSTANCES))
 				.map(exp -> stream((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
-						.filter(doc -> UserInstanceStatus.of(doc.getString(STATUS)) == RUNNING)
+						.filter(doc -> UserInstanceStatus.of(doc.getString(STATUS)) == RUNNING &&
+								doc.getBoolean(CHECK_INACTIVITY_REQUIRED))
 						.map(doc -> toEnvResourceComputational(doc, RUNNING)))
 				.flatMap(Function.identity()).collect(Collectors.toList());
 	}

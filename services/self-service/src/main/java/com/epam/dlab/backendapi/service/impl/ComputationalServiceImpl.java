@@ -250,6 +250,13 @@ public class ComputationalServiceImpl implements ComputationalService {
 		instances.forEach(this::updateLastActivityForClustersAffiliatedWithInstance);
 	}
 
+	@Override
+	public void updateCheckInactivityFlag(UserInfo userInfo, String exploratoryName, String computationalName,
+										  boolean checkInactivityRequired) {
+		computationalDAO.updateCheckInactivityFlagForComputationalResource(userInfo.getName(), exploratoryName,
+				computationalName, checkInactivityRequired);
+	}
+
 	private void updateLastActivityForClustersAffiliatedWithInstance(UserInstanceDTO ui) {
 		ui.getResources().forEach(cr -> updateLastActivityForCluster(ui.getUser(), ui.getExploratoryName(),
 				cr.getComputationalName(), cr.getLastActivity()));
@@ -390,6 +397,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 				.status(CREATING.toString())
 				.dataEngineInstanceCount(form.getDataEngineInstanceCount())
 				.dataEngineInstanceShape(form.getDataEngineInstanceShape())
+				.checkInactivityRequired(form.isCheckInactivityRequired())
 				.build();
 	}
 

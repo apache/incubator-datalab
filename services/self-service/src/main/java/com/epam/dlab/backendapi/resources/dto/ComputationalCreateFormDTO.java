@@ -44,4 +44,7 @@ public class ComputationalCreateFormDTO {
     @JsonProperty("notebook_name")
     private String notebookName;
 
+	@JsonProperty("check_inactivity_required")
+	private boolean checkInactivityRequired = true;
+
 }

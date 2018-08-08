@@ -363,6 +363,22 @@ public class ComputationalDAO extends BaseDAO {
 	}
 
 	/**
+	 * Updates the requirement for checking inactivity for single computational resource in Mongo database.
+	 *
+	 * @param user                    user name.
+	 * @param exploratoryName         exploratory's name.
+	 * @param computationalName       name of computational resource.
+	 * @param checkInactivityRequired true/false.
+	 */
+
+	public void updateCheckInactivityFlagForComputationalResource(String user, String exploratoryName,
+																  String computationalName,
+																  boolean checkInactivityRequired) {
+		updateComputationalField(user, exploratoryName, computationalName, CHECK_INACTIVITY_REQUIRED,
+				checkInactivityRequired);
+	}
+
+	/**
 	 * Returns names of computational resources which status is among existing ones. Also these resources will
 	 * have predefined type.
 	 *
