@@ -27,14 +27,8 @@ import java.util.List;
 @Getter
 public class CheckInactivityClustersStatusDTO extends StatusBaseDTO<CheckInactivityClustersStatusDTO> {
 
-	private String id;
 	private List<EnvResource> clusters;
 	private CheckInactivityClustersStatus checkInactivityClustersStatus;
-
-	public CheckInactivityClustersStatusDTO withId(String id) {
-		this.id = id;
-		return this;
-	}
 
 	public CheckInactivityClustersStatusDTO withClusters(List<EnvResource> clusters) {
 		this.clusters = clusters;
@@ -50,7 +44,6 @@ public class CheckInactivityClustersStatusDTO extends StatusBaseDTO<CheckInactiv
 	@Override
 	public MoreObjects.ToStringHelper toStringHelper(Object self) {
 		return super.toStringHelper(self)
-				.add("id", id)
 				.add("clusters", clusters)
 				.add("checkInactivityClustersStatus", checkInactivityClustersStatus);
 	}

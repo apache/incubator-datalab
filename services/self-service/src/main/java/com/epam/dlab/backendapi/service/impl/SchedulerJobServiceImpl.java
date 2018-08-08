@@ -31,6 +31,7 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
@@ -191,10 +192,13 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Override
 	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
-		String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-				userInfo.getAccessToken(), envDAO.findRunningClusters(), String.class);
-		requestId.put(userInfo.getName(), uuid);
-		return uuid;
+		List<EnvResource> runningClusters = envDAO.findRunningClusters();
+		if (!runningClusters.isEmpty()) {
+			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
+					userInfo.getAccessToken(), runningClusters, String.class);
+			requestId.put(userInfo.getName(), uuid);
+			return uuid;
+		} else return StringUtils.EMPTY;
 	}
 
 

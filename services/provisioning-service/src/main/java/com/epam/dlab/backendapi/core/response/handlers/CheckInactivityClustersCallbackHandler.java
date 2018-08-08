@@ -124,7 +124,7 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 	private CheckInactivityClustersStatusDTO buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus status,
 																				   List<EnvResource> clusters) {
 		return new CheckInactivityClustersStatusDTO()
-				.withId(uuid)
+				.withRequestId(uuid)
 				.withClusters(clusters)
 				.withCheckInactivityClustersStatus(status)
 				.withUser(user);
