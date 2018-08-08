@@ -42,6 +42,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [Scheduler](#scheduler)
 
+[Key reupload](#key_reupload)
+
 ---------
 # Login <a name="login"></a>
 
@@ -517,3 +519,17 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 
 Once any scheduler is set up, notebook/spark cluster will be started/stopped automatically.
 Please also note that if notebook is configured to be stopped, all running data engines assosiated with it will be stopped (for spark cluster) or terminated (for data engine serice) with notebook.
+
+# Key reupload <a name="key_reupload"></a>
+In case when user private key was corrupted, lost etc. DLAB provide a possibility to reupload user public key.
+It can be done on manage environment page using ACTIONS menu on edge instance:
+
+<p align="center"> 
+    <img src="doc/reupload_key_action.png" alt="Reupload key action" width="400">
+</p>
+
+After that similar to create initial environment dialog appeared where you can upload new key or generate new key-pair:
+ 
+ <p align="center"> 
+     <img src="doc/reupload_key_dialog.png" alt="Reupload key dialog" width="400">
+ </p>
