@@ -20,7 +20,9 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.*;
+import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
+import com.epam.dlab.dto.LibraryDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
@@ -52,11 +54,13 @@ public class LibExploratoryResourceTest extends TestBase {
 	private ExploratoryDAO exploratoryDAO = mock(ExploratoryDAO.class);
 	private LibraryService libraryService = mock(LibraryService.class);
 	private RESTService provisioningService = mock(RESTService.class);
+	private ExternalLibraryService externalLibraryService = mock(ExternalLibraryService.class);
 	private RequestId requestId = mock(RequestId.class);
 
 	@Rule
 	public final ResourceTestRule resources = getResourceTestRuleInstance(
-			new LibExploratoryResource(exploratoryDAO, libraryService, provisioningService, requestId));
+			new LibExploratoryResource(exploratoryDAO, libraryService, provisioningService, requestId,
+					externalLibraryService));
 
 	@Before
 	public void setup() throws AuthenticationException {
@@ -392,6 +396,51 @@ public class LibExploratoryResourceTest extends TestBase {
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void getMavenArtifact() {
+		when(externalLibraryService.getLibrary(anyString(), anyString(), anyString())).thenReturn(libraryDto());
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/search/lib_list/maven")
+				.queryParam("artifact", "group:artifact:version")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		final LibraryDTO libraryDTO = response.readEntity(LibraryDTO.class);
+		assertEquals("test", libraryDTO.getName());
+		assertEquals("1.0", libraryDTO.getVersion());
+
+		verify(externalLibraryService).getLibrary("group", "artifact", "version");
+		verifyNoMoreInteractions(externalLibraryService);
+	}
+
+	@Test
+	public void getMavenArtifactWithValidationException() {
+		when(externalLibraryService.getLibrary(anyString(), anyString(), anyString())).thenReturn(libraryDto());
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/search/lib_list/maven")
+				.queryParam("artifact", "group:artifact")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		assertEquals("{\"errors\":[\"query param artifact Wrong library name format. Should be " +
+						"<groupId>:<artifactId>:<versionId>. E.g. io.dropwizard:dropwizard-core:1.3.5\"]}",
+				response.readEntity(String.class));
+
+		verifyZeroInteractions(externalLibraryService);
+	}
+
+	private LibraryDTO libraryDto() {
+		return new LibraryDTO(
+				"test", "1.0");
 	}
 
 	private UserInstanceDTO getUserInstanceDto() {

@@ -22,6 +22,7 @@ import static junit.framework.TestCase.assertEquals;
 import java.util.List;
 import java.util.Map;
 
+import com.epam.dlab.dto.LibraryDTO;
 import org.junit.Test;
 
 public class ExploratoryLibListTest {
@@ -53,10 +54,10 @@ public class ExploratoryLibListTest {
 		assertEquals(2, map.size());
     	assertEquals("2.0.1-1ubuntu1", map.get("htop"));
     	assertEquals("1.3.7-1build2", map.get("python-mysqldb"));
-    	
-    	map = libs.getLibs("os_pkg", "py");
-		assertEquals(1, map.size());
-    	assertEquals("1.3.7-1build2", map.get("python-mysqldb"));
+
+		final List<LibraryDTO> dtoList = libs.getLibs("os_pkg", "py");
+		assertEquals(1, dtoList.size());
+    	assertEquals("1.3.7-1build2", dtoList.get(0).getVersion());
 
     	libs.setUpdating();
 		assertEquals(true, libs.isUpdating());

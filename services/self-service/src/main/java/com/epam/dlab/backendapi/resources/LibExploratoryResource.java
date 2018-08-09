@@ -23,8 +23,11 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SearchLibsFormDTO;
+import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
+import com.epam.dlab.backendapi.validation.annotation.LibNameValid;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.LibraryDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -45,7 +48,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -57,6 +59,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LibExploratoryResource {
 
+
+	private final ExternalLibraryService externalLibraryService;
 	private ExploratoryDAO exploratoryDAO;
 	private LibraryService libraryService;
 	private RESTService provisioningService;
@@ -65,11 +69,12 @@ public class LibExploratoryResource {
 	@Inject
 	public LibExploratoryResource(ExploratoryDAO exploratoryDAO, LibraryService libraryService,
 								  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-								  RequestId requestId) {
+								  RequestId requestId, ExternalLibraryService externalLibraryService) {
 		this.exploratoryDAO = exploratoryDAO;
 		this.libraryService = libraryService;
 		this.provisioningService = provisioningService;
 		this.requestId = requestId;
+		this.externalLibraryService = externalLibraryService;
 	}
 
 	/**
@@ -208,7 +213,7 @@ public class LibExploratoryResource {
 	 */
 	@POST
 	@Path("search/lib_list")
-	public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull SearchLibsFormDTO formDTO) {
+	public List<LibraryDTO> getLibList(@Auth UserInfo userInfo, @Valid @NotNull SearchLibsFormDTO formDTO) {
 		log.trace("Search list of libs for user {} with condition {}", userInfo.getName(), formDTO);
 		try {
 
@@ -234,5 +239,13 @@ public class LibExploratoryResource {
 					userInfo.getName(), formDTO, t);
 			throw new DlabException("Cannot search libraries: " + t.getLocalizedMessage(), t);
 		}
+	}
+
+	@GET
+	@Path("search/lib_list/maven")
+	public Response getMavenArtifactInfo(@Auth UserInfo userInfo,
+										 @LibNameValid @QueryParam("artifact") String artifact) {
+		final String[] libNameParts = artifact.split(":");
+		return Response.ok(externalLibraryService.getLibrary(libNameParts[0], libNameParts[1], libNameParts[2])).build();
 	}
 }
