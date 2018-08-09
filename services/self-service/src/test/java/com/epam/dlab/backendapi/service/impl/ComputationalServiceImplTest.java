@@ -624,6 +624,7 @@ public class ComputationalServiceImplTest {
 				.imageName("dataengine")
 				.status(CREATING.toString())
 				.dataEngineInstanceCount(String.valueOf(2))
+				.checkInactivityRequired(true)
 				.build();
 	}
 
