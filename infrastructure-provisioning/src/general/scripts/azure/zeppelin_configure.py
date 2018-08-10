@@ -141,13 +141,22 @@ if __name__ == "__main__":
                              "backend_hostname": instance_hostname,
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_clusters {} --r_mirror {}" \
+        params = "--hostname {} --instance_name {} " \
+                 "--keyfile {} --region {} " \
+                 "--additional_config '{}' --os_user {} " \
+                 "--spark_version {} --hadoop_version {} " \
+                 "--edge_hostname {} --proxy_port {} " \
+                 "--zeppelin_version {} --scala_version {} " \
+                 "--livy_version {} --multiple_clusters {} " \
+                 "--r_mirror {} --endpoint_url {} " \
+                 "--exploratory_name {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['azure_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
-                    os.environ['notebook_r_mirror'])
+                    os.environ['notebook_r_mirror'], 'null',
+                    notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
