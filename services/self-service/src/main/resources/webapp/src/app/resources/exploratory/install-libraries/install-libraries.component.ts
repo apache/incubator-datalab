@@ -27,7 +27,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 
 import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
-import { ErrorMapUtils, SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
+import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -58,7 +58,7 @@ export class InstallLibrariesComponent implements OnInit {
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
-  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others'};
+  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others', 'java': 'Java'};
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
@@ -156,7 +156,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public selectLibrary(item): void {
-    this.model.selectedLibs.push({group: this.group, name: item.key, version: item.value});
+    this.model.selectedLibs.push({group: this.group, name: item.name, version: item.version});
 
     this.query = '';
     this.libSearch.setValue('');
@@ -254,11 +254,20 @@ export class InstallLibrariesComponent implements OnInit {
 
   private getFilteredList(): void {
     this.isFilteringProc = true;
-    this.model.getLibrariesList(this.group, this.query)
-      .subscribe(libs => {
-        this.filteredList = libs;
-        this.isFilteringProc = false;
-      });
+    if (this.group === 'java') {
+      console.log(this.group);
+      this.model.getDependencies(this.query)
+        .subscribe(lib => {
+          this.filteredList = [lib];
+          this.isFilteringProc = false;
+        });
+    } else {
+      this.model.getLibrariesList(this.group, this.query)
+        .subscribe(libs => {
+          this.filteredList = libs;
+          this.isFilteringProc = false;
+        });
+    }
   }
 
   private selectorsReset():void {
