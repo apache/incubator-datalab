@@ -27,7 +27,7 @@ import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.backendapi.validation.annotation.LibNameValid;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.exceptions.DlabException;

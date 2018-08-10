@@ -20,7 +20,7 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 
 public interface ExternalLibraryService {
 

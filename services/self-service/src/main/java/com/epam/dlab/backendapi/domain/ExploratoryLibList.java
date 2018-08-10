@@ -18,7 +18,7 @@
 
 package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;

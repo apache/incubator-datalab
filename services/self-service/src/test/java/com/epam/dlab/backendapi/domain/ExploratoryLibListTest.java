@@ -22,7 +22,7 @@ import static junit.framework.TestCase.assertEquals;
 import java.util.List;
 import java.util.Map;
 
-import com.epam.dlab.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import org.junit.Test;
 
 public class ExploratoryLibListTest {

@@ -18,7 +18,7 @@
  * ***************************************************************************
  */
 
-package com.epam.dlab.dto;
+package com.epam.dlab.backendapi.resources.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

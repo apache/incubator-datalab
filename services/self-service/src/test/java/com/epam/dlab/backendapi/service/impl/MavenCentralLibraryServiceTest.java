@@ -21,7 +21,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.domain.MavenSearchArtifactResponse;
-import com.epam.dlab.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.exceptions.DlabException;
 import org.junit.Rule;
 import org.junit.Test;
