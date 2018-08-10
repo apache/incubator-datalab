@@ -22,7 +22,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.*;
 import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
-import com.epam.dlab.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
