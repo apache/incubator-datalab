@@ -51,7 +51,7 @@ limitations under the License.
           </div>
           <div class="search">
             <mat-form-field class="chip-list">
-              <input type="text" placeholder="Enter library name" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
+              <input type="text" [placeholder]="group === 'java' ? 'Please write library name in a correct format - groupID:artifactID:vesion' : 'Enter library name'" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
               <mat-icon matSuffix>search</mat-icon>
               <mat-autocomplete #auto="matAutocomplete" class="suggestions">
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
