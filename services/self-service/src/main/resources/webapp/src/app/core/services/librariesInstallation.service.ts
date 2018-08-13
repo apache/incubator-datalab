@@ -61,7 +61,10 @@ export class LibrariesInstallationService {
             .buildGetAvailableDependenciest(body)
             .map((response: Response) => response.json())
             .catch((error: any) => {
-                return Observable.throw(new Error(`${ error.status } ${ error.statusText } ${ error._body }`));
+                return Observable.throw({
+                    status: error.status,
+                    message: error._body
+                });
             });
     }
 

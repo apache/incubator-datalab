@@ -52,9 +52,9 @@ export class InstallLibrariesComponent implements OnInit {
 
   public processError: boolean = false;
   public errorMessage: string = '';
+  public validity_format: string = '';
 
   public isInstalled: boolean = false;
-  public isFilteringProc: boolean = false;
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
@@ -253,19 +253,21 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private getFilteredList(): void {
-    this.isFilteringProc = true;
+    this.validity_format = '';
+
     if (this.group === 'java') {
-      console.log(this.group);
       this.model.getDependencies(this.query)
-        .subscribe(lib => {
-          this.filteredList = [lib];
-          this.isFilteringProc = false;
+        .subscribe(
+          lib => this.filteredList = [lib],
+          error => {
+          if (error.status === HTTP_STATUS_CODES.NOT_FOUND || error.status === HTTP_STATUS_CODES.BAD_REQUEST) {
+            this.validity_format = error.message;
+          }
         });
     } else {
       this.model.getLibrariesList(this.group, this.query)
         .subscribe(libs => {
           this.filteredList = libs;
-          this.isFilteringProc = false;
         });
     }
   }
@@ -281,7 +283,6 @@ export class InstallLibrariesComponent implements OnInit {
     this.libSearch.setValue('');
 
     this.processError = false;
-    this.isFilteringProc = false;
     this.isInstalled = false;
     this.isInSelectedList = false;
     this.uploading = false;
