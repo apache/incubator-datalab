@@ -137,9 +137,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
         print('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {} --r_mirror {}" \
-            .format(instance_hostname, keyfile_name, os.environ['azure_region'], notebook_config['rstudio_pass'],
-                    os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'], os.environ['notebook_r_mirror'])
+        params = "--hostname {}  --keyfile {} " \
+                 "--region {} --rstudio_pass {} " \
+                 "--rstudio_version {} --os_user {} " \
+                 "--r_mirror {} --exploratory_name {}" \
+            .format(instance_hostname, keyfile_name,
+                    os.environ['azure_region'], notebook_config['rstudio_pass'],
+                    os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
+                    os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
@@ -244,7 +249,7 @@ if __name__ == "__main__":
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
         rstudio_ip_url = "http://" + ip_address + ":8787/"
-        ungit_ip_url = "http://" + ip_address + ":8085/"
+        ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))

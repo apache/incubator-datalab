@@ -58,7 +58,7 @@ def r_kernel(args):
     spark_path = '/opt/{}/spark/'.format(args.cluster_name)
     local('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name))
     kernel_path = "{}/r_{}/kernel.json".format(kernels_dir, args.cluster_name)
-    template_file = "/tmp/r_dataengine_template.json"
+    template_file = "/tmp/{}/r_dataengine_template.json".format(args.cluster_name)
     r_version = local("R --version | awk '/version / {print $3}'", capture = True)
 
     with open(template_file, 'r') as f:
@@ -77,9 +77,9 @@ def toree_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
     scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
     local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
-    local('tar zxvf /tmp/toree_kernel.tar.gz -C ' + kernels_dir + 'toree_' + args.cluster_name + '/')
+    local('tar zxvf /tmp/{}/toree_kernel.tar.gz -C '.format(args.cluster_name) + kernels_dir + 'toree_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
-    template_file = "/tmp/toree_dataengine_template.json"
+    template_file = "/tmp/{}/toree_dataengine_template.json".format(args.cluster_name)
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
@@ -90,14 +90,14 @@ def toree_kernel(args):
     text = text.replace('SCALA_VERSION', scala_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/kernel_var.json')
+    local('touch /tmp/{}/kernel_var.json'.format(args.cluster_name))
     local(
         "PYJ=`find /opt/" + args.cluster_name +
         "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+        " | sed 's|PY4J|'$PYJ'|g' > /tmp/{}/kernel_var.json".format(args.cluster_name))
+    local('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path)
     run_sh_path = kernels_dir + "toree_" + args.cluster_name + "/bin/run.sh"
-    template_sh_file = '/tmp/run_template.sh'
+    template_sh_file = '/tmp/{}/run_template.sh'.format(args.cluster_name)
     with open(template_sh_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
@@ -110,7 +110,7 @@ def pyspark_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + args.cluster_name + "/kernel.json"
-    template_file = "/tmp/pyspark_dataengine_template.json"
+    template_file = "/tmp/{}/pyspark_dataengine_template.json".format(args.cluster_name)
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
@@ -122,15 +122,15 @@ def pyspark_kernel(args):
     text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/kernel_var.json')
+    local('touch /tmp/{}/kernel_var.json'.format(args.cluster_name))
     local(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/kernel_var.json".
+        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json".
         format(args.cluster_name, kernel_path, args.os_user))
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+    local('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path)
 
     local('mkdir -p ' + kernels_dir + 'py3spark_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "py3spark_" + args.cluster_name + "/kernel.json"
-    template_file = "/tmp/pyspark_dataengine_template.json"
+    template_file = "/tmp/{}/pyspark_dataengine_template.json".format(args.cluster_name)
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
@@ -142,11 +142,11 @@ def pyspark_kernel(args):
     text = text.replace('PYTHON_PATH', '/usr/bin/python3.5')
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/kernel_var.json')
+    local('touch /tmp/{}/kernel_var.json'.format(args.cluster_name))
     local(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/kernel_var.json".
+        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json".
         format(args.cluster_name, kernel_path, args.os_user))
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+    local('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path)
 
 
 if __name__ == "__main__":
@@ -154,9 +154,9 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
+        install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                                  args.datalake_enabled)
-        configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+        configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
         pyspark_kernel(args)
         toree_kernel(args)
         if args.r_enabled == 'true':
