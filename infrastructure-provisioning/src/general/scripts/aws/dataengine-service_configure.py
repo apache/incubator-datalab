@@ -233,6 +233,8 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
+        ip_address = emr_conf['cluster_master_instances'][0].get('PrivateIpAddress')
+        emr_master_url = "http://" + ip_address + ":8088"
         emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] + '_' + emr_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
@@ -255,7 +257,9 @@ if __name__ == "__main__":
                    "Action": "Create new EMR cluster",
                    "computational_url": [
                        {"description": "EMR Master",
-                        "url": emr_master_acces_url}
+                        "url": emr_master_acces_url},
+                       #{"description": "EMR Master (via tunnl)",
+                        #"url": emr_master_url}
                    ]}
             print(json.dumps(res))
             result.write(json.dumps(res))

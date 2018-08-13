@@ -84,8 +84,8 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
             sudo('cp /opt/dlab/templates/nginx_debian /etc/init.d/nginx')
             sudo('chmod +x /etc/init.d/nginx')
             sudo('systemctl daemon-reload')
+            sudo('systemctl enable nginx')
             sudo('/etc/init.d/nginx start')
-            #sudo('update-rc.d nginx enable 3 4 5')
             sudo('touch /tmp/nginx_installed')
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
