@@ -275,9 +275,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             if kernel_version == 'azure':
                 sudo('apt-get -y install linux-modules-extra-`uname -r`')
             else:
-                sudo('apt-get -y install linux-image-extra-`uname -r`')
                 #legacy support for old kernels
-                sudo('if [[ $(apt-cache search linux-images-extra-`uname -r`) ]]; then apt-get -y install linux-image-extra-`uname -r`; else apt-get -y install linux-modules-extra-`uname -r`; fi;')
+                sudo('if [[ $(apt-cache search linux-image-extra-`uname -r`) ]]; then apt-get -y install linux-image-extra-`uname -r`; else apt-get -y install linux-modules-extra-`uname -r`; fi;')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
