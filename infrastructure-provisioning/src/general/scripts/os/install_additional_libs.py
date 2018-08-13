@@ -52,6 +52,8 @@ if __name__ == "__main__":
             if not data[row]['group'] in pkgs['libraries'].keys():
                 pkgs["libraries"].update({data[row]['group']: []})
             pkgs['libraries'][data[row]['group']].append(data[row]['name'])
+            if data[row]['group'] == "java":
+                pkgs['libraries'][data[row]['group']].append(data[row]['version'])
     except Exception as err:
         append_result("Failed to parse libs list.", str(err))
         sys.exit(1)
@@ -64,6 +66,13 @@ if __name__ == "__main__":
         pass
 
     if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor', 'tensor-rstudio', 'rstudio']:
+        try:
+            print('Installing java dependencies: {}'.format(pkgs['libraries']['java']))
+            status = install_java_pkg(pkgs['libraries']['java'])
+            general_status = general_status + status
+        except KeyError:
+            pass
+
         try:
             print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
             status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
