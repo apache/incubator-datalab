@@ -13,21 +13,23 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryGitCredsCallbackHandler;
 import com.epam.dlab.backendapi.service.DockerService;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,44 +45,48 @@ import javax.ws.rs.core.MediaType;
 @Slf4j
 public class GitExploratoryResource extends DockerService implements DockerCommands {
 
-    @Path("/git_creds")
-    @POST
-    public String gitCredsUpdate(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
-        return action(ui.getName(), dto, DockerAction.GIT_CREDS);
-    }
+	@Inject
+	private SystemUserInfoService systemUserInfoService;
 
-    private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
-        log.debug("{} exploratory environment", action);
-        String uuid = DockerCommands.generateUUID();
-        folderListenerExecutor.start(configuration.getImagesDirectory(),
-                configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(action, uuid, dto));
+	@Path("/git_creds")
+	@POST
+	public String gitCredsUpdate(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
+		return action(ui.getName(), dto, DockerAction.GIT_CREDS);
+	}
 
-        RunDockerCommand runDockerCommand = new RunDockerCommand()
-                .withInteractive()
-                .withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName()))
-                .withVolumeForRootKeys(configuration.getKeyDirectory())
-                .withVolumeForResponse(configuration.getImagesDirectory())
-                .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                .withResource(getResourceType())
-                .withRequestId(uuid)
-                .withConfKeyName(configuration.getAdminKey())
-                .withImage(dto.getNotebookImage())
-                .withAction(action);
+	private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
+		log.debug("{} exploratory environment", action);
+		String uuid = DockerCommands.generateUUID();
+		folderListenerExecutor.start(configuration.getImagesDirectory(),
+				configuration.getResourceStatusPollTimeout(),
+				getFileHandlerCallback(action, uuid, dto));
 
-        commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
-        return uuid;
-    }
+		RunDockerCommand runDockerCommand = new RunDockerCommand()
+				.withInteractive()
+				.withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName()))
+				.withVolumeForRootKeys(configuration.getKeyDirectory())
+				.withVolumeForResponse(configuration.getImagesDirectory())
+				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
+				.withResource(getResourceType())
+				.withRequestId(uuid)
+				.withConfKeyName(configuration.getAdminKey())
+				.withImage(dto.getNotebookImage())
+				.withAction(action);
 
-    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-        return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(), dto.getExploratoryName());
-    }
+		commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
+		return uuid;
+	}
 
-    private String nameContainer(String user, DockerAction action, String name) {
-        return nameContainer(user, action.toString(), "exploratory", name);
-    }
+	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+		return new ExploratoryGitCredsCallbackHandler(systemUserInfoService, selfService, action, uuid,
+				dto.getCloudSettings().getIamUser(), dto.getExploratoryName());
+	}
 
-    public String getResourceType() {
-        return Directories.NOTEBOOK_LOG_DIRECTORY;
-    }
+	private String nameContainer(String user, DockerAction action, String name) {
+		return nameContainer(user, action.toString(), "exploratory", name);
+	}
+
+	public String getResourceType() {
+		return Directories.NOTEBOOK_LOG_DIRECTORY;
+	}
 }

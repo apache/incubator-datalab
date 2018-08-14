@@ -16,11 +16,13 @@
 
 package com.epam.dlab.backendapi.resources.callback.azure;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.KeyUploaderCallback;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -54,7 +56,7 @@ public class KeyUploaderCallbackAzure {
      */
     @POST
     @Path("/callback")
-	public Response loadKeyResponse(UploadFileResult<EdgeInfoAzure> dto) {
+	public Response loadKeyResponse(@Auth UserInfo ui, UploadFileResult<EdgeInfoAzure> dto) {
         log.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
         keyUploaderCallback.handleCallback(dto.getStatus(), dto.getUser(), dto.getEdgeInfo());

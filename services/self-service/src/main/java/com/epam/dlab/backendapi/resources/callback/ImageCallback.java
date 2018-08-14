@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -23,6 +24,7 @@ import com.epam.dlab.dto.exploratory.ImageCreateStatusDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.model.exloratory.Image;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -47,7 +49,7 @@ public class ImageCallback {
 
 	@POST
 	@Path("/image_status")
-	public Response imageCreateStatus(ImageCreateStatusDTO dto) {
+	public Response imageCreateStatus(@Auth UserInfo userInfo, ImageCreateStatusDTO dto) {
 		log.debug("Updating status of image {} for user {} to {}", dto.getName(), dto.getUser(), dto);
 		requestId.remove(dto.getRequestId());
 		imageExploratoryService.finishImageCreate(getImage(dto), dto.getExploratoryName(), dto.getImageCreateDTO()

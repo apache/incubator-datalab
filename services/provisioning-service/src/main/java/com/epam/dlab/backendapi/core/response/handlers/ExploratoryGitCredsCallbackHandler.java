@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
@@ -34,12 +35,13 @@ public class ExploratoryGitCredsCallbackHandler extends ResourceCallbackHandler<
 	private final String exploratoryName;
 
 	@JsonCreator
-	public ExploratoryGitCredsCallbackHandler(@JacksonInject RESTService selfService,
+	public ExploratoryGitCredsCallbackHandler(@JacksonInject SystemUserInfoService systemUserInfoService,
+			@JacksonInject RESTService selfService,
 											  @JsonProperty("action") DockerAction action,
 											  @JsonProperty("uuid") String uuid,
 											  @JsonProperty("user") String user,
 											  @JsonProperty("exploratoryName") String exploratoryName) {
-		super(selfService, user, uuid, action);
+		super(systemUserInfoService, selfService, user, uuid, action);
 		this.exploratoryName = exploratoryName;
 	}
 

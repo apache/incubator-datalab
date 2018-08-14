@@ -16,12 +16,14 @@
 
 package com.epam.dlab.backendapi.resources.callback.aws;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.EdgeCallback;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -52,7 +54,7 @@ public class EdgeCallbackAws extends EdgeCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(UploadFileResult<EdgeInfoAws> dto) {
+    public Response status(@Auth UserInfo ui, UploadFileResult<EdgeInfoAws> dto) {
 		requestId.checkAndRemove(dto.getRequestId());
         handleEdgeCallback(dto.getUser(), dto.getStatus());
         return Response.ok().build();

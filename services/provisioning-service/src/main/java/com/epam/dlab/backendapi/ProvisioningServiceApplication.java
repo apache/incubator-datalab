@@ -18,6 +18,7 @@
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.auth.SecurityFactory;
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.DirectoriesCreator;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
@@ -75,6 +76,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 		final InjectableValues.Std injectableValues = new InjectableValues.Std();
 		injectableValues.addValue(RESTService.class, injector.getInstance(RESTService.class));
 		injectableValues.addValue(ComputationalConfigure.class, injector.getInstance(ComputationalConfigure.class));
+		injectableValues.addValue(SystemUserInfoService.class, injector.getInstance(SystemUserInfoService.class));
 		mapper.setInjectableValues(injectableValues);
 
 		environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));

@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
@@ -67,11 +68,13 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 	 * @param dto         contains libraries to instal
 	 */
 	@JsonCreator
-	public LibInstallCallbackHandler(@JacksonInject RESTService selfService,
-									 @JsonProperty("action") DockerAction action,
-									 @JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
-									 @JsonProperty("dto") LibraryInstallDTO dto) {
-		super(selfService, user, uuid, action);
+	public LibInstallCallbackHandler(
+			@JacksonInject SystemUserInfoService systemUserInfoService,
+			@JacksonInject RESTService selfService,
+			@JsonProperty("action") DockerAction action,
+			@JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
+			@JsonProperty("dto") LibraryInstallDTO dto) {
+		super(systemUserInfoService, selfService, user, uuid, action);
 		this.dto = dto;
 	}
 

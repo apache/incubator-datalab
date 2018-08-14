@@ -30,6 +30,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -71,7 +72,7 @@ public class ExploratoryCallback {
 	 */
 	@POST
 	@Path(ApiCallbacks.STATUS_URI)
-	public Response status(ExploratoryStatusDTO dto) {
+	public Response status(@Auth UserInfo ui, ExploratoryStatusDTO dto) {
 		log.debug("Updating status for exploratory environment {} for user {} to {}",
 				dto.getExploratoryName(), dto.getUser(), dto.getStatus());
 		requestId.checkAndRemove(dto.getRequestId());

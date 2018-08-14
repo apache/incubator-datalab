@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
@@ -25,6 +26,7 @@ import com.epam.dlab.dto.reuploadkey.ReuploadKeyCallbackDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,6 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ReuploadKeyService extends DockerService implements DockerCommands {
 
 	private static final String REUPLOAD_KEY_ACTION = "reupload_key";
+
+	@Inject
+	private SystemUserInfoService systemUserInfoService;
 
 	public void reuploadKeyAction(String userName, ReuploadKeyDTO dto, DockerAction action) {
 		log.debug("{} for edge user {}", action, dto.getEdgeUserName());
@@ -67,7 +72,8 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 	private void startCallbackListener(String userName, ReuploadKeyCallbackDTO dto) {
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
-				new ReuploadKeyCallbackHandler(selfService, ApiCallbacks.REUPLOAD_KEY_URI, userName, dto));
+				new ReuploadKeyCallbackHandler(selfService, systemUserInfoService, ApiCallbacks.REUPLOAD_KEY_URI,
+						userName, dto));
 	}
 
 	@Override

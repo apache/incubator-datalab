@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.backup.EnvBackupStatus;
@@ -44,16 +45,20 @@ public class BackupCallbackHandler implements FileHandlerCallback {
 	@JsonProperty
 	private final EnvBackupDTO dto;
 	private final RESTService selfService;
+	private final SystemUserInfoService systemUserInfoService;
 	@JsonProperty
 	private final String callbackUrl;
 	@JsonProperty
 	private final String user;
 
 	@JsonCreator
-	public BackupCallbackHandler(@JacksonInject RESTService selfService,
-								 @JsonProperty("callbackUrl") String callbackUrl, @JsonProperty("user") String user,
-								 @JsonProperty("dto") EnvBackupDTO dto) {
+	public BackupCallbackHandler(
+			@JacksonInject SystemUserInfoService systemUserInfoService,
+			@JacksonInject RESTService selfService,
+			@JsonProperty("callbackUrl") String callbackUrl, @JsonProperty("user") String user,
+			@JsonProperty("dto") EnvBackupDTO dto) {
 		this.selfService = selfService;
+		this.systemUserInfoService = systemUserInfoService;
 		this.uuid = dto.getId();
 		this.callbackUrl = callbackUrl;
 		this.user = user;
@@ -92,7 +97,8 @@ public class BackupCallbackHandler implements FileHandlerCallback {
 	private void selfServicePost(EnvBackupStatusDTO statusDTO) {
 		log.debug("Send post request to self service {} for UUID {}, object is {}", uuid, statusDTO);
 		try {
-			selfService.post(callbackUrl, statusDTO, Response.class);
+			selfService.post(callbackUrl, systemUserInfoService.create(user).getAccessToken(), statusDTO,
+					Response.class);
 		} catch (Exception e) {
 			log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
 			throw new DlabException("Send request or response error for UUID " + uuid + ": " + e.getLocalizedMessage()
@@ -104,6 +110,11 @@ public class BackupCallbackHandler implements FileHandlerCallback {
 	public void handleError(String errorMessage) {
 		buildBackupStatusDto(EnvBackupStatus.FAILED)
 				.withErrorMessage(errorMessage);
+	}
+
+	@Override
+	public String getUser() {
+		return user;
 	}
 
 	protected EnvBackupStatusDTO buildBackupStatusDto(EnvBackupStatus status) {

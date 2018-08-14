@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyCallbackDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
@@ -27,6 +28,7 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	@JsonProperty
 	private final ReuploadKeyCallbackDTO dto;
 	private final RESTService selfService;
+	private final SystemUserInfoService systemUserInfoService;
 	@JsonProperty
 	private final String callbackUrl;
 	@JsonProperty
@@ -34,10 +36,12 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 
 	@JsonCreator
 	public ReuploadKeyCallbackHandler(@JacksonInject RESTService selfService,
+									  @JacksonInject SystemUserInfoService systemUserInfoService,
 									  @JsonProperty("callbackUrl") String callbackUrl,
 									  @JsonProperty("user") String user,
 									  @JsonProperty("dto") ReuploadKeyCallbackDTO dto) {
 		this.selfService = selfService;
+		this.systemUserInfoService = systemUserInfoService;
 		this.uuid = dto.getId();
 		this.callbackUrl = callbackUrl;
 		this.user = user;
@@ -75,7 +79,8 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	private void selfServicePost(ReuploadKeyStatusDTO statusDTO) {
 		log.debug("Send post request to self service for UUID {}, object is {}", uuid, statusDTO);
 		try {
-			selfService.post(callbackUrl, statusDTO, Response.class);
+			selfService.post(callbackUrl, systemUserInfoService.create(user).getAccessToken(), statusDTO,
+					Response.class);
 		} catch (Exception e) {
 			log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
 			throw new DlabException("Send request or response error for UUID " + uuid + ": "
@@ -87,6 +92,11 @@ public class ReuploadKeyCallbackHandler implements FileHandlerCallback {
 	public void handleError(String errorMessage) {
 		buildReuploadKeyStatusDto(ReuploadKeyStatus.FAILED)
 				.withErrorMessage(errorMessage);
+	}
+
+	@Override
+	public String getUser() {
+		return user;
 	}
 
 	private ReuploadKeyStatusDTO buildReuploadKeyStatusDto(ReuploadKeyStatus status) {
