@@ -16,12 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
-import { UserResourceService, HealthStatusService } from '../../../core/services';
+import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
@@ -29,7 +29,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   moduleId: module.id,
   selector: 'confirmation-dialog',
   templateUrl: 'confirmation-dialog.component.html',
-  styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.css'],
+  styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 
@@ -46,11 +46,14 @@ export class ConfirmationDialogComponent implements OnInit {
   confirmationType: number = 0;
 
   @ViewChild('bindDialog') bindDialog;
+  @Input() manageAction: boolean = false;
+
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     private userResourceService: UserResourceService,
-    private healthStatusService: HealthStatusService
+    private healthStatusService: HealthStatusService,
+    private manageEnvironmentsService: ManageEnvironmentsService
   ) {
     this.model = ConfirmationDialogModel.getDefault();
   }
@@ -61,8 +64,7 @@ export class ConfirmationDialogComponent implements OnInit {
 
   public open(param, notebook: any, type: ConfirmationDialogType) {
     this.confirmationType = type;
-    console.log(notebook);
-    
+
     this.model = new ConfirmationDialogModel(type, notebook, (response: Response) => {
       if (response.status === HTTP_STATUS_CODES.OK) {
         this.close();
@@ -73,8 +75,10 @@ export class ConfirmationDialogComponent implements OnInit {
         this.processError = true;
         this.errorMessage = ErrorMapUtils.setErrorMessage(response);
       },
+      this.manageAction,
       this.userResourceService,
-      this.healthStatusService);
+      this.healthStatusService,
+      this.manageEnvironmentsService);
 
     this.bindDialog.open(param);
     if (!this.confirmationType) this.filterResourcesByType(notebook.resources);

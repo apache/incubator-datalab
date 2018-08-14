@@ -41,7 +41,7 @@ processMaxThreadsPerJvm: 50
 processMaxThreadsPerUser: 5
 processTimeout: 180m
 
-handlersPersistenceEnabled: false
+handlersPersistenceEnabled: true
 
 server:
   requestLog:

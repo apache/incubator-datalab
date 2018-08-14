@@ -37,6 +37,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--rstudio_pass', type=str, default='')
 parser.add_argument('--rstudio_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
@@ -119,7 +120,7 @@ if __name__ == "__main__":
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install Ungit")
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, args.exploratory_name)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 

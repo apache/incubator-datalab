@@ -16,13 +16,34 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
+
+import java.util.List;
 import java.util.Set;
 
 public interface EnvironmentService {
 
+	Set<String> getAllUsers();
+
 	Set<String> getActiveUsers();
+
+	List<UserResourceInfo> getAllEnv();
+
+	void stopAll();
 
 	void stopEnvironment(String user);
 
+	void stopEdge(String user);
+
+	void stopExploratory(String user, String exploratoryName);
+
+	void stopComputational(String user, String exploratoryName, String computationalName);
+
+	void terminateAll();
+
 	void terminateEnvironment(String user);
+
+	void terminateExploratory(String user, String exploratoryName);
+
+	void terminateComputational(String user, String exploratoryName, String computationalName);
 }

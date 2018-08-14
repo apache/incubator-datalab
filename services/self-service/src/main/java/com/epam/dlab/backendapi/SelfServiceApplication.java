@@ -99,6 +99,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(new JsonProcessingExceptionMapper());
 		jersey.register(new ResourceConflictExceptionMapper());
 		jersey.register(new ResourceNotFoundExceptionMapper());
+		jersey.register(new DlabValidationExceptionMapper());
 		jersey.register(new ValidationExceptionMapper());
 		jersey.register(injector.getInstance(SecurityResource.class));
 		jersey.register(injector.getInstance(KeyUploaderResource.class));

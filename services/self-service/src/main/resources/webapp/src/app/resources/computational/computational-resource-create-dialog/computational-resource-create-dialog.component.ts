@@ -105,10 +105,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.model.setSelectedClusterType($event.model.index);
       this.setDefaultParams();
       this.getComputationalResourceLimits();
-        if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
-          this.spotInstancesSelect.nativeElement['checked'] = true;
-          this.selectSpotInstances();
-        }
     }
 
     if (this.shapes[$event.model.type])
@@ -250,6 +246,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       if (DICTIONARY.cloud_provider === 'aws' && this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.minSpotPrice = this.model.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.model.selectedImage.limits.max_emr_spot_instance_bid_pct;
+
+        this.spotInstancesSelect.nativeElement['checked'] = true;
+        this.selectSpotInstances();
       }
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);

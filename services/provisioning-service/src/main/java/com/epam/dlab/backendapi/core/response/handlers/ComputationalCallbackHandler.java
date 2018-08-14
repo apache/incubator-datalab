@@ -17,23 +17,29 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 public class ComputationalCallbackHandler extends ResourceCallbackHandler<ComputationalStatusDTO> {
 	private static final String INSTANCE_ID_FIELD = "instance_id";
 	private static final String COMPUTATIONAL_ID_FIELD = "hostname";
+	private static final String COMPUTATIONAL_URL_FIELD = "computational_url";
 
 	@JsonProperty
 	private final ComputationalBase<?> dto;
@@ -61,11 +67,11 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 	}
 
 	@Override
-	protected ComputationalStatusDTO parseOutResponse(JsonNode resultNode, ComputationalStatusDTO baseStatus) throws
-			DlabException {
+	protected ComputationalStatusDTO parseOutResponse(JsonNode resultNode, ComputationalStatusDTO baseStatus) {
 		if (resultNode == null) {
 			return baseStatus;
 		}
+		baseStatus.withComputationalUrl(extractUrl(resultNode));
 
 		if (DockerAction.CREATE == getAction()) {
 			baseStatus
@@ -96,6 +102,20 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 		}
 
 		return getTextValue(jsonNode);
+	}
+
+	private List<ResourceURL> extractUrl(JsonNode resultNode) {
+		final JsonNode nodeUrl = resultNode.get(COMPUTATIONAL_URL_FIELD);
+		if (nodeUrl != null) {
+			try {
+				return mapper.readValue(nodeUrl.toString(), new TypeReference<List<ResourceURL>>() {
+				});
+			} catch (IOException e) {
+				log.warn("Cannot parse field {} for UUID {} in JSON", RESPONSE_NODE + "." + RESULT_NODE + "." +
+						COMPUTATIONAL_URL_FIELD, getUUID(), e);
+			}
+		}
+		return Collections.emptyList();
 	}
 }
 

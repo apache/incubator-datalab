@@ -1,4 +1,6 @@
 /*
+ * **************************************************************************
+ *
  * Copyright (c) 2018, EPAM SYSTEMS INC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +14,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * ***************************************************************************
  */
 
-package com.epam.dlab.dto.exploratory;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Describe URL of exploratory.
- */
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExploratoryURL {
-	@JsonProperty("description")
-	private String description;
-	@JsonProperty("url")
-	private String url;
+public class LibraryDTO {
+	private String name;
+	private String version;
 }

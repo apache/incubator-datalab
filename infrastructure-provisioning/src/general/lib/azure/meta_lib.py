@@ -545,6 +545,27 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_vm_disks(self, resource_group_name, instance_name):
+        try:
+            disk_list = []
+            virtual_machine = self.compute_client.virtual_machines.get(resource_group_name,
+                                                                       instance_name)
+            os_disk_name = virtual_machine.storage_profile.os_disk.name
+            os_disk = self.compute_client.disks.get(resource_group_name, os_disk_name)
+            disk_list.append(os_disk)
+            data_disks = virtual_machine.storage_profile.data_disks
+            for disk in data_disks:
+                data_disk = self.compute_client.disks.get(resource_group_name, disk.name)
+                disk_list.append(data_disk)
+            return disk_list
+        except Exception as err:
+            logging.info(
+                "Unable to get disk list: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get disk list",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:

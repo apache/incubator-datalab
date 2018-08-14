@@ -16,7 +16,7 @@ limitations under the License.
 
 -->
 
-<dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
+<dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="isAdmin"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
   <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()" *ngIf="isAdmin">

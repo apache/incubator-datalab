@@ -139,8 +139,10 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   isResourcesInProgress(notebook) {
-    if(notebook && notebook.resources.length) {
-      return notebook.resources.filter(resource => (
+    let filteredEnv: any = this.environments.find(env => env.name === notebook.name);
+
+    if(filteredEnv && filteredEnv.resources.length) {
+      return filteredEnv.resources.filter(resource => (
         resource.status !== 'failed' 
         && resource.status !== 'terminated'
         && resource.status !== 'running'
@@ -278,17 +280,13 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   exploratoryAction(data, action: string) {
-
     if (action === 'deploy') {
       this.notebookName = data.name;
       this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name })
-        .subscribe((result) => {
-          console.log('startUsernotebook result: ', result);
-          this.buildGrid();
-        });
+        .subscribe(() => this.buildGrid());
     } else if (action === 'stop') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
     } else if (action === 'terminate') {

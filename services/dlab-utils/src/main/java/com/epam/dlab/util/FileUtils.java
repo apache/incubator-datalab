@@ -46,4 +46,13 @@ public class FileUtils {
 		log.debug("Deleting file from {}", filePath.toString());
 		Files.deleteIfExists(filePath);
 	}
+
+	public static void deleteFile(String absolutePath) {
+		log.debug("Deleting file from {}", absolutePath);
+		try {
+			Files.deleteIfExists(Paths.get(absolutePath));
+		} catch (IOException e) {
+			log.error("Problems occured with deleting file {} due to: {}", absolutePath, e.getLocalizedMessage());
+		}
+	}
 }

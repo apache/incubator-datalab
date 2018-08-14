@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto.computational;
 
+import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -46,4 +48,6 @@ public class UserComputationalResource {
 	private SchedulerJobDTO schedulerData;
 	@JsonProperty("reupload_key_required")
 	private boolean reuploadKeyRequired = false;
+	@JsonProperty("computational_url")
+	private List<ResourceURL> resourceUrl;
 }

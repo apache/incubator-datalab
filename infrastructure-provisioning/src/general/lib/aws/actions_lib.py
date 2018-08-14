@@ -66,6 +66,15 @@ def create_s3_bucket(bucket_name, tag, region):
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
+        boto3.client('s3', config=Config(signature_version='s3v4')).put_bucket_encryption(Bucket=bucket_name, ServerSideEncryptionConfiguration={
+            'Rules': [
+                {
+                    'ApplyServerSideEncryptionByDefault': {
+                        'SSEAlgorithm': 'AES256'
+                    }
+                },
+            ]
+        })
         tags = list()
         tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
@@ -158,6 +167,7 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Resources=resource,
         Tags=tags_list
     )
+
 
 
 def remove_emr_tag(emr_id, tag):
@@ -303,6 +313,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
             tag = {'Key': 'Name', 'Value': definitions.node_name}
             create_tag(instance.id, tag)
             create_tag(instance.id, instance_tag)
+            tag_intance_volume(instance.id, definitions.node_name, instance_tag)
             return instance.id
         return ''
     except Exception as err:
@@ -310,6 +321,51 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         append_result(str({"error": "Unable to create EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def tag_intance_volume(instance_id, node_name, instance_tag):
+    try:
+        print('volume tagging')
+        volume_list = meta_lib.get_instance_attr(instance_id, 'block_device_mappings')
+        counter = 0
+        instance_tag_value = instance_tag.get('Value')
+        for volume in volume_list:
+            if counter == 1:
+                volume_postfix = '-volume-secondary'
+            else:
+                volume_postfix = '-volume-primary'
+            tag = {'Key': 'Name',
+                   'Value': node_name + volume_postfix}
+            volume_tag = instance_tag
+            volume_tag['Value'] = instance_tag_value + volume_postfix
+            volume_id = volume.get('Ebs').get('VolumeId')
+            create_tag(volume_id, tag)
+            create_tag(volume_id, volume_tag)
+            counter += 1
+    except Exception as err:
+        logging.info(
+            "Unable to tag volumes: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+        append_result(str({"error": "Unable to tag volumes",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def tag_emr_volume(cluster_id, node_name, billing_tag):
+    try:
+        client = boto3.client('emr')
+        cluster = client.list_instances(ClusterId=cluster_id)
+        instances = cluster['Instances']
+        for instance in instances:
+            instance_tag = {'Key': os.environ['conf_service_base_name'] + '-Tag',
+                            'Value': node_name}
+            tag_intance_volume(instance['Ec2InstanceId'], node_name, instance_tag)
+    except Exception as err:
+        logging.info(
+            "Unable to tag emr volumes: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+        append_result(str({"error": "Unable to tag emr volumes",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def create_iam_role(role_name, role_profile, region, service='ec2'):
     conn = boto3.client('iam')
@@ -1065,7 +1121,7 @@ def create_aws_config_files(generate_full_config=False):
         sys.exit(1)
 
 
-def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
+def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
@@ -1094,12 +1150,13 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip==9.0.3 --no-cache-dir'.format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
                       format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.
-                      format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy=={1} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.
+                      format(pip_mirror, numpy_version))
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     local(venv_command + ' && sudo -i ' + pip_command +
@@ -1117,9 +1174,10 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 sys.exit(1)
         else:
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 NumPy SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir')
+                  ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(numpy_version))
             # Need to refactor when we add GPU cluster
             if application == 'deeplearning':
                 local(venv_command + ' && sudo -i ' + pip_command +
@@ -1316,18 +1374,18 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
-    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
         endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
     else:
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
-    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
-    local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/{}/notebook_spark-defaults_local.conf'""".format(cluster_name))
+    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/{}/notebook_spark-defaults_local.conf'.format(cluster_name))
+    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
 
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
@@ -1416,8 +1474,8 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
-    local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-    local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-    local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
+def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
+    local('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+    local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/' + cluster_name)
+    local('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')

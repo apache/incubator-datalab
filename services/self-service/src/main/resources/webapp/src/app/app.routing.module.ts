@@ -16,15 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule, ModuleWithProviders } from '@angular/core';
+import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { LoginComponent, LogParamsComponent } from './login/login.module';
+import { LoginComponent } from './login/login.module';
 import { ResourcesComponent } from './resources/resources.component';
 import { HealthStatusComponent } from './health-status/health-status.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { ReportingComponent } from './reporting/reporting.component';
+import { ManagementComponent } from './management/management.component';
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard } from './core/services';
 
 const routes: Routes = [{
@@ -39,9 +40,13 @@ const routes: Routes = [{
     component: HealthStatusComponent,
     canActivate: [AuthorizationGuard]
   }, {
-    path: 'reporting',
+    path: 'billing_report',
     component: ReportingComponent,
     canActivate: [AuthorizationGuard, CloudProviderGuard]
+  }, {
+    path: 'environment_management',
+    component: ManagementComponent,
+    canActivate: [AuthorizationGuard]
   }, {
     path: 'help/publickeyguide',
     component: PublicKeyGuideComponent,
@@ -50,10 +55,6 @@ const routes: Routes = [{
     path: 'help/accessnotebookguide',
     component: AccessNotebookGuideComponent,
     canActivate: [AuthorizationGuard]
-  }, {
-    path: 'log_params',
-    component: LogParamsComponent,
-    canActivate: [CheckParamsGuard]
   }, {
     path: '',
     redirectTo: 'resources_list',

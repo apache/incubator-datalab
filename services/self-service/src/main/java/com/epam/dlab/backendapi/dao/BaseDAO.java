@@ -202,6 +202,15 @@ public class BaseDAO {
 	}
 
 	/**
+	 * Finds and returns all documents from the collection.
+	 *
+	 * @param collection collection name.
+	 */
+	protected FindIterable<Document> find(String collection) {
+		return mongoService.getCollection(collection).find();
+	}
+
+	/**
 	 * Finds and returns documents from the collection by condition.
 	 *
 	 * @param collection collection name.

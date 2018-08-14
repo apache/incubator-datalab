@@ -16,17 +16,15 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit } from '@angular/core';
-
-@Component({
-  selector: 'dlab-log-params',
-  templateUrl: './log-params.component.html'
-})
-export class LogParamsComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
+.sub-nav {
+    justify-content: flex-end;
+    button {
+      margin-right: 10px;
+      &:last-child {
+        margin-right: 0;
+      }
+      &.env {
+        width: 210px;
+      }
+    }
   }
-
-}

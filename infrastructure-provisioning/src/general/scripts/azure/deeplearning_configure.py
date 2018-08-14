@@ -152,12 +152,17 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {} --scala_version {} --spark_version {} --hadoop_version {} --region {} --tensorflow_version {} --r_mirror {}" \
+        params = "--hostname {} --keyfile {} " \
+                 "--os_user {} --jupyter_version {} " \
+                 "--scala_version {} --spark_version {} " \
+                 "--hadoop_version {} --region {} " \
+                 "--tensorflow_version {} --r_mirror {} " \
+                 "--exploratory_name {}" \
                  .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
                          os.environ['azure_region'], os.environ['notebook_tensorflow_version'],
-                         os.environ['notebook_r_mirror'])
+                         os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
@@ -239,8 +244,8 @@ if __name__ == "__main__":
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
         tensor_board_url = 'http://' + ip_address + ':6006'
-        jupyter_url = 'http://' + ip_address + ':8888'
-        ungit_ip_url = "http://" + ip_address + ":8085"
+        jupyter_url = 'http://' + ip_address + ':8888/{}/'.format(notebook_config['exploratory_name'])
+        ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))

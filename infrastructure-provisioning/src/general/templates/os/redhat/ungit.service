@@ -3,11 +3,13 @@ Description=ungit
 
 [Service]
 Type=simple
-ExecStart=/bin/ungit --port=8085 --no-b
+ExecStart=/bin/ungit --port=8085 --no-b --ungitBindIp=0.0.0.0 --rootPath=/NOTEBOOK_NAME-ungit
 User=OS_USR
 Group=OS_USR
 WorkingDirectory=/home/OS_USR/
 PIDFile=/var/run/ungit.pid
+Environment="HTTPS_PROXY=PROXY_HOST"
+Environment="HTTP_PROXY=PROXY_HOST"
 
 [Install]
 WantedBy=multi-user.target

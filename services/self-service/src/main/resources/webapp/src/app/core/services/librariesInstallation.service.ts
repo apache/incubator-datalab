@@ -54,6 +54,20 @@ export class LibrariesInstallationService {
             });
     }
 
+    public getAvailableDependencies(data): Observable<Response> {
+        let body = `/maven?artifact=${ data }`;
+
+        return this.applicationServiceFacade
+            .buildGetAvailableDependenciest(body)
+            .map((response: Response) => response.json())
+            .catch((error: any) => {
+                return Observable.throw({
+                    status: error.status,
+                    message: error._body
+                });
+            });
+    }
+
     public installLibraries(data): Observable<Response> {
         return this.applicationServiceFacade
             .buildInstallLibraries(data)

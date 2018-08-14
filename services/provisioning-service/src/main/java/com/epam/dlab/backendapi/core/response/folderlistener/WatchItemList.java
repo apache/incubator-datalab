@@ -122,7 +122,7 @@ public class WatchItemList {
 	 */
 	public WatchItem append(FileHandlerCallback fileHandlerCallback, long timeoutMillis, long fileLengthCheckDelay) {
 		if (Objects.nonNull(handlerDao)) {
-			handlerDao.save(new PersistentFileHandler(fileHandlerCallback, timeoutMillis, directoryName));
+			handlerDao.upsert(new PersistentFileHandler(fileHandlerCallback, timeoutMillis, directoryName));
 		}
 		WatchItem item = new WatchItem(fileHandlerCallback, timeoutMillis, fileLengthCheckDelay);
 		synchronized (this) {

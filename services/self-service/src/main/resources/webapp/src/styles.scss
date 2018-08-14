@@ -314,7 +314,9 @@ input[type='number'] {
   white-space: nowrap;
   overflow: hidden;
 }
-
+.capitalize {
+  text-transform: capitalize;
+}
 
 toast-container {
   #toast-container {
