@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.core;
@@ -62,7 +61,7 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
 	public void start() throws Exception {
 		LOGGER.debug("warming up docker");
 		final ProcessInfo processInfo = commandExecutor.executeSync("warmup", DockerCommands.generateUUID(),
-                GET_IMAGES);
+				GET_IMAGES);
 		List<String> images = Arrays.asList(processInfo.getStdOut().split("\n"));
 		for (String image : images) {
 			String uuid = UUID.randomUUID().toString();
@@ -117,6 +116,11 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
 		@Override
 		public void handleError(String errorMessage) {
 			LOGGER.warn("docker warmupper returned no result: {}", errorMessage);
+		}
+
+		@Override
+		public String getUser() {
+			return "DLAB";
 		}
 	}
 

@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources.base;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
@@ -24,10 +25,13 @@ import com.epam.dlab.backendapi.service.DockerService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ExploratoryService extends DockerService implements DockerCommands {
+    @Inject
+    private SystemUserInfoService systemUserInfoService;
 
     public String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
         log.debug("{} exploratory environment", action);
@@ -57,7 +61,8 @@ public class ExploratoryService extends DockerService implements DockerCommands 
     }
 
     private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-        return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
+        return new ExploratoryCallbackHandler(systemUserInfoService, selfService, action, uuid,
+                dto.getCloudSettings().getIamUser(),
                 dto.getExploratoryName());
     }
 

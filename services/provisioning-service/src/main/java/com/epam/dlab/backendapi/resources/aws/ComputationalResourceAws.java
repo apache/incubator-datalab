@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources.aws;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
@@ -60,6 +61,8 @@ public class ComputationalResourceAws extends DockerService implements DockerCom
 	private ComputationalConfigure computationalConfigure;
 	@Inject
 	private SparkClusterService sparkClusterService;
+	@Inject
+	private SystemUserInfoService systemUserInfoService;
 
 	@POST
 	@Path(ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC)
@@ -172,7 +175,8 @@ public class ComputationalResourceAws extends DockerService implements DockerCom
 	}
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
-		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
+		return new ComputationalCallbackHandler(systemUserInfoService, computationalConfigure, selfService, action,
+				uuid, dto);
 	}
 
 	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {

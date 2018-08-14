@@ -67,6 +67,11 @@ public class FolderListenerTest {
 		public void handleError(String errorMessage) {
 			System.out.println("handleError called for UUID " + getUUID());
 		}
+
+		@Override
+		public String getUser() {
+			return null;
+		}
 	}
 
 	private String getFileName(String uuid) {

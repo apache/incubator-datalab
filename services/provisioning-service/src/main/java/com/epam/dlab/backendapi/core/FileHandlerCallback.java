@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.core;
@@ -21,7 +20,7 @@ package com.epam.dlab.backendapi.core;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
 public interface FileHandlerCallback {
 	String getUUID();
 
@@ -30,6 +29,8 @@ public interface FileHandlerCallback {
 	boolean handle(String fileName, byte[] content) throws Exception;
 
 	void handleError(String errorMessage);
+
+	String getUser();
 
 	@JsonIgnore
 	default String getId() {
