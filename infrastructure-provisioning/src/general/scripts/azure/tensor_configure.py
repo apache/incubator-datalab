@@ -137,8 +137,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --region {} --os_user {}" \
-                 .format(instance_hostname, keyfile_name, os.environ['azure_region'], notebook_config['dlab_ssh_user'])
+        params = "--hostname {} --keyfile {} " \
+                 "--region {} --os_user {} " \
+                 "--exploratory_name {}" \
+                 .format(instance_hostname, keyfile_name,
+                         os.environ['azure_region'], notebook_config['dlab_ssh_user'],
+                         notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,

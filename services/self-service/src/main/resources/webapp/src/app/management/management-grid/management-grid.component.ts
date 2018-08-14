@@ -16,8 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ConfirmationDialogType } from '../../shared';
 
 export interface ManageAction {
   action: string;
@@ -32,10 +33,9 @@ export interface ManageAction {
     './management-grid.component.scss',
     '../../resources/resources-grid/resources-grid.component.css',
     '../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
-  ],
-  encapsulation: ViewEncapsulation.None
+  ]
 })
-export class ManagementGridComponent implements OnInit {
+export class ManagementGridComponent {
   @Input() allEnvironmentData: Array<any>;
   @Input() resources: Array<any>;
   @Input() uploadKey: boolean;
@@ -47,29 +47,45 @@ export class ManagementGridComponent implements OnInit {
 
   constructor(public dialog: MatDialog) {}
 
-  ngOnInit(): void {}
-
   buildGrid(): void {
     this.refreshGrid.emit();
   }
 
   toggleResourceAction(environment, action, resource?) {
-    let resource_name = resource ? resource.computational_name : environment.name;
-    const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
-      data: { action, resource_name, user: environment.user },
-      width: '550px'
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      result && this.actionToggle.emit({ action, environment, resource });
-    });
+    if (resource) {
+      let resource_name = resource ? resource.computational_name : environment.name;
+      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
+        data: { action, resource_name, user: environment.user },
+        width: '550px'
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        result && this.actionToggle.emit({ action, environment, resource });
+      });
+    } else {
+      if (action === 'stop') {
+        this.confirmationDialog.open({ isFooter: false }, environment, environment.name === 'edge node' ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory);
+      } else if (action === 'terminate') {
+        this.confirmationDialog.open({ isFooter: false }, environment, ConfirmationDialogType.TerminateExploratory);
+      }
+    }
+  }
+
+  isResourcesInProgress(notebook) {
+    if(notebook && notebook.resources.length) {
+      return notebook.resources.filter(resource => (
+        resource.status !== 'failed'
+        && resource.status !== 'terminated'
+        && resource.status !== 'running'
+        && resource.status !== 'stopped')).length > 0;
+    }
+    return false;
   }
 }
 
 @Component({
-  selector: 'confirmation-dialog',
+  selector: 'confirm-dialog',
   template: `
   <div mat-dialog-content class="content">
-
     <p>Resource <strong> {{ data.resource_name }}</strong> of user <strong> {{ data.user }} </strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>

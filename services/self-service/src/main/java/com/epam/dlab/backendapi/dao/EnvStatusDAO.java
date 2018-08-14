@@ -177,7 +177,8 @@ public class EnvStatusDAO extends BaseDAO {
 	}
 
 	public Set<String> fetchAllUsers() {
-		return stream(find(USER_INSTANCES)).map(d -> d.getString(USER)).collect(Collectors.toSet());
+		return stream(find(USER_EDGE)).map(d -> d.getString(ID))
+				.collect(Collectors.toSet());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -268,10 +269,12 @@ public class EnvStatusDAO extends BaseDAO {
 			case CREATING:
 				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case RUNNING:
-			case STARTING:
 			case STOPPING:
 				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
 						UserInstanceStatus.STOPPING, UserInstanceStatus.STOPPED) ? status : oldStatus);
+			case STARTING:
+				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+						UserInstanceStatus.STOPPING) ? status : oldStatus);
 			case STOPPED:
 				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
 						UserInstanceStatus.RUNNING) ? status : oldStatus);

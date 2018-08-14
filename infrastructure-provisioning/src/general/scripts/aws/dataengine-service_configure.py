@@ -77,16 +77,56 @@ def configure_dataengine_service(instance, emr_conf):
         print('[CONFIGURE DATAENGINE SERVICE]')
         try:
             configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
-            if os.environ['emr_version'] == 'emr-5.12.0':
-                env['connection_attempts'] = 100
-                env.key_filename = emr_conf['key_path']
-                env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
-                sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> /etc/yum/pluginconf.d/priorities.conf')
+            env['connection_attempts'] = 100
+            env.key_filename = emr_conf['key_path']
+            env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
+            sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> /etc/yum/pluginconf.d/priorities.conf')
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
         append_result("Failed to configure dataengine service.", str(err))
+        terminate_emr(emr_conf['cluster_id'])
+        sys.exit(1)
+
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        cluster_master_instances = emr_conf['cluster_master_instances']
+        slaves = []
+        for idx, instance in enumerate(emr_conf['cluster_core_instances']):
+            slave = {
+                'name': 'datanode{}'.format(idx + 1),
+                'ip': instance.get('PrivateIpAddress'),
+                'dns': instance.get('PrivateDnsName')
+            }
+            slaves.append(slave)
+        additional_info = {
+            "computational_name": emr_conf['computational_name'],
+            "master_ip": cluster_master_instances[0].get('PrivateIpAddress'),
+            "master_dns": cluster_master_instances[0].get('PrivateDnsName'),
+            "slaves": slaves,
+            "tensor": False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(emr_conf['edge_instance_hostname'],
+                    emr_conf['key_path'],
+                    emr_conf['os_user'],
+                    'emr',
+                    emr_conf['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        append_result("Failed edge reverse proxy template", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
@@ -163,9 +203,13 @@ if __name__ == "__main__":
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['cluster_id'] = get_emr_id_by_name(emr_conf['cluster_name'])
     emr_conf['cluster_instances'] = get_emr_instances_list(emr_conf['cluster_id'])
+    emr_conf['cluster_master_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'MASTER')
+    emr_conf['cluster_core_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'CORE')
     emr_conf['edge_instance_name'] = emr_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     emr_conf['edge_instance_hostname'] = get_instance_private_ip_address(emr_conf['tag_name'],
                                                                          emr_conf['edge_instance_name'])
+    emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
+                                                                         emr_conf['edge_instance_name']).get('Public')
     emr_conf['user_keyname'] = os.environ['edge_user_name']
     emr_conf['os_user'] = os.environ['conf_os_user']
     emr_conf['initial_user'] = 'ec2-user'
@@ -188,6 +232,8 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
+        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] + '_' + emr_conf['computational_name'])
+        logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(emr_conf['service_base_name']))
         print("Cluster name: {}".format(emr_conf['cluster_name']))
@@ -205,7 +251,11 @@ if __name__ == "__main__":
                    "instance_id": get_emr_id_by_name(emr_conf['cluster_name']),
                    "key_name": emr_conf['key_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
-                   "Action": "Create new EMR cluster"}
+                   "Action": "Create new EMR cluster",
+                   "computational_url": [
+                       {"description": "EMR Master",
+                        "url": emr_master_acces_url}
+                   ]}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:

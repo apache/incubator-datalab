@@ -16,22 +16,20 @@ limitations under the License.
 
 -->
 
-<modal-dialog #bindDialog modalClass="billing-detail-dialog modal-xl">
+<modal-dialog #bindDialog modalClass="billing-detail-dialog header-white modal-xl">
   <modal-header>
     <h4 class="modal-title">Billing details</h4>
   </modal-header>
   <modal-content>
     <div *ngIf="notebook">
-      <div class="detail-header-wrap">
-        <table class="detail-header">
-          <tr>
-            <td matTooltip="{{ notebook.name }}" matTooltipPosition="above">{{ notebook.name }}</td>
-            <td>{{ notebook.template_name }}</td>
-            <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
-            <td>{{ notebook.shape }}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="detail-header">
+        <tr>
+          <td matTooltip="{{ notebook.name }}" matTooltipPosition="above">{{ notebook.name }}</td>
+          <td>{{ notebook.template_name }}</td>
+          <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
+          <td>{{ notebook.shape }}</td>
+        </tr>
+      </table>
       <div class="billing-detail content-box">
         <mat-list>
             <mat-list-item class="list-header">

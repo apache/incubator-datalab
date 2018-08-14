@@ -66,9 +66,12 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
         except:
             sys.exit(1)
 
-@backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
+@backoff.on_exception(backoff.expo, SystemExit, max_tries=20)
 def add_marruter_key():
-    sudo('add-apt-repository -y ppa:marutter/rrutter')
+    try:
+        sudo('add-apt-repository -y ppa:marutter/rrutter')
+    except:
+        sys.exit(1)
 
 def ensure_r(os_user, r_libs, region, r_mirror):
     if not exists('/home/' + os_user + '/.ensure_dir/r_ensured'):
@@ -143,6 +146,9 @@ def ensure_matplot(os_user):
             sudo('apt-get build-dep -y python-matplotlib')
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
+            if os.environ['application'] in ('tensor', 'deeplearning'):
+                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.5 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
             sys.exit(1)
@@ -190,8 +196,8 @@ def ensure_additional_python_libs(os_user):
         try:
             sudo('apt-get install -y libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-                sudo('pip3 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
+                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('pip2 install opencv-python h5py --no-cache-dir')
                 sudo('pip3 install opencv-python h5py --no-cache-dir')
@@ -274,7 +280,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy --no-cache-dir'. format(os.environ['conf_pip_version']))
+            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
             sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
@@ -434,8 +440,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         sudo('apt-get update')
         sudo('apt-get install -y --no-install-recommends build-essential cmake git libgoogle-glog-dev libprotobuf-dev'
              ' protobuf-compiler python-dev python-pip')
-        sudo('pip2 install numpy protobuf --no-cache-dir')
-        sudo('pip3 install numpy protobuf --no-cache-dir')
+        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('apt-get install -y --no-install-recommends libgflags-dev')
         sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
              'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')

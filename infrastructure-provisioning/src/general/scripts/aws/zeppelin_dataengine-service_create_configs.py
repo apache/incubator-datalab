@@ -50,6 +50,7 @@ parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
+parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
@@ -97,7 +98,7 @@ if __name__ == "__main__":
         if args.multiple_clusters == 'true':
             install_remote_livy(args)
         installing_python(args.region, args.bucket, args.user_name, args.cluster_name, args.application,
-                          args.pip_mirror)
+                          args.pip_mirror, args.numpy_version)
         configure_zeppelin_emr_interpreter(args.emr_version, args.cluster_name, args.region, spark_dir, args.os_user,
                                            yarn_dir, args.bucket, args.user_name, endpoint_url, args.multiple_clusters)
         update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)

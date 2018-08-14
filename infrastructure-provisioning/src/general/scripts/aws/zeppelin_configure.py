@@ -77,6 +77,8 @@ if __name__ == "__main__":
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+    edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get(
+        'Public')
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:
@@ -145,13 +147,21 @@ if __name__ == "__main__":
                              "backend_hostname": get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name']),
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_clusters {} --r_mirror {} --endpoint_url {}" \
+        params = "--hostname {} --instance_name {} " \
+                 "--keyfile {} --region {} " \
+                 "--additional_config '{}' --os_user {} " \
+                 "--spark_version {} --hadoop_version {} " \
+                 "--edge_hostname {} --proxy_port {} " \
+                 "--zeppelin_version {} --scala_version {} " \
+                 "--livy_version {} --multiple_clusters {} " \
+                 "--r_mirror {} --endpoint_url {} " \
+                 "--exploratory_name {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
-                    os.environ['notebook_r_mirror'], endpoint_url)
+                    os.environ['notebook_r_mirror'], endpoint_url, notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
         except:
@@ -211,6 +221,25 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': False
+        }
+        params = "--edge_hostname {} --keyfile {} --os_user {} --type {} --exploratory_name {} --additional_info '{}'"\
+            .format(edge_instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], 'zeppelin', notebook_config['exploratory_name'], json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     if notebook_config['shared_image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
@@ -232,7 +261,9 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     zeppelin_ip_url = "http://" + ip_address + ":8080/"
     zeppelin_dns_url = "http://" + dns_name + ":8080/"
-    ungit_ip_url = "http://" + ip_address + ":8085/"
+    zeppelin_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
+    zeppelin_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
+    ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))
@@ -263,7 +294,12 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Zeppelin",
-                    "url": zeppelin_ip_url},
+                    "url": zeppelin_notebook_acces_url},
                    {"description": "Ungit",
-                    "url": ungit_ip_url}]}
+                    "url": zeppelin_ungit_acces_url},
+                   {"description": "Zeppelin (via tunnel)",
+                    "url": zeppelin_ip_url},
+                   {"description": "Ungit (via tunnel)",
+                    "url": ungit_ip_url}
+               ]}
         result.write(json.dumps(res))

@@ -35,6 +35,7 @@ parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -96,7 +97,7 @@ if __name__ == "__main__":
 
     # INSTALL JUPYTER NOTEBOOK
     print("Install Jupyter")
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
@@ -121,7 +122,7 @@ if __name__ == "__main__":
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install ungit")
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, args.exploratory_name)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
@@ -134,7 +135,10 @@ if __name__ == "__main__":
     ensure_sbt(args.os_user)
     print("Install Breeze")
     add_breeze_library_local(args.os_user)
-    
+
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+
+

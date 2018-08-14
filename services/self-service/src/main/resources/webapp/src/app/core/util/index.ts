@@ -23,3 +23,4 @@ export * from './sortUtil';
 export * from './errorMapUtils';
 export * from './dateUtils';
 export * from './fileUtils';
+export * from './checkUtils';

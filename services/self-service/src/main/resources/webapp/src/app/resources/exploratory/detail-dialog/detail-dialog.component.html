@@ -20,27 +20,25 @@ limitations under the License.
   <modal-header></modal-header>
   <modal-content>
     <div *ngIf="notebook">
-      <div class="detail-header-wrap">
-        <table class="detail-header">
-          <tr>
-            <td>{{notebook.template_name}}</td>
-            <td>
-              <span class="status" ngClass="{{notebook.status || ''}}">
-                {{notebook.status}}
-              </span>
-            </td>
-            <td>{{notebook.shape}}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="detail-header">
+        <tr>
+          <td>{{notebook.template_name}}</td>
+          <td>
+            <span class="status" ngClass="{{notebook.status || ''}}">
+              {{notebook.status}}
+            </span>
+          </td>
+          <td>{{notebook.shape}}</td>
+        </tr>
+      </table>
       <div  class="content-box">
         <div class="detail-info" *ngIf="!notebook.error_message">
           <p>Edge Node IP Address {{notebook.ip}}</p>
           <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
-          <p>Open following URL(s) in your browser to access this box after creating a tunnel:</p>
+          <p>Open following URL(s) in your browser to access this box:</p>
           <div class="links_block">
             <p *ngFor="let item of notebook.url">
-              <strong> &#9642; {{item.description}}:</strong>
+              <strong><b class="highlight">&#9642;</b> {{item.description}}:</strong>
               <a href="{{item.url}}" target="_blank">{{item.url}}</a>
             </p>
           </div>
@@ -49,22 +47,22 @@ limitations under the License.
 
           <p class="m-top-30">{{ DICTIONARY.personal_storage }}: </p>
           <div class="links_block">
-            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">&#9642; {{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
-            <p *ngIf="notebook.bucket_name">&#9642; {{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
+            <p *ngIf="notebook.bucket_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
           </div>
           <p>{{ DICTIONARY.collaboration_storage }}: </p>
           <div class="links_block">
-            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">&#9642; {{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
-            <p *ngIf="notebook.shared_bucket_name">&#9642; {{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
+            <p *ngIf="notebook.shared_bucket_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
           </div>
           <br/>
 
           <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
             <p>Data Lake Store: </p>
             <div  class="links_block">
-              <p>&#9642; Data Lake Store Account: <strong>{{ notebook.datalake_name }}</strong></p>
-              <p>&#9642; Personal folder: <strong>{{ notebook.datalake_directory }}</strong></p>
-              <p>&#9642; Collaboration folder: <strong>{{ notebook.datalake_shared_directory }}</strong></p>
+              <p><b class="highlight">&#9642;</b> Data Lake Store Account: <strong>{{ notebook.datalake_name }}</strong></p>
+              <p><b class="highlight">&#9642;</b> Personal folder: <strong>{{ notebook.datalake_directory }}</strong></p>
+              <p><b class="highlight">&#9642;</b> Collaboration folder: <strong>{{ notebook.datalake_shared_directory }}</strong></p>
             </div>
           </div>
 

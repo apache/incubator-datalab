@@ -160,6 +160,12 @@ if __name__ == "__main__":
                 "FromPort": 22,
                 "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 80,
+                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]
         edge_sg_egress = [
@@ -198,6 +204,12 @@ if __name__ == "__main__":
                 "FromPort": 20888,
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
                 "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8042,
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "ToPort": 8042, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
@@ -252,6 +264,12 @@ if __name__ == "__main__":
                 "FromPort": 8085,
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
                 "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 389,
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \

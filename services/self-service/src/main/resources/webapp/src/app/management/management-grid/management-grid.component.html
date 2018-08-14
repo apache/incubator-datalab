@@ -28,7 +28,7 @@ limitations under the License.
 
   <tr *ngFor="let env of allEnvironmentData">
     <td>{{ env.user }}</td>
-    <td>{{ env.name }}</td>
+    <td [ngClass]="{'capitalize': env.name === 'edge node'}">{{ env.name }}</td>
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
     <td>{{ env.shape }}</td>
     <td>
@@ -52,31 +52,41 @@ limitations under the License.
 
               <a class="remove_butt" (click)="toggleResourceAction(env, 'terminate', resource)"
                 [ngClass]="{'disabled' : env.status === 'terminated' || env.status === 'failled'
-                        || resource.status ===  'terminated' || resource.status === 'terminating' || resource.status === 'failled'}">
+                        || resource.status !==  'running' && resource.status !== 'stopped' }">
                 <i class="material-icons">highlight_off</i>
               </a>
-            </div>
+               </div>
           </div>
         </div>
       </div>
     </td>
     <td class="settings">
       <span #settings class="actions" (click)="actions.toggle($event, settings)"
-            [ngClass]="{'disabled': !uploadKey || env.status === 'terminated' || env.status === 'failled' || env.status === 'terminating'}"></span>
+            [ngClass]="{ 'disabled' : !uploadKey || env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping' }"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
-          <li (click)="toggleResourceAction(env, 'stop')" [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating_image'}">
-            <i class="material-icons">pause_circle_outline</i>
-            <span>Stop</span>
+          <li matTooltip="Unable to stop notebook because at least one computational resource is in progress"
+              matTooltipPosition="above"
+              [matTooltipDisabled]="!isResourcesInProgress(env)">
+              <div (click)="toggleResourceAction(env, 'stop')" [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating_image' || isResourcesInProgress(env)}">
+                <i class="material-icons">pause_circle_outline</i>
+                <span>Stop</span>
+              </div>
           </li>
-          <li (click)="toggleResourceAction(env, 'terminate')" *ngIf="env.name === 'EDGE_NODE'"
-            [ngClass]="{'not-allowed' : env.status.toLowerCase() !== 'running' && env.status.toLowerCase() !== 'stopped'}">
-            <i class="material-icons">phonelink_off</i>
-            <span>Terminate</span>
+          <li *ngIf="env.name !== 'edge node'"
+              matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+              matTooltipPosition="above"
+              [matTooltipDisabled]="!isResourcesInProgress(env)">
+            <div (click)="toggleResourceAction(env, 'terminate')"
+              [ngClass]="{'not-allowed' : env.status.toLowerCase() !== 'running' && env.status.toLowerCase() !== 'stopped' || isResourcesInProgress(env)}">
+              <i class="material-icons">phonelink_off</i>
+              <span>Terminate</span>
+            </div>
           </li>
         </ul>
       </bubble-up>
     </td>
   </tr>
-
 </table>
+
+<confirmation-dialog #confirmationDialog [manageAction]="true" (buildGrid)="buildGrid($event)"></confirmation-dialog>

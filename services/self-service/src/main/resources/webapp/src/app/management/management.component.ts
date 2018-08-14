@@ -55,13 +55,11 @@ export class ManagementComponent implements OnInit {
   }
 
   public manageEnvironmentAction($event) {
-    console.log($event);
-
     this.manageEnvironmentsService
       .environmentManagement(
         $event.environment.user,
         $event.action,
-        $event.environment.name === 'EDGE_NODE' ? 'edge' : $event.environment.name,
+        $event.environment.name === 'edge node' ? 'edge' : $event.environment.name,
         $event.resource ? $event.resource.computational_name : null
       )
       .subscribe(() => this.buildGrid(), error => console.log(error));

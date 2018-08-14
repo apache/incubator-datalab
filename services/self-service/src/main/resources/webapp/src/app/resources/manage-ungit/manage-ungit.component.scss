@@ -60,6 +60,7 @@ limitations under the License.
   }
 
   .git-form {
+    display: flex;
     .control-group {
       width: 100%;
       font-family: 'Open Sans', sans-serif;
@@ -79,6 +80,7 @@ limitations under the License.
     }
     .col {
       padding: 30px 10px;
+      width: 50%;
     }
     .danger_color {
       padding-top: 0;

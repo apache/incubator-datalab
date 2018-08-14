@@ -68,8 +68,7 @@ def ensure_nginx(dlab_path):
 def ensure_jenkins(dlab_path):
     try:
         if not exists('{}tmp/jenkins_ensured'.format(dlab_path)):
-            sudo(
-                'wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo')
+            sudo('wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo')
             try:
                 sudo('rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key')
             except:

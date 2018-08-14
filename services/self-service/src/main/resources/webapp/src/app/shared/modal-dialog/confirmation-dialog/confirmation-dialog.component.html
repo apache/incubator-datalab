@@ -19,10 +19,10 @@ limitations under the License.
 <modal-dialog #bindDialog modalClass="confirmation-dialog modal-md">
   <modal-header>
     <h4 class="modal-title">
-      <span *ngIf="model.notebook.name">
+      <span *ngIf="model.notebook.name && model.notebook.name !== 'edge node'">
         <span>{{ confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
       </span>
-      <span *ngIf="model.notebook.type === 'Edge Node'">
+      <span *ngIf="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'">
         <i class="material-icons">priority_high</i>Warning
       </span>
     </h4>
@@ -31,7 +31,7 @@ limitations under the License.
     <div class="content-box">
       <p class="info">{{ model.title }}</p>
 
-      <mat-list class="resources" [hidden]="model.notebook.type === 'Edge Node'">
+      <mat-list class="resources" [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'">
         <mat-list-item class="list-header">
           <div class="cluster">Cluster</div>
           <div class="status">Further status</div>
