@@ -51,8 +51,7 @@ limitations under the License.
               </a>
 
               <a class="remove_butt" (click)="toggleResourceAction(env, 'terminate', resource)"
-                [ngClass]="{'disabled' : env.status === 'terminated' || env.status === 'failled'
-                        || resource.status !==  'running' && resource.status !== 'stopped' }">
+                [ngClass]="{'disabled' : env.status !== 'running' || resource.status !== 'running' && resource.status !== 'stopped' }">
                 <i class="material-icons">highlight_off</i>
               </a>
                </div>
