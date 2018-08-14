@@ -121,6 +121,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public filterList(): void {
+    this.validity_format = '';
     (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
@@ -143,7 +144,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public isDuplicated(item) {
-    const select = {group: this.group, name: item.key, version: item.value};
+    const select = {group: this.group, name: item.name, version: item.version};
 
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
@@ -262,6 +263,7 @@ export class InstallLibrariesComponent implements OnInit {
           error => {
           if (error.status === HTTP_STATUS_CODES.NOT_FOUND || error.status === HTTP_STATUS_CODES.BAD_REQUEST) {
             this.validity_format = error.message;
+            this.filteredList = null;
           }
         });
     } else {

@@ -74,7 +74,7 @@ limitations under the License.
                     </div>
                   </mat-option>
                 </ng-template>
-                <mat-option *ngIf="model.isEmpty(filteredList)">
+                <mat-option *ngIf="model.isEmpty(filteredList) && !validity_format">
                   <span class="configuring">No matches found</span>
                 </mat-option>
                 <mat-option *ngIf="validity_format?.length > 0">
