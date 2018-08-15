@@ -1374,18 +1374,18 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
-    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
         endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
     else:
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
-    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
-    local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/{}/notebook_spark-defaults_local.conf'""".format(cluster_name))
+    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/{}/notebook_spark-defaults_local.conf'.format(cluster_name))
+    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
 
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
@@ -1474,8 +1474,8 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
-    local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-    local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-    local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
+def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
+    local('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+    local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/' + cluster_name)
+    local('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')

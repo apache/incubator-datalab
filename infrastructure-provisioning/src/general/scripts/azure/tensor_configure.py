@@ -242,8 +242,8 @@ if __name__ == "__main__":
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
         tensorboard_url = "http://" + ip_address + ":6006/"
-        jupyter_ip_url = "http://" + ip_address + ":8888/"
-        ungit_ip_url = "http://" + ip_address + ":8085/"
+        jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
+        ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))

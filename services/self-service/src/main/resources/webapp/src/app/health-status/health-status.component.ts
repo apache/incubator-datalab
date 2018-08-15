@@ -16,10 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
 import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
+import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 @Component({
   moduleId: module.id,
@@ -28,6 +29,8 @@ import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
   styleUrls: ['./health-status.component.scss']
 })
 export class HealthStatusComponent implements OnInit {
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
+  private clear = undefined;
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
   billingEnabled: boolean;
@@ -37,8 +40,6 @@ export class HealthStatusComponent implements OnInit {
   usersList: Array<string> = [];
   uploadKey: boolean = true;
 
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
-  private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
   @ViewChild('keyUploadModal') keyUploadDialog;
@@ -48,8 +49,12 @@ export class HealthStatusComponent implements OnInit {
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
     private userResourceService: UserResourceService,
-    private userAccessKeyService: UserAccessKeyService
-  ) {}
+    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit(): void {
     this.buildGrid();
@@ -137,6 +142,7 @@ export class HealthStatusComponent implements OnInit {
   createBackup($event) {
     this.backupService.createBackup($event).subscribe(result => {
       this.getBackupStatus(result);
+      this.toastr.success('Backup configuration is processing!', 'Success!', { toastLife: 5000 });
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
     });
   }
@@ -163,8 +169,14 @@ export class HealthStatusComponent implements OnInit {
   private getBackupStatus(result) {
     const uuid = result.text();
     this.backupService.getBackupStatus(uuid).subscribe(status => {
-      if (!this.creatingBackup) clearInterval(this.clear);
-    }, error => clearInterval(this.clear));
+      if (!this.creatingBackup) {
+        this.toastr.success('Backup configuration completed!', 'Success!', { toastLife: 5000 });
+        clearInterval(this.clear);
+      }
+    }, error => {
+      clearInterval(this.clear);
+      this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 });
+    });
   }
 
   get creatingBackup(): boolean {

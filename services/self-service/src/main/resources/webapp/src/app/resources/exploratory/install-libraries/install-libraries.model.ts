@@ -63,6 +63,11 @@ export class InstallLibrariesModel {
             .getAvailableLibrariesList(lib_query);
     }
 
+    public getDependencies(query: string): Observable<Response> {
+        return this.librariesInstallationService
+            .getAvailableDependencies(query);
+    }
+
     public getInstalledLibrariesList(notebook): Observable<Response> {
         return this.librariesInstallationService.getInstalledLibrariesList(notebook.name)
     }

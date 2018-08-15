@@ -85,7 +85,8 @@ public class EdgeResourceAzure extends EdgeService {
 	@SuppressWarnings("unchecked")
 	protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String
 			callbackURI) {
-		return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAzure.class,
+		return new EdgeCallbackHandler(systemUserInfoService, selfService, action, uuid, user, callbackURI,
+				EdgeInfoAzure.class,
 				UploadFileResult.class);
 	}
 }
