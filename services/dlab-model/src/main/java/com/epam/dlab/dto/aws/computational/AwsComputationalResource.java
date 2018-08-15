@@ -27,6 +27,7 @@ import lombok.ToString;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stores info about the user's computational resources for notebook.
@@ -58,10 +59,10 @@ public class AwsComputationalResource extends UserComputationalResource {
 									String instanceId, String masterShape, String slaveShape, Boolean slaveSpot,
 									Integer slaveSpotPctPrice, String slaveNumber, String version,
 									List<ResourceURL> resourceURL, Date lastActivity,
-									boolean checkInactivityRequired) {
+									boolean checkInactivityRequired, Map<String, Object> config) {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired);
+				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, config);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;

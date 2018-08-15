@@ -302,7 +302,6 @@ def install_r_pkg(requisites):
     except:
         return "Fail to install R packages"
 
-
 def get_available_r_pkgs():
     try:
         r_pkgs = dict()

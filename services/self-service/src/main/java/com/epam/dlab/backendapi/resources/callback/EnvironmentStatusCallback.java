@@ -17,12 +17,14 @@
 package com.epam.dlab.backendapi.resources.callback;
 
 import com.epam.dlab.backendapi.dao.EnvDAO;
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.status.EnvStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -51,7 +53,7 @@ public class EnvironmentStatusCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(EnvStatusDTO dto) {
+    public Response status(@Auth UserInfo userInfo, EnvStatusDTO dto) {
         log.trace("Updating the status of resources for user {}: {}", dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
         try {

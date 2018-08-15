@@ -82,6 +82,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.slaveNumber(formDTO.getSlaveInstanceCount())
 					.masterNumber(formDTO.getMasterInstanceCount())
 					.preemptibleNumber(formDTO.getPreemptibleCount())
+					.config(formDTO.getConfig())
 					.version(formDTO.getVersion())
 					.checkInactivityRequired(formDTO.isCheckInactivityRequired()).build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
@@ -186,7 +187,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@POST
-	@Path("/{exploratoryName}/{computationalName}/check_inactivity")
+	@Path("/{exploratoryName}/{computationalName}/inactivity")
 	public Response updateCheckInactivity(@Auth UserInfo userInfo,
 										  @PathParam("exploratoryName") String exploratoryName,
 										  @PathParam("computationalName") String computationalName,

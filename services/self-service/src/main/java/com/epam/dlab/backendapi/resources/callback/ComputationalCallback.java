@@ -29,6 +29,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -65,7 +66,7 @@ public class ComputationalCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(ComputationalStatusDTO dto) {
+    public Response status(@Auth UserInfo ui, ComputationalStatusDTO dto) {
 		log.debug("Updating status for computational resource {} for user {}: {}",
 				dto.getComputationalName(), dto.getUser(), dto);
         String uuid = dto.getRequestId();

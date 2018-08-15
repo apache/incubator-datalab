@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.core.commands;
@@ -25,6 +24,7 @@ import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.util.LoggerUtils;
 import com.epam.dlab.util.SecurityUtils;
 import com.epam.dlab.util.ServiceUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,6 +40,7 @@ import com.google.common.io.Resources;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 
 import java.io.*;
 import java.net.URL;
@@ -106,6 +107,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 	}
 
 	public void run() {
+		LoggerUtils.populateUser(user);
 		log.debug("Run OS command for user {} with UUID {}: {}", user, uuid, SecurityUtils.hideCreds(command));
 
 		responseFileName = null;

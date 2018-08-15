@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
@@ -46,6 +47,8 @@ public class ComputationalConfigure implements DockerCommands {
 	private CommandBuilder commandBuilder;
 	@Inject
 	private RESTService selfService;
+	@Inject
+	private SystemUserInfoService systemUserInfoService;
 
 	public String configure(String uuid, ComputationalBase<?> dto) {
 		switch (configuration.getCloudProvider()) {
@@ -104,7 +107,7 @@ public class ComputationalConfigure implements DockerCommands {
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String originalUuid, ComputationalBase<?>
 			dto) {
-		return new ComputationalConfigureCallbackHandler(selfService, action, originalUuid, dto);
+		return new ComputationalConfigureCallbackHandler(systemUserInfoService, selfService, action, originalUuid, dto);
 	}
 
 	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {

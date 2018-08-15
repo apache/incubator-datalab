@@ -22,27 +22,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.Map;
+
 /**
  * Stores info about creation of the computational resource.
  */
 @Data
 public class ComputationalCreateFormDTO {
 
-    @NotBlank
-    @JsonProperty("template_name")
-    private String templateName;
+	@NotBlank
+	@JsonProperty("template_name")
+	private String templateName;
 
-    @NotBlank
-    @JsonProperty
-    private String image;
+	@NotBlank
+	@JsonProperty
+	private String image;
 
-    @NotBlank
-    @JsonProperty
-    private String name;
+	@NotBlank
+	@JsonProperty
+	private String name;
 
-    @NotBlank
-    @JsonProperty("notebook_name")
-    private String notebookName;
+	@NotBlank
+	@JsonProperty("notebook_name")
+	private String notebookName;
+
+	@JsonProperty
+	private Map<String, Object> config;
 
 	@JsonProperty("check_inactivity_required")
 	private boolean checkInactivityRequired = true;

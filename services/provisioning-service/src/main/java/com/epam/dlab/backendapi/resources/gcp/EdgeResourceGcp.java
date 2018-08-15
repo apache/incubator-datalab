@@ -85,7 +85,8 @@ public class EdgeResourceGcp extends EdgeService {
 	@Override
 	protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String
 			callbackURI) {
-		return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoGcp.class,
+		return new EdgeCallbackHandler(systemUserInfoService, selfService, action, uuid, user, callbackURI,
+				EdgeInfoGcp.class,
 				UploadFileResult.class);
 	}
 }

@@ -53,6 +53,7 @@ export class AmiCreateDialogComponent {
     this.notebook = notebook;
 
     this.initFormModel();
+    this._userResource.getImagesList().subscribe(res => this.imagesList = res);
     this.bindDialog.open(param);
   }
 

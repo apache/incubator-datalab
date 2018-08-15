@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -54,4 +55,6 @@ public class UserComputationalResource {
 	private Date lastActivity;
 	@JsonProperty("check_inactivity_required")
 	private boolean checkInactivityRequired;
+	@JsonProperty("config")
+	private Map<String, Object> config;
 }

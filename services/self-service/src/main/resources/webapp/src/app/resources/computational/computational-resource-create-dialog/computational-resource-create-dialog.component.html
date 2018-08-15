@@ -24,6 +24,14 @@ limitations under the License.
     <div class="content-box" *ngIf="model.selectedImage">
       <form [formGroup]="resourceForm" novalidate (submit)="createComputationalResource($event, resourceForm.value, shapes.master_shape, shapes.slave_shape)">
 
+     <div class="form-wrapper">
+      <div class="general-form">
+        <div class="checkbox-group">
+          <label>
+            <input #configurationNode type="checkbox" (change)="selectConfiguration($event)" /> Configurations
+          </label>
+        </div>
+
         <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="model.resourceImages.length === 1">
           <label class="label">Select cluster type</label>
           <div class="control">
@@ -115,11 +123,23 @@ limitations under the License.
             </div>
           </div>
         </div>
+      </div>
+
+        <div class="additional-form">
+          <div class="checkbox-group">
+            <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }" *ngIf="configuration?.nativeElement['checked']">
+              <!-- <label class="label">Configure parameters</label> -->
+              <textarea formControlName="configuration_parameters" placeholder="Please insert valid object" data-gramm_editor="false"></textarea>
+              <span class="danger_color" *ngIf="!resourceForm.controls.configuration_parameters.valid && resourceForm.controls['configuration_parameters'].dirty && resourceForm.controls['configuration_parameters'].touched">Configuration parameters is not in a valid format</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
         <div class="text-right" *ngIf="processError">
           <small class="danger_color">{{errorMessage}}</small>
         </div>
-        <div class="text-center m-top-20">
+        <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!resourceForm.valid"
                   class="butt butt-success action" [ngClass]="{'not-allowed': !resourceForm.valid}">Create</button>

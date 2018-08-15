@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -24,6 +25,7 @@ import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibListStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -52,7 +54,7 @@ public class LibraryCallback {
      */
     @POST
     @Path("/lib_status")
-    public Response libInstallStatus(LibInstallStatusDTO dto) {
+    public Response libInstallStatus(@Auth UserInfo userInfo, LibInstallStatusDTO dto) {
         log.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
                 dto.getExploratoryName(), dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
@@ -77,7 +79,7 @@ public class LibraryCallback {
      */
     @POST
     @Path("/update_lib_list")
-    public Response updateLibList(LibListStatusDTO dto) {
+    public Response updateLibList(@Auth UserInfo userInfo, LibListStatusDTO dto) {
         log.debug("Updating the list of libraries for image {}", dto.getImageName());
 		requestId.checkAndRemove(dto.getRequestId());
         try {

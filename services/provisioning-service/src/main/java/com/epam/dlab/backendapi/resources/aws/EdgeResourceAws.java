@@ -85,7 +85,8 @@ public class EdgeResourceAws extends EdgeService {
 	@SuppressWarnings("unchecked")
 	protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String
 			callbackURI) {
-		return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAws.class,
+		return new EdgeCallbackHandler(systemUserInfoService, selfService, action, uuid, user, callbackURI,
+				EdgeInfoAws.class,
 				UploadFileResult.class);
 	}
 }

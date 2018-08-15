@@ -114,10 +114,16 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {}".\
-            format(instance_hostname, notebook_config['ssh_key_path'], os.environ['gcp_region'], os.environ['notebook_spark_version'],
+        params = "--hostname {} --keyfile {} " \
+                 "--region {} --spark_version {} " \
+                 "--hadoop_version {} --os_user {} " \
+                 "--scala_version {} --r_mirror {} " \
+                 "--exploratory_name {}".\
+            format(instance_hostname, notebook_config['ssh_key_path'],
+                   os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
-                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'])
+                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
+                   notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
         except:
@@ -163,8 +169,8 @@ if __name__ == "__main__":
 
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
-    jupyter_ip_url = "http://" + ip_address + ":8888/"
-    ungit_ip_url = "http://" + ip_address + ":8085/"
+    jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
+    ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))

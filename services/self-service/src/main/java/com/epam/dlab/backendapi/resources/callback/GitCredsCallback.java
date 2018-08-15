@@ -16,11 +16,13 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -47,7 +49,7 @@ public class GitCredsCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(ExploratoryStatusDTO dto) {
+    public Response status(@Auth UserInfo userInfo, ExploratoryStatusDTO dto) {
         if (UserInstanceStatus.CREATED != UserInstanceStatus.of(dto.getStatus())) {
             //TODO Handle error status?
             log.error("Git creds has not been updated for exploratory environment {} for user {}, status is {}",

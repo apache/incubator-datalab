@@ -369,6 +369,7 @@ public class RequestBuilder {
 						.withSlaveInstanceType(awsForm.getSlaveInstanceType())
 						.withSlaveInstanceSpot(awsForm.getSlaveInstanceSpot())
 						.withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
+						.withConfig(awsForm.getConfig())
 						.withVersion(awsForm.getVersion());
 				break;
 			case GCP:
@@ -379,6 +380,7 @@ public class RequestBuilder {
 						.withPreemptibleCount(gcpForm.getPreemptibleCount())
 						.withMasterInstanceType(gcpForm.getMasterInstanceType())
 						.withSlaveInstanceType(gcpForm.getSlaveInstanceType())
+						.withConfig(gcpForm.getConfig())
 						.withVersion(gcpForm.getVersion());
 				break;
 
@@ -406,13 +408,15 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveShape(form.getDataEngineInstanceShape());
+						.withDataEngineSlaveShape(form.getDataEngineInstanceShape())
+						.withConfig(form.getConfig());
 				break;
 			case AZURE:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
+						.withConfig(form.getConfig());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
@@ -428,7 +432,8 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateGcp.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
+						.withConfig(form.getConfig());
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());

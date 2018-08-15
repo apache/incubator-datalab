@@ -63,6 +63,11 @@ public class WatchItemListTest {
 		public void handleError(String errorMessage) {
 			System.out.println("handleError called for UUID " + getUUID());
 		}
+
+		@Override
+		public String getUser() {
+			return null;
+		}
 	}
 
 

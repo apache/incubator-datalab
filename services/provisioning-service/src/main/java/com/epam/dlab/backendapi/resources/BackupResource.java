@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
@@ -51,12 +52,14 @@ public class BackupResource {
 	protected ICommandExecutor commandExecutor;
 	@Inject
 	protected RESTService selfService;
+	@Inject
+	private SystemUserInfoService systemUserInfoService;
 
 
 	@POST
 	public Response createBackup(@Auth UserInfo ui, EnvBackupDTO dto) {
 		folderListenerExecutor.start(configuration.getBackupDirectory(), configuration.getProcessTimeout(),
-				new BackupCallbackHandler(selfService, ApiCallbacks.BACKUP_URI, ui.getName(), dto));
+				new BackupCallbackHandler(systemUserInfoService, selfService, ApiCallbacks.BACKUP_URI, ui.getName(), dto));
 		String command = new PythonBackupCommand(configuration.getBackupScriptPath())
 				.withConfig(dto.getConfigFiles())
 				.withJars(dto.getJars())

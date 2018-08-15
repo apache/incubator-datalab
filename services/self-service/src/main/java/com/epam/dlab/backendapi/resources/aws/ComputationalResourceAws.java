@@ -84,6 +84,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.slaveSpot(form.getSlaveInstanceSpot())
 					.slaveSpotPctPrice(form.getSlaveInstanceSpotPctPrice())
 					.slaveNumber(form.getInstanceCount())
+					.config(form.getConfig())
 					.version(form.getVersion())
 					.checkInactivityRequired(form.isCheckInactivityRequired()).build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
@@ -187,7 +188,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@POST
-	@Path("/{exploratoryName}/{computationalName}/check_inactivity")
+	@Path("/{exploratoryName}/{computationalName}/inactivity")
 	public Response updateCheckInactivity(@Auth UserInfo userInfo,
 										  @PathParam("exploratoryName") String exploratoryName,
 										  @PathParam("computationalName") String computationalName,
