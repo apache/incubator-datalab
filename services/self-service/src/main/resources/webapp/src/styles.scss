@@ -106,7 +106,6 @@ limitations under the License.
 .creating,
 .configuring,
 .installing,
-.creating_image,
 .reuploading,
 .highlight {
   color: #35afd5;
@@ -296,19 +295,20 @@ input[type='number'] {
   color: #fff;
   background: #e2747d;
   word-break: break-word;
+  span {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border-radius: 50%;
+    background: #e2747d;
+    color: #fff;
+    box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6);
+  }
 }
-.warning-alert span {
-  position: absolute;
-  top: -12px;
-  right: -12px;
-  width: 40px;
-  height: 40px;
-  padding: 8px;
-  border-radius: 50%;
-  background: #e2747d;
-  color: #fff;
-  box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6);
-}
+
 .ellipsis {
   text-overflow: ellipsis;
   white-space: nowrap;
