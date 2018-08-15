@@ -121,6 +121,11 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 				.withErrorMessage(errorMessage);
 	}
 
+	@Override
+	public String getUser() {
+		return user;
+	}
+
 	private CheckInactivityClustersStatusDTO buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus status,
 																				   List<EnvResource> clusters) {
 		return new CheckInactivityClustersStatusDTO()

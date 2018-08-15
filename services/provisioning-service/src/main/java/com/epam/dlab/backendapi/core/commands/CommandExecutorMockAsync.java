@@ -40,7 +40,6 @@ import com.google.common.io.Resources;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.MDC;
 
 import java.io.*;
 import java.net.URL;

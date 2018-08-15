@@ -18,19 +18,15 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.response.folderlistener;
 
-import static org.junit.Assert.assertEquals;
+import com.epam.dlab.backendapi.core.FileHandlerCallback;
+import com.epam.dlab.backendapi.core.response.folderlistener.WatchItem.ItemStatus;
+import io.dropwizard.util.Duration;
+import org.junit.Test;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Test;
-
-import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.response.folderlistener.AsyncFileHandler;
-import com.epam.dlab.backendapi.core.response.folderlistener.WatchItem;
-import com.epam.dlab.backendapi.core.response.folderlistener.WatchItem.ItemStatus;
-
-import io.dropwizard.util.Duration;
+import static org.junit.Assert.assertEquals;
 
 public class WatchItemTest {
 

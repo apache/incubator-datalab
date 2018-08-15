@@ -161,7 +161,7 @@ public class ComputationalResourceAzure {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@POST
-	@Path("/{exploratoryName}/{computationalName}/check_inactivity")
+	@Path("/{exploratoryName}/{computationalName}/inactivity")
 	public Response updateCheckInactivity(@Auth UserInfo userInfo,
 										  @PathParam("exploratoryName") String exploratoryName,
 										  @PathParam("computationalName") String computationalName,
