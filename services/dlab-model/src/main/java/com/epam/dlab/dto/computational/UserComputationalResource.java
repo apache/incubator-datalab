@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -50,4 +51,6 @@ public class UserComputationalResource {
 	private boolean reuploadKeyRequired = false;
 	@JsonProperty("computational_url")
 	private List<ResourceURL> resourceUrl;
+	@JsonProperty("config")
+	private Map<String, Object> config;
 }
