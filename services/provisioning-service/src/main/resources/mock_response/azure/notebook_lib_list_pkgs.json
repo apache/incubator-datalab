@@ -21,5 +21,6 @@
 	"others": {
 		"ghostscript": "N/A",
 		"gherkin-official": "N/A"
-	}
+	},
+	"java" : {}
 }
