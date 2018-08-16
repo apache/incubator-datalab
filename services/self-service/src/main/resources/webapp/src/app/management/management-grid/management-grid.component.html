@@ -67,7 +67,7 @@ limitations under the License.
           <li matTooltip="Unable to stop notebook because at least one computational resource is in progress"
               matTooltipPosition="above"
               [matTooltipDisabled]="!isResourcesInProgress(env)">
-              <div (click)="toggleResourceAction(env, 'stop')" [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating_image' || isResourcesInProgress(env)}">
+              <div (click)="toggleResourceAction(env, 'stop')" [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating image' || isResourcesInProgress(env)}">
                 <i class="material-icons">pause_circle_outline</i>
                 <span>Stop</span>
               </div>
