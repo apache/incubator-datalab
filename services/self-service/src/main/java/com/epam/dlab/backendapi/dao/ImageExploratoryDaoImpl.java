@@ -26,14 +26,11 @@ import com.google.inject.Singleton;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
 
 @Singleton
@@ -64,9 +61,9 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	}
 
 	@Override
-	public List<ImageInfoRecord> getImages(String user, ImageStatus status, String dockerImage) {
+	public List<ImageInfoRecord> getImages(String user, String dockerImage, ImageStatus... statuses) {
 		return find(MongoCollections.IMAGES,
-				userImagesCondition(user, status, dockerImage),
+				userImagesCondition(user, dockerImage, statuses),
 				ImageInfoRecord.class);
 	}
 
@@ -101,8 +98,8 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 				elemMatch(LIBRARIES, eq(STATUS, status.name())));
 	}
 
-	private Bson userImagesCondition(String user, ImageStatus status, String dockerImage) {
-		final Bson userImagesCondition = userImagesCondition(user, status);
+	private Bson userImagesCondition(String user, String dockerImage, ImageStatus... statuses) {
+		final Bson userImagesCondition = userImagesCondition(user, statuses);
 		if (Objects.nonNull(dockerImage)) {
 			return and(userImagesCondition, eq(DOCKER_IMAGE, dockerImage));
 		} else {
@@ -111,8 +108,13 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 
 	}
 
-	private Bson userImagesCondition(String user, ImageStatus status) {
-		return and(eq(USER, user), eq(STATUS, status.name()));
+	private Bson userImagesCondition(String user, ImageStatus... statuses) {
+
+		final List<String> statusList = Arrays
+				.stream(statuses)
+				.map(ImageStatus::name)
+				.collect(Collectors.toList());
+		return and(eq(USER, user), in(STATUS, statusList));
 	}
 
 

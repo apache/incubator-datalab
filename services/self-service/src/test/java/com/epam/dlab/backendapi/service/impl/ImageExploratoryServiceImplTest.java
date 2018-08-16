@@ -231,15 +231,16 @@ public class ImageExploratoryServiceImplTest {
 	public void getCreatedImages() {
 		ImageInfoRecord imageInfoRecord = getImageInfoRecord();
 		List<ImageInfoRecord> expectedRecordList = Collections.singletonList(imageInfoRecord);
-		when(imageExploratoryDao.getImages(anyString(), any(ImageStatus.class), anyString()))
+		when(imageExploratoryDao.getImages(anyString(), anyString(), anyVararg()))
 				.thenReturn(expectedRecordList);
 
-		List<ImageInfoRecord> actualRecordList = imageExploratoryService.getCreatedImages(USER, "someImage");
+		List<ImageInfoRecord> actualRecordList = imageExploratoryService.getNotFailedImages(USER,
+				"someImage");
 		assertNotNull(actualRecordList);
 		assertEquals(1, actualRecordList.size());
 		assertEquals(expectedRecordList, actualRecordList);
 
-		verify(imageExploratoryDao).getImages(USER, ImageStatus.CREATED, "someImage");
+		verify(imageExploratoryDao).getImages(USER, "someImage", ImageStatus.CREATED, ImageStatus.CREATING);
 		verifyNoMoreInteractions(imageExploratoryDao);
 	}
 
