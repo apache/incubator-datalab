@@ -309,7 +309,7 @@ def install_java_pkg(requisites):
     work_dir = "/opt/dlab/java_libs"
     try:
         if not exists(work_dir):
-            sudo("mkdir -p {}")/format(work_dir)
+            sudo('mkdir -p {}'.format(work_dir))
         for java_pkg in full_pkg:
             splitted_pkg = java_pkg.split(":")
             name_pkg = splitted_pkg[1] + '-' + splitted_pkg[2] + '.jar'
