@@ -68,7 +68,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 ----------------------------
 # Logical architecture <a name="Logical_architecture"></a>
 
-The following diagram demonstrates high-level logical architecture of DLab.
+The following diagram demonstrate high-level logical architecture.
 
 ![Logical architecture](doc/logical_architecture.png)
 
@@ -101,10 +101,11 @@ Database serves as a storage with description of user infrastructure, user’s s
 -----------------------------
 # Physical architecture <a name="Physical_architecture"></a>
 
-The following diagram demonstrates high-level physical architecture of DLab in AWS
+The following diagrams demonstrate high-level physical architecture of DLab in AWS and Azure.
 
 ![Physical architecture](doc/physical_architecture.png)
 
+![Physical architecture](doc/azure_dlab_arch.png)
 
 ## Main components
 
@@ -443,7 +444,7 @@ List of parameters for SSN node deployment:
 | action                       | In case of SSN node creation, this parameter should be set to “create”                  |
 
 
-**Note:** In current release, Web UI and back-end won't be working. For managing further nodes, Jenkins will be installed on SSN node. URL and credentials will be provided at the end of executing *dlab-deploy.py* script.
+**Note:** If you gonna use Dataproc cluster, be aware that Dataproc has limited availability in GCP regions. [Cloud Dataproc availability by Region in GCP](https://cloud.google.com/about/locations/)
 
 After SSN node deployment following GCP resources will be created:
 
@@ -2290,10 +2291,10 @@ Example of this file for Jupyter node for AWS cloud:
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 5.0.0",
+      "template_name": "Jupyter notebook 5.2.0",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-5.0.0",
+      "version": "jupyter_notebook-5.2.0",
       "vendor": "Azure"
     }
   ]
