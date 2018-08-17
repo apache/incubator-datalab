@@ -21,7 +21,6 @@ package com.epam.dlab.automation.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-import java.util.Collections;
 import java.util.List;
 
 public class NotebookConfig {
@@ -75,7 +74,7 @@ public class NotebookConfig {
 	private boolean imageTestRequired = false;
 
 	@JsonProperty("skipped_libraries")
-	private List<Lib> skippedLibraries = Collections.emptyList();
+	private List<Lib> skippedLibraries;
 
 	public List<Lib> getSkippedLibraries() {
 		return skippedLibraries;
@@ -144,6 +143,10 @@ public class NotebookConfig {
 
 	public void setImageTestRequired(boolean imageTestRequired) {
 		this.imageTestRequired = imageTestRequired;
+	}
+
+	public void setSkippedLibraries(List<Lib> skippedLibraries) {
+		this.skippedLibraries = skippedLibraries;
 	}
 
 

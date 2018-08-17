@@ -26,6 +26,7 @@ import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.jenkins.JenkinsService;
+import com.epam.dlab.automation.model.Lib;
 import com.epam.dlab.automation.model.LoginDto;
 import com.epam.dlab.automation.model.NotebookConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -43,6 +44,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -65,6 +67,7 @@ public class TestServices {
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
+	private List<Lib> skippedLibs;
 
 
 	@BeforeClass
@@ -76,6 +79,9 @@ public class TestServices {
 		ObjectMapper mapper = new ObjectMapper();
 		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
 				new TypeReference<ArrayList<NotebookConfig>>() {
+				});
+		skippedLibs = mapper.readValue(ConfigPropertyValue.getSkippedLibs(),
+				new TypeReference<ArrayList<Lib>>() {
 				});
 	}
 
@@ -242,16 +248,23 @@ public class TestServices {
 		return token;
 	}
 
+	private void populateNotebookConfigWithSkippedLibs(NotebookConfig notebookCfg) {
+		if (Objects.isNull(notebookCfg.getSkippedLibraries())) {
+			notebookCfg.setSkippedLibraries(skippedLibs);
+		}
+	}
+
 	private void runTestsInNotebooks() throws Exception {
 		
-		LOGGER.info("Testing the following notebook templates: {}", ConfigPropertyValue.getNotebookTemplates());
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
+		notebookConfigs.forEach(this::populateNotebookConfigWithSkippedLibs);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
 		if (CloudProvider.GCP_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
 			LOGGER.debug("Image creation tests are skipped for all types of notebooks in GCP.");
 			notebookConfigs.forEach(config -> config.setImageTestRequired(false));
 		}
+		LOGGER.info("Testing the following notebook configs: {}", notebookConfigs);
 		for (NotebookConfig notebookConfig : notebookConfigs) {
 			if (!ConfigPropertyValue.isRunModeLocal() &&
 					CloudProvider.AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
