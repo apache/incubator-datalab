@@ -88,8 +88,8 @@ limitations under the License.
           <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
                 && env.status !== 'terminating'
                 && env.status !== 'terminated'
-                && env.status !== 'creating_image'">
-            <li *ngIf="env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'starting' && env.status !== 'creating_image'"
+                && env.status !== 'creating image'">
+            <li *ngIf="env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'starting' && env.status !== 'creating image'"
                 matTooltip="Unable to stop notebook because at least one computational resource is in progress"
                 matTooltipPosition="above"
                 [matTooltipDisabled]="!isResourcesInProgress(env)">
@@ -120,7 +120,7 @@ limitations under the License.
                 *ngIf="env.status != 'stopping'
                 && env.status !== 'stopped'
                 && env.status !== 'starting'
-                && env.status !== 'creating_image'">
+                && env.status !== 'creating image'">
               <i class="material-icons">memory</i>
               <span>Add compute</span>
             </li>

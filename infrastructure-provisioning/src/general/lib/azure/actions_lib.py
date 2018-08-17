@@ -1088,10 +1088,10 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
         sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
-    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-    local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
+    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
     if datalake_enabled == 'false':
         local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     else:
@@ -1122,7 +1122,7 @@ def prepare_disk(os_user):
             remount_azure_disk()
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
             with settings(warn_only=True):
-                sudo('umount /dev/{}1'.format(disk_name))
+                sudo('umount -l /dev/{}1'.format(disk_name))
             sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             sudo('mount /dev/{}1 /opt/'.format(disk_name))
@@ -1168,25 +1168,25 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
+def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
     try:
         if datalake_enabled == 'false':
-            local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-            local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            local('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
             local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
             local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
         else:
             # Downloading Spark without Hadoop
             local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O \
-                    /tmp/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
-            local('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+                    /tmp/' + cluster_name + '/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
+            local('tar -zxvf /tmp/' + cluster_name + '/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
             local('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir))
             local('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir))
             # Downloading Hadoop
             hadoop_version = '3.0.0'
             local('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O \
-                    /tmp/hadoop-{0}.tar.gz'.format(hadoop_version))
-            local('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+                    /tmp/' + cluster_name + '/hadoop-{0}.tar.gz'.format(hadoop_version))
+            local('tar -zxvf /tmp/' + cluster_name + '/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
             local('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir))
             local('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir))
             # Configuring Hadoop and Spark
