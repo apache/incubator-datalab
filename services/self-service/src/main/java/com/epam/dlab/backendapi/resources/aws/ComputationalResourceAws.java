@@ -187,12 +187,12 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 * @param checkInactivityRequired true/false.
 	 * @return 200 OK if operation is successfully triggered
 	 */
-	@POST
+	@PUT
 	@Path("/{exploratoryName}/{computationalName}/inactivity")
-	public Response updateCheckInactivity(@Auth UserInfo userInfo,
-										  @PathParam("exploratoryName") String exploratoryName,
-										  @PathParam("computationalName") String computationalName,
-										  @QueryParam("check_inactivity") boolean checkInactivityRequired) {
+	public Response updateInactivity(@Auth UserInfo userInfo,
+									 @PathParam("exploratoryName") String exploratoryName,
+									 @PathParam("computationalName") String computationalName,
+									 @QueryParam("check_inactivity") boolean checkInactivityRequired) {
 		log.debug("Updating check inactivity cluster flag to {} for computational resource {} affiliated with " +
 						"exploratory {} for user {}", checkInactivityRequired, computationalName, exploratoryName,
 				userInfo.getName());

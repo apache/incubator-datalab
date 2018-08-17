@@ -21,7 +21,7 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
-import com.epam.dlab.backendapi.core.response.handlers.CheckInactivityClustersCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.CheckInactivityClusterCallbackHandler;
 import com.epam.dlab.dto.computational.CheckInactivityClusterCallbackDTO;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
@@ -66,7 +66,7 @@ public class CheckInactivityService extends DockerService implements DockerComma
 	private void startCallbackListener(String userName, CheckInactivityClusterCallbackDTO dto) {
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
-				new CheckInactivityClustersCallbackHandler(
+				new CheckInactivityClusterCallbackHandler(
 						selfService, ApiCallbacks.CHECK_INACTIVITY_CLUSTERS_URI, userName, dto));
 	}
 

@@ -25,19 +25,19 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class CheckInactivityClustersStatusDTO extends StatusBaseDTO<CheckInactivityClustersStatusDTO> {
+public class CheckInactivityClusterStatusDTO extends StatusBaseDTO<CheckInactivityClusterStatusDTO> {
 
 	private List<EnvResource> clusters;
-	private CheckInactivityClustersStatus checkInactivityClustersStatus;
+	private CheckInactivityClusterStatus checkInactivityClusterStatus;
 
-	public CheckInactivityClustersStatusDTO withClusters(List<EnvResource> clusters) {
+	public CheckInactivityClusterStatusDTO withClusters(List<EnvResource> clusters) {
 		this.clusters = clusters;
 		return this;
 	}
 
-	public CheckInactivityClustersStatusDTO withCheckInactivityClustersStatus(CheckInactivityClustersStatus
-																					  checkInactivityClustersStatus) {
-		this.checkInactivityClustersStatus = checkInactivityClustersStatus;
+	public CheckInactivityClusterStatusDTO withCheckInactivityClustersStatus(CheckInactivityClusterStatus
+																					 checkInactivityClusterStatus) {
+		this.checkInactivityClusterStatus = checkInactivityClusterStatus;
 		return this;
 	}
 
@@ -45,6 +45,6 @@ public class CheckInactivityClustersStatusDTO extends StatusBaseDTO<CheckInactiv
 	public MoreObjects.ToStringHelper toStringHelper(Object self) {
 		return super.toStringHelper(self)
 				.add("clusters", clusters)
-				.add("checkInactivityClustersStatus", checkInactivityClustersStatus);
+				.add("checkInactivityClusterStatus", checkInactivityClusterStatus);
 	}
 }

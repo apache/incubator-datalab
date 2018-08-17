@@ -19,17 +19,17 @@ package com.epam.dlab.dto.computational;
 
 import java.util.Arrays;
 
-public enum CheckInactivityClustersStatus {
+public enum CheckInactivityClusterStatus {
 
 	COMPLETED("N/A"), FAILED("N/A");
 
 	private String message;
 
-	CheckInactivityClustersStatus(String message) {
+	CheckInactivityClusterStatus(String message) {
 		this.message = message;
 	}
 
-	public CheckInactivityClustersStatus withErrorMessage(String message) {
+	public CheckInactivityClusterStatus withErrorMessage(String message) {
 		this.message = message;
 		return this;
 	}
@@ -38,11 +38,11 @@ public enum CheckInactivityClustersStatus {
 		return message;
 	}
 
-	public static CheckInactivityClustersStatus fromValue(String value) {
+	public static CheckInactivityClusterStatus fromValue(String value) {
 		return Arrays.stream(values())
 				.filter(v -> v.name().equalsIgnoreCase(value))
 				.findAny()
 				.orElseThrow(() ->
-						new IllegalArgumentException("Wrong value for CheckInactivityClustersStatus: " + value));
+						new IllegalArgumentException("Wrong value for CheckInactivityClusterStatus: " + value));
 	}
 }

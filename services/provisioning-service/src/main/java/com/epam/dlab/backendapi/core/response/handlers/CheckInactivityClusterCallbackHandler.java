@@ -19,8 +19,8 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.dto.computational.CheckInactivityClusterCallbackDTO;
-import com.epam.dlab.dto.computational.CheckInactivityClustersStatus;
-import com.epam.dlab.dto.computational.CheckInactivityClustersStatusDTO;
+import com.epam.dlab.dto.computational.CheckInactivityClusterStatus;
+import com.epam.dlab.dto.computational.CheckInactivityClusterStatusDTO;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -35,11 +35,12 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-public class CheckInactivityClustersCallbackHandler implements FileHandlerCallback {
+public class CheckInactivityClusterCallbackHandler implements FileHandlerCallback {
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 	private static final String STATUS_FIELD = "status";
@@ -56,10 +57,10 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 	private final String user;
 
 	@JsonCreator
-	public CheckInactivityClustersCallbackHandler(@JacksonInject RESTService selfService,
-												  @JsonProperty("callbackUrl") String callbackUrl,
-												  @JsonProperty("user") String user,
-												  @JsonProperty("dto") CheckInactivityClusterCallbackDTO dto) {
+	public CheckInactivityClusterCallbackHandler(@JacksonInject RESTService selfService,
+												 @JsonProperty("callbackUrl") String callbackUrl,
+												 @JsonProperty("user") String user,
+												 @JsonProperty("dto") CheckInactivityClusterCallbackDTO dto) {
 		this.selfService = selfService;
 		this.uuid = dto.getId();
 		this.callbackUrl = callbackUrl;
@@ -86,25 +87,27 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 
 		final JsonNode treeNode = MAPPER.readTree(fileContent);
 		final String status = treeNode.get(STATUS_FIELD).textValue();
-		CheckInactivityClustersStatusDTO checkInactivityClustersStatusDTO;
-		if ("ok".equals(status)) {
-			final JsonNode clustersNode = treeNode.get(CLUSTERS_FIELD);
-			ObjectReader reader = MAPPER.readerFor(new TypeReference<List<EnvResource>>() {
-			});
-			List<EnvResource> clusters = reader.readValue(clustersNode);
-			checkInactivityClustersStatusDTO =
-					buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.COMPLETED, clusters);
-		} else {
-			checkInactivityClustersStatusDTO =
-					buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.FAILED,
-							Collections.emptyList())
-							.withErrorMessage(treeNode.get(ERROR_MESSAGE_FIELD).textValue());
-		}
-		selfServicePost(checkInactivityClustersStatusDTO);
+		CheckInactivityClusterStatusDTO checkInactivityClusterStatusDTO = "ok".equals(status) ?
+				getOkStatusDto(treeNode) : getFailedStatusDto(treeNode);
+		selfServicePost(checkInactivityClusterStatusDTO);
 		return "ok".equals(status);
 	}
 
-	private void selfServicePost(CheckInactivityClustersStatusDTO statusDTO) {
+	private CheckInactivityClusterStatusDTO getOkStatusDto(JsonNode jsonNode) throws IOException {
+		final JsonNode clustersNode = jsonNode.get(CLUSTERS_FIELD);
+		ObjectReader reader = MAPPER.readerFor(new TypeReference<List<EnvResource>>() {
+		});
+		List<EnvResource> clusters = reader.readValue(clustersNode);
+		return buildCheckInactivityClustersStatusDTO(CheckInactivityClusterStatus.COMPLETED, clusters);
+	}
+
+	private CheckInactivityClusterStatusDTO getFailedStatusDto(JsonNode jsonNode) {
+		return buildCheckInactivityClustersStatusDTO(CheckInactivityClusterStatus.FAILED,
+				Collections.emptyList())
+				.withErrorMessage(jsonNode.get(ERROR_MESSAGE_FIELD).textValue());
+	}
+
+	private void selfServicePost(CheckInactivityClusterStatusDTO statusDTO) {
 		log.debug("Send post request to self service for UUID {}, object is {}", uuid, statusDTO);
 		try {
 			selfService.post(callbackUrl, statusDTO, Response.class);
@@ -117,7 +120,7 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 
 	@Override
 	public void handleError(String errorMessage) {
-		buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus.FAILED, Collections.emptyList())
+		buildCheckInactivityClustersStatusDTO(CheckInactivityClusterStatus.FAILED, Collections.emptyList())
 				.withErrorMessage(errorMessage);
 	}
 
@@ -126,9 +129,9 @@ public class CheckInactivityClustersCallbackHandler implements FileHandlerCallba
 		return user;
 	}
 
-	private CheckInactivityClustersStatusDTO buildCheckInactivityClustersStatusDTO(CheckInactivityClustersStatus status,
-																				   List<EnvResource> clusters) {
-		return new CheckInactivityClustersStatusDTO()
+	private CheckInactivityClusterStatusDTO buildCheckInactivityClustersStatusDTO(CheckInactivityClusterStatus status,
+																				  List<EnvResource> clusters) {
+		return new CheckInactivityClusterStatusDTO()
 				.withRequestId(uuid)
 				.withClusters(clusters)
 				.withCheckInactivityClustersStatus(status)

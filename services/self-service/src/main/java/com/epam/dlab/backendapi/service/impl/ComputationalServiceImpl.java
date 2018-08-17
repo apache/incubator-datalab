@@ -233,8 +233,8 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@Override
-	public void stopOrTerminateClustersByCondition(CheckInactivityClustersStatusDTO dto) {
-		if (dto.getCheckInactivityClustersStatus() == CheckInactivityClustersStatus.COMPLETED &&
+	public void stopClustersByCondition(CheckInactivityClusterStatusDTO dto) {
+		if (dto.getCheckInactivityClusterStatus() == CheckInactivityClusterStatus.COMPLETED &&
 				!dto.getClusters().isEmpty()) {
 			List<String> ids = getIds(dto.getClusters());
 			List<UserInstanceDTO> instances = exploratoryService.getInstancesByComputationalIds(ids);
@@ -243,7 +243,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@Override
-	public void updateLastActivityForClusters(CheckInactivityClustersStatusDTO dto) {
+	public void updateLastActivityForClusters(CheckInactivityClusterStatusDTO dto) {
 		log.debug("Updating last activity date for clusters...");
 		List<String> ids = getIds(dto.getClusters());
 		List<UserInstanceDTO> instances = exploratoryService.getInstancesByComputationalIds(ids);

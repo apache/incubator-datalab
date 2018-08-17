@@ -19,7 +19,7 @@ package com.epam.dlab.backendapi.resources.callback;
 
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
-import com.epam.dlab.dto.computational.CheckInactivityClustersStatusDTO;
+import com.epam.dlab.dto.computational.CheckInactivityClusterStatusDTO;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +34,7 @@ import javax.ws.rs.core.UriInfo;
 @Path("/infrastructure/check_inactivity/clusters/callback")
 @Consumes(MediaType.APPLICATION_JSON)
 @Slf4j
-public class CheckInactiveClustersCallback {
+public class CheckInactiveClusterCallback {
 
 	@Inject
 	private RequestId requestId;
@@ -45,9 +45,9 @@ public class CheckInactiveClustersCallback {
 	private UriInfo uriInfo;
 
 	@POST
-	public Response checkInactiveClusterResponse(CheckInactivityClustersStatusDTO dto) {
+	public Response checkInactiveClusterResponse(CheckInactivityClusterStatusDTO dto) {
 		requestId.checkAndRemove(dto.getRequestId());
-		computationalService.stopOrTerminateClustersByCondition(dto);
+		computationalService.stopClustersByCondition(dto);
 		computationalService.updateLastActivityForClusters(dto);
 		return Response.ok(uriInfo.getRequestUri()).build();
 	}
