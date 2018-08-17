@@ -356,6 +356,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        ip_address = get_instance_ip_address(data_engine['tag_name'],
+                                             data_engine['master_node_name']).get('Private')
+        spark_master_url = "http://" + ip_address + ":8080"
         spark_master_acces_url = "http://" + edge_instance_ip + "/{}/".format(data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
@@ -372,7 +375,9 @@ if __name__ == "__main__":
                    "Action": "Create new Data Engine",
                    "computational_url": [
                        {"description": "SPARK Master",
-                        "url": spark_master_acces_url}
+                        "url": spark_master_acces_url},
+                       #{"description": "SPARK Master (via tunnel)",
+                        #"url": spark_master_url}
                    ]}
             print(json.dumps(res))
             result.write(json.dumps(res))

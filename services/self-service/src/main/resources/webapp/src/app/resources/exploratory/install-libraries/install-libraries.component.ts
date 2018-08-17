@@ -27,7 +27,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 
 import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
-import { ErrorMapUtils, SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
+import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -52,13 +52,13 @@ export class InstallLibrariesComponent implements OnInit {
 
   public processError: boolean = false;
   public errorMessage: string = '';
+  public validity_format: string = '';
 
   public isInstalled: boolean = false;
-  public isFilteringProc: boolean = false;
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
-  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others'};
+  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others', 'java': 'Java'};
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
@@ -121,6 +121,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public filterList(): void {
+    this.validity_format = '';
     (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
@@ -143,7 +144,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public isDuplicated(item) {
-    const select = {group: this.group, name: item.key, version: item.value};
+    const select = {group: this.group, name: item.name, version: item.version};
 
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
@@ -156,7 +157,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public selectLibrary(item): void {
-    this.model.selectedLibs.push({group: this.group, name: item.key, version: item.value});
+    this.model.selectedLibs.push({group: this.group, name: item.name, version: item.version});
 
     this.query = '';
     this.libSearch.setValue('');
@@ -253,12 +254,24 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private getFilteredList(): void {
-    this.isFilteringProc = true;
-    this.model.getLibrariesList(this.group, this.query)
-      .subscribe(libs => {
-        this.filteredList = libs;
-        this.isFilteringProc = false;
-      });
+    this.validity_format = '';
+
+    if (this.group === 'java') {
+      this.model.getDependencies(this.query)
+        .subscribe(
+          lib => this.filteredList = [lib],
+          error => {
+          if (error.status === HTTP_STATUS_CODES.NOT_FOUND || error.status === HTTP_STATUS_CODES.BAD_REQUEST) {
+            this.validity_format = error.message;
+            this.filteredList = null;
+          }
+        });
+    } else {
+      this.model.getLibrariesList(this.group, this.query)
+        .subscribe(libs => {
+          this.filteredList = libs;
+        });
+    }
   }
 
   private selectorsReset():void {
@@ -272,7 +285,6 @@ export class InstallLibrariesComponent implements OnInit {
     this.libSearch.setValue('');
 
     this.processError = false;
-    this.isFilteringProc = false;
     this.isInstalled = false;
     this.isInSelectedList = false;
     this.uploading = false;

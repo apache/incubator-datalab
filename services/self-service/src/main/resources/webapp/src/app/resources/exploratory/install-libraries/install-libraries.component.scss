@@ -185,8 +185,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .mat-list {
     height: 100%;
     .scrollingList {
-      max-height: 88%;
-      height: 88%;
+      max-height: 80%;
+      height: 80%;
       overflow-y: auto;
       overflow-x: hidden;
       .info {
@@ -270,9 +270,11 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
-    .scrollingList {
-      max-height: 90%;
-      height: 90%;
+    .mat-list {
+      .scrollingList {
+        max-height: 90%;
+        height: 90%;
+      }
     }
   }
 }

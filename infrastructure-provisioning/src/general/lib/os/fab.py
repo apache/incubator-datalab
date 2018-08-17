@@ -328,7 +328,6 @@ def install_java_pkg(requisites):
     except Exception as errr:
         return "Fail to install Java packages: " + str(errr)
 
-
 def get_available_r_pkgs():
     try:
         r_pkgs = dict()

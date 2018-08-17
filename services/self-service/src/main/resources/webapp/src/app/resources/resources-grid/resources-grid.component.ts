@@ -139,8 +139,10 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   isResourcesInProgress(notebook) {
-    if(notebook && notebook.resources.length) {
-      return notebook.resources.filter(resource => (
+    let filteredEnv: any = this.environments.find(env => env.name === notebook.name);
+
+    if(filteredEnv && filteredEnv.resources.length) {
+      return filteredEnv.resources.filter(resource => (
         resource.status !== 'failed' 
         && resource.status !== 'terminated'
         && resource.status !== 'running'

@@ -267,6 +267,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetAvailableDependenciest(params): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST) + params,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildInstallLibraries(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
