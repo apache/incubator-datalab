@@ -68,7 +68,7 @@ public class ImageExploratoryResource {
 	@GET
 	public Response getImages(@Auth UserInfo ui, @QueryParam("docker_image") String dockerImage) {
 		log.debug("Getting images for user " + ui.getName());
-		final List<ImageInfoRecord> images = imageExploratoryService.getCreatedImages(ui.getName(), dockerImage);
+		final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui.getName(), dockerImage);
 		return Response.ok(images).build();
 	}
 

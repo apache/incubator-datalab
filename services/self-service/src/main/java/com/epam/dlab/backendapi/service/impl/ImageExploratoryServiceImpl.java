@@ -116,8 +116,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	}
 
 	@Override
-	public List<ImageInfoRecord> getCreatedImages(String user, String dockerImage) {
-		return imageExploratoryDao.getImages(user, ImageStatus.CREATED, dockerImage);
+	public List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage) {
+		return imageExploratoryDao.getImages(user, dockerImage, ImageStatus.CREATED, ImageStatus.CREATING);
 	}
 
 	@Override

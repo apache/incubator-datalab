@@ -120,7 +120,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void getImages() {
-		when(imageExploratoryService.getCreatedImages(anyString(), anyString()))
+		when(imageExploratoryService.getNotFailedImages(anyString(), anyString()))
 				.thenReturn(getImageList());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
@@ -134,14 +134,14 @@ public class ImageExploratoryResourceTest extends TestBase {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getCreatedImages(USER.toLowerCase(), "someDockerImage");
+		verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
 	@Test
 	public void getImagesWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(imageExploratoryService.getCreatedImages(anyString(), anyString()))
+		when(imageExploratoryService.getNotFailedImages(anyString(), anyString()))
 				.thenReturn(getImageList());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
@@ -155,7 +155,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getCreatedImages(USER.toLowerCase(), "someDockerImage");
+		verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
