@@ -23,6 +23,7 @@ import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.util.Date;
 import java.util.List;
 
 public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatusDTO> {
@@ -32,6 +33,8 @@ public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatus
     private String computationalId;
     @JsonProperty("computational_name")
     private String computationalName;
+	@JsonProperty("last_activity")
+	private Date lastActivity;
     
     public String getComputationalId() {
         return computationalId;
@@ -62,6 +65,10 @@ public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatus
 		this.resourceUrl = resourceUrl;
 	}
 
+	public void setLastActivity(Date lastActivity) {
+		this.lastActivity = lastActivity;
+	}
+
 	public ComputationalStatusDTO withComputationalUrl(List<ResourceURL> resourceUrl) {
 		setResourceUrl(resourceUrl);
 		return this;
@@ -72,12 +79,22 @@ public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatus
         return this;
     }
 
+	public Date getLastActivity() {
+		return lastActivity;
+	}
+
+	public ComputationalStatusDTO withLastActivity(Date lastActivity) {
+		setLastActivity(lastActivity);
+		return this;
+	}
+
     @Override
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
-				.add("ComputationalUrl", resourceUrl)
+				.add("computationalUrl", resourceUrl)
     	        .add("computationalId", computationalId)
-    	        .add("computationalName", computationalName);
+				.add("computationalName", computationalName)
+				.add("lastActivity", lastActivity);
     }
     
     @Override

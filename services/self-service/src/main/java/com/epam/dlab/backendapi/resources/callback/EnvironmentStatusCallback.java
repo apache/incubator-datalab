@@ -16,8 +16,8 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.status.EnvStatusDTO;
@@ -41,7 +41,7 @@ import javax.ws.rs.core.Response;
 public class EnvironmentStatusCallback {
 
     @Inject
-    private EnvStatusDAO envDAO;
+	private EnvDAO envDAO;
 	@Inject
 	private RequestId requestId;
 

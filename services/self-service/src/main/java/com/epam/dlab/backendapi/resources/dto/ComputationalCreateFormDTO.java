@@ -49,4 +49,7 @@ public class ComputationalCreateFormDTO {
 	@JsonProperty
 	private Map<String, Object> config;
 
+	@JsonProperty("check_inactivity_required")
+	private boolean checkInactivityRequired = true;
+
 }

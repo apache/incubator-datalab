@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
@@ -42,7 +41,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -436,6 +437,34 @@ public class ExploratoryServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
+	@Test
+	public void getInstancesByComputationalIds() {
+		UserComputationalResource compResource1 = new UserComputationalResource();
+		compResource1.setImageName("YYYY.dataengine");
+		compResource1.setComputationalName("compName1");
+		compResource1.setStatus("stopped");
+		compResource1.setComputationalId("compId1");
+
+		UserComputationalResource compResource2 = new UserComputationalResource();
+		compResource2.setImageName("YYYY.dataengine");
+		compResource2.setComputationalName("compName2");
+		compResource2.setStatus("running");
+		compResource2.setComputationalId("compId2");
+
+		userInstance.setResources(Arrays.asList(compResource1, compResource2));
+		when(exploratoryDAO.getInstances()).thenReturn(Collections.singletonList(userInstance));
+
+		userInstance.setResources(Collections.singletonList(compResource1));
+		userInstance.setStatus(null);
+		List<UserInstanceDTO> expected = Collections.singletonList(userInstance);
+		List<UserInstanceDTO> actual = exploratoryService.getInstancesByComputationalIds(Collections.singletonList(
+				"compId1"));
+		assertEquals(actual, expected);
+
+		verify(exploratoryDAO).getInstances();
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
@@ -445,6 +474,7 @@ public class ExploratoryServiceImplTest {
 		compResource.setImageName("YYYY.dataengine");
 		compResource.setComputationalName("compName");
 		compResource.setStatus("stopped");
+		compResource.setComputationalId("compId");
 		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME).withStatus("running")
 				.withResources(Collections.singletonList(compResource));
 	}

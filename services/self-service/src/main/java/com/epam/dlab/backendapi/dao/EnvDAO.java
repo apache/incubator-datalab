@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -49,6 +50,7 @@ import java.util.stream.Stream;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
@@ -59,8 +61,8 @@ import static java.util.Objects.nonNull;
  * DAO for updates of the status of environment resources.
  */
 @Singleton
-public class EnvStatusDAO extends BaseDAO {
-	private static final Logger LOGGER = LoggerFactory.getLogger(EnvStatusDAO.class);
+public class EnvDAO extends BaseDAO {
+	private static final Logger LOGGER = LoggerFactory.getLogger(EnvDAO.class);
 
 	private static final String EDGE_PUBLIC_IP = "public_ip";
 	private static final String COMPUTATIONAL_STATUS = COMPUTATIONAL_RESOURCES + "." + STATUS;
@@ -76,7 +78,9 @@ public class EnvStatusDAO extends BaseDAO {
 			COMPUTATIONAL_RESOURCES + "." + ComputationalDAO.COMPUTATIONAL_NAME, COMPUTATIONAL_RESOURCES + "." +
 					INSTANCE_ID,
 			COMPUTATIONAL_STATUS, COMPUTATIONAL_RESOURCES + "." + IMAGE);
-	public static final String COMPUTATIONAL_NAME = "computational_name";
+	private static final String COMPUTATIONAL_NAME = "computational_name";
+	private static final String COMPUTATIONAL_ID = "computational_id";
+	private static final String LAST_ACTIVITY = "last_activity";
 
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
@@ -104,9 +108,27 @@ public class EnvStatusDAO extends BaseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<EnvResource> findRunningClustersForCheckInactivity() {
+		return stream(find(USER_INSTANCES))
+				.map(exp -> stream((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
+						.filter(doc -> UserInstanceStatus.of(doc.getString(STATUS)) == RUNNING &&
+								doc.getBoolean(CHECK_INACTIVITY_REQUIRED))
+						.map(doc -> toEnvResourceComputational(doc, RUNNING)))
+				.flatMap(Function.identity()).collect(Collectors.toList());
+	}
+
+	private EnvResource toEnvResourceComputational(Document computationalResource, UserInstanceStatus status) {
+		return new EnvResource()
+				.withId(computationalResource.getString(COMPUTATIONAL_ID))
+				.withName(computationalResource.getString(COMPUTATIONAL_NAME))
+				.withStatus(status.toString())
+				.withResourceType(ResourceType.COMPUTATIONAL)
+				.withLastActivity(computationalResource.getDate(LAST_ACTIVITY));
+	}
+
+	@SuppressWarnings("unchecked")
 	private void addComputationalResources(List<EnvResource> hostList, List<EnvResource> clusterList, Document exp,
-										   String
-												   exploratoryName) {
+										   String exploratoryName) {
 		((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
 				.forEach(comp -> addComputational(hostList, clusterList, exploratoryName, comp));
 	}

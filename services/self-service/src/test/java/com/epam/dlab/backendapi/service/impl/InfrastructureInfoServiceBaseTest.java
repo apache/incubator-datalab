@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
@@ -44,7 +44,7 @@ public class InfrastructureInfoServiceBaseTest {
 	private final String USER = "test";
 
 	@Mock
-	private EnvStatusDAO envDAO;
+	private EnvDAO envDAO;
 	@Mock
 	private ExploratoryDAO expDAO;
 	@Mock

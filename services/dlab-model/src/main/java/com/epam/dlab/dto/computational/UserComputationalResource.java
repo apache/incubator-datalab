@@ -51,6 +51,10 @@ public class UserComputationalResource {
 	private boolean reuploadKeyRequired = false;
 	@JsonProperty("computational_url")
 	private List<ResourceURL> resourceUrl;
+	@JsonProperty("last_activity")
+	private Date lastActivity;
+	@JsonProperty("check_inactivity_required")
+	private boolean checkInactivityRequired;
 	@JsonProperty("config")
 	private Map<String, Object> config;
 }

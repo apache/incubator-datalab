@@ -56,6 +56,7 @@ public class ComputationalDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_URL = "computational_url";
 	private static final String COMPUTATIONAL_URL_DESC = "description";
 	private static final String COMPUTATIONAL_URL_URL = "url";
+	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -249,6 +250,11 @@ public class ComputationalDAO extends BaseDAO {
 		} while (result.getModifiedCount() > 0);
 	}
 
+	public void updateLastActivityForCluster(String user, String exploratoryName, String computationalName,
+											 Date lastActivity) {
+		updateComputationalField(user, exploratoryName, computationalName, COMPUTATIONAL_LAST_ACTIVITY, lastActivity);
+	}
+
 	private Bson computationalFilter(String user, String exploratoryName, String computationalStatus, String
 			computationalImage, UserInstanceStatus[] excludedStatuses) {
 		final String[] statuses = Arrays.stream(excludedStatuses)
@@ -285,6 +291,9 @@ public class ComputationalDAO extends BaseDAO {
 			}
 			if (dto.getResourceUrl() != null && !dto.getResourceUrl().isEmpty()) {
 				values.append(computationalFieldFilter(COMPUTATIONAL_URL), getResourceUrlData(dto));
+			}
+			if (dto.getLastActivity() != null) {
+				values.append(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY), dto.getLastActivity());
 			}
 			return updateOne(USER_INSTANCES, and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
 					elemMatch(COMPUTATIONAL_RESOURCES,
@@ -351,6 +360,22 @@ public class ComputationalDAO extends BaseDAO {
 															  String computationalName, boolean
 																			reuploadKeyRequired) {
 		updateComputationalField(user, exploratoryName, computationalName, REUPLOAD_KEY_REQUIRED, reuploadKeyRequired);
+	}
+
+	/**
+	 * Updates the requirement for checking inactivity for single computational resource in Mongo database.
+	 *
+	 * @param user                    user name.
+	 * @param exploratoryName         exploratory's name.
+	 * @param computationalName       name of computational resource.
+	 * @param checkInactivityRequired true/false.
+	 */
+
+	public void updateCheckInactivityFlagForComputationalResource(String user, String exploratoryName,
+																  String computationalName,
+																  boolean checkInactivityRequired) {
+		updateComputationalField(user, exploratoryName, computationalName, CHECK_INACTIVITY_REQUIRED,
+				checkInactivityRequired);
 	}
 
 	/**

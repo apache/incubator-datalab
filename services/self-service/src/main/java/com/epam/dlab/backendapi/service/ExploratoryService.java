@@ -18,8 +18,8 @@ package com.epam.dlab.backendapi.service;
 
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.model.exloratory.Exploratory;
 
 import java.util.List;
@@ -44,4 +44,6 @@ public interface ExploratoryService {
 												   UserInstanceStatus computationalStatus);
 
 	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
+
+	List<UserInstanceDTO> getInstancesByComputationalIds(List<String> computationalIds);
 }

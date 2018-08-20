@@ -29,7 +29,8 @@ public enum DockerAction {
     GIT_CREDS,
     CREATE_IMAGE,
     STATUS,
-    REUPLOAD_KEY;
+	REUPLOAD_KEY,
+	CHECK_INACTIVITY;
 
     public static DockerAction of(String action) {
         if (action != null) {

@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
@@ -49,7 +49,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private static final String ERROR_MSG_FORMAT = "Can not %s environment because on of user resource is in status " +
 			"CREATING or STARTING";
 	@Inject
-	private EnvStatusDAO envStatusDAO;
+	private EnvDAO envDAO;
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 	@Inject
@@ -66,13 +66,13 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Override
 	public Set<String> getActiveUsers() {
 		log.debug("Getting users that have at least 1 running instance");
-		return envStatusDAO.fetchActiveEnvUsers();
+		return envDAO.fetchActiveEnvUsers();
 	}
 
 	@Override
 	public Set<String> getAllUsers() {
 		log.debug("Getting all users...");
-		return envStatusDAO.fetchAllUsers();
+		return envDAO.fetchAllUsers();
 	}
 
 	@Override

@@ -65,6 +65,7 @@ public class BaseDAO {
 	public static final String ERROR_MESSAGE = "error_message";
 	static final String TIMESTAMP = "timestamp";
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
+	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 
 	@Inject
 	protected MongoService mongoService;

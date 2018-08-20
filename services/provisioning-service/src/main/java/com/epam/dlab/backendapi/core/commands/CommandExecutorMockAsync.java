@@ -40,7 +40,6 @@ import com.google.common.io.Resources;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.MDC;
 
 import java.io.*;
 import java.net.URL;
@@ -134,6 +133,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 					case TERMINATE:
 					case GIT_CREDS:
 					case CREATE_IMAGE:
+					case CHECK_INACTIVITY:
 						action(user, action);
 						break;
 					case CONFIGURE:
@@ -169,8 +169,8 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			final String scriptName = StringUtils.substringBefore(Paths.get(parser.getCommand()).getFileName()
 					.toString(), ".");
 			String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + scriptName + JSON_FILE_ENDING;
-			responseFileName = getAbsolutePath(parser.getResponsePath(), scriptName + user + "_" + parser.getRequestId
-					() + JSON_FILE_ENDING);
+			responseFileName = getAbsolutePath(parser.getResponsePath(), scriptName + user + "_" +
+					parser.getRequestId() + JSON_FILE_ENDING);
 			setResponse(templateFileName, responseFileName);
 		}
 
@@ -189,8 +189,8 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			IOException {
 		File to = new File(getAbsolutePath(destinationFolder, destinationFileName));
 
-		try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream
-				(sourceFilePath);
+		try (InputStream inputStream =
+					 CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream(sourceFilePath);
 			 OutputStream outputStream = new FileOutputStream(to)) {
 			ByteStreams.copy(inputStream, outputStream);
 		}
@@ -294,12 +294,11 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		String resourceType = parser.getResourceType();
 
 		String prefixFileName = (Lists.newArrayList("edge", "dataengine", "dataengine-service").contains
-				(resourceType) ?
-				resourceType : "notebook") + "_";
-		String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString
-				() + JSON_FILE_ENDING;
-		responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId
-				() + JSON_FILE_ENDING);
+				(resourceType) ? resourceType : "notebook") + "_";
+		String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName +
+				action.toString() + JSON_FILE_ENDING;
+		responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" +
+				parser.getRequestId() + JSON_FILE_ENDING);
 		setResponse(templateFileName, responseFileName);
 	}
 

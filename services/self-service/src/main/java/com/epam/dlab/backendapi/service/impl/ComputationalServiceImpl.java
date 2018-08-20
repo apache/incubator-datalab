@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
@@ -25,16 +26,15 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.service.ComputationalService;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
-import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
-import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.computational.*;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -43,8 +43,13 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
@@ -75,6 +80,12 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Inject
 	private RequestId requestId;
+
+	@Inject
+	private SystemUserInfoService systemUserInfoService;
+
+	@Inject
+	private ExploratoryService exploratoryService;
 
 
 	@Override
@@ -221,6 +232,71 @@ public class ComputationalServiceImpl implements ComputationalService {
 		return Optional.empty();
 	}
 
+	@Override
+	public void stopClustersByCondition(CheckInactivityClusterStatusDTO dto) {
+		if (dto.getCheckInactivityClusterStatus() == CheckInactivityClusterStatus.COMPLETED &&
+				!dto.getClusters().isEmpty()) {
+			List<String> ids = getIds(dto.getClusters());
+			List<UserInstanceDTO> instances = exploratoryService.getInstancesByComputationalIds(ids);
+			instances.forEach(this::turnOffClustersAffiliatedWithExploratory);
+		}
+	}
+
+	@Override
+	public void updateLastActivityForClusters(CheckInactivityClusterStatusDTO dto) {
+		log.debug("Updating last activity date for clusters...");
+		List<String> ids = getIds(dto.getClusters());
+		List<UserInstanceDTO> instances = exploratoryService.getInstancesByComputationalIds(ids);
+		instances.forEach(this::updateLastActivityForClustersAffiliatedWithInstance);
+	}
+
+	@Override
+	public void updateCheckInactivityFlag(UserInfo userInfo, String exploratoryName, String computationalName,
+										  boolean checkInactivityRequired) {
+		computationalDAO.updateCheckInactivityFlagForComputationalResource(userInfo.getName(), exploratoryName,
+				computationalName, checkInactivityRequired);
+	}
+
+	private void updateLastActivityForClustersAffiliatedWithInstance(UserInstanceDTO ui) {
+		ui.getResources().forEach(cr -> updateLastActivityForCluster(ui.getUser(), ui.getExploratoryName(),
+				cr.getComputationalName(), cr.getLastActivity()));
+	}
+
+	private void updateLastActivityForCluster(String user, String exploratoryName, String computationalName,
+											  Date lastActivity) {
+		computationalDAO.updateLastActivityForCluster(user, exploratoryName, computationalName, lastActivity);
+	}
+
+	private void turnOffClustersAffiliatedWithExploratory(UserInstanceDTO ui) {
+		ui.getResources().forEach(cr ->
+				turnOffClustersByCondition(convertedToLocalDate(cr.getLastActivity()),
+						DataEngineType.fromDockerImageName(cr.getImageName()), ui.getUser(), ui.getExploratoryName(),
+						cr.getComputationalName()));
+	}
+
+	private LocalDateTime convertedToLocalDate(Date date) {
+		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
+
+	private List<String> getIds(List<EnvResource> resources) {
+		return resources.stream().map(EnvResource::getId).collect(Collectors.toList());
+	}
+
+	private void turnOffClustersByCondition(LocalDateTime lastActivityDate,
+											DataEngineType dataEngineType, String user,
+											String exploratoryName, String computationalName) {
+		LocalDateTime now = LocalDateTime.now();
+		if (lastActivityDate.plus(configuration.getClusterInactivityCheckingTimeout().toMinutes(),
+				ChronoUnit.MINUTES).isBefore(now)) {
+			UserInfo userInfo = systemUserInfoService.create(user);
+			if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
+				terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+			} else if (dataEngineType == DataEngineType.SPARK_STANDALONE) {
+				stopSparkCluster(userInfo, exploratoryName, computationalName);
+			}
+		}
+	}
+
 	private void sparkAction(UserInfo userInfo, String exploratoryName, String computationalName, UserInstanceStatus
 			compStatus, String provisioningEndpoint) {
 		final UserComputationalResource computationalResource = computationalDAO.fetchComputationalFields(userInfo
@@ -322,6 +398,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 				.dataEngineInstanceCount(form.getDataEngineInstanceCount())
 				.dataEngineInstanceShape(form.getDataEngineInstanceShape())
 				.config(form.getConfig())
+				.checkInactivityRequired(form.isCheckInactivityRequired())
 				.build();
 	}
 

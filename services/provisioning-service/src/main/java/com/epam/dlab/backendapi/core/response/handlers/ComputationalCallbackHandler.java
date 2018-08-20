@@ -32,8 +32,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -74,6 +76,7 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 			return baseStatus;
 		}
 		baseStatus.withComputationalUrl(extractUrl(resultNode));
+		baseStatus.withLastActivity(Date.from(Instant.now()));
 
 		if (DockerAction.CREATE == getAction()) {
 			baseStatus
