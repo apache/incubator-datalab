@@ -168,11 +168,15 @@ export class HealthStatusComponent implements OnInit {
 
   private getBackupStatus(result) {
     const uuid = result.text();
-    this.backupService.getBackupStatus(uuid).subscribe(status => {
-      if (!this.creatingBackup) {
-        this.toastr.success('Backup configuration completed!', 'Success!', { toastLife: 5000 });
-        clearInterval(this.clear);
-      }
+    this.backupService.getBackupStatus(uuid)
+        .subscribe((backupStatus: any) => {
+        if (!this.creatingBackup) {
+          debugger;
+          backupStatus.status === 'FAILED'
+          ? this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 })
+          : this.toastr.success('Backup configuration completed!', 'Success!', { toastLife: 5000 });
+          clearInterval(this.clear);
+        }
     }, error => {
       clearInterval(this.clear);
       this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 });
