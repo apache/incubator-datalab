@@ -154,7 +154,8 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
     const image = this.model.selectedItem.image;
     this.userResourceService.getUserImages(image)
       .subscribe((res: any) => {
-        this.userImages = res;
+        this.userImages = res.filter(el => el.status === 'CREATED');
+        
         this.changeDetector.detectChanges();
         this.setDefaultParams();
       });

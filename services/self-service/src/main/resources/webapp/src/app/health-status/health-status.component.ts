@@ -142,7 +142,7 @@ export class HealthStatusComponent implements OnInit {
   createBackup($event) {
     this.backupService.createBackup($event).subscribe(result => {
       this.getBackupStatus(result);
-      this.toastr.success('Backup configuration is processing!', 'Success!', { toastLife: 5000 });
+      this.toastr.success('Backup configuration is processing!', 'Processing!', { toastLife: 5000 });
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
     });
   }
@@ -168,11 +168,14 @@ export class HealthStatusComponent implements OnInit {
 
   private getBackupStatus(result) {
     const uuid = result.text();
-    this.backupService.getBackupStatus(uuid).subscribe(status => {
-      if (!this.creatingBackup) {
-        this.toastr.success('Backup configuration completed!', 'Success!', { toastLife: 5000 });
-        clearInterval(this.clear);
-      }
+    this.backupService.getBackupStatus(uuid)
+        .subscribe((backupStatus: any) => {
+        if (!this.creatingBackup) {
+          backupStatus.status === 'FAILED'
+          ? this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 })
+          : this.toastr.success('Backup configuration completed!', 'Success!', { toastLife: 5000 });
+          clearInterval(this.clear);
+        }
     }, error => {
       clearInterval(this.clear);
       this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 });
