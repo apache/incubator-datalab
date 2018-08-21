@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 public class NotebookConfig {
@@ -76,7 +75,7 @@ public class NotebookConfig {
 	private boolean imageTestRequired = false;
 
 	@JsonProperty("skipped_libraries")
-	private List<Lib> skippedLibraries = Collections.emptyList();
+	private List<Lib> skippedLibraries;
 
 	@JsonProperty("notebook_shape")
 	private String notebookShape = StringUtils.EMPTY;
@@ -173,6 +172,10 @@ public class NotebookConfig {
 
 	public void setImageTestRequired(boolean imageTestRequired) {
 		this.imageTestRequired = imageTestRequired;
+	}
+
+	public void setSkippedLibraries(List<Lib> skippedLibraries) {
+		this.skippedLibraries = skippedLibraries;
 	}
 
 

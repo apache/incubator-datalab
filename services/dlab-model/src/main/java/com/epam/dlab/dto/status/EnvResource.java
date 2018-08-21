@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.util.Date;
+
 /**
  * Describe the resource (host, cluster, storage) for check status in Cloud.
  */
@@ -35,6 +37,8 @@ public class EnvResource {
 	private String name;
 	@JsonProperty
 	private ResourceType resourceType;
+	@JsonProperty
+	private Date lastActivity;
 
 	/**
 	 * Return the id of resource. instanceId for host, clusterId for cluster, path for storage.
@@ -106,12 +110,26 @@ public class EnvResource {
 		this.resourceType = resourceType;
 	}
 
+	public Date getLastActivity() {
+		return lastActivity;
+	}
+
+	public void setLastActivity(Date lastActivity) {
+		this.lastActivity = lastActivity;
+	}
+
+	public EnvResource withLastActivity(Date lastActivity) {
+		setLastActivity(lastActivity);
+		return this;
+	}
+
 	public ToStringHelper toStringHelper(Object self) {
 		return MoreObjects.toStringHelper(self)
 				.add("id", id)
 				.add("status", status)
 				.add("name", name)
-				.add("resourceType", resourceType);
+				.add("resourceType", resourceType)
+				.add("lastActivity", lastActivity);
 	}
 
 	@Override

@@ -77,6 +77,7 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 	/**
 	 * Creates and returns the mock object for authentication service.
 	 */
+	@SuppressWarnings("unchecked")
 	private RESTService createAuthenticationService() {
 		return new RESTService() {
 			@Override

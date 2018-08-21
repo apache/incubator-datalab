@@ -31,6 +31,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.time.Instant;
+import java.util.Date;
+
 public class ComputationalConfigureCallbackHandler extends ResourceCallbackHandler<ComputationalStatusDTO> {
 
 	@JsonProperty
@@ -56,6 +59,7 @@ public class ComputationalConfigureCallbackHandler extends ResourceCallbackHandl
 		return baseStatus
 				.withExploratoryName(dto.getExploratoryName())
 				.withComputationalName(dto.getComputationalName())
-				.withUptime(null);
+				.withUptime(null)
+				.withLastActivity(Date.from(Instant.now()));
 	}
 }

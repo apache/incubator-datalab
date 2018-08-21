@@ -1,0 +1,21 @@
+{
+  "status": "ok",
+  "request_id": "${REQUEST_ID}",
+  "clusters": [
+    {
+      "id": "dev-test-dataengine-jup_1-sp_1",
+      "status": "running",
+      "name": "sp_1",
+      "resourceType": "COMPUTATIONAL",
+      "lastActivity": 1533652097582
+    },
+    {
+      "id": "dev-test-des-jup_1-emr_1-da3cd",
+      "status": "running",
+      "name": "emr_1",
+      "resourceType": "COMPUTATIONAL",
+      "lastActivity": 1533652114629
+    }
+  ]
+}
+

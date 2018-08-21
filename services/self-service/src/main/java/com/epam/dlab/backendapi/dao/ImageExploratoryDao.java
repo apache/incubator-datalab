@@ -34,7 +34,7 @@ public interface ImageExploratoryDao {
 
 	void updateImageFields(Image image);
 
-	List<ImageInfoRecord> getImages(String user, ImageStatus status, String dockerImage);
+	List<ImageInfoRecord> getImages(String user, String dockerImage, ImageStatus ... statuses);
 
 	Optional<ImageInfoRecord> getImage(String user, String name);
 

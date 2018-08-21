@@ -29,7 +29,7 @@ export class BackupService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
   set creatingBackup(data) {
-    this.inProgress = data.status !== 'CREATED';
+    this.inProgress = data.status !== 'CREATED' && data.status !== 'FAILED';
   }
 
   public createBackup(data): Observable<any> {

@@ -19,8 +19,10 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
@@ -29,11 +31,15 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,6 +48,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
+import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 
 @Slf4j
@@ -70,6 +77,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Inject
 	private SystemUserInfoService systemUserService;
+
+	@Inject
+	private EnvDAO envDAO;
+
+	@Inject
+	private RequestId requestId;
+
+	@Inject
+	@Named(PROVISIONING_SERVICE_NAME)
+	private RESTService provisioningService;
 
 	@Override
 	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
@@ -172,6 +189,18 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 					changeResourceStatusTo(UserInstanceStatus.TERMINATED, job, isAppliedForClusters));
 		}
 	}
+
+	@Override
+	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
+		List<EnvResource> runningClusters = envDAO.findRunningClustersForCheckInactivity();
+		if (!runningClusters.isEmpty()) {
+			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
+					userInfo.getAccessToken(), runningClusters, String.class);
+			requestId.put(userInfo.getName(), uuid);
+			return uuid;
+		} else return StringUtils.EMPTY;
+	}
+
 
 	/**
 	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.

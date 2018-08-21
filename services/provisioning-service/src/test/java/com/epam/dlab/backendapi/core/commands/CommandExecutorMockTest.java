@@ -200,7 +200,8 @@ public class CommandExecutorMockTest {
 						"\"conf_service_base_name\":\"usein1120v13\",\"conf_os_family\":\"debian\"," +
 						"\"exploratory_name\":\"useinxz1\",\"application\":\"zeppelin\",\"notebook_image\":\"docker" +
 						".dlab-zeppelin\"," +
-						"\"aws_notebook_instance_type\":\"t2.medium\",\"aws_security_groups_ids\":\"sg-4d42dc35\"}' |" +
+						"\"aws_notebook_instance_type\":\"t2.medium\",\"aws_security_groups_ids\":\"sg-4d42dc35\"}' " +
+						"|" +
 						" " +
 						"docker run -i --name user_create_exploratory_useinxz1_1487312574572 " +
 						"-v /home/ubuntu/keys:/root/keys " +
@@ -282,7 +283,8 @@ public class CommandExecutorMockTest {
 						"\"computational_name\":\"useine1\"," +
 						"\"emr_instance_count\":\"2\",\"emr_master_instance_type\":\"c4.large\"," +
 						"\"emr_slave_instance_type\":\"c4.large\"," +
-						"\"emr_version\":\"emr-5.2.0\",\"notebook_instance_name\":\"usein1122v3-user-nb-useinj1-1b198" +
+						"\"emr_version\":\"emr-5.2.0\",\"notebook_instance_name\":\"usein1122v3-user-nb-useinj1" +
+						"-1b198" +
 						"\"," +
 						"\"notebook_template_name\":\"Jupyter 1.5\"}' | " +
 						"docker run -i --name user_create_computational_useine1_1487653987822 " +

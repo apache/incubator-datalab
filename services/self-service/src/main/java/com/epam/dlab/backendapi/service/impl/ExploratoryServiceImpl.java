@@ -41,6 +41,8 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -158,6 +160,50 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			log.warn("User instance with exploratory name {} for user {} not found.", exploratoryName, user);
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Finds and returns the info about exploratories by IDs of its' clusters in database. List will contain
+	 * instances with unique computational resource corresponding to every ID.
+	 *
+	 * @param computationalIds list of computational IDs.
+	 **/
+	@Override
+	public List<UserInstanceDTO> getInstancesByComputationalIds(List<String> computationalIds) {
+		List<UserInstanceDTO> instances = exploratoryDAO.getInstances();
+		List<UserInstanceDTO> result = new ArrayList<>();
+		List<UserInstanceDTO> filterred = instances.stream().filter(instance -> !instance.getResources().isEmpty())
+				.collect(Collectors.toList());
+		filterred.forEach(ui -> matchInstanceWithComputationalIdsAndPopulateData(ui, computationalIds, result));
+		return result;
+	}
+
+	private void matchInstanceWithComputationalIdsAndPopulateData(UserInstanceDTO ui, List<String> ids,
+																  List<UserInstanceDTO> dataList) {
+		ids.forEach(id -> checkConditionAndPopulateList(id, ui, dataList));
+	}
+
+	private void checkConditionAndPopulateList(String id, UserInstanceDTO ui, List<UserInstanceDTO> dataList) {
+		if (containsCompResourceWithId(ui, id)) {
+			getComputationalById(ui.getResources(), id)
+					.ifPresent(cr -> dataList.add(getPopulatedInstance(ui, cr)));
+		}
+	}
+
+	private UserInstanceDTO getPopulatedInstance(UserInstanceDTO oldInstance, UserComputationalResource cr) {
+		return new UserInstanceDTO().withExploratoryName(oldInstance.getExploratoryName())
+				.withExploratoryId(oldInstance.getExploratoryId())
+				.withUser(oldInstance.getUser())
+				.withResources(Collections.singletonList(cr));
+	}
+
+	private boolean containsCompResourceWithId(UserInstanceDTO ui, String id) {
+		return ui.getResources().stream().anyMatch(cr -> cr.getComputationalId().equals(id));
+	}
+
+	private Optional<UserComputationalResource> getComputationalById(List<UserComputationalResource> compResources,
+																	 String id) {
+		return compResources.stream().filter(cr -> cr.getComputationalId().equals(id)).findAny();
 	}
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,

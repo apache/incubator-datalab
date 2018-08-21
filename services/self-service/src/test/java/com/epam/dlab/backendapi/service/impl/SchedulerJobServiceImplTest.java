@@ -19,16 +19,20 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
+import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,6 +72,12 @@ public class SchedulerJobServiceImplTest {
 	private ExploratoryServiceImpl exploratoryService;
 	@Mock
 	private ComputationalServiceImpl computationalService;
+	@Mock
+	private EnvDAO envDAO;
+	@Mock
+	private RESTService provisioningService;
+	@Mock
+	private RequestId requestId;
 
 	@InjectMocks
 	private SchedulerJobServiceImpl schedulerJobService;
@@ -706,6 +716,38 @@ public class SchedulerJobServiceImplTest {
 		verify(computationalService, never()).terminateComputationalEnvironment(any(), any(), any());
 		verifyNoMoreInteractions(schedulerJobDAO);
 		verifyZeroInteractions(exploratoryService);
+	}
+
+	@Test
+	public void executeCheckClusterInactivityJob() {
+		EnvResource resource = new EnvResource();
+		when(envDAO.findRunningClustersForCheckInactivity()).thenReturn(Collections.singletonList(resource));
+		when(provisioningService.post(anyString(), anyString(), anyListOf(EnvResource.class), any()))
+				.thenReturn("someUuid");
+		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
+
+		String expected = "someUuid";
+		String actual = schedulerJobService.executeCheckClusterInactivityJob(userInfo);
+		assertEquals(expected, actual);
+
+		verify(envDAO).findRunningClustersForCheckInactivity();
+		verify(provisioningService).post("/infrastructure/check_inactivity", "token",
+				Collections.singletonList(resource), String.class);
+		verify(requestId).put(USER, "someUuid");
+		verifyNoMoreInteractions(envDAO, provisioningService, requestId);
+	}
+
+	@Test
+	public void executeCheckClusterInactivityJobWithoutRunningClusters() {
+		when(envDAO.findRunningClustersForCheckInactivity()).thenReturn(Collections.emptyList());
+
+		String expected = "";
+		String actual = schedulerJobService.executeCheckClusterInactivityJob(userInfo);
+		assertEquals(expected, actual);
+
+		verify(envDAO).findRunningClustersForCheckInactivity();
+		verifyNoMoreInteractions(envDAO);
+		verifyZeroInteractions(provisioningService, requestId);
 	}
 
 	private UserInfo getUserInfo() {
