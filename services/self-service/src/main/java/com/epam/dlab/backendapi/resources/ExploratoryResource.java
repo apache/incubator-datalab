@@ -26,7 +26,7 @@ import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;

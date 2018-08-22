@@ -36,7 +36,7 @@ import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.ResourceType;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

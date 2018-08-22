@@ -85,5 +85,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(Client.class).toInstance(new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration())
 				.build(""));
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
+		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);
 	}
 }

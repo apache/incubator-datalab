@@ -32,7 +32,7 @@ import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import com.epam.dlab.model.library.Library;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;

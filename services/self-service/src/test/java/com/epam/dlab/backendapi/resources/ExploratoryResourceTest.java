@@ -21,7 +21,7 @@ import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;

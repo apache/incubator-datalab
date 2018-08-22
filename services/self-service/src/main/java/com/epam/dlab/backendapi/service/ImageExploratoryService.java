@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
-import com.epam.dlab.model.exloratory.Image;
+import com.epam.dlab.model.exploratory.Image;
 
 import java.util.List;
 
