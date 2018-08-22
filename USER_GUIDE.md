@@ -469,7 +469,7 @@ In the footer of billing report, you can see Total cost for all environments.
 --------------------------------
 # DLab Environment Management Page <a name="environment_management"></a>
 
-DLab Environment Management page is an administration page allowing admins to show the list of all users` environments and to stop/terminate all of hem of separate specific resource.
+DLab Environment Management page is an administration page allowing admins to show the list of all users` environments and to stop/terminate all of them of separate specific resource.
 
 To access Environment management page either navigate to it via main menu:
 
