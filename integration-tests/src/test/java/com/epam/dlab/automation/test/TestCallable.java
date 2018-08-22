@@ -211,7 +211,7 @@ public class TestCallable implements Callable<Boolean> {
 	} else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
 				Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate),
-						CloudHelper.getDockerTemplateFileForDES()).toString(),
+						CloudHelper.getDockerTemplateFileForDES(notebookConfig.isDesSpotRequired())).toString(),
 				CloudHelper.getDeployClusterClass());
     } else {
 		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
@@ -220,7 +220,8 @@ public class TestCallable implements Callable<Boolean> {
 
     clusterDto.setName(clusterName);
 		clusterDto.setNotebookName(notebookName);
-    LOGGER.info("{}: {} cluster = {}",notebookName,dataEngineType, clusterDto);
+		clusterDto = CloudHelper.populateDeployClusterDto(clusterDto, notebookConfig);
+		LOGGER.info("{}: {} cluster = {}", notebookName, dataEngineType, clusterDto);
     Response responseDeployingCluster = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON,
     		clusterDto, token);
 	LOGGER.info("{}:   responseDeployingCluster.getBody() is {}", notebookName,
@@ -277,6 +278,9 @@ public class TestCallable implements Callable<Boolean> {
 								notebookConfigurationFile).toString(), CreateNotebookDto.class);
 
 		createNoteBookRequest.setName(notebookName);
+		if (!StringUtils.isEmpty(notebookConfig.getNotebookShape())) {
+			createNoteBookRequest.setShape(notebookConfig.getNotebookShape());
+		}
 
 		if (StringUtils.isNotBlank(imageName)) {
 			final String ssnImageDataUrl =

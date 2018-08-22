@@ -27,6 +27,8 @@ import com.epam.dlab.automation.exceptions.CloudException;
 import com.epam.dlab.automation.model.DeployClusterDto;
 import com.epam.dlab.automation.model.DeployDataProcDto;
 import com.epam.dlab.automation.model.DeployEMRDto;
+import com.epam.dlab.automation.model.NotebookConfig;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -171,10 +173,10 @@ public class CloudHelper {
         }
     }
 
-    public static String getDockerTemplateFileForDES() {
+	public static String getDockerTemplateFileForDES(boolean isSpotRequired) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                return "EMR.json";
+				return isSpotRequired ? "EMR_spot.json" : "EMR.json";
             case CloudProvider.GCP_PROVIDER:
                 return "dataproc.json";
             default:
@@ -192,6 +194,22 @@ public class CloudHelper {
                 return null;
         }
     }
+
+	public static DeployClusterDto populateDeployClusterDto(DeployClusterDto deployClusterDto,
+															NotebookConfig nbConfig) {
+		if (nbConfig.getDataEngineType().equals(NamingHelper.DATA_ENGINE_SERVICE) &&
+				ConfigPropertyValue.getCloudProvider().equals(CloudProvider.AWS_PROVIDER)) {
+			DeployEMRDto emrDto = (DeployEMRDto) deployClusterDto;
+			if (!StringUtils.isEmpty(nbConfig.getDesVersion())) {
+				emrDto.setEmrVersion(nbConfig.getDesVersion());
+			}
+			if (nbConfig.isDesSpotRequired() && nbConfig.getDesSpotPrice() > 0) {
+				emrDto.setEmrSlaveInstanceSpot(nbConfig.isDesSpotRequired());
+				emrDto.setEmrSlaveInstanceSpotPctPrice(nbConfig.getDesSpotPrice());
+			}
+			return emrDto;
+		} else return deployClusterDto;
+	}
 
 	static String getGcpDataprocClusterName(String gcpDataprocMasterNodeName) {
         return gcpDataprocMasterNodeName != null ?
