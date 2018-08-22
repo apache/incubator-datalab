@@ -176,8 +176,7 @@ public class CloudHelper {
 	public static String getDockerTemplateFileForDES(boolean isSpotRequired) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-				if (isSpotRequired) return "EMR_spot.json";
-				else return "EMR.json";
+				return isSpotRequired ? "EMR_spot.json" : "EMR.json";
             case CloudProvider.GCP_PROVIDER:
                 return "dataproc.json";
             default:
