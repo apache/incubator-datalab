@@ -23,10 +23,12 @@ import com.epam.dlab.model.systeminfo.OsInfo;
 import com.epam.dlab.model.systeminfo.ProcessorInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.List;
 
 @AllArgsConstructor
+@Getter
 public class SystemInfoDto {
 
 	@JsonProperty

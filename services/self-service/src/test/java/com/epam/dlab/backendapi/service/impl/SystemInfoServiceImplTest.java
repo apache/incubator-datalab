@@ -19,38 +19,33 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.resources.dto.SystemInfoDto;
-import com.epam.dlab.model.systeminfo.DiskInfo;
-import com.epam.dlab.model.systeminfo.MemoryInfo;
-import com.epam.dlab.model.systeminfo.OsInfo;
-import com.epam.dlab.model.systeminfo.ProcessorInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
-import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
-import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
+import oshi.software.os.OperatingSystemVersion;
 import oshi.software.os.linux.LinuxOperatingSystem;
-import oshi.software.os.mac.MacOperatingSystem;
-import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
-import oshi.software.os.windows.WindowsOperatingSystem;
 
-import java.lang.reflect.Field;
-import java.util.Collections;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SystemInfoServiceImplTest {
 
+	private static final String OS_VERSION = "OS version";
+	private static final String OS_FAMILY = "OS FAMILY";
+	private static final String BUILD_NUMBER = "BUILD 1.0";
+	private static final String PROCESSOR_MODEL = "Proc model";
+	private static final long AVAILABLE_MEMORY = 100L;
 	@Mock
 	private SystemInfo si;
 
@@ -58,71 +53,44 @@ public class SystemInfoServiceImplTest {
 	private SystemInfoServiceImpl systemInfoService;
 
 	@Test
-	public void getSystemInfo() throws NoSuchFieldException, IllegalAccessException {
-		String osName = System.getProperty("os.name");
-		OperatingSystem os = getOs(osName);
-		HardwareAbstractionLayer hal = getHal(osName);
+	public void getSystemInfo() {
+		final OperatingSystem os = mock(OperatingSystem.class);
+		final HardwareAbstractionLayer hardwareAbstractionLayer = mock(HardwareAbstractionLayer.class);
+		final OperatingSystemVersion operatingSystemVersion = mock(OperatingSystemVersion.class);
+		final CentralProcessor centralProcessor = mock(CentralProcessor.class);
+		final GlobalMemory globalMemory = mock(GlobalMemory.class);
+		when(operatingSystemVersion.getVersion()).thenReturn(OS_VERSION);
+		when(operatingSystemVersion.getBuildNumber()).thenReturn(BUILD_NUMBER);
+		when(hardwareAbstractionLayer.getDiskStores()).thenReturn(new HWDiskStore[]{});
+		when(os.getFamily()).thenReturn(OS_FAMILY);
+		when(os.getVersion()).thenReturn(operatingSystemVersion);
 		when(si.getOperatingSystem()).thenReturn(os);
-		when(si.getHardware()).thenReturn(hal);
+		when(globalMemory.getAvailable()).thenReturn(AVAILABLE_MEMORY);
+		when(hardwareAbstractionLayer.getMemory()).thenReturn(globalMemory);
+		when(centralProcessor.getModel()).thenReturn(PROCESSOR_MODEL);
+		when(hardwareAbstractionLayer.getProcessor()).thenReturn(centralProcessor);
 
-		OsInfo osInfo = OsInfo.builder()
-				.family(osName)
-				.buildNumber(System.getProperty("os.version"))
-				.build();
-		ProcessorInfo processorInfo = ProcessorInfo.builder().build();
-		MemoryInfo memoryInfo = MemoryInfo.builder().build();
-		DiskInfo diskInfo = DiskInfo.builder().build();
-		SystemInfoDto similarObject = new SystemInfoDto(osInfo, processorInfo, memoryInfo,
-				Collections.singletonList(diskInfo));
+		when(si.getHardware()).thenReturn(hardwareAbstractionLayer);
 
-		SystemInfoDto actualObject = systemInfoService.getSystemInfo();
+		SystemInfoDto systemInfo = systemInfoService.getSystemInfo();
 
-		assertTrue(haveSystemInfoObjectsSimilarOsFields(similarObject, actualObject));
+		assertEquals(BUILD_NUMBER, systemInfo.getOsInfo().getBuildNumber());
+		assertEquals(OS_VERSION, systemInfo.getOsInfo().getVersion());
+		assertEquals(OS_FAMILY, systemInfo.getOsInfo().getFamily());
+		assertEquals(PROCESSOR_MODEL, systemInfo.getProcessorInfo().getModel());
+		assertEquals(AVAILABLE_MEMORY, systemInfo.getMemoryInfo().getAvailableMemory());
+		assertTrue(systemInfo.getDisksInfo().isEmpty());
 
 		verify(si).getOperatingSystem();
 		verify(si).getHardware();
 		verifyNoMoreInteractions(si);
 	}
 
-	private OperatingSystem getOs(String osName) {
-		if (osName.toLowerCase().contains("windows")) return new WindowsOperatingSystem();
-		else if (osName.toLowerCase().contains("linux")) return new LinuxOperatingSystem();
-		else if (osName.toLowerCase().contains("freebsd")) return new FreeBsdOperatingSystem();
-		else if (osName.toLowerCase().contains("mac")) return new MacOperatingSystem();
-		else return new SolarisOperatingSystem();
+	private OperatingSystem getOs() {
+		return new LinuxOperatingSystem();
 	}
 
-	private HardwareAbstractionLayer getHal(String osName) {
-		if (osName.toLowerCase().contains("windows")) return new WindowsHardwareAbstractionLayer();
-		else if (osName.toLowerCase().contains("linux")) return new LinuxHardwareAbstractionLayer();
-		else if (osName.toLowerCase().contains("freebsd")) return new FreeBsdHardwareAbstractionLayer();
-		else if (osName.toLowerCase().contains("mac")) return new MacHardwareAbstractionLayer();
-		else return new SolarisHardwareAbstractionLayer();
-	}
-
-	private boolean haveSystemInfoObjectsSimilarOsFields(SystemInfoDto object1, SystemInfoDto object2) throws
-			NoSuchFieldException, IllegalAccessException {
-		Field osInfo1 = object1.getClass().getDeclaredField("osInfo");
-		osInfo1.setAccessible(true);
-		OsInfo osInfoObject1 = (OsInfo) osInfo1.get(object1);
-
-		Field osInfo2 = object2.getClass().getDeclaredField("osInfo");
-		osInfo2.setAccessible(true);
-		OsInfo osInfoObject2 = (OsInfo) osInfo2.get(object2);
-
-		Field family1 = osInfoObject1.getClass().getDeclaredField("family");
-		family1.setAccessible(true);
-
-		Field family2 = osInfoObject2.getClass().getDeclaredField("family");
-		family2.setAccessible(true);
-
-		Field buildNumber1 = osInfoObject1.getClass().getDeclaredField("buildNumber");
-		buildNumber1.setAccessible(true);
-
-		Field buildNumber2 = osInfoObject2.getClass().getDeclaredField("buildNumber");
-		buildNumber2.setAccessible(true);
-
-		return family2.get(osInfoObject2).toString().contains(family1.get(osInfoObject1).toString())
-				&& buildNumber1.get(osInfoObject1).equals(buildNumber2.get(osInfoObject2));
+	private HardwareAbstractionLayer getHal() {
+		return new LinuxHardwareAbstractionLayer();
 	}
 }
