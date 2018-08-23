@@ -23,6 +23,7 @@ import com.epam.dlab.model.systeminfo.DiskInfo;
 import com.epam.dlab.model.systeminfo.MemoryInfo;
 import com.epam.dlab.model.systeminfo.OsInfo;
 import com.epam.dlab.model.systeminfo.ProcessorInfo;
+import com.google.inject.Inject;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -36,9 +37,11 @@ import java.util.stream.Collectors;
 
 public class SystemInfoServiceImpl implements SystemInfoService {
 
+	@Inject
+	private SystemInfo si;
+
 	@Override
 	public SystemInfoDto getSystemInfo() {
-		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
 		return new SystemInfoDto(getOsInfo(si.getOperatingSystem()), getProcessorInfo(hal), getMemoryInfo(hal),
 				getDiskInfoList(hal));

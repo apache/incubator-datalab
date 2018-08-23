@@ -37,11 +37,16 @@ import javax.ws.rs.core.Response;
 @RolesAllowed("sysinfo")
 public class SystemInfoResource {
 
-	@Inject
 	private SystemInfoService systemInfoService;
 
+	@Inject
+	public SystemInfoResource(SystemInfoService systemInfoService) {
+		this.systemInfoService = systemInfoService;
+	}
+
+
 	@GET
-	public Response displaySystemInfo(@Auth UserInfo userInfo) {
+	public Response getSystemInfo(@Auth UserInfo userInfo) {
 		log.debug("Getting system info for user {}...", userInfo.getName());
 		final SystemInfoDto systemInfoDto = systemInfoService.getSystemInfo();
 		return Response.ok(systemInfoDto).build();
