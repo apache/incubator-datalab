@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     all_pkgs = dict()
     all_pkgs['os_pkg'] = get_available_os_pkgs()
-    all_pkgs['java'] = {}
+    #all_pkgs['java'] = {}
 
     if os.environ['application'] in ('jupyter', 'zeppelin', 'deeplearning', 'tensor', 'tensor-rstudio', 'rstudio'):
         all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
