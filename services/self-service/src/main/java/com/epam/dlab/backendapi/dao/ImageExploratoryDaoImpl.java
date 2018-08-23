@@ -20,7 +20,7 @@ import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.model.ResourceType;
-import com.epam.dlab.model.exloratory.Image;
+import com.epam.dlab.model.exploratory.Image;
 import com.epam.dlab.model.library.Library;
 import com.google.inject.Singleton;
 import org.bson.Document;

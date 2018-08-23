@@ -22,7 +22,7 @@ import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ImageCreateStatusDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
-import com.epam.dlab.model.exloratory.Image;
+import com.epam.dlab.model.exploratory.Image;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;

@@ -31,7 +31,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceAlreadyExistException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.ResourceType;
-import com.epam.dlab.model.exloratory.Image;
+import com.epam.dlab.model.exploratory.Image;
 import com.epam.dlab.model.library.Library;
 import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
