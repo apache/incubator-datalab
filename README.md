@@ -136,11 +136,13 @@ The next step is setting up a Notebook node (or a Notebook server). It is a serv
 
 -   Jupyter
 -   RStudio
--   Zeppelin
+-   Apache Zeppelin
 -   TensorFlow + Jupyter
 -   Deep Learning + Jupyter
 
 Apache Spark is also installed for each of the analytical tools above.
+
+**Note:** terms 'Apache Zeppelin' and 'Apache Spark' hereinafter may be referred to as 'Zeppelin' and 'Spark' respectively or may have original reference.
 
 ## Data engine cluster
 

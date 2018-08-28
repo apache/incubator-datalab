@@ -24,7 +24,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Deploy Computational resource](#computational_deploy)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Stop Spark cluster](#spark_stop)
+&nbsp; &nbsp; &nbsp; &nbsp; [Stop Apache Spark cluster](#spark_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Computational resource](#computational_terminate)
 
@@ -102,10 +102,12 @@ To create new analytical environment from “List of Resources” page click on 
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
 -   Jupyter
--   Zeppelin
+-   Apache Zeppelin
 -   RStudio
 -   TensorFlow (Jupyter + TensorFlow)
 -   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
+
+**Note:** terms 'Apache Zeppelin' and 'Apache Spark' hereinafter may be referred to as 'Zeppelin' and 'Spark' respectively or may have original reference.
 
 <p align="center"> 
     <img src="doc/notebook_create.png" alt="Create notebook" width="480">
