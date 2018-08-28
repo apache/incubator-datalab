@@ -374,9 +374,9 @@ if __name__ == "__main__":
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine",
                    "computational_url": [
-                       {"description": "SPARK Master",
+                       {"description": "Apache Spark Master",
                         "url": spark_master_acces_url},
-                       #{"description": "SPARK Master (via tunnel)",
+                       #{"description": "Apache Spark Master (via tunnel)",
                         #"url": spark_master_url}
                    ]}
             print(json.dumps(res))

@@ -209,7 +209,7 @@ if __name__ == "__main__":
                "notebook_name": notebook_config['instance_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
-                   {"description": "Zeppelin",
+                   {"description": "Apache Zeppelin",
                     "url": zeppelin_ip_url},
                    {"description": "Ungit",
                     "url": ungit_ip_url}]}
