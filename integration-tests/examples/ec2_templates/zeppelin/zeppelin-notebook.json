@@ -3,5 +3,5 @@
   "name" : "set the name",
   "shape" : "t2.medium",
   "version" : "zeppelin-0.7.0",
-  "template_name" : "Zeppelin 0.7.0"
+  "template_name": "Apache Zeppelin 0.7.0"
 }

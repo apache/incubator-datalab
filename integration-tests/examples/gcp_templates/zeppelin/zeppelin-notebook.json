@@ -3,5 +3,5 @@
   "name" : "set the name",
   "shape" : "n1-standard-2",
   "version" : "zeppelin-0.7.2",
-  "template_name" : "Zeppelin 0.7.2"
+  "template_name": "Apache Zeppelin 0.7.2"
 }
