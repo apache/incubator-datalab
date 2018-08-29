@@ -96,6 +96,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
 		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);
+		bind(UserRolesService.class).to(UserRolesServiceImpl.class);
 	}
 
 	/**

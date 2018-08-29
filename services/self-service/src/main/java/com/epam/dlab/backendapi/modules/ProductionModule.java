@@ -86,5 +86,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 				.build(""));
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
 		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);
+		bind(UserRolesService.class).to(UserRolesServiceImpl.class);
 	}
 }

@@ -133,6 +133,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(ReuploadKeyCallback.class));
 		jersey.register(injector.getInstance(CheckInactiveClusterCallback.class));
 		jersey.register(injector.getInstance(SystemInfoResource.class));
+		jersey.register(injector.getInstance(UserRolesResource.class));
 	}
 
 	private void applyMongoMigration(SelfServiceApplicationConfiguration configuration) {

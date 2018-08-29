@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -203,6 +204,22 @@ public class BaseDAO {
 	}
 
 	/**
+	 * Removes single document in the collection by condition.
+	 *
+	 * @param collection collection name.
+	 * @param condition  condition for search documents in collection.
+	 */
+	protected DeleteResult deleteOne(String collection, Bson condition) {
+		try {
+			return mongoService.getCollection(collection)
+					.deleteOne(condition);
+		} catch (MongoException e) {
+			LOGGER.warn("Removing document from Mongo DB fails: {}", e.getLocalizedMessage(), e);
+			throw new DlabException("Removing document from Mongo DB fails: " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	/**
 	 * Finds and returns all documents from the collection.
 	 *
 	 * @param collection collection name.
@@ -220,6 +237,20 @@ public class BaseDAO {
 	protected FindIterable<Document> find(String collection, Bson condition) {
 		return mongoService.getCollection(collection)
 				.find(condition);
+	}
+
+	/**
+	 * Finds and returns all documents from the collection converted to resulted type.
+	 *
+	 * @param collection    collection name.
+	 * @param resultedClass type of class for deserialization.
+	 */
+	protected <T> List<T> find(String collection, Class<T> resultedClass) {
+		return find(collection)
+				.into(new ArrayList<>())
+				.stream()
+				.map(d -> convertFromDocument(d, resultedClass))
+				.collect(Collectors.toList());
 	}
 
 	/**
