@@ -346,7 +346,8 @@
     "description": "Allow to execute administration operation operation",
     "pages": [
       "environment/*",
-      "/api/infrastructure/backup"
+      "/api/infrastructure/backup",
+      "roles"
     ],
     "groups": [
       "$anyuser"
