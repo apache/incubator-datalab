@@ -20,12 +20,19 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserRolesService {
 
 	List<UserRoleDto> getUserRoles();
 
-	void createOrUpdateRole(UserRoleDto dto);
+	void createRole(UserRoleDto dto);
 
-	void removeRoleIfExists(String roleId, String user);
+	void updateRole(UserRoleDto dto);
+
+	void removeRole(String roleId, String user);
+
+	void assignRolesForUser(String userName, Set<String> roleIds);
+
+	void assignRolesForGroup(String groupName, Set<String> roleIds);
 }

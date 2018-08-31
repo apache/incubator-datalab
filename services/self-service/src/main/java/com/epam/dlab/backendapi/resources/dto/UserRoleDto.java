@@ -17,18 +17,18 @@
  */
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.util.Set;
 
-@Builder
 @Getter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRoleDto {
 
 	@JsonProperty("_id")
