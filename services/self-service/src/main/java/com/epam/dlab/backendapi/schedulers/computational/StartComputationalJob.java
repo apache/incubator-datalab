@@ -36,6 +36,6 @@ public class StartComputationalJob implements Job {
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.executeStartResourceJob(true);
+		schedulerJobService.startComputationalByScheduler();
 	}
 }

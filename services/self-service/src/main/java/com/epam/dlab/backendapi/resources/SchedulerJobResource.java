@@ -19,6 +19,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
+import com.epam.dlab.backendapi.validation.annotation.SchedulerJobDTOValid;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -57,7 +58,7 @@ public class SchedulerJobResource {
 	@Path("/{exploratoryName}")
 	public Response updateExploratoryScheduler(@Auth UserInfo userInfo,
 											   @PathParam("exploratoryName") String exploratoryName,
-											   SchedulerJobDTO dto) {
+											   @SchedulerJobDTOValid SchedulerJobDTO dto) {
 		schedulerJobService.updateExploratorySchedulerData(userInfo.getName(), exploratoryName, dto);
 		return Response.ok().build();
 	}
@@ -74,10 +75,10 @@ public class SchedulerJobResource {
 	 */
 	@POST
 	@Path("/{exploratoryName}/{computationalName}")
-	public Response upsertComputationalScheduler(@Auth UserInfo userInfo,
+	public Response updateComputationalScheduler(@Auth UserInfo userInfo,
 												 @PathParam("exploratoryName") String exploratoryName,
 												 @PathParam("computationalName") String computationalName,
-												 SchedulerJobDTO dto) {
+												 @SchedulerJobDTOValid SchedulerJobDTO dto) {
 		schedulerJobService.updateComputationalSchedulerData(userInfo.getName(), exploratoryName,
 				computationalName, dto);
 		return Response.ok().build();
@@ -115,7 +116,7 @@ public class SchedulerJobResource {
 	public Response fetchSchedulerJobForComputationalResource(@Auth UserInfo userInfo,
 															  @PathParam("exploratoryName") String exploratoryName,
 															  @PathParam("computationalName") String
-																		  computationalName) {
+																	  computationalName) {
 		log.debug("Loading scheduler job for user {}, exploratory {} and computational resource {}...",
 				userInfo.getName(), exploratoryName, computationalName);
 		final SchedulerJobDTO schedulerJob = schedulerJobService

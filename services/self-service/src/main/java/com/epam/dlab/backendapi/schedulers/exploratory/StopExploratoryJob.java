@@ -36,7 +36,7 @@ public class StopExploratoryJob implements Job {
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.executeStopResourceJob(false);
+		schedulerJobService.stopExploratoryByScheduler();
 	}
 
 }
