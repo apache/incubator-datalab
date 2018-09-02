@@ -448,20 +448,15 @@ if __name__ == "__main__":
         cluster_id = build_emr_cluster(args)
         out.write('Cluster ID: {}\n'.format(cluster_id))
         if args.slave_instance_spot == 'True':
-            time.sleep(420)
+            time.sleep(300)
             spot_instances_status = get_spot_instances_status(cluster_id)
             bool_, code, message = spot_instances_status
             if bool_:
-                print("Spot instances status: {}, Message:{}".format(code,
-                                                                     message))
+                print("Spot instances status: {}, Message:{}".format(code, message))
             else:
                 print("SPOT REQUEST WASN'T FULFILLED, BECAUSE: "
-                      "STATUS CODE IS {}, MESSAGE IS {}".format(code,
-                                                                message))
-                append_result("Error with Spot request. "
-                              "Status code: {}, "
-                              "Message: {}".format(code,
-                                                   message))
+                      "STATUS CODE IS {}, MESSAGE IS {}".format(code, message))
+                append_result("Error with Spot request. Status code: {}, Message: {}".format(code, message))
                 sys.exit(1)
         if wait_emr(args.s3_bucket, args.name, args.emr_timeout):
             # Append Cluster's SGs to the Notebook server to grant access
