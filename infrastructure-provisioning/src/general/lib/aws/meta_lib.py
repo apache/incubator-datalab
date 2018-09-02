@@ -778,12 +778,12 @@ def get_spot_instances_status(cluster_id):
     try:
         ec2 = boto3.client('ec2')
         emr = boto3.client('emr')
-        ec2Ids = emr.list_instances(ClusterId=cluster_id).get('Instances')
-        idsList = []
-        for ins in ec2Ids:
-            idsList.append(ins.get('Ec2InstanceId'))
+        ec2_ids = emr.list_instances(ClusterId=cluster_id).get('Instances')
+        ids_list = []
+        for ins in ec2_ids:
+            ids_list.append(ins.get('Ec2InstanceId'))
         response = ec2.describe_spot_instance_requests(Filters=[
-            {'Name': 'instance-id', 'Values': idsList}]).get('SpotInstanceRequests')
+            {'Name': 'instance-id', 'Values': ids_list}]).get('SpotInstanceRequests')
         if response:
             for i in response:
                 if i.get('Status').get('Code') != 'fulfilled':
