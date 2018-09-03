@@ -131,6 +131,7 @@ server:
     - type: https
       port: 8090
       certAlias: dlab
+      validateCerts: true
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
       trustStorePath: ${TRUST_STORE_PATH}
@@ -139,6 +140,7 @@ server:
     - type: https
       port: 8091
       certAlias: dlab
+      validateCerts: true
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
       trustStorePath: ${TRUST_STORE_PATH}
