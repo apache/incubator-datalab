@@ -36,10 +36,15 @@
 ## Known issues in v2.0
 **All Cloud platforms:**
 - remote kernel list for Data Engine is not updated after stop/start Data Engine
+- following links can be opened via tunnel for Data Engine/Data Engine: service: worker/application ID, application detail UI, event timeline, logs for Data Engine
+
+**AWS**
+- can not open master application URL on resource manager page, issue known for Data Engine Service v.5.12.0
 
 **GCP:**
 - storage permissions aren't differentiated by users via Dataproc permissions (all users have R/W access to other users buckets)
-- data engine service creation is failing after environment has been recreated
+- Data Engine Service creation is failing after environment has been recreated
+- It is temporarily not possible to run playbooks using remote kernel of Data Engine (dependencies issue)
 
 **Microsoft Azure:**
 - creation of Zeppelin from custom image fails on the step when cluster kernels are removing
