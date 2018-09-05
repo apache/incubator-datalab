@@ -16,8 +16,7 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -27,6 +26,7 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
@@ -41,8 +41,8 @@ import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.UserInstanceStatus.*;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
+import static com.epam.dlab.dto.UserInstanceStatus.*;
 
 @Slf4j
 @Singleton
@@ -69,7 +69,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private ComputationalService computationalService;
 
 	@Inject
-	private SystemUserInfoServiceImpl systemUserService;
+	private SystemUserInfoService systemUserService;
 
 	@Override
 	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
@@ -175,6 +175,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	/**
 	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.
+	 * All these clusters will obtain data which is equal to exploratory's except 'stopping' operation (it will be
+	 * performed automatically with notebook stopping since Spark clusters have such feature).
 	 *
 	 * @param user            user's name
 	 * @param exploratoryName name of exploratory resource
@@ -182,14 +184,17 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	 */
 	private void shareSchedulerJobDataToSparkClusters(String user, String exploratoryName, SchedulerJobDTO dto) {
 		List<String> correspondingSparkClusters = computationalDAO.getComputationalResourcesWhereStatusIn(user,
-				DataEngineType.SPARK_STANDALONE, exploratoryName, STARTING, RUNNING, STOPPING, STOPPED);
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), exploratoryName,
+				STARTING, RUNNING, STOPPING, STOPPED);
+		SchedulerJobDTO dtoWithoutStopData = getSchedulerJobWithoutStopData(dto);
 		for (String sparkName : correspondingSparkClusters) {
 			log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new " +
-					"scheduler job data {}...", sparkName, exploratoryName, user, nullableJobDto(dto));
+					"scheduler job data {}...", sparkName, exploratoryName, user, nullableJobDto(dtoWithoutStopData));
 			computationalDAO.updateSchedulerDataForComputationalResource(user, exploratoryName, sparkName,
-					nullableJobDto(dto));
+					nullableJobDto(dtoWithoutStopData));
 		}
 	}
+
 
 	/**
 	 * Pulls out scheduler jobs data to achieve target exploratory ('isAppliedForClusters' equals 'false') or
@@ -294,14 +299,14 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			return Collections.emptyList();
 		}
 		return computationalDAO.getComputationalResourcesWhereStatusIn(user,
-				DataEngineType.SPARK_STANDALONE, exploratoryName, STOPPED).stream()
+				Collections.singletonList(DataEngineType.SPARK_STANDALONE), exploratoryName, STOPPED).stream()
 				.filter(clusterName -> isClusterSchedulerPresentAndEqualToAnotherForSyncStarting(user, exploratoryName,
 						clusterName, schedulerJobForExploratory.get())).collect(Collectors.toList());
 	}
 
 	private boolean isClusterSchedulerPresentAndEqualToAnotherForSyncStarting(String user, String exploratoryName,
-																			  String clusterName, SchedulerJobDTO
-																					  dto) {
+																			  String clusterName,
+																			  SchedulerJobDTO dto) {
 		Optional<SchedulerJobDTO> schedulerJobForCluster =
 				schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, exploratoryName, clusterName);
 		return schedulerJobForCluster.isPresent() &&
@@ -318,7 +323,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		return !Objects.isNull(notebookScheduler) && !Objects.isNull(clusterScheduler) &&
 				notebookScheduler.getBeginDate().equals(clusterScheduler.getBeginDate()) &&
 				notebookScheduler.getStartTime().equals(clusterScheduler.getStartTime()) &&
-				areCollectionsEqual(notebookScheduler.getDaysRepeat(), clusterScheduler.getDaysRepeat())
+				areCollectionsEqual(notebookScheduler.getStartDaysRepeat(), clusterScheduler.getStartDaysRepeat())
 				&& notebookScheduler.getTimeZoneOffset().equals(clusterScheduler.getTimeZoneOffset()) &&
 				notebookScheduler.isSyncStartRequired() && clusterScheduler.isSyncStartRequired();
 	}
@@ -388,8 +393,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus)) :
 				!convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
 						&& isFinishDateMatchesCondition(dto, convertedDateTime)
-						&& dto.getDaysRepeat().contains(convertedDateTime.toLocalDate().getDayOfWeek())
+						&& getDaysRepeat(dto, desiredStatus).contains(convertedDateTime.toLocalDate().getDayOfWeek())
 						&& convertedDateTime.toLocalTime().equals(getDesiredTime(dto, desiredStatus));
+	}
+
+	private List<DayOfWeek> getDaysRepeat(SchedulerJobDTO dto, UserInstanceStatus desiredStatus) {
+		if (desiredStatus == RUNNING) {
+			return dto.getStartDaysRepeat();
+		} else if (desiredStatus == STOPPED) {
+			return dto.getStopDaysRepeat();
+		} else return Collections.emptyList();
 	}
 
 	private boolean isFinishDateMatchesCondition(SchedulerJobDTO dto, LocalDateTime currentDateTime) {
@@ -406,8 +419,21 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		} else return null;
 	}
 
+	private SchedulerJobDTO getSchedulerJobWithoutStopData(SchedulerJobDTO dto) {
+		SchedulerJobDTO convertedDto = new SchedulerJobDTO();
+		convertedDto.setBeginDate(dto.getBeginDate());
+		convertedDto.setFinishDate(dto.getFinishDate());
+		convertedDto.setStartTime(dto.getStartTime());
+		convertedDto.setStartDaysRepeat(dto.getStartDaysRepeat());
+		convertedDto.setTerminateDateTime(dto.getTerminateDateTime());
+		convertedDto.setTimeZoneOffset(dto.getTimeZoneOffset());
+		convertedDto.setSyncStartRequired(dto.isSyncStartRequired());
+		return convertedDto;
+	}
+
 	private SchedulerJobDTO nullableJobDto(SchedulerJobDTO dto) {
-		return Objects.isNull(dto.getDaysRepeat()) || dto.getDaysRepeat().isEmpty() ? null : dto;
+		return (Objects.isNull(dto.getStartDaysRepeat()) || dto.getStartDaysRepeat().isEmpty()) &&
+				(Objects.isNull(dto.getStopDaysRepeat()) || dto.getStopDaysRepeat().isEmpty()) ? null : dto;
 	}
 
 }

@@ -18,13 +18,10 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.UserInstanceStatus;
+
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
-import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.dto.StatusEnvBaseDTO;
-import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Singleton;
@@ -71,8 +68,8 @@ public class ExploratoryDAO extends BaseDAO {
 		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
 	}
 
-	private static Bson exploratoryStatusCondition(String user, UserInstanceStatus exploratoryStatus) {
-		return and(eq(USER, user), eq(STATUS, exploratoryStatus.toString()));
+	private Bson exploratoryStatusCondition(String user, UserInstanceStatus... exploratoryStatuses) {
+		return and(eq(USER, user), in(STATUS, statusList(exploratoryStatuses)));
 	}
 
 	private static Bson runningExploratoryCondition(String user, String exploratoryName) {
@@ -136,22 +133,47 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param user user name.
 	 */
 	public List<UserInstanceDTO> fetchRunningExploratoryFields(String user) {
-		return getUserInstances(and(eq(USER, user), eq(STATUS, UserInstanceStatus.RUNNING.toString())));
+		return getUserInstances(and(eq(USER, user), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *
-	 * @param user user name.
-	 * @param statuses array of statuses.
+	 * @param user                         user name.
+	 * @param computationalFieldsRequired  true/false.
+	 * @param statuses                     array of statuses.
 	 */
-	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, UserInstanceStatus... statuses) {
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, boolean computationalFieldsRequired,
+																	 UserInstanceStatus... statuses) {
 		final List<String> statusList = statusList(statuses);
 		return getUserInstances(
 				and(
 						eq(USER, user),
-						or(in(STATUS, statusList), in(COMPUTATIONAL_RESOURCES + "." + STATUS, statusList))
-				));
+						in(STATUS, statusList)
+				),
+				computationalFieldsRequired);
+	}
+
+	/**
+	 * Finds and returns the info of all user's notebooks whose status or status of affiliated computational resource
+	 * is present among predefined ones.
+	 *
+	 * @param user                  user name.
+	 * @param exploratoryStatuses   array of exploratory statuses.
+	 * @param computationalStatuses array of computational statuses.
+	 */
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user,
+																	 List<UserInstanceStatus> exploratoryStatuses,
+																	 UserInstanceStatus... computationalStatuses) {
+		final List<String> exploratoryStatusList = statusList(exploratoryStatuses);
+		final List<String> computationalStatusList = statusList(computationalStatuses);
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						or(in(STATUS, exploratoryStatusList),
+								in(COMPUTATIONAL_RESOURCES + "." + STATUS, computationalStatusList))
+				),
+				false);
 	}
 
 	/**
@@ -166,19 +188,30 @@ public class ExploratoryDAO extends BaseDAO {
 				and(
 						eq(USER, user),
 						not(in(STATUS, statusList))
-				));
+				),
+				false);
 	}
 
-	private List<UserInstanceDTO> getUserInstances(Bson condition) {
+	private List<UserInstanceDTO> getUserInstances(Bson condition, boolean computationalFieldsRequired) {
 		return stream(getCollection(USER_INSTANCES)
 				.find(condition)
-				.projection(fields(exclude(COMPUTATIONAL_RESOURCES))))
+				.projection(computationalFieldsRequired ? null : fields(exclude(COMPUTATIONAL_RESOURCES))))
 				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
 				.collect(Collectors.toList());
 	}
 
 	/**
-	 * Finds and returns the info of exploratory.
+	 * Finds and returns the info about all exploratories in database.
+	 **/
+	public List<UserInstanceDTO> getInstances() {
+		return stream(getCollection(USER_INSTANCES)
+				.find())
+				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Finds and returns the info of exploratory (without info about computational resources).
 	 *
 	 * @param user            user name.
 	 * @param exploratoryName the name of exploratory.
@@ -261,9 +294,38 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
+	 * Updates the status for all user's corresponding exploratories in Mongo database.
+	 *
+	 * @param newExploratoryStatus   new status for exploratories.
+	 * @param user                   user name.
+	 * @param oldExploratoryStatuses old statuses of exploratories.
+	 */
+	public void updateStatusForExploratories(UserInstanceStatus newExploratoryStatus, String user,
+											 UserInstanceStatus... oldExploratoryStatuses) {
+		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, oldExploratoryStatuses),
+				set(STATUS, newExploratoryStatus.toString()));
+	}
+
+	/**
+	 * Updates status for single exploratory in Mongo database.
+	 *
+	 * @param user            user.
+	 * @param exploratoryName name of exploratory.
+	 * @param newStatus       new status of exploratory.
+	 * @return The result of an update operation.
+	 */
+	public UpdateResult updateStatusForExploratory(String user, String exploratoryName, UserInstanceStatus newStatus) {
+		return updateOne(USER_INSTANCES,
+				exploratoryCondition(user, exploratoryName),
+				set(STATUS, newStatus.toString()));
+	}
+
+	/**
 	 * Updates the scheduler's data for exploratory in Mongo database.
 	 *
-	 * @param dto object of scheduler data.
+	 * @param user             user.
+	 * @param exploratoryName  name of exploratory.
+	 * @param dto              object of scheduler data.
 	 * @return The result of an update operation.
 	 */
 	public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName,
@@ -277,12 +339,25 @@ public class ExploratoryDAO extends BaseDAO {
 	 * Updates the requirement for reuploading key for all user's corresponding exploratories in Mongo database.
 	 *
 	 * @param user                 user name.
-	 * @param exploratoryStatus    status of exploratory.
 	 * @param reuploadKeyRequired  true/false.
+	 * @param exploratoryStatuses  statuses of exploratory.
 	 */
-	public void updateReuploadKeyForExploratories(String user, UserInstanceStatus exploratoryStatus,
-												  boolean reuploadKeyRequired) {
-		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, exploratoryStatus),
+	public void updateReuploadKeyForExploratories(String user, boolean reuploadKeyRequired,
+												  UserInstanceStatus... exploratoryStatuses) {
+		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, exploratoryStatuses),
+				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
+	}
+
+	/**
+	 * Updates the requirement for reuploading key for single exploratory in Mongo database.
+	 *
+	 * @param user                user name.
+	 * @param exploratoryName     exploratory's name
+	 * @param reuploadKeyRequired true/false.
+	 */
+	public void updateReuploadKeyForExploratory(String user, String exploratoryName, boolean reuploadKeyRequired) {
+		updateOne(USER_INSTANCES,
+				exploratoryCondition(user, exploratoryName),
 				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 
@@ -306,8 +381,8 @@ public class ExploratoryDAO extends BaseDAO {
 			values.append(EXPLORATORY_ID, dto.getExploratoryId());
 		}
 
-		if (dto.getExploratoryUrl() != null) {
-			values.append(EXPLORATORY_URL, dto.getExploratoryUrl().stream()
+		if (dto.getResourceUrl() != null) {
+			values.append(EXPLORATORY_URL, dto.getResourceUrl().stream()
 					.map(url -> {
 								LinkedHashMap<String, String> map = new LinkedHashMap<>();
 								map.put(EXPLORATORY_URL_DESC, url.getDescription());
@@ -317,9 +392,9 @@ public class ExploratoryDAO extends BaseDAO {
 					).collect(Collectors.toList()));
 		} else if (dto.getPrivateIp() != null) {
 			UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
-			if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getExploratoryUrl() != null) { // IP was
+			if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getResourceUrl() != null) { // IP was
 				// changed
-				values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
+				values.append(EXPLORATORY_URL, inst.getResourceUrl().stream()
 						.map(url -> replaceIp(dto.getPrivateIp(), inst, url))
 						.collect(Collectors.toList()));
 			}
@@ -345,8 +420,8 @@ public class ExploratoryDAO extends BaseDAO {
 		if (!inst.getPrivateIp().equals(ip)) {
 			Document values = new Document();
 			values.append(EXPLORATORY_PRIVATE_IP, ip);
-			if (inst.getExploratoryUrl() != null) {
-				values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
+			if (inst.getResourceUrl() != null) {
+				values.append(EXPLORATORY_URL, inst.getResourceUrl().stream()
 						.map(url -> replaceIp(ip, inst, url)
 						).collect(Collectors.toList()));
 			}
@@ -358,7 +433,7 @@ public class ExploratoryDAO extends BaseDAO {
 
 	}
 
-	private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ExploratoryURL url) {
+	private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ResourceURL url) {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put(EXPLORATORY_URL_DESC, url.getDescription());
 		map.put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(), ip));

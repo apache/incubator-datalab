@@ -39,6 +39,7 @@ parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
 
@@ -49,10 +50,17 @@ hadoop_version = args.hadoop_version
 nvidia_version = os.environ['notebook_nvidia_version']
 caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
+cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 keras_version = os.environ['notebook_keras_version']
 theano_version = os.environ['notebook_theano_version']
+
+cuda_version = os.environ['notebook_cuda_version']
+cuda_file_name = os.environ['notebook_cuda_file_name']
+cudnn_version = os.environ['notebook_cudnn_version']
+cudnn_file_name = os.environ['notebook_cudnn_file_name']
+
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -104,7 +112,9 @@ if __name__ == "__main__":
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES AND FRAMEWORKS
     print("Install TensorFlow")
-    install_tensor(args.os_user, args.tensorflow_version, templates_dir, nvidia_version)
+    install_tensor(args.os_user, cuda_version, cuda_file_name,
+                   cudnn_version, cudnn_file_name, args.tensorflow_version,
+                   templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
@@ -112,7 +122,7 @@ if __name__ == "__main__":
     print("Installing Caffe")
     install_caffe(args.os_user, args.region, caffe_version)
     print("Installing Caffe2")
-    install_caffe2(args.os_user, caffe2_version)
+    install_caffe2(args.os_user, caffe2_version, cmake_version)
     print("Installing Torch")
     install_torch(args.os_user)
     print("Install CNTK Python library")
@@ -122,7 +132,7 @@ if __name__ == "__main__":
 
     # INSTALL JUPYTER NOTEBOOK
     print("Install Jupyter")
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
@@ -144,7 +154,7 @@ if __name__ == "__main__":
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install Ungit")
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, args.exploratory_name)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 

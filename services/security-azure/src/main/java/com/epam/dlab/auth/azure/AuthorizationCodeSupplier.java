@@ -16,7 +16,8 @@
 
 package com.epam.dlab.auth.azure;
 
-import com.epam.dlab.config.azure.AzureLoginConfiguration;
+import com.epam.dlab.auth.conf.AzureLoginConfiguration;
+import com.epam.dlab.dto.azure.auth.AuthorizationCodeFlowResponse;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
@@ -32,7 +33,7 @@ class AuthorizationCodeSupplier extends AuthorizationSupplier {
         this.response = response;
     }
 
-    Future<AuthenticationResult> get(AuthenticationContext context, String resource) {
+    public Future<AuthenticationResult> get(AuthenticationContext context, String resource) {
         return context
                 .acquireTokenByAuthorizationCode(response.getCode(), resource, azureLoginConfiguration.getClientId(),
                         URI.create(azureLoginConfiguration.getRedirectUrl()), null);

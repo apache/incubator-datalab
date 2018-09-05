@@ -16,25 +16,29 @@
 
 package com.epam.dlab.backendapi.resources.dto.azure;
 
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AzureBillingFilter {
-    @JsonProperty("dlab_id")
-    private String dlabId;
-    @JsonProperty("resource_type")
-    private List<String> resourceType;
-    @JsonProperty("date_start")
-    private String dateStart;
-    @JsonProperty("date_end")
-    private String dateEnd;
-    @JsonProperty("size")
-    private List<String> nodeSize;
-    private List<String> user;
-    private List<String> category;
+	@JsonProperty("dlab_id")
+	private String dlabId;
+	@JsonProperty("resource_type")
+	private List<String> resourceType;
+	@JsonProperty("date_start")
+	private String dateStart;
+	@JsonProperty("date_end")
+	private String dateEnd;
+	@JsonProperty("size")
+	private List<String> nodeSize;
+	private List<String> user;
+	private List<String> category;
+	@JsonProperty("status")
+	private List<UserInstanceStatus> statuses = Collections.emptyList();
 }

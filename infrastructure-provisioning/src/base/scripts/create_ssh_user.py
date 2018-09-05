@@ -55,6 +55,7 @@ if __name__ == "__main__":
     print("Creating ssh user: {}".format(args.os_user))
     try:
         ensure_ssh_user(args.initial_user, args.os_user, args.sudo_group)
-    except:
+    except Exception as err:
+        print('Failed to create ssh user', str(err))
         sys.exit(1)
 

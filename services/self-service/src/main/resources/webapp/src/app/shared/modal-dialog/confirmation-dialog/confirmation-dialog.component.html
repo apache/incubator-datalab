@@ -19,52 +19,39 @@ limitations under the License.
 <modal-dialog #bindDialog modalClass="confirmation-dialog modal-md">
   <modal-header>
     <h4 class="modal-title">
-      <span *ngIf="model.notebook.name">Exploratory Environment: {{ model.notebook.name }}</span>
-      <span *ngIf="model.notebook.type">
+      <span *ngIf="model.notebook.name && model.notebook.name !== 'edge node'">
+        <span>{{ confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
+      </span>
+      <span *ngIf="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'">
         <i class="material-icons">priority_high</i>Warning
       </span>
     </h4>
   </modal-header>
   <modal-content>
     <div class="content-box">
-      <p>{{ model.title }}</p>
+      <p class="info">{{ model.title }}</p>
 
-      <div *ngIf="model.notebook.resources && dataengines.length" class="row-wrap m-bott-10">
-        <div class="col"><p>Following dataengines will be stopped:</p></div>
-        <div class="col">
-          <ul>
-            <li *ngFor="let resource of dataengines"> &#9642; {{ resource.computational_name }}</li>
-          </ul>
+      <mat-list class="resources" [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'">
+        <mat-list-item class="list-header">
+          <div class="cluster">Cluster</div>
+          <div class="status">Further status</div>
+          <div class="size">Size</div>
+        </mat-list-item>
+        <div class="scrolling-content" id="scrolling">
+          <mat-list-item *ngFor="let resource of model.notebook.resources" [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || (resource.status === 'stopped' && !confirmationType)">
+            <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
+            <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
+                  'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">{{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
+            <div class="size">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
+          </mat-list-item>
         </div>
-      </div>
-
-      <div *ngIf="model.notebook.resources && dataengineServices.length" class="row-wrap m-bott-10">
-        <div class="col"><p>Following dataengine services will be terminated:</p></div>
-        <div class="col">
-          <ul>
-            <li *ngFor="let resource of dataengineServices"> &#9642; {{ resource.computational_name }}</li>
-          </ul>
+        <div *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources"
+              [hidden]="model.notebook.type" class="empty-list">
+            <span>You have no active resources</span>
         </div>
-      </div>
+      </mat-list>
 
-      <div class="row-wrap" *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources" [hidden]="model.notebook.type">
-        <div class="col"><p>Computational resources:</p></div>
-        <span class="col">none</span>
-      </div>
-
-      <div *ngIf="confirmationType && isAliveResources" class="row-wrap" [hidden]="model.notebook.type">
-        <div class="col" >
-          <p>Computational resources:</p>
-        </div>
-        <div class="col">
-          <ul *ngIf="model.notebook.resources && model.notebook.resources.length > 0 && isAliveResources">
-            <li *ngFor="let resource of model.notebook.resources"
-                [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating'"> &#9642; {{ resource.computational_name }}</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="m-top-20">
+      <div class="text-center m-top-20">
         <p *ngIf="model.notebook.name">Do you want to proceed?</p>
         <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
       </div>
@@ -72,8 +59,8 @@ limitations under the License.
         <small class="danger_color">{{ errorMessage }}</small>
       </div>
       <div class="text-center m-top-20">
-        <button mat-raised-button type="button" class="butt" (click)="bindDialog.close()">No</button>
-        <button mat-raised-button type="button" class="butt butt-success" (click)="model.confirmAction()">Yes</button>
+        <button mat-raised-button type="button" class="butt action" (click)="bindDialog.close()">No</button>
+        <button mat-raised-button type="button" class="butt butt-success action" (click)="model.confirmAction()">Yes</button>
       </div>
     </div>
   </modal-content>

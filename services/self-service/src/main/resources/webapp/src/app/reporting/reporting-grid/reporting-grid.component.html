@@ -41,6 +41,9 @@ limitations under the License.
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resource_type'" [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type"></multi-select-dropdown>
     </td>
     <td>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'status'" [items]="filterConfiguration.status" [model]="filteredReportData.status"></multi-select-dropdown>
+    </td>
+    <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.instance_size]" [items]="filterConfiguration[DICTIONARY.billing.instance_size]" [model]="filteredReportData[DICTIONARY.billing.instance_size]"></multi-select-dropdown>
     </td>
     <td>
@@ -61,9 +64,13 @@ limitations under the License.
 
   <ng-template [ngIf]="reportData">
     <tr *ngFor="let line of reportData">
-      <td *ngIf="full_report">{{ line.user }}</td>
+      <td class="user-field" *ngIf="full_report">{{ line.user }}</td>
       <td class="env_name">{{ line[DICTIONARY.billing.dlabId] }}</td>
       <td>{{ line[DICTIONARY.billing.resourceType] }}</td>
+      <td>
+        <span class="status" ngClass="{{ line.status.toLowerCase() || '' }}" *ngIf="line.status">{{ line.status.toLowerCase() }}</span>
+        <span *ngIf="!line.status">N/A</span>
+      </td>
       <td><span [outerHTML]="line[DICTIONARY.billing.instance_size] | lineBreak"></span></td>
       <td>{{ line[DICTIONARY.billing.service] }}
         <span *ngIf="line.resource_type">({{ line.resource_type }})</span>

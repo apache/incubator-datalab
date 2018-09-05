@@ -59,7 +59,12 @@ if __name__ == "__main__":
         python_ver = subprocess.check_output("python3.4 -V 2>/dev/null | awk '{print $2}'", shell=True)
         with open('/tmp/python_version', 'w') as outfile:
             outfile.write(python_ver)
-    os.system('/bin/tar -zhcvf /tmp/jars.tar.gz --no-recursion --absolute-names --ignore-failed-read /usr/lib/hadoop/* {} {} /usr/lib/hadoop/client/*'.format(spark_def_path_line1, spark_def_path_line2))
+    os.system('/bin/tar -zhcvf /tmp/jars.tar.gz '
+              '--no-recursion '
+              '--absolute-names '
+              '--ignore-failed-read /usr/lib/hadoop/* {} {} /usr/lib/hadoop/client/*'.
+              format(spark_def_path_line1,
+                     spark_def_path_line2))
     os.system('/bin/tar -zhcvf /tmp/spark.tar.gz -C /usr/lib/ spark')
     md5sum = subprocess.check_output('md5sum /tmp/jars.tar.gz', shell=True)
     with open('/tmp/jars-checksum.chk', 'w') as outfile:
@@ -67,15 +72,55 @@ if __name__ == "__main__":
     md5sum = subprocess.check_output('md5sum /tmp/spark.tar.gz', shell=True)
     with open('/tmp/spark-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
-    os.system('aws s3 cp /tmp/jars.tar.gz s3://{}/jars/{}/ --endpoint-url {} --region {} --sse AES256'.
-              format(args.bucket, args.emr_version, endpoint, args.region))
-    os.system('aws s3 cp /tmp/jars-checksum.chk s3://{}/jars/{}/ --endpoint-url {} --region {} --sse AES256'.
-              format(args.bucket, args.emr_version, endpoint, args.region))
-    os.system('aws s3 cp {} s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
-              format(spark_def_path, args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/python_version s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
-              format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/spark.tar.gz s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
-              format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/spark-checksum.chk s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
-              format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
+    os.system('aws s3 cp /tmp/jars.tar.gz '
+              's3://{}/jars/{}/ '
+              '--endpoint-url {} '
+              '--region {} --sse AES256'.
+              format(args.bucket,
+                     args.emr_version,
+                     endpoint,
+                     args.region))
+    os.system('aws s3 cp /tmp/jars-checksum.chk '
+              's3://{}/jars/{}/ '
+              '--endpoint-url {} '
+              '--region {} --sse AES256'.
+              format(args.bucket,
+                     args.emr_version,
+                     endpoint,
+                     args.region))
+    os.system('aws s3 cp {} '
+              's3://{}/{}/{}/ '
+              '--endpoint-url {} '
+              '--region {} --sse AES256'.
+              format(spark_def_path,
+                     args.bucket,
+                     args.user_name,
+                     args.cluster_name,
+                     endpoint,
+                     args.region))
+    os.system('aws s3 cp /tmp/python_version '
+              's3://{}/{}/{}/ '
+              '--endpoint-url {} '
+              '--region {} --sse AES256'.
+              format(args.bucket,
+                     args.user_name,
+                     args.cluster_name,
+                     endpoint,
+                     args.region))
+    os.system('aws s3 cp /tmp/spark.tar.gz '
+              's3://{}/{}/{}/ '
+              '--endpoint-url {} '
+              '--region {} --sse AES256'.
+              format(args.bucket,
+                     args.user_name,
+                     args.cluster_name,
+                     endpoint,
+                     args.region))
+    os.system('aws s3 cp /tmp/spark-checksum.chk '
+              's3://{}/{}/{}/ '
+              '--endpoint-url {} '
+              '--region {} --sse AES256'.
+              format(args.bucket,
+                     args.user_name,
+                     args.cluster_name,
+                     endpoint, args.region))

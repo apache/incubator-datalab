@@ -18,8 +18,8 @@ limitations under the License.
 
 <div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}">
   <button type="button" #list (click)="multiactions.toggle($event, list)">
-    <span *ngIf="model.length === 0">Select {{type}}</span>
-    <span class="selected-items" *ngIf="model.length !== 0">
+    <span class="ellipsis" *ngIf="model.length === 0">Select {{type}}</span>
+    <span class="selected-items ellipsis" *ngIf="model.length !== 0">
       Selected {{model.length}} item<strong *ngIf="model.length > 1">s</strong>
     </span>
     <span class="caret-btn"><i class="material-icons">keyboard_arrow_down</i></span>

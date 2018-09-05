@@ -23,7 +23,7 @@ import static junit.framework.TestCase.assertEquals;
 import org.junit.Test;
 
 import com.epam.dlab.core.AdapterBase.Mode;
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.mongo.AdapterMongoDb;
 
 public class AdapterMongoDBTest {

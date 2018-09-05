@@ -45,7 +45,7 @@ if __name__ == "__main__":
             data_engine['os_user'] = 'ec2-user'
             data_engine['cluster_name'] = os.environ['computational_id']
             data_engine['cluster_id'] = get_emr_id_by_name(data_engine['cluster_name'])
-            data_engine['cluster_instances'] = get_emr_instances_list(data_engine['cluster_id'], True)
+            data_engine['cluster_instances'] = get_emr_instances_list(data_engine['cluster_id'], 'MASTER')
             data_engine['master_ip'] = data_engine['cluster_instances'][0].get('PrivateIpAddress')
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         except Exception as err:

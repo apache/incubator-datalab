@@ -17,7 +17,7 @@
  ****************************************************************************/
 package com.epam.dlab.backendapi.core.commands;
 
-import com.epam.dlab.process.ProcessInfo;
+import com.epam.dlab.process.model.ProcessInfo;
 
 public interface ICommandExecutor {
     ProcessInfo executeSync(String username, String uuid, String command) throws Exception;

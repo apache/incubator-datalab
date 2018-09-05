@@ -22,6 +22,9 @@ import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.dto.status.EnvStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,49 +38,52 @@ import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
 @Slf4j
 public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvStatusDTO> {
 
-    public ResourcesStatusCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user) {
-        super(selfService, user, uuid, action);
-    }
+	@JsonCreator
+	public ResourcesStatusCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction
+			action, @JsonProperty("uuid") String uuid, @JsonProperty("user") String user) {
+		super(selfService, user, uuid, action);
+	}
 
-    @Override
-    protected String getCallbackURI() {
-        return INFRASTRUCTURE + STATUS_URI;
-    }
+	@Override
+	protected String getCallbackURI() {
+		return INFRASTRUCTURE + STATUS_URI;
+	}
 
-    @Override
-    protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) {
-        if (resultNode == null) {
-            return baseStatus;
-        }
+	@Override
+	protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) {
+		if (resultNode == null) {
+			return baseStatus;
+		}
 
-        EnvResourceList resourceList;
-        try {
-            resourceList = mapper.readValue(resultNode.toString(), EnvResourceList.class);
-        } catch (IOException e) {
-            throw new DlabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
-        }
+		EnvResourceList resourceList;
+		try {
+			resourceList = mapper.readValue(resultNode.toString(), EnvResourceList.class);
+		} catch (IOException e) {
+			throw new DlabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage()
+                    , e);
+		}
 
-        baseStatus.withResourceList(resourceList)
-                .withUptime(Date.from(Instant.now()));
+		baseStatus.withResourceList(resourceList)
+				.withUptime(Date.from(Instant.now()));
 
-        log.trace("Inner status {}", baseStatus);
+		log.trace("Inner status {}", baseStatus);
 
-        return baseStatus;
-    }
+		return baseStatus;
+	}
 
-    @Override
-    public boolean handle(String fileName, byte[] content) throws Exception {
-        try {
-            return super.handle(fileName, content);
-        } catch (Exception e) {
-            log.warn("Could not retrive the status of resources for UUID {} and user {}: {}",
-                    getUUID(), getUser(), e.getLocalizedMessage(), e);
-        }
-        return true; // Always necessary return true for status response
-    }
+	@Override
+	public boolean handle(String fileName, byte[] content) throws Exception {
+		try {
+			return super.handle(fileName, content);
+		} catch (Exception e) {
+			log.warn("Could not retrive the status of resources for UUID {} and user {}: {}",
+					getUUID(), getUser(), e.getLocalizedMessage(), e);
+		}
+		return true; // Always necessary return true for status response
+	}
 
-    @Override
-    public void handleError(String errorMessage) {
-        // Nothing action for status response
-    }
+	@Override
+	public void handleError(String errorMessage) {
+		// Nothing action for status response
+	}
 }

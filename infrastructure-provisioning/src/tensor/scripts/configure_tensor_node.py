@@ -34,6 +34,7 @@ parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
@@ -57,6 +58,10 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
 gitlab_certfile = os.environ['conf_gitlab_certfile']
+cuda_version = os.environ['notebook_cuda_version']
+cuda_file_name = os.environ['notebook_cuda_file_name']
+cudnn_version = os.environ['notebook_cudnn_version']
+cudnn_file_name = os.environ['notebook_cudnn_file_name']
 
 
 ##############
@@ -88,7 +93,9 @@ if __name__ == "__main__":
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
-    install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
+    install_tensor(args.os_user, cuda_version, cuda_file_name,
+                   cudnn_version, cudnn_file_name, tensorflow_version,
+                   templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
@@ -96,7 +103,7 @@ if __name__ == "__main__":
 
     # INSTALL JUPYTER NOTEBOOK
     print("Install Jupyter")
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
@@ -116,7 +123,7 @@ if __name__ == "__main__":
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install Ungit")
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, args.exploratory_name)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 

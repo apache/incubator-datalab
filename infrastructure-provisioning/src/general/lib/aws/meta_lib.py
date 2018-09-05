@@ -125,6 +125,26 @@ def get_instance_ip_address(tag_name, instance_name):
         traceback.print_exc(file=sys.stdout)
 
 
+def get_instance_ip_address_by_id(instance_id):
+    try:
+        ec2 = boto3.resource('ec2')
+        instances = ec2.instances.filter(
+            Filters = [{'Name': 'instance-id', 'Values': [instance_id]},
+                       {'Name': 'instance-state-name', 'Values': ['running']}])
+        ips = {}
+        for instance in instances:
+            public = getattr(instance, 'public_ip_address')
+            private = getattr(instance, 'private_ip_address')
+            ips = {'Public': public, 'Private': private}
+        if ips == {}:
+            raise Exception("Unable to find instance IP addresses with instance id: " + instance_id)
+        return ips
+    except Exception as err:
+        logging.error("Error with getting ip address by id: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting ip address by id", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
         actions_lib.create_aws_config_files()
@@ -442,11 +462,12 @@ def get_emr_id_by_name(name):
         traceback.print_exc(file=sys.stdout)
 
 
-def get_emr_instances_list(cluster_id, only_master=False):
+def get_emr_instances_list(cluster_id, instance_type=''):
+    #instance_type 'MASTER' or 'CORE'
     try:
         emr = boto3.client('emr')
-        if only_master:
-            instances = emr.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
+        if instance_type != '':
+            instances = emr.list_instances(ClusterId=cluster_id, InstanceGroupTypes=[instance_type])
         else:
             instances = emr.list_instances(ClusterId=cluster_id)
         return instances.get('Instances')
@@ -756,12 +777,19 @@ def get_ec2_price(instance_shape, region):
 def get_spot_instances_status(cluster_id):
     try:
         ec2 = boto3.client('ec2')
+        emr = boto3.client('emr')
+        ec2_ids = emr.list_instances(ClusterId=cluster_id).get('Instances')
+        ids_list = []
+        for ins in ec2_ids:
+            ids_list.append(ins.get('Ec2InstanceId'))
         response = ec2.describe_spot_instance_requests(Filters=[
-            {'Name': 'availability-zone-group', 'Values': [cluster_id]}]).get('SpotInstanceRequests')
-        for i in response:
-            if i.get('Status').get('Code') != 'request-canceled-and-instance-running':
-                return False, i.get('Status').get('Message')
-        return True, "Spot instances have been successfully created!"
+            {'Name': 'instance-id', 'Values': ids_list}]).get('SpotInstanceRequests')
+        if response:
+            for i in response:
+                if i.get('Status').get('Code') != 'fulfilled':
+                    return False, i.get('Status').get('Code'), i.get('Status').get('Message')
+            return True, i.get('Status').get('Code'), "Spot instances have been successfully created!"
+        return False, None, "Spot instances status weren't received for cluster id {}".format(cluster_id)
     except Exception as err:
         logging.error("Error with getting Spot instances status: " + str(err) + "\n Traceback: " +
                       traceback.print_exc(file=sys.stdout))
@@ -782,6 +810,32 @@ def node_count(cluster_name):
         logging.error("Error with counting nodes in cluster: " + str(err) + "\n Traceback: " +
                       traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Error with counting nodes in cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
+    try:
+        private_list_ip = []
+        if conf_type == 'edge_node':
+                private_list_ip.append(
+                    get_instance_ip_address_by_id(
+                        instance_id).get('Private'))
+        elif conf_type == 'exploratory':
+            private_list_ip.append(
+                get_instance_ip_address('Name', instance_id).get('Private'))
+        elif conf_type == 'computational_resource':
+            group_tag_name = os.environ['conf_service_base_name'] + ':' + instance_id
+            print(group_tag_name)
+            instance_list = get_ec2_list('user:tag', group_tag_name)
+            for instance in instance_list:
+                private_list_ip.append(
+                    get_instance_ip_address_by_id(instance.id).get('Private'))
+        return private_list_ip
+    except Exception as err:
+        logging.error("Error getting private ip by conf_type and id: " + str(err) + "\n Traceback: " +
+                      traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error getting private ip by conf_type and id",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 

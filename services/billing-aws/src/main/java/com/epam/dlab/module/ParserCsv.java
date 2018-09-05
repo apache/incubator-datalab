@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.core.parser.ParserByLine;
-import com.epam.dlab.exception.AdapterException;
-import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.exceptions.AdapterException;
+import com.epam.dlab.exceptions.InitializationException;
+import com.epam.dlab.exceptions.ParseException;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;

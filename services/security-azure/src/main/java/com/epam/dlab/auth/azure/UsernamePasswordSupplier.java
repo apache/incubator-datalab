@@ -16,25 +16,25 @@
 
 package com.epam.dlab.auth.azure;
 
-import com.epam.dlab.config.azure.AzureLoginConfiguration;
-import com.epam.dlab.dto.UserCredentialDTO;
+import com.epam.dlab.auth.conf.AzureLoginConfiguration;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
 import java.util.concurrent.Future;
 
 class UsernamePasswordSupplier extends AuthorizationSupplier {
-    private final UserCredentialDTO credentialDTO;
+	private final UserCredentialDTO credentialDTO;
 
-    UsernamePasswordSupplier(AzureLoginConfiguration azureLoginConfiguration,
-                             UserCredentialDTO credentialDTO) {
-        super(azureLoginConfiguration);
-        this.credentialDTO = credentialDTO;
-    }
+	UsernamePasswordSupplier(AzureLoginConfiguration azureLoginConfiguration,
+							 UserCredentialDTO credentialDTO) {
+		super(azureLoginConfiguration);
+		this.credentialDTO = credentialDTO;
+	}
 
-    Future<AuthenticationResult> get(AuthenticationContext context, String resource) {
-        return context
-                .acquireToken(resource, azureLoginConfiguration.getClientId(), credentialDTO.getUsername(),
-                        credentialDTO.getPassword(), null);
-    }
+	public Future<AuthenticationResult> get(AuthenticationContext context, String resource) {
+		return context
+				.acquireToken(resource, azureLoginConfiguration.getClientId(), credentialDTO.getUsername(),
+						credentialDTO.getPassword(), null);
+	}
 }

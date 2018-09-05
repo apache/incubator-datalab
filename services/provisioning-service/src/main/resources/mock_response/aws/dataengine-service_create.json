@@ -6,7 +6,13 @@
          "key_name": "${CONF_KEY_NAME}",
         "hostname": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-des-${EXPLORATORY_NAME}-${COMPUTATIONAL_NAME}-${NOTEBOOK_ID}",
          "Action": "Create new EMR cluster",
-         "user_own_bucket_name": "${CONF_SERVICE_BASE_NAME}-ssn-bucket"
+        "user_own_bucket_name": "${CONF_SERVICE_BASE_NAME}-ssn-bucket",
+        "computational_url": [
+          {
+            "url": "http://172.31.48.131:8080/",
+            "description": "EMR job tracker url"
+          }
+        ]
       },
       "log": "/var/log/dlab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
    },

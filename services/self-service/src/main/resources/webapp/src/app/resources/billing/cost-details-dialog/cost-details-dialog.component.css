@@ -41,7 +41,7 @@ limitations under the License.
   width: 100%;
 }
 .list-header div {
-  font-weight: 600;
+  font-weight: 500;
 }
 .scrolling-content {
   max-height: 275px;
@@ -57,7 +57,7 @@ limitations under the License.
 .billing-detail .resource-name,
 .billing-detail .usage-date-start,
 .billing-detail .usage-date-end {
-  width: 15%;
+  width: 12%;
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 10px;
@@ -67,6 +67,7 @@ limitations under the License.
 }
 .billing-detail .resource-name {
   cursor: pointer;
+  width: 20%;
 }
 .mat-list-item-content {
     font-size: 15px !important;

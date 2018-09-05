@@ -1,6 +1,21 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -9,6 +24,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
@@ -27,6 +43,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -374,20 +391,49 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	public void updateUserInstancesReuploadKeyFlagForCorrespondingExploratoriesAndComputationals() {
-		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(),
-				any(UserInstanceStatus.class), anyBoolean());
-		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResources(anyString(),
-				any(UserInstanceStatus.class), any(DataEngineType.class), any(UserInstanceStatus.class), anyBoolean());
+	public void updateUserExploratoriesReuploadKeyFlag() {
+		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(), anyBoolean(),
+				any(UserInstanceStatus.class));
 
-		exploratoryService.updateUserInstancesReuploadKeyFlag(USER);
+		exploratoryService.updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
 
-		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, UserInstanceStatus.STOPPED, true);
-		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				UserInstanceStatus.RUNNING, DataEngineType.SPARK_STANDALONE, UserInstanceStatus.STOPPED, true);
-		verify(computationalDAO).updateReuploadKeyFlagForComputationalResources(USER,
-				UserInstanceStatus.STOPPED, DataEngineType.SPARK_STANDALONE, UserInstanceStatus.STOPPED, true);
-		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, true, UserInstanceStatus.RUNNING);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void getInstancesWithStatuses() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), anyBoolean(), anyVararg()))
+				.thenReturn(Collections.singletonList(userInstance));
+		exploratoryService.getInstancesWithStatuses(USER, UserInstanceStatus.RUNNING, UserInstanceStatus.RUNNING);
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, true, UserInstanceStatus.RUNNING);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void getUserInstance() {
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+
+		Optional<UserInstanceDTO> expectedInstance = Optional.of(userInstance);
+		Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, EXPLORATORY_NAME);
+		assertEquals(expectedInstance, actualInstance);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void getUserInstanceWithException() {
+		doThrow(new ResourceNotFoundException("Exploratory for user not found"))
+				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
+
+		Optional<UserInstanceDTO> expectedInstance = Optional.empty();
+		Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, EXPLORATORY_NAME);
+		assertEquals(expectedInstance, actualInstance);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	private UserInfo getUserInfo() {

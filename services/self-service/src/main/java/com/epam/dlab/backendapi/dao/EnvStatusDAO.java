@@ -18,7 +18,6 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
@@ -28,10 +27,12 @@ import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.client.model.Updates;
@@ -45,12 +46,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.UserInstanceStatus.TERMINATED;
-import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
-import static com.epam.dlab.backendapi.dao.KeyDAO.EDGE_STATUS;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
@@ -71,10 +70,13 @@ public class EnvStatusDAO extends BaseDAO {
 
 	private static final Bson INCLUDE_EDGE_FIELDS = include(INSTANCE_ID, EDGE_STATUS, EDGE_PUBLIC_IP);
 	private static final Bson INCLUDE_EXP_FIELDS = include(INSTANCE_ID, STATUS,
-			COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_RESOURCES + "." + IMAGE, COMPUTATIONAL_STATUS);
+			COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_RESOURCES + "." + IMAGE, COMPUTATIONAL_STATUS,
+			EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + "." + ComputationalDAO.COMPUTATIONAL_NAME);
 	private static final Bson INCLUDE_EXP_UPDATE_FIELDS = include(EXPLORATORY_NAME, INSTANCE_ID, STATUS,
-			COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID,
+			COMPUTATIONAL_RESOURCES + "." + ComputationalDAO.COMPUTATIONAL_NAME, COMPUTATIONAL_RESOURCES + "." +
+					INSTANCE_ID,
 			COMPUTATIONAL_STATUS, COMPUTATIONAL_RESOURCES + "." + IMAGE);
+	public static final String COMPUTATIONAL_NAME = "computational_name";
 
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
@@ -84,28 +86,38 @@ public class EnvStatusDAO extends BaseDAO {
 	 *
 	 * @param user name.
 	 */
-	@SuppressWarnings("unchecked")
 	public EnvResourceList findEnvResources(String user) {
 		List<EnvResource> hostList = new ArrayList<>();
 		List<EnvResource> clusterList = new ArrayList<>();
 
-		getEdgeNode(user).ifPresent(edge -> addResource(hostList, edge, EDGE_STATUS));
+		getEdgeNode(user).ifPresent(edge -> addResource(hostList, edge, EDGE_STATUS, ResourceType.EDGE, null));
 
-		// Add exploratory
 		stream(find(USER_INSTANCES, eq(USER, user), fields(INCLUDE_EXP_FIELDS, excludeId())))
 				.forEach(exp -> {
-					addResource(hostList, exp, STATUS);
-					((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
-							.forEach(comp -> {
-								final List<EnvResource> resourceList = DataEngineType.CLOUD_SERVICE ==
-										DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ? clusterList :
-										hostList;
-								addResource(resourceList, comp, STATUS);
-							});
+					final String exploratoryName = exp.getString(EXPLORATORY_NAME);
+					addResource(hostList, exp, STATUS, ResourceType.EXPLORATORY, exploratoryName);
+					addComputationalResources(hostList, clusterList, exp, exploratoryName);
 				});
 		return new EnvResourceList()
-				.withHostList(!hostList.isEmpty() ? hostList : null)
-				.withClusterList(!clusterList.isEmpty() ? clusterList : null);
+				.withHostList(!hostList.isEmpty() ? hostList : Collections.emptyList())
+				.withClusterList(!clusterList.isEmpty() ? clusterList : Collections.emptyList());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void addComputationalResources(List<EnvResource> hostList, List<EnvResource> clusterList, Document exp,
+										   String
+												   exploratoryName) {
+		((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
+				.forEach(comp -> addComputational(hostList, clusterList, exploratoryName, comp));
+	}
+
+	private void addComputational(List<EnvResource> hostList, List<EnvResource> clusterList, String exploratoryName,
+								  Document computational) {
+		final List<EnvResource> resourceList = DataEngineType.CLOUD_SERVICE ==
+				DataEngineType.fromDockerImageName(computational.getString(IMAGE)) ? clusterList :
+				hostList;
+		addResource(resourceList, computational, STATUS, ResourceType.COMPUTATIONAL,
+				String.join("_", exploratoryName, computational.getString(COMPUTATIONAL_NAME)));
 	}
 
 	/**
@@ -164,6 +176,11 @@ public class EnvStatusDAO extends BaseDAO {
 		).collect(Collectors.toSet());
 	}
 
+	public Set<String> fetchAllUsers() {
+		return stream(find(USER_EDGE)).map(d -> d.getString(ID))
+				.collect(Collectors.toSet());
+	}
+
 	@SuppressWarnings("unchecked")
 	private void updateUserResourceStatuses(String user, EnvResourceList list, Document exp) {
 		final String exploratoryName = exp.getString(EXPLORATORY_NAME);
@@ -183,7 +200,8 @@ public class EnvStatusDAO extends BaseDAO {
 				list.getClusterList() : list.getHostList();
 		getEnvResourceAndRemove(listToCheck, comp.getString(INSTANCE_ID))
 				.ifPresent(resource -> updateComputationalStatus(user, exploratoryName,
-						comp.getString(COMPUTATIONAL_NAME), comp.getString(STATUS), resource.getStatus()));
+						comp.getString(ComputationalDAO.COMPUTATIONAL_NAME), comp.getString(STATUS), resource
+								.getStatus()));
 	}
 
 	private boolean instanceIdPresent(Document d) {
@@ -251,10 +269,12 @@ public class EnvStatusDAO extends BaseDAO {
 			case CREATING:
 				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case RUNNING:
-			case STARTING:
 			case STOPPING:
 				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
 						UserInstanceStatus.STOPPING, UserInstanceStatus.STOPPED) ? status : oldStatus);
+			case STARTING:
+				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+						UserInstanceStatus.STOPPING) ? status : oldStatus);
 			case STOPPED:
 				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
 						UserInstanceStatus.RUNNING) ? status : oldStatus);
@@ -345,12 +365,13 @@ public class EnvStatusDAO extends BaseDAO {
 			case CREATING:
 			case CONFIGURING:
 			case RUNNING:
-			case STOPPED:
 				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
 						UserInstanceStatus.STOPPING, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case TERMINATING:
 				return (status.in(UserInstanceStatus.TERMINATED) ? status : oldStatus);
 			case STARTING:
+			case STOPPED:
+			case STOPPING:
 				return status;
 			case FAILED:
 			case TERMINATED:
@@ -391,7 +412,7 @@ public class EnvStatusDAO extends BaseDAO {
 			updateOne(USER_INSTANCES,
 					and(exploratoryCondition(user, exploratoryName),
 							elemMatch(COMPUTATIONAL_RESOURCES,
-									and(eq(COMPUTATIONAL_NAME, computationalName))
+									and(eq(ComputationalDAO.COMPUTATIONAL_NAME, computationalName))
 							)
 					),
 					new Document(SET, values));
@@ -412,7 +433,7 @@ public class EnvStatusDAO extends BaseDAO {
 		Document doc = findOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
 				and(elemMatch(COMPUTATIONAL_RESOURCES,
-						and(eq(COMPUTATIONAL_NAME, computationalName),
+						and(eq(ComputationalDAO.COMPUTATIONAL_NAME, computationalName),
 								eq(COMPUTATIONAL_SPOT, true),
 								not(eq(STATUS, TERMINATED.toString())))),
 						include(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_SPOT))
@@ -455,8 +476,10 @@ public class EnvStatusDAO extends BaseDAO {
 	 * @param list            the list to add.
 	 * @param document        document with resource.
 	 * @param statusFieldName name of field that contains status information
+	 * @param resourceType
 	 */
-	private void addResource(List<EnvResource> list, Document document, String statusFieldName) {
+	private void addResource(List<EnvResource> list, Document document, String statusFieldName, ResourceType
+			resourceType, String name) {
 		LOGGER.trace("Add resource from {}", document);
 		getInstanceId(document).ifPresent(instanceId -> {
 			UserInstanceStatus status = UserInstanceStatus.of(document.getString(statusFieldName));
@@ -473,7 +496,9 @@ public class EnvStatusDAO extends BaseDAO {
 				case STOPPED:
 				case STOPPING:
 				case TERMINATING:
-					EnvResource host = new EnvResource().withId(instanceId);
+					EnvResource host = new EnvResource().withId(instanceId)
+							.withResourceType(resourceType)
+							.withName(name);
 					list.add(host);
 					break;
 				case FAILED:

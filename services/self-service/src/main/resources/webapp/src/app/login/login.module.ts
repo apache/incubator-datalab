@@ -22,12 +22,10 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from './../shared/material.module';
 
 import { LoginComponent } from './login.component';
-import { LogParamsComponent } from './log-params/log-params.component';
 
 import { CoreModule } from '../core/core.module';
 
 export * from './login.component';
-export * from './log-params/log-params.component';
 
 @NgModule({
   imports: [
@@ -36,7 +34,7 @@ export * from './log-params/log-params.component';
     CoreModule,
     MaterialModule
   ],
-  declarations: [LoginComponent, LogParamsComponent],
+  declarations: [LoginComponent],
   exports: [LoginComponent]
 })
 export class LoginModule { }

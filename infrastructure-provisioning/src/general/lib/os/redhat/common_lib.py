@@ -39,6 +39,7 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
                 sudo('echo "enabled=1" >> centOS-base.repo')
                 sudo('echo "gpgcheck=1" >> centOS-base.repo')
                 sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centOS-base.repo'.format(mirror))
+            sudo('yum-config-manager --enable rhui-REGION-rhel-server-optional')
             sudo('yum update-minimal --security -y')
             sudo('yum -y install wget')
             sudo('wget --no-check-certificate https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm')

@@ -21,9 +21,9 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.UserInfoDAO;
 import com.epam.dlab.auth.UserVerificationService;
 import com.epam.dlab.auth.dao.LdapUserDAO;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.auth.rest.AbstractAuthenticationService;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 

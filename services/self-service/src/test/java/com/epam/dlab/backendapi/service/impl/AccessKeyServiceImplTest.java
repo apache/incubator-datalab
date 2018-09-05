@@ -1,12 +1,29 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
@@ -46,6 +63,8 @@ public class AccessKeyServiceImplTest {
 	private ExploratoryService exploratoryService;
 	@Mock
 	private SelfServiceApplicationConfiguration configuration;
+	@Mock
+	private ReuploadKeyService reuploadKeyService;
 
 	@InjectMocks
 	private AccessKeyServiceImpl accessKeyService;
@@ -83,7 +102,8 @@ public class AccessKeyServiceImplTest {
 	@Test
 	public void uploadKey() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(),
+				anyVararg());
 
 		UploadFile uploadFile = mock(UploadFile.class);
 		when(requestBuilder.newEdgeKeyUpload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
@@ -99,18 +119,18 @@ public class AccessKeyServiceImplTest {
 		assertEquals(expectedUuid, actualUuid);
 
 		verify(keyDAO).upsertKey(USER, keyContent, true);
-		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
+		verifyZeroInteractions(exploratoryService);
 		verify(requestBuilder).newEdgeKeyUpload(userInfo, keyContent);
 		verify(provisioningService).post("infrastructure/edge/create", TOKEN, uploadFile, String.class);
 		verify(requestId).put(USER, expectedUuid);
-		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
+		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
 	}
 
 
 	@Test
 	public void uploadKeyWithException() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
+		doNothing().when(exploratoryService).updateExploratoriesReuploadKeyFlag(anyString(), anyBoolean(), anyVararg());
 		doThrow(new RuntimeException()).when(requestBuilder).newEdgeKeyUpload(any(UserInfo.class), anyString());
 
 		expectedException.expect(RuntimeException.class);
@@ -123,37 +143,25 @@ public class AccessKeyServiceImplTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void reUploadKey() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
+		when(reuploadKeyService.reuploadKey(any(UserInfo.class), anyString())).thenReturn("someString");
 
-		UploadFile uploadFile = mock(UploadFile.class);
-		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString())).thenReturn(uploadFile);
-
-		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).
-				thenReturn(expectedUuid);
-		when(requestId.put(anyString(), anyString())).thenReturn(expectedUuid);
-		doNothing().when(exploratoryService).updateUserInstancesReuploadKeyFlag(anyString());
-
+		String expectedString = "someString";
 		String keyContent = "keyContent";
-		String actualUuid = accessKeyService.uploadKey(userInfo, keyContent, false);
-		assertNotNull(actualUuid);
-		assertEquals(expectedUuid, actualUuid);
+		String actualString = accessKeyService.uploadKey(userInfo, keyContent, false);
+		assertNotNull(actualString);
+		assertEquals(expectedString, actualString);
 
 		verify(keyDAO).upsertKey(USER, keyContent, false);
-		verify(requestBuilder).newKeyReupload(userInfo, keyContent);
-		verify(provisioningService).post("/reupload_key", TOKEN, uploadFile, String.class);
-		verify(requestId).put(USER, expectedUuid);
-		verify(exploratoryService).updateUserInstancesReuploadKeyFlag(USER);
-		verifyNoMoreInteractions(keyDAO, exploratoryService, requestBuilder, provisioningService, requestId);
+		verify(reuploadKeyService).reuploadKey(userInfo, keyContent);
+		verifyNoMoreInteractions(keyDAO, reuploadKeyService);
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void reUploadKeyWithException() {
 		doNothing().when(keyDAO).upsertKey(anyString(), anyString(), anyBoolean());
-		doThrow(new RuntimeException()).when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString());
+		doThrow(new RuntimeException()).when(reuploadKeyService).reuploadKey(any(UserInfo.class), anyString());
 
 		expectedException.expect(RuntimeException.class);
 
@@ -264,7 +272,7 @@ public class AccessKeyServiceImplTest {
 		when(provisioningService.post(anyString(), anyString(), any(UploadFile.class), any())).thenReturn(someUuid);
 		when(requestId.put(anyString(), anyString())).thenReturn(someUuid);
 
-		String actualPrivateKey = accessKeyService.generateKey(userInfo);
+		String actualPrivateKey = accessKeyService.generateKey(userInfo, true);
 		assertTrue(StringUtils.isNotEmpty(actualPrivateKey));
 
 		verify(keyDAO).upsertKey(eq(USER), anyString(), eq(true));
@@ -282,7 +290,7 @@ public class AccessKeyServiceImplTest {
 		doNothing().when(keyDAO).deleteKey(anyString());
 
 		try {
-			accessKeyService.generateKey(userInfo);
+			accessKeyService.generateKey(userInfo, true);
 		} catch (DlabException e) {
 			assertEquals("Could not upload the key and create EDGE node: ", e.getMessage());
 		}

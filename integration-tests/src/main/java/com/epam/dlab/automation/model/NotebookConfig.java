@@ -21,6 +21,9 @@ package com.epam.dlab.automation.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
+import java.util.Collections;
+import java.util.List;
+
 public class NotebookConfig {
 
     @JsonProperty("notebook_template")
@@ -71,8 +74,14 @@ public class NotebookConfig {
 	@JsonProperty("image_test_required")
 	private boolean imageTestRequired = false;
 
+	@JsonProperty("skipped_libraries")
+	private List<Lib> skippedLibraries = Collections.emptyList();
 
-    public String getTimeoutNotebookCreate() {
+	public List<Lib> getSkippedLibraries() {
+		return skippedLibraries;
+	}
+
+	public String getTimeoutNotebookCreate() {
     	return timeoutNotebookCreate;
     }
 
@@ -156,6 +165,7 @@ public class NotebookConfig {
     			.add("dataEngineType", dataEngineType)
     			.add("fullTest", fullTest)
 				.add("imageTestRequired", imageTestRequired)
+				.add("skippedLibraries", skippedLibraries)
     			.toString();
     }
 

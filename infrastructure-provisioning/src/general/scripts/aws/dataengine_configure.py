@@ -180,6 +180,7 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
         edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
+        edge_instance_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Public')
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -317,8 +318,48 @@ if __name__ == "__main__":
             remove_ec2(data_engine['tag_name'], slave_name)
         sys.exit(1)
 
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        notebook_instance_ip = get_instance_private_ip_address('Name', os.environ['notebook_instance_name'])
+        additional_info = {
+            "computational_name": data_engine['computational_name'],
+            "master_node_hostname": master_node_hostname,
+            "notebook_instance_ip": notebook_instance_ip,
+            "instance_count": data_engine['instance_count'],
+            "master_node_name": data_engine['master_node_name'],
+            "slave_node_name": data_engine['slave_node_name'],
+            "tensor": False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_hostname,
+                    keyfile_name,
+                    data_engine['dlab_ssh_user'],
+                    'spark',
+                    data_engine['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(data_engine['tag_name'], slave_name)
+        sys.exit(1)
 
     try:
+        ip_address = get_instance_ip_address(data_engine['tag_name'],
+                                             data_engine['master_node_name']).get('Private')
+        spark_master_url = "http://" + ip_address + ":8080"
+        spark_master_acces_url = "http://" + edge_instance_ip + "/{}/".format(data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(data_engine['service_base_name']))
@@ -331,7 +372,13 @@ if __name__ == "__main__":
             res = {"hostname": data_engine['cluster_name'],
                    "instance_id": get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name']),
                    "key_name": data_engine['key_name'],
-                   "Action": "Create new Data Engine"}
+                   "Action": "Create new Data Engine",
+                   "computational_url": [
+                       {"description": "SPARK Master",
+                        "url": spark_master_acces_url},
+                       #{"description": "SPARK Master (via tunnel)",
+                        #"url": spark_master_url}
+                   ]}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:

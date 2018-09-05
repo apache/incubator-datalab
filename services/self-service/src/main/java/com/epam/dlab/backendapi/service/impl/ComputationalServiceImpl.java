@@ -16,7 +16,7 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
+
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
@@ -42,7 +43,10 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.epam.dlab.UserInstanceStatus.*;
+import java.util.List;
+import java.util.Optional;
+
+import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
 
 @Singleton
@@ -52,6 +56,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	private static final String COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT = "Could not update the status of " +
 			"computational resource {} for user {}";
 	private static final String OP_NOT_SUPPORTED_DES = "Operation for data engine service is not supported";
+
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
@@ -177,6 +182,45 @@ public class ComputationalServiceImpl implements ComputationalService {
 				ComputationalAPI.COMPUTATIONAL_START_SPARK);
 	}
 
+	/**
+	 * Updates parameter 'reuploadKeyRequired' for corresponding user's computational resources with allowable statuses
+	 * which are affiliated with exploratories with theirs allowable statuses.
+	 *
+	 * @param user                  user.
+	 * @param exploratoryStatuses   allowable exploratories' statuses.
+	 * @param computationalTypes    type list of computational resource.
+	 * @param reuploadKeyRequired   true/false.
+	 * @param computationalStatuses allowable statuses for computational resources.
+	 */
+	@Override
+	public void updateComputationalsReuploadKeyFlag(String user, List<UserInstanceStatus> exploratoryStatuses,
+													List<DataEngineType> computationalTypes,
+													boolean reuploadKeyRequired,
+													UserInstanceStatus... computationalStatuses) {
+		computationalDAO.updateReuploadKeyFlagForComputationalResources(user, exploratoryStatuses, computationalTypes,
+				reuploadKeyRequired, computationalStatuses);
+	}
+
+	/**
+	 * Returns computational resource's data by name for user's exploratory.
+	 *
+	 * @param user              user.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return corresponding computational resource's data or empty data if resource doesn't exist.
+	 */
+	@Override
+	public Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
+																		String computationalName) {
+		try {
+			return Optional.of(computationalDAO.fetchComputationalFields(user, exploratoryName, computationalName));
+		} catch (DlabException e) {
+			log.warn("Computational resource {} affiliated with exploratory {} for user {} not found.",
+					computationalName, exploratoryName, user);
+		}
+		return Optional.empty();
+	}
+
 	private void sparkAction(UserInfo userInfo, String exploratoryName, String computationalName, UserInstanceStatus
 			compStatus, String provisioningEndpoint) {
 		final UserComputationalResource computationalResource = computationalDAO.fetchComputationalFields(userInfo
@@ -186,10 +230,11 @@ public class ComputationalServiceImpl implements ComputationalService {
 			log.debug("{} spark cluster {} for exploratory {}", compStatus.toString(), computationalName,
 					exploratoryName);
 			updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, compStatus);
-			final String exploratoryId = exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
+			final UserInstanceDTO exploratory = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+					exploratoryName);
 			final String uuid = provisioningService.post(provisioningEndpoint,
 					userInfo.getAccessToken(),
-					toProvisioningDto(userInfo, exploratoryName, computationalName, compStatus, exploratoryId),
+					toProvisioningDto(userInfo, computationalName, compStatus, exploratory),
 					String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} else {
@@ -199,13 +244,13 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	private ComputationalBase<? extends ComputationalBase<?>> toProvisioningDto(UserInfo userInfo, String
-			exploratoryName, String computationalName, UserInstanceStatus compStatus, String exploratoryId) {
+			computationalName, UserInstanceStatus compStatus, UserInstanceDTO exploratory) {
 		if (UserInstanceStatus.STARTING == compStatus) {
 			return requestBuilder
-					.newComputationalStart(userInfo, exploratoryName, exploratoryId, computationalName);
+					.newComputationalStart(userInfo, exploratory, computationalName);
 		} else if (UserInstanceStatus.STOPPING == compStatus) {
 			return requestBuilder
-					.newComputationalStop(userInfo, exploratoryName, exploratoryId, computationalName);
+					.newComputationalStop(userInfo, exploratory, computationalName);
 		} else {
 			throw new UnsupportedOperationException();
 		}

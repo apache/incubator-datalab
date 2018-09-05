@@ -29,7 +29,7 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
+  <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="admin"></dlab-navbar>
   <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer *ngIf="data">
@@ -69,6 +69,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   healthStatus: any;
   billingEnabled: boolean;
+  admin: boolean;
 
   constructor(
     private billingReportService: BillingReportService,
@@ -124,11 +125,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getDefaultFilterConfiguration(data): void {
-    const users = [], types = [], shapes = [], services = [];
+    const users = [], types = [], shapes = [], services = [], statuses = [];
 
     data.lines.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1)
         users.push(item.user);
+
+      if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1)
+        statuses.push(item.status.toLowerCase());
 
       if (item[DICTIONARY.billing.resourceType] && types.indexOf(item[DICTIONARY.billing.resourceType]) === -1)
         types.push(item[DICTIONARY.billing.resourceType]);
@@ -156,8 +160,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
         services.push(item[DICTIONARY.billing.service]);
     });
 
-    if (!this.reportingGrid.filterConfiguration) {
-      this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '', '');
+    if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {
+      this.filterConfiguration = new ReportingConfigModel(users, services, types, statuses, shapes, '', '', '');
       this.reportingGrid.setConfiguration(this.filterConfiguration);
       localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
     }
@@ -216,6 +220,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.healthStatus = result.status;
         this.billingEnabled = result.billingEnabled;
+        this.admin = result.admin;
 
         this.checkUserAccessKey();
       });

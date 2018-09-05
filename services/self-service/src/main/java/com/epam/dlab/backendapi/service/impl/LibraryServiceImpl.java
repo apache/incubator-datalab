@@ -16,7 +16,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BaseDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -28,6 +27,7 @@ import com.epam.dlab.backendapi.resources.dto.LibraryStatus;
 import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;

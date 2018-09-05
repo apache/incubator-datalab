@@ -22,7 +22,7 @@ import { Component, OnDestroy, Input, Output, EventEmitter, ElementRef, ViewChil
   moduleId: module.id,
   selector: 'modal-dialog',
   templateUrl: 'modal.component.html',
-  styleUrls: ['./modal.component.css'],
+  styleUrls: ['./modal.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 

@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.google.inject.Inject;
 import com.mongodb.client.FindIterable;
@@ -84,21 +85,22 @@ public abstract class BillingDAO extends BaseDAO {
 				.find()
 				.projection(
 						fields(excludeId(),
-								include(SHAPE, EXPLORATORY_ID,
+								include(SHAPE, EXPLORATORY_ID, STATUS,
 										COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_ID,
 										COMPUTATIONAL_RESOURCES + "." + MASTER_NODE_SHAPE,
 										COMPUTATIONAL_RESOURCES + "." + SLAVE_NODE_SHAPE,
 										COMPUTATIONAL_RESOURCES + "." + TOTAL_INSTANCE_NUMBER,
 										COMPUTATIONAL_RESOURCES + "." + DATAENGINE_SHAPE,
 										COMPUTATIONAL_RESOURCES + "." + DATAENGINE_INSTANCE_COUNT,
-										COMPUTATIONAL_RESOURCES + "." + DATAENGINE_DOCKER_IMAGE
+										COMPUTATIONAL_RESOURCES + "." + DATAENGINE_DOCKER_IMAGE,
+										COMPUTATIONAL_RESOURCES + "." + STATUS
 								)));
 	}
 
 	private Optional<ShapeInfo> getExploratoryShape(List<String> shapeNames, Document d) {
 		final String shape = d.getString(SHAPE);
 		if (isShapeAcceptable(shapeNames, shape)) {
-			return Optional.of(new ShapeInfo(shape));
+			return Optional.of(new ShapeInfo(shape, UserInstanceStatus.of(d.getString(STATUS))));
 		}
 		return Optional.empty();
 	}
@@ -112,7 +114,8 @@ public abstract class BillingDAO extends BaseDAO {
 		final String desMasterShape = c.getString(MASTER_NODE_SHAPE);
 		final String desSlaveShape = c.getString(SLAVE_NODE_SHAPE);
 		if (isShapeAcceptable(shapeNames, desMasterShape, desSlaveShape)) {
-			return Optional.of(new ShapeInfo(desMasterShape, desSlaveShape, c.getString(TOTAL_INSTANCE_NUMBER)));
+			return Optional.of(new ShapeInfo(desMasterShape, desSlaveShape, c.getString(TOTAL_INSTANCE_NUMBER),
+					UserInstanceStatus.of(c.getString(STATUS))));
 		}
 		return Optional.empty();
 	}
@@ -122,7 +125,8 @@ public abstract class BillingDAO extends BaseDAO {
 		if ((isShapeAcceptable(shapeNames, dataEngineShape))
 				&& StringUtils.isNotEmpty(c.getString(COMPUTATIONAL_ID))) {
 
-			return Optional.of(new ShapeInfo(dataEngineShape, c.getString(DATAENGINE_INSTANCE_COUNT)));
+			return Optional.of(new ShapeInfo(dataEngineShape, c.getString(DATAENGINE_INSTANCE_COUNT),
+					UserInstanceStatus.of(c.getString(STATUS))));
 		}
 		return Optional.empty();
 	}
@@ -151,27 +155,29 @@ public abstract class BillingDAO extends BaseDAO {
 		private final String slaveShape;
 		private final String slaveCount;
 		private final boolean isExploratory;
+		private final UserInstanceStatus status;
 
 		private ShapeInfo(boolean isDataEngine, String shape, String slaveShape, String slaveCount, boolean
-				isExploratory) {
+				isExploratory, UserInstanceStatus status) {
 			this.isDataEngine = isDataEngine;
 			this.shape = shape;
 			this.slaveShape = slaveShape;
 			this.slaveCount = slaveCount;
 			this.isExploratory = isExploratory;
+			this.status = status;
 		}
 
-		public ShapeInfo(String shape) {
-			this(false, shape, null, null, true);
+		public ShapeInfo(String shape, UserInstanceStatus status) {
+			this(false, shape, null, null, true, status);
 		}
 
-		ShapeInfo(String shape, String slaveShape, String slaveCount) {
-			this(false, shape, slaveShape, slaveCount, false);
+		ShapeInfo(String shape, String slaveShape, String slaveCount, UserInstanceStatus status) {
+			this(false, shape, slaveShape, slaveCount, false, status);
 		}
 
 
-		ShapeInfo(String shape, String slaveCount) {
-			this(true, shape, null, slaveCount, false);
+		ShapeInfo(String shape, String slaveCount, UserInstanceStatus status) {
+			this(true, shape, null, slaveCount, false, status);
 		}
 
 		public String getName() {

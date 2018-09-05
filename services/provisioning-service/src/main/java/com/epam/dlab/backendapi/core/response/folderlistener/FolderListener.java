@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.core.response.folderlistener;
 
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.response.folderlistener.WatchItem.ItemStatus;
+import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.exceptions.DlabException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,27 +66,32 @@ public class FolderListener implements Runnable {
 	 * @param fileHandlerCallback  File handler for processing.
 	 * @param timeoutMillis        Timeout waiting for the file creation in milliseconds.
 	 * @param fileLengthCheckDelay Timeout waiting for the file writing in milliseconds.
+	 * @param callbackHandlerDao   callbackHandlerDao for handlers
 	 * @return Instance of the file handler.
 	 */
 	public static WatchItem listen(String directoryName, FileHandlerCallback fileHandlerCallback,
-								   long timeoutMillis, long fileLengthCheckDelay) {
-		return listen(directoryName, fileHandlerCallback, timeoutMillis, fileLengthCheckDelay, null);
+								   long timeoutMillis, long fileLengthCheckDelay,
+								   CallbackHandlerDao callbackHandlerDao) {
+		return listen(directoryName, fileHandlerCallback, timeoutMillis, fileLengthCheckDelay, null,
+				callbackHandlerDao);
 	}
 
 	/**
 	 * Appends the file handler for processing to the folder listener for the existing file and returns
 	 * instance of the file handler. If the file name is <b>null</b> this means that file does not exist
-	 * and equal to call method {@link FolderListener#listen(String, FileHandlerCallback, long, long)}.
+	 * and equal to call method
+	 * {@link FolderListener#listen(String, FileHandlerCallback, long, long, CallbackHandlerDao)}.
 	 *
 	 * @param directoryName        Name of directory for listen.
 	 * @param fileHandlerCallback  File handler for processing.
 	 * @param timeoutMillis        Timeout waiting for the file creation in milliseconds.
 	 * @param fileLengthCheckDelay Timeout waiting for the file writing in milliseconds.
 	 * @param fileName             file name.
+	 * @param callbackHandlerDao   callbackHandlerDao for handlers
 	 * @return Instance of the file handler.
 	 */
-	public static WatchItem listen(String directoryName, FileHandlerCallback fileHandlerCallback,
-								   long timeoutMillis, long fileLengthCheckDelay, String fileName) {
+	public static WatchItem listen(String directoryName, FileHandlerCallback fileHandlerCallback, long timeoutMillis,
+								   long fileLengthCheckDelay, String fileName, CallbackHandlerDao callbackHandlerDao) {
 		FolderListener listener;
 		WatchItem item;
 
@@ -109,7 +115,7 @@ public class FolderListener implements Runnable {
 			}
 			LOGGER.debug("Folder listener \"{}\" not found. Create new listener and append file handler for UUID {}",
 					directoryName, fileHandlerCallback.getUUID());
-			listener = new FolderListener(directoryName);
+			listener = new FolderListener(directoryName, callbackHandlerDao);
 			item = listener.itemList.append(fileHandlerCallback, timeoutMillis, fileLengthCheckDelay, fileName);
 			listeners.add(listener);
 			listener.start();
@@ -163,9 +169,10 @@ public class FolderListener implements Runnable {
 	 * Creates thread of the folder listener
 	 *
 	 * @param directoryName Name of directory.
+	 * @param dao
 	 */
-	private FolderListener(String directoryName) {
-		itemList = new WatchItemList(directoryName);
+	private FolderListener(String directoryName, CallbackHandlerDao dao) {
+		itemList = new WatchItemList(directoryName, dao);
 	}
 
 	/**

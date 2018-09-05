@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ConfigurationValidatorTest {

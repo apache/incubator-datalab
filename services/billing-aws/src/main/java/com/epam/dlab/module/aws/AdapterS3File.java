@@ -24,8 +24,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.epam.dlab.core.AdapterBase;
-import com.epam.dlab.core.parser.ReportLine;
-import com.epam.dlab.exception.AdapterException;
+import com.epam.dlab.exceptions.AdapterException;
+import com.epam.dlab.model.aws.ReportLine;
 import com.epam.dlab.module.ModuleName;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -109,6 +109,9 @@ public class AdapterS3File extends AdapterBase {
 	 */
 	@JsonProperty
 	private String secretAccessKey;
+
+	@JsonProperty
+	private boolean awsJobEnabled;
 
 	/**
 	 * Return the name of bucket.
@@ -235,7 +238,7 @@ public class AdapterS3File extends AdapterBase {
 		if (getMode() == Mode.READ) {
 			setLastModificationDate();
 			clientS3 = getAmazonClient();
-			S3FileList s3files = new S3FileList(bucket, getModuleData());
+			S3FileList s3files = new S3FileList(awsJobEnabled,bucket, getModuleData());
 			filelist = s3files.getFiles(clientS3);
 			currentFileIndex = (filelist.isEmpty() ? -1 : 0);
 			fileInputStream = null;

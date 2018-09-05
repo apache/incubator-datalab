@@ -68,7 +68,8 @@ public class SparkClusterService extends DockerService implements DockerCommands
 		try {
 			final RunDockerCommand dockerCommand = new RunDockerCommand()
 					.withInteractive()
-					.withName(nameContainer(dto.getEdgeUserName(), action, dto.getComputationalName()))
+					.withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName(),
+							dto.getComputationalName()))
 					.withVolumeForRootKeys(configuration.getKeyDirectory())
 					.withVolumeForResponse(configuration.getImagesDirectory())
 					.withVolumeForLog(configuration.getDockerLogDirectory(), SPARK_ENGINE.getName())
@@ -90,8 +91,8 @@ public class SparkClusterService extends DockerService implements DockerCommands
 		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
 	}
 
-	private String nameContainer(String user, DockerAction action, String name) {
-		return nameContainer(user, action.toString(), "computational", name);
+	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {
+		return nameContainer(user, action.toString(), "computational", exploratoryName, name);
 	}
 
 	@Override

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
@@ -26,36 +42,36 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class ImageResource extends DockerService implements DockerCommands {
 
-    @POST
-    public Response createImage(@Auth UserInfo ui, ExploratoryImageDTO image) throws JsonProcessingException {
-        final String uuid = DockerCommands.generateUUID();
+	@POST
+	public Response createImage(@Auth UserInfo ui, ExploratoryImageDTO image) throws JsonProcessingException {
+		final String uuid = DockerCommands.generateUUID();
 
-        folderListenerExecutor.start(configuration.getImagesDirectory(), configuration.getResourceStatusPollTimeout(),
-                new ImageCreateCallbackHandler(selfService, uuid,
-                        DockerAction.CREATE_IMAGE, image));
-        String command = commandBuilder.buildCommand(getDockerCommand(DockerAction.CREATE_IMAGE, uuid, image), image);
-        commandExecutor.executeAsync(ui.getName(), uuid, command);
-        log.debug("Docker command: " + command);
-        return Response.accepted(uuid).build();
-    }
+		folderListenerExecutor.start(configuration.getImagesDirectory(), configuration.getResourceStatusPollTimeout(),
+				new ImageCreateCallbackHandler(selfService, uuid,
+						DockerAction.CREATE_IMAGE, image));
+		String command = commandBuilder.buildCommand(getDockerCommand(DockerAction.CREATE_IMAGE, uuid, image), image);
+		commandExecutor.executeAsync(ui.getName(), uuid, command);
+		log.debug("Docker command: " + command);
+		return Response.accepted(uuid).build();
+	}
 
 
-    @Override
-    public String getResourceType() {
-        return Directories.NOTEBOOK_LOG_DIRECTORY;
-    }
+	@Override
+	public String getResourceType() {
+		return Directories.NOTEBOOK_LOG_DIRECTORY;
+	}
 
-    private RunDockerCommand getDockerCommand(DockerAction action, String uuid, ExploratoryImageDTO image) {
-        return new RunDockerCommand()
-                .withInteractive()
-                .withVolumeForRootKeys(configuration.getKeyDirectory())
-                .withVolumeForResponse(configuration.getImagesDirectory())
-                .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                .withRequestId(uuid)
-                .withConfKeyName(configuration.getAdminKey())
-                .withAction(action)
-                .withResource(getResourceType())
-                .withImage(image.getNotebookImage())
-                .withName(nameContainer(image.getEdgeUserName(), action.toString(), image.getImageName()));
-    }
+	private RunDockerCommand getDockerCommand(DockerAction action, String uuid, ExploratoryImageDTO image) {
+		return new RunDockerCommand()
+				.withInteractive()
+				.withVolumeForRootKeys(configuration.getKeyDirectory())
+				.withVolumeForResponse(configuration.getImagesDirectory())
+				.withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
+				.withRequestId(uuid)
+				.withConfKeyName(configuration.getAdminKey())
+				.withAction(action)
+				.withResource(getResourceType())
+				.withImage(image.getNotebookImage())
+				.withName(nameContainer(image.getEdgeUserName(), action.toString(), image.getImageName()));
+	}
 }

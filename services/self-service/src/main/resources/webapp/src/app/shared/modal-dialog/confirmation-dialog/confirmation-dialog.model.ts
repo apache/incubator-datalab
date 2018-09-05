@@ -21,19 +21,21 @@ import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
-import { UserResourceService, HealthStatusService } from '../../../core/services';
+import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 
 export class ConfirmationDialogModel {
   private title: string;
   private notebook: any;
   private confirmAction: Function;
+  private manageAction: Function;
   private userResourceService: UserResourceService;
   private healthStatusService: HealthStatusService;
+  private manageEnvironmentsService: ManageEnvironmentsService;
 
   static getDefault(): ConfirmationDialogModel {
     return new
       ConfirmationDialogModel(
-      ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, null, null);
+      ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, false, null, null, null);
   }
 
   constructor(
@@ -41,11 +43,15 @@ export class ConfirmationDialogModel {
     notebook: any,
     fnProcessResults: any,
     fnProcessErrors: any,
+    manageAction,
     userResourceService: UserResourceService,
-    healthStatusService: HealthStatusService
+    healthStatusService: HealthStatusService,
+    manageEnvironmentsService: ManageEnvironmentsService
   ) {
     this.userResourceService = userResourceService;
     this.healthStatusService = healthStatusService;
+    this.manageEnvironmentsService = manageEnvironmentsService;
+    this.manageAction = manageAction;
     this.setup(confirmationType, notebook, fnProcessResults, fnProcessErrors);
   }
 
@@ -54,7 +60,8 @@ export class ConfirmationDialogModel {
       for (let i = 0; i < resources.length; i++) {
         if (resources[i].status.toLowerCase() != 'failed'
           && resources[i].status.toLowerCase() != 'terminated'
-          && resources[i].status.toLowerCase() != 'terminating')
+          && resources[i].status.toLowerCase() != 'terminating'
+          && resources[i].status.toLowerCase() != 'stopped')
             return true;
       }
     }
@@ -63,30 +70,36 @@ export class ConfirmationDialogModel {
   }
 
 
-  private stopExploratory(): Observable<Response> {
-    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
+  private stopExploratory(): Observable<{} | Response> {
+    return this.manageAction 
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.name)
+      : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
-  private terminateExploratory(): Observable<Response> {
-    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
+  private terminateExploratory(): Observable<{} | Response> {
+    return this.manageAction 
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'terminate', this.notebook.name)
+      : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
-  private stopEdgeNode(): Observable<Response> {
-    return this.healthStatusService.suspendEdgeNode();
+  private stopEdgeNode(): Observable<{} | Response> {
+    return this.manageAction 
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', 'edge')
+      : this.healthStatusService.suspendEdgeNode();
   }
 
   private setup(confirmationType: ConfirmationDialogType, notebook: any, fnProcessResults: any, fnProcessErrors: any): void {
-    const defaultStopMessage = 'Exploratory Environment will be stopped';
+    const defaultStopMessage = 'Notebook server will be stopped.';
+    const containRunningResourcesStopMessage = 'Notebook server will be stopped and all computational resources will be stopped/terminated.';
 
-    const containRunningResourcesTerminateMessage = 'Exploratory Environment and all connected computational resources\
-     will be terminated.';
-    const defaultTerminateMessage = 'Exploratory Environment will be terminated.';
+    const defaultTerminateMessage = 'Notebook server will be terminated.';
+    const containRunningResourcesTerminateMessage = 'Notebook server and all computational resources will be terminated.';
 
     const edgeNodeStopMessage = 'Edge node will be stopped. You will need to start it later to proceed working with DLAB.';
 
     switch (confirmationType) {
       case ConfirmationDialogType.StopExploratory: {
-        this.title = defaultStopMessage;
+        this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesStopMessage : defaultStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
           .subscribe((response: Response) => fnProcessResults(response),

@@ -20,6 +20,8 @@ import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.contract.SecurityAPI;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.BackupDao;
@@ -32,15 +34,15 @@ import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.service.impl.*;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
-import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
+import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
 /**
@@ -87,6 +89,12 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(SchedulerJobService.class).to(SchedulerJobServiceImpl.class);
 		bind(EnvironmentService.class).to(EnvironmentServiceImpl.class);
 		bind(EdgeService.class).to(EdgeServiceImpl.class);
+		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
+		bind(UserResourceService.class).to(UserResourceServiceImpl.class);
+		bind(Client.class).toInstance(new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration())
+				.build(""));
+
+		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
 	}
 
 	/**

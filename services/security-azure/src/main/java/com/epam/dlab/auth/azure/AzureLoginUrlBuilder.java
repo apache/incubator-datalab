@@ -16,7 +16,7 @@
 
 package com.epam.dlab.auth.azure;
 
-import com.epam.dlab.config.azure.AzureLoginConfiguration;
+import com.epam.dlab.auth.conf.AzureLoginConfiguration;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 

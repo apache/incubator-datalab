@@ -19,15 +19,15 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.SecurityAPI;
+import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.validation.AwsValidation;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

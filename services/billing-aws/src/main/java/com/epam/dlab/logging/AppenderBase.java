@@ -20,7 +20,7 @@ package com.epam.dlab.logging;
 
 import java.util.TimeZone;
 
-import com.epam.dlab.exception.InitializationException;
+import com.epam.dlab.exceptions.InitializationException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;

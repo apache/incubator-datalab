@@ -18,14 +18,15 @@
 
 package com.epam.dlab.backendapi.core.commands;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.utils.ServiceUtils;
+import com.epam.dlab.util.SecurityUtils;
+import com.epam.dlab.util.ServiceUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,10 +37,9 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@Slf4j
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
 	private static final String JSON_FILE_ENDING = ".json";
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
@@ -77,7 +77,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		try {
 			run();
 		} catch (Exception e) {
-			LOGGER.error("Command with UUID {} fails: {}", uuid, e.getLocalizedMessage(), e);
+			log.error("Command with UUID {} fails: {}", uuid, e.getLocalizedMessage(), e);
 			return false;
 		}
 		return true;
@@ -106,13 +106,13 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 	}
 
 	public void run() {
-		LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid, command);
+		log.debug("Run OS command for user {} with UUID {}: {}", user, uuid, SecurityUtils.hideCreds(command));
 
 		responseFileName = null;
 		parser = new CommandParserMock(command, uuid);
-		LOGGER.debug("Parser is {}", parser);
+		log.debug("Parser is {}", SecurityUtils.hideCreds(parser.toString()));
 		DockerAction action = DockerAction.of(parser.getAction());
-		LOGGER.debug("Action is {}", action);
+		log.debug("Action is {}", action);
 
 		if (parser.isDockerCommand()) {
 			if (action == null) {
@@ -135,6 +135,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 						action(user, action);
 						break;
 					case CONFIGURE:
+					case REUPLOAD_KEY:
 						sleep(1000);
 						action(user, action);
 						break;
@@ -144,9 +145,10 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 						break;
 					case LIB_LIST:
 						action(user, action);
-						copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json", cloudProvider.getName
-                                        ()),
-								"notebook_lib_list_pkgs.json", parser.getResponsePath());
+						copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json",
+								cloudProvider.getName()),
+								String.join("_", "notebook", uuid, "all_pkgs") +
+										JSON_FILE_ENDING, parser.getResponsePath());
 						break;
 					case LIB_INSTALL:
 						parser.getVariables().put("lib_install", getResponseLibInstall(true));
@@ -158,15 +160,15 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			} catch (Exception e) {
 				String msg = "Cannot execute command for user " + user + " with UUID " + uuid + ". " +
 						e.getLocalizedMessage();
-				LOGGER.error(msg, e);
+				log.error(msg, e);
 				throw new DlabException(msg, e);
 			}
 		} else {
 			final String scriptName = StringUtils.substringBefore(Paths.get(parser.getCommand()).getFileName()
-                    .toString(), ".");
+					.toString(), ".");
 			String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + scriptName + JSON_FILE_ENDING;
 			responseFileName = getAbsolutePath(parser.getResponsePath(), scriptName + user + "_" + parser.getRequestId
-                    () + JSON_FILE_ENDING);
+					() + JSON_FILE_ENDING);
 			setResponse(templateFileName, responseFileName);
 		}
 
@@ -176,22 +178,22 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
-			LOGGER.error("InterruptedException occurred: {}", e.getMessage());
+			log.error("InterruptedException occurred: {}", e.getMessage());
 			Thread.currentThread().interrupt();
 		}
 	}
 
 	private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws
-            IOException {
+			IOException {
 		File to = new File(getAbsolutePath(destinationFolder, destinationFileName));
 
 		try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream
-                (sourceFilePath);
+				(sourceFilePath);
 			 OutputStream outputStream = new FileOutputStream(to)) {
 			ByteStreams.copy(inputStream, outputStream);
 		}
 
-		LOGGER.debug("File {} copied to {}", sourceFilePath, to);
+		log.debug("File {} copied to {}", sourceFilePath, to);
 	}
 
 	/**
@@ -218,7 +220,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 	/**
 	 * Find and return the directory "infrastructure-provisioning/src".
 	 *
-	 * @throws FileNotFoundException
+	 * @throws FileNotFoundException may be thrown
 	 */
 	private String findTemplatesDir() throws FileNotFoundException {
 		String dir = System.getProperty("docker.dir");
@@ -258,11 +260,11 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			templateFileName = getAbsolutePath(findTemplatesDir(), parser.getImageType() + "_description.json");
 		} catch (FileNotFoundException e) {
 			throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(),
-                    e);
+					e);
 		}
 		responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + JSON_FILE_ENDING);
 
-		LOGGER.debug("Create response file from {} to {}", templateFileName, responseFileName);
+		log.debug("Create response file from {} to {}", templateFileName, responseFileName);
 		File fileResponse = new File(responseFileName);
 		File fileTemplate = new File(templateFileName);
 		try {
@@ -276,7 +278,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			Files.copy(fileTemplate, fileResponse);
 		} catch (IOException e) {
 			throw new DlabException("Can't create response file " + responseFileName + ": " + e.getLocalizedMessage(),
-                    e);
+					e);
 		}
 	}
 
@@ -290,12 +292,12 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		String resourceType = parser.getResourceType();
 
 		String prefixFileName = (Lists.newArrayList("edge", "dataengine", "dataengine-service").contains
-                (resourceType) ?
+				(resourceType) ?
 				resourceType : "notebook") + "_";
 		String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString
-                () + JSON_FILE_ENDING;
+				() + JSON_FILE_ENDING;
 		responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId
-                () + JSON_FILE_ENDING);
+				() + JSON_FILE_ENDING);
 		setResponse(templateFileName, responseFileName);
 	}
 
@@ -390,6 +392,6 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		} catch (IOException e) {
 			throw new DlabException("Can't write response file " + targetFileName + ": " + e.getLocalizedMessage(), e);
 		}
-		LOGGER.debug("Create response file from {} to {}", sourceFileName, targetFileName);
+		log.debug("Create response file from {} to {}", sourceFileName, targetFileName);
 	}
 }

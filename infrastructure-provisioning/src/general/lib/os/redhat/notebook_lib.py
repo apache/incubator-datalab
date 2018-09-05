@@ -91,6 +91,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
             sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
             sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+            sudo('R -e "library(\'devtools\');install_github(\'rstudio/keras\');"')
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/{}/.ensure_dir/r_ensured'.format(os_user))
         except:
@@ -103,6 +104,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('yum install -y --nogpgcheck https://download2.rstudio.org/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            if os.environ['application'] == 'tensor-rstudio':
+                sudo("sed -i '/ExecStart/s|=|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /etc/systemd/system/rstudio-server.service")
+                sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
+                sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
@@ -134,8 +139,8 @@ def ensure_matplot(os_user):
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
-                sudo('python2.7 -m pip install -U numpy --no-cache-dir')
+                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.5 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -177,8 +182,8 @@ def ensure_additional_python_libs(os_user):
             sudo('yum clean all')
             sudo('yum install -y zlib-devel libjpeg-turbo-devel --nogpgcheck')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-                sudo('python3.5 -m pip install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
+                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.5 -m pip install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
                 sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
@@ -243,8 +248,10 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
-    if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
+def install_tensor(os_user, cuda_version, cuda_file_name,
+                   cudnn_version, cudnn_file_name, tensorflow_version,
+                   templates_dir, nvidia_version):
+    if not exists('/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
         try:
             # install nvidia drivers
             sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
@@ -252,21 +259,20 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('dracut --force')
             with settings(warn_only=True):
                 reboot(wait=150)
-            sudo('yum -y install gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
+            sudo('yum -y install dkms gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
-            sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
+            sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip=={} wheel numpy --no-cache-dir'. format(os.environ['conf_pip_version']))
-            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
-            sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
-            sudo('mv /usr/local/cuda-8.0 /opt/')
-            sudo('ln -s /opt/cuda-8.0 /usr/local/cuda-8.0')
-            sudo('rm -f /opt/cuda_8.0.44_linux-run')
+            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
+            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
+            sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
+            sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
+            sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
+            sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            cudnn = 'cudnn-8.0-linux-x64-v6.0.tgz'
-            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/{0} -O /tmp/{0}'.format(cudnn))
-            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn))
+            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
+            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             sudo('mkdir -p /opt/cudnn/include')
             sudo('mkdir -p /opt/cudnn/lib64')
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
@@ -274,20 +280,20 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
             run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
-            sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
-            sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
-            sudo('python2.7 -m pip install --upgrade tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl --no-cache-dir')
-            sudo('python3.5 -m pip install --upgrade tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
-            sudo('rm -rf /home/' + os_user + '/tensorflow_gpu-*')
-            sudo('mkdir /var/log/tensorboard; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard')
-            put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
-            sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/tensorboard.service")
+            sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl'.format(tensorflow_version))
+            sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl'.format(tensorflow_version))
+            sudo('python2.7 -m pip install --upgrade tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('python3.5 -m pip install --upgrade tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('rm -rf /home/{}/tensorflow_gpu-*'.format(os_user))
+            sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
+            put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
+            sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
             sudo("chmod 644 /tmp/tensorboard.service")
             sudo('\cp /tmp/tensorboard.service /etc/systemd/system/')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
-            sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
+            sudo('touch /home/{}/.ensure_dir/tensor_ensured'.format(os_user))
         except:
             sys.exit(1)
 
@@ -374,9 +380,9 @@ def get_available_os_pkgs():
 def install_opencv(os_user):
     if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
         sudo('yum install -y cmake python34 python34-devel python34-pip gcc gcc-c++')
-        sudo('pip2 install numpy --no-cache-dir')
-        sudo('pip3.4 install numpy --no-cache-dir')
-        sudo('pip3.5 install numpy --no-cache-dir')
+        sudo('pip2 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip3.4 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip3.5 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         run('git clone https://github.com/opencv/opencv.git')
         with cd('/home/{}/opencv/'.format(os_user)):
             run('git checkout 3.2.0')
@@ -434,38 +440,30 @@ def install_caffe(os_user, region, caffe_version):
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
-def install_caffe2(os_user, caffe2_version):
+def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update-minimal --security -y')
         sudo('yum install -y --nogpgcheck automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
-             'requests scikit-image scipy setuptools tornado future --no-cache-dir')
-        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
-             'requests scikit-image scipy setuptools tornado future --no-cache-dir')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        sudo('git clone https://github.com/caffe2/caffe2')
-        submodules = ['third_party/pybind11', 'third_party/nccl', 'third_party/cub',
-              'third_party/eigen', 'third_party/googletest',
-              'third_party/nervanagpu', 'third_party/benchmark',
-              'third_party/protobuf', 'third_party/ios-cmake',
-              'third_party/NNPACK', 'third_party/gloo',
-              'third_party/pthreadpool', 'third_party/FXdiv',
-              'third_party/FP16', 'third_party/psimd',
-              'third_party/zstd', 'third_party/cpuinfo',
-              'third_party/python-enum', 'third_party/python-peachpy',
-              'third_party/python-six', 'third_party/ComputeLibrary',
-              'third_party/onnx']
-        with cd('/home/{}/caffe2/'.format(os_user)):
-            for module in submodules:
-                sudo('git submodule update --init {}'.format(module))
-        cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
-        with cd('/home/{}/caffe2/'.format(os_user)):
+        sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+            os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
+        sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
+        with cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
+            sudo('./bootstrap --prefix=/usr/local && make && make install')
+        sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
+        sudo('git clone https://github.com/pytorch/pytorch.git')
+        with cd('/home/{}/pytorch/'.format(os_user)):
+            sudo('git submodule update --init')
             with settings(warn_only=True):
                 sudo('git checkout v{}'.format(caffe2_version))
                 sudo('git submodule update --recursive')
-            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
+            sudo('mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(cmake_version))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

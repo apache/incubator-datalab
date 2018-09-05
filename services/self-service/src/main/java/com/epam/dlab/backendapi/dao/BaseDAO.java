@@ -18,10 +18,10 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.mongo.IsoDateModule;
 import com.epam.dlab.mongo.MongoService;
+import com.epam.dlab.util.mongo.IsoDateModule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -60,6 +60,7 @@ public class BaseDAO {
 	static final String SET = "$set";
 	public static final String USER = "user";
 	protected static final String INSTANCE_ID = "instance_id";
+	protected static final String EDGE_STATUS = "edge_status";
 	public static final String STATUS = "status";
 	public static final String ERROR_MESSAGE = "error_message";
 	static final String TIMESTAMP = "timestamp";
@@ -198,6 +199,15 @@ public class BaseDAO {
 			LOGGER.warn("Update Mongo DB fails: {}", e.getLocalizedMessage(), e);
 			throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
 		}
+	}
+
+	/**
+	 * Finds and returns all documents from the collection.
+	 *
+	 * @param collection collection name.
+	 */
+	protected FindIterable<Document> find(String collection) {
+		return mongoService.getCollection(collection).find();
 	}
 
 	/**
@@ -376,6 +386,10 @@ public class BaseDAO {
 
 	List<String> statusList(UserInstanceStatus[] statuses) {
 		return Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(Collectors.toList());
+	}
+
+	List<String> statusList(List<UserInstanceStatus> statuses) {
+		return statuses.stream().map(UserInstanceStatus::toString).collect(Collectors.toList());
 	}
 
 	/**

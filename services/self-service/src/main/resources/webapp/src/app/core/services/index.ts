@@ -48,3 +48,4 @@ export * from './manageUngit.service';
 export * from './billingReport.service';
 export * from './backup.service';
 export * from './scheduler.service';
+export * from './managementEnvironments.service';

@@ -1,0 +1,18 @@
+{
+  "exploratory_environment_shapes" :
+  {
+    "GPU optimized": [
+      {"Size": "S", "Description": "p2.xlarge", "Type": "p2.xlarge","Ram": "61.0 GB","Cpu": "4"}
+    ]
+  },
+  "exploratory_environment_versions" :
+  [
+    {
+      "template_name": "Rstudio with TensorFlow 1.8.0",
+      "description": "Base image with TensorFlow and RStudio node creation routines",
+      "environment_type": "exploratory",
+      "version": "tensorflow_gpu-1.8.0",
+      "vendor": "AWS"
+    }
+  ]
+}

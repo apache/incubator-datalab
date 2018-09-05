@@ -20,14 +20,16 @@ package com.epam.dlab.core.parser;
 
 import com.epam.dlab.core.ModuleBase;
 import com.epam.dlab.core.aggregate.AggregateGranularity;
-import com.epam.dlab.exception.AdapterException;
-import com.epam.dlab.exception.GenericException;
-import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.exceptions.AdapterException;
+import com.epam.dlab.exceptions.GenericException;
+import com.epam.dlab.exceptions.InitializationException;
+import com.epam.dlab.exceptions.ParseException;
+import com.epam.dlab.model.aws.ReportLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -116,7 +118,7 @@ public abstract class ParserByLine extends ParserBase {
 	 *
 	 * @throws AdapterException
 	 */
-	protected void closeAdapters(boolean silent) throws AdapterException {
+	protected void close(boolean silent) throws AdapterException {
 		AdapterException ex = null;
 		try {
 			getAdapterIn().close();
@@ -134,6 +136,15 @@ public abstract class ParserByLine extends ParserBase {
 				LOGGER.warn("Cannot close adapterOut. {}", e.getLocalizedMessage(), e);
 			} else {
 				ex = new AdapterException("Cannot close adapterOut. " + e.getLocalizedMessage(), e);
+			}
+		}
+		try {
+			getModuleData().closeMongoConnection();
+		} catch (IOException e) {
+			if (silent || ex != null) {
+				LOGGER.warn("Cannot close mongo connection. {}", e.getLocalizedMessage(), e);
+			} else {
+				ex = new AdapterException("Cannot close mongo connection. " + e.getLocalizedMessage(), e);
 			}
 		}
 		if (!silent && ex != null) {
@@ -226,20 +237,20 @@ public abstract class ParserByLine extends ParserBase {
 				} while (getAdapterIn().hasMultyEntry() && getAdapterIn().hasEntryData());
 			}
 		} catch (GenericException e) {
-			closeAdapters(true);
+			close(true);
 			if (getCurrentStatistics() != null) {
 				getCurrentStatistics().stop();
 			}
 			throw e;
 		} catch (Exception e) {
-			closeAdapters(true);
+			close(true);
 			if (getCurrentStatistics() != null) {
 				getCurrentStatistics().stop();
 			}
 			throw new ParseException("Unknown parser error. " + e.getLocalizedMessage(), e);
 		}
 
-		closeAdapters(false);
+		close(false);
 		if (getCurrentStatistics() != null) {
 			getCurrentStatistics().stop();
 		}

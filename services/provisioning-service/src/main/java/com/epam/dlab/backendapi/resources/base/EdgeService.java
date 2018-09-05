@@ -24,7 +24,7 @@ import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecu
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.KeyAPI;
-import com.epam.dlab.utils.UsernameUtils;
+import com.epam.dlab.util.UsernameUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import org.slf4j.Logger;

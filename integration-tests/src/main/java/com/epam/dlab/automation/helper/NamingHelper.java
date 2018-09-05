@@ -21,6 +21,8 @@ package com.epam.dlab.automation.helper;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamingHelper {
@@ -33,6 +35,8 @@ public class NamingHelper {
 	public static final String RSTUDIO = "rstudio";
 	public static final String ZEPPELIN = "zeppelin";
 
+	private static final Map<String, String> SIMPLE_NOTEBOOK_NAMES = new HashMap<>();
+
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
     private static String serviceBaseName;
@@ -40,9 +44,21 @@ public class NamingHelper {
     private static String ssnIp;
     private static String ssnToken;
 
+	static {
+		SIMPLE_NOTEBOOK_NAMES.put(DEEPLEARNING, "dlr");
+		SIMPLE_NOTEBOOK_NAMES.put(JUPYTER, "jup");
+		SIMPLE_NOTEBOOK_NAMES.put(TENSOR, "tfl");
+		SIMPLE_NOTEBOOK_NAMES.put(RSTUDIO, "rst");
+		SIMPLE_NOTEBOOK_NAMES.put(ZEPPELIN, "zep");
+	}
+
     private NamingHelper(){}
-    
-    public static String getServiceBaseName() {
+
+	public static Map<String, String> getSimpleNotebookNames() {
+		return SIMPLE_NOTEBOOK_NAMES;
+	}
+
+	public static String getServiceBaseName() {
     	return serviceBaseName;
     }
     
@@ -166,11 +182,11 @@ public class NamingHelper {
 	public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
-    
-    public static String getClusterContainerName(String clusterName, String action) {
-    	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational", clusterName);
+
+	public static String getClusterContainerName(String notebookName, String clusterName, String action) {
+		return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational",
+				notebookName, clusterName);
     }
-    
     
     public static String generateRandomValue() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhmmss");
@@ -178,7 +194,8 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-        return String.join("_", notebokTemplateName, String.valueOf(idCounter.incrementAndGet()));
+		return String.join("_", SIMPLE_NOTEBOOK_NAMES.get(notebokTemplateName),
+				String.valueOf(idCounter.incrementAndGet()));
     }
     
     public static String getSelfServiceURL(String path) {
@@ -217,15 +234,15 @@ public class NamingHelper {
     }
 
 	public static String getNotebookTestTemplatesPath(String notebookName) {
-		if (notebookName.contains(DEEPLEARNING)) {
+		if (notebookName.contains(getSimpleNotebookNames().get(DEEPLEARNING))) {
             return "test_templates/deeplearning/";
-		} else if (notebookName.contains(JUPYTER)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(JUPYTER))) {
             return "test_templates/jupyter/";
-		} else if (notebookName.contains(RSTUDIO)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(RSTUDIO))) {
             return "test_templates/rstudio/";
-		} else if (notebookName.contains(TENSOR)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(TENSOR))) {
             return "test_templates/tensor/";
-		} else if (notebookName.contains(ZEPPELIN)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(ZEPPELIN))) {
             return "test_templates/zeppelin/";
         }
         else return "";
@@ -233,15 +250,15 @@ public class NamingHelper {
     }
 
     public static String getNotebookType(String notebookName){
-		if (notebookName.contains(DEEPLEARNING)) {
+		if (notebookName.contains(getSimpleNotebookNames().get(DEEPLEARNING))) {
 			return DEEPLEARNING + "/";
-		} else if (notebookName.contains(JUPYTER)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(JUPYTER))) {
 			return JUPYTER + "/";
-		} else if (notebookName.contains(RSTUDIO)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(RSTUDIO))) {
 			return RSTUDIO + "/";
-		} else if (notebookName.contains(TENSOR)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(TENSOR))) {
 			return TENSOR + "/";
-		} else if (notebookName.contains(ZEPPELIN)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(ZEPPELIN))) {
 			return ZEPPELIN + "/";
         }
         else return "";
@@ -249,19 +266,17 @@ public class NamingHelper {
     }
 
 	public static boolean isClusterRequired(String notebookName) {
-		if (notebookName.contains(DEEPLEARNING)) {
+		if (notebookName.contains(getSimpleNotebookNames().get(DEEPLEARNING))) {
 			return false;
-		} else if (notebookName.contains(JUPYTER)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(JUPYTER))) {
 			return true;
-		} else if (notebookName.contains(RSTUDIO)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(RSTUDIO))) {
 			return true;
-		} else if (notebookName.contains(TENSOR)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(TENSOR))) {
 			return false;
-		} else if (notebookName.contains(ZEPPELIN)) {
+		} else if (notebookName.contains(getSimpleNotebookNames().get(ZEPPELIN))) {
 			return true;
 		}
 		return true;
 	}
-
-
 }

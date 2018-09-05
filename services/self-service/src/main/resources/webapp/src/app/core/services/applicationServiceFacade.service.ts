@@ -31,6 +31,7 @@ export class ApplicationServiceFacade {
   private static readonly OAUTH = 'oauth';
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly ACTIVE_LIST = 'active_list';
+  private static readonly FULL_ACTIVE_LIST = 'full_active_list';
   private static readonly ENV = 'environment';
   private static readonly ACCESS_KEY_GENERATE = 'access_key_generate';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
@@ -101,6 +102,13 @@ export class ApplicationServiceFacade {
   public buildGenerateAccessKey(): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildRegenerateAccessKey(option): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE) + option,
       null,
       this.getRequestOptions(true, true));
   }
@@ -259,6 +267,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetAvailableDependenciest(params): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST) + params,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildInstallLibraries(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
@@ -361,12 +376,25 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
       null,
       this.getRequestOptions(true, true));
-  }
-
+    }
 
   public buildManageEnvironment(action, data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
+      data,
+      this.getRequestOptions(false, true));
+    }
+
+  public buildGetAllEnvironmentData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.FULL_ACTIVE_LIST),
+      null,
+      this.getRequestOptions(true, true));
+    }
+
+  public buildEnvironmentManagement(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENV) + param,
       data,
       this.getRequestOptions(false, true));
   }
@@ -379,6 +407,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
     this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user/active');
+    this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 
     this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');

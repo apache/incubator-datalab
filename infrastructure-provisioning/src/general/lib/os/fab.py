@@ -88,7 +88,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         append_result("Failed to install {} packages".format(pip_version), str(err))
         print("Failed to install {} packages".format(pip_version))
         sys.exit(1)
-        
+
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -140,7 +140,7 @@ def put_resource_status(resource, status, dlab_path, os_user, hostname):
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
-def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version):
+def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
             sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
@@ -153,6 +153,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 run('mkdir -p ~/.jupyter/custom/')
                 run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
+            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
             sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
@@ -164,7 +165,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             elif os.environ['application'] == 'deeplearning':
                 sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
                      "/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
-                     "/caffe/python:/home/" + os_user + "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+                     "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
@@ -180,6 +181,14 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
+    else:
+        try:
+            sudo(
+                'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(exploratory_name, jupyter_conf_file))
+            sudo("systemctl restart jupyter-notebook")
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 
 def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version):
@@ -191,7 +200,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
-            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
             sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
         except:
@@ -207,7 +216,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
-            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
         except:
@@ -215,7 +224,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
 
 
 def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
-                   application='', pip_mirror=''):
+                   application='', pip_mirror='', numpy_version='1.14.3'):
     spark_path = '/opt/{0}/{1}/spark/'.format(dataengine_service_version, cluster_name)
     local('mkdir -p {0}pyspark_{1}/'.format(kernels_dir, cluster_name))
     kernel_path = '{0}pyspark_{1}/kernel.json'.format(kernels_dir, cluster_name)
@@ -232,14 +241,14 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/kernel_var.json')
-    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json".
           format(dataengine_service_version, cluster_name, kernel_path, os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
     if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
+        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror, numpy_version)
         local('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name))
         kernel_path = '{0}py3spark_{1}/kernel.json'.format(kernels_dir, cluster_name)
         template_file = "/tmp/pyspark_dataengine-service_template.json"
@@ -256,7 +265,7 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
-        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json"
+        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json"
               .format(dataengine_service_version, cluster_name, kernel_path, os_user))
         local('sudo mv /tmp/kernel_var.json {}'.format(kernel_path))
 
@@ -293,6 +302,31 @@ def install_r_pkg(requisites):
     except:
         return "Fail to install R packages"
 
+def install_java_pkg(requisites):
+    status = list()
+    full_pkg = [a + ":" + b for a, b in zip(requisites[::2], requisites[1::2])]
+    error_parser = "ERROR|error|No such|no such|Please run|requires"
+    work_dir = "/opt/dlab/java_libs"
+    try:
+        if not exists(work_dir):
+            sudo('mkdir -p {}'.format(work_dir))
+        for java_pkg in full_pkg:
+            splitted_pkg = java_pkg.split(":")
+            name_pkg = splitted_pkg[1] + '-' + splitted_pkg[2] + '.jar'
+            sudo('wget -O {5}/{3} https://search.maven.org/classic/remotecontent?filepath={0}/{1}/{2}/{3} 2>&1 | tee /tmp/tee.tmp; \
+                  if ! grep -w -E  "({4})" /tmp/tee.tmp >  /tmp/install_{3}.log; \
+                  then  echo "" > /tmp/install_{3}.log;fi'.format(splitted_pkg[0].replace(".","/"), splitted_pkg[1], splitted_pkg[2],name_pkg, error_parser, work_dir))
+            sudo('jar tf {2}/{0} 2>&1 |if ! grep -w -E "({1})" > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name_pkg, error_parser, work_dir))
+            err = sudo('cat /tmp/install_{0}.log'.format(name_pkg)).replace('"', "'")
+            res = sudo('cat /tmp/install_{0}.list'.format(name_pkg))
+            if res:
+                err+=' jar tf results:' + sudo('cat /tmp/install_{0}.list'.format(name_pkg))
+                status.append({"group": "java", "name": splitted_pkg[0]+':'+splitted_pkg[1], "status": "failed", "error_message": err})
+            else:
+                status.append({"group": "java", "name": splitted_pkg[0]+':'+splitted_pkg[1], "version": splitted_pkg[2], "status": "installed"})
+        return status
+    except Exception as errr:
+        return "Fail to install Java packages: " + str(errr)
 
 def get_available_r_pkgs():
     try:
@@ -325,13 +359,17 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def install_ungit(os_user):
+def install_ungit(os_user, notebook_name):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
-            sudo('npm -g install ungit')
+            sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
+            http_proxy = run('echo $http_proxy')
+            sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
+            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
+                notebook_name))
+            sudo("mv -f /tmp/ungit.service /etc/systemd/system/ungit.service")
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
             run('mkdir -p ~/.git/templates/hooks')
@@ -347,6 +385,17 @@ def install_ungit(os_user):
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')
             sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
+        except:
+            sys.exit(1)
+    else:
+        try:
+            sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
+                notebook_name))
+            http_proxy = run('echo $http_proxy')
+            sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            sudo('systemctl daemon-reload')
+            sudo('systemctl restart ungit.service')
         except:
             sys.exit(1)
     run('git config --global http.proxy $http_proxy')
@@ -473,9 +522,11 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         with settings(host_string='{}@{}'.format(os_user, hostname)):
-            instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+            mem = sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
+            instance_memory = int(mem)
     else:
-        instance_memory = int(sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"'))
+        mem = sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
+        instance_memory = int(mem)
     try:
         if instance_memory > int(os.environ['dataengine_expl_instance_memory']):
             spark_memory = instance_memory - int(os.environ['dataengine_os_expl_memory'])
@@ -557,6 +608,8 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
             data = json.loads(open(interpreters_config).read())
         for i in data['interpreterSettings'].keys():
             if data['interpreterSettings'][i]['group'] == 'md':
+                continue
+            elif data['interpreterSettings'][i]['group'] == 'sh':
                 continue
             if r_enabled == 'true':
                 data['interpreterSettings'][i]['properties'].update(r_conf)

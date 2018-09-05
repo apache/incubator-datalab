@@ -13,24 +13,25 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequenceProvider;
-import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
 import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.group.GroupSequenceProvider;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Configuration for Self Service.
@@ -63,7 +64,7 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private int maxSparkInstanceCount;
 
 	@JsonProperty
-	private AzureLoginConfiguration azureLoginConfiguration;
+	private boolean azureUseLdap;
 
 	@JsonProperty
 	private boolean rolePolicyEnabled = false;
@@ -91,7 +92,24 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@JsonProperty
 	private boolean gcpOuauth2AuthenticationEnabled;
 	@JsonProperty
+	private long maxSessionDurabilityMilliseconds;
+	@JsonProperty
+	private boolean mongoMigrationEnabled;
+	@JsonProperty
 	private int privateKeySize = 2048;
+
+	@Valid
+	@NotNull
+	private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+
+	@JsonProperty("jerseyClient")
+	public JerseyClientConfiguration getJerseyClientConfiguration() {
+		return jerseyClient;
+	}
+
+	public long getMaxSessionDurabilityMilliseconds() {
+		return maxSessionDurabilityMilliseconds;
+	}
 
 	public boolean isGcpOuauth2AuthenticationEnabled() {
 		return gcpOuauth2AuthenticationEnabled;
@@ -163,13 +181,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 		return billingConfFile;
 	}
 
-	/**
-	 * Return the Azure login configuration
-	 */
-	public AzureLoginConfiguration getAzureLoginConfiguration() {
-		return azureLoginConfiguration;
-	}
-
 
 	public int getMinInstanceCount() {
 		return minInstanceCount;
@@ -189,5 +200,13 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public int getPrivateKeySize() {
 		return privateKeySize;
+	}
+
+	public boolean isAzureUseLdap() {
+		return azureUseLdap;
+	}
+
+	public boolean isMongoMigrationEnabled() {
+		return mongoMigrationEnabled;
 	}
 }

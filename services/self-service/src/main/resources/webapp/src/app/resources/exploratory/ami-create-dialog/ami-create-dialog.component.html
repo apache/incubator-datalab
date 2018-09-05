@@ -42,8 +42,8 @@ limitations under the License.
         </div>
       </form>
       <div class="text-center m-top-30 m-bott-10">
-        <button mat-raised-button type="button" class="butt" (click)="resetForm()">Cancel</button>
-        <button mat-raised-button type="button" [disabled]="!createAMIForm.valid" (click)="assignChanges(createAMIForm.value)" class="butt butt-success">Assign</button>
+        <button mat-raised-button type="button" class="butt action" (click)="resetForm()">Cancel</button>
+        <button mat-raised-button type="button" [disabled]="!createAMIForm.valid" (click)="assignChanges(createAMIForm.value)" class="butt butt-success action">Create</button>
       </div>
     </div>
   </modal-content>

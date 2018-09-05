@@ -23,7 +23,7 @@ import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.mongo.MongoKeyWords;
+import com.epam.dlab.MongoKeyWords;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;

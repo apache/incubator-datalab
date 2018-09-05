@@ -17,6 +17,31 @@ limitations under the License.
 ****************************************************************************/
 
 .install-libraries {
+  .dialog-header {
+    padding-left: 25px;
+  }
+  .loading-block {
+    height: 45%;
+    display: flex;
+    justify-content: center;
+    .uploading {
+      flex-direction: column;
+      align-items: center;
+      align-self: center;
+      list-style: none;
+      display: flex;
+      p {
+        font-size: 16px;;
+      }
+    }
+  }
+  .info {
+    height: 40%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
   .mat-list-item {
     height: auto !important;
 
@@ -26,45 +51,66 @@ limitations under the License.
       border-bottom: 1px solid #edf1f5;
     }
   }
+  .lib-view-wrap {
+    display: flex;
+    flex-direction: column;
+  }
 }
-
+.error {
+  padding: 15px 20px;
+}
 .uploading {
   margin: 0 auto;
 }
 
-.tab-content {
+
+.search-box {
   display: flex;
-  height: 100%;
-  .col {
-    width: 50%;
-    height: 100%;
-  }
-  .info {
+  padding: 20px 25px 10px;
+  .search-form {
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    padding-top: 100px;
-  }
-  .search-box {
-    padding: 40px 25px 0;
+    & > div {
+      display: flex;
+      flex-direction: row;
+    }
+    .control-group {
+      width: 50%;
+      .label {
+        width: 20%;
+      }
+    }
+    .search {
+      flex-grow: 1;
+      padding-bottom: 0;
+      flex-direction: column;
+      box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      .chip-list {
+        width: 100%;
+        overflow-y: auto;
+        .mat-form-field {
+          width: 100%;
+          padding: 5px 20px;
+        }
+        .mat-input-flex {
+          padding: 2px 10px;
+        }
+      }
+    }
   }
 }
 
-.list-container {
-  max-height: 45%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: absolute;
-  width: calc(50% - 50px);
-  .suggestions {
-    text-decoration: none;
-    list-style: none;
-    padding: 0 10px;
+
+.suggestions {
+  text-decoration: none;
+  list-style: none;
+  .option {
     font-size: 13px;
     font-weight: 300;
     font-family: 'Open Sans', sans-serif;
-    li {
-      position: relative;
-      padding-top: 4px;
-    }
+    position: relative;
+    padding-top: 4px;
     a {
       display: block;
       cursor: pointer;
@@ -77,22 +123,23 @@ limitations under the License.
     strong {
       position: absolute;
       top: 5px;
-      right: 5px;
-      width: 48px;
+      right: 20px;
+      width: 50px;
       text-align: center;
       font-size: 11px;
       font-weight: 300;
-      background: rgba(255, 255, 255, 0.8);
       i {
         position: absolute;
-        top: -7px;
-        right: -22px;
-        color: #35afd5;
+        top: 9px;
+        right: -21px;
+        color: #35afd5
       }
     }
-    span {
-      color: rgba(122, 146, 172, 0.6);
-    }
+  }
+  span {
+    color: rgba(122, 146, 172, 0.6);
+    .configuring {color: #35afd5;}
+    .highlight {color: #35afd5;}
   }
 }
 
@@ -104,8 +151,10 @@ limitations under the License.
 }
 
 .list-selected {
-  padding: 15px;
+  padding: 0 5px;
   font-family: 'Open Sans', sans-serif;
+  height: 130px;
+  overflow-y: auto;
   h4 {
     margin-bottom: 20px;
     font-size: 14px;
@@ -114,7 +163,6 @@ limitations under the License.
     color: #718ba6;
   }
   mat-chip-list .mat-chip-list-wrapper {
-    max-height: 95%;
     overflow-y: auto;
     padding: 3px;
   }
@@ -132,6 +180,23 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 /* Tab info */
 .libs-info {
+  height: 45%;
+  padding: 0 20px;
+  .mat-list {
+    height: 100%;
+    .scrollingList {
+      max-height: 80%;
+      height: 80%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      .info {
+        p {
+          text-align: center;
+          padding: 40px;
+        }
+      }
+    }
+  }
   .lib-name {
     width: 30%;
     strong {
@@ -197,86 +262,19 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   bottom: 0;
 }
 
-.scrollingList {
-  max-height: 85%;
-  height: 85%;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.scrollingList.info p {
-  text-align: center;
-  padding: 40px;
-}
-
 .mat-tab-labels .mat-ink-bar {
   background-color: #35afd5;
 }
 
-.loader-wrap {
-  height: 30px;
-}
-.loader-lib,
-.loader-lib:before,
-.loader-lib:after {
-  background: #35afd5;
-  -webkit-animation: load1 1s infinite ease-in-out;
-  animation: load1 1s infinite ease-in-out;
-  width: 0.4em;
-  height: 3em;
-}
-.loader-lib {
-  color: #35afd5;
-  text-indent: -9999em;
-  margin: 0 auto;
-  position: relative;
-  font-size: 4px;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
-.loader-lib:before,
-.loader-lib:after {
-  position: absolute;
-  top: 0;
-  content: '';
-}
-.loader-lib:before {
-  left: -1.5em;
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-.loader-lib:after {
-  left: 1.5em;
-}
-@-webkit-keyframes load1 {
-  0%,
-  80%,
-  100% {
-    box-shadow: 0 0;
-    height: 4em;
-  }
-  40% {
-    box-shadow: 0 -2em;
-    height: 5em;
-  }
-}
-@keyframes load1 {
-  0%,
-  80%,
-  100% {
-    box-shadow: 0 0;
-    height: 4em;
-  }
-  40% {
-    box-shadow: 0 -2em;
-    height: 5em;
-  }
-}
 
 @media screen and (min-width: 1281px) {
-  .list-container {
-    max-height: 60%;
+  .libs-info {
+    height: 60%;
+    .mat-list {
+      .scrollingList {
+        max-height: 90%;
+        height: 90%;
+      }
+    }
   }
 }

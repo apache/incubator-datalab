@@ -28,8 +28,8 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.jexl3.internal.Script;
 import org.apache.commons.lang3.StringUtils;
 
-import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.exceptions.InitializationException;
+import com.epam.dlab.exceptions.ParseException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 

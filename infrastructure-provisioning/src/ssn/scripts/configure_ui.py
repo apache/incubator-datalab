@@ -42,6 +42,7 @@ parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default=None)
 parser.add_argument('--account_id', type=str, default=None)
 parser.add_argument('--billing_bucket', type=str, default=None)
+parser.add_argument('--aws_job_enabled', type=str, default=None)
 parser.add_argument('--report_path', type=str, default=None)
 parser.add_argument('--authentication_file', type=str, default=None)
 parser.add_argument('--offer_number', type=str, default=None)
@@ -56,6 +57,14 @@ parser.add_argument('--subscription_id', type=str, default=None)
 parser.add_argument('--datalake_store_name', type=str, default=None)
 parser.add_argument('--validate_permission_scope', type=str, default=None)
 parser.add_argument('--mongo_parameters', type=str, default='')
+parser.add_argument('--dlab_id', type=str, default=None)
+parser.add_argument('--usage_date', type=str, default=None)
+parser.add_argument('--product', type=str, default=None)
+parser.add_argument('--usage_type', type=str, default=None)
+parser.add_argument('--usage', type=str, default=None)
+parser.add_argument('--cost', type=str, default=None)
+parser.add_argument('--resource_id', type=str, default=None)
+parser.add_argument('--tags', type=str, default=None)
 args = parser.parse_args()
 
 dlab_conf_dir = args.dlab_path + 'conf/'
@@ -149,13 +158,17 @@ if __name__ == "__main__":
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
 
     print("Starting Self-Service(UI)")
-    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd, keystore_passwd,
-                    args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
-                    args.billing_bucket, args.dlab_path, args.billing_enabled, args.authentication_file,
-                    args.offer_number, args.currency, args.locale, args.region_info, args.ldap_login, args.tenant_id,
-                    args.application_id, args.hostname, args.datalake_store_name, args.subscription_id,
-                    args.validate_permission_scope, args.report_path):
+    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path,
+                    args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
+                    args.service_base_name, args.tag_resource_id, args.account_id,
+                    args.billing_bucket, args.aws_job_enabled, args.dlab_path, args.billing_enabled,
+                    args.authentication_file, args.offer_number, args.currency, args.locale,
+                    args.region_info, args.ldap_login, args.tenant_id, args.application_id,
+                    args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
+                    args.dlab_id, args.usage_date, args.product, args.usage_type,
+                    args.usage, args.cost, args.resource_id, args.tags):
         logging.error('Failed to start UI')
+        print('Failed to UI')
         sys.exit(1)
 
     sys.exit(0)

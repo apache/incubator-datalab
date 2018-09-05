@@ -69,6 +69,7 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
             remove_emr_tag(notebook_config['cluster_id'], ['State'])
+            tag_emr_volume(notebook_config['cluster_id'], notebook_config['cluster_name'], os.environ['conf_tag_resource_id'])
         except:
             traceback.print_exc()
             raise Exception

@@ -154,10 +154,15 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
-             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled,
-             authentication_file, offer_number, currency, locale, region_info, ldap_login, tenant_id, application_id,
-             hostname, data_lake_name, subscription_id, validate_permission_scope, report_path=''):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
+             os_user, mongo_passwd, keystore_passwd, cloud_provider,
+             service_base_name, tag_resource_id, account_id, billing_bucket,
+             aws_job_enabled, dlab_path, billing_enabled,
+             authentication_file, offer_number, currency,
+             locale, region_info, ldap_login, tenant_id,
+             application_id, hostname, data_lake_name, subscription_id,
+             validate_permission_scope, dlab_id, usage_date, product,
+             usage_type, usage, cost, resource_id, tags, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -222,11 +227,50 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 sys.exit(1)
             if billing_enabled:
                 local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile, host_string))
-                params = '--cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} \
-                    --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {} \
-                         --authentication_file "{}" --offer_number {} --currency {} --locale {} --region_info {}'.\
-                            format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
-                                    mongo_passwd, dlab_path, authentication_file, offer_number, currency, locale, region_info)
+                params = '--cloud_provider {} ' \
+                         '--infrastructure_tag {} ' \
+                         '--tag_resource_id {} ' \
+                         '--account_id {} ' \
+                         '--billing_bucket {} ' \
+                         '--aws_job_enabled {} ' \
+                         '--report_path "{}" ' \
+                         '--mongo_password {} ' \
+                         '--dlab_dir {} ' \
+                         '--authentication_file "{}" ' \
+                         '--offer_number {} ' \
+                         '--currency {} ' \
+                         '--locale {} ' \
+                         '--region_info {} ' \
+                         '--dlab_id {} ' \
+                         '--usage_date {} ' \
+                         '--product {} ' \
+                         '--usage_type {} ' \
+                         '--usage {} ' \
+                         '--cost {} ' \
+                         '--resource_id {} ' \
+                         '--tags {}'.\
+                            format(cloud_provider,
+                                   service_base_name,
+                                   tag_resource_id,
+                                   account_id,
+                                   billing_bucket,
+                                   aws_job_enabled,
+                                   report_path,
+                                   mongo_passwd,
+                                   dlab_path,
+                                   authentication_file,
+                                   offer_number,
+                                   currency,
+                                   locale,
+                                   region_info,
+                                   dlab_id,
+                                   usage_date,
+                                   product,
+                                   usage_type,
+                                   usage,
+                                   cost,
+                                   resource_id,
+                                   tags)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \

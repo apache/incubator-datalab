@@ -24,6 +24,7 @@ from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--storage', type=str, default='S3/GCP buckets, Azure Blob container / Datalake folder')
+parser.add_argument('--notebook', type=str, default='aws, azure, gcp')
 parser.add_argument('--cloud', type=str, default='aws, azure, gcp')
 parser.add_argument('--azure_storage_account', type=str, default='')
 parser.add_argument('--azure_datalake_account', type=str, default='')
@@ -42,7 +43,7 @@ def download_dataset():
 def upload_aws():
     try:
         for f in dataset_file:
-            local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(f, args.storage))
+            local('aws s3 cp /tmp/{0} s3://{1}/{2}_dataset/ --sse AES256'.format(f, args.storage, args.notebook))
     except Exception as err:
         print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)
@@ -59,7 +60,7 @@ def upload_azure_datalake():
         for f in dataset_file:
             multithread.ADLUploader(datalake_client,
                                     lpath='/tmp/{0}'.format(f),
-                                    rpath='{0}/{1}'.format(args.storage, f))
+                                    rpath='{0}/{1}_dataset/{2}'.format(args.storage, args.notebook, f))
     except Exception as err:
         print('Failed to upload test dataset to datalake store', str(err))
         sys.exit(1)
@@ -77,7 +78,7 @@ def upload_azure_blob():
         secret_key = storage_client.storage_accounts.list_keys(resource_group_name, args.azure_storage_account).keys[0].value
         block_blob_service = BlockBlobService(account_name=args.azure_storage_account, account_key=secret_key)
         for f in dataset_file:
-            block_blob_service.create_blob_from_path(args.storage, f, '/tmp/{0}'.format(f))
+            block_blob_service.create_blob_from_path(args.storage, '{0}_dataset/{1}'.format(args.notebook, f), '/tmp/{0}'.format(f))
     except Exception as err:
         print('Failed to upload test dataset to blob storage', str(err))
         sys.exit(1)
@@ -85,7 +86,7 @@ def upload_azure_blob():
 def upload_gcp():
     try:
         for f in dataset_file:
-            local('gsutil -m cp /tmp/{0} gs://{1}/'.format(f, args.storage))
+            local('gsutil -m cp /tmp/{0} gs://{1}/{2}_dataset/'.format(f, args.storage, args.notebook))
     except Exception as err:
         print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)

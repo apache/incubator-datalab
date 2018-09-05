@@ -43,7 +43,7 @@ input[type='password']:not(.mat-input-element),
 textarea {
   width: 100%;
   height: 36px;
-  padding: 0 10px;
+  padding: 0 20px;
   color: #455c74;
   color: #6e7ca0;
   border: 1px solid transparent;
@@ -63,7 +63,7 @@ textarea:focus {
   transition: border 0.2s ease-in;
   box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
 }
-input[type='text']:disabled {
+input[type='text']:not(.mat-input-element):disabled {
   opacity: .4;
   cursor: not-allowed;
   color: rgba(0,0,0,.38);

@@ -73,11 +73,12 @@ if __name__ == "__main__":
     hadoop_version = get_hadoop_version(args.cluster_name)
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
+    numpy_version = os.environ['notebook_numpy_version']
     sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py --bucket " + args.bucket +
          " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
          spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
          " --edge_hostname " + args.edge_hostname + " --proxy_port " + args.proxy_port + " --scala_version " +
          args.scala_version + " --livy_version " + livy_version + " --multiple_clusters " +
-         os.environ['notebook_multiple_clusters'] + " --pip_mirror " + args.pip_mirror + " --application " +
+         os.environ['notebook_multiple_clusters'] + " --pip_mirror " + args.pip_mirror + " --numpy_version " + numpy_version + " --application " +
          args.application + " --r_enabled " + r_enabled)
