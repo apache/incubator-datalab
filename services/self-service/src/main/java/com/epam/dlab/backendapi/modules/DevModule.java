@@ -24,10 +24,7 @@ import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
-import com.epam.dlab.backendapi.dao.BackupDao;
-import com.epam.dlab.backendapi.dao.BackupDaoImpl;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
+import com.epam.dlab.backendapi.dao.*;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.*;
@@ -97,6 +94,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
 		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);
 		bind(UserRolesService.class).to(UserRolesServiceImpl.class);
+		bind(UserRoleDao.class).to(UserRoleDaoImpl.class);
 	}
 
 	/**
