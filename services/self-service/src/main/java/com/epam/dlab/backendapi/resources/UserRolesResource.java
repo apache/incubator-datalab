@@ -18,6 +18,8 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.UpdateRoleGroupDto;
+import com.epam.dlab.backendapi.resources.dto.UpdateRoleUserDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.backendapi.service.UserRolesService;
 import com.google.inject.Inject;
@@ -25,76 +27,67 @@ import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Set;
 
 @Slf4j
-@Path("roles")
-@RolesAllowed("roles/*")
+@Path("role")
+@RolesAllowed("/roleManagement")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class UserRolesResource {
 
 	@Inject
 	private UserRolesService userRolesService;
 
 	@GET
-	@Path("all")
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response getRoles(@Auth UserInfo userInfo) {
 		log.debug("Getting all roles for admin {}...", userInfo.getName());
 		return Response.ok(userRolesService.getUserRoles()).build();
 	}
 
-	@PUT
-	@Path("update")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response udateRole(@Auth UserInfo userInfo, UserRoleDto dto) {
-		log.debug("Updating role {} on behalf of admin {}...", dto, userInfo.getName());
-		userRolesService.updateRole(dto);
-		return Response.ok().build();
-	}
-
 	@POST
-	@Path("create")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response createRole(@Auth UserInfo userInfo, UserRoleDto dto) {
-		log.debug("Creating new role {} on behalf of admin {}...", dto, userInfo.getName());
+		log.info("Creating new role {} on behalf of admin {}...", dto, userInfo.getName());
 		userRolesService.createRole(dto);
 		return Response.ok().build();
 	}
 
+	@PUT
+	@Path("group")
+	public Response addGroupToRole(@Auth UserInfo userInfo, @Valid UpdateRoleGroupDto updateRoleGroupDto) {
+		log.info("Admin {} is trying to add new groups {} to roles {}", userInfo.getName(),
+				updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
+		userRolesService.addGroupToRole(updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
+		return Response.ok().build();
+	}
+
 	@DELETE
-	@Path("delete")
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response removeRole(@Auth UserInfo userInfo, String roleId) {
-		log.debug("Admin {} is trying to remove role with id {}...", userInfo.getName(), roleId);
-		userRolesService.removeRole(roleId, userInfo.getName());
+	@Path("group")
+	public Response deleteGroupFromRole(@Auth UserInfo userInfo, @Valid UpdateRoleGroupDto updateRoleGroupDto) {
+		log.info("Admin {} is trying to delete groups {} from roles {}", userInfo.getName(),
+				updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
+		userRolesService.removeGroupFromRole(updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
 		return Response.ok().build();
 	}
 
 	@PUT
-	@Path("assign_group/{group}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response assignRolesForGroup(@Auth UserInfo userInfo, @PathParam("group") String groupName,
-										Set<String> roleIds) {
-		log.debug("Assigning roles {} for group {} on behalf of admin {}...", roleIds, groupName, userInfo.getName());
-		userRolesService.assignRolesForGroup(groupName, roleIds);
+	@Path("user")
+	public Response addUserToRole(@Auth UserInfo userInfo, @Valid UpdateRoleUserDto updateRoleUserDto) {
+		log.info("Admin {} is trying to add new users {} to roles {}", userInfo.getName(),
+				updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
+		userRolesService.addUserToRole(updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
 		return Response.ok().build();
 	}
 
-	@PUT
-	@Path("assign_user/{user}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response assignRolesForUser(@Auth UserInfo userInfo, @PathParam("user") String userName,
-									   Set<String> roleIds) {
-		log.debug("Assigning roles {} for user {} on behalf of admin {}...", roleIds, userName, userInfo.getName());
-		userRolesService.assignRolesForUser(userName, roleIds);
+	@DELETE
+	@Path("user")
+	public Response deleteUserFromRole(@Auth UserInfo userInfo, @Valid UpdateRoleUserDto updateRoleUserDto) {
+		log.info("Admin {} is trying to delete users {} from roles {}", userInfo.getName(),
+				updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
+		userRolesService.removeUserFromRole(updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
 		return Response.ok().build();
 	}
 }

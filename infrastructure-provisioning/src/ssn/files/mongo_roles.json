@@ -347,7 +347,7 @@
     "pages": [
       "environment/*",
       "/api/infrastructure/backup",
-      "roles/*"
+      "/roleManagement"
     ],
     "groups": [
       "$anyuser"

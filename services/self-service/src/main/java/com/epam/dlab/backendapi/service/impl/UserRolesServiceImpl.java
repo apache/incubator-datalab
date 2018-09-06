@@ -20,16 +20,18 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.backendapi.service.UserRolesService;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
+@Singleton
 public class UserRolesServiceImpl implements UserRolesService {
 
-	private static final String GROUPS = "groups";
-	private static final String USERS = "users";
-
+	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
 	@Inject
 	private UserRoleDao userRoleDao;
 
@@ -40,52 +42,44 @@ public class UserRolesServiceImpl implements UserRolesService {
 
 	@Override
 	public void createRole(UserRoleDto dto) {
-		userRoleDao.createRole(dto);
+		userRoleDao.insert(dto);
 	}
 
 	@Override
 	public void updateRole(UserRoleDto dto) {
-		userRoleDao.updateRole(dto);
+		checkAnyRoleFound(Collections.singleton(dto.getId()), userRoleDao.update(dto));
 	}
 
 	@Override
 	public void removeRole(String roleId, String user) {
-		userRoleDao.removeRoleById(roleId);
+		userRoleDao.remove(roleId);
 	}
 
 	@Override
-	public void assignRolesForUser(String userName, Set<String> roleIds) {
-		assignRoles(USERS, userName, roleIds);
+	public void addUserToRole(Set<String> users, Set<String> roleIds) {
+		checkAnyRoleFound(roleIds, userRoleDao.addUserToRole(users, roleIds));
 	}
 
 	@Override
-	public void assignRolesForGroup(String groupName, Set<String> roleIds) {
-		assignRoles(GROUPS, groupName, roleIds);
+	public void addGroupToRole(Set<String> groups, Set<String> roleIds) {
+		checkAnyRoleFound(roleIds, userRoleDao.addGroupToRole(groups, roleIds));
 	}
 
-	private void assignRoles(String accessMemberType, String accessMemberName, Set<String> roleIds) {
-		Map<String, Set<String>> accessMembers = new HashMap<>();
-		List<UserRoleDto> userRoles = getUserRoles().stream().filter(role -> roleIds.contains(role.getId()))
-				.collect(Collectors.toList());
-		userRoles.forEach(role -> populateRoleMap(accessMembers, role, accessMemberType, accessMemberName));
-		accessMembers.forEach((key, value) -> userRoleDao.updateRoleField(accessMemberType, value, key));
+	@Override
+	public void removeUserFromRole(Set<String> users, Set<String> roleIds) {
+		checkAnyRoleFound(roleIds, userRoleDao.removeUserFromRole(users, roleIds));
 	}
 
-	private void populateRoleMap(Map<String, Set<String>> roleMap, UserRoleDto dto, String accessType,
-								 String accessMember){
-		Set<String> accessMembers = getAccessMembers(dto, accessType);
-		accessMembers.add(accessMember);
-		roleMap.put(dto.getId(), accessMembers);
+	@Override
+	public void removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
+		checkAnyRoleFound(roleIds, userRoleDao.removeGroupFromRole(groups, roleIds));
 	}
 
-	private Set<String> getAccessMembers(UserRoleDto dto, String accessType){
-		Set<String> result = new HashSet<>();
-		if(accessType.equals(GROUPS)){
-			return !Objects.isNull(dto.getGroups()) ? dto.getGroups() : result;
-		}else if(accessType.equals(USERS)){
-			return !Objects.isNull(dto.getUsers()) ? dto.getUsers() : result;
+	private void checkAnyRoleFound(Set<String> roleIds, boolean anyRoleFound) {
+		if (!anyRoleFound) {
+			throw new ResourceNotFoundException(String.format(ROLE_NOT_FOUND_MSG, roleIds));
 		}
-		return result;
 	}
+
 
 }

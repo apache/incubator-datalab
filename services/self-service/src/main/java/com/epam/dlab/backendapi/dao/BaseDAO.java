@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.dao;
@@ -25,6 +24,7 @@ import com.epam.dlab.util.mongo.IsoDateModule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.UpdateOptions;
@@ -43,8 +43,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.mongodb.client.model.Aggregates.unwind;
-
 /**
  * Implements the base API for Mongo database.
  */
@@ -56,7 +54,6 @@ public class BaseDAO {
 			.registerModule(new IsoDateModule());
 
 	static final String FIELD_SET_DELIMETER = ".$.";
-	private static final String FIELD_PROJECTION_DELIMITER = "$";
 	public static final String ID = "_id";
 	static final String SET = "$set";
 	public static final String USER = "user";
@@ -67,6 +64,10 @@ public class BaseDAO {
 	static final String TIMESTAMP = "timestamp";
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
 	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
+	private static final String ADD_TO_SET = "$addToSet";
+	private static final String PULL = "$pull";
+	private static final String PULL_ALL = "$pullAll";
+	private static final String EACH = "$each";
 
 	@Inject
 	protected MongoService mongoService;
@@ -431,10 +432,6 @@ public class BaseDAO {
 		return UUID.randomUUID().toString();
 	}
 
-	static Bson unwindField(String fieldName) {
-		return unwind(FIELD_PROJECTION_DELIMITER + fieldName);
-	}
-
 	private static Object getDotted(Document d, String fieldName) {
 		if (fieldName.isEmpty()) {
 			return null;
@@ -463,4 +460,18 @@ public class BaseDAO {
 		Object result = getDotted(d, fieldName);
 		return result == null ? defaultValue : result;
 	}
+
+	protected BasicDBObject addToSet(String columnName, Set<String> values) {
+		return new BasicDBObject(ADD_TO_SET, new BasicDBObject(columnName, new BasicDBObject(EACH, values)));
+	}
+
+	protected BasicDBObject pull(String columnName, String value) {
+		return new BasicDBObject(PULL, new BasicDBObject(columnName, value));
+	}
+
+	protected BasicDBObject pullAll(String columnName, Set<String> values) {
+		return new BasicDBObject(PULL_ALL, new BasicDBObject(columnName, values));
+	}
+
+
 }

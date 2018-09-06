@@ -32,7 +32,11 @@ public interface UserRolesService {
 
 	void removeRole(String roleId, String user);
 
-	void assignRolesForUser(String userName, Set<String> roleIds);
+	void addUserToRole(Set<String> users, Set<String> roleIds);
 
-	void assignRolesForGroup(String groupName, Set<String> roleIds);
+	void addGroupToRole(Set<String> groups, Set<String> roleIds);
+
+	void removeUserFromRole(Set<String> users, Set<String> roleIds);
+
+	void removeGroupFromRole(Set<String> groups, Set<String> roleIds);
 }
