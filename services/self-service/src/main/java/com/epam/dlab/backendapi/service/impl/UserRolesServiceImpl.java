@@ -51,7 +51,7 @@ public class UserRolesServiceImpl implements UserRolesService {
 	}
 
 	@Override
-	public void removeRole(String roleId, String user) {
+	public void removeRole(String roleId) {
 		userRoleDao.remove(roleId);
 	}
 

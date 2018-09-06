@@ -25,12 +25,14 @@ import com.epam.dlab.backendapi.service.UserRolesService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 @Slf4j
 @Path("role")
@@ -39,8 +41,12 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class UserRolesResource {
 
+	private final UserRolesService userRolesService;
+
 	@Inject
-	private UserRolesService userRolesService;
+	public UserRolesResource(UserRolesService userRolesService) {
+		this.userRolesService = userRolesService;
+	}
 
 	@GET
 	public Response getRoles(@Auth UserInfo userInfo) {
@@ -66,10 +72,11 @@ public class UserRolesResource {
 
 	@DELETE
 	@Path("group")
-	public Response deleteGroupFromRole(@Auth UserInfo userInfo, @Valid UpdateRoleGroupDto updateRoleGroupDto) {
-		log.info("Admin {} is trying to delete groups {} from roles {}", userInfo.getName(),
-				updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
-		userRolesService.removeGroupFromRole(updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
+	public Response deleteGroupFromRole(@Auth UserInfo userInfo,
+										@QueryParam("group") @NotEmpty Set<String> groups,
+										@QueryParam("roleId") @NotEmpty Set<String> roleIds) {
+		log.info("Admin {} is trying to delete groups {} from roles {}", userInfo.getName(), groups, roleIds);
+		userRolesService.removeGroupFromRole(groups, roleIds);
 		return Response.ok().build();
 	}
 
@@ -84,10 +91,11 @@ public class UserRolesResource {
 
 	@DELETE
 	@Path("user")
-	public Response deleteUserFromRole(@Auth UserInfo userInfo, @Valid UpdateRoleUserDto updateRoleUserDto) {
-		log.info("Admin {} is trying to delete users {} from roles {}", userInfo.getName(),
-				updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
-		userRolesService.removeUserFromRole(updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
+	public Response deleteUserFromRole(@Auth UserInfo userInfo,
+									   @QueryParam("user") @NotEmpty Set<String> users,
+									   @QueryParam("roleId") @NotEmpty Set<String> roleIds) {
+		log.info("Admin {} is trying to delete users {} from roles {}", userInfo.getName(), users, roleIds);
+		userRolesService.removeUserFromRole(users, roleIds);
 		return Response.ok().build();
 	}
 }

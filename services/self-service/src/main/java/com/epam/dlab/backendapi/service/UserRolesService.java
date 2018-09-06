@@ -30,7 +30,7 @@ public interface UserRolesService {
 
 	void updateRole(UserRoleDto dto);
 
-	void removeRole(String roleId, String user);
+	void removeRole(String roleId);
 
 	void addUserToRole(Set<String> users, Set<String> roleIds);
 
