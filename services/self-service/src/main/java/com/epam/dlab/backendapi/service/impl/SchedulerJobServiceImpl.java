@@ -133,15 +133,13 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void stopComputationalByScheduler() {
 		getComputationalSchedulersForStopping(OffsetDateTime.now())
-				.forEach(job -> computationalService.stopSparkCluster(systemUserService.create(job.getUser()),
-						job.getExploratoryName(), job.getComputationalName()));
+				.forEach(this::stopComputational);
 	}
 
 	@Override
 	public void stopExploratoryByScheduler() {
 		getExploratorySchedulersForStopping(OffsetDateTime.now())
-				.forEach(job -> exploratoryService.stop(systemUserService.create(job.getUser()),
-						job.getExploratoryName()));
+				.forEach(this::stopExploratory);
 	}
 
 	@Override
@@ -153,25 +151,19 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void startComputationalByScheduler() {
 		getComputationalSchedulersForStarting(OffsetDateTime.now())
-				.forEach(job -> computationalService.startSparkCluster(systemUserService.create(job.getUser()),
-						job.getExploratoryName(), job.getComputationalName()));
+				.forEach(job -> startSpark(job.getUser(), job.getExploratoryName(), job.getComputationalName()));
 	}
 
 	@Override
 	public void terminateExploratoryByScheduler() {
 		getExploratorySchedulersForTerminating(OffsetDateTime.now())
-				.forEach(job -> exploratoryService.terminate(systemUserService.create(job.getUser()),
-						job.getExploratoryName()));
+				.forEach(this::terminateExploratory);
 
 	}
 
 	@Override
 	public void terminateComputationalByScheduler() {
-		getComputationalSchedulersForTerminating(OffsetDateTime.now())
-				.forEach(job ->
-						computationalService.terminateComputationalEnvironment(
-								systemUserService.create(job.getUser()), job.getExploratoryName(),
-								job.getComputationalName()));
+		getComputationalSchedulersForTerminating(OffsetDateTime.now()).forEach(this::terminateComputational);
 
 	}
 
@@ -184,6 +176,31 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} else return StringUtils.EMPTY;
+	}
+
+	private void stopComputational(SchedulerJobData job) {
+		final String expName = job.getExploratoryName();
+		final String compName = job.getComputationalName();
+		final String user = job.getUser();
+		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+		computationalService.stopSparkCluster(systemUserService.create(user), expName, compName);
+	}
+
+	private void terminateComputational(SchedulerJobData job) {
+		final String user = job.getUser();
+		final String expName = job.getExploratoryName();
+		final String compName = job.getComputationalName();
+		final UserInfo userInfo = systemUserService.create(user);
+		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+		computationalService.terminateComputationalEnvironment(userInfo, expName, compName);
+	}
+
+	private void stopExploratory(SchedulerJobData job) {
+		final String expName = job.getExploratoryName();
+		final String user = job.getUser();
+		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
+		exploratoryService.stop(systemUserService.create(job.getUser()),
+				job.getExploratoryName());
 	}
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
@@ -204,15 +221,31 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private void startExploratory(SchedulerJobData schedulerJobData) {
 		final String user = schedulerJobData.getUser();
 		final String exploratoryName = schedulerJobData.getExploratoryName();
+		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
 		exploratoryService.start(systemUserService.create(user), exploratoryName);
 		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
+			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
 			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
-			computationalDAO.findComputationalResourcesWithStatus(user, exploratoryName, STOPPED)
+			final List<UserComputationalResource> compToBeStarted =
+					computationalDAO.findComputationalResourcesWithStatus(user, exploratoryName, STOPPED);
+
+			compToBeStarted
 					.stream()
 					.filter(compResource -> shouldClusterBeStarted(sparkCluster, compResource))
-					.forEach(comp -> computationalService.startSparkCluster(systemUserService.create(user),
-							exploratoryName, comp.getComputationalName()));
+					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName()));
 		}
+	}
+
+	private void terminateExploratory(SchedulerJobData job) {
+		final String user = job.getUser();
+		final String expName = job.getExploratoryName();
+		log.debug("Terminating exploratory {} for user {} by scheduler", expName, user);
+		exploratoryService.terminate(systemUserService.create(user), expName);
+	}
+
+	private void startSpark(String user, String expName, String compName) {
+		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+		computationalService.startSparkCluster(systemUserService.create(user), expName, compName);
 	}
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {
@@ -283,7 +316,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private boolean shouldBeTerminated(OffsetDateTime currentDateTime, SchedulerJobData schedulerJobData) {
 		final SchedulerJobDTO jobDTO = schedulerJobData.getJobDTO();
 		final LocalDateTime convertedCurrentTime = schedulerExecutionDate(jobDTO, currentDateTime);
-		return Objects.nonNull(jobDTO.getTerminateDateTime()) &&
+		return isSchedulerActive(schedulerJobData.getJobDTO(), convertedCurrentTime) && Objects.nonNull(jobDTO.getTerminateDateTime()) &&
 				convertedCurrentTime.equals(jobDTO.getTerminateDateTime());
 	}
 
@@ -329,10 +362,14 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 											  LocalTime time) {
 		LocalDateTime convertedDateTime = schedulerExecutionDate(dto, dateTime);
 
-		return !convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
-				&& finishDateAfterCurrentDate(dto, convertedDateTime)
+		return isSchedulerActive(dto, convertedDateTime)
 				&& daysRepeat.contains(convertedDateTime.toLocalDate().getDayOfWeek())
 				&& convertedDateTime.toLocalTime().equals(time);
+	}
+
+	private boolean isSchedulerActive(SchedulerJobDTO dto, LocalDateTime convertedDateTime) {
+		return !convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
+				&& finishDateAfterCurrentDate(dto, convertedDateTime);
 	}
 
 	private LocalDateTime schedulerExecutionDate(SchedulerJobDTO dto, OffsetDateTime dateTime) {
