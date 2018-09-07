@@ -343,10 +343,11 @@
   },
   {
     "_id": "admin",
-    "description": "Allow to execute administration operation operation",
+    "description": "Allow to execute administration operation",
     "pages": [
       "environment/*",
-      "/api/infrastructure/backup"
+      "/api/infrastructure/backup",
+      "/roleManagement"
     ],
     "groups": [
       "$anyuser"
