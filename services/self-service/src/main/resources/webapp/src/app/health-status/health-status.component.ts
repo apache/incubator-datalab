@@ -44,6 +44,7 @@ export class HealthStatusComponent implements OnInit {
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
   @ViewChild('keyUploadModal') keyUploadDialog;
   @ViewChild('preloaderModal') preloaderDialog;
+  @ViewChild('ssnMonitor') ssnMonitorDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -93,6 +94,10 @@ export class HealthStatusComponent implements OnInit {
     this.getActiveUsersList().subscribe(usersList => {
       this.manageEnvironmentDialog.open({ isFooter: false }, usersList);
     });
+  }
+
+  openSsnMonitorDialog() {
+    this.ssnMonitorDialog.open({ isHeader: false, isFooter: false });
   }
 
   manageEnvironment($event) {
