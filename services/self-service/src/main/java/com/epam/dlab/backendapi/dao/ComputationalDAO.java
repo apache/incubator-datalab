@@ -40,7 +40,6 @@ import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.push;
 import static com.mongodb.client.model.Updates.set;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
  * DAO for user computational resources.
@@ -93,28 +92,12 @@ public class ComputationalDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the unique id for computational resource.
-	 *
-	 * @param user              user name.
-	 * @param exploratoryName   the name of exploratory.
-	 * @param computationalName name of computational resource.
-	 */
-	public String fetchComputationalId(String user, String exploratoryName, String computationalName) {
-		Document doc = findOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
-				elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computationalName)))
-				.orElse(new Document());
-		return getDottedOrDefault(doc,
-				computationalFieldFilter(COMPUTATIONAL_ID), EMPTY).toString();
-	}
-
-	/**
 	 * Finds and returns the of computational resource.
 	 *
 	 * @param user              user name.
 	 * @param exploratoryName   the name of exploratory.
 	 * @param computationalName name of computational resource.
-	 * @throws DlabException    if exception occurs
+	 * @throws DlabException if exception occurs
 	 */
 	public UserComputationalResource fetchComputationalFields(String user, String exploratoryName,
 															  String computationalName) {
@@ -135,6 +118,21 @@ public class ComputationalDAO extends BaseDAO {
 		}
 		throw new DlabException("Computational resource " + computationalName + " for user " + user + " with " +
 				"exploratory name " + exploratoryName + " not found.");
+	}
+
+	public List<UserComputationalResource> findComputationalResourcesWithStatus(String user, String exploratoryName,
+																				UserInstanceStatus status) {
+		final UserInstanceDTO userInstanceDTO = findOne(USER_INSTANCES,
+				and(exploratoryCondition(user, exploratoryName),
+						elemMatch(COMPUTATIONAL_RESOURCES, eq(STATUS, status.toString()))),
+				fields(include(COMPUTATIONAL_RESOURCES), excludeId()),
+				UserInstanceDTO.class)
+				.orElseThrow(() -> new DlabException(String.format("Computational resource with status %s for user " +
+						"%s with exploratory name %s not found.", status, user, exploratoryName)));
+		return userInstanceDTO.getResources()
+				.stream()
+				.filter(computationalResource -> computationalResource.getStatus().equals(status.toString()))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -324,7 +322,7 @@ public class ComputationalDAO extends BaseDAO {
 	 * @param user                  user name.
 	 * @param exploratoryStatuses   exploratory's status list.
 	 * @param computationalTypes    type list of computational resource (may contain 'dataengine' and/or
-	 *                                 'dataengine-service').
+	 *                              'dataengine-service').
 	 * @param reuploadKeyRequired   true/false.
 	 * @param computationalStatuses statuses of computational resource.
 	 */
@@ -358,7 +356,7 @@ public class ComputationalDAO extends BaseDAO {
 
 	public void updateReuploadKeyFlagForComputationalResource(String user, String exploratoryName,
 															  String computationalName, boolean
-																			reuploadKeyRequired) {
+																	  reuploadKeyRequired) {
 		updateComputationalField(user, exploratoryName, computationalName, REUPLOAD_KEY_REQUIRED, reuploadKeyRequired);
 	}
 
@@ -384,7 +382,7 @@ public class ComputationalDAO extends BaseDAO {
 	 *
 	 * @param user                  user name.
 	 * @param computationalTypes    type list of computational resource which may contain 'dataengine' and/or
-	 *                                 'dataengine-service'.
+	 *                              'dataengine-service'.
 	 * @param exploratoryName       name of exploratory.
 	 * @param computationalStatuses statuses of computational resource.
 	 * @return list of computational resources' names
@@ -400,6 +398,13 @@ public class ComputationalDAO extends BaseDAO {
 						statusList(computationalStatuses).contains(doc.getString(STATUS)) &&
 								computationalTypes.contains(DataEngineType.fromDockerImageName(doc.getString(IMAGE))))
 				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
+	}
+
+	public List<String> getComputationalNamesWhereStatusIn(String user, DataEngineType dataEngineType,
+														   String exploratoryName,
+														   UserInstanceStatus... computationalStatuses) {
+		return getComputationalResourcesWhereStatusIn(user, Collections.singletonList(dataEngineType),
+				exploratoryName, computationalStatuses);
 	}
 
 	/**
@@ -435,17 +440,6 @@ public class ComputationalDAO extends BaseDAO {
 																	String computationalName, SchedulerJobDTO dto) {
 		return updateComputationalField(user, exploratoryName, computationalName, SCHEDULER_DATA,
 				Objects.isNull(dto) ? null : convertToBson(dto));
-	}
-
-	/**
-	 * Checks if computational resource exists.
-	 *
-	 * @param user              user name.
-	 * @param exploratoryName   the name of exploratory.
-	 * @param computationalName the name of computational resource.
-	 */
-	public boolean isComputationalExist(String user, String exploratoryName, String computationalName) {
-		return !Objects.isNull(fetchComputationalFields(user, exploratoryName, computationalName));
 	}
 
 

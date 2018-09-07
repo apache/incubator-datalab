@@ -36,6 +36,6 @@ public class StopComputationalJob implements Job {
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.executeStopResourceJob(true);
+		schedulerJobService.stopComputationalByScheduler();
 	}
 }

@@ -33,18 +33,18 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserComputationalResource {
-    @JsonProperty("computational_name")
-    private String computationalName;
-    @JsonProperty("computational_id")
-    private String computationalId;
-    @JsonProperty("image")
-    private String imageName;
-    @JsonProperty("template_name")
-    private String templateName;
-    @JsonProperty
-    private String status;
-    @JsonProperty("up_time")
-    private Date uptime;
+	@JsonProperty("computational_name")
+	private String computationalName;
+	@JsonProperty("computational_id")
+	private String computationalId;
+	@JsonProperty("image")
+	private String imageName;
+	@JsonProperty("template_name")
+	private String templateName;
+	@JsonProperty
+	private String status;
+	@JsonProperty("up_time")
+	private Date uptime;
 	@JsonProperty("scheduler_data")
 	private SchedulerJobDTO schedulerData;
 	@JsonProperty("reupload_key_required")

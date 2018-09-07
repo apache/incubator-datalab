@@ -36,7 +36,7 @@ public class StartExploratoryJob implements Job {
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.executeStartResourceJob(false);
+		schedulerJobService.startExploratoryByScheduler();
 	}
 
 }

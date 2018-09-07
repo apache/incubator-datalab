@@ -33,16 +33,16 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class SparkStandaloneClusterResource extends UserComputationalResource {
-    @NotBlank
-    @JsonProperty("dataengine_instance_count")
-    private String dataEngineInstanceCount;
+	@NotBlank
+	@JsonProperty("dataengine_instance_count")
+	private String dataEngineInstanceCount;
 
-    @NotBlank
-    @JsonProperty("dataengine_instance_shape")
-    private String dataEngineInstanceShape;
+	@NotBlank
+	@JsonProperty("dataengine_instance_shape")
+	private String dataEngineInstanceShape;
 
-    @Builder
-    public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
+	@Builder
+	public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
 										  String templateName, String status, Date uptime,
 										  SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 										  String dataEngineInstanceCount, String dataEngineInstanceShape,
@@ -51,7 +51,7 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
 				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, config);
-        this.dataEngineInstanceCount = dataEngineInstanceCount;
-        this.dataEngineInstanceShape = dataEngineInstanceShape;
-    }
+		this.dataEngineInstanceCount = dataEngineInstanceCount;
+		this.dataEngineInstanceShape = dataEngineInstanceShape;
+	}
 }

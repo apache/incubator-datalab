@@ -62,29 +62,17 @@ public interface SchedulerJobService {
 	void updateComputationalSchedulerData(String user, String exploratoryName,
 										  String computationalName, SchedulerJobDTO dto);
 
-	/**
-	 * Executes start scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
-	 * computational resources ('isAppliedForClusters' equals 'true').
-	 *
-	 * @param isAppliedForClusters true/false
-	 */
-	void executeStartResourceJob(boolean isAppliedForClusters);
+	void stopComputationalByScheduler();
 
-	/**
-	 * Executes stop scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
-	 * computational resources ('isAppliedForClusters' equals 'true').
-	 *
-	 * @param isAppliedForClusters true/false
-	 */
-	void executeStopResourceJob(boolean isAppliedForClusters);
+	void stopExploratoryByScheduler();
 
-	/**
-	 * Executes terminate scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
-	 * computational resources ('isAppliedForClusters' equals 'true').
-	 *
-	 * @param isAppliedForClusters true/false
-	 */
-	void executeTerminateResourceJob(boolean isAppliedForClusters);
+	void startExploratoryByScheduler();
+
+	void startComputationalByScheduler();
+
+	void terminateExploratoryByScheduler();
+
+	void terminateComputationalByScheduler();
 
 	/**
 	 * Executes check cluster inactivity job for all running clusters.
