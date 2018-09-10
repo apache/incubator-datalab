@@ -38,7 +38,6 @@ import { ManagenementModule } from './management';
 
 import { CoreModule } from './core/core.module';
 
-
 @NgModule({
   declarations: [AppComponent],
   imports: [

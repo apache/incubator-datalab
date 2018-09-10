@@ -97,7 +97,8 @@ export class HealthStatusComponent implements OnInit {
   }
 
   openSsnMonitorDialog() {
-    this.ssnMonitorDialog.open({ isHeader: false, isFooter: false });
+    this.healthStatusService.getSsnMonitorData()
+      .subscribe(data => this.ssnMonitorDialog.open({ isHeader: false, isFooter: false }, data));
   }
 
   manageEnvironment($event) {

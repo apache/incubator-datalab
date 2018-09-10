@@ -19,7 +19,7 @@ limitations under the License.
 <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="isAdmin"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
-  <button mat-raised-button class="butt" (click)="openSsnMonitorDialog()" *ngIf="isAdmin">
+  <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()" *ngIf="isAdmin">
     <i class="material-icons"></i>Open SSN Monitor
   </button>
   <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()" *ngIf="isAdmin">
