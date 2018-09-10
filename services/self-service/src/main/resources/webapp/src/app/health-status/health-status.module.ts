@@ -28,6 +28,8 @@ import {
   ManageEnvironmentComponent,
   ConfirmActionDialog
 } from './manage-environment/manage-environment-dilog.component';
+
+import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ToastModule } from 'ng2-toastr/ng2-toastr';
 
 @NgModule({
@@ -45,7 +47,8 @@ import { ToastModule } from 'ng2-toastr/ng2-toastr';
     HealthStatusComponent,
     BackupDilogComponent,
     ManageEnvironmentComponent,
-    ConfirmActionDialog
+    ConfirmActionDialog,
+    SsnMonitorComponent
   ],
   entryComponents: [ConfirmActionDialog],
   exports: [HealthStatusComponent]

@@ -49,6 +49,7 @@ export class ApplicationServiceFacade {
   private static readonly EDGE_NODE_START = 'edge_node_start';
   private static readonly EDGE_NODE_STOP = 'edge_node_stop';
   private static readonly EDGE_NODE_RECREATE = 'edge_node_recreate';
+  private static readonly SNN_MONITOR = 'ssn_monitor';
   private static readonly LIB_GROUPS = 'lib_groups';
   private static readonly LIB_LIST = 'lib_list';
   private static readonly LIB_INSTALL = 'lib_install';
@@ -399,6 +400,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildGetSsnMonitorData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SNN_MONITOR),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -447,6 +455,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_STOP, '/api/infrastructure/edge/stop');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
     this.requestRegistry.Add(ApplicationServiceFacade.BACKUP, '/api/infrastructure/backup');
+    this.requestRegistry.Add(ApplicationServiceFacade.SNN_MONITOR, '/api/sysinfo');
 
     // Libraries Installation
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');

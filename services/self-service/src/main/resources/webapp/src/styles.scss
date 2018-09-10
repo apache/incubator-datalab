@@ -25,28 +25,30 @@ limitations under the License.
 @import './assets/styles/_general.scss';
 @import './assets/styles/_theme.scss';
 
-.install-libraries .mat-tab-label,
-.install-libraries .mat-tab-label,
-.manage-ungit .mat-tab-label {
+.mat-tab-label {
   font-family: 'Open Sans', sans-serif !important;
   color: #455c74;
 }
-.install-libraries .mat-ink-bar,
+
 .install-libraries .mat-ink-bar,
 .manage-ungit .mat-ink-bar {
   background-color: #35afd5 !important;
   width: 50% !important;
 }
-
-.install-libraries .mat-tab-labels .mat-tab-label:focus,
-.install-libraries .mat-tab-labels .mat-tab-label:focus,
-.manage-ungit .mat-tab-labels .mat-tab-label:focus {
-  background-color: rgba(53, 175, 213, 0.11);
-  color: #577289;
+.ssn-monitor-dialog .mat-ink-bar {
+  // width: 33% !important;
+}
+.mat-ink-bar {
+  background-color: #35afd5 !important;
 }
 
-.install-libraries .mat-tab-header-pagination.mat-tab-header-pagination-after,
-.install-libraries .mat-tab-header-pagination.mat-tab-header-pagination-before {
+.mat-tab-labels .mat-tab-label:focus,
+.mat-tab-labels .mat-tab-label:focus {
+  background-color: rgba(53, 175, 213, 0.11) !important;
+  color: #577289;
+}
+.mat-tab-header-pagination.mat-tab-header-pagination-after,
+.mat-tab-header-pagination.mat-tab-header-pagination-before {
   display: none !important;
 }
 

@@ -108,4 +108,11 @@ export class HealthStatusService {
         );
     });
   }
+
+  public getSsnMonitorData(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetSsnMonitorData()
+      .map(response => response.json())
+      .catch(error => error);
+  }
 }
