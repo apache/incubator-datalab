@@ -1143,14 +1143,15 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
             else:
                 # Downloading Spark without Hadoop
-                sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
+                sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
+                     .format(spark_version))
                 sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
                 sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
                 sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
                 # Downloading Hadoop
                 hadoop_version = '3.0.0'
-                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O \
-                    /tmp/hadoop-{0}.tar.gz'.format(hadoop_version))
+                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
+                     .format(hadoop_version))
                 sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
                 sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
                 sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
@@ -1177,15 +1178,15 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
             local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
         else:
             # Downloading Spark without Hadoop
-            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O \
-                    /tmp/' + cluster_name + '/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
+            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/{1}/spark-{0}-bin-without-hadoop.tgz'
+                 .format(spark_version, cluster_name))
             local('tar -zxvf /tmp/' + cluster_name + '/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
             local('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir))
             local('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir))
             # Downloading Hadoop
             hadoop_version = '3.0.0'
-            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O \
-                    /tmp/' + cluster_name + '/hadoop-{0}.tar.gz'.format(hadoop_version))
+            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/{1}/hadoop-{0}.tar.gz'
+                 .format(hadoop_version, cluster_name))
             local('tar -zxvf /tmp/' + cluster_name + '/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
             local('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir))
             local('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir))
