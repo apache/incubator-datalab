@@ -1,39 +1,11 @@
 # DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## New features in v2.0
-**All Cloud platforms:**
-- added possibility to go to links (Notebook UI, ungit, Tensorboard) without opening tunnel to Edge on AWS
-- implemented environment management page
-- added possibility to generate a key during key reuploading
-
-**AWS:**
-- added new "RStudio with TensorFlow" template on AWS
-- Data Engine/Data Engine Service job tracker URL is displayed on Web UI on AWS
-- added possibility to use AWS default reporting as a source for DLAB billing
+## Bug fixes in v2.0.1
+**AZURE:**
+- fixed bug connected with Data Engine creation
 
 
-## Improvements in v2.0
-
-**All Cloud platforms:**
-- it is now possible to separately configure start and stop schedules for analytical resources
-- added shell interpreter for Zeppelin
-
-**AWS:**
-- optimized starting/stopping duration of Data Engine service
-
-**MS Azure and AWS:**
-- DLab's billing report, now indicates costs associated with any mounted storage of analytical tool
-
-
-## Bug fixes in v2.0
-**AWS:**
-- when computational resource name is part of a name of any other computational resource - it will correspondingly affected during stop/terminate actions (e.g. stopping EMR1 will stop EMR11, terminating EMR1 will terminate EMR11)
-
-**GCP:**
-- fixed occasionally reproducible problem: failure in Notebook stopping/starting and failure in creation of computational resources (it was not possible to automatically determine credentials)
-
-
-## Known issues in v2.0
+## Known issues in v2.0.1
 **All Cloud platforms:**
 - remote kernel list for Data Engine is not updated after stop/start Data Engine
 - following links can be opened via tunnel for Data Engine/Data Engine: service: worker/application ID, application detail UI, event timeline, logs for Data Engine
@@ -44,13 +16,14 @@
 **GCP:**
 - storage permissions aren't differentiated by users via Dataproc permissions (all users have R/W access to other users buckets)
 - Data Engine Service creation is failing after environment has been recreated
-- It is temporarily not possible to run playbooks using remote kernel of Data Engine (dependencies issue)
+- it is temporarily not possible to run playbooks using remote kernel of Data Engine (dependencies issue)
+- DeepLearning creation fails 
 
 **Microsoft Azure:**
 - creation of Zeppelin from custom image fails on the step when cluster kernels are removing
 - start Notebook by scheduler does not work when Data Lake is enabled 
 
-## Known issues caused by cloud provider limitations in v2.0
+## Known issues caused by cloud provider limitations in v2.0.1
 
 **Microsoft Azure:**
 - resource name length should not exceed 80 chars
