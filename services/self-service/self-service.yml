@@ -116,3 +116,14 @@ logging:
 
 clusterInactivityCheckerEnabled: false
 clusterInactivityCheckingTimeout: 120m
+
+swaggerConfiguration:
+  resourcePackage: com.epam.dlab.backendapi.resources
+  title: DLab API
+  description: Essential toolset for analytics. Deployed on ${CLOUD_TYPE} provider
+  schemes: [https, http]
+  version: 2.0
+  contact: DLab
+  contactUrl: http://dlab.opensource.epam.com/
+  license: Apache 2.0
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0

@@ -42,6 +42,8 @@ import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -74,6 +76,12 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		bootstrap.addBundle(new TemplateConfigBundle(
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
+		bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
+			@Override
+			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration configuration) {
+				return configuration.getSwaggerConfiguration();
+			}
+		});
 	}
 
 	@Override

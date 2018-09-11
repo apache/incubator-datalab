@@ -21,9 +21,11 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.UpdateRoleGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UpdateRoleUserDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
+import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.UserRolesService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -39,6 +41,7 @@ import java.util.Set;
 @RolesAllowed("/roleManagement")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "User's roles resource", authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 public class UserRolesResource {
 
 	private final UserRolesService userRolesService;
@@ -49,12 +52,19 @@ public class UserRolesResource {
 	}
 
 	@GET
-	public Response getRoles(@Auth UserInfo userInfo) {
+	@ApiOperation("List user's roles present in application")
+	@ApiResponses(value = @ApiResponse(code = 200, message = "User roles present in application"))
+	public Response getRoles(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		log.debug("Getting all roles for admin {}...", userInfo.getName());
 		return Response.ok(userRolesService.getUserRoles()).build();
 	}
 
 	@POST
+	@ApiOperation(value = "Creates new user role")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Validation exception occurred"),
+			@ApiResponse(code = 200, message = "User role is successfully added")}
+	)
 	public Response createRole(@Auth UserInfo userInfo, UserRoleDto dto) {
 		log.info("Creating new role {} on behalf of admin {}...", dto, userInfo.getName());
 		userRolesService.createRole(dto);
@@ -63,7 +73,14 @@ public class UserRolesResource {
 
 	@PUT
 	@Path("group")
-	public Response addGroupToRole(@Auth UserInfo userInfo, @Valid UpdateRoleGroupDto updateRoleGroupDto) {
+	@ApiOperation("Adds new user groups to existing roles")
+	@ApiResponses({
+			@ApiResponse(code = 404, message = "User role not found"),
+			@ApiResponse(code = 400, message = "Validation exception occurred"),
+			@ApiResponse(code = 200, message = "Group is successfully added to role")}
+	)
+	public Response addGroupToRole(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+								   @Valid @ApiParam UpdateRoleGroupDto updateRoleGroupDto) {
 		log.info("Admin {} is trying to add new groups {} to roles {}", userInfo.getName(),
 				updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
 		userRolesService.addGroupToRole(updateRoleGroupDto.getGroups(), updateRoleGroupDto.getRoleIds());
@@ -72,9 +89,15 @@ public class UserRolesResource {
 
 	@DELETE
 	@Path("group")
-	public Response deleteGroupFromRole(@Auth UserInfo userInfo,
-										@QueryParam("group") @NotEmpty Set<String> groups,
-										@QueryParam("roleId") @NotEmpty Set<String> roleIds) {
+	@ApiOperation("Removes user groups from existing roles")
+	@ApiResponses({
+			@ApiResponse(code = 404, message = "User role not found"),
+			@ApiResponse(code = 400, message = "Validation exception occurred"),
+			@ApiResponse(code = 200, message = "Group successfully removed from role")}
+	)
+	public Response deleteGroupFromRole(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+										@ApiParam(required = true) @QueryParam("group") @NotEmpty Set<String> groups,
+										@ApiParam(required = true) @QueryParam("roleId") @NotEmpty Set<String> roleIds) {
 		log.info("Admin {} is trying to delete groups {} from roles {}", userInfo.getName(), groups, roleIds);
 		userRolesService.removeGroupFromRole(groups, roleIds);
 		return Response.ok().build();
@@ -82,7 +105,14 @@ public class UserRolesResource {
 
 	@PUT
 	@Path("user")
-	public Response addUserToRole(@Auth UserInfo userInfo, @Valid UpdateRoleUserDto updateRoleUserDto) {
+	@ApiOperation("Adds new users existing roles")
+	@ApiResponses({
+			@ApiResponse(code = 404, message = "User role not found"),
+			@ApiResponse(code = 400, message = "Validation exception occurred"),
+			@ApiResponse(code = 200, message = "User successfully added to role")}
+	)
+	public Response addUserToRole(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+								  @ApiParam(required = true) @Valid UpdateRoleUserDto updateRoleUserDto) {
 		log.info("Admin {} is trying to add new users {} to roles {}", userInfo.getName(),
 				updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
 		userRolesService.addUserToRole(updateRoleUserDto.getUsers(), updateRoleUserDto.getRoleIds());
@@ -91,9 +121,15 @@ public class UserRolesResource {
 
 	@DELETE
 	@Path("user")
-	public Response deleteUserFromRole(@Auth UserInfo userInfo,
-									   @QueryParam("user") @NotEmpty Set<String> users,
-									   @QueryParam("roleId") @NotEmpty Set<String> roleIds) {
+	@ApiOperation("Removes users from existing roles")
+	@ApiResponses({
+			@ApiResponse(code = 404, message = "User role not found"),
+			@ApiResponse(code = 400, message = "Validation exception occurred"),
+			@ApiResponse(code = 200, message = "User successfully removed from role")}
+	)
+	public Response deleteUserFromRole(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									   @ApiParam(required = true) @QueryParam("user") @NotEmpty Set<String> users,
+									   @ApiParam(required = true) @QueryParam("roleId") @NotEmpty Set<String> roleIds) {
 		log.info("Admin {} is trying to delete users {} from roles {}", userInfo.getName(), users, roleIds);
 		userRolesService.removeUserFromRole(users, roleIds);
 		return Response.ok().build();

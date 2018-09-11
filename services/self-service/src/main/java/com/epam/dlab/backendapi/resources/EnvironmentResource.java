@@ -17,9 +17,11 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -31,6 +33,7 @@ import javax.ws.rs.core.Response;
 @Path("environment")
 @Slf4j
 @RolesAllowed("environment/*")
+@Api(value = "Environment service", authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 public class EnvironmentResource {
 
 	private EnvironmentService environmentService;
@@ -43,7 +46,10 @@ public class EnvironmentResource {
 	@GET
 	@Path("user/active")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUsersWithActiveEnv(@Auth UserInfo userInfo) {
+	@ApiOperation("Fetches active users")
+	@ApiResponses({@ApiResponse(code = 404, message = "Active users not found"),
+			@ApiResponse(code = 200, message = "Active users were fetched successfully")})
+	public Response getUsersWithActiveEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		log.debug("User {} requested information about active environments", userInfo.getName());
 		return Response.ok(environmentService.getActiveUsers()).build();
 	}
@@ -51,7 +57,8 @@ public class EnvironmentResource {
 	@GET
 	@Path("all")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAllEnv(@Auth UserInfo userInfo) {
+	@ApiOperation("Fetches user resources")
+	public Response getAllEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		log.debug("Admin {} requested information about all user's environment", userInfo.getName());
 		return Response.ok(environmentService.getAllEnv()).build();
 	}
@@ -60,7 +67,10 @@ public class EnvironmentResource {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("terminate")
-	public Response terminateEnv(@Auth UserInfo userInfo, @NotEmpty String user) {
+	@ApiOperation("Terminates user's environment including EDGE, notebooks, clusters")
+	@ApiResponses(@ApiResponse(code = 200, message = "User's environment terminated successfully"))
+	public Response terminateEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+								 @ApiParam(value = "User's name", required = true) @NotEmpty String user) {
 		log.info("User {} is terminating {} environment", userInfo.getName(), user);
 		environmentService.terminateEnvironment(user);
 		return Response.ok().build();
@@ -70,7 +80,10 @@ public class EnvironmentResource {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("stop")
-	public Response stopEnv(@Auth UserInfo userInfo, @NotEmpty String user) {
+	@ApiOperation("Stops user's environment including EDGE, notebooks, Spark clusters")
+	@ApiResponses(@ApiResponse(code = 200, message = "User's environment stopped successfully"))
+	public Response stopEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+							@ApiParam(value = "User's name", required = true) @NotEmpty String user) {
 		log.info("User {} is stopping {} environment", userInfo.getName(), user);
 		environmentService.stopEnvironment(user);
 		return Response.ok().build();
@@ -80,7 +93,8 @@ public class EnvironmentResource {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("stop/edge")
-	public Response stopEdge(@Auth UserInfo userInfo, @NotEmpty String user) {
+	@ApiOperation("Stops user's EDGE node")
+	public Response stopEdge(@ApiParam(hidden = true) @Auth UserInfo userInfo, @NotEmpty String user) {
 		log.info("Admin {} is stopping edge of user {}", userInfo.getName(), user);
 		environmentService.stopEdge(user);
 		return Response.ok().build();

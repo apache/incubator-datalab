@@ -17,12 +17,14 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.exceptions.DlabValidationException;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -38,6 +40,8 @@ import javax.ws.rs.core.Response.Status;
 @Path("/user/access_key")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "Service for uploading or reuploading user's access keys",
+		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 @Slf4j
 public class KeyUploaderResource implements EdgeAPI {
 
@@ -61,7 +65,12 @@ public class KeyUploaderResource implements EdgeAPI {
 	 * </pre>
 	 */
 	@GET
-	public Response checkKey(@Auth UserInfo userInfo) {
+	@ApiOperation(value = "Checks the status of user's key")
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "Key not found"),
+			@ApiResponse(code = 202, message = "Key is uploading now"),
+			@ApiResponse(code = 500, message = "Key's status is failed"),
+			@ApiResponse(code = 200, message = "Key is valid")})
+	public Response checkKey(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		final KeyLoadStatus status = keyService.getUserKeyStatus(userInfo.getName());
 		return Response.status(status.getHttpStatus()).build();
 	}
@@ -79,8 +88,13 @@ public class KeyUploaderResource implements EdgeAPI {
 	 */
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response loadKey(@Auth UserInfo userInfo,
+	@ApiOperation(value = "Uploads/reuploads user's key to server")
+	@ApiResponses(value = @ApiResponse(code = 200, message = "Key was uploaded/reuploaded successfully"))
+	public Response loadKey(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+							@ApiParam(value = "Key file's content", required = true)
 							@FormDataParam("file") String fileContent,
+							@ApiParam(value = "Primary uploading or secondary reuploading", allowableValues =
+									"true/false", defaultValue = "true")
 							@QueryParam("is_primary_uploading") @DefaultValue("true") boolean isPrimaryUploading) {
 
 		validate(fileContent);
@@ -96,7 +110,9 @@ public class KeyUploaderResource implements EdgeAPI {
 	 */
 	@POST
 	@Path("/recover")
-	public Response recover(@Auth UserInfo userInfo) {
+	@ApiOperation(value = "Creates EDGE node and uploads user's key to server")
+	@ApiResponses(value = @ApiResponse(code = 200, message = "EDGE node was created successfully"))
+	public Response recover(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		return Response.ok(keyService.recoverEdge(userInfo)).build();
 	}
 
@@ -104,7 +120,11 @@ public class KeyUploaderResource implements EdgeAPI {
 	@POST
 	@Path("/generate")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response generate(@Auth UserInfo userInfo,
+	@ApiOperation("Generate user's key")
+	@ApiResponses(@ApiResponse(code = 200, message = "User's key was generated successfully"))
+	public Response generate(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+							 @ApiParam(value = "Primary uploading or secondary reuploading", allowableValues =
+									 "true/false", defaultValue = "true")
 							 @QueryParam("is_primary_uploading") @DefaultValue("true") boolean isPrimaryUploading) {
 		final Response.ResponseBuilder builder = Response.ok(keyService.generateKey(userInfo, isPrimaryUploading));
 		builder.header(HttpHeaders.CONTENT_DISPOSITION, String.format(FILE_ATTACHMENT_FORMAT, userInfo.getName()));

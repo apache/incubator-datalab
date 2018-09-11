@@ -21,6 +21,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
+import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
@@ -30,6 +31,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
@@ -47,6 +49,8 @@ import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "Service for computational resources on AWS (NOTE: available only on AWS platform)",
+		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH), hidden = true)
 @Slf4j
 public class ComputationalResourceAws implements ComputationalAPI {
 
@@ -66,7 +70,14 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@PUT
 	@Path("dataengine-service")
-	public Response createDataEngineService(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm form) {
+	@ApiOperation("Creates EMR cluster on AWS")
+	@ApiResponses({
+			@ApiResponse(code = 302, message = "EMR cluster on AWS with current parameters already exists"),
+			@ApiResponse(code = 200, message = "EMR cluster on AWS successfully created")
+	})
+	public Response createDataEngineService(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+											@ApiParam(value = "AWS form DTO for EMR creation", required = true)
+											@Valid @NotNull AwsComputationalCreateForm form) {
 
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
@@ -105,7 +116,14 @@ public class ComputationalResourceAws implements ComputationalAPI {
 
 	@PUT
 	@Path("dataengine")
-	public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
+	@ApiOperation("Creates Spark cluster on AWS")
+	@ApiResponses({
+			@ApiResponse(code = 302, message = "Spark cluster on AWS with current parameters already exists"),
+			@ApiResponse(code = 200, message = "Spark cluster on AWS successfully created")
+	})
+	public Response createDataEngine(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Spark cluster create form DTO", required = true)
+									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
 		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
@@ -128,8 +146,12 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@DELETE
 	@Path("/{exploratoryName}/{computationalName}/terminate")
-	public Response terminate(@Auth UserInfo userInfo,
+	@ApiOperation("Terminates computational resource (EMR/Spark cluster) on AWS")
+	@ApiResponses(@ApiResponse(code = 200, message = "EMR/Spark cluster on AWS successfully terminated"))
+	public Response terminate(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+							  @ApiParam(value = "Notebook's name", required = true)
 							  @PathParam("exploratoryName") String exploratoryName,
+							  @ApiParam(value = "Computational resource's name for terminating", required = true)
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -148,8 +170,12 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@DELETE
 	@Path("/{exploratoryName}/{computationalName}/stop")
-	public Response stop(@Auth UserInfo userInfo,
+	@ApiOperation("Stops Spark cluster on AWS")
+	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on AWS successfully stopped"))
+	public Response stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+						 @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
 						 @PathParam("exploratoryName") String exploratoryName,
+						 @ApiParam(value = "Spark cluster's name for stopping", required = true)
 						 @PathParam("computationalName") String computationalName) {
 		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -168,8 +194,12 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@PUT
 	@Path("/{exploratoryName}/{computationalName}/start")
-	public Response start(@Auth UserInfo userInfo,
+	@ApiOperation("Starts Spark cluster on AWS")
+	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on AWS successfully started"))
+	public Response start(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+						  @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
 						  @PathParam("exploratoryName") String exploratoryName,
+						  @ApiParam(value = "Spark cluster's name for starting", required = true)
 						  @PathParam("computationalName") String computationalName) {
 		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -208,16 +238,15 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		}
 
 		int slaveInstanceCount = Integer.parseInt(formDTO.getInstanceCount());
-		if (slaveInstanceCount < configuration.getMinEmrInstanceCount() || slaveInstanceCount > configuration
-				.getMaxEmrInstanceCount()) {
+		if (slaveInstanceCount < configuration.getMinEmrInstanceCount() || slaveInstanceCount >
+				configuration.getMaxEmrInstanceCount()) {
 			log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave " +
-							"instances" +
-							". Minimum is {}, maximum is {}",
-					formDTO.getName(), userInfo.getName(), configuration.getMinEmrInstanceCount(), configuration
-							.getMaxEmrInstanceCount());
-			throw new DlabException("Limit exceeded to creation slave instances. Minimum is " + configuration
-					.getMinEmrInstanceCount() +
-					", maximum is " + configuration.getMaxEmrInstanceCount() + ".");
+							"instances. Minimum is {}, maximum is {}",
+					formDTO.getName(), userInfo.getName(), configuration.getMinEmrInstanceCount(),
+					configuration.getMaxEmrInstanceCount());
+			throw new DlabException("Limit exceeded to creation slave instances. Minimum is " +
+					configuration.getMinEmrInstanceCount() + ", maximum is " + configuration.getMaxEmrInstanceCount() +
+					".");
 		}
 
 		int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
@@ -225,11 +254,11 @@ public class ComputationalResourceAws implements ComputationalAPI {
 				|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
 			log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value " +
 							"out of the boundaries. Minimum is {}, maximum is {}",
-					formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(), configuration
-							.getMaxEmrSpotInstanceBidPct());
+					formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
+					configuration.getMaxEmrSpotInstanceBidPct());
 			throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
-					configuration.getMinEmrSpotInstanceBidPct() +
-					", maximum is " + configuration.getMaxEmrSpotInstanceBidPct() + ".");
+					configuration.getMinEmrSpotInstanceBidPct() + ", maximum is " +
+					configuration.getMaxEmrSpotInstanceBidPct() + ".");
 		}
 	}
 }
