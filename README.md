@@ -1739,15 +1739,16 @@ In order to start development of Front-end Web UI part of DLab - Git repository 
 
 -   Git 1.7 or higher
 -   Maven 3.3 or higher
--   Python 2.7
+-   Python 2.7 with library Fabric v1.14.0
 -   Mongo DB 3.0 or higher
 -   Docker 1.12 - Infrastructure provisioning
 -   Java Development Kit 8 – Back-end
--   Node.js 6.x & 7.x - WebUI
+-   Node.js 6.x or 7.x - WebUI
 -   Angular CLI v1.0.0-rc.1 or higher - WebUI
 -   TypeScript v2.0 or higher - WebUI
 -   Angular2 v2.4 – WebUI
 -   Development IDE (Eclipse or Intellij IDEA)
+-   Python library Fabric v1.14.0 must be installed
 
 ## Java back-end services <a name="Java_back_end_services"></a>
 
@@ -1806,7 +1807,7 @@ Security service is REST based service for user authentication against LDAP/LDAP
 LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. 
 If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
 
-DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP ot OAuth2
+DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP or OAuth2
 If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure). 
 If Data Lake is enabled default permission scope(can be configured manually after deploy DLab) is Data Lake Store account so only if user has any role in scope of Data Lake Store Account resource he/she will be allowed to log in
 If Data Lake is disabled but Azure OAuth2 is in use default permission scope will be Resource Group where DLab is created and only users who have any roles in the resource group will be allowed to log in.
