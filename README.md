@@ -1748,7 +1748,6 @@ In order to start development of Front-end Web UI part of DLab - Git repository 
 -   TypeScript v2.0 or higher - WebUI
 -   Angular2 v2.4 – WebUI
 -   Development IDE (Eclipse or Intellij IDEA)
--   Python library Fabric v1.14.0 must be installed
 
 ## Java back-end services <a name="Java_back_end_services"></a>
 
