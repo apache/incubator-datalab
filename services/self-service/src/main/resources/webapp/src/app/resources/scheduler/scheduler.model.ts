@@ -16,77 +16,71 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
-
-import { SortUtil } from './../../core/util';
-import { SchedulerService } from './../../core/services';
+import { SchedulerService } from '../../core/services';
 
 export interface SchedulerParameters {
-    begin_date : string;
-    finish_date : string;
-    start_time: string;
-    end_time: string;
-    days_repeat: Array<string>;
-    timezone_offset: string;
-    sync_start_required: boolean;
+  begin_date: string;
+  finish_date: string;
+  start_time: string;
+  end_time: string;
+  days_repeat: Array<string>;
+  timezone_offset: string;
+  sync_start_required: boolean;
 }
 
 export class SchedulerModel {
-    public confirmAction: Function;
+  public confirmAction: Function;
+  private continueWith: Function;
+  private schedulerService: SchedulerService;
 
-    private createParameters: SchedulerParameters;
+  static getDefault(schedulerService): SchedulerModel {
+    return new SchedulerModel(() => {}, () => {}, null, schedulerService);
+  }
 
-    private continueWith: Function;
-    private schedulerService: SchedulerService;
+  constructor(
+    fnProcessResults: any,
+    fnProcessErrors: any,
+    continueWith: Function,
+    schedulerService: SchedulerService
+  ) {
+    this.continueWith = continueWith;
+    this.schedulerService = schedulerService;
+    this.prepareModel(fnProcessResults, fnProcessErrors);
 
-    static getDefault(schedulerService): SchedulerModel {
-        return new SchedulerModel(() => { }, () => { }, null, schedulerService);
-    }
+    if (this.continueWith) this.continueWith();
+  }
 
-    constructor(
-        fnProcessResults: any,
-        fnProcessErrors: any,
-        continueWith: Function,
-        schedulerService: SchedulerService
-    ) {
-        this.continueWith = continueWith;
-        this.schedulerService = schedulerService;
-        this.prepareModel(fnProcessResults, fnProcessErrors);
+  private scheduleInstance(notebook, params, resourse) {
+    return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
+  }
 
-        if (this.continueWith) this.continueWith();
-    }
-
-    private scheduleInstance(notebook, params, resourse): Observable<Response> {
-        return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
-    }
-
-    private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-        this.confirmAction = (notebook, data, resourse?) => this.scheduleInstance(notebook, data, resourse)
-            .subscribe(
-                (response: Response) => fnProcessResults(response),
-                (response: Response) => fnProcessErrors(response));
-    }
+  private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
+    this.confirmAction = (notebook, data, resourse?) =>
+      this.scheduleInstance(notebook, data, resourse).subscribe(
+        response => fnProcessResults(response),
+        error => fnProcessErrors(error)
+      );
+  }
 }
 
 export class WeekdaysModel {
-    constructor(
-      public sunday: boolean,
-      public monday: boolean,
-      public tuesday: boolean,
-      public wednesday: boolean,
-      public thursday: boolean,
-      public friday: boolean,
-      public saturday: boolean
-    ) { }
-  
-    setDegault(): void {
-      this.sunday = false;
-      this.monday = false;
-      this.tuesday = false;
-      this.wednesday = false;
-      this.thursday = false;
-      this.friday = false;
-      this.saturday = false;
-    }
+  constructor(
+    public sunday: boolean,
+    public monday: boolean,
+    public tuesday: boolean,
+    public wednesday: boolean,
+    public thursday: boolean,
+    public friday: boolean,
+    public saturday: boolean
+  ) {}
+
+  setDegault(): void {
+    this.sunday = false;
+    this.monday = false;
+    this.tuesday = false;
+    this.wednesday = false;
+    this.thursday = false;
+    this.friday = false;
+    this.saturday = false;
   }
+}

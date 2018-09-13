@@ -18,28 +18,31 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from './../shared/material.module';
-
-import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule } from './../shared';
+import { MaterialModule } from '../shared/material.module';
+import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
 import { HealthStatusComponent } from './health-status.component';
-import { HealthStatusGridModule } from './health-status-grid/health-status-grid.module';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import {
   ManageEnvironmentComponent,
   ConfirmActionDialog
 } from './manage-environment/manage-environment-dilog.component';
 
+import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
-import { ToastModule } from 'ng2-toastr/ng2-toastr';
+import { ToastModule } from 'ng2-toastr';
+
+export * from './environment-status.model';
 
 @NgModule({
+
   imports: [
     CommonModule,
     NavbarModule,
     ModalModule,
-    HealthStatusGridModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
+    BubbleModule,
+    ConfirmationDialogModule,
     MaterialModule,
     ToastModule.forRoot()
   ],
@@ -48,9 +51,10 @@ import { ToastModule } from 'ng2-toastr/ng2-toastr';
     BackupDilogComponent,
     ManageEnvironmentComponent,
     ConfirmActionDialog,
+    HealthStatusGridComponent,
     SsnMonitorComponent
   ],
   entryComponents: [ConfirmActionDialog],
-  exports: [HealthStatusComponent]
+  exports: [HealthStatusComponent, HealthStatusGridComponent]
 })
 export class HealthStatusModule {}

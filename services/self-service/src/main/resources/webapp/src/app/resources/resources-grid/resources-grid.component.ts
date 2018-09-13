@@ -19,14 +19,13 @@ limitations under the License.
 
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { UserResourceService } from '../../core/services';
-import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from './';
+import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from '.';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
   styleUrls: ['./resources-grid.component.css']
@@ -250,7 +249,7 @@ export class ResourcesGridComponent implements OnInit {
 
   getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
-      .subscribe((result) => {
+      .subscribe((result : any) => {
         this.isActiveFilter(result);
         this.filterForm = this.loadUserPreferences( result.type ? this.filterActiveInstances() : this.aliveStatuses(result) );
         this.applyFilter_btnClick(this.filterForm);

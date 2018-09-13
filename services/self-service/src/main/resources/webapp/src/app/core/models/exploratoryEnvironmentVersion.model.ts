@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { ImageType, ResourceShapeTypesModel } from './';
+import { ImageType, ResourceShapeTypesModel } from '.';
 
 export class ExploratoryEnvironmentVersionModel {
   image: string;

@@ -16,24 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { ApplicationServiceFacade } from './applicationServiceFacade.service';
-import { AppRoutingService } from './appRouting.service';
-
-import { ApplicationSecurityService } from './applicationSecurity.service';
-import { HealthStatusService } from './healthStatus.service';
-
-import { UserAccessKeyService } from './userAccessKey.service';
-import { UserResourceService } from './userResource.service';
-import { AuthorizationGuard } from './authorization.guard';
-import { CloudProviderGuard } from './cloudProvider.guard';
-import { CheckParamsGuard } from './checkParams.guard';
-import { LibrariesInstallationService } from './librariesInstallation.service';
-import { ManageUngitService } from './manageUngit.service';
-import { BillingReportService } from './billingReport.service';
-import { BackupService } from './backup.service';
-import { SchedulerService } from './scheduler.service';
-
-
 export * from './applicationServiceFacade.service';
 export * from './appRouting.service';
 export * from './applicationSecurity.service';

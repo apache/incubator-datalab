@@ -177,7 +177,8 @@ public class TestServices {
 
 		responseBody = login(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(),
 				HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
-		Assert.assertEquals(responseBody.asString(), "Username or password are not valid");
+
+		Assert.assertEquals(responseBody.path("message"), "Username or password are not valid");
 
 		if (!ConfigPropertyValue.isRunModeLocal()) {
 			responseBody = login(ConfigPropertyValue.getUsername(), ".", HttpStatusCode.UNAUTHORIZED,

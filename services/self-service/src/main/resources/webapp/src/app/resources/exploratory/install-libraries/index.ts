@@ -24,7 +24,7 @@ import { MaterialModule } from '../../../shared/material.module';
 import { ModalModule, BubbleModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
 
-import { KeysPipeModule, UnderscorelessPipeModule, LibSortPipeModule, HighLightPipeModule } from '../../../core/pipes';
+import { KeysPipeModule, LibSortPipeModule, HighLightPipeModule } from '../../../core/pipes';
 import { InstallLibrariesComponent, ErrorMessageDialog } from './install-libraries.component';
 
 export * from './install-libraries.component';

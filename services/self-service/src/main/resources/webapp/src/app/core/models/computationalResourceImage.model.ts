@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { ComputationalResourceApplicationTemplate, ResourceShapeTypesModel, ImageType } from './';
+import { ComputationalResourceApplicationTemplate, ResourceShapeTypesModel, ImageType } from '.';
 import { SortUtil } from '../util';
 
 export class ComputationalResourceImage {

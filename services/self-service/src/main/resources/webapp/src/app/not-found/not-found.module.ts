@@ -19,7 +19,7 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotFoundComponent } from './not-found.component';
-import { NavbarModule } from './../shared';
+import { NavbarModule } from '../shared';
 
 @NgModule({
     imports: [

@@ -26,12 +26,64 @@ limitations under the License.
   justify-content: space-between;
   margin-bottom: 0;
   border-radius: 0;
-}
+  .menu-area {
+    display: flex;
+    align-items: center;
+    .navbar-logo {
+      width: 65px;
+      align-self: center;
+      margin-left: 10px;
+      img {
+        display: block;
+        width: 100%;
+      }
+    }
+  }
+  .control-area {
+    @extend .menu-area;
 
-.menu-area,
-.control-area {
-  display: flex;
-  align-items: center;
+    .statusbar {
+      display: flex;
+      width: 60px;
+      height: 46px;
+      text-decoration: none;
+      justify-content: center;
+      color: #f9fafb;
+      span {
+        align-self: center;
+        font-size: 18px;
+      }
+      .ok {
+        color: #81b44a;
+        &:hover { color: #618738; }
+      }
+      .warning {
+        color: #f7b500;
+        &:hover { color: #bd8d0a; }
+      }
+      .error {
+        color: #ef5c4b;
+        &:hover {
+          color: #bd4146;
+        }
+      }
+    }
+    .btn-logout {
+      height: 46px;
+      padding: 0 28px;
+      background: #383838;
+      color: #cfdae6;
+      border: 0;
+      border-radius: 0;
+      font-size: 14px;
+      .user-name {
+        color: #36afd5;
+      }
+      &:hover .user-name {
+        color: #3392b0;
+      }
+    }
+  }
 }
 
 a.nav-item {
@@ -46,76 +98,28 @@ a.nav-item {
   overflow: hidden;
   color: #577289;
   outline: none;
+  &:hover {
+    background: none !important;
+    color: #36afd5;
+  }
+  &:not(:last-child)::after {
+    content: ' ';
+    position: absolute;
+    bottom: 0;
+    left: calc(50% - 200px/2);
+    height: 1px;
+    width: 200px;
+    display: block;
+    background: #edf1f5;
+  }
+  &.active {
+    color: #36afd5;
+  }
  }
- a.nav-item:not(:last-child)::after {
-  content: ' ';
-  position: absolute;
-  bottom: 0;
-  left: calc(50% - 200px/2);
-  height: 1px;
-  width: 200px;
-  display: block;
-  background: #edf1f5;
-}
-
-a.nav-item.active {
-  color: #36afd5;
-}
-a.nav-item:hover {
-  background: none !important;
-  color: #36afd5;
-}
-
-.nav-bar .navbar-logo {
-  width: 65px;
-  align-self: center;
-  margin-left: 10px;
-}
-
-.nav-bar .navbar-logo img {
-  display: block;
-  width: 100%;
-}
-
-.nav-bar .statusbar {
-  display: flex;
-  width: 60px;
-  height: 46px;
-  text-decoration: none;
-  justify-content: center;
-  color: #f9fafb;
-}
-
-.nav-bar .statusbar span {
-  align-self: center;
-  font-size: 18px;
-}
 
 .ok, .warning, .error, .user-name {
   transition: all .35s ease-in-out;
 }
-
-.statusbar .ok { color: #81b44a; }
-.statusbar .ok:hover { color: #618738; }
-
-.statusbar .warning { color: #f7b500; }
-.statusbar .warning:hover { color: #bd8d0a; }
-
-.statusbar .error { color: #ef5c4b; }
-.statusbar .error:hover { color: #bd4146; }
-
-.nav-bar .btn-logout {
-  height: 46px;
-  padding: 0 28px;
-  background: #383838;
-  color: #cfdae6;
-  border: 0;
-  border-radius: 0;
-  font-size: 14px;
-}
-.btn-logout:hover .user-name { color: #3392b0; }
-
-.user-name { color: #36afd5; }
 
 .hamburger {
   border: none;
@@ -127,43 +131,35 @@ a.nav-item:hover {
   cursor: pointer;
   border-radius: 0;
   transition: all .45s ease-in-out;
-}
-.hamburger .line{
-  width: 22px;
-  height: 2px;
-  display: block;
-  margin: 4px auto;
-  border-radius: 1px;
-  background-color: #ecf0f1;
-  -webkit-transition: all .35s ease-in-out;
-  -o-transition: all .35s ease-in-out;
-  transition: all .35s ease-in-out;
-}
-
-.hamburger:hover {
-  background: #36afd5;
-}
-
-.hamburger:hover .line:nth-child(2) {
-  -webkit-transition: none;
-  -o-transition: none;
-  transition: none;
-}
-
-.hamburger .line:nth-child(2) {
-  -webkit-transition-delay: 0.3s;
-  -o-transition-delay: 0.3s;
-  transition-delay: 0.3s;
-}
-
-
-.hamburger:hover .line:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger:hover .line:nth-child(1),
-.hamburger:hover .line:nth-child(3) {
-  width: 18px;
+  .line{
+    width: 22px;
+    height: 2px;
+    display: block;
+    margin: 4px auto;
+    border-radius: 1px;
+    background-color: #ecf0f1;
+    -webkit-transition: all .35s ease-in-out;
+    -o-transition: all .35s ease-in-out;
+    transition: all .35s ease-in-out;
+    &:nth-child(2) {
+      -webkit-transition-delay: 0.3s;
+      -o-transition-delay: 0.3s;
+      transition-delay: 0.3s;
+    }
+  }
+  &:hover {
+    background: #36afd5;
+  }
+  &:hover .line:nth-child(1),
+  &:hover .line:nth-child(3) {
+    width: 18px;
+  }
+  &:hover .line:nth-child(2) {
+    -webkit-transition: none;
+    -o-transition: none;
+    transition: none;
+    opacity: 0;
+  }
 }
 
 .hamburger:hover .line:nth-child(1){

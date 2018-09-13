@@ -17,24 +17,16 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { AuthorizationGuard, AppRoutingService, HealthStatusService } from './';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { HealthStatusService } from '.';
 
-import { DICTIONARY } from '../../../dictionary/global.dictionary';
-
-import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/toPromise';
-import { Observer } from 'rxjs/Observer';
 
 @Injectable()
 export class CloudProviderGuard implements CanActivate {
-    constructor(
-      private _authGuard: AuthorizationGuard,
-      private _routing: AppRoutingService,
-      private _healthStatus: HealthStatusService
-    ) { }
+  constructor(private _healthStatus: HealthStatusService) {}
 
-    canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-      return this._healthStatus.isBillingEnabled();
-    }
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    return this._healthStatus.isBillingEnabled();
+  }
 }

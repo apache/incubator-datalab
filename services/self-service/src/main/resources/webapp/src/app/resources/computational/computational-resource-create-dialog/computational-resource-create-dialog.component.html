@@ -135,10 +135,6 @@ limitations under the License.
           </div>
         </div>
       </div>
-
-        <div class="text-right" *ngIf="processError">
-          <small class="danger_color">{{errorMessage}}</small>
-        </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!resourceForm.valid"

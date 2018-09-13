@@ -17,28 +17,29 @@ limitations under the License.
 ****************************************************************************/
 
 export class ResourcesGridRowModel {
-  constructor(public name: Array<any>,
-              public template_name: string,
-              public image: string,
-              public status: string,
-              public shape: string,
-              public resources: Array<any>,
-              public time: string,
-              public url: Array<any>,
-              public ip: string,
-              public username: string,
-              public password: string,
-              public bucket_name: string,
-              public shared_bucket_name: string,
-              public error_message: string,
-              public cost: number,
-              public currency_code: string,
-              public billing: Array<any>,
-              public libs: Array<any>,
-              public account_name: string,
-              public shared_account_name: string,
-              public datalake_name: string,
-              public datalake_directory: string,
-              public datalake_shared_directory: string
-            ) { }
+  constructor(
+    public name: Array<any>,
+    public template_name: string,
+    public image: string,
+    public status: string,
+    public shape: string,
+    public resources: Array<any>,
+    public time: string,
+    public url: Array<any>,
+    public ip: string,
+    public username: string,
+    public password: string,
+    public bucket_name: string,
+    public shared_bucket_name: string,
+    public error_message: string,
+    public cost: number,
+    public currency_code: string,
+    public billing: Array<any>,
+    public libs: Array<any>,
+    public account_name: string,
+    public shared_account_name: string,
+    public datalake_name: string,
+    public datalake_directory: string,
+    public datalake_shared_directory: string
+  ) { }
 }

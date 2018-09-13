@@ -356,6 +356,13 @@ toast-container {
           content: "priority_high";
         }
       }
+      &.toast-info {
+        background-image: none;
+        color: #35afd5;
+        &::before {
+          content: "priority_high";
+        }
+      }
     }
   }
 }

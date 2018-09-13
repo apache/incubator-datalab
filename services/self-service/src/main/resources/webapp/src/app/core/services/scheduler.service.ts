@@ -17,36 +17,28 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import { ApplicationServiceFacade } from './';
+import { ApplicationServiceFacade } from '.';
+import { ErrorUtils } from '../util/';
 
 @Injectable()
 export class SchedulerService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  public getExploratorySchedule(notebook, resource?): Observable<Response> {
+  public getExploratorySchedule(notebook, resource?): Observable<{}> {
     const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
     return this.applicationServiceFacade
       .buildGetExploratorySchedule(param)
-      .map((response: Response) => response.json())
-      .catch((error: Response | any) => {
-        return Observable.throw(
-            new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
-        );
-    });
+      .map(response => response.json())
+      .catch(ErrorUtils.handleServiceError);
   }
 
-  public setExploratorySchedule(notebook, data, resource?): Observable<Response> {
+  public setExploratorySchedule(notebook, data, resource?): Observable<{}> {
     const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
     return this.applicationServiceFacade
       .buildSetExploratorySchedule(param, data)
-      .map((response: Response) => response)
-      .catch((error: Response | any) => {
-        return Observable.throw(
-            new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
-        );
-    });
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
   }
 }

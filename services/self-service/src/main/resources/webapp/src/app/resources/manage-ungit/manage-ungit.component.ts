@@ -16,14 +16,13 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Response } from '@angular/http';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ToastsManager } from 'ng2-toastr';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
-import { ManageUngitService } from './../../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
+import { ManageUngitService } from '../../core/services';
 
 @Component({
   selector: 'dlab-manage-ungit',
@@ -41,9 +40,6 @@ export class ManageUngitComponent implements OnInit {
   login_acceptance_pattern = '[-_@.a-zA-Z0-9]+';
   acceptance_pattern = '[-_ a-zA-Z0-9]+';
 
-  errorMessage: string;
-  processError: boolean = false;
-
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
@@ -53,9 +49,12 @@ export class ManageUngitComponent implements OnInit {
   constructor(
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
   ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
+    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -67,11 +66,8 @@ export class ManageUngitComponent implements OnInit {
 
   public open(param): void {
     if (!this.bindDialog.isOpened)
-      this.model = new MangeUngitModel((response: Response) => { },
-      error => {
-        this.processError = true;
-        this.errorMessage = error.message;
-      },
+      this.model = new MangeUngitModel(response => { },
+      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!', { toastLife: 5000 }),
       () => {
         this.bindDialog.open(param);
 
@@ -93,9 +89,7 @@ export class ManageUngitComponent implements OnInit {
 
   public cancelAllModifyings() {
     this.editableForm = false;
-    this.errorMessage = '';
-    this.processError = false;
-
+    
     this.getGitCredentials();
     this.resetForm();
   }
@@ -125,9 +119,6 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public assignChanges(current: any): void {
-    this.errorMessage = '';
-    this.processError = false;
-
     const modifiedCredentials = JSON.parse(JSON.stringify(this.gitCredentials));
     const index = modifiedCredentials.findIndex(el => JSON.stringify(el) === JSON.stringify(this.currentEditableItem));
 
@@ -159,10 +150,9 @@ export class ManageUngitComponent implements OnInit {
 
   private getGitCredentials(): void {
     this.model.getGitCredentials()
-      .subscribe((response: any) => {
-          this.gitCredentials = response.git_creds || [];
-        },
-        error => console.log(error));
+      .subscribe(
+        (response: any) => this.gitCredentials = response.git_creds || [],
+        error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   private validConfirmField(control) {

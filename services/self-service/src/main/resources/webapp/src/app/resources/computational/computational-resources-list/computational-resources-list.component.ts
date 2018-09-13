@@ -21,7 +21,6 @@ import { UserResourceService } from '../../../core/services';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
-  moduleId: module.id,
   selector: 'computational-resources-list',
   templateUrl: 'computational-resources-list.component.html',
   styleUrls: ['./computational-resources-list.component.scss']

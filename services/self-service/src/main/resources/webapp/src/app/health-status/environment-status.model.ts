@@ -43,3 +43,10 @@ export class BackupOptionsModel {
     this.logsBackup = false;
   }
 }
+
+export interface GeneralEnvironmentStatus {
+  admin: boolean,
+  billingEnabled: boolean,
+  list_resources: Array<EnvironmentStatusModel>,
+  status: string
+}

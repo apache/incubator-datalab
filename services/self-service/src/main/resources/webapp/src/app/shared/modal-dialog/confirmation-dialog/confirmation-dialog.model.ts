@@ -17,14 +17,13 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 
 export class ConfirmationDialogModel {
-  private title: string;
+  public title: string;
   private notebook: any;
   private confirmAction: Function;
   private manageAction: Function;
@@ -33,8 +32,7 @@ export class ConfirmationDialogModel {
   private manageEnvironmentsService: ManageEnvironmentsService;
 
   static getDefault(): ConfirmationDialogModel {
-    return new
-      ConfirmationDialogModel(
+    return new ConfirmationDialogModel(
       ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, false, null, null, null);
   }
 
@@ -70,19 +68,19 @@ export class ConfirmationDialogModel {
   }
 
 
-  private stopExploratory(): Observable<{} | Response> {
+  private stopExploratory(): Observable<{}> {
     return this.manageAction 
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.name)
       : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
-  private terminateExploratory(): Observable<{} | Response> {
+  private terminateExploratory(): Observable<{}> {
     return this.manageAction 
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'terminate', this.notebook.name)
       : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
-  private stopEdgeNode(): Observable<{} | Response> {
+  private stopEdgeNode(): Observable<{}> {
     return this.manageAction 
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', 'edge')
       : this.healthStatusService.suspendEdgeNode();
@@ -102,32 +100,36 @@ export class ConfirmationDialogModel {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesStopMessage : defaultStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
       case ConfirmationDialogType.TerminateExploratory: {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.terminateExploratory()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
       case ConfirmationDialogType.StopEdgeNode: {
         this.title = edgeNodeStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopEdgeNode()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
       default: {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
     }

@@ -1,0 +1,77 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.billing-detail-dialog {
+  table {
+    width: 100%;
+    th, td {
+      border: 1px solid #edf1f5;
+      padding: 18px 15px;
+      text-align: left;
+    }
+  }
+}
+
+.billing-detail {
+  .list-header {
+    border-top: 1px solid #edf1f5;
+    border-bottom: 1px solid #edf1f5;
+    color: #577289;
+    width: 100%;
+    div {
+      font-weight: 500;
+    }
+  }
+  .service {
+    width: 30%;
+  }
+  .resource-type,
+  .cost-currency {
+   width: 12%;
+  }
+  .resource-name,
+  .usage-date-start,
+  .usage-date-end {
+    width: 12%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+  }
+  .wide-name-field {
+    width: 25%;
+  }
+  .resource-name {
+    cursor: pointer;
+    width: 20%;
+  }
+  .total {
+    padding: 18px 20px 0;
+    text-align: right;
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+
+.scrolling-content {
+  max-height: 275px;
+  overflow-y: auto;
+}
+.mat-list-item-content {
+    font-size: 15px !important;
+}

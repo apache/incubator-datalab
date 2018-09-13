@@ -17,14 +17,14 @@ limitations under the License.
 ****************************************************************************/
 
 .sub-nav {
-    justify-content: flex-end;
-    button {
-      margin-right: 10px;
-      &:last-child {
-        margin-right: 0;
-      }
-      &.env {
-        width: 210px;
-      }
+  justify-content: flex-end;
+  button {
+    margin-right: 10px;
+    &:last-child {
+      margin-right: 0;
+    }
+    &.env {
+      width: 210px;
     }
   }
+}

@@ -122,7 +122,7 @@ export class ExploratoryEnvironmentCreateModel {
     this.setSelectedTemplate(0);
   }
 
-  private createExploratoryEnvironment(): Observable<Response> {
+  private createExploratoryEnvironment(): Observable<{}> {
     let params: any = {
       image: this.environment_image,
       template_name: this.environment_template_name,
@@ -146,6 +146,8 @@ export class ExploratoryEnvironmentCreateModel {
 
     this.setCreatingParams(environment_name, environment_shape);
     this.confirmAction = () => this.createExploratoryEnvironment()
-      .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
+      .subscribe(
+        response => fnProcessResults(response),
+        error => fnProcessErrors(error));
   }
 }

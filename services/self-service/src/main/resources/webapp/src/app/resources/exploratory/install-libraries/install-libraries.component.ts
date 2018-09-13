@@ -16,18 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject, ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { FormControl } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
+
+import { InstallLibrariesModel } from '.';
+import { LibrariesInstallationService} from '../../../core/services';
+import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
-
-import { InstallLibrariesModel } from './';
-import { LibrariesInstallationService} from '../../../core/services';
-import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -49,9 +48,6 @@ export class InstallLibrariesComponent implements OnInit {
   public destination: any;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
-
-  public processError: boolean = false;
-  public errorMessage: string = '';
   public validity_format: string = '';
 
   public isInstalled: boolean = false;
@@ -73,8 +69,12 @@ export class InstallLibrariesComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private librariesInstallationService: LibrariesInstallationService,
-    private changeDetector : ChangeDetectorRef) {
+    private changeDetector : ChangeDetectorRef,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
+    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -101,10 +101,7 @@ export class InstallLibrariesComponent implements OnInit {
           this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.title, 'destination', 'title', 'array');
           this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
-        error => {
-          this.processError = true;
-          this.errorMessage = JSON.parse(error.message).message;
-        });
+        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   private getResourcesList() {
@@ -129,7 +126,7 @@ export class InstallLibrariesComponent implements OnInit {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
     } else if ($event.model.type === 'destination') {
-      this.resetDialog(true);
+      this.resetDialog();
 
       this.destination = $event.model.value;
       this.destination && this.destination.type === 'СOMPUTATIONAL'
@@ -172,24 +169,22 @@ export class InstallLibrariesComponent implements OnInit {
   public open(param, notebook): void {
     if (!this.bindDialog.isOpened)
       this.notebook = notebook;
-      this.model = new InstallLibrariesModel(notebook, (response: Response) => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          this.getInstalledLibrariesList();
-          this.resetDialog();
-        }
-      },
-      (error: any) => {
-        this.processError = true;
-        this.errorMessage = error.message;
-      },
-      () => {
-        this.bindDialog.open(param);
+      this.model = new InstallLibrariesModel(notebook,
+        response => {
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            this.getInstalledLibrariesList();
+            this.resetDialog();
+          }
+        },
+        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!', { toastLife: 5000 }),
+        () => {
+          this.bindDialog.open(param);
 
-        this.getInstalledLibrariesList(true);
-        this.changeDetector.detectChanges();
-        this.selectorsReset();
-      },
-      this.librariesInstallationService);
+          this.getInstalledLibrariesList(true);
+          this.changeDetector.detectChanges();
+          this.selectorsReset();
+        },
+       this.librariesInstallationService);
   }
 
   public close(): void {
@@ -268,9 +263,7 @@ export class InstallLibrariesComponent implements OnInit {
         });
     } else {
       this.model.getLibrariesList(this.group, this.query)
-        .subscribe(libs => {
-          this.filteredList = libs;
-        });
+        .subscribe(libs => this.filteredList = libs);
     }
   }
 
@@ -279,17 +272,13 @@ export class InstallLibrariesComponent implements OnInit {
     this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
   }
 
-  private resetDialog(nActive?): void {
+  private resetDialog(): void {
     this.group = '';
     this.query = '';
     this.libSearch.setValue('');
-
-    this.processError = false;
     this.isInstalled = false;
     this.isInSelectedList = false;
     this.uploading = false;
-
-    this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
     this.destination = null;

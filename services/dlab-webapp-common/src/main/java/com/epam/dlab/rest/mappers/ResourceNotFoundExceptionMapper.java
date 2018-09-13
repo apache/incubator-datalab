@@ -17,6 +17,7 @@
 package com.epam.dlab.rest.mappers;
 
 import com.epam.dlab.exceptions.ResourceNotFoundException;
+import com.epam.dlab.rest.dto.ErrorDTO;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,9 +28,10 @@ import javax.ws.rs.ext.Provider;
 public class ResourceNotFoundExceptionMapper implements ExceptionMapper<ResourceNotFoundException> {
 	@Override
 	public Response toResponse(ResourceNotFoundException e) {
-		return Response.status(Response.Status.NOT_FOUND)
-				.type(MediaType.TEXT_PLAIN_TYPE)
-				.entity(e.getMessage()
-				).build();
+		final Response.Status notFound = Response.Status.NOT_FOUND;
+		return Response.status(notFound)
+				.type(MediaType.APPLICATION_JSON)
+				.entity(new ErrorDTO(notFound.getStatusCode(), e.getMessage()))
+				.build();
 	}
 }

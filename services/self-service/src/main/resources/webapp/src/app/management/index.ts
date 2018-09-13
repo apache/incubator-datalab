@@ -19,8 +19,8 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarModule, ConfirmationDialogModule, BubbleModule, UploadKeyDialogModule, ProgressDialogModule } from './../shared';
-import { MaterialModule } from './../shared/material.module';
+import { NavbarModule, ConfirmationDialogModule, BubbleModule, UploadKeyDialogModule, ProgressDialogModule } from '../shared';
+import { MaterialModule } from '../shared/material.module';
 
 import { ManagementComponent } from './management.component';
 import { ManagementGridComponent, ConfirmationDialog } from './management-grid/management-grid.component';

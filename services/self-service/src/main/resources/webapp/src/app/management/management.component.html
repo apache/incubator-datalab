@@ -18,9 +18,9 @@ limitations under the License.
 
 <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="admin"></dlab-navbar>
 <div class="sub-nav base-retreat">
-    <button mat-raised-button class="butt" (click)="buildGrid()">
-        <i class="material-icons">autorenew</i>Refresh
-    </button>
+  <button mat-raised-button class="butt" (click)="buildGrid()">
+    <i class="material-icons">autorenew</i>Refresh
+  </button>
 </div>
 
 <management-grid [allEnvironmentData]="allEnvironmentData" [uploadKey]="uploadKey" (refreshGrid)="buildGrid($event)" (actionToggle)="manageEnvironmentAction($event)"></management-grid>

@@ -17,13 +17,13 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
+
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
 import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
-import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 @Component({
-  moduleId: module.id,
   selector: 'health-status',
   templateUrl: 'health-status.component.html',
   styleUrls: ['./health-status.component.scss']
@@ -91,9 +91,9 @@ export class HealthStatusComponent implements OnInit {
   }
  
   openManageEnvironmentDialog() {
-    this.getActiveUsersList().subscribe(usersList => {
-      this.manageEnvironmentDialog.open({ isFooter: false }, usersList);
-    });
+    this.getActiveUsersList().subscribe(
+      usersList => this.manageEnvironmentDialog.open({ isFooter: false }, usersList),
+      () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
   }
 
   openSsnMonitorDialog() {
@@ -101,17 +101,18 @@ export class HealthStatusComponent implements OnInit {
       .subscribe(data => this.ssnMonitorDialog.open({ isHeader: false, isFooter: false }, data));
   }
 
-  manageEnvironment($event) {
+  manageEnvironment(event: {action: string, user: string}) {
     this.healthStatusService
-      .manageEnvironment($event.action, $event.user)
+      .manageEnvironment(event.action, event.user)
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
-              this.manageEnvironmentDialog.usersList = usersList;
-              this.buildGrid();
-            });
+            this.manageEnvironmentDialog.usersList = usersList;
+            this.toastr.success(`Action ${event.action } is processing!`, 'Success!', { toastLife: 5000 });
+            this.buildGrid();
+          });
         },
       (error) => {
-        this.manageEnvironmentDialog.errorMessage = JSON.parse(error.message).message;
+        this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
       });
   }
 
@@ -126,16 +127,16 @@ export class HealthStatusComponent implements OnInit {
   public checkUserAccessKey() {
     this.userAccessKeyService.checkUserAccessKey()
       .subscribe(
-        response => this.processAccessKeyStatus(response.status),
+        (response: any) => this.processAccessKeyStatus(response.status),
         error => this.processAccessKeyStatus(error.status));
   }
 
   private processAccessKeyStatus(status: number) {
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+      this.keyUploadDialog.open({ isFooter: false });
       this.uploadKey = false;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+      this.preloaderDialog.bindDialog.isHide && this.preloaderDialog.open({ isHeader: false, isFooter: false });
 
       setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
     } else if (status === HTTP_STATUS_CODES.OK) {

@@ -16,8 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { HealthStatusService, ManageEnvironmentsService, UserAccessKeyService } from './../core/services';
+import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
+
+import { HealthStatusService, ManageEnvironmentsService, UserAccessKeyService } from '../core/services';
 import { EnvironmentModel } from './management.model';
 import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 
@@ -42,8 +44,12 @@ export class ManagementComponent implements OnInit {
   constructor(
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService,
-    private userAccessKeyService: UserAccessKeyService
-  ) {}
+    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
     this.buildGrid();
@@ -62,22 +68,24 @@ export class ManagementComponent implements OnInit {
         $event.environment.name === 'edge node' ? 'edge' : $event.environment.name,
         $event.resource ? $event.resource.computational_name : null
       )
-      .subscribe(() => this.buildGrid(), error => console.log(error));
+      .subscribe(
+        () => this.buildGrid(),
+        error =>  this.toastr.error('Environment management failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public checkUserAccessKey() {
     this.userAccessKeyService.checkUserAccessKey()
       .subscribe(
-        response => this.processAccessKeyStatus(response.status),
+        (response: any) => this.processAccessKeyStatus(response.status),
         error => this.processAccessKeyStatus(error.status));
   }
 
   private processAccessKeyStatus(status: number) {
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+      this.keyUploadDialog.open({ isFooter: false });
       this.uploadKey = false;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+      this.preloaderDialog.bindDialog.isHide && this.preloaderDialog.open({ isHeader: false, isFooter: false });
 
       setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
     } else if (status === HTTP_STATUS_CODES.OK) {
@@ -96,11 +104,8 @@ export class ManagementComponent implements OnInit {
   }
 
   private getAllEnvironmentData() {
-    this.manageEnvironmentsService.getAllEnvironmentData().subscribe((result: any) => {
-      this.allEnvironmentData = this.loadEnvironmentList(result);
-
-      console.log(this.allEnvironmentData);
-    });
+    this.manageEnvironmentsService.getAllEnvironmentData()
+        .subscribe((result: any) => this.allEnvironmentData = this.loadEnvironmentList(result));
   }
 
   private loadEnvironmentList(data): Array<EnvironmentModel> {
@@ -117,12 +122,14 @@ export class ManagementComponent implements OnInit {
   }
 
   private getEnvironmentHealthStatus() {
-    this.healthStatusService.getEnvironmentHealthStatus().subscribe((result: any) => {
-      this.healthStatus = result.status;
-      this.billingEnabled = result.billingEnabled;
-      this.admin = result.admin;
+    this.healthStatusService
+        .getEnvironmentHealthStatus()
+        .subscribe(result => {
+          this.healthStatus = result.status;
+          this.billingEnabled = result.billingEnabled;
+          this.admin = result.admin;
 
-      this.checkUserAccessKey();
-    });
+          this.checkUserAccessKey();
+        });
   }
 }

@@ -20,7 +20,9 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.DlabValidationException;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -72,6 +74,11 @@ public class KeyUploaderResource implements EdgeAPI {
 			@ApiResponse(code = 200, message = "Key is valid")})
 	public Response checkKey(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		final KeyLoadStatus status = keyService.getUserKeyStatus(userInfo.getName());
+		if (KeyLoadStatus.NONE == status) {
+			throw new ResourceNotFoundException("Key for user " + userInfo.getName() + " not found");
+		} else if (KeyLoadStatus.ERROR == status) {
+			throw new DlabException("Key for user " + userInfo.getName() + " is in error state");
+		}
 		return Response.status(status.getHttpStatus()).build();
 	}
 

@@ -19,7 +19,6 @@ limitations under the License.
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'access-notebook-guide',
   templateUrl: 'accessnotebookguide.component.html',
   styleUrls: ['../guides.component.css']

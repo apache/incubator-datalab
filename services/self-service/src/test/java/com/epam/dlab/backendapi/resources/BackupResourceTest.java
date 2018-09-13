@@ -108,8 +108,7 @@ public class BackupResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
-		assertEquals("Backup not found", response.readEntity(String.class));
-		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(backupService).getBackup(USER.toLowerCase(), "1");
 		verifyNoMoreInteractions(backupService);

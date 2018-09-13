@@ -42,9 +42,6 @@ limitations under the License.
     <a *ngIf="healthStatus" [routerLink]="['/environment_health_status']" class="statusbar">
       <span class="material-icons" ngClass="{{healthStatus || ''}}">radio_button_checked</span>
     </a>
-    <button class="btn btn-logout" (click)="logout_btnClick()">
-      Log out
-      <span class="user-name">{{currentUserName}}</span>
-    </button>
+    <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span class="user-name">{{currentUserName}}</span></button>
   </div>
 </div>

@@ -17,36 +17,29 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import { ApplicationServiceFacade } from './';
+import { ApplicationServiceFacade } from '.';
+import { ErrorUtils } from '../util';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 
 @Injectable()
 export class ManageUngitService {
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-    constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
+  public getGitCreds(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetGitCreds()
+      .map(response => response.json())
+      .catch(ErrorUtils.handleServiceError);
+  }
 
-    public getGitCreds(): Observable<Response> {
-        return this.applicationServiceFacade
-        .buildGetGitCreds()
-        .map(response => response.json())
-        .catch((error: any) => {
-            return Observable.throw(
-                new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
-            );
-        });
-    }
-
-    public updateGitCredentials(data): Observable<Response> {
-        return this.applicationServiceFacade
-        .buildUpdateGitCredentials(data)
-        .map((response: Response) => response)
-        .catch((error: any) => {
-            return Observable.throw(new Error(`${ error.status } (${ error.statusText }).  ${ error._body }`));
-        });
-    }
+  public updateGitCredentials(data): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildUpdateGitCredentials(data)
+      .map(response => response)
+     .catch(ErrorUtils.handleServiceError);
+  }
 }

@@ -17,6 +17,7 @@
 package com.epam.dlab.rest.mappers;
 
 import com.epam.dlab.exceptions.DlabAuthenticationException;
+import com.epam.dlab.rest.dto.ErrorDTO;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,7 +26,10 @@ import javax.ws.rs.ext.ExceptionMapper;
 public class AuthenticationExceptionMapper implements ExceptionMapper<DlabAuthenticationException> {
 	@Override
 	public Response toResponse(DlabAuthenticationException exception) {
-		return Response.status(Response.Status.UNAUTHORIZED).entity(exception.getMessage()).type(MediaType
-				.TEXT_PLAIN_TYPE).build();
+		final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
+		return Response.status(unauthorized)
+				.entity(new ErrorDTO(unauthorized.getStatusCode(), exception.getMessage()))
+				.type(MediaType.APPLICATION_JSON)
+				.build();
 	}
 }

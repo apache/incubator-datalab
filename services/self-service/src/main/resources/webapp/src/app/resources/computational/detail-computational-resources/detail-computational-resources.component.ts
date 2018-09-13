@@ -22,7 +22,6 @@ import { DateUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'detail-computational-resources',
   templateUrl: 'detail-computational-resources.component.html'
 })

@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { DICTIONARY } from './../../../dictionary/global.dictionary';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 import { BackupOptionsModel } from '../environment-status.model';
 

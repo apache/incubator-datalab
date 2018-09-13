@@ -17,6 +17,7 @@
 package com.epam.dlab.rest.mappers;
 
 import com.epam.dlab.exceptions.DlabValidationException;
+import com.epam.dlab.rest.dto.ErrorDTO;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,9 +26,10 @@ import javax.ws.rs.ext.ExceptionMapper;
 public class DlabValidationExceptionMapper implements ExceptionMapper<DlabValidationException> {
 	@Override
 	public Response toResponse(DlabValidationException exception) {
-		return Response.status(Response.Status.BAD_REQUEST)
-				.entity(exception.getMessage())
-				.type(MediaType.TEXT_PLAIN_TYPE)
+		final Response.Status badRequest = Response.Status.BAD_REQUEST;
+		return Response.status(badRequest)
+				.entity(new ErrorDTO(badRequest.getStatusCode(), exception.getMessage()))
+				.type(MediaType.APPLICATION_JSON)
 				.build();
 	}
 }

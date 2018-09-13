@@ -24,7 +24,7 @@ limitations under the License.
     <div class="content-box" *ngIf="monitorData">
       <div>
         <mat-tab-group *ngIf="monitorData?.processorInfo">
-          <mat-tab label="CRU">
+          <mat-tab label="CPU">
             <mat-list-item class="list-header">
               <div class="col">Name</div>
               <div class="col">{{ monitorData.processorInfo.name }}</div>
@@ -43,11 +43,11 @@ limitations under the License.
             </mat-list-item>
             <mat-list-item class="list-header">
               <div class="col">Current System Load</div>
-              <div class="col">{{ monitorData.processorInfo.currentSystemLoad /100 | percent:'1.0-3' }}</div>
+              <div class="col">{{ monitorData.processorInfo.currentSystemLoad /100 | percent:'1.0-2' }}</div>
             </mat-list-item>
             <mat-list-item class="list-header">
               <div class="col">System Load Average</div>
-              <div class="col">{{ monitorData.processorInfo.systemLoadAverage/100 | percent:'1.0-3' }}</div>
+              <div class="col">{{ monitorData.processorInfo.systemLoadAverage /100 | percent:'1.0-2' }}</div>
             </mat-list-item>
             <mat-list-item class="list-header">
               <div class="col">CPU 64 Bit</div>

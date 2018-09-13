@@ -34,12 +34,14 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
+import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -131,7 +133,9 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 					return (T) Response.ok(TOKEN).build();
 				} else {
 					return (T) Response.status(Response.Status.UNAUTHORIZED)
-							.entity("Username or password are not valid")
+							.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
+									" are not valid"))
+							.type(MediaType.APPLICATION_JSON_TYPE)
 							.build();
 				}
 			}

@@ -18,7 +18,6 @@ limitations under the License.
 /* tslint:disable:no-empty */
 
 import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
 
 import { UserResourceService } from '../../../core/services';
 import { ComputationalResourceImage,
@@ -151,12 +150,12 @@ export class ComputationalResourceCreateModel {
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
     this.confirmAction = () => this.createComputationalResource()
       .subscribe(
-      (response: Response) => fnProcessResults(response),
-      (response: Response) => fnProcessErrors(response)
+      response => fnProcessResults(response),
+      error => fnProcessErrors(error)
       );
   }
 
-  private createComputationalResource(): Observable<Response> {
+  private createComputationalResource(): Observable<{}> {
     if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: this.computational_resource_alias,

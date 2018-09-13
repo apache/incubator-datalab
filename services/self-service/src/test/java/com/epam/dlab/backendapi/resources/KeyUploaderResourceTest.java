@@ -95,7 +95,7 @@ public class KeyUploaderResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(keyService).getUserKeyStatus(USER.toLowerCase());
 		verifyNoMoreInteractions(keyService);

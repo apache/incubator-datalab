@@ -18,7 +18,6 @@ limitations under the License.
 /* tslint:disable:no-empty */
 
 import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
 import { UserAccessKeyService } from '../../../core/services';
 
 export class KeyUploadDialogModel {
@@ -51,7 +50,7 @@ export class KeyUploadDialogModel {
     this.accessKeyLabel = this.getLabel(accessKey);
   }
 
-  private uploadUserAccessKey(primary?: boolean): Observable<Response | {}> {
+  private uploadUserAccessKey(primary?: boolean): Observable<{}> {
     const formData = new FormData();
     formData.append('file', this.newAccessKeyForUpload);
 
@@ -62,8 +61,8 @@ export class KeyUploadDialogModel {
     this.setUserAccessKey(newAccessKeyForUpload);
     this.confirmAction = (primary?: boolean) => this.uploadUserAccessKey(primary)
       .subscribe(
-      (response: Response) => fnProcessResults(response),
-      (response: Response) => fnProcessErrors(response));
+      response => fnProcessResults(response),
+      error => fnProcessErrors(error));
   }
 
   private getLabel(file: File): string {

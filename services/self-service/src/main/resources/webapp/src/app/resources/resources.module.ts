@@ -20,7 +20,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MaterialModule } from './../shared/material.module';
+import { MaterialModule } from '../shared/material.module';
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
@@ -31,7 +31,7 @@ import {
   ModalModule,
   ProgressDialogModule,
   UploadKeyDialogModule
-} from './../shared';
+} from '../shared';
 
 @NgModule({
   imports: [

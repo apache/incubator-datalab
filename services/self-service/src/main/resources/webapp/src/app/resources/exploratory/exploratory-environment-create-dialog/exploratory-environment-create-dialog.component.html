@@ -66,9 +66,6 @@ limitations under the License.
             <dropdown-list #shapesList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
         </div>
-        <div class="text-right" *ngIf="processError">
-          <small class="danger_color">{{ errorMessage }}</small>
-        </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!createExploratoryEnvironmentForm.valid || !this.environment_shape" class="butt butt-success action">Create</button>

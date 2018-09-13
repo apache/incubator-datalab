@@ -17,6 +17,7 @@
 package com.epam.dlab.rest.mappers;
 
 import com.epam.dlab.exceptions.ResourceConflictException;
+import com.epam.dlab.rest.dto.ErrorDTO;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,9 +28,10 @@ import javax.ws.rs.ext.Provider;
 public class ResourceConflictExceptionMapper implements ExceptionMapper<ResourceConflictException> {
 	@Override
 	public Response toResponse(ResourceConflictException e) {
-		return Response.status(Response.Status.CONFLICT)
-				.type(MediaType.TEXT_PLAIN_TYPE)
-				.entity(e.getMessage())
+		final Response.Status conflict = Response.Status.CONFLICT;
+		return Response.status(conflict)
+				.type(MediaType.APPLICATION_JSON)
+				.entity(new ErrorDTO(conflict.getStatusCode(), e.getMessage()))
 				.build();
 	}
 }

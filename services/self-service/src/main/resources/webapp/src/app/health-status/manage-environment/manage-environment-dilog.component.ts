@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { DICTIONARY } from './../../../dictionary/global.dictionary';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-manage-env-dilog',
@@ -26,23 +26,14 @@ import { DICTIONARY } from './../../../dictionary/global.dictionary';
   styleUrls: ['./manage-environment-dilog.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class ManageEnvironmentComponent implements OnInit {
+export class ManageEnvironmentComponent {
   readonly DICTIONARY = DICTIONARY;
-
-  public errorMessage: string = '';
   public usersList: Array<string> = [];
 
   @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
 
   constructor(public dialog: MatDialog) { }
-
-  ngOnInit() {
-    this.bindDialog.onClosing = () => {
-      this.errorMessage = '';
-    };
-  }
-
   public open(param, data): void {
     this.usersList = data;
     this.bindDialog.open(param);

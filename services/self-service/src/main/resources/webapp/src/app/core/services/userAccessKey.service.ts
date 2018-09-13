@@ -17,44 +17,49 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import { ApplicationServiceFacade } from './';
+import { ApplicationServiceFacade } from '.';
+import { ErrorUtils } from '../util';
 
 @Injectable()
 export class UserAccessKeyService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public checkUserAccessKey(): Observable<Response> {
+  public checkUserAccessKey(): Observable<{}> {
     return this.applicationServiceFacade
       .buildCheckUserAccessKeyRequest()
-      .map(response => response);
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
   }
 
-  public generateAccessKey(): Observable<Response> {
+  public generateAccessKey(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGenerateAccessKey()
-      .map(response => response);
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
   }
 
-  public regenerateAccessKey(): Observable<Response> {
+  public regenerateAccessKey(): Observable<{}> {
     const param = '?is_primary_uploading=false';
     return this.applicationServiceFacade
       .buildRegenerateAccessKey(param)
-      .map(response => response);
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
   }
 
-  public uploadUserAccessKey(data): Observable<Response> {
+  public uploadUserAccessKey(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildUploadUserAccessKeyRequest(data)
-      .map((response: Response) => response);
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
   }
 
-  public reuploadUserAccessKey(data): Observable<Response> {
+  public reuploadUserAccessKey(data): Observable<{}> {
     const param = '?is_primary_uploading=false';
     return this.applicationServiceFacade
       .buildReuploadUserAccessKeyRequest(data, param)
-      .map((response: Response) => response);
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
   }
 }

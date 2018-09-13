@@ -50,9 +50,6 @@ limitations under the License.
             <div *ngIf="model.accessKeyLabel.length" class="m-bott-10 m-top-10" [class.danger_color]="!model.accessKeyFormValid">{{model.accessKeyLabel}}</div>
           </div>
         </div>
-        <div class="text-center" *ngIf="processError">
-          <small class="danger_color">{{errorMessage}}</small>
-        </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
           <button mat-raised-button type="submit" class="butt butt-success action" [disabled]="!model.accessKeyFormValid">
