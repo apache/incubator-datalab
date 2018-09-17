@@ -1,20 +1,19 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ****************************************************************************/
 
 package com.epam.dlab.automation.test;
 
@@ -75,7 +74,7 @@ public class TestServices {
 		testTimeMillis = System.currentTimeMillis();
 		// Load properties
 		ConfigPropertyValue.getJenkinsJobURL();
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
 				new TypeReference<ArrayList<NotebookConfig>>() {
@@ -104,7 +103,7 @@ public class TestServices {
 	private void testJenkinsJob() throws Exception {
 		/*
 		 * LOGGER.info("1. Jenkins Job will be started ...");
-		 * 
+		 *
 		 * JenkinsService jenkins = new
 		 * JenkinsService(ConfigPropertyValue.getJenkinsUsername(),
 		 * ConfigPropertyValue.getJenkinsPassword()); String buildNumber =
@@ -145,12 +144,12 @@ public class TestServices {
 		LOGGER.info("Public IP is: {}", publicSsnIp);
 		String privateSsnIp = CloudHelper.getInstancePrivateIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Private IP is: {}", privateSsnIp);
-		if(publicSsnIp == null || privateSsnIp == null){
+		if (publicSsnIp == null || privateSsnIp == null) {
 			Assert.fail("There is not any virtual machine in " + cloudProvider + " with name " + NamingHelper.getSsnName());
 			return;
 		}
 		NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
-        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName(), true);
+		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName(), true);
 		LOGGER.info("{} instance state is running", cloudProvider.toUpperCase());
 
 		LOGGER.info("2. Waiting for SSN service ...");
@@ -183,7 +182,7 @@ public class TestServices {
 		if (!ConfigPropertyValue.isRunModeLocal()) {
 			responseBody = login(ConfigPropertyValue.getUsername(), ".", HttpStatusCode.UNAUTHORIZED,
 					"Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
-			Assert.assertEquals(responseBody.asString(), "Username or password are not valid");
+			Assert.assertEquals(responseBody.path("message"), "Username or password are not valid");
 		}
 
 		LOGGER.info("Logging in with credentials {}/***", ConfigPropertyValue.getUsername());
@@ -198,9 +197,9 @@ public class TestServices {
 		LOGGER.info("responseLogout.statusCode() is {}", responseLogout.statusCode());
 		Assert.assertEquals(responseLogout.statusCode(), HttpStatusCode.UNAUTHORIZED,
 				"User log out was not successful"/*
-													 * Replace to HttpStatusCode.OK when EPMCBDCCSS-938 will be fixed
-													 * and merged
-													 */);
+				 * Replace to HttpStatusCode.OK when EPMCBDCCSS-938 will be fixed
+				 * and merged
+				 */);
 	}
 
 	private String ssnLoginAndKeyUpload() throws Exception {
@@ -256,7 +255,7 @@ public class TestServices {
 	}
 
 	private void runTestsInNotebooks() throws Exception {
-		
+
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		notebookConfigs.forEach(this::populateNotebookConfigWithSkippedLibs);
