@@ -20,6 +20,7 @@ import com.epam.dlab.auth.azure.service.AzureAuthorizationCodeService;
 import com.epam.dlab.auth.conf.AzureLoginConfiguration;
 import com.epam.dlab.dto.azure.auth.AuthorizationCodeFlowResponse;
 import com.epam.dlab.exceptions.DlabAuthenticationException;
+import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
@@ -102,8 +103,9 @@ public class AzureSecurityResource {
 			return Response.ok(response).build();
 		} catch (DlabAuthenticationException e) {
 			log.error(e.getMessage());
-			return Response.status(Response.Status.UNAUTHORIZED)
-					.entity(new AzureLocalAuthResponse(null, null, e.getMessage()))
+			final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
+			return Response.status(unauthorized)
+					.entity(new ErrorDTO(unauthorized.getStatusCode(), e.getMessage()))
 					.build();
 		}
 	}
