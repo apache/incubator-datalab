@@ -16,8 +16,8 @@
 
 package com.epam.dlab.backendapi.schedulers.computational;
 
+import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
-import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -28,7 +28,7 @@ import org.quartz.JobExecutionContext;
  * which executes every time specified.
  */
 @Slf4j
-@Scheduled(interval = 10)
+@Scheduled("stopComputationalScheduler")
 public class StopComputationalJob implements Job {
 
 	@Inject
