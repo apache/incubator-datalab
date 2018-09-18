@@ -211,7 +211,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
       this.keyUploadDialog.open({ isFooter: false });
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      this.preloaderDialog.bindDialog.isHide && this.preloaderDialog.open({ isHeader: false, isFooter: false });
+      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
 
       setTimeout(() => this.rebuildBillingReport(), this.CHECK_ACCESS_KEY_TIMEOUT);
     } else if (status === HTTP_STATUS_CODES.OK) {
