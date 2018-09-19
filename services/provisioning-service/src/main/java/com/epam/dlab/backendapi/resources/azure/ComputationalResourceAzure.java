@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.service.SparkClusterService;
+import com.epam.dlab.backendapi.service.impl.SparkClusterService;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;

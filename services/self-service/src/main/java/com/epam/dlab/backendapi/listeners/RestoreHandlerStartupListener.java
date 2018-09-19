@@ -18,8 +18,28 @@
  * ***************************************************************************
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.listeners;
 
-public interface RestoreCallbackHandlerService {
-	void restore();
+import com.epam.dlab.rest.client.RESTService;
+import io.dropwizard.lifecycle.ServerLifecycleListener;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.server.Server;
+
+@Slf4j
+public class RestoreHandlerStartupListener implements ServerLifecycleListener {
+
+	private final RESTService provisioningService;
+
+	public RestoreHandlerStartupListener(RESTService provisioningService) {
+		this.provisioningService = provisioningService;
+	}
+
+	@Override
+	public void serverStarted(Server server) {
+		try {
+			provisioningService.post("/handler/restore", new Object(), Object.class);
+		} catch (Exception e) {
+			log.error("Exception occurred during restore handler request: {}", e.getMessage());
+		}
+	}
 }

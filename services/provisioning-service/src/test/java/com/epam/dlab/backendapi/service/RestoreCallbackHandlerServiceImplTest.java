@@ -23,6 +23,7 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.PersistentFileHandler;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
+import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import io.dropwizard.util.Duration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,14 +36,14 @@ import java.util.Arrays;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RestoreCallbackHandlerServiceTest {
+public class RestoreCallbackHandlerServiceImplTest {
 
 	@Mock
 	private CallbackHandlerDao dao;
 	@Mock
 	private FolderListenerExecutor folderListenerExecutor;
 	@InjectMocks
-	private RestoreCallbackHandlerService restoreCallbackHandlerService;
+	private RestoreCallbackHandlerServiceImpl restoreCallbackHandlerService;
 
 	@Test
 	public void start() throws Exception {

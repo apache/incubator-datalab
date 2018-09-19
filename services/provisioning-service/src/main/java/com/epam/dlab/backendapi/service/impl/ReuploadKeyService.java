@@ -1,4 +1,6 @@
 /*
+ * **************************************************************************
+ *
  * Copyright (c) 2018, EPAM SYSTEMS INC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,9 +14,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * ***************************************************************************
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.Directories;
@@ -22,6 +26,7 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ReuploadKeyCallbackHandler;
+import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyCallbackDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.model.ResourceData;

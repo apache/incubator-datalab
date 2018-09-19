@@ -21,6 +21,7 @@ import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
 import com.epam.dlab.backendapi.healthcheck.ProvisioningServiceHealthCheck;
+import com.epam.dlab.backendapi.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
@@ -29,10 +30,13 @@ import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.migration.mongo.DlabMongoMigration;
 import com.epam.dlab.mongo.MongoServiceFactory;
+import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.mappers.*;
 import com.epam.dlab.util.ServiceUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -94,6 +98,10 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		if (configuration.isMongoMigrationEnabled()) {
 			environment.lifecycle().addServerLifecycleListener(server -> applyMongoMigration(configuration));
 		}
+		final RestoreHandlerStartupListener restoreHandlerStartupListener =
+				new RestoreHandlerStartupListener(injector.getInstance(Key.get(RESTService.class,
+						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))));
+		environment.lifecycle().addServerLifecycleListener(restoreHandlerStartupListener);
 		environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
 		environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));

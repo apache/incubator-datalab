@@ -175,7 +175,7 @@ public class WatchItemList {
 	public void remove(int index) {
 
 		final WatchItem watchItem = list.remove(index);
-		if (Objects.nonNull(handlerDao)) {
+		if (Objects.nonNull(handlerDao) && watchItem.getStatus() != ItemStatus.IS_FAILED) {
 			handlerDao.remove(watchItem.getFileHandlerCallback().getId());
 		}
 	}
@@ -261,10 +261,8 @@ public class WatchItemList {
 		synchronized (list) {
 			for (int i = 0; i < size(); i++) {
 				WatchItem item = list.get(i);
-				if (item.getStatus() == ItemStatus.FILE_CAPTURED) {
-					if (processItem(item)) {
-						count++;
-					}
+				if (item.getStatus() == ItemStatus.FILE_CAPTURED && processItem(item)) {
+					count++;
 				}
 			}
 		}
