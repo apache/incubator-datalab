@@ -32,8 +32,7 @@ public class MemoryInfo {
 
 	private long swapTotal;
 	private long swapUsed;
-	private long pageSize;
-	private long swapPagesIn;
-	private long swapPagesOut;
+	private long pagesPageIn;
+	private long pagesPageOut;
 
 }
