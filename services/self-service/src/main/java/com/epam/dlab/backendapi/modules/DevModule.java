@@ -25,11 +25,8 @@ import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.*;
-import com.epam.dlab.backendapi.domain.EnvStatusListener;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.service.impl.*;
-import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
@@ -70,7 +67,6 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
 				.toInstance(createAuthenticationService());
-		requestStaticInjection(EnvStatusListener.class, RequestId.class, RequestBuilder.class);
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
 				.toInstance(configuration.getProvisioningFactory()
 						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));

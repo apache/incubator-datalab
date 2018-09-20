@@ -20,7 +20,7 @@ package com.epam.dlab.backendapi.resources.base;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.backendapi.service.ReuploadKeyService;
+import com.epam.dlab.backendapi.service.impl.ReuploadKeyService;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.rest.contracts.KeyAPI;
 import com.epam.dlab.util.FileUtils;

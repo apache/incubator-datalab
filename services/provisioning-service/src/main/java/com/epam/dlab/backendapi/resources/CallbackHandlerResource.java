@@ -18,8 +18,30 @@
  * ***************************************************************************
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.resources;
 
-public interface RestoreCallbackHandlerService {
-	void restore();
+import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
+import com.google.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+
+@Path("/handler")
+@Slf4j
+public class CallbackHandlerResource {
+	private final RestoreCallbackHandlerService restoreCallbackHandlerService;
+
+	@Inject
+	public CallbackHandlerResource(RestoreCallbackHandlerService restoreCallbackHandlerService) {
+		this.restoreCallbackHandlerService = restoreCallbackHandlerService;
+	}
+
+	@POST
+	@Path("/restore")
+	public Response restoreHandlers() {
+		restoreCallbackHandlerService.restore();
+		return Response.ok().build();
+	}
 }

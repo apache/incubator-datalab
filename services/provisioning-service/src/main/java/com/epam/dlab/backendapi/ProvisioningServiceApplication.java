@@ -26,7 +26,7 @@ import com.epam.dlab.backendapi.modules.CloudModuleConfigurator;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.base.KeyResource;
-import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
+import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.process.model.DlabProcess;
 import com.epam.dlab.rest.client.RESTService;
@@ -81,7 +81,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 
 		environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));
 		if (configuration.isHandlersPersistenceEnabled()) {
-			environment.lifecycle().manage(injector.getInstance(RestoreCallbackHandlerService.class));
+			environment.lifecycle().manage(injector.getInstance(RestoreCallbackHandlerServiceImpl.class));
 		}
 		environment.lifecycle().manage(injector.getInstance(DockerWarmuper.class));
 
@@ -98,6 +98,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 		jersey.register(injector.getInstance(ImageResource.class));
 		jersey.register(injector.getInstance(BackupResource.class));
 		jersey.register(injector.getInstance(KeyResource.class));
+		jersey.register(injector.getInstance(CallbackHandlerResource.class));
 
 	}
 }
