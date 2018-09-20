@@ -79,9 +79,8 @@ public class SystemInfoServiceImpl implements SystemInfoService {
 				.totalMemory(memory.getTotal())
 				.swapTotal(memory.getSwapTotal())
 				.swapUsed(memory.getSwapUsed())
-				.pageSize(memory.getPageSize())
-				.swapPagesIn(memory.getSwapPagesIn())
-				.swapPagesOut(memory.getSwapPagesOut())
+				.pagesPageIn(memory.getSwapPagesIn())
+				.pagesPageOut(memory.getSwapPagesOut())
 				.build();
 	}
 

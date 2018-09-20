@@ -73,16 +73,12 @@ limitations under the License.
               <div class="col">{{ convertSize(monitorData.memoryInfo.swapUsed) }}</div>
             </mat-list-item>
             <mat-list-item class="list-header">
-              <div class="col">Page Size</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.pageSize) }}</div>
+              <div class="col">Pages Page In</div>
+              <div class="col">{{ convertSize(monitorData.memoryInfo.pagesPageIn) }}</div>
             </mat-list-item>
             <mat-list-item class="list-header">
-              <div class="col">Swap Page In</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.swapPagesIn) }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Swap Page Out</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.swapPagesOut) }}</div>
+              <div class="col">Pages Page Out</div>
+              <div class="col">{{ convertSize(monitorData.memoryInfo.pagesPageOut) }}</div>
             </mat-list-item>
 
           </mat-tab>
