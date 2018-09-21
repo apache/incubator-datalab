@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.backendapi.resources.dto.UpdateRoleGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UpdateRoleUserDto;
+import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.backendapi.service.UserRolesService;
 import io.dropwizard.auth.AuthenticationException;
@@ -42,6 +43,7 @@ import java.util.List;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class UserRolesResourceTest extends TestBase {
@@ -79,6 +81,28 @@ public class UserRolesResourceTest extends TestBase {
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(rolesService).getUserRoles();
+		verifyNoMoreInteractions(rolesService);
+	}
+
+	@Test
+	public void getAggregatedRoles() {
+		when(rolesService.getAggregatedRolesByGroup()).thenReturn(Collections.singletonList(getUserGroup()));
+
+		final Response response = resources.getJerseyTest()
+				.target("/role/group")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		final List<UserGroupDto> actualRoles = response.readEntity(new GenericType<List<UserGroupDto>>() {
+		});
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(GROUP, actualRoles.get(0).getGroup());
+		assertTrue(actualRoles.get(0).getRoles().isEmpty());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(rolesService).getAggregatedRolesByGroup();
 		verifyNoMoreInteractions(rolesService);
 	}
 
@@ -221,4 +245,10 @@ public class UserRolesResourceTest extends TestBase {
 		userRoleDto.setUsers(singleton(USER));
 		return userRoleDto;
 	}
+
+	private UserGroupDto getUserGroup() {
+		return new UserGroupDto(GROUP, Collections.emptyList());
+	}
+
+
 }

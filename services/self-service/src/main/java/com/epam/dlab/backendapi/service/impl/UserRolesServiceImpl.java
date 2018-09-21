@@ -18,6 +18,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.backendapi.service.UserRolesService;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -37,7 +38,7 @@ public class UserRolesServiceImpl implements UserRolesService {
 
 	@Override
 	public List<UserRoleDto> getUserRoles() {
-		return userRoleDao.getUserRoles();
+		return userRoleDao.findAll();
 	}
 
 	@Override
@@ -73,6 +74,11 @@ public class UserRolesServiceImpl implements UserRolesService {
 	@Override
 	public void removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
 		checkAnyRoleFound(roleIds, userRoleDao.removeGroupFromRole(groups, roleIds));
+	}
+
+	@Override
+	public List<UserGroupDto> getAggregatedRolesByGroup() {
+		return userRoleDao.aggregateRolesByGroup();
 	}
 
 	private void checkAnyRoleFound(Set<String> roleIds, boolean anyRoleFound) {

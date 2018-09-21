@@ -17,6 +17,7 @@
  */
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 
 import java.util.List;
@@ -39,4 +40,6 @@ public interface UserRolesService {
 	void removeUserFromRole(Set<String> users, Set<String> roleIds);
 
 	void removeGroupFromRole(Set<String> groups, Set<String> roleIds);
+
+	List<UserGroupDto> getAggregatedRolesByGroup();
 }
