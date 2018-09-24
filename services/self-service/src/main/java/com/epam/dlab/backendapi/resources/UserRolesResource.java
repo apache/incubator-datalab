@@ -59,6 +59,15 @@ public class UserRolesResource {
 		return Response.ok(userRolesService.getUserRoles()).build();
 	}
 
+	@GET
+	@Path("/group")
+	@ApiOperation("List groups with roles assigned to it")
+	@ApiResponses(value = @ApiResponse(code = 200, message = "Groups present in application"))
+	public Response getGroups(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+		log.debug("Getting all groups for admin {}...", userInfo.getName());
+		return Response.ok(userRolesService.getAggregatedRolesByGroup()).build();
+	}
+
 	@POST
 	@ApiOperation(value = "Creates new user role")
 	@ApiResponses(value = {

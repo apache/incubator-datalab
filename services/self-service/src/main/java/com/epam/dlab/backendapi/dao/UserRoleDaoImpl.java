@@ -17,27 +17,41 @@
  */
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.google.inject.Singleton;
+import com.mongodb.client.model.BsonField;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
+import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 
 	private static final String USERS_FIELD = "users";
 	private static final String GROUPS_FIELD = "groups";
+	private static final String DESCRIPTION = "description";
+	private static final String ROLES = "roles";
+	private static final String GROUPS = "$groups";
+	private static final String GROUP = "group";
+	private static final String EXPLORATORY_SHAPES_FIELD = "exploratory_shapes";
+	private static final String PAGES_FIELD = "pages";
+	private static final String EXPLORATORIES_FIELD = "exploratories";
+	private static final String COMPUTATIONALS_FIELD = "computationals";
 
 
 	@Override
-	public List<UserRoleDto> getUserRoles() {
+	public List<UserRoleDto> findAll() {
 		return find(MongoCollections.ROLES, UserRoleDto.class);
 	}
 
@@ -78,6 +92,28 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	@Override
 	public void remove(String roleId) {
 		deleteOne(MongoCollections.ROLES, eq(ID, roleId));
+	}
+
+	@Override
+	public List<UserGroupDto> aggregateRolesByGroup() {
+		final Document role = roleDocument();
+		final Bson groupBy = group(GROUPS, new BsonField(ROLES, new Document(ADD_TO_SET, role)));
+		final List<Bson> pipeline = Arrays.asList(unwind(GROUPS), groupBy,
+				project(new Document(GROUP, "$" + ID).append(ROLES, "$" + ROLES)));
+
+		return stream(aggregate(MongoCollections.ROLES, pipeline))
+				.map(d -> convertFromDocument(d, UserGroupDto.class))
+				.collect(toList());
+	}
+
+	private Document roleDocument() {
+		return new Document().append(ID, "$" + ID)
+				.append(DESCRIPTION, "$" + DESCRIPTION)
+				.append(USERS_FIELD, "$" + USERS_FIELD)
+				.append(EXPLORATORY_SHAPES_FIELD, "$" + EXPLORATORY_SHAPES_FIELD)
+				.append(PAGES_FIELD, "$" + PAGES_FIELD)
+				.append(EXPLORATORIES_FIELD, "$" + EXPLORATORIES_FIELD)
+				.append(COMPUTATIONALS_FIELD, "$" + COMPUTATIONALS_FIELD);
 	}
 
 	private boolean conditionMatched(UpdateResult updateResult) {

@@ -18,30 +18,18 @@
  * ***************************************************************************
  */
 
-package com.epam.dlab.backendapi.dao;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
-import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.List;
-import java.util.Set;
 
-public interface UserRoleDao {
-	List<UserRoleDto> findAll();
-
-	void insert(UserRoleDto dto);
-
-	boolean update(UserRoleDto dto);
-
-	boolean addUserToRole(Set<String> users, Set<String> roleIds);
-
-	boolean addGroupToRole(Set<String> groups, Set<String> roleIds);
-
-	boolean removeUserFromRole(Set<String> users, Set<String> roleIds);
-
-	boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds);
-
-	void remove(String roleId);
-
-	List<UserGroupDto> aggregateRolesByGroup();
+@AllArgsConstructor
+@Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UserGroupDto {
+	private final String group;
+	private final List<UserRoleDto> roles;
 }

@@ -30,7 +30,6 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -64,7 +63,7 @@ public class BaseDAO {
 	static final String TIMESTAMP = "timestamp";
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
 	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
-	private static final String ADD_TO_SET = "$addToSet";
+	protected static final String ADD_TO_SET = "$addToSet";
 	private static final String PULL = "$pull";
 	private static final String PULL_ALL = "$pullAll";
 	private static final String EACH = "$each";
@@ -289,8 +288,8 @@ public class BaseDAO {
 	 * @param collection collection name.
 	 * @param pipeline   the aggregate pipeline.
 	 */
-	private AggregateIterable<Document> aggregate(String collection,
-												  List<? extends Bson> pipeline) {
+	public AggregateIterable<Document> aggregate(String collection,
+												 List<? extends Bson> pipeline) {
 		return mongoService.getCollection(collection)
 				.aggregate(pipeline);
 	}
@@ -430,35 +429,6 @@ public class BaseDAO {
 	 */
 	private String generateUUID() {
 		return UUID.randomUUID().toString();
-	}
-
-	private static Object getDotted(Document d, String fieldName) {
-		if (fieldName.isEmpty()) {
-			return null;
-		}
-		final String[] fieldParts = StringUtils.split(fieldName, '.');
-		Object val = d.get(fieldParts[0]);
-		for (int i = 1; i < fieldParts.length; ++i) {
-			if (fieldParts[i].equals("$")
-					&& val instanceof ArrayList) {
-				ArrayList<?> array = (ArrayList<?>) val;
-				if (array.isEmpty()) {
-					return val;
-				} else {
-					val = array.get(0);
-				}
-			} else if (val instanceof Document) {
-				val = ((Document) val).get(fieldParts[i]);
-			} else {
-				return val;
-			}
-		}
-		return val;
-	}
-
-	static Object getDottedOrDefault(Document d, String fieldName, Object defaultValue) {
-		Object result = getDotted(d, fieldName);
-		return result == null ? defaultValue : result;
 	}
 
 	protected BasicDBObject addToSet(String columnName, Set<String> values) {

@@ -21,6 +21,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import org.junit.Rule;
@@ -35,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,13 +55,27 @@ public class UserRolesServiceImplTest {
 
 	@Test
 	public void getUserRoles() {
-		when(dao.getUserRoles()).thenReturn(Collections.singletonList(getUserRole()));
+		when(dao.findAll()).thenReturn(Collections.singletonList(getUserRole()));
 		final List<UserRoleDto> roles = userRolesService.getUserRoles();
 
 		assertEquals(1, roles.size());
 		assertEquals(ROLE_ID, roles.get(0).getId());
 
-		verify(dao).getUserRoles();
+		verify(dao).findAll();
+		verifyNoMoreInteractions(dao);
+	}
+
+	@Test
+	public void getAggregatedRoles() {
+		when(dao.aggregateRolesByGroup()).thenReturn(Collections.singletonList(getUserGroup()));
+
+		final List<UserGroupDto> aggregatedRolesByGroup = userRolesService.getAggregatedRolesByGroup();
+
+		assertEquals(1, aggregatedRolesByGroup.size());
+		assertEquals(GROUP, aggregatedRolesByGroup.get(0).getGroup());
+		assertTrue(aggregatedRolesByGroup.get(0).getRoles().isEmpty());
+
+		verify(dao).aggregateRolesByGroup();
 		verifyNoMoreInteractions(dao);
 	}
 
@@ -179,5 +195,9 @@ public class UserRolesServiceImplTest {
 		final UserRoleDto userRoleDto = new UserRoleDto();
 		userRoleDto.setId(ROLE_ID);
 		return userRoleDto;
+	}
+
+	private UserGroupDto getUserGroup() {
+		return new UserGroupDto(GROUP, Collections.emptyList());
 	}
 }
