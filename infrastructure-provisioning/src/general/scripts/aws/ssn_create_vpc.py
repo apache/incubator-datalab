@@ -34,7 +34,8 @@ args = parser.parse_args()
 
 sec_str = ''
 if args.secondary:
-    sec_str = 'SECONDARY '
+  sec_str = 'SECONDARY '
+
 
 if __name__ == "__main__":
     success = False

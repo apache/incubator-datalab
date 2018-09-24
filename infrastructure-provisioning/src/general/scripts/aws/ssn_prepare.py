@@ -72,7 +72,7 @@ if __name__ == "__main__":
         all_ip_cidr = '0.0.0.0/0'
 
         try:
-            if os.environ['aws_vpc_id'] == '':
+            if not os.environ['aws_vpc_id']:
                 raise KeyError
         except KeyError:
             try:
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         try:
-            if os.environ['aws_vpc2_id'] == '':
+            if os.environ['duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
                 raise KeyError
         except KeyError:
             try:
