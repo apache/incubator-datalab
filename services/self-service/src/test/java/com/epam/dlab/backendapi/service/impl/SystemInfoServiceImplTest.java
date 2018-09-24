@@ -94,6 +94,6 @@ public class SystemInfoServiceImplTest {
 		verify(si).getHardware();
 		verify(os).getFileSystem();
 		verify(fileSystem).getFileStores();
-		verifyNoMoreInteractions(si, os, fileSystem);
+		verifyNoMoreInteractions(si, fileSystem);
 	}
 }
