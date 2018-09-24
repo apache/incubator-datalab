@@ -297,7 +297,8 @@ List of parameters for SSN node deployment:
 | aws\_account\_id          | The The ID of Amazon account                                                            |
 | aws\_billing\_bucket      | The name of S3 bucket where billing reports will be placed                              |
 | aws\_report\_path         | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
-| action                    | In case of SSN node creation, this parameter should be set to “create”                  |
+| action                    | In case of SSN node creation, this parameter should be set to “create”
+| workspace\_path           | Path to DLab sources root
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   aws\_vpc\_id
@@ -526,7 +527,7 @@ Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a 
 
 ### Create
 
-In order to create Edge node using DLab Web UI – login and, click on the button “Upload”. Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
+In order to create Edge node using DLab Web UI – login and, click on the button “Upload” (Depending on authorization provider that was chosen on deployment stage, user may be taken from [LDAP](#LDAP_Authentication) or from [Azure AD (Oauth2)](#Azure_OAuth2_Authentication)). Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
 
 #### In Amazon
 
@@ -2362,7 +2363,6 @@ To apply some customization it is required to update a few properties in **secur
 ### Properties overview
 
 There are just a few properties based in which the customization could be done:
-
 - **ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com**
 - **ldapBindAttribute: uid**
 - **ldapSearchAttribute: uid**
@@ -2371,6 +2371,12 @@ Where the:
 - **ldapBindTemplate** is a user`s DN template which should be filed with custom value. Here the template could be changed: uid=%s,ou=People,dc=example,dc=com -> cn=%s,ou=People,dc=example,dc=com.
 - **ldapBindAttribute** - this is a major attribute, on which the DN is based on. Usually it is any of: uid or cn, or email.
 - **ldapSearchAttribute** - another attribute, based on which users will be looked up in LDAP.
+
+Additional parameters that are populated during deployment and may be changed in future are:
+- **ldapConnectionConfig.name: ldap user name**
+- **ldapConnectionConfig.ldapHost: ldap host**
+- **ldapConnectionConfig.ldapPort: ldap port**
+- **ldapConnectionConfig.credentials: ldap credentials**
  
 ### Scripts overview
 
