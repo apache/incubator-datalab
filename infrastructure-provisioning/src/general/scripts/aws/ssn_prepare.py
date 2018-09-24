@@ -58,12 +58,14 @@ if __name__ == "__main__":
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
         shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
+        tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
         ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
+        vpc2_cidr = os.environ['conf_vpc2_cidr']
         allowed_ip_cidr = os.environ['conf_allowed_ip_cidr']
         sg_name = instance_name + '-SG'
         network_type = os.environ['conf_network_type']
@@ -89,7 +91,55 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         try:
+            if os.environ['aws_vpc2_id'] == '':
+                raise KeyError
+        except KeyError:
+            try:
+                pre_defined_vpc = True
+                logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
+                print('[CREATE SECONDARY VPC AND ROUTE TABLE]')
+                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary".format(vpc2_cidr, region, tag2_name, service_base_name)
+                try:
+                    local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+                except:
+                    traceback.print_exc()
+                    raise Exception
+                os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
+            except Exception as err:
+                append_result("Failed to create secondary VPC. Exception:" + str(err))
+                sys.exit(1)
+
+        try:
             if os.environ['aws_subnet_id'] == '':
+                raise KeyError
+        except KeyError:
+            try:
+                pre_defined_subnet = True
+                logging.info('[CREATE SUBNET]')
+                print('[CREATE SUBNET]')
+                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
+                try:
+                    local("~/scripts/{}.py {}".format('common_create_subnet', params))
+                except:
+                    traceback.print_exc()
+                    raise Exception
+                with open('/tmp/ssn_subnet_id', 'r') as f:
+                    os.environ['aws_subnet_id'] = f.read()
+                enable_auto_assign_ip(os.environ['aws_subnet_id'])
+            except Exception as err:
+                append_result("Failed to create Subnet.", str(err))
+                if pre_defined_vpc:
+                    remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+                    remove_route_tables(tag_name, True)
+                    try:
+                        remove_subnets(service_base_name + "-subnet")
+                    except:
+                        print("Subnet hasn't been created.")
+                    remove_vpc(os.environ['aws_vpc_id'])
+                sys.exit(1)
+
+        try:
+            if os.environ['aws_subnet2_id'] == ''  and os.environ['duo_vpc_enable']:
                 raise KeyError
         except KeyError:
             try:

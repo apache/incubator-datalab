@@ -180,7 +180,7 @@ def remove_emr_tag(emr_id, tag):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_rt(vpc_id, infra_tag_name, infra_tag_value):
+def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
     try:
         tag = {"Key": infra_tag_name, "Value": infra_tag_value}
         route_table = []
@@ -190,13 +190,14 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value):
         route_table.append(rt_id)
         print('Created Route-Table with ID: {}'.format(rt_id))
         create_tag(route_table, json.dumps(tag))
-        ig = ec2.create_internet_gateway()
-        ig_id = ig.get('InternetGateway').get('InternetGatewayId')
-        route_table = []
-        route_table.append(ig_id)
-        create_tag(route_table, json.dumps(tag))
-        ec2.attach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
-        ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
+        if not secondary:
+            ig = ec2.create_internet_gateway()
+            ig_id = ig.get('InternetGateway').get('InternetGatewayId')
+            route_table = []
+            route_table.append(ig_id)
+            create_tag(route_table, json.dumps(tag))
+            ec2.attach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
+            ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
         return rt_id
     except Exception as err:
         logging.info("Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
