@@ -29,13 +29,12 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.software.os.linux.LinuxOperatingSystem;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,6 +45,8 @@ public class SystemInfoServiceImplTest {
 	private static final String BUILD_NUMBER = "BUILD 1.0";
 	private static final String PROCESSOR_MODEL = "Proc model";
 	private static final long AVAILABLE_MEMORY = 100L;
+	private static final long USABLE_SPACE = 100L;
+	private static final long TOTAL_SPACE = 1000L;
 	@Mock
 	private SystemInfo si;
 
@@ -59,17 +60,23 @@ public class SystemInfoServiceImplTest {
 		final OperatingSystemVersion operatingSystemVersion = mock(OperatingSystemVersion.class);
 		final CentralProcessor centralProcessor = mock(CentralProcessor.class);
 		final GlobalMemory globalMemory = mock(GlobalMemory.class);
+		final FileSystem fileSystem = mock(FileSystem.class);
+		final OSFileStore osFileStore = new OSFileStore();
+		osFileStore.setUsableSpace(USABLE_SPACE);
+		osFileStore.setTotalSpace(TOTAL_SPACE);
+		when(fileSystem.getFileStores()).thenReturn(new OSFileStore[]{osFileStore});
+
 		when(operatingSystemVersion.getVersion()).thenReturn(OS_VERSION);
 		when(operatingSystemVersion.getBuildNumber()).thenReturn(BUILD_NUMBER);
 		when(hardwareAbstractionLayer.getDiskStores()).thenReturn(new HWDiskStore[]{});
 		when(os.getFamily()).thenReturn(OS_FAMILY);
 		when(os.getVersion()).thenReturn(operatingSystemVersion);
 		when(si.getOperatingSystem()).thenReturn(os);
+		when(os.getFileSystem()).thenReturn(fileSystem);
 		when(globalMemory.getAvailable()).thenReturn(AVAILABLE_MEMORY);
 		when(hardwareAbstractionLayer.getMemory()).thenReturn(globalMemory);
 		when(centralProcessor.getModel()).thenReturn(PROCESSOR_MODEL);
 		when(hardwareAbstractionLayer.getProcessor()).thenReturn(centralProcessor);
-
 		when(si.getHardware()).thenReturn(hardwareAbstractionLayer);
 
 		SystemInfoDto systemInfo = systemInfoService.getSystemInfo();
@@ -79,18 +86,14 @@ public class SystemInfoServiceImplTest {
 		assertEquals(OS_FAMILY, systemInfo.getOsInfo().getFamily());
 		assertEquals(PROCESSOR_MODEL, systemInfo.getProcessorInfo().getModel());
 		assertEquals(AVAILABLE_MEMORY, systemInfo.getMemoryInfo().getAvailableMemory());
-		assertTrue(systemInfo.getDisksInfo().isEmpty());
+		assertEquals(1, systemInfo.getDisksInfo().size());
+		assertEquals(USABLE_SPACE, systemInfo.getDisksInfo().get(0).getUsedByteSpace());
+		assertEquals(TOTAL_SPACE, systemInfo.getDisksInfo().get(0).getTotalByteSpace());
 
 		verify(si).getOperatingSystem();
 		verify(si).getHardware();
-		verifyNoMoreInteractions(si);
-	}
-
-	private OperatingSystem getOs() {
-		return new LinuxOperatingSystem();
-	}
-
-	private HardwareAbstractionLayer getHal() {
-		return new LinuxHardwareAbstractionLayer();
+		verify(os).getFileSystem();
+		verify(fileSystem).getFileStores();
+		verifyNoMoreInteractions(si, os, fileSystem);
 	}
 }

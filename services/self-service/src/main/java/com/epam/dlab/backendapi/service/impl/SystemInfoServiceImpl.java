@@ -27,8 +27,9 @@ import com.google.inject.Inject;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 
 import java.util.Arrays;
@@ -43,8 +44,9 @@ public class SystemInfoServiceImpl implements SystemInfoService {
 	@Override
 	public SystemInfoDto getSystemInfo() {
 		HardwareAbstractionLayer hal = si.getHardware();
-		return new SystemInfoDto(getOsInfo(si.getOperatingSystem()), getProcessorInfo(hal), getMemoryInfo(hal),
-				getDiskInfoList(hal));
+		final OperatingSystem operatingSystem = si.getOperatingSystem();
+		return new SystemInfoDto(getOsInfo(operatingSystem), getProcessorInfo(hal), getMemoryInfo(hal),
+				getDiskInfoList(operatingSystem.getFileSystem()));
 	}
 
 	private OsInfo getOsInfo(OperatingSystem os) {
@@ -84,15 +86,15 @@ public class SystemInfoServiceImpl implements SystemInfoService {
 				.build();
 	}
 
-	private List<DiskInfo> getDiskInfoList(HardwareAbstractionLayer hal) {
-		return Arrays.stream(hal.getDiskStores()).map(this::getDiskInfo).collect(Collectors.toList());
+	private List<DiskInfo> getDiskInfoList(FileSystem fileSystem) {
+		return Arrays.stream(fileSystem.getFileStores()).map(this::getDiskInfo).collect(Collectors.toList());
 	}
 
-	private DiskInfo getDiskInfo(HWDiskStore diskStore) {
+	private DiskInfo getDiskInfo(OSFileStore fileStore) {
 		return DiskInfo.builder()
-				.serialNumber(diskStore.getSerial())
-				.usedByteSpace(diskStore.getWriteBytes())
-				.totalByteSpace(diskStore.getSize())
+				.serialNumber(fileStore.getName())
+				.usedByteSpace(fileStore.getUsableSpace())
+				.totalByteSpace(fileStore.getTotalSpace())
 				.build();
 	}
 }
