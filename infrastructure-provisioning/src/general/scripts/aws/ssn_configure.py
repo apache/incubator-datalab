@@ -245,6 +245,12 @@ if __name__ == "__main__":
             "ssn_instance_size": os.environ['aws_ssn_instance_size'],
             "edge_instance_size": os.environ['aws_edge_instance_size']
         }
+        if os.environ['duo_vpc_enable'] == 'true':
+            secondary_parameters = {
+                "aws_vpc2_id": os.environ['aws_vpc2_id'],
+                "aws_subnet2_id": os.environ['aws_subnet2_id'],
+            }
+            mongo_parameters.update(secondary_parameters)
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} " \
