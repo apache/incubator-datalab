@@ -132,9 +132,6 @@ if __name__ == "__main__":
                 enable_auto_assign_ip(os.environ['aws_subnet_id'])
             except Exception as err:
                 append_result("Failed to create Subnet.", str(err))
-                if pre_defined_vpc2:
-                    remove_route_tables(tag2_name, True)
-                    remove_vpc(os.environ['aws_vpc_id'])
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
                     remove_route_tables(tag_name, True)
@@ -143,6 +140,9 @@ if __name__ == "__main__":
                     except:
                         print("Subnet hasn't been created.")
                     remove_vpc(os.environ['aws_vpc_id'])
+                if pre_defined_vpc2:
+                    remove_route_tables(tag2_name, True)
+                    remove_vpc(os.environ['aws_vpc2_id'])
                 sys.exit(1)
 
         try:
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                 pre_defined_subnet2 = True
                 logging.info('[CREATE SECONDARY SUBNET]')
                 print('[CREATE SECONDARY SUBNET]')
-                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc2_id'], 'ssn', tag2_name, service_base_name, '22', True)
+                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc2_id'], 'ssn', tag_name, service_base_name, '22', True)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 except:
@@ -161,12 +161,8 @@ if __name__ == "__main__":
                     raise Exception
                 with open('/tmp/ssn_subnet_id', 'r') as f:
                     os.environ['aws_subnet2_id'] = f.read()
-                enable_auto_assign_ip(os.environ['aws_subnet2_id'])
             except Exception as err:
                 append_result("Failed to create Subnet.", str(err))
-                if pre_defined_vpc2:
-                    remove_route_tables(tag2_name, True)
-                    remove_vpc(os.environ['aws_vpc_id'])
                 if pre_defined_vpc:
                     remove_route_tables(tag_name, True)
                     try:
@@ -174,6 +170,9 @@ if __name__ == "__main__":
                     except:
                         print("Subnet hasn't been created.")
                     remove_vpc(os.environ['aws_vpc_id'])
+                if pre_defined_vpc2:
+                    remove_route_tables(tag2_name, True)
+                    remove_vpc(os.environ['aws_vpc2_id'])
                 sys.exit(1)
 
         try:
@@ -253,6 +252,9 @@ if __name__ == "__main__":
                     remove_subnets(service_base_name + "-subnet")
                     remove_route_tables(tag_name, True)
                     remove_vpc(os.environ['aws_vpc_id'])
+                if pre_defined_vpc2:
+                    remove_route_tables(tag2_name, True)
+                    remove_vpc(os.environ['aws_vpc2_id'])
                 sys.exit(1)
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
@@ -273,6 +275,9 @@ if __name__ == "__main__":
         if pre_defined_vpc:
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -296,6 +301,9 @@ if __name__ == "__main__":
         if pre_defined_vpc:
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -330,6 +338,9 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -358,6 +369,9 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     if network_type == 'public':
@@ -389,4 +403,7 @@ if __name__ == "__main__":
                 remove_vpc_endpoints(os.environ['aws_vpc_id'])
                 remove_route_tables(tag_name, True)
                 remove_vpc(os.environ['aws_vpc_id'])
+            if pre_defined_vpc2:
+                remove_route_tables(tag2_name, True)
+                remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)

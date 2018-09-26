@@ -50,7 +50,7 @@ if __name__ == "__main__":
                 rt_id = create_rt(vpc_id, args.infra_tag_name, args.infra_tag_value, args.secondary)
             else:
                 print("REQUESTED {}VPC ALREADY EXISTS".format(sec_str))
-            print("{0}VPC_ID: {1}".format(vpc_id, sec_str))
+            print("{0}VPC_ID: {1}".format(sec_str, vpc_id))
             args.vpc_id = vpc_id
             success = True
         except:

@@ -762,12 +762,20 @@ def remove_subnets(tag_value):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        tag2_name = os.environ['conf_service_base_name'] + '-secondary-Tag'
         subnets = ec2.subnets.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
-        if subnets:
-            for subnet in subnets:
-                client.delete_subnet(SubnetId=subnet.id)
-                print("The subnet {} has been deleted successfully".format(subnet.id))
+        subnets2 = ec2.subnets.filter(
+            Filters=[{'Name': 'tag:{}'.format(tag2_name), 'Values': [tag_value]}])
+        if subnets or subnets2:
+            if subnets:
+                for subnet in subnets:
+                    client.delete_subnet(SubnetId=subnet.id)
+                    print("The subnet {} has been deleted successfully".format(subnet.id))
+            if subnets2:
+                for subnet in subnets2:
+                    client.delete_subnet(SubnetId=subnet.id)
+                    print("The subnet {} has been deleted successfully".format(subnet.id))
         else:
             print("There are no private subnets to delete")
     except Exception as err:
