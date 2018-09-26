@@ -43,12 +43,14 @@ if __name__ == "__main__":
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
         shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
+        tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
         ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
+        vpc2_cidr = os.environ['conf_vpc2_cidr']
         sg_name = instance_name + '-SG'
         pre_defined_vpc = False
         pre_defined_subnet = False
@@ -71,6 +73,20 @@ if __name__ == "__main__":
             tag = {"Key": tag_name, "Value": "{}-subnet".format(service_base_name)}
             os.environ['aws_subnet_id'] = get_subnet_by_tag(tag, True)
             pre_defined_subnet = True
+        try:
+            if os.environ['duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
+                raise KeyError
+        except KeyError:
+            tag = {"Key": tag2_name, "Value": "{}-subnet".format(service_base_name)}
+            os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag_name, service_base_name)
+            pre_defined_vpc2 = True
+        try:
+            if os.environ['duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
+                raise KeyError
+        except KeyError:
+            tag = {"Key": tag2_name, "Value": "{}-subnet".format(service_base_name)}
+            os.environ['aws_subnet2_id'] = get_subnet_by_tag(tag, True)
+            pre_defined_subnet2 = True
         try:
             if os.environ['aws_security_groups_ids'] == '':
                 raise KeyError

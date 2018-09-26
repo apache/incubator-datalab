@@ -95,7 +95,7 @@ if __name__ == "__main__":
                 raise KeyError
         except KeyError:
             try:
-                pre_defined_vpc = True
+                pre_defined_vpc2 = True
                 logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
                 print('[CREATE SECONDARY VPC AND ROUTE TABLE]')
                 params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary".format(vpc2_cidr, region, tag2_name, service_base_name)
@@ -107,6 +107,10 @@ if __name__ == "__main__":
                 os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
             except Exception as err:
                 append_result("Failed to create secondary VPC. Exception:" + str(err))
+                if pre_defined_vpc:
+                    remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+                    remove_route_tables(tag_name, True)
+                    remove_vpc(os.environ['aws_vpc_id'])
                 sys.exit(1)
 
         try:
@@ -128,6 +132,9 @@ if __name__ == "__main__":
                 enable_auto_assign_ip(os.environ['aws_subnet_id'])
             except Exception as err:
                 append_result("Failed to create Subnet.", str(err))
+                if pre_defined_vpc2:
+                    remove_route_tables(tag2_name, True)
+                    remove_vpc(os.environ['aws_vpc_id'])
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
                     remove_route_tables(tag_name, True)
@@ -143,7 +150,7 @@ if __name__ == "__main__":
                 raise KeyError
         except KeyError:
             try:
-                pre_defined_subnet = True
+                pre_defined_subnet2 = True
                 logging.info('[CREATE SECONDARY SUBNET]')
                 print('[CREATE SECONDARY SUBNET]')
                 params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc2_id'], 'ssn', tag2_name, service_base_name, '22', True)
@@ -157,13 +164,16 @@ if __name__ == "__main__":
                 enable_auto_assign_ip(os.environ['aws_subnet2_id'])
             except Exception as err:
                 append_result("Failed to create Subnet.", str(err))
-                if pre_defined_vpc:
+                if pre_defined_vpc2:
                     remove_route_tables(tag2_name, True)
+                    remove_vpc(os.environ['aws_vpc_id'])
+                if pre_defined_vpc:
+                    remove_route_tables(tag_name, True)
                     try:
                         remove_subnets(service_base_name + "-subnet")
                     except:
                         print("Subnet hasn't been created.")
-                    remove_vpc(os.environ['aws_vpc2_id'])
+                    remove_vpc(os.environ['aws_vpc_id'])
                 sys.exit(1)
 
         try:
