@@ -49,6 +49,10 @@ limitations under the License.
               </span>
             </span>
         </button>
+        <button class="butt butt-azure"
+                mat-raised-button (click)="loginWithAzure_btnClick();">
+          Login with DEX
+        </button>
         <button *ngIf="DICTIONARY.cloud_provider === 'azure' && !DICTIONARY.use_ldap"
                 class="butt butt-azure"
                 mat-raised-button (click)="loginWithAzure_btnClick();">

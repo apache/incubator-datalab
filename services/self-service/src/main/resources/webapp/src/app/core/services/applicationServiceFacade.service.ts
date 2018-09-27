@@ -29,6 +29,7 @@ export class ApplicationServiceFacade {
   private static readonly LOGOUT = 'logout';
   private static readonly AUTHORIZE = 'authorize';
   private static readonly OAUTH = 'oauth';
+  private static readonly DEX = 'dex';
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly ACTIVE_LIST = 'active_list';
   private static readonly FULL_ACTIVE_LIST = 'full_active_list';
@@ -88,7 +89,7 @@ export class ApplicationServiceFacade {
 
   public buildGetAuthToken(body: any): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
+      this.requestRegistry.Item(ApplicationServiceFacade.DEX),
       body,
       this.getRequestOptions(true, true));
   }
@@ -418,7 +419,8 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 
-    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
+    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/dex/oauth');
+    this.requestRegistry.Add(ApplicationServiceFacade.DEX, '/api/dex/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY_GENERATE, '/api/user/access_key/generate');
 

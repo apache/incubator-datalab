@@ -21,6 +21,7 @@ import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
+import com.epam.dlab.backendapi.resources.DexOauthResource;
 import com.epam.dlab.backendapi.resources.aws.BillingResourceAws;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
@@ -44,6 +45,12 @@ import org.quartz.impl.StdSchedulerFactory;
 
 public class AwsSelfServiceModule extends CloudModule {
 
+	private final boolean useDex;
+
+	public AwsSelfServiceModule(boolean useDex) {
+		this.useDex = useDex;
+	}
+
 	@Override
 	protected void configure() {
 		bind(BillingService.class).to(AwsBillingService.class);
@@ -63,6 +70,9 @@ public class AwsSelfServiceModule extends CloudModule {
 
 		injector.getInstance(SecurityFactory.class).configure(injector, environment,
 				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+		if (useDex) {
+			environment.jersey().register(injector.getInstance(DexOauthResource.class));
+		}
 	}
 
 

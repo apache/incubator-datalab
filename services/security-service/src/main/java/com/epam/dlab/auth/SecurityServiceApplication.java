@@ -13,13 +13,13 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.auth;
 
 import com.epam.dlab.auth.modules.ModuleFactory;
 import com.epam.dlab.auth.modules.SecurityServiceModule;
+import com.epam.dlab.auth.resources.DexOauthResource;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.rest.mappers.AuthenticationExceptionMapper;
 import com.epam.dlab.util.ServiceUtils;
@@ -59,6 +59,7 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 		CloudModule cloudModule = ModuleFactory.getCloudProviderModule(conf);
 		Injector injector = Guice.createInjector(new SecurityServiceModule(conf, env), cloudModule);
 		env.jersey().register(new AuthenticationExceptionMapper());
+		env.jersey().register(injector.getInstance(DexOauthResource.class));
 		cloudModule.init(env, injector);
 	}
 }

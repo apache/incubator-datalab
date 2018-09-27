@@ -105,6 +105,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private int privateKeySize = 2048;
 	@JsonProperty
 	private SwaggerBundleConfiguration swaggerConfiguration;
+	@JsonProperty
+	private boolean dexIdentityProviderEnabled;
 
 	@Valid
 	@NotNull
@@ -233,5 +235,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public Duration getClusterInactivityCheckingTimeout() {
 		return clusterInactivityCheckingTimeout;
+	}
+
+	public boolean isDexIdentityProviderEnabled() {
+		return dexIdentityProviderEnabled;
 	}
 }

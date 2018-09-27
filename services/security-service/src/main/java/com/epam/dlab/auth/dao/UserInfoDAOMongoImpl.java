@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.auth.dao;
@@ -35,6 +34,7 @@ import java.util.Date;
 @Singleton
 @Slf4j
 public class UserInfoDAOMongoImpl implements UserInfoDAO {
+	private static final String LAST_ACCESS_FIELD = "lastAccess";
 	private final MongoService ms;
 	private final long inactiveUserTimeoutMsec;
 
@@ -55,14 +55,16 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 			log.warn("UI not found {}", accessToken);
 			return null;
 		}
-		Date lastAccess = uiDoc.getDate("expireAt");
-		if (inactiveUserTimeoutMsec < Math.abs(new Date().getTime() - lastAccess.getTime())) {
+		Date lastAccess = uiDoc.getDate(LAST_ACCESS_FIELD);
+		final Date expireAt = uiDoc.getDate("expireAt");
+		if ((inactiveUserTimeoutMsec < Math.abs(new Date().getTime() - lastAccess.getTime())) ||
+				(expireAt != null && new Date().after(expireAt))) {
 			log.warn("UI for {} expired but were not evicted from DB. Contact MongoDB admin to create expireable " +
-					"index" +
-					" on 'expireAt' key.", accessToken);
+					"index on 'lastAccess' key.", accessToken);
 			this.deleteUserInfo(accessToken);
 			return null;
 		}
+
 		String name = uiDoc.get("name").toString();
 		String firstName = uiDoc.getString("firstName", "");
 		String lastName = uiDoc.getString("lastName", "");
@@ -89,7 +91,7 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 
 		BasicDBObject uiDoc = new BasicDBObject();
 		uiDoc.put("_id", accessToken);
-		uiDoc.put("expireAt", new Date(System.currentTimeMillis()));
+		uiDoc.put(LAST_ACCESS_FIELD, new Date(System.currentTimeMillis()));
 		MongoCollection<BasicDBObject> security = ms.getCollection("security", BasicDBObject.class);
 		security.updateOne(new BasicDBObject("_id", accessToken), new BasicDBObject("$set", uiDoc));
 		log.debug("Updated persistent {}", accessToken);
@@ -119,8 +121,9 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 		uiDoc.put("roles", ui.getRoles());
 		uiDoc.put("remoteIp", ui.getRemoteIp());
 		uiDoc.put("awsUser", ui.isAwsUser());
-		uiDoc.put("expireAt", new Date(System.currentTimeMillis()));
+		uiDoc.put(LAST_ACCESS_FIELD, new Date(System.currentTimeMillis()));
 		uiDoc.put("awsKeys", ui.getKeys());
+		uiDoc.put("expireAt", ui.getExpireAt());
 		MongoCollection<BasicDBObject> security = ms.getCollection("security", BasicDBObject.class);
 		security.insertOne(uiDoc);
 		log.debug("Saved persistent {}", ui);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.azure.auth;
+package com.epam.dlab.dto.auth;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

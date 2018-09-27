@@ -104,11 +104,6 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 			}
 
 			@Override
-			public <T> T get(String path, Class<T> clazz) {
-				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
-			}
-
-			@Override
 			public <T> T get(String path, String accessToken, Class<T> clazz) {
 				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
 			}

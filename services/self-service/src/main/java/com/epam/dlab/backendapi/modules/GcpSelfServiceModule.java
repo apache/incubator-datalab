@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.gcp.GcpKeyDao;
+import com.epam.dlab.backendapi.resources.DexOauthResource;
 import com.epam.dlab.backendapi.resources.callback.gcp.EdgeCallbackGcp;
 import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
@@ -43,6 +44,12 @@ import org.quartz.impl.StdSchedulerFactory;
 
 public class GcpSelfServiceModule extends CloudModule {
 
+	private final boolean useDex;
+
+	public GcpSelfServiceModule(boolean useDex) {
+		this.useDex = useDex;
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void init(Environment environment, Injector injector) {
@@ -55,6 +62,9 @@ public class GcpSelfServiceModule extends CloudModule {
 		}
 		injector.getInstance(SecurityFactory.class).configure(injector, environment,
 				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+		if (useDex) {
+			environment.jersey().register(injector.getInstance(DexOauthResource.class));
+		}
 
 	}
 

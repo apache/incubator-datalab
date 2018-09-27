@@ -20,6 +20,7 @@ package com.epam.dlab.auth;
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.auth.conf.AzureLoginConfiguration;
 import com.epam.dlab.auth.dao.Request;
+import com.epam.dlab.auth.dex.DexConfiguration;
 import com.epam.dlab.config.gcp.GcpLoginConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
@@ -55,6 +56,8 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 	private AzureLoginConfiguration azureLoginConfiguration;
 	@JsonProperty
 	private GcpLoginConfiguration gcpLoginConfiguration;
+	@JsonProperty
+	private DexConfiguration dexConfiguration;
 
 	private LdapConnectionConfig ldapConfiguration;
 
@@ -116,5 +119,9 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	public GcpLoginConfiguration getGcpLoginConfiguration() {
 		return gcpLoginConfiguration;
+	}
+
+	public DexConfiguration getDexConfiguration() {
+		return dexConfiguration;
 	}
 }

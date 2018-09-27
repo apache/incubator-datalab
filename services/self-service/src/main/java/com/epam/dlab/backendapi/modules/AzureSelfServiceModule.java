@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
+import com.epam.dlab.backendapi.resources.DexOauthResource;
 import com.epam.dlab.backendapi.resources.SecurityResource;
 import com.epam.dlab.backendapi.resources.azure.AzureOauthResource;
 import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
@@ -51,10 +52,12 @@ public class AzureSelfServiceModule extends CloudModule {
 
 	private boolean useLdap;
 	private long maxSessionDurabilityMilliseconds;
+	private final boolean useDex;
 
-	public AzureSelfServiceModule(boolean useLdap, long maxSessionDurabilityMilliseconds) {
+	public AzureSelfServiceModule(boolean useLdap, long maxSessionDurabilityMilliseconds, boolean useDex) {
 		this.useLdap = useLdap;
 		this.maxSessionDurabilityMilliseconds = maxSessionDurabilityMilliseconds;
+		this.useDex = useDex;
 	}
 
 	@Override
@@ -85,6 +88,9 @@ public class AzureSelfServiceModule extends CloudModule {
 
 		injector.getInstance(SecurityFactory.class).configure(injector, environment,
 				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+		if (useDex) {
+			environment.jersey().register(injector.getInstance(DexOauthResource.class));
+		}
 	}
 
 	@Provides

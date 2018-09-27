@@ -1,20 +1,19 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ****************************************************************************/
 
 package com.epam.dlab.auth;
 
@@ -29,79 +28,80 @@ import java.util.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserInfo implements Principal {
 
-    private final String username;
-    private final String accessToken;
-    private final Set<String> roles = new HashSet<>();
-    private final Map<String,String> keys = new HashMap<>();
+	private final String username;
+	private final String accessToken;
+	private final Set<String> roles = new HashSet<>();
+	private final Map<String, String> keys = new HashMap<>();
+	private Date expireAt;
 
-    @JsonProperty
-    private String firstName;
-    @JsonProperty
-    private String lastName;
-    @JsonProperty
-    private String remoteIp;
-    @JsonProperty
-    private boolean awsUser = false;
+	@JsonProperty
+	private String firstName;
+	@JsonProperty
+	private String lastName;
+	@JsonProperty
+	private String remoteIp;
+	@JsonProperty
+	private boolean awsUser = false;
 
-    @JsonCreator
-    public UserInfo(@JsonProperty("username") String username,
-    				@JsonProperty("access_token") String accessToken) {
-        this.username = (username == null ? null : username.toLowerCase());
-        this.accessToken = accessToken;
-    }
+	@JsonCreator
+	public UserInfo(@JsonProperty("username") String username,
+					@JsonProperty("access_token") String accessToken) {
+		this.username = (username == null ? null : username.toLowerCase());
+		this.accessToken = accessToken;
+	}
 
-    @Override
-    @JsonProperty("username")
-    public String getName() {
-        return username;
-    }
+	@Override
+	@JsonProperty("username")
+	public String getName() {
+		return username;
+	}
 
-    public String getSimpleName() {
-        return (username == null ? null : username.replaceAll("@.*", ""));
-    }
+	public String getSimpleName() {
+		return (username == null ? null : username.replaceAll("@.*", ""));
+	}
 
-    @JsonProperty("access_token")
-    public String getAccessToken() {
-        return accessToken;
-    }
+	@JsonProperty("access_token")
+	public String getAccessToken() {
+		return accessToken;
+	}
 
-    @JsonProperty("roles")
-    public Collection<String> getRoles() {
-        return roles;
-    }
+	@JsonProperty("roles")
+	public Collection<String> getRoles() {
+		return roles;
+	}
 
-    //@JsonSetter("roles")
-    public void addRoles(Collection<String> r) {
-        roles.addAll(r);
-    }
+	//@JsonSetter("roles")
+	public void addRoles(Collection<String> r) {
+		roles.addAll(r);
+	}
 
-    @JsonSetter("roles")
-    public void addRoles(String[] r) {
-        roles.addAll(Arrays.asList(r));
-    }
+	@JsonSetter("roles")
+	public void addRoles(String[] r) {
+		roles.addAll(Arrays.asList(r));
+	}
 
-    public void addRole(String role) {
-        roles.add(role);
-    }
+	public void addRole(String role) {
+		roles.add(role);
+	}
 
 
-    public String getFirstName() {
-        return firstName;
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public String getRemoteIp() {
+	public String getRemoteIp() {
 		return remoteIp;
 	}
 
@@ -110,79 +110,87 @@ public class UserInfo implements Principal {
 	}
 
 	public UserInfo withToken(String token) {
-        UserInfo newInfo  = new UserInfo(username, token);
-        roles.forEach(newInfo::addRole);
-        newInfo.firstName = this.firstName;
-        newInfo.lastName  = this.lastName;
-        newInfo.remoteIp  = this.remoteIp;
-        newInfo.awsUser   = this.awsUser;
-        newInfo.setKeys(this.getKeys());
-        return newInfo;
-    }
+		UserInfo newInfo = new UserInfo(username, token);
+		roles.forEach(newInfo::addRole);
+		newInfo.firstName = this.firstName;
+		newInfo.lastName = this.lastName;
+		newInfo.remoteIp = this.remoteIp;
+		newInfo.awsUser = this.awsUser;
+		newInfo.setKeys(this.getKeys());
+		return newInfo;
+	}
 
-    public boolean isAwsUser() {
-        return awsUser;
-    }
+	public boolean isAwsUser() {
+		return awsUser;
+	}
 
-    public void setAwsUser(boolean awsUser) {
-        this.awsUser = awsUser;
-    }
+	public void setAwsUser(boolean awsUser) {
+		this.awsUser = awsUser;
+	}
 
-    public Map<String, String> getKeys() {
-        return keys;
-    }
+	public Map<String, String> getKeys() {
+		return keys;
+	}
 
-    public void addKey(String id, String status) {
-        keys.put(id,status);
-    }
+	public void addKey(String id, String status) {
+		keys.put(id, status);
+	}
 
-    @JsonSetter("keys")
-    public void setKeys(Map<String,String> awsKeys) {
-        awsKeys.forEach(keys::put);
-    }
+	@JsonSetter("keys")
+	public void setKeys(Map<String, String> awsKeys) {
+		awsKeys.forEach(keys::put);
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public Date getExpireAt() {
+		return expireAt;
+	}
 
-        UserInfo userInfo = (UserInfo) o;
+	public void setExpireAt(Date expireAt) {
+		this.expireAt = expireAt;
+	}
 
-        if (awsUser != userInfo.awsUser) return false;
-        if (username != null ? !username.equals(userInfo.username) : userInfo.username != null) return false;
-        if (accessToken != null ? !accessToken.equals(userInfo.accessToken) : userInfo.accessToken != null)
-            return false;
-        if (!roles.equals(userInfo.roles)) return false;
-        if (!keys.equals(userInfo.keys)) return false;
-        if (firstName != null ? !firstName.equals(userInfo.firstName) : userInfo.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(userInfo.lastName) : userInfo.lastName != null) return false;
-        return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-    }
+		UserInfo userInfo = (UserInfo) o;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(username,
-                accessToken,
-                roles,
-                keys,
-                firstName,
-                lastName,
-                remoteIp,
-                awsUser);
-    }
+		if (awsUser != userInfo.awsUser) return false;
+		if (username != null ? !username.equals(userInfo.username) : userInfo.username != null) return false;
+		if (accessToken != null ? !accessToken.equals(userInfo.accessToken) : userInfo.accessToken != null)
+			return false;
+		if (!roles.equals(userInfo.roles)) return false;
+		if (!keys.equals(userInfo.keys)) return false;
+		if (firstName != null ? !firstName.equals(userInfo.firstName) : userInfo.firstName != null) return false;
+		if (lastName != null ? !lastName.equals(userInfo.lastName) : userInfo.lastName != null) return false;
+		return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
 
-    @Override
-    public String toString() {
-        return "UserInfo{" +
-                "username='" + username + '\'' +
-                ", accessToken='" + accessToken + '\'' +
-                ", roles=" + roles +
-                ", keys=" + keys.keySet() +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", remoteIp='" + remoteIp + '\'' +
-                ", awsUser=" + awsUser +
-                '}';
-    }
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(username,
+				accessToken,
+				roles,
+				keys,
+				firstName,
+				lastName,
+				remoteIp,
+				awsUser);
+	}
+
+	@Override
+	public String toString() {
+		return "UserInfo{" +
+				"username='" + username + '\'' +
+				", accessToken='" + accessToken + '\'' +
+				", roles=" + roles +
+				", keys=" + keys.keySet() +
+				", firstName='" + firstName + '\'' +
+				", lastName='" + lastName + '\'' +
+				", remoteIp='" + remoteIp + '\'' +
+				", awsUser=" + awsUser +
+				'}';
+	}
 }

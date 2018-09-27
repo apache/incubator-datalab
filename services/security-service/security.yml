@@ -195,6 +195,13 @@ gcpLoginConfiguration:
     applicationName: DLAB-webapp
 </#if>
 
+dexConfiguration:
+  url: <DEX_URL>
+  clientId: <DEX_CLIENT_ID>
+  clientSecret: <DEX_CLIENT_SECRET>
+  redirectUri: <DEX_REDIRECT_URI>
+  authorizationPath: <DEX_AUTH_PATH>
+  scope: <DEX_SCOPES>
 
 logging:
   level: INFO

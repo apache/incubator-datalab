@@ -18,7 +18,7 @@ package com.epam.dlab.auth.azure;
 
 import com.epam.dlab.auth.azure.service.AzureAuthorizationCodeService;
 import com.epam.dlab.auth.conf.AzureLoginConfiguration;
-import com.epam.dlab.dto.azure.auth.AuthorizationCodeFlowResponse;
+import com.epam.dlab.dto.auth.AuthorizationCodeFlowResponse;
 import com.epam.dlab.exceptions.DlabAuthenticationException;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.common.cache.Cache;

@@ -23,14 +23,21 @@ import com.epam.dlab.auth.UserVerificationService;
 import com.epam.dlab.auth.dao.LdapUserDAO;
 import com.epam.dlab.auth.dao.UserInfoDAODumbImpl;
 import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
+import com.epam.dlab.auth.service.DexOauthService;
+import com.epam.dlab.auth.service.DexOauthServiceImpl;
 import com.epam.dlab.mongo.MongoService;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import io.dropwizard.client.HttpClientBuilder;
+import io.dropwizard.client.HttpClientConfiguration;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.HttpClient;
 
 @Slf4j
 public class SecurityServiceModule extends ModuleBase<SecurityServiceConfiguration> {
+
+	private static final String REST_CLIENT = "restClient";
 
 	public SecurityServiceModule(SecurityServiceConfiguration configuration, Environment environment) {
 		super(configuration, environment);
@@ -39,6 +46,11 @@ public class SecurityServiceModule extends ModuleBase<SecurityServiceConfigurati
 	@Override
 	protected void configure() {
 		bind(SecurityServiceConfiguration.class).toInstance(configuration);
+		bind(HttpClient.class).toInstance(
+				new HttpClientBuilder(environment)
+						.using(new HttpClientConfiguration())
+						.build(REST_CLIENT));
+		bind(DexOauthService.class).to(DexOauthServiceImpl.class);
 		if (configuration.isUserInfoPersistenceEnabled()) {
 			bind(UserInfoDAO.class).to(UserInfoDAOMongoImpl.class);
 		} else {

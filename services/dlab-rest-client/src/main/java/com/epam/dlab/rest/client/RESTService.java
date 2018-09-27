@@ -50,6 +50,12 @@ public class RESTService {
         return builder.get(clazz);
     }
 
+	public <T> T get(String path, Map<String, Object> queryParams, Class<T> clazz) {
+		Invocation.Builder builder =  getBuilder(path, null, queryParams);
+		log.debug("REST get {}", path);
+		return builder.get(clazz);
+	}
+
     public <T> T post(String path, Object parameter, Class<T> clazz) {
         Invocation.Builder builder = getBuilder(path);
         log.debug("REST post {}", path);

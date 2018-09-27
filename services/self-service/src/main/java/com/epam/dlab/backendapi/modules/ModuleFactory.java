@@ -47,12 +47,12 @@ public class ModuleFactory {
 	public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration) {
 		switch (configuration.getCloudProvider()) {
 			case AWS:
-				return new AwsSelfServiceModule();
+				return new AwsSelfServiceModule(configuration.isDexIdentityProviderEnabled());
 			case AZURE:
 				return new AzureSelfServiceModule(configuration.isAzureUseLdap(),
-						configuration.getMaxSessionDurabilityMilliseconds());
+						configuration.getMaxSessionDurabilityMilliseconds(), configuration.isDexIdentityProviderEnabled());
 			case GCP:
-				return new GcpSelfServiceModule();
+				return new GcpSelfServiceModule(configuration.isDexIdentityProviderEnabled());
 			default:
 				throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
 		}

@@ -40,6 +40,7 @@ import io.dropwizard.setup.Environment;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 /**
  * Mock class for an application configuration of SelfService for developer mode.
@@ -59,6 +60,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 	 */
 	DevModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
 		super(configuration, environment);
+
 	}
 
 	@Override
@@ -134,11 +136,6 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 							.type(MediaType.APPLICATION_JSON_TYPE)
 							.build();
 				}
-			}
-
-			@Override
-			public <T> T get(String path, Class<T> clazz) {
-				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
 			}
 
 			@Override
