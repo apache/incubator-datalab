@@ -91,6 +91,8 @@ public class RequestBuilder {
 						.awsSubnetId(settingsDAO.getAwsSubnetId())
 						.awsVpcId(settingsDAO.getAwsVpcId())
 						.confTagResourceId(settingsDAO.getConfTagResourceId())
+						.awsNotebookSubnetId(settingsDAO.getAwsNotebookSubnetId())
+						.awsNotebookVpcId(settingsDAO.getAwsNotebookVpcId())
 						.awsIamUser(userInfo.getName()).build();
 			case AZURE:
 				return AzureCloudSettings.builder()
