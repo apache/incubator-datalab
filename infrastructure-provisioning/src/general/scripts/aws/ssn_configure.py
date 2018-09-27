@@ -263,10 +263,15 @@ if __name__ == "__main__":
         }
         if os.environ['duo_vpc_enable'] == 'true':
             secondary_parameters = {
-                "aws_vpc2_id": os.environ['aws_vpc2_id'],
-                "aws_subnet2_id": os.environ['aws_subnet2_id'],
+                "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
+                "aws_notebook_subnet_id": os.environ['aws_subnet2_id'],
             }
-            mongo_parameters.update(secondary_parameters)
+        else:
+            secondary_parameters = {
+                "aws_notebook_vpc_id": os.environ['aws_vpc_id'],
+                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
+            }
+        mongo_parameters.update(secondary_parameters)
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} " \
