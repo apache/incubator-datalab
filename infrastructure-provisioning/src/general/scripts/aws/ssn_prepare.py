@@ -153,7 +153,7 @@ if __name__ == "__main__":
                 pre_defined_subnet2 = True
                 logging.info('[CREATE SECONDARY SUBNET]')
                 print('[CREATE SECONDARY SUBNET]')
-                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc2_id'], 'ssn', tag_name, service_base_name, '22', True)
+                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc2_id'], 'ssn', tag2_name, service_base_name, '22', True)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 except:
