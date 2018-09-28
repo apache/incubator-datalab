@@ -91,7 +91,7 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         try:
-            if os.environ['duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
+            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
                 raise KeyError
         except KeyError:
             try:
@@ -146,7 +146,7 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         try:
-            if os.environ['duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
+            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
                 raise KeyError
         except KeyError:
             try:
