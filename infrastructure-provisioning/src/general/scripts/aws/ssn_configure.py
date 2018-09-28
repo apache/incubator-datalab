@@ -78,7 +78,7 @@ if __name__ == "__main__":
                 raise KeyError
         except KeyError:
             tag = {"Key": tag2_name, "Value": "{}-subnet".format(service_base_name)}
-            os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag_name, service_base_name)
+            os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
             pre_defined_vpc2 = True
         try:
             if os.environ['duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
