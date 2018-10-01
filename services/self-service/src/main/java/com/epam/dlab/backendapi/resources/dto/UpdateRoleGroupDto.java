@@ -33,5 +33,5 @@ public class UpdateRoleGroupDto {
 	@NotEmpty
 	private final Set<String> roleIds;
 	@NotEmpty
-	private final Set<String> groups;
+	private final String group;
 }

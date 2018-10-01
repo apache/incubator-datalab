@@ -31,8 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.*;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -69,24 +68,19 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
-	public boolean addUserToRole(Set<String> users, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), addToSet(USERS_FIELD, users)));
-	}
-
-	@Override
 	public boolean addGroupToRole(Set<String> groups, Set<String> roleIds) {
 		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), addToSet(GROUPS_FIELD,
 				groups)));
 	}
 
 	@Override
-	public boolean removeUserFromRole(Set<String> users, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), pullAll(USERS_FIELD, users)));
+	public boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
+		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), pullAll(GROUPS_FIELD, groups)));
 	}
 
 	@Override
-	public boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), pullAll(GROUPS_FIELD, groups)));
+	public void removeGroupWhenRoleNotIn(String group, Set<String> roleIds) {
+		updateMany(MongoCollections.ROLES, not(in(ID, roleIds)), unset(GROUPS_FIELD, group));
 	}
 
 	@Override
