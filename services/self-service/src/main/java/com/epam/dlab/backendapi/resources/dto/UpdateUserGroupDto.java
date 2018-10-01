@@ -28,10 +28,10 @@ import java.util.Set;
 
 @AllArgsConstructor
 @Getter
-public class UpdateRoleUserDto {
+public class UpdateUserGroupDto {
 
 	@NotEmpty
-	private final Set<String> roleIds;
+	private final String group;
 	@NotEmpty
 	private final Set<String> users;
 }

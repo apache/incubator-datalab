@@ -64,6 +64,7 @@ public class BaseDAO {
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
 	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 	protected static final String ADD_TO_SET = "$addToSet";
+	protected static final String UNSET_OPERATOR = "$unset";
 	private static final String PULL = "$pull";
 	private static final String PULL_ALL = "$pullAll";
 	private static final String EACH = "$each";
@@ -433,6 +434,10 @@ public class BaseDAO {
 
 	protected BasicDBObject addToSet(String columnName, Set<String> values) {
 		return new BasicDBObject(ADD_TO_SET, new BasicDBObject(columnName, new BasicDBObject(EACH, values)));
+	}
+
+	protected Bson unset(String columnName, String value) {
+		return new BasicDBObject(UNSET_OPERATOR, new BasicDBObject(columnName, value));
 	}
 
 	protected BasicDBObject pull(String columnName, String value) {

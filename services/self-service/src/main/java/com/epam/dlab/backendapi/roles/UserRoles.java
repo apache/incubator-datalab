@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.roles;
@@ -53,6 +52,7 @@ public class UserRoles {
 	 * List of roles.
 	 */
 	private List<UserRole> roles = null;
+	private Map<String, Set<String>> userGroups;
 
 	/**
 	 * Default access to features if the role is not defined.
@@ -134,6 +134,7 @@ public class UserRoles {
 					}
 				}
 			}
+			userGroups = dao.getGroups();
 		} catch (Exception e) {
 			throw new DlabException("Cannot load roles from database. " + e.getLocalizedMessage(), e);
 		}
@@ -188,7 +189,7 @@ public class UserRoles {
 	 */
 	private Set<String> getAndRemoveSet(Document document, String key) {
 		Object o = document.get(key);
-		if (o == null || !(o instanceof ArrayList)) {
+		if (!(o instanceof ArrayList)) {
 			return Collections.emptySet();
 		}
 
@@ -225,7 +226,6 @@ public class UserRoles {
 		if (role == null) {
 			return checkDefault(useDefault);
 		}
-		if (hasAccessByUserName(userInfo, role)) return true;
 		if (hasAccessByGroup(userInfo, role)) return true;
 		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
 		return false;
@@ -238,7 +238,8 @@ public class UserRoles {
 				return true;
 			}
 			for (String group : userInfo.getRoles()) {
-				if (group != null && groups.contains(group.toLowerCase())) {
+				if (group != null && (groups.contains(group.toLowerCase()) || userGroups.getOrDefault(group,
+						Collections.emptySet()).contains(userInfo.getName()))) {
 					LOGGER.trace("Got access by group {}", group);
 					return true;
 				}
