@@ -20,6 +20,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../shared/material.module';
 import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
+import { FormControlsModule } from '../shared/form-controls';
 import { HealthStatusComponent } from './health-status.component';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import {
@@ -29,8 +30,10 @@ import {
 
 import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
+import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialog } from './manage-roles-groups/manage-roles-groups.component';
 import { ToastModule } from 'ng2-toastr';
 
+import { FormsModule } from '@angular/forms';
 export * from './environment-status.model';
 
 @NgModule({
@@ -43,7 +46,9 @@ export * from './environment-status.model';
     ProgressDialogModule,
     BubbleModule,
     ConfirmationDialogModule,
+    FormControlsModule,
     MaterialModule,
+    FormsModule,
     ToastModule.forRoot()
   ],
   declarations: [
@@ -51,10 +56,12 @@ export * from './environment-status.model';
     BackupDilogComponent,
     ManageEnvironmentComponent,
     ConfirmActionDialog,
-    HealthStatusGridComponent,
-    SsnMonitorComponent
+    ConfirmDeleteUserAccountDialog,
+    SsnMonitorComponent,
+    ManageRolesGroupsComponent,
+    HealthStatusGridComponent
   ],
-  entryComponents: [ConfirmActionDialog],
+  entryComponents: [ConfirmActionDialog, ConfirmDeleteUserAccountDialog],
   exports: [HealthStatusComponent, HealthStatusGridComponent]
 })
 export class HealthStatusModule {}

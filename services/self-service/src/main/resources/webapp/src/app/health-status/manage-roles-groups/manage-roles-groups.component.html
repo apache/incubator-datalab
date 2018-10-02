@@ -1,0 +1,130 @@
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
+<modal-dialog #bindDialog modalClass="manage-roles-dialog modal-xl">
+  <modal-header>
+    <h4 class="modal-title">Manage roles</h4>
+  </modal-header>
+  <modal-content>
+    <div class="content-box">
+      <button mat-raised-button class="butt" (click)="stepperView = !stepperView">
+        <i class="material-icons">people_outline</i>Add group
+      </button>
+      <mat-horizontal-stepper #stepper *ngIf="stepperView" class="stepper ani">
+        <mat-step>
+          <ng-template matStepLabel>Groups</ng-template>
+          <div class="inner-step">
+            <input type="text" placeholder="Enter group name" [(ngModel)]="setupGroup" [pattern]="groupnamePattern" #setupGroupName="ngModel">
+            <div class="danger_color" *ngIf="setupGroupName.errors?.pattern && setupGroupName.touched">Group name can only contain letters, numbers, hyphens and '_'</div>
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button matStepperNext class="butt">Next<i class="material-icons">keyboard_arrow_right</i></button>
+          </div>
+        </mat-step>
+        <mat-step>
+          <ng-template matStepLabel>Roles</ng-template>
+          <div class="inner-step">
+            <div class="selector-wrapper">
+              <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'roles'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown>
+            </div>
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button matStepperPrevious class="butt"><i class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button matStepperNext class="butt">Next<i class="material-icons">keyboard_arrow_right</i></button>
+          </div>
+        </mat-step>
+        <mat-step>
+          <ng-template matStepLabel>Users</ng-template>
+          <div class="inner-step">
+            <input type="text" placeholder="Enter user login" [(ngModel)]="setupUser">
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button matStepperPrevious class="butt"><i class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button (click)="stepperView = false" class="butt">Cancel</button>
+            <button mat-raised-button (click)="resetDialog()" class="butt">Reset</button>
+            <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
+                    [disabled]="!setupGroup || setupGroupName.errors?.pattern || !setupUser || !setupRoles.length > 0">Create</button>
+          </div>
+        </mat-step>
+      </mat-horizontal-stepper>
+      <div *ngIf="groupsData.length" class="ani">
+        <mat-list>
+          <mat-list-item class="list-header">
+            <div class="groups">Groups</div>
+            <div class="roles">Role</div>
+            <div class="users">Users</div>
+          </mat-list-item>
+          <mat-accordion class="scrolling-content" id="scrolling" [ngClass]="{'stepper-opened': stepperView }">
+            <mat-expansion-panel *ngFor="let item of groupsData">
+              <mat-expansion-panel-header>
+                <div class="groups ellipsis">
+                  <div>{{ item.group }}</div>
+                </div>
+
+                <div class="roles ellipsis">
+                  <div *ngIf="item.roles; then roles_list else no_roles"></div>
+                  <ng-template #roles_list>
+                    <div class="ellipsis" matTooltip="{{ item.selected_roles }}" matTooltipPosition="above">
+                      <span *ngFor="let role of item.roles"><b> &#9642; </b>{{ role.description }}</span>
+                    </div>
+                  </ng-template> 
+                  <ng-template #no_roles><span class="no-details">no details</span></ng-template>
+                </div>
+
+                <div class="users ellipsis">
+                  <div *ngIf="item.users; then users_list else no_users"></div>
+
+                  <ng-template #users_list>
+                    <div class="ellipsis" matTooltip="{{item.users}}" matTooltipPosition="above">
+                      <span *ngFor="let user of item.users"><b> &#9642; </b>{{ user }}</span>
+                    </div>
+                  </ng-template>
+                  <ng-template #no_users><span class="no-details">no details</span></ng-template>
+                </div>
+              </mat-expansion-panel-header>
+
+              <div class="expanded-panel">
+                <div class="groups"></div>
+                <div class="roles">
+                  <div class="selector-wrapper-edit">
+                    <multi-select-dropdown (selectionChange)="onUpdate($event, item)" [type]="'update_roles'" [items]="rolesList" [model]="item.selected_roles"></multi-select-dropdown>
+                    <button class="caret" (click)="manageAction('update', 'roles', item, setupRoles)">
+                      <i class="material-icons">done</i>
+                    </button>
+                  </div>
+                </div>
+                <div class="users">
+                  <div *ngFor="let user of item.users" class="users-list">
+                    <span>{{ user }}</span>
+                    <i class="material-icons" (click)="manageAction('delete', 'users', item, user)">highlight_off</i>
+                  </div>
+                  <div class="add-input-block">
+                    <input type="text" placeholder="Enter user login" [(ngModel)]="manageUser">
+                    <button class="caret" (click)="manageAction('update', 'users', item, manageUser)" [ngClass]="{'not-allowed': !manageUser}">
+                      <i class="material-icons">done</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </mat-list>
+      </div>
+    </div>
+  </modal-content>
+</modal-dialog>
