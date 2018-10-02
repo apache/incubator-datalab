@@ -40,6 +40,5 @@ public class UserRoleDto {
 	@JsonProperty("exploratory_shapes")
 	private Set<String> exploratoryShapes;
 	private Set<String> groups;
-	private Set<String> users;
 
 }

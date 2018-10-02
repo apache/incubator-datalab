@@ -54,7 +54,6 @@ public class UserRoleResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(ROLE_ID, actualRoles.get(0).getId());
-		assertEquals(singleton(USER), actualRoles.get(0).getUsers());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(rolesService).getUserRoles();
@@ -79,7 +78,6 @@ public class UserRoleResourceTest extends TestBase {
 	private UserRoleDto getUserRole() {
 		final UserRoleDto userRoleDto = new UserRoleDto();
 		userRoleDto.setId(ROLE_ID);
-		userRoleDto.setUsers(singleton(USER));
 		return userRoleDto;
 	}
 

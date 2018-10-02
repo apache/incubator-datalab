@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @Getter
@@ -32,4 +33,5 @@ import java.util.List;
 public class UserGroupDto {
 	private final String group;
 	private final List<UserRoleDto> roles;
+	private final Set<String> users;
 }

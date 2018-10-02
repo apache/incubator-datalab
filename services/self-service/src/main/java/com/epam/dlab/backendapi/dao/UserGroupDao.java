@@ -6,4 +6,5 @@ public interface UserGroupDao {
 	void addUsers(String group, Set<String> users);
 
 	void removeUser(String group, String user);
+
 }
