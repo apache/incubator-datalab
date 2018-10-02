@@ -219,19 +219,24 @@ def create_subnet(vpc_id, subnet, tag):
 
 
 def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
-    ec2 = boto3.resource('ec2')
-    group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
-    time.sleep(10)
-    create_tag(group.id, tag)
     try:
-        group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
-    except:
-        print("Mentioned rule does not exist")
-    for rule in security_group_rules:
-        group.authorize_ingress(IpPermissions=[rule])
-    for rule in egress:
-        group.authorize_egress(IpPermissions=[rule])
-    return group.id
+        ec2 = boto3.resource('ec2')
+        group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
+        time.sleep(10)
+        create_tag(group.id, tag)
+        try:
+            group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
+        except:
+            print("Mentioned rule does not exist")
+        for rule in security_group_rules:
+            group.authorize_ingress(IpPermissions=[rule])
+        for rule in egress:
+            group.authorize_egress(IpPermissions=[rule])
+        return group.id
+    except Exception as err:
+        logging.info("Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create security group", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 
 def enable_auto_assign_ip(subnet_id):

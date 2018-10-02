@@ -275,7 +275,7 @@ if __name__ == "__main__":
         ]
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
             --egress '{}' --force {} --nb_sg_name {} --resource {}".\
-            format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(edge_sg_ingress),
+            format(edge_conf['edge_security_group_name'], edge_conf['vpc2_id'], json.dumps(edge_sg_ingress),
                    edge_conf['service_base_name'], edge_conf['instance_name'], json.dumps(edge_sg_egress),
                    True, edge_conf['notebook_instance_name'], 'edge')
         try:
@@ -352,7 +352,7 @@ if __name__ == "__main__":
         ]
 
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
-            format(edge_conf['notebook_security_group_name'], edge_conf['vpc_id'], json.dumps(private_sg_ingress),
+            format(edge_conf['notebook_security_group_name'], edge_conf['vpc2_id'], json.dumps(private_sg_ingress),
                    json.dumps(private_sg_egress), edge_conf['service_base_name'], edge_conf['notebook_instance_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -375,7 +375,7 @@ if __name__ == "__main__":
     print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
-            format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc_id'],
+            format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc2_id'],
                    json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
@@ -395,7 +395,7 @@ if __name__ == "__main__":
     print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
-            format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc_id'],
+            format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc2_id'],
                    json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
