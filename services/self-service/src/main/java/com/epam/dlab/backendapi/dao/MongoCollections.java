@@ -50,6 +50,8 @@ public class MongoCollections {
 	 */
 	public static final String BACKUPS = "backup";
 
+	public static final String USER_GROUPS = "userGroups";
+
 	private MongoCollections() {
 	}
 }

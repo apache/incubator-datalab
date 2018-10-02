@@ -247,7 +247,7 @@ public class UserGroupResourceTest extends TestBase {
 	}
 
 	private UserGroupDto getUserGroup() {
-		return new UserGroupDto(GROUP, Collections.emptyList());
+		return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
 	}
 
 	private CreateGroupDto getCreateGroupDto(String group, Set<String> roleIds) {

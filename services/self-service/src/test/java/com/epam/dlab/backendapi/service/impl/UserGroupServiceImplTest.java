@@ -23,7 +23,6 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
-import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -148,13 +147,7 @@ public class UserGroupServiceImplTest {
 		userRolesService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 	}
 
-	private UserRoleDto getUserRole() {
-		final UserRoleDto userRoleDto = new UserRoleDto();
-		userRoleDto.setId(ROLE_ID);
-		return userRoleDto;
-	}
-
 	private UserGroupDto getUserGroup() {
-		return new UserGroupDto(GROUP, Collections.emptyList());
+		return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
 	}
 }

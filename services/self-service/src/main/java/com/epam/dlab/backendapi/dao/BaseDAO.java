@@ -68,6 +68,7 @@ public class BaseDAO {
 	private static final String PULL = "$pull";
 	private static final String PULL_ALL = "$pullAll";
 	private static final String EACH = "$each";
+	private static final String ELEMENT_AT_OPERATOR = "$arrayElemAt";
 
 	@Inject
 	protected MongoService mongoService;
@@ -379,19 +380,6 @@ public class BaseDAO {
 	}
 
 	/**
-	 * Aggregates and returns one document according to the specified aggregation pipeline.
-	 *
-	 * @param collection collection name.
-	 * @param pipeline   the aggregate pipeline.
-	 * @throws DlabException if have more than one aggregated documents.
-	 */
-	Optional<Document> aggregateOne(String collection,
-									List<? extends Bson> pipeline) {
-		MongoIterable<Document> found = aggregate(collection, pipeline);
-		return limitOne(found);
-	}
-
-	/**
 	 * Deserializes given document to object and returns it.
 	 *
 	 * @param document element from database
@@ -446,6 +434,10 @@ public class BaseDAO {
 
 	protected BasicDBObject pullAll(String columnName, Set<String> values) {
 		return new BasicDBObject(PULL_ALL, new BasicDBObject(columnName, values));
+	}
+
+	protected Document elementAt(String arrayColumnName, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList("$" + arrayColumnName, index));
 	}
 
 

@@ -4,12 +4,12 @@ import com.google.inject.Singleton;
 
 import java.util.Set;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
 import static com.mongodb.client.model.Filters.eq;
 
 @Singleton
 public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
 
-	private static final String USER_GROUPS = "userGroups";
 	private static final String USERS_FIELD = "users";
 
 	@Override

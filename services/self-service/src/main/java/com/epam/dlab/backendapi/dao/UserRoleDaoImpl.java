@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static java.util.stream.Collectors.toList;
@@ -47,6 +48,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private static final String PAGES_FIELD = "pages";
 	private static final String EXPLORATORIES_FIELD = "exploratories";
 	private static final String COMPUTATIONALS_FIELD = "computationals";
+	private static final String GROUP_INFO = "groupInfo";
 
 
 	@Override
@@ -92,8 +94,12 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	public List<UserGroupDto> aggregateRolesByGroup() {
 		final Document role = roleDocument();
 		final Bson groupBy = group(GROUPS, new BsonField(ROLES, new Document(ADD_TO_SET, role)));
-		final List<Bson> pipeline = Arrays.asList(unwind(GROUPS), groupBy,
-				project(new Document(GROUP, "$" + ID).append(ROLES, "$" + ROLES)));
+		final Bson lookup = lookup(USER_GROUPS, ID, ID, GROUP_INFO);
+		final List<Bson> pipeline = Arrays.asList(unwind(GROUPS), groupBy, lookup,
+				project(new Document(GROUP, "$" + ID).append(GROUP_INFO, elementAt(GROUP_INFO, 0))
+						.append(ROLES, "$" + ROLES)),
+				project(new Document(GROUP, "$" + ID).append(USERS_FIELD, "$" + GROUP_INFO + "." + USERS_FIELD)
+						.append(ROLES, "$" + ROLES)));
 
 		return stream(aggregate(MongoCollections.ROLES, pipeline))
 				.map(d -> convertFromDocument(d, UserGroupDto.class))
