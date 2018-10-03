@@ -20,7 +20,6 @@ import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,7 +29,6 @@ import java.util.Map;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserComputationalResource {
 	@JsonProperty("computational_name")
@@ -57,4 +55,26 @@ public class UserComputationalResource {
 	private boolean checkInactivityRequired;
 	@JsonProperty("config")
 	private Map<String, Object> config;
+	@JsonProperty("master_node_shape")
+	private String masterNodeShape;
+	@JsonProperty("dataengine_instance_shape")
+	private String dataengineShape;
+
+	public UserComputationalResource(String computationalName, String computationalId, String imageName,
+									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
+									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl, Date lastActivity,
+									 boolean checkInactivityRequired, Map<String, Object> config) {
+		this.computationalName = computationalName;
+		this.computationalId = computationalId;
+		this.imageName = imageName;
+		this.templateName = templateName;
+		this.status = status;
+		this.uptime = uptime;
+		this.schedulerData = schedulerData;
+		this.reuploadKeyRequired = reuploadKeyRequired;
+		this.resourceUrl = resourceUrl;
+		this.lastActivity = lastActivity;
+		this.checkInactivityRequired = checkInactivityRequired;
+		this.config = config;
+	}
 }
