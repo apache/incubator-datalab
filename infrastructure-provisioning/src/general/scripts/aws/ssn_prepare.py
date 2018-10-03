@@ -176,6 +176,29 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         try:
+            if os.environ['conf_duo_vpc_enable'] == 'true' and os.environ['aws_subnet2_id'] and os.environ['aws_subnet_id']:
+                raise KeyError
+        except KeyError:
+            try:
+                logging.info('[CREATE PEERING CONNECTION]')
+                print('[CREATE PEERING CONNECTION]')
+                os.environ['peering_id'] = create_peering_connection(os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], os.environ['aws_subnet_id'], os.environ['aws_subnet2_id'], service_base_name)
+                print('PEERING CONNECTION ID:' + os.environ['peering_id'])
+            except Exception as err:
+                append_result("Failed to create peering connection.", str(err))
+                if pre_defined_vpc:
+                    remove_route_tables(tag_name, True)
+                    try:
+                        remove_subnets(service_base_name + "-subnet")
+                    except:
+                        print("Subnet hasn't been created.")
+                    remove_vpc(os.environ['aws_vpc_id'])
+                if pre_defined_vpc2:
+                    remove_route_tables(tag2_name, True)
+                    remove_vpc(os.environ['aws_vpc2_id'])
+                sys.exit(1)
+
+        try:
             if os.environ['aws_security_groups_ids'] == '':
                 raise KeyError
         except KeyError:

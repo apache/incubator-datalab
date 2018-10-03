@@ -238,6 +238,27 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
         append_result(str({"error": "Unable to create security group", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def create_peering_connection(vpc_id, vpc2_id, subnet, subnet2, tag):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        peer_r = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
+        peering_id = peer_r.get('VpcPeeringConnection').get('VpcPeeringConnectionId')
+        client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
+        client.modify_vpc_peering_connection_options(
+            AccepterPeeringConnectionOptions={
+                'AllowDnsResolutionFromRemoteVpc': True,
+            },
+            RequesterPeeringConnectionOptions={
+                'AllowDnsResolutionFromRemoteVpc': True,
+            },
+            VpcPeeringConnectionId=peering_id
+        )
+        return peering_id
+    except Exception as err:
+        logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def enable_auto_assign_ip(subnet_id):
     try:
