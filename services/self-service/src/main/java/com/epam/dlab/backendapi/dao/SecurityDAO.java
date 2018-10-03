@@ -62,7 +62,7 @@ public class SecurityDAO extends BaseDAO {
 
 	public Map<String, Set<String>> getGroups() {
 		return stream(find("userGroups"))
-				.collect(Collectors.toMap(d -> d.getString(ID), this::toUsers));
+				.collect(Collectors.toMap(d -> d.getString(ID).toLowerCase(), this::toUsers));
 
 	}
 

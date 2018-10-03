@@ -16,19 +16,26 @@
 
 package com.epam.dlab.rest.mappers;
 
-import com.epam.dlab.exceptions.DlabValidationException;
 import com.epam.dlab.rest.dto.ErrorDTO;
+import io.dropwizard.jersey.validation.ConstraintMessage;
+import io.dropwizard.jersey.validation.JerseyViolationException;
+import org.glassfish.jersey.server.model.Invocable;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import java.util.stream.Collectors;
 
-public class ValidationExceptionMapper implements ExceptionMapper<DlabValidationException> {
+public class ValidationExceptionMapper implements ExceptionMapper<JerseyViolationException> {
 	@Override
-	public Response toResponse(DlabValidationException exception) {
-		final Response.Status badRequest = Response.Status.BAD_REQUEST;
-		return Response.status(badRequest)
-				.entity(new ErrorDTO(badRequest.getStatusCode(), exception.getMessage()))
+	public Response toResponse(JerseyViolationException exception) {
+		Invocable invocable = exception.getInvocable();
+		final String errors =
+				exception.getConstraintViolations()
+						.stream().map(violation -> ConstraintMessage.getMessage(violation, invocable))
+						.collect(Collectors.joining());
+		return Response.status(Response.Status.BAD_REQUEST)
+				.entity(new ErrorDTO(Response.Status.BAD_REQUEST.getStatusCode(), errors))
 				.type(MediaType.APPLICATION_JSON)
 				.build();
 	}

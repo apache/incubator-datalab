@@ -238,11 +238,19 @@ public class UserRoles {
 				return true;
 			}
 			for (String group : userInfo.getRoles()) {
-				if (group != null && (groups.contains(group.toLowerCase()) || userGroups.getOrDefault(group,
-						Collections.emptySet()).contains(userInfo.getName()))) {
+				if (group != null && groups.contains(group.toLowerCase())) {
 					LOGGER.trace("Got access by group {}", group);
 					return true;
 				}
+			}
+
+			final Optional<String> group = role.getGroups()
+					.stream()
+					.filter(g -> userGroups.getOrDefault(g, Collections.emptySet()).contains(userInfo.getName()))
+					.findAny();
+			if (group.isPresent()) {
+				LOGGER.trace("Got access by local group {}", group.get());
+				return true;
 			}
 		}
 		return false;

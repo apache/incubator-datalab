@@ -1,27 +1,7 @@
 [
   {
-    "_id": "_Example",
-    "description": "Example role",
-    "exploratories": [
-      "comma separated list of exploratories image names from description.json",
-      "explorartory image name"
-    ],
-    "computationals": [
-      "comma separated list of computationals image names from description.json",
-      "computational image name"
-    ],
-    "groups": [
-      "comma separated list of the external group's names in lower case",
-      "other group"
-    ],
-    "users": [
-      "comma separated list of the DLab's users in lower case",
-      "example@user"
-    ]
-  },
-  {
     "_id": "nbShapes_p2.xlarge_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use p2.xlarge instance shape",
     "exploratory_shapes": [
       "p2.xlarge"
     ],
@@ -31,7 +11,7 @@
   },
   {
     "_id": "nbShapes_t2.medium_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use t2.medium instance shape",
     "exploratory_shapes": [
       "t2.medium"
     ],
@@ -41,7 +21,7 @@
   },
   {
     "_id": "nbShapes_r3.xlarge_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use r3.xlarge instance shape",
     "exploratory_shapes": [
       "r3.xlarge"
     ],
@@ -51,7 +31,7 @@
   },
   {
     "_id": "nbShapes_r4.2xlarge_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use r4.2xlarge instance shape",
     "exploratory_shapes": [
       "r4.2xlarge"
     ],
@@ -61,7 +41,7 @@
   },
   {
     "_id": "nbShapes_r3.4xlarge_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use r3.4xlarge instance shape",
     "exploratory_shapes": [
       "r3.4xlarge"
     ],
@@ -71,7 +51,7 @@
   },
   {
     "_id": "nbShapes_r3.8xlarge_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use r3.8xlarge instance shape",
     "exploratory_shapes": [
       "r3.8xlarge"
     ],
@@ -81,7 +61,7 @@
   },
   {
     "_id": "nbShapes_c4.large_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use c4.large instance shape",
     "exploratory_shapes": [
       "c4.large"
     ],
@@ -91,7 +71,7 @@
   },
   {
     "_id": "nbShapes_c4.2xlarge_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use c4.2xlarge instance shape",
     "exploratory_shapes": [
       "c4.2xlarge"
     ],
@@ -101,7 +81,7 @@
   },
   {
     "_id": "nbShapes_c4.8xlarge_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use c4.8xlarge instance shape",
     "exploratory_shapes": [
       "c4.8xlarge"
     ],
@@ -111,7 +91,7 @@
   },
   {
     "_id": "nbShapes_n1-standard-1_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-standard-1 instance shape",
     "exploratory_shapes": [
       "n1-standard-1"
     ],
@@ -121,7 +101,7 @@
   },
   {
     "_id": "nbShapes_n1-standard-2_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-standard-2 instance shape",
     "exploratory_shapes": [
       "n1-standard-2"
     ],
@@ -131,7 +111,7 @@
   },
   {
     "_id": "nbShapes_n1-highcpu-2_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-highcpu-2 instance shape",
     "exploratory_shapes": [
       "n1-highcpu-2"
     ],
@@ -141,7 +121,7 @@
   },
   {
     "_id": "nbShapes_n1-highcpu-8_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-highcpu-8 instance shape",
     "exploratory_shapes": [
       "n1-highcpu-8"
     ],
@@ -151,7 +131,7 @@
   },
   {
     "_id": "nbShapes_n1-highcpu-32_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-highcpu-32 instance shape",
     "exploratory_shapes": [
       "n1-highcpu-32"
     ],
@@ -161,7 +141,7 @@
   },
   {
     "_id": "nbShapes_n1-highmem-4_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-highmem-4 instance shape",
     "exploratory_shapes": [
       "n1-highmem-4"
     ],
@@ -171,7 +151,7 @@
   },
   {
     "_id": "nbShapes_n1-highmem-16_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-highmem-16 instance shape",
     "exploratory_shapes": [
       "n1-highmem-16"
     ],
@@ -181,7 +161,7 @@
   },
   {
     "_id": "nbShapes_n1-highmem-32_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use n1-highmem-32 instance shape",
     "exploratory_shapes": [
       "n1-highmem-32"
     ],
@@ -191,7 +171,7 @@
   },
   {
     "_id": "nbShapes_Standard_NC6_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use Standard_NC6 instance shape",
     "exploratory_shapes": [
       "Standard_NC6"
     ],
@@ -201,7 +181,7 @@
   },
   {
     "_id": "nbShapes_Standard_E4s_v3_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use Standard_E4s_v3 instance shape",
     "exploratory_shapes": [
       "Standard_E4s_v3"
     ],
@@ -211,7 +191,7 @@
   },
   {
     "_id": "nbShapes_Standard_E16s_v3_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use Standard_E16s_v3 instance shape",
     "exploratory_shapes": [
       "Standard_E16s_v3"
     ],
@@ -221,7 +201,7 @@
   },
   {
     "_id": "nbShapes_Standard_E32s_v3_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use Standard_E32s_v3 instance shape",
     "exploratory_shapes": [
       "Standard_E32s_v3"
     ],
@@ -231,7 +211,7 @@
   },
   {
     "_id": "nbShapes_Standard_F2s_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use Standard_F2s instance shape",
     "exploratory_shapes": [
       "Standard_F2s"
     ],
@@ -241,7 +221,7 @@
   },
   {
     "_id": "nbShapes_Standard_F8s_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use Standard_F8s instance shape",
     "exploratory_shapes": [
       "Standard_F8s"
     ],
@@ -251,7 +231,7 @@
   },
   {
     "_id": "nbShapes_Standard_F16s_fetching",
-    "description": "Fetch notebook shapes",
+    "description": "Allow to use Standard_F16s instance shape",
     "exploratory_shapes": [
       "Standard_F16s"
     ],
@@ -337,8 +317,6 @@
     ],
     "groups": [
       "$anyuser"
-    ],
-    "users": [
     ]
   },
   {
@@ -351,8 +329,6 @@
     ],
     "groups": [
       "$anyuser"
-    ],
-    "users": [
     ]
   }
 ]
