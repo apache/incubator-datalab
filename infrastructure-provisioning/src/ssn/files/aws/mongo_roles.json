@@ -90,156 +90,6 @@
     ]
   },
   {
-    "_id": "nbShapes_n1-standard-1_fetching",
-    "description": "Allow to use n1-standard-1 instance shape",
-    "exploratory_shapes": [
-      "n1-standard-1"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_n1-standard-2_fetching",
-    "description": "Allow to use n1-standard-2 instance shape",
-    "exploratory_shapes": [
-      "n1-standard-2"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_n1-highcpu-2_fetching",
-    "description": "Allow to use n1-highcpu-2 instance shape",
-    "exploratory_shapes": [
-      "n1-highcpu-2"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_n1-highcpu-8_fetching",
-    "description": "Allow to use n1-highcpu-8 instance shape",
-    "exploratory_shapes": [
-      "n1-highcpu-8"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_n1-highcpu-32_fetching",
-    "description": "Allow to use n1-highcpu-32 instance shape",
-    "exploratory_shapes": [
-      "n1-highcpu-32"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_n1-highmem-4_fetching",
-    "description": "Allow to use n1-highmem-4 instance shape",
-    "exploratory_shapes": [
-      "n1-highmem-4"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_n1-highmem-16_fetching",
-    "description": "Allow to use n1-highmem-16 instance shape",
-    "exploratory_shapes": [
-      "n1-highmem-16"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_n1-highmem-32_fetching",
-    "description": "Allow to use n1-highmem-32 instance shape",
-    "exploratory_shapes": [
-      "n1-highmem-32"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_Standard_NC6_fetching",
-    "description": "Allow to use Standard_NC6 instance shape",
-    "exploratory_shapes": [
-      "Standard_NC6"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_Standard_E4s_v3_fetching",
-    "description": "Allow to use Standard_E4s_v3 instance shape",
-    "exploratory_shapes": [
-      "Standard_E4s_v3"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_Standard_E16s_v3_fetching",
-    "description": "Allow to use Standard_E16s_v3 instance shape",
-    "exploratory_shapes": [
-      "Standard_E16s_v3"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_Standard_E32s_v3_fetching",
-    "description": "Allow to use Standard_E32s_v3 instance shape",
-    "exploratory_shapes": [
-      "Standard_E32s_v3"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_Standard_F2s_fetching",
-    "description": "Allow to use Standard_F2s instance shape",
-    "exploratory_shapes": [
-      "Standard_F2s"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_Standard_F8s_fetching",
-    "description": "Allow to use Standard_F8s instance shape",
-    "exploratory_shapes": [
-      "Standard_F8s"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbShapes_Standard_F16s_fetching",
-    "description": "Allow to use Standard_F16s instance shape",
-    "exploratory_shapes": [
-      "Standard_F16s"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
     "_id": "nbCreateDeeplearning",
     "description": "Create Notebook Deep Learning",
     "exploratories": [
@@ -284,6 +134,16 @@
     "description": "Create Notebook Zeppelin",
     "exploratories": [
       "docker.dlab-zeppelin"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateTensorRstudio",
+    "description": "Create Notebook Tensor with Rstudio",
+    "exploratories": [
+      "docker.dlab-tensor-rstudio"
     ],
     "groups": [
       "$anyuser"
