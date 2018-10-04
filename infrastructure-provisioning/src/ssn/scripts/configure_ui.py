@@ -109,7 +109,7 @@ def configure_mongo(mongo_passwd):
         local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/configure_mongo.py ' + args.dlab_path + 'tmp/')
-        local('scp -i {} /root/files/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
+        local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile, args.cloud_provider,
                                                                                              env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
         mongo_parameters = json.loads(args.mongo_parameters)
