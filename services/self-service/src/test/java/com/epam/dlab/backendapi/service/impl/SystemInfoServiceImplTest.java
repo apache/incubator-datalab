@@ -87,13 +87,9 @@ public class SystemInfoServiceImplTest {
 		assertEquals(PROCESSOR_MODEL, systemInfo.getProcessorInfo().getModel());
 		assertEquals(AVAILABLE_MEMORY, systemInfo.getMemoryInfo().getAvailableMemory());
 		assertEquals(1, systemInfo.getDisksInfo().size());
-		assertEquals(USABLE_SPACE, systemInfo.getDisksInfo().get(0).getUsedByteSpace());
-		assertEquals(TOTAL_SPACE, systemInfo.getDisksInfo().get(0).getTotalByteSpace());
 
 		verify(si).getOperatingSystem();
 		verify(si).getHardware();
-		verify(os).getFileSystem();
-		verify(fileSystem).getFileStores();
 		verifyNoMoreInteractions(si, fileSystem);
 	}
 }
