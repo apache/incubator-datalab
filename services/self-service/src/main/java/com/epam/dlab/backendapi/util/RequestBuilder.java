@@ -66,7 +66,6 @@ import com.epam.dlab.util.UsernameUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -305,14 +304,15 @@ public class RequestBuilder {
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds());
 	}
 
-	public LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
+	public LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
+										   List<LibInstallDTO> libs) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
-				.withLibs(new ArrayList<>());
+				.withLibs(libs);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -328,7 +328,8 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
-														 UserComputationalResource computationalResource) {
+														 UserComputationalResource computationalResource,
+														 List<LibInstallDTO> libs) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
@@ -336,7 +337,7 @@ public class RequestBuilder {
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withComputationalImage(computationalResource.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withLibs(new ArrayList<>());
+				.withLibs(libs);
 	}
 
 	@SuppressWarnings("unchecked")
