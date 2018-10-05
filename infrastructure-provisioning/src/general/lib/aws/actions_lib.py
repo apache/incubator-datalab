@@ -240,13 +240,14 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
 
 
 def create_peer_routes(peering_id, service_base_name):
+    client = boto3.client('ec2')
     try:
         route_tables = client.describe_route_tables(
             Filters=[{'Name': 'tag:{}-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
         route_tables2 = client.describe_route_tables(Filters=[
             {'Name': 'tag:{}-secondary-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
         for table in route_tables:
-            routes = client.describe_route_tables(RouteTableIds=table.get('RouteTableId')).get('RouteTables')[0].get('Routes')
+            routes = table.get('Routes')
             routeExists=False
             for route in routes:
                 if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
