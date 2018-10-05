@@ -182,8 +182,9 @@ if __name__ == "__main__":
             try:
                 logging.info('[CREATE PEERING CONNECTION]')
                 print('[CREATE PEERING CONNECTION]')
-                os.environ['peering_id'] = create_peering_connection(os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], os.environ['aws_subnet_id'], os.environ['aws_subnet2_id'], service_base_name)
-                print('PEERING CONNECTION ID:' + os.environ['peering_id'])
+                os.environ['aws_peering_id'] = create_peering_connection(os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], service_base_name)
+                create_peer_routes(os.environ['aws_peering_id'], service_base_name)
+                print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
             except Exception as err:
                 append_result("Failed to create peering connection.", str(err))
                 if pre_defined_vpc:

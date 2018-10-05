@@ -42,6 +42,7 @@ parser.add_argument('--conf_cloud_provider', type=str, default='',
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--conf_duo_vpc_enable', type=str, default='false', help='Duo VPC scheme enable(true|false)')
 parser.add_argument('--aws_vpc2_id', type=str, default='', help='Secondary AWS VPC ID')
+parser.add_argument('--aws_peering_id', type=str, default='', help='Amazon peering connection id')
 parser.add_argument('--azure_vpc_name', type=str, default='', help='Azure VPC Name')
 parser.add_argument('--gcp_vpc_name', type=str, default='', help='GCP VPC Name')
 parser.add_argument('--aws_subnet_id', type=str, default='', help='AWS Subnet ID')

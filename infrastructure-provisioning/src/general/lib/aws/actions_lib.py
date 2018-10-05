@@ -238,13 +238,48 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
         append_result(str({"error": "Unable to create security group", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-def create_peering_connection(vpc_id, vpc2_id, subnet, subnet2, tag):
+
+def create_peer_routes(peering_id, service_base_name):
+    try:
+        route_tables = client.describe_route_tables(
+            Filters=[{'Name': 'tag:{}-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+        route_tables2 = client.describe_route_tables(Filters=[
+            {'Name': 'tag:{}-secondary-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+        for table in route_tables:
+            routes = client.describe_route_tables(RouteTableIds=table.get('RouteTableId')).get('RouteTables')[0].get('Routes')
+            routeExists=False
+            for route in routes:
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock=os.environ['conf_vpc2_cidr'].replace("'", ""),
+                    VpcPeeringConnectionId=peering_id,
+                    RouteTableId=table.get('RouteTableId'))
+        for table in route_tables2:
+            routeExists=False
+            for route in routes:
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock=os.environ['conf_vpc_cidr'].replace("'", ""),
+                    VpcPeeringConnectionId=peering_id,
+                    RouteTableId=table.get('RouteTableId'))
+    except Exception as err:
+        logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create route",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_peering_connection(vpc_id, vpc2_id, service_base_name):
     try:
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
-        peer_r = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
-        peering_id = peer_r.get('VpcPeeringConnection').get('VpcPeeringConnectionId')
-        client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
+        tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
+        client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
         client.modify_vpc_peering_connection_options(
             AccepterPeeringConnectionOptions={
                 'AllowDnsResolutionFromRemoteVpc': True,
@@ -252,13 +287,15 @@ def create_peering_connection(vpc_id, vpc2_id, subnet, subnet2, tag):
             RequesterPeeringConnectionOptions={
                 'AllowDnsResolutionFromRemoteVpc': True,
             },
-            VpcPeeringConnectionId=peering_id
+            VpcPeeringConnectionId=peering.id
         )
-        return peering_id
+        create_tag(peering.id, json.dumps(tag))
+        return peering.id
     except Exception as err:
         logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 
 def enable_auto_assign_ip(subnet_id):
     try:
@@ -266,8 +303,7 @@ def enable_auto_assign_ip(subnet_id):
         client.modify_subnet_attribute(MapPublicIpOnLaunch={'Value': True}, SubnetId=subnet_id)
     except Exception as err:
         logging.info("Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Subnet",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create Subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
