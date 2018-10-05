@@ -60,6 +60,26 @@
     ]
   },
   {
+    "_id": "nbShapes_n1-standard-1_fetching",
+    "description": "Allow to use n1-standard-1 instance shape",
+    "exploratory_shapes": [
+      "n1-standard-1"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-standard-2_fetching",
+    "description": "Allow to use n1-standard-2 instance shape",
+    "exploratory_shapes": [
+      "n1-standard-2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateDeeplearning",
     "description": "Create Notebook Deep Learning",
     "exploratories": [
@@ -91,7 +111,7 @@
   },
   {
     "_id": "nbCreateTensor",
-    "description": "Create Notebook Tensor Flow",
+    "description": "Create Notebook TensorFlow",
     "exploratories": [
       "docker.dlab-tensor"
     ],
@@ -101,7 +121,7 @@
   },
   {
     "_id": "nbCreateZeppelin",
-    "description": "Create Notebook Zeppelin",
+    "description": "Create Notebook Apache Zeppelin",
     "exploratories": [
       "docker.dlab-zeppelin"
     ],
@@ -124,16 +144,6 @@
     "description": "Create Data Engine Service",
     "computationals": [
       "docker.dlab-dataengine-service"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbBillingReportFull",
-    "description": "View full billing report for all users",
-    "pages": [
-      "/api/infrastructure_provision/billing"
     ],
     "groups": [
       "$anyuser"
