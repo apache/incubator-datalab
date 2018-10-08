@@ -40,7 +40,7 @@ export class ManageRolesGroupsComponent {
   public setupRoles: Array<string> = [];
   public updatedRoles: Array<string> = [];
   public delimitersRegex = /[-_]?/g;
-  public groupnamePattern = new RegExp(/^[a-zA-Z_\-]+$/);
+  public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
 
   @ViewChild('bindDialog') bindDialog;
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
@@ -75,7 +75,7 @@ export class ManageRolesGroupsComponent {
       this.manageRolesGroupAction.emit(
         { action, type, value: {
           name: this.setupGroup,
-          users: this.setupUser.split(',').map(item => item.trim()),
+          users: this.setupUser ? this.setupUser.split(',').map(item => item.trim()) : [],
           roleIds: this.extractIds(this.roles, this.setupRoles)
         }
       });
