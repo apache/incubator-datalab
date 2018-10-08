@@ -138,6 +138,7 @@ export class ManageRolesGroupsComponent {
   }
 
   public resetDialog() {
+    this.stepperView = false;
     this.setupGroup = '';
     this.setupUser = '';
     this.manageUser = '';
