@@ -153,10 +153,18 @@ export class HealthStatusComponent implements OnInit {
         }
         break;
       case 'delete':
-        this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
-          this.toastr.success('Users was successfully deleted!', 'Success!', { toastLife: 5000 });
-          this.getGroupsData();
-        }, () => this.toastr.error('Failed users deleting!', 'Oops!', { toastLife: 5000 }));
+        if ($event.type === 'users') {
+          this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
+            this.toastr.success('Users was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed users deleting!', 'Oops!', { toastLife: 5000 }));
+        } else if ($event.type === 'group') {
+          console.log('delete group');
+          this.rolesService.removeGroupById($event.value).subscribe(res => {
+            this.toastr.success('Group was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed group deleting!', 'Oops!', { toastLife: 5000 }));
+        }
         break;
       default:
     }

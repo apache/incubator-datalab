@@ -136,3 +136,59 @@ font-weight: 400;
 .mat-focused .mat-form-field-label {
   color: #36afd5;
 }
+
+.break-tooltip {
+  white-space: pre-line !important;
+  word-break: break-all;
+}
+.manage-roles-dialog {
+  .mat-input-wrapper {
+    &.mat-form-field-wrapper {
+      overflow: hidden;
+      .mat-input-infix.mat-form-field-infix {
+        width: 285px;
+        border: 0;
+        line-height: 1.5;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 300;
+        .mat-select-value-text {
+          span {
+            padding: 0 10px;
+            color: #607D8B;
+          }
+        }
+      }
+      .mat-form-field-underline {
+        display: none;
+      }
+      .mat-select-arrow {
+        color: transparent !important;
+      }
+      .mat-select{
+        &:focus {
+          .mat-input-underline {
+            .mat-input-ripple {
+              background-color: transparent !important;
+            }
+          }
+          &:not(.mat-select-disabled) {
+            .mat-select-arrow {
+              color: transparent ;
+            }
+          }
+        } 
+      }
+    }
+    .mat-input-wrapper.mat-form-field-wrapper .mat-form-field-underline {
+      display: none;
+    }
+  }
+}
+
+
+.mat-primary {
+  .mat-pseudo-checkbox-checked {
+    background: #00BCD4;
+  }
+}
