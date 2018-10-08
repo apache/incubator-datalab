@@ -21,4 +21,9 @@ public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
 	public void removeUser(String group, String user) {
 		updateOne(USER_GROUPS, eq(ID, group), pull(USERS_FIELD, user));
 	}
+
+	@Override
+	public void removeGroup(String groupId) {
+		deleteOne(USER_GROUPS, eq(ID, groupId));
+	}
 }

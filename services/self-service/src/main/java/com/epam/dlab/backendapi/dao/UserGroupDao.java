@@ -7,4 +7,6 @@ public interface UserGroupDao {
 
 	void removeUser(String group, String user);
 
+	void removeGroup(String groupId);
+
 }

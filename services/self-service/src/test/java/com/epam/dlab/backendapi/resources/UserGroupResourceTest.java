@@ -175,6 +175,21 @@ public class UserGroupResourceTest extends TestBase {
 	}
 
 	@Test
+	public void deleteGroup() {
+		final Response response = resources.getJerseyTest()
+				.target("/group/" + GROUP)
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.delete();
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+
+
+		verify(rolesService).removeGroup(GROUP);
+		verifyNoMoreInteractions(rolesService);
+	}
+
+	@Test
 	public void deleteGroupFromRoleWithValidationException() {
 		final Response response = resources.getJerseyTest()
 				.target("/group/role")
