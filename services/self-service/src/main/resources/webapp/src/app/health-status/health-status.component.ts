@@ -124,7 +124,7 @@ export class HealthStatusComponent implements OnInit {
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
             this.manageEnvironmentDialog.usersList = usersList;
-            this.toastr.success(`Action ${event.action } is processing!`, 'Success!', { toastLife: 5000 });
+            this.toastr.success(`Action ${event.action } is processing!`, 'Processing!', { toastLife: 5000 });
             this.buildGrid();
           });
         },

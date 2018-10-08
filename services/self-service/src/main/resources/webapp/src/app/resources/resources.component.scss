@@ -20,14 +20,16 @@ limitations under the License.
   outline: none;
 }
 
-.butt.butt-create {
-  color: #35afd5;
-}
-
-.butt.butt-create:disabled{
-  color: #577289!important;
-}
-
-.butt.butt-tool {
-  margin-right: 10px;
+.butt {
+  &.butt-create {
+    color: #35afd5;
+  }
+  &.butt-create {
+    &:disabled{
+      color: #577289!important;
+    }
+  }
+  &.butt-tool {
+    margin-right: 10px;
+  }
 }
