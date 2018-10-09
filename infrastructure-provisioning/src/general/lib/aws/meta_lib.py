@@ -334,7 +334,7 @@ def get_peering_by_tag(tag_name, tag_value):
     try:
         client = boto3.client('ec2')
         peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
-                                                                   {'Name': 'status-code', 'Values': 'active'}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
+                                                                   {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
         return peering_id
     except Exception as err:
         logging.error("Error with getting peering connection ID by tag: " + str(err) + "\n Traceback: " + traceback.print_exc(
