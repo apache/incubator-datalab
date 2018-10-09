@@ -453,6 +453,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildRemoveGroupById(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 

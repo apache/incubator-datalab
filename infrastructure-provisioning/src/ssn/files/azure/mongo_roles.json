@@ -50,6 +50,16 @@
     ]
   },
   {
+    "_id": "nbShapes_Standard_F4s_fetching",
+    "description": "Allow to use Standard_F4s instance shape",
+    "exploratory_shapes": [
+      "Standard_F4s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbShapes_Standard_F8s_fetching",
     "description": "Allow to use Standard_F8s instance shape",
     "exploratory_shapes": [
@@ -101,7 +111,7 @@
   },
   {
     "_id": "nbCreateTensor",
-    "description": "Create Notebook Tensor Flow",
+    "description": "Create Notebook TensorFlow",
     "exploratories": [
       "docker.dlab-tensor"
     ],
@@ -111,7 +121,7 @@
   },
   {
     "_id": "nbCreateZeppelin",
-    "description": "Create Notebook Zeppelin",
+    "description": "Create Notebook Apache Zeppelin",
     "exploratories": [
       "docker.dlab-zeppelin"
     ],
@@ -124,16 +134,6 @@
     "description": "Create Data Engine",
     "computationals": [
       "docker.dlab-dataengine"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbCreateDataEngineService",
-    "description": "Create Data Engine Service",
-    "computationals": [
-      "docker.dlab-dataengine-service"
     ],
     "groups": [
       "$anyuser"

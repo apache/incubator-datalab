@@ -71,6 +71,13 @@ public class UserGroupServiceImpl implements UserGroupService {
 	}
 
 	@Override
+	public void removeGroup(String groupId) {
+		if (userRoleDao.removeGroup(groupId)) {
+			userGroupDao.removeGroup(groupId);
+		}
+	}
+
+	@Override
 	public List<UserGroupDto> getAggregatedRolesByGroup() {
 		return userRoleDao.aggregateRolesByGroup();
 	}

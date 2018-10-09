@@ -40,5 +40,7 @@ public interface UserRoleDao {
 
 	void remove(String roleId);
 
+	boolean removeGroup(String groupId);
+
 	List<UserGroupDto> aggregateRolesByGroup();
 }

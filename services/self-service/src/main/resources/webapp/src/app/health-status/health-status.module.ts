@@ -28,6 +28,8 @@ import {
   ConfirmActionDialog
 } from './manage-environment/manage-environment-dilog.component';
 
+import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
+
 import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialog } from './manage-roles-groups/manage-roles-groups.component';
@@ -52,6 +54,7 @@ export * from './environment-status.model';
     ToastModule.forRoot()
   ],
   declarations: [
+    GroupNameValidationDirective,
     HealthStatusComponent,
     BackupDilogComponent,
     ManageEnvironmentComponent,
@@ -62,6 +65,6 @@ export * from './environment-status.model';
     HealthStatusGridComponent
   ],
   entryComponents: [ConfirmActionDialog, ConfirmDeleteUserAccountDialog],
-  exports: [HealthStatusComponent, HealthStatusGridComponent]
+  exports: [HealthStatusComponent, HealthStatusGridComponent, GroupNameValidationDirective]
 })
 export class HealthStatusModule {}
