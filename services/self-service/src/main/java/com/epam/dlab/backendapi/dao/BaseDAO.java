@@ -440,5 +440,7 @@ public class BaseDAO {
 		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList("$" + arrayColumnName, index));
 	}
 
-
+	protected Document elementAt(Bson bson, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList(bson, index));
+	}
 }
