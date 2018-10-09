@@ -271,7 +271,7 @@ if __name__ == "__main__":
             secondary_parameters = {
                 "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
                 "aws_notebook_subnet_id": os.environ['aws_subnet2_id'],
-                "aws_peering_id": os.environ['peering_id']
+                "aws_peering_id": os.environ['aws_peering_id']
             }
         else:
             secondary_parameters = {
