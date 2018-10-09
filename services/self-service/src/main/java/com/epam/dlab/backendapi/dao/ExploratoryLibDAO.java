@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
-import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.library.Library;
@@ -43,7 +42,6 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.push;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
  * DAO for user libraries.
@@ -130,31 +128,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 		return findLibraries(user, exploratoryName, include(COMPUTATIONAL_LIBS + "." + computationalName));
 	}
 
-	/**
-	 * Finds and returns the status of library.
-	 *
-	 * @param user            user name.
-	 * @param exploratoryName the name of exploratory.
-	 * @param libraryGroup    the group name of library.
-	 * @param libraryName     the name of library.
-	 */
-	public LibStatus fetchLibraryStatus(String user, String exploratoryName,
-										String libraryGroup, String libraryName, String version) {
-		Optional<Document> libraryStatus = findOne(USER_INSTANCES,
-				and(exploratoryCondition(user, exploratoryName), libraryConditionExploratory(libraryGroup, libraryName
-						, version)),
-				Projections.fields(excludeId(), Projections.include("libs.status")));
-
-		if (libraryStatus.isPresent()) {
-			Object lib = libraryStatus.get().get(EXPLORATORY_LIBS);
-			if (lib instanceof List && !((List) lib).isEmpty()) {
-				return LibStatus.of(((List<Document>) lib).get(0).getOrDefault(STATUS, EMPTY).toString());
-			}
-		}
-
-		return LibStatus.of(EMPTY);
-	}
-
+	@SuppressWarnings("unchecked")
 	public Library getLibrary(String user, String exploratoryName,
 							  String libraryGroup, String libraryName) {
 		Optional<Document> userInstance = findOne(USER_INSTANCES,
@@ -177,6 +151,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Library getLibrary(String user, String exploratoryName, String computationalName,
 							  String libraryGroup, String libraryName) {
 		Optional<Document> libraryStatus = findOne(USER_INSTANCES,
