@@ -71,16 +71,27 @@ export class ManagementGridComponent {
   }
 
   isResourcesInProgress(notebook) {
-    if(notebook && notebook.resources.length) {
-      return notebook.resources.filter(resource => (
-        resource.status !== 'failed'
-        && resource.status !== 'terminated'
-        && resource.status !== 'running'
-        && resource.status !== 'stopped')).length > 0;
+    if (notebook) {
+      if (notebook.name === 'edge node') {
+        return this.allEnvironmentData
+          .filter(env => env.user === notebook.user)
+          .some(el => this.inProgress(el));
+      } else if (notebook.resources.length) {
+        return this.inProgress(notebook)
+      }
     }
     return false;
   }
+
+  inProgress(notebook) {
+    return notebook.resources.filter(resource => (
+      resource.status !== 'failed'
+      && resource.status !== 'terminated'
+      && resource.status !== 'running'
+      && resource.status !== 'stopped')).length > 0;
+  }
 }
+
 
 @Component({
   selector: 'confirm-dialog',
