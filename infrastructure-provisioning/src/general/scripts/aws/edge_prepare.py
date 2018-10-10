@@ -41,7 +41,7 @@ if __name__ == "__main__":
     edge_conf['user_keyname'] = os.environ['edge_user_name']
     edge_conf['public_subnet_id'] = os.environ['aws_subnet_id']
     edge_conf['vpc_id'] = os.environ['aws_vpc_id']
-    edge_conf['vpc2_id'] = os.environ['aws_vpc2_id']
+    edge_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     edge_conf['region'] = os.environ['aws_region']
     edge_conf['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
     edge_conf['instance_size'] = os.environ['aws_edge_instance_size']
