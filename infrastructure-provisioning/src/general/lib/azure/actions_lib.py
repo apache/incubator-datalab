@@ -845,7 +845,7 @@ class AzureActions:
 
     @backoff.on_exception(backoff.expo,
                           TypeError,
-                          max_tries=4)
+                          max_tries=5)
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
                           tags, public_ip_name="None"):
         try:
@@ -889,7 +889,11 @@ class AzureActions:
                     "ip_configurations": ip_params
                 }
             ).wait()
-            return result._operation.resource.id
+            network_interface_id = meta_lib.AzureMeta().get_network_interface(
+                resource_group_name,
+                interface_name
+            ).id
+            return network_interface_id
         except Exception as err:
             logging.info(
                 "Unable to create network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
