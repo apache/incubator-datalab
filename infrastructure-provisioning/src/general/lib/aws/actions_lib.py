@@ -847,6 +847,22 @@ def remove_subnets(tag_value):
         traceback.print_exc(file=sys.stdout)
 
 
+def remove_peering(tag_value):
+    try:
+        client = boto3.client('ec2')
+        tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
+                                                                   {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
+        if peering_id:
+            client.delete_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
+            print("Peering connection {} has been deleted successfully".format(peering_id))
+        else:
+            print("There are no peering connections to delete")
+    except Exception as err:
+        logging.info("Unable to remove peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
 def remove_sgroups(tag_value):
     try:
         ec2 = boto3.resource('ec2')

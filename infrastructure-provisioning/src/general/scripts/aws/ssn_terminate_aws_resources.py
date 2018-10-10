@@ -87,6 +87,12 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    print("Removing peering connection")
+    try:
+        remove_peering('*')
+    except:
+        sys.exit(1)
+
     print("Removing s3 buckets")
     try:
         remove_s3()
