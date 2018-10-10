@@ -31,7 +31,7 @@ limitations under the License.
           <div class="inner-step">
             <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup" #setupGroupName="ngModel">
             <div class="danger_color" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only contain letters, numbers, hyphens and '_'</div>
-            <div class="danger_color" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already exist</div>
+            <div class="danger_color" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already exists</div>
           </div>
           <div class="text-center m-bott-10">
             <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
@@ -51,7 +51,7 @@ limitations under the License.
                   </mat-select>
                 </mat-form-field>
                 <button class="caret">
-                  <i class="material-icons">arrow_drop_down</i>
+                  <i class="material-icons">keyboard_arrow_down</i>
                 </button>
             </div>
           </div>
@@ -84,11 +84,11 @@ limitations under the License.
           <mat-accordion class="scrolling-content" id="scrolling" [ngClass]="{'stepper-opened': stepperView }">
             <mat-expansion-panel *ngFor="let item of groupsData">
               <mat-expansion-panel-header>
-                <div class="groups ellipsis">
-                  <div>{{ item.group }}</div>
+                <div class="groups" matTooltip="{{item.group}}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">
+                  <div class="ellipsis">{{ item.group }}</div>
                 </div>
 
-                <div class="roles ellipsis">
+                <div class="roles">
                   <div *ngIf="item.roles; then roles_list else no_roles"></div>
                   <ng-template #roles_list>
                     <div class="ellipsis" matTooltip="{{ item.selected_roles }}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">

@@ -148,7 +148,7 @@ font-weight: 400;
       .mat-input-infix.mat-form-field-infix {
         width: 285px;
         border: 0;
-        line-height: 1.5;
+        padding: 10px 0;
         font-family: 'Open Sans', sans-serif;
         font-size: 15px;
         font-weight: 300;
@@ -164,6 +164,9 @@ font-weight: 400;
       }
       .mat-select-arrow {
         color: transparent !important;
+      }
+      .mat-form-field-label {
+        padding-top: 4px;
       }
       .mat-select{
         &:focus {
@@ -183,6 +186,9 @@ font-weight: 400;
     .mat-input-wrapper.mat-form-field-wrapper .mat-form-field-underline {
       display: none;
     }
+  }
+  .mat-focused .mat-form-field-label {
+    display: none !important;
   }
 }
 
