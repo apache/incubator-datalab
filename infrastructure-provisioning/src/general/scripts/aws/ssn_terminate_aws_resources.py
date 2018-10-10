@@ -33,7 +33,7 @@ parser.add_argument('--de_sg', type=str)
 parser.add_argument('--service_base_name', type=str)
 parser.add_argument('--de_se_sg', type=str)
 args = parser.parse_args()
-
+tag2 = args.service_base_name + '-secondary-Tag'
 
 ##############
 # Run script #
@@ -108,6 +108,7 @@ if __name__ == "__main__":
     print("Removing route tables")
     try:
         remove_route_tables(args.tag_name)
+        remove_route_tables(tag2)
     except:
         sys.exit(1)
 
@@ -116,6 +117,17 @@ if __name__ == "__main__":
         remove_subnets(args.service_base_name + '-subnet')
     except:
         print("There is no pre-defined SSN Subnet")
+
+    print("Removing notebook VPC")
+    try:
+        vpc_id = get_vpc_by_tag(tag2, args.service_base_name)
+        if vpc_id != '':
+            remove_route_tables(args.tag_name, True)
+            remove_vpc(vpc_id)
+        else:
+            print("There is no pre-defined notebook VPC")
+    except:
+        sys.exit(1)
 
     print("Removing SSN VPC")
     try:

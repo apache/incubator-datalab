@@ -851,7 +851,8 @@ def remove_peering(tag_value):
     try:
         client = boto3.client('ec2')
         tag_name = os.environ['conf_service_base_name'] + '-Tag'
-        peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
+        if os.environ['conf_duo_vpc_enable']!=False:
+            peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
                                                                    {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
         if peering_id:
             client.delete_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
