@@ -75,16 +75,16 @@ export class ManagementGridComponent {
       if (notebook.name === 'edge node') {
         return this.allEnvironmentData
           .filter(env => env.user === notebook.user)
-          .some(el => this.inProgress(el));
+          .some(el => this.inProgress([el]) || this.inProgress(el.resources));
       } else if (notebook.resources.length) {
-        return this.inProgress(notebook)
+        return this.inProgress(notebook.resources);
       }
     }
     return false;
   }
 
-  inProgress(notebook) {
-    return notebook.resources.filter(resource => (
+  inProgress(resources) {
+    return resources.filter(resource => (
       resource.status !== 'failed'
       && resource.status !== 'terminated'
       && resource.status !== 'running'
