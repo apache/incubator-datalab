@@ -67,9 +67,4 @@ public class LibInstallDTO {
 		setErrorMessage(errorMessage);
 		return this;
 	}
-
-	public LibInstallDTO withOverride() {
-		setOverride(true);
-		return this;
-	}
 }
