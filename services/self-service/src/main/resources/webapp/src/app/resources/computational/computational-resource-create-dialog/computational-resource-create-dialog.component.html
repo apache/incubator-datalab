@@ -26,7 +26,7 @@ limitations under the License.
 
      <div class="form-wrapper">
       <div class="general-form">
-        <div class="checkbox-group">
+        <div class="checkbox-group" *ngIf="model.selectedImage.image">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration($event)" /> Configurations
           </label>
@@ -48,7 +48,7 @@ limitations under the License.
             <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
         </div>
-        <div class="control-group">
+        <div class="control-group" *ngIf="model.selectedImage.image">
           <label class="label">Cluster alias</label>
           <div class="control">
               <input [class.danger_field]="computationalResourceExist || !resourceForm.controls['cluster_alias_name'].valid
@@ -62,7 +62,7 @@ limitations under the License.
               </span>
           </div>
         </div>
-        <div class="control-group">
+        <div class="control-group" *ngIf="model.selectedImage.image">
           <label class="label">{{ DICTIONARY[model.selectedImage.image].instance_number }}</label>
           <div class="control">
             <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}"
@@ -72,15 +72,15 @@ limitations under the License.
             </span>
           </div>
         </div>
-        <div class="control-group">
+        <div class="control-group" *ngIf="model.selectedImage.image">
           <label class="label" *ngIf="model.selectedImage">{{ DICTIONARY[model.selectedImage.image].data_engine_master_instance_size}}</label>
           <div class="control">
             <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
         </div>
 
-        <div class="control-group" [hidden]="model.selectedImage.image === 'docker.dlab-dataengine'">
-          <label class="label" *ngIf="model.selectedImage">{{ DICTIONARY[model.selectedImage.image].data_engine_slave_instance_size }}</label>
+        <div class="control-group" *ngIf="model.selectedImage.image" [hidden]="model.selectedImage.image === 'docker.dlab-dataengine'">
+          <label class="label">{{ DICTIONARY[model.selectedImage.image].data_engine_slave_instance_size }}</label>
           <div class="control">
             <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
@@ -135,6 +135,7 @@ limitations under the License.
           </div>
         </div>
       </div>
+        <div *ngIf="!model.selectedImage.image" class="info message">Computational resource creations are not available.<br>Please, check your permissions</div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!resourceForm.valid"

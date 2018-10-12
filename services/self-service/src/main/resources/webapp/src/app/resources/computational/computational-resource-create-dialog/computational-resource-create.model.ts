@@ -114,8 +114,8 @@ export class ComputationalResourceCreateModel {
           if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider !== 'azure') {
             this.setSelectedClusterType(0);
           } else if (DICTIONARY.cloud_provider === 'azure') {
-            this.selectedItem = computationalResourceImage;
-            this.selectedImage = computationalResourceImage;
+            this.selectedItem = computationalResourceImage || {};
+            this.selectedImage = computationalResourceImage || {};
           }
 
           if (this.continueWith)
