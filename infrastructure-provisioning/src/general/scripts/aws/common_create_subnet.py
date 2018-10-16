@@ -128,7 +128,10 @@ if __name__ == "__main__":
         if not args.ssn:
             print("Associating route_table with the subnet")
             ec2 = boto3.resource('ec2')
-            rt = get_route_table_by_tag(args.infra_tag_name, args.infra_tag_value)
+            if os.environ['conf_duo_vpc_enable'] != False:
+                rt = get_route_table_by_tag(args.infra_tag_value + '-secondary-Tag', args.infra_tag_value)
+            else:
+                rt = get_route_table_by_tag(args.infra_tag_name, args.infra_tag_value)
             route_table = ec2.RouteTable(rt)
             try:
                 route_table.associate_with_subnet(SubnetId=subnet_id)
