@@ -330,6 +330,34 @@ if __name__ == "__main__":
             remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
+
+
+    if os.environ['conf_duo_vpc_enable'] == 'true':
+        try:
+            logging.info('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
+            print('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
+            params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
+                os.environ['aws_vpc2_id'], os.environ['aws_region'], tag2_name, service_base_name)
+            try:
+                local("~/scripts/{}.py {}".format('ssn_create_endpoint', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Unable to create secondary endpoint.", str(err))
+            remove_all_iam_resources(instance)
+            if pre_defined_sg:
+                remove_sgroups(tag_name)
+            if pre_defined_subnet:
+                remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+                remove_subnets(service_base_name + "-subnet")
+            if pre_defined_vpc:
+                remove_route_tables(tag_name, True)
+                remove_vpc(os.environ['aws_vpc_id'])
+            if pre_defined_vpc2:
+                remove_route_tables(tag2_name, True)
+                remove_vpc(os.environ['aws_vpc2_id'])
+            sys.exit(1)
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
