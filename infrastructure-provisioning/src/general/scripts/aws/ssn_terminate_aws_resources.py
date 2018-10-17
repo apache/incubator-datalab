@@ -142,6 +142,10 @@ if __name__ == "__main__":
     try:
         vpc_id = get_vpc_by_tag(tag2, args.service_base_name)
         if vpc_id != '':
+            try:
+                remove_vpc_endpoints(vpc_id)
+            except:
+                print("There is no such VPC Endpoint")
             remove_route_tables(tag2, True)
             remove_vpc(vpc_id)
         else:
