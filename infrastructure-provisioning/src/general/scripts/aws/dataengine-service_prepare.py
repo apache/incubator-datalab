@@ -121,6 +121,7 @@ if __name__ == "__main__":
         '{}-{}-de-se-additional-sg'.format(emr_conf['service_base_name'],
                                            os.environ['edge_user_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
+    emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     if os.environ['emr_slave_instance_spot'] == 'True':
         emr_conf['slave_bid_price'] = (
                                           float(get_ec2_price(
@@ -223,7 +224,7 @@ if __name__ == "__main__":
                  "--infra_tag_value {} " \
                  "--force {}". \
             format(emr_conf['additional_emr_sg_name'],
-                   emr_conf['vpc_id'],
+                   emr_conf['vpc2_id'],
                    json.dumps(cluster_sg_ingress),
                    json.dumps(cluster_sg_egress),
                    emr_conf['service_base_name'],

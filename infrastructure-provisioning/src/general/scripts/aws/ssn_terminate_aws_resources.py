@@ -119,17 +119,6 @@ if __name__ == "__main__":
     except:
         print("There is no pre-defined SSN Subnet")
 
-    print("Removing notebook VPC")
-    try:
-        vpc_id = get_vpc_by_tag(tag2, args.service_base_name)
-        if vpc_id != '':
-            remove_route_tables(args.tag_name, True)
-            remove_vpc(vpc_id)
-        else:
-            print("There is no pre-defined notebook VPC")
-    except:
-        sys.exit(1)
-
     print("Removing SSN VPC")
     try:
         vpc_id = get_vpc_by_tag(args.tag_name, args.service_base_name)
@@ -146,5 +135,16 @@ if __name__ == "__main__":
             remove_vpc(vpc_id)
         else:
             print("There is no pre-defined SSN VPC")
+    except:
+        sys.exit(1)
+
+    print("Removing notebook VPC")
+    try:
+        vpc_id = get_vpc_by_tag(tag2, args.service_base_name)
+        if vpc_id != '':
+            remove_route_tables(args.tag_name, True)
+            remove_vpc(vpc_id)
+        else:
+            print("There is no pre-defined notebook VPC")
     except:
         sys.exit(1)
