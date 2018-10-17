@@ -247,9 +247,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    let activeImage = DICTIONARY[this.model.selectedImage.image];
+    if (this.model.selectedImage && this.model.selectedImage.image) {
+      let activeImage = DICTIONARY[this.model.selectedImage.image];
 
-    if (this.model.selectedImage && this.model.selectedImage.limits) {
       this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
 
