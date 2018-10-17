@@ -142,13 +142,17 @@ font-weight: 400;
   word-break: break-all;
 }
 .manage-roles-dialog {
+  .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
+    .mat-form-field-flex {
+      line-height: 22px;
+    }
+  }
   .mat-input-wrapper {
     &.mat-form-field-wrapper {
       overflow: hidden;
       .mat-input-infix.mat-form-field-infix {
-        width: 285px;
+        width: 275px;
         border: 0;
-        padding: 10px 0;
         font-family: 'Open Sans', sans-serif;
         font-size: 15px;
         font-weight: 300;
@@ -166,7 +170,7 @@ font-weight: 400;
         color: transparent !important;
       }
       .mat-form-field-label {
-        padding-top: 4px;
+        padding-top: 0;
       }
       .mat-select{
         &:focus {
@@ -177,7 +181,7 @@ font-weight: 400;
           }
           &:not(.mat-select-disabled) {
             .mat-select-arrow {
-              color: transparent ;
+              color: transparent;
             }
           }
         } 
@@ -186,9 +190,6 @@ font-weight: 400;
     .mat-input-wrapper.mat-form-field-wrapper .mat-form-field-underline {
       display: none;
     }
-  }
-  .mat-focused .mat-form-field-label {
-    display: none !important;
   }
 }
 
