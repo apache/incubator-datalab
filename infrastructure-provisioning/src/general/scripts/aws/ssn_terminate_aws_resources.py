@@ -142,7 +142,7 @@ if __name__ == "__main__":
     try:
         vpc_id = get_vpc_by_tag(tag2, args.service_base_name)
         if vpc_id != '':
-            remove_route_tables(args.tag_name, True)
+            remove_route_tables(tag2, True)
             remove_vpc(vpc_id)
         else:
             print("There is no pre-defined notebook VPC")
