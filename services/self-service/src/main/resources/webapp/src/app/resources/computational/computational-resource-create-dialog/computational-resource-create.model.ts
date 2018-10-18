@@ -46,6 +46,7 @@ export class ComputationalResourceCreateModel {
   resourceImages: Array<ComputationalResourceImage> = [];
   templates: Array<ComputationalResourceApplicationTemplate> = [];
 
+  availableTemplates: boolean = false;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
@@ -103,6 +104,8 @@ export class ComputationalResourceCreateModel {
         .subscribe(
         data => {
           let computationalResourceImage;
+
+          this.availableTemplates = !!data.length;
 
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
             computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
