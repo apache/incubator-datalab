@@ -87,7 +87,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
       body,
-      this.getRequestOptions(true, true));
+      this.getRequestOptions(false, true));
   }
 
   public buildGetAuthToken(body: any): Observable<Response> {
