@@ -21,7 +21,7 @@ limitations under the License.
     <a class="logo">
       <img src="assets/img/logo.png" alt="">
     </a>
-    <form name="form" class="form-wrap" #f="ngForm" novalidate>
+    <form name="form" *ngIf="!DICTIONARY.dexIdentityProviderEnabled" class="form-wrap" #f="ngForm" novalidate>
 
       <div class="input-icon-group">
         <span class="input-icon"><span class="login-icon icon-username"></span></span>
@@ -49,16 +49,15 @@ limitations under the License.
               </span>
             </span>
         </button>
-        <button class="butt butt-azure"
-                mat-raised-button (click)="loginWithAzure_btnClick();">
-          Login with DEX
-        </button>
         <button *ngIf="DICTIONARY.cloud_provider === 'azure' && !DICTIONARY.use_ldap"
                 class="butt butt-azure"
                 mat-raised-button (click)="loginWithAzure_btnClick();">
           Login with Azure
         </button>
       </div>
-  </form>
+    </form>
+    <div class="text-center" *ngIf="DICTIONARY.dexIdentityProviderEnabled">
+      <button class="butt butt-login" mat-raised-button (click)="loginWithDex_btnClick();">Login with DEX</button>
+    </div>
   </div>
 </div>

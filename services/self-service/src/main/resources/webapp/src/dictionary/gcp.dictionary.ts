@@ -19,6 +19,7 @@ limitations under the License.
 export const NAMING_CONVENTION = {
   'cloud_provider': 'gcp',
   'use_ldap': true,
+  'dexIdentityProviderEnabled': false,
   'notebook_instance_size': 'Instance type',
   'personal_storage': 'Data bucket',
   'collaboration_storage': 'Collaboration bucket',

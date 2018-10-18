@@ -37,6 +37,10 @@ export class AppRoutingService {
   }
 
   redirectToAzure(): void {
+    window.location.href =  `${ window.location.origin }/api/user/azure/init`;
+  }
+
+  redirectToDex(): void {
     window.location.href =  `${ window.location.origin }/api/dex/init`;
   }
 }

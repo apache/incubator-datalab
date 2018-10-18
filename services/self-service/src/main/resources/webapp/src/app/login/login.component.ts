@@ -84,6 +84,11 @@ export class LoginComponent implements OnInit {
     this.appRoutingService.redirectToAzure();
   }
 
+  loginWithDex_btnClick() {
+    console.log('DEX');
+    this.appRoutingService.redirectToDex();
+  }
+
   checkHealthStatusAndRedirect(isLoggedIn) {
     if (isLoggedIn)
       this.healthStatusService.isHealthStatusOk()
