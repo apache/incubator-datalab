@@ -1,11 +1,10 @@
 # DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## Bug fixes in v2.0.1
-**AZURE:**
-- fixed bug connected with Data Engine creation
+## Bug fixes in v2.0.2
+- fixed Apache Toree installation for Jupyter notebook 
 
 
-## Known issues in v2.0.1
+## Known issues in v2.0.2
 **All Cloud platforms:**
 - remote kernel list for Data Engine is not updated after stop/start Data Engine
 - following links can be opened via tunnel for Data Engine/Data Engine: service: worker/application ID, application detail UI, event timeline, logs for Data Engine
@@ -23,7 +22,7 @@
 - creation of Zeppelin from custom image fails on the step when cluster kernels are removing
 - start Notebook by scheduler does not work when Data Lake is enabled 
 
-## Known issues caused by cloud provider limitations in v2.0.1
+## Known issues caused by cloud provider limitations in v2.0.2
 
 **Microsoft Azure:**
 - resource name length should not exceed 80 chars
