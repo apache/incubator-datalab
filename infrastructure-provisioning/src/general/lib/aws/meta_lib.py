@@ -839,7 +839,7 @@ def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
         elif conf_type == 'computational_resource':
             group_tag_name = os.environ['conf_service_base_name'] + ':' + instance_id
             print(group_tag_name)
-            instance_list = get_ec2_list('user:tag', group_tag_name)
+            instance_list = get_ec2_list(os.environ['conf_tag_resource_id'], group_tag_name)
             for instance in instance_list:
                 private_list_ip.append(
                     get_instance_ip_address_by_id(instance.id).get('Private'))
