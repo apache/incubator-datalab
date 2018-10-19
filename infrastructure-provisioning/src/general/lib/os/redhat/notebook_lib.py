@@ -37,6 +37,8 @@ def enable_proxy(proxy_host, proxy_port):
         sudo('sed -i "/^export https_proxy/d" /etc/profile')
         sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
         sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
+        sudo('''echo export _JAVA_OPTIONS='-Dhttp.proxyHost={0} -Dhttp.proxyPort={1} \
+            -Dhttps.proxyHost={0} -Dhttps.proxyPort={1}' >> /etc/profile'''.format(proxy_host, proxy_port))
         if exists('/etc/yum.conf'):
             sudo('sed -i "/^proxy=/d" /etc/yum.conf')
         sudo("echo 'proxy={}' >> /etc/yum.conf".format(proxy_string))

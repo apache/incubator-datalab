@@ -302,31 +302,55 @@ def install_r_pkg(requisites):
     except:
         return "Fail to install R packages"
 
+
+def update_spark_jars(root_dir='/opt/spark', jars_dir='/opt/jars'):
+    try:
+        configs = sudo('find {0} -name spark-defaults.conf -type f'.format(root_dir)).split('\n')
+        for conf in configs:
+            sudo('sed -i "/^# Generated\|^spark.jars/d" {0}'.format(conf))
+            sudo('''echo "# Generated spark.jars by DLab from {0}\n \
+                spark.jars $(find {0} -name '*.jar' | xargs | tr ' ' ',')" >> {1}'''.format(jars_dir, conf))
+            sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
+    except Exception as err:
+        append_result("Failed to update spark.jars parameter", str(err))
+        print("Failed to update spark.jars parameter")
+        sys.exit(1)
+
+
 def install_java_pkg(requisites):
     status = list()
-    full_pkg = [a + ":" + b for a, b in zip(requisites[::2], requisites[1::2])]
-    error_parser = "ERROR|error|No such|no such|Please run|requires"
-    work_dir = "/opt/dlab/java_libs"
+    error_parser = "ERROR|error|No such|no such|Please run|requires|module not found"
+    ivy_jar = run('find /opt/spark/ -name "*ivy*.jar"')
+    ivy_settings = '/opt/ivy/ivysettings.xml'
+    cache_dir = '/opt/ivy/cache/'
+    dest_dir = '/opt/jars/java'
     try:
-        if not exists(work_dir):
-            sudo('mkdir -p {}'.format(work_dir))
-        for java_pkg in full_pkg:
-            splitted_pkg = java_pkg.split(":")
-            name_pkg = splitted_pkg[1] + '-' + splitted_pkg[2] + '.jar'
-            sudo('wget -O {5}/{3} https://search.maven.org/classic/remotecontent?filepath={0}/{1}/{2}/{3} 2>&1 | tee /tmp/tee.tmp; \
-                  if ! grep -w -E  "({4})" /tmp/tee.tmp >  /tmp/install_{3}.log; \
-                  then  echo "" > /tmp/install_{3}.log;fi'.format(splitted_pkg[0].replace(".","/"), splitted_pkg[1], splitted_pkg[2],name_pkg, error_parser, work_dir))
-            sudo('jar tf {2}/{0} 2>&1 |if ! grep -w -E "({1})" > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name_pkg, error_parser, work_dir))
-            err = sudo('cat /tmp/install_{0}.log'.format(name_pkg)).replace('"', "'")
-            res = sudo('cat /tmp/install_{0}.list'.format(name_pkg))
+        sudo('mkdir -p {0}'.format(dest_dir))
+        for java_pkg in requisites:
+            sudo('mkdir -p {0}'.format(cache_dir))
+            group, artifact, version, override = java_pkg
+            print("Installing package (override: {3}): {0}:{1}:{2}".format(group, artifact, version, override))
+            sudo('java -jar {0} -settings {1} -cache {2} -dependency {3} {4} {5} 2>&1 | tee /tmp/tee.tmp; \
+                if ! grep -w -E  "({6})" /tmp/tee.tmp > /tmp/install_{4}.log; then echo "" > /tmp/install_{4}.log;fi'
+                 .format(ivy_jar, ivy_settings, cache_dir, group, artifact, version, error_parser))
+            err = sudo('cat /tmp/install_{0}.log'.format(artifact)).replace('"', "'").strip()
+            sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
+                if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(cache_dir, artifact))
+            res = sudo('cat /tmp/install_{0}.list'.format(artifact))
             if res:
-                err+=' jar tf results:' + sudo('cat /tmp/install_{0}.list'.format(name_pkg))
-                status.append({"group": "java", "name": splitted_pkg[0]+':'+splitted_pkg[1], "status": "failed", "error_message": err})
+                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
             else:
-                status.append({"group": "java", "name": splitted_pkg[0]+':'+splitted_pkg[1], "version": splitted_pkg[2], "status": "installed"})
+                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "failed", "error_message": err})
+            sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(cache_dir, dest_dir))
+            sudo('rm -rf {0}'.format(cache_dir))
+        sudo('chown -R {0}:{0} {1}'.format(os.environ['conf_os_user'], dest_dir))
+        update_spark_jars()
         return status
-    except Exception as errr:
-        return "Fail to install Java packages: " + str(errr)
+    except Exception as err:
+        append_result("Failed to install {} packages".format(requisites), str(err))
+        print("Failed to install {} packages".format(requisites))
+        sys.exit(1)
+
 
 def get_available_r_pkgs():
     try:

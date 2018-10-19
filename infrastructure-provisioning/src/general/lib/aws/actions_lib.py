@@ -1217,16 +1217,21 @@ def spark_defaults(args):
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
-def ensure_local_jars(os_user, jars_dir):
+def ensure_local_jars(os_user, jars_dir, ivy_dir='/opt/ivy/'):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            sudo('mkdir -p ' + jars_dir)
-            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
-                 jars_dir + 'hadoop-aws-2.7.4.jar')
-            sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar -O ' +
-                 jars_dir + 'aws-java-sdk-1.7.4.jar')
-            sudo('wget http://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/0.4.20/hadoop-lzo-0.4.20.jar -O ' +
-                 jars_dir + 'hadoop-lzo-0.4.20.jar')
+            templates_dir = '/root/templates/'
+            sudo('mkdir -p {0}'.format(jars_dir))
+            sudo('mkdir -p {0}'.format(ivy_dir))
+            sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
+                    {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
+            sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
+                    {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
+            sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
+                    {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
+            sudo('wget https://repo1.maven.org/maven2/org/apache/ivy/ivy/{0}/ivy-{0}.jar -O \
+                    {1}ivy-{0}.jar'.format('2.4.0', ivy_dir))
+            put('{0}ivysettings.xml'.format(templates_dir), '{0}ivysettings.xml'.format(ivy_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)

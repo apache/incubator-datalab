@@ -1,0 +1,16 @@
+<ivysettings>
+
+    <settings defaultResolver="maven"/>
+
+    <property name="maven" value="https://repo1.maven.org/maven2/"/>
+    <property name="maven-mirror" value="http://uk.maven.org/maven2/"/>
+    <!--<property name="confluent" value="http://packages.confluent.io/maven/"/>
+    <property name="nexus" value="https://oss.sonatype.org/content/groups/public/"/>-->
+    <resolvers>
+        <ibiblio name="maven" m2compatible="true" root="${maven}"/>
+        <ibiblio name="maven-mirror" m2compatible="true" root="${maven-mirror}"/>
+        <!--<ibiblio name="confluent" m2compatible="true" root="${confluent}"/>
+        <ibiblio name="nexus" m2compatible="true" root="${nexus}"/>-->
+    </resolvers>
+
+</ivysettings>
