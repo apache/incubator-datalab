@@ -19,7 +19,6 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
 import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
@@ -28,15 +27,10 @@ import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.backendapi.validation.annotation.LibNameValid;
-import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.ComputationalAPI;
-import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -67,17 +61,12 @@ public class LibExploratoryResource {
 	private final ExternalLibraryService externalLibraryService;
 	private ExploratoryDAO exploratoryDAO;
 	private LibraryService libraryService;
-	private RESTService provisioningService;
-	private RequestId requestId;
 
 	@Inject
 	public LibExploratoryResource(ExploratoryDAO exploratoryDAO, LibraryService libraryService,
-								  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-								  RequestId requestId, ExternalLibraryService externalLibraryService) {
+								  ExternalLibraryService externalLibraryService) {
 		this.exploratoryDAO = exploratoryDAO;
 		this.libraryService = libraryService;
-		this.provisioningService = provisioningService;
-		this.requestId = requestId;
 		this.externalLibraryService = externalLibraryService;
 	}
 
@@ -197,28 +186,14 @@ public class LibExploratoryResource {
 							   @ApiParam(value = "Library install form DTO", required = true)
 							   @Valid @NotNull LibInstallFormDTO formDTO) {
 		log.debug("Installing libs to environment {} for user {}", formDTO, userInfo.getName());
-		try {
-
-			LibraryInstallDTO dto = libraryService.generateLibraryInstallDTO(userInfo, formDTO);
-			String uuid;
-
-			if (StringUtils.isEmpty(formDTO.getComputationalName())) {
-				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(),
-						libraryService.prepareExploratoryLibInstallation(userInfo.getName(), formDTO, dto),
-						String.class);
-			} else {
-				uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_INSTALL, userInfo.getAccessToken(),
-						libraryService.prepareComputationalLibInstallation(userInfo.getName(), formDTO, dto),
-						String.class);
-			}
-
-			requestId.put(userInfo.getName(), uuid);
-			return Response.ok(uuid).build();
-		} catch (DlabException e) {
-			log.error("Cannot install libs to exploratory environment {} for user {}: {}",
-					formDTO.getNotebookName(), userInfo.getName(), e.getLocalizedMessage(), e);
-			throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
-		}
+		final String exploratoryName = formDTO.getNotebookName();
+		final List<LibInstallDTO> libs = formDTO.getLibs();
+		final String computationalName = formDTO.getComputationalName();
+		String uuid = StringUtils.isEmpty(computationalName) ?
+				libraryService.installExploratoryLibs(userInfo, exploratoryName, libs) :
+				libraryService.installComputationalLibs(userInfo, exploratoryName, computationalName, libs);
+		return Response.ok(uuid)
+				.build();
 	}
 
 	/**

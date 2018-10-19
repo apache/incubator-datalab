@@ -28,15 +28,6 @@ limitations under the License.
 }
 
 .billing-detail {
-  .list-header {
-    border-top: 1px solid #edf1f5;
-    border-bottom: 1px solid #edf1f5;
-    color: #577289;
-    width: 100%;
-    div {
-      font-weight: 500;
-    }
-  }
   .service {
     width: 30%;
   }
@@ -73,5 +64,6 @@ limitations under the License.
   overflow-y: auto;
 }
 .mat-list-item-content {
-    font-size: 15px !important;
+  font-size: 15px !important;
+  justify-content: space-between;
 }

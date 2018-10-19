@@ -20,12 +20,13 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BaseDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
-import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
 import com.epam.dlab.backendapi.resources.dto.LibKey;
 import com.epam.dlab.backendapi.resources.dto.LibraryStatus;
 import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -33,8 +34,13 @@ import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.library.Library;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ComputationalAPI;
+import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -46,6 +52,8 @@ import java.util.stream.Collectors;
 @Singleton
 public class LibraryServiceImpl implements LibraryService {
 
+	private static final String COMPUTATIONAL_NOT_FOUND_MSG = "Computational with name %s was not found";
+	private static final String LIB_ALREADY_INSTALLED = "Library %s is already installing";
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
@@ -54,6 +62,14 @@ public class LibraryServiceImpl implements LibraryService {
 
 	@Inject
 	private RequestBuilder requestBuilder;
+
+	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
+	@Inject
+	private RESTService provisioningService;
+
+	@Inject
+	private RequestId requestId;
+
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -101,66 +117,72 @@ public class LibraryServiceImpl implements LibraryService {
 	}
 
 	@Override
-	public LibraryInstallDTO generateLibraryInstallDTO(UserInfo userInfo, LibInstallFormDTO formDTO) {
-		UserInstanceDTO userInstance;
-		LibraryInstallDTO dto;
-		if (StringUtils.isEmpty(formDTO.getComputationalName())) {
-			userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-			if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(userInstance.getStatus())) {
-				throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
-			}
+	public String installComputationalLibs(UserInfo ui, String expName, String compName,
+										   List<LibInstallDTO> libs) {
 
-			dto = requestBuilder.newLibInstall(userInfo, userInstance);
+		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(ui.getName(), expName, compName);
+		final String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_INSTALL,
+				ui.getAccessToken(), toComputationalLibraryInstallDto(ui, expName, compName, libs, userInstance),
+				String.class);
+		requestId.put(ui.getName(), uuid);
+		return uuid;
+	}
+
+	@Override
+	public String installExploratoryLibs(UserInfo ui, String expName, List<LibInstallDTO> libs) {
+		final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), expName);
+		final String uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, ui.getAccessToken(),
+				toExploratoryLibraryInstallDto(ui, expName, libs, userInstance), String.class);
+		requestId.put(ui.getName(), uuid);
+		return uuid;
+	}
+
+	private LibraryInstallDTO toExploratoryLibraryInstallDto(UserInfo userInfo, String exploratoryName,
+															 List<LibInstallDTO> libs, UserInstanceDTO userInstance) {
+		final List<LibInstallDTO> libsToInstall = libs.stream()
+				.map(lib -> toLibInstallDto(lib, libraryDAO.getLibrary(userInfo.getName(), exploratoryName,
+						lib.getGroup(), lib.getName())))
+				.peek(l -> libraryDAO.addLibrary(userInfo.getName(), exploratoryName, l, l.isOverride()))
+				.collect(Collectors.toList());
+		return requestBuilder.newLibInstall(userInfo, userInstance, libsToInstall);
+	}
+
+	private LibraryInstallDTO toComputationalLibraryInstallDto(UserInfo userInfo, String expName, String compName,
+															   List<LibInstallDTO> libs,
+															   UserInstanceDTO userInstance) {
+
+		final UserComputationalResource computationalResource = getComputationalResource(compName, userInstance);
+		final List<LibInstallDTO> libsToInstall = libs.stream()
+				.map(lib -> toLibInstallDto(lib, libraryDAO.getLibrary(userInfo.getName(), expName,
+						compName, lib.getGroup(), lib.getName())))
+				.peek(l -> libraryDAO.addLibrary(userInfo.getName(), expName, compName, l,
+						l.isOverride()))
+				.collect(Collectors.toList());
+		return requestBuilder.newLibInstall(userInfo, userInstance, computationalResource, libsToInstall);
+	}
+
+	private UserComputationalResource getComputationalResource(String computationalName,
+															   UserInstanceDTO userInstance) {
+		return userInstance.getResources()
+				.stream()
+				.filter(computational -> computational.getComputationalName().equals(computationalName))
+				.findAny()
+				.orElseThrow(() -> new DlabException(String.format(COMPUTATIONAL_NOT_FOUND_MSG, computationalName)));
+	}
+
+	private LibInstallDTO toLibInstallDto(LibInstallDTO lib, Library existingLibrary) {
+		final LibInstallDTO l = new LibInstallDTO(lib.getGroup(), lib.getName(), lib.getVersion());
+		l.setStatus(LibStatus.INSTALLING.toString());
+		l.setOverride(shouldOverride(existingLibrary));
+		return l;
+	}
+
+	private boolean shouldOverride(Library library) {
+		if (Objects.nonNull(library) && library.getStatus() == LibStatus.INSTALLING) {
+			throw new DlabException(String.format(LIB_ALREADY_INSTALLED, library.getName()));
 		} else {
-			userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName(),
-					formDTO.getComputationalName());
-
-			List<UserComputationalResource> resourceList = userInstance.getResources().stream()
-					.filter(e -> e.getComputationalName().equals(formDTO.getComputationalName()))
-					.collect(Collectors.toList());
-
-			if (resourceList.size() == 1) {
-				dto = requestBuilder.newLibInstall(userInfo, userInstance, resourceList.get(0));
-			} else {
-				throw new DlabException(String.format("Computational with name %s is not unique or absent",
-						formDTO.getComputationalName()));
-			}
+			return Objects.nonNull(library);
 		}
-
-		return dto;
-	}
-
-	@Override
-	public LibraryInstallDTO prepareExploratoryLibInstallation(String username, LibInstallFormDTO formDTO,
-															   LibraryInstallDTO dto) {
-		for (LibInstallDTO lib : formDTO.getLibs()) {
-			LibStatus status = libraryDAO.fetchLibraryStatus(username, formDTO.getNotebookName(),
-					lib.getGroup(), lib.getName(), lib.getVersion());
-
-			prepare(status, lib, dto);
-
-			libraryDAO.addLibrary(username, formDTO.getNotebookName(), lib, LibStatus.FAILED == status);
-		}
-
-		return dto;
-
-	}
-
-	@Override
-	public LibraryInstallDTO prepareComputationalLibInstallation(String username, LibInstallFormDTO formDTO,
-																 LibraryInstallDTO dto) {
-
-		for (LibInstallDTO lib : formDTO.getLibs()) {
-			LibStatus status = libraryDAO.fetchLibraryStatus(username, formDTO.getNotebookName(),
-					formDTO.getComputationalName(),
-					lib.getGroup(), lib.getName(), lib.getVersion());
-
-			prepare(status, lib, dto);
-
-			libraryDAO.addLibrary(username, formDTO.getNotebookName(), formDTO.getComputationalName(), lib, LibStatus
-					.FAILED == status);
-		}
-		return dto;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -210,18 +232,5 @@ public class LibraryServiceImpl implements LibraryService {
 				docs.forEach(e -> populateModel(entry.getKey(), e, model, resourceType));
 			}
 		}
-	}
-
-	private void prepare(LibStatus status, LibInstallDTO lib, LibraryInstallDTO dto) {
-		if (status == LibStatus.INSTALLING) {
-			throw new DlabException("Library " + lib.getName() + " is already installing");
-		}
-
-		LibInstallDTO newLib = new LibInstallDTO(lib.getGroup(), lib.getName(), lib.getVersion());
-		if (dto.getLibs().contains(newLib)) {
-			return;
-		}
-		dto.getLibs().add(newLib);
-		lib.setStatus(LibStatus.INSTALLING.toString());
 	}
 }

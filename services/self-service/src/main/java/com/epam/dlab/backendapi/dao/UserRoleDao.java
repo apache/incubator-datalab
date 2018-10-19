@@ -33,15 +33,14 @@ public interface UserRoleDao {
 
 	boolean update(UserRoleDto dto);
 
-	boolean addUserToRole(Set<String> users, Set<String> roleIds);
-
 	boolean addGroupToRole(Set<String> groups, Set<String> roleIds);
 
-	boolean removeUserFromRole(Set<String> users, Set<String> roleIds);
-
 	boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds);
+	void removeGroupWhenRoleNotIn(String group, Set<String> roleIds);
 
 	void remove(String roleId);
+
+	boolean removeGroup(String groupId);
 
 	List<UserGroupDto> aggregateRolesByGroup();
 }

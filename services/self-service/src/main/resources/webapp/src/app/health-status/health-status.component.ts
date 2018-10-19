@@ -20,7 +20,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr';
 
 import { EnvironmentStatusModel } from './environment-status.model';
-import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
+import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
 import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
@@ -45,12 +45,14 @@ export class HealthStatusComponent implements OnInit {
   @ViewChild('keyUploadModal') keyUploadDialog;
   @ViewChild('preloaderModal') preloaderDialog;
   @ViewChild('ssnMonitor') ssnMonitorDialog;
+  @ViewChild('rolesGroupsModal') rolesGroupsDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
     private userResourceService: UserResourceService,
     private userAccessKeyService: UserAccessKeyService,
+    private rolesService: RolesGroupsService,
     public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
@@ -101,19 +103,71 @@ export class HealthStatusComponent implements OnInit {
       .subscribe(data => this.ssnMonitorDialog.open({ isHeader: false, isFooter: false }, data));
   }
 
+  openManageRolesDialog() {
+    this.rolesService.getGroupsData().subscribe(group => {
+        this.rolesService.getRolesData().subscribe(
+          roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
+          error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      },
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  getGroupsData() {
+    this.rolesService.getGroupsData().subscribe(
+      list => this.rolesGroupsDialog.updateGroupData(list),
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
   manageEnvironment(event: {action: string, user: string}) {
     this.healthStatusService
       .manageEnvironment(event.action, event.user)
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
             this.manageEnvironmentDialog.usersList = usersList;
-            this.toastr.success(`Action ${event.action } is processing!`, 'Success!', { toastLife: 5000 });
+            this.toastr.success(`Action ${event.action } is processing!`, 'Processing!', { toastLife: 5000 });
             this.buildGrid();
           });
         },
-      (error) => {
-        this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
-      });
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  manageRolesGroups($event) {
+    switch ($event.action) {
+      case 'create':
+        this.rolesService.setupNewGroup($event.value).subscribe(res => {
+          this.toastr.success('Group creation success!', 'Created!', { toastLife: 5000 });
+          this.getGroupsData();
+        }, () => this.toastr.error('Group creation failed!', 'Oops!', { toastLife: 5000 }));
+        break;
+      case 'update':
+        if ($event.type === 'roles') {
+          this.rolesService.setupRolesForGroup($event.value).subscribe(res => {
+            this.toastr.success('Roles list successfully updated!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed roles list updating!', 'Oops!', { toastLife: 5000 }));
+        } else if ($event.type === 'users') {
+          this.rolesService.setupUsersForGroup($event.value).subscribe(res => {
+            this.toastr.success('Users list successfully updated!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed users list updating!', 'Oops!', { toastLife: 5000 }));
+        }
+        break;
+      case 'delete':
+        if ($event.type === 'users') {
+          this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
+            this.toastr.success('Users was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed users deleting!', 'Oops!', { toastLife: 5000 }));
+        } else if ($event.type === 'group') {
+          console.log('delete group');
+          this.rolesService.removeGroupById($event.value).subscribe(res => {
+            this.toastr.success('Group was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed group deleting!', 'Oops!', { toastLife: 5000 }));
+        }
+        break;
+      default:
+    }
   }
 
   public generateUserKey($event) {

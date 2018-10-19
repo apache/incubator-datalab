@@ -16,13 +16,15 @@ limitations under the License.
 
 ****************************************************************************/
 
-.list-header {
-  border-top: 1px solid #edf1f5;
-  border-bottom: 1px solid #edf1f5;
-  color: #577289;
-  width: 100%;
-}
 .ssn-monitor-dialog {
+  .ssn-info {
+    min-height: 400px;
+    max-height: 500px;
+    .scrolling-content {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  }
   .mat-list-item-content {
     display: flex;
     color: #577289;

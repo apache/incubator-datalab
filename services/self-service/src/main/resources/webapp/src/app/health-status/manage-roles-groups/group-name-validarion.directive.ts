@@ -16,18 +16,22 @@ limitations under the License.
 
 ****************************************************************************/
 
-.btn_refresh {
-  outline: none;
-}
+import { Directive, forwardRef, Input } from '@angular/core';
+import { AbstractControl, NG_VALIDATORS, Validator } from '@angular/forms';
 
-.butt.butt-create {
-  color: #35afd5;
-}
 
-.butt.butt-create:disabled{
-  color: #577289!important;
-}
+@Directive({
+  selector: '[validator][ngModel],[group-dir][ngFormControl]',
+  providers: [{
+    multi: true,
+    provide: NG_VALIDATORS, 
+    useExisting: forwardRef(() => GroupNameValidationDirective)      
+  }]
+})
+export class GroupNameValidationDirective implements Validator {
+  @Input() validator: Function;
 
-.butt.butt-tool {
-  margin-right: 10px;
+  validate(control: AbstractControl):{ [key: string]: any; } {
+    return this.validator(control);
+  }
 }

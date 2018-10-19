@@ -247,9 +247,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    let activeImage = DICTIONARY[this.model.selectedImage.image];
+    if (this.model.selectedImage && this.model.selectedImage.image) {
+      let activeImage = DICTIONARY[this.model.selectedImage.image];
 
-    if (this.model.selectedImage) {
       this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
 
@@ -325,22 +325,24 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private setDefaultParams(): void {
-    this.filterShapes();
-    this.shapes = {
-      master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
-      slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
-    };
-    if (DICTIONARY.cloud_provider !== 'azure') {
-      this.cluster_type.setDefaultOptions(this.model.resourceImages,
-        this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
-        if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
-          this.templates_list.setDefaultOptions(this.model.templates,
-            this.model.selectedItem.version, 'template', 'version', 'array');
+    if (this.model.selectedImage && this.model.selectedImage.shapes) {
+      this.filterShapes();
+      this.shapes = {
+        master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
+        slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
+      };
+      if (DICTIONARY.cloud_provider !== 'azure') {
+        this.cluster_type.setDefaultOptions(this.model.resourceImages,
+          this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
+          if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
+            this.templates_list.setDefaultOptions(this.model.templates,
+              this.model.selectedItem.version, 'template', 'version', 'array');
+      }
+      this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+      this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
     }
-    this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-    this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
   }
 
   private filterShapes(): void {
@@ -369,7 +371,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.model.resetModel();
     this.bindDialog.modalClass = 'modal-lg';
 
-    if (this.PROVIDER === 'aws')
+    if (this.PROVIDER === 'aws' && this.spotInstancesSelect)
       this.spotInstancesSelect.nativeElement['checked'] = false;
 
     if (this.PROVIDER === 'gcp' && this.preemptible)

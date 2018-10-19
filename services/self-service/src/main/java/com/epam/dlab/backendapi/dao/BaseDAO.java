@@ -64,9 +64,11 @@ public class BaseDAO {
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
 	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 	protected static final String ADD_TO_SET = "$addToSet";
+	protected static final String UNSET_OPERATOR = "$unset";
 	private static final String PULL = "$pull";
 	private static final String PULL_ALL = "$pullAll";
 	private static final String EACH = "$each";
+	private static final String ELEMENT_AT_OPERATOR = "$arrayElemAt";
 
 	@Inject
 	protected MongoService mongoService;
@@ -378,19 +380,6 @@ public class BaseDAO {
 	}
 
 	/**
-	 * Aggregates and returns one document according to the specified aggregation pipeline.
-	 *
-	 * @param collection collection name.
-	 * @param pipeline   the aggregate pipeline.
-	 * @throws DlabException if have more than one aggregated documents.
-	 */
-	Optional<Document> aggregateOne(String collection,
-									List<? extends Bson> pipeline) {
-		MongoIterable<Document> found = aggregate(collection, pipeline);
-		return limitOne(found);
-	}
-
-	/**
 	 * Deserializes given document to object and returns it.
 	 *
 	 * @param document element from database
@@ -435,6 +424,10 @@ public class BaseDAO {
 		return new BasicDBObject(ADD_TO_SET, new BasicDBObject(columnName, new BasicDBObject(EACH, values)));
 	}
 
+	protected Bson unset(String columnName, String value) {
+		return new BasicDBObject(UNSET_OPERATOR, new BasicDBObject(columnName, value));
+	}
+
 	protected BasicDBObject pull(String columnName, String value) {
 		return new BasicDBObject(PULL, new BasicDBObject(columnName, value));
 	}
@@ -443,5 +436,11 @@ public class BaseDAO {
 		return new BasicDBObject(PULL_ALL, new BasicDBObject(columnName, values));
 	}
 
+	protected Document elementAt(String arrayColumnName, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList("$" + arrayColumnName, index));
+	}
 
+	protected Document elementAt(Bson bson, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList(bson, index));
+	}
 }

@@ -17,63 +17,64 @@
  */
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
-import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
-import com.epam.dlab.backendapi.service.UserRolesService;
+import com.epam.dlab.backendapi.service.UserGroupService;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 @Singleton
-public class UserRolesServiceImpl implements UserRolesService {
+@Slf4j
+public class UserGroupServiceImpl implements UserGroupService {
 
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
+	@Inject
+	private UserGroupDao userGroupDao;
 	@Inject
 	private UserRoleDao userRoleDao;
 
 	@Override
-	public List<UserRoleDto> getUserRoles() {
-		return userRoleDao.findAll();
+	public void createGroup(String group, Set<String> roleIds, Set<String> users) {
+		checkAnyRoleFound(roleIds, userRoleDao.addGroupToRole(Collections.singleton(group), roleIds));
+		if (!users.isEmpty()) {
+			log.debug("Adding users {} to group {}", users, group);
+			userGroupDao.addUsers(group, users);
+		}
 	}
 
 	@Override
-	public void createRole(UserRoleDto dto) {
-		userRoleDao.insert(dto);
+	public void addUsersToGroup(String group, Set<String> users) {
+		userGroupDao.addUsers(group, users);
 	}
 
 	@Override
-	public void updateRole(UserRoleDto dto) {
-		checkAnyRoleFound(Collections.singleton(dto.getId()), userRoleDao.update(dto));
+	public void updateRolesForGroup(String group, Set<String> roleIds) {
+		userRoleDao.removeGroupWhenRoleNotIn(group, roleIds);
+		checkAnyRoleFound(roleIds, userRoleDao.addGroupToRole(Collections.singleton(group), roleIds));
 	}
 
 	@Override
-	public void removeRole(String roleId) {
-		userRoleDao.remove(roleId);
-	}
-
-	@Override
-	public void addUserToRole(Set<String> users, Set<String> roleIds) {
-		checkAnyRoleFound(roleIds, userRoleDao.addUserToRole(users, roleIds));
-	}
-
-	@Override
-	public void addGroupToRole(Set<String> groups, Set<String> roleIds) {
-		checkAnyRoleFound(roleIds, userRoleDao.addGroupToRole(groups, roleIds));
-	}
-
-	@Override
-	public void removeUserFromRole(Set<String> users, Set<String> roleIds) {
-		checkAnyRoleFound(roleIds, userRoleDao.removeUserFromRole(users, roleIds));
+	public void removeUserFromGroup(String group, String user) {
+		userGroupDao.removeUser(group, user);
 	}
 
 	@Override
 	public void removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
 		checkAnyRoleFound(roleIds, userRoleDao.removeGroupFromRole(groups, roleIds));
+	}
+
+	@Override
+	public void removeGroup(String groupId) {
+		if (userRoleDao.removeGroup(groupId)) {
+			userGroupDao.removeGroup(groupId);
+		}
 	}
 
 	@Override

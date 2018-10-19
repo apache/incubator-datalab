@@ -30,9 +30,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.*;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -48,6 +48,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private static final String PAGES_FIELD = "pages";
 	private static final String EXPLORATORIES_FIELD = "exploratories";
 	private static final String COMPUTATIONALS_FIELD = "computationals";
+	private static final String GROUP_INFO = "groupInfo";
 
 
 	@Override
@@ -69,19 +70,9 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
-	public boolean addUserToRole(Set<String> users, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), addToSet(USERS_FIELD, users)));
-	}
-
-	@Override
 	public boolean addGroupToRole(Set<String> groups, Set<String> roleIds) {
 		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), addToSet(GROUPS_FIELD,
 				groups)));
-	}
-
-	@Override
-	public boolean removeUserFromRole(Set<String> users, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), pullAll(USERS_FIELD, users)));
 	}
 
 	@Override
@@ -90,16 +81,31 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
+	public void removeGroupWhenRoleNotIn(String group, Set<String> roleIds) {
+		updateMany(MongoCollections.ROLES, not(in(ID, roleIds)), pull(GROUPS_FIELD, group));
+	}
+
+	@Override
 	public void remove(String roleId) {
 		deleteOne(MongoCollections.ROLES, eq(ID, roleId));
+	}
+
+	@Override
+	public boolean removeGroup(String groupId) {
+		return conditionMatched(updateMany(MongoCollections.ROLES, in(GROUPS_FIELD, groupId), pull(GROUPS_FIELD,
+				groupId)));
 	}
 
 	@Override
 	public List<UserGroupDto> aggregateRolesByGroup() {
 		final Document role = roleDocument();
 		final Bson groupBy = group(GROUPS, new BsonField(ROLES, new Document(ADD_TO_SET, role)));
-		final List<Bson> pipeline = Arrays.asList(unwind(GROUPS), groupBy,
-				project(new Document(GROUP, "$" + ID).append(ROLES, "$" + ROLES)));
+		final Bson lookup = lookup(USER_GROUPS, ID, ID, GROUP_INFO);
+		final List<Bson> pipeline = Arrays.asList(unwind(GROUPS), groupBy, lookup,
+				project(new Document(GROUP, "$" + ID).append(GROUP_INFO, elementAt(GROUP_INFO, 0))
+						.append(ROLES, "$" + ROLES)),
+				project(new Document(GROUP, "$" + ID).append(USERS_FIELD, "$" + GROUP_INFO + "." + USERS_FIELD)
+						.append(ROLES, "$" + ROLES)));
 
 		return stream(aggregate(MongoCollections.ROLES, pipeline))
 				.map(d -> convertFromDocument(d, UserGroupDto.class))

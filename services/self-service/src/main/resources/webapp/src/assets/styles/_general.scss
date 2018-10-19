@@ -112,3 +112,12 @@ button {
 .success_color {color: #5cb85c}
 .warning_color {color: #f0ad4e}
 .danger_color {color: #d9534f}
+
+.list-header {
+  width: 100%;
+  border-top: 1px solid #edf1f5;
+  border-bottom: 1px solid #edf1f5;
+  color: #577289 !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}

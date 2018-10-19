@@ -78,6 +78,7 @@ public class SecurityResource implements SecurityAPI {
 	 * @return 500 Internal Server Error if post response fails.
 	 */
 	@POST
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/login")
 	@ApiOperation("Login attempt for user")
 	@ApiResponses({@ApiResponse(code = 500, message = "Internal server error occurred"),
@@ -107,6 +108,7 @@ public class SecurityResource implements SecurityAPI {
 	 * @return 500 Internal Server Error if post request fails.
 	 */
 	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
 	@Path("/authorize")
 	@ApiOperation(value = "Authorize attempt for user", authorizations =
 	@Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
