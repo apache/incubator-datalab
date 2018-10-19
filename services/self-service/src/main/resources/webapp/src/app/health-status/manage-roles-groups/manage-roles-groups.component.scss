@@ -21,31 +21,61 @@ limitations under the License.
   color: #4ab8dc;
   border: none;
   border-left: 1px solid #ececec;
-  padding: 5px 7px;
+  background-color: #fff;
   cursor: pointer;
+  &.not-allowed {
+    background-color: #dcdcdc;
+  }
 }
 
 .manage-roles-dialog {
-  overflow: hidden;
+  .content-box {
+    height: 600px;
+    padding: 20px 35px 35px;
+  }
+  .add-group {
+    margin-left: 5px;
+  }
   .no-details {
     color: #d8d8d8;
   }
   .stepper {
-    height: 200px;
+    height: 190px;
     margin-top: 10px;
     .inner-step {
       height: 70px;
       padding: 5px;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
       text-align: center;
       input {
         width: 450px;
+        align-self: center;
+      }
+      .caret {
+        i {
+          margin-top: 3px;
+        }
       }
     }
   }
   .selector-wrapper {
-    position: absolute;
-    min-width: 450px;
-    left: 25%;
+    display: flex;
+    align-self: center;
+    width: 490px;
+    height: 36px;
+    padding-left: 10px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    mat-form-field {
+      width: 100%;
+      .mat-form-field-wrapper {
+        padding-bottom: 0;
+      }
+    }
     .dropdown-multiselect {
       width: 100% !important;
       > button {
@@ -58,9 +88,10 @@ limitations under the License.
   }
   .scrolling-content {
     max-height: 450px;
+    overflow-x: hidden;
     overflow-y: auto;
     display: block;
-    padding: 15px;
+    padding: 15px 5px;
     &.stepper-opened {
       height: 250px;
     }
@@ -71,17 +102,21 @@ limitations under the License.
     .selector-wrapper-edit {
       display: flex;
       justify-content: space-between;
-
+      height: 36px;
+      padding-left: 10px;
+      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
       multi-select-dropdown {
         width: 100%;
         .dropdown-multiselect {
           > button {
-            padding: 6px 22px;
+            padding: 8px 22px 5px;
           }
         }
       }
       .caret {
-        box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+        &:hover {
+          box-shadow: 0 3px 1px -10px rgba(0, 0, 0, 0.2), 0 2px 1px 0 rgba(0, 0, 0, 0.17), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
+        }
       }
     }
   }
@@ -105,7 +140,6 @@ limitations under the License.
         cursor: pointer;
       }
     }
-
   }
   .expanded-panel {
     display: flex;
@@ -118,6 +152,12 @@ limitations under the License.
       box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
       input {
         height: 36px;
+        padding: 0;
+        padding-left: 10px;
+        width: 170px;
+      }
+      .caret {
+        width: 50px;
       }
     }
   }

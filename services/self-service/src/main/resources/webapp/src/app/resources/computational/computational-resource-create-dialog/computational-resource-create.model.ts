@@ -46,6 +46,7 @@ export class ComputationalResourceCreateModel {
   resourceImages: Array<ComputationalResourceImage> = [];
   templates: Array<ComputationalResourceApplicationTemplate> = [];
 
+  availableTemplates: boolean = false;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
@@ -104,6 +105,8 @@ export class ComputationalResourceCreateModel {
         data => {
           let computationalResourceImage;
 
+          this.availableTemplates = !!data.length;
+
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
             computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
 
@@ -114,8 +117,8 @@ export class ComputationalResourceCreateModel {
           if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider !== 'azure') {
             this.setSelectedClusterType(0);
           } else if (DICTIONARY.cloud_provider === 'azure') {
-            this.selectedItem = computationalResourceImage;
-            this.selectedImage = computationalResourceImage;
+            this.selectedItem = computationalResourceImage || {};
+            this.selectedImage = computationalResourceImage || {};
           }
 
           if (this.continueWith)

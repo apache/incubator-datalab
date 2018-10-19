@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.dto.exploratory;
@@ -44,6 +43,9 @@ public class LibInstallDTO {
 
 	@JsonProperty("error_message")
 	private String errorMessage;
+
+	@JsonProperty
+	private boolean override;
 
 	public LibInstallDTO(String group, String name, String version) {
 		this.group = group;

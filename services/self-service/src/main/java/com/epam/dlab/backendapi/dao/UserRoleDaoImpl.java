@@ -91,6 +91,12 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
+	public boolean removeGroup(String groupId) {
+		return conditionMatched(updateMany(MongoCollections.ROLES, in(GROUPS_FIELD, groupId), pull(GROUPS_FIELD,
+				groupId)));
+	}
+
+	@Override
 	public List<UserGroupDto> aggregateRolesByGroup() {
 		final Document role = roleDocument();
 		final Bson groupBy = group(GROUPS, new BsonField(ROLES, new Document(ADD_TO_SET, role)));

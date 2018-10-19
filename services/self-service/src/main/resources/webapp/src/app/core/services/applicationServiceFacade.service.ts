@@ -87,7 +87,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
       body,
-      this.getRequestOptions(true, true));
+      this.getRequestOptions(false, true));
   }
 
   public buildGetAuthToken(body: any): Observable<Response> {
@@ -449,6 +449,13 @@ export class ApplicationServiceFacade {
   public buildRemoveUsersForGroup(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildRemoveGroupById(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
       data,
       this.getRequestOptions(false, true));
   }

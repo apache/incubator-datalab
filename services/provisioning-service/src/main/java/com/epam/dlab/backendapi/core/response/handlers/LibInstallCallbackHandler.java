@@ -86,14 +86,8 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 	@Override
 	protected LibInstallStatusDTO parseOutResponse(JsonNode resultNode, LibInstallStatusDTO status) {
 
-		if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
-			for (LibInstallDTO lib : dto.getLibs()) {
-				lib.withStatus(status.getStatus()).withErrorMessage(status.getErrorMessage());
-			}
-			return status.withLibs(dto.getLibs());
-		}
-		if (resultNode == null) {
-			throw new DlabException("Can't handle response result node is null");
+		if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus()) || resultNode == null) {
+			throw new DlabException("Can't handle response result node is null or response status is failed");
 		}
 
 		JsonNode nodeLibs = resultNode.get(LIBS);
@@ -101,8 +95,10 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 			throw new DlabException("Can't handle response without property " + LIBS_ABSOLUTE_PATH);
 		}
 		try {
-			status.withLibs(mapper.readValue(nodeLibs.toString(), new TypeReference<List<LibInstallDTO>>() {
-			}));
+			final List<LibInstallDTO> libs = mapper.readValue(nodeLibs.toString(),
+					new TypeReference<List<LibInstallDTO>>() {
+			});
+			status.withLibs(libs);
 		} catch (IOException e) {
 			log.warn("Can't parse field {} for UUID {} in JSON", LIBS_ABSOLUTE_PATH, getUUID(), e);
 		}

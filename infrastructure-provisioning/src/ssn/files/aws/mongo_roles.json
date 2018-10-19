@@ -121,7 +121,7 @@
   },
   {
     "_id": "nbCreateTensor",
-    "description": "Create Notebook Tensor Flow",
+    "description": "Create Notebook Jupyter with TensorFlow",
     "exploratories": [
       "docker.dlab-tensor"
     ],
@@ -131,7 +131,7 @@
   },
   {
     "_id": "nbCreateZeppelin",
-    "description": "Create Notebook Zeppelin",
+    "description": "Create Notebook Apache Zeppelin",
     "exploratories": [
       "docker.dlab-zeppelin"
     ],
@@ -141,7 +141,7 @@
   },
   {
     "_id": "nbCreateTensorRstudio",
-    "description": "Create Notebook Tensor with Rstudio",
+    "description": "Create Notebook RStudio with TensorFlow",
     "exploratories": [
       "docker.dlab-tensor-rstudio"
     ],

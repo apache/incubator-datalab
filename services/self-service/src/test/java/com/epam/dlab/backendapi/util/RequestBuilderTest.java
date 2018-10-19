@@ -31,6 +31,7 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -562,7 +563,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto);
+		requestBuilder.newLibInstall(userInfo, uiDto, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -586,7 +587,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto);
+		requestBuilder.newLibInstall(userInfo, uiDto, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -606,7 +607,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newLibInstall(userInfo, uiDto);
+		requestBuilder.newLibInstall(userInfo, uiDto, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
@@ -690,7 +691,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource);
+		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -714,7 +715,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource);
+		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -734,7 +735,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource);
+		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();

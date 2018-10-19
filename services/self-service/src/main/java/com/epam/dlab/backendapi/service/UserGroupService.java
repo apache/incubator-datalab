@@ -34,5 +34,7 @@ public interface UserGroupService {
 
 	void removeGroupFromRole(Set<String> groups, Set<String> roleIds);
 
+	void removeGroup(String groupId);
+
 	List<UserGroupDto> getAggregatedRolesByGroup();
 }

@@ -22,17 +22,19 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div class="content-box">
-      <button mat-raised-button class="butt" (click)="stepperView = !stepperView">
+      <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView">
         <i class="material-icons">people_outline</i>Add group
       </button>
       <mat-horizontal-stepper #stepper *ngIf="stepperView" class="stepper ani">
         <mat-step>
           <ng-template matStepLabel>Groups</ng-template>
           <div class="inner-step">
-            <input type="text" placeholder="Enter group name" [(ngModel)]="setupGroup" [pattern]="groupnamePattern" #setupGroupName="ngModel">
-            <div class="danger_color" *ngIf="setupGroupName.errors?.pattern && setupGroupName.touched">Group name can only contain letters, numbers, hyphens and '_'</div>
+            <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup" #setupGroupName="ngModel">
+            <div class="danger_color" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only contain letters, numbers, hyphens and '_'</div>
+            <div class="danger_color" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already exists</div>
           </div>
           <div class="text-center m-bott-10">
+            <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
             <button mat-raised-button matStepperNext class="butt">Next<i class="material-icons">keyboard_arrow_right</i></button>
           </div>
         </mat-step>
@@ -40,11 +42,22 @@ limitations under the License.
           <ng-template matStepLabel>Roles</ng-template>
           <div class="inner-step">
             <div class="selector-wrapper">
-              <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'roles'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown>
+              <!-- <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'role'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown> -->
+              <mat-form-field>
+                  <mat-select multiple [compareWith]="compareObjects" name="roles" [(value)]="setupRoles" placeholder="Select roles">
+                    <mat-option *ngFor="let role of rolesList" [value]="role">
+                      {{ role }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
             </div>
           </div>
           <div class="text-center m-bott-10">
             <button mat-raised-button matStepperPrevious class="butt"><i class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
             <button mat-raised-button matStepperNext class="butt">Next<i class="material-icons">keyboard_arrow_right</i></button>
           </div>
         </mat-step>
@@ -55,10 +68,9 @@ limitations under the License.
           </div>
           <div class="text-center m-bott-10">
             <button mat-raised-button matStepperPrevious class="butt"><i class="material-icons">keyboard_arrow_left</i>Back</button>
-            <button mat-raised-button (click)="stepperView = false" class="butt">Cancel</button>
-            <button mat-raised-button (click)="resetDialog()" class="butt">Reset</button>
+            <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
             <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
-                    [disabled]="!setupGroup || setupGroupName.errors?.pattern || !setupUser || !setupRoles.length > 0">Create</button>
+                    [disabled]="!setupGroup || setupGroupName.errors?.pattern || !setupRoles.length > 0">Create</button>
           </div>
         </mat-step>
       </mat-horizontal-stepper>
@@ -72,14 +84,14 @@ limitations under the License.
           <mat-accordion class="scrolling-content" id="scrolling" [ngClass]="{'stepper-opened': stepperView }">
             <mat-expansion-panel *ngFor="let item of groupsData">
               <mat-expansion-panel-header>
-                <div class="groups ellipsis">
-                  <div>{{ item.group }}</div>
+                <div class="groups" matTooltip="{{item.group}}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">
+                  <div class="ellipsis">{{ item.group }}</div>
                 </div>
 
-                <div class="roles ellipsis">
+                <div class="roles">
                   <div *ngIf="item.roles; then roles_list else no_roles"></div>
                   <ng-template #roles_list>
-                    <div class="ellipsis" matTooltip="{{ item.selected_roles }}" matTooltipPosition="above">
+                    <div class="ellipsis" matTooltip="{{ item.selected_roles }}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">
                       <span *ngFor="let role of item.roles"><b> &#9642; </b>{{ role.description }}</span>
                     </div>
                   </ng-template> 
@@ -90,7 +102,7 @@ limitations under the License.
                   <div *ngIf="item.users; then users_list else no_users"></div>
 
                   <ng-template #users_list>
-                    <div class="ellipsis" matTooltip="{{item.users}}" matTooltipPosition="above">
+                    <div class="ellipsis" matTooltip="{{item.users}}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">
                       <span *ngFor="let user of item.users"><b> &#9642; </b>{{ user }}</span>
                     </div>
                   </ng-template>
@@ -99,18 +111,30 @@ limitations under the License.
               </mat-expansion-panel-header>
 
               <div class="expanded-panel">
-                <div class="groups"></div>
+                <div class="groups">
+                  <button mat-raised-button (click)="manageAction('delete', 'group', item)" class="butt">
+                    <i class="material-icons">clear</i>Delete group
+                  </button>
+                </div>
                 <div class="roles">
                   <div class="selector-wrapper-edit">
-                    <multi-select-dropdown (selectionChange)="onUpdate($event, item)" [type]="'update_roles'" [items]="rolesList" [model]="item.selected_roles"></multi-select-dropdown>
-                    <button class="caret" (click)="manageAction('update', 'roles', item, setupRoles)">
+                    <!-- <multi-select-dropdown (selectionChange)="onUpdate($event, item)" [type]="'update_roles'" [items]="rolesList" [model]="item.selected_roles"></multi-select-dropdown> -->
+
+                    <mat-form-field>
+                      <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
+                        <mat-option *ngFor="let role of rolesList" [value]="role">
+                          {{ role }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <button class="caret ani" (click)="manageAction('update', 'roles', item, item.selected_roles)" [ngClass]="{'not-allowed': !item.selected_roles.length}">
                       <i class="material-icons">done</i>
                     </button>
                   </div>
                 </div>
                 <div class="users">
                   <div *ngFor="let user of item.users" class="users-list">
-                    <span>{{ user }}</span>
+                    <span class="ellipsis" matTooltip="{{ user }}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">{{ user }}</span>
                     <i class="material-icons" (click)="manageAction('delete', 'users', item, user)">highlight_off</i>
                   </div>
                   <div class="add-input-block">

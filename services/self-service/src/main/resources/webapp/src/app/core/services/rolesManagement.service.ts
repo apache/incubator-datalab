@@ -68,4 +68,13 @@ export class RolesGroupsService {
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
+
+  public removeGroupById(data): Observable<{}> {
+    const url = `/${data}`;
+
+    return this.applicationServiceFacade
+      .buildRemoveGroupById(JSON.stringify(url))
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
 }

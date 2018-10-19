@@ -105,6 +105,20 @@ public class UserGroupResource {
 		return Response.ok().build();
 	}
 
+	@DELETE
+	@Path("{id}")
+	@ApiOperation("Removes user group from roles that are assigned to it")
+	@ApiResponses({
+			@ApiResponse(code = 400, message = "Validation exception occurred"),
+			@ApiResponse(code = 200, message = "Group successfully removed")}
+	)
+	public Response deleteGroup(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+								@ApiParam @PathParam("id") String group) {
+		log.info("Admin {} is trying to delete group {} from application", userInfo.getName(), group);
+		userGroupService.removeGroup(group);
+		return Response.ok().build();
+	}
+
 	@PUT
 	@Path("user")
 	@ApiOperation("Adds new users to user group")

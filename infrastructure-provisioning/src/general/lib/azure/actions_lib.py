@@ -31,6 +31,7 @@ from azure.common.credentials import ServicePrincipalCredentials
 import azure.common.exceptions as AzureExceptions
 from fabric.api import *
 from fabric.contrib.files import exists
+import backoff
 import urllib2
 import meta_lib
 import logging
@@ -842,11 +843,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    @backoff.on_exception(backoff.expo,
+                          TypeError,
+                          max_tries=5)
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
                           tags, public_ip_name="None"):
         try:
             subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
-            private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
+            private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr)
             subnet_id = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
             security_group_id = meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
             if public_ip_name == "None":
@@ -884,8 +888,12 @@ class AzureActions:
                     },
                     "ip_configurations": ip_params
                 }
-            )
-            return result._operation.resource.id
+            ).wait()
+            network_interface_id = meta_lib.AzureMeta().get_network_interface(
+                resource_group_name,
+                interface_name
+            ).id
+            return network_interface_id
         except Exception as err:
             logging.info(
                 "Unable to create network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))

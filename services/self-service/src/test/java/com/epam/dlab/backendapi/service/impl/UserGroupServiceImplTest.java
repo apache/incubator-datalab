@@ -23,6 +23,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -145,6 +146,42 @@ public class UserGroupServiceImplTest {
 		expectedException.expect(ResourceNotFoundException.class);
 
 		userRolesService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
+	}
+
+	@Test
+	public void removeGroup() {
+
+		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
+		doNothing().when(userGroupDao).removeGroup(anyString());
+
+		userRolesService.removeGroup(GROUP);
+
+		verify(userRoleDao).removeGroup(GROUP);
+		verify(userGroupDao).removeGroup(GROUP);
+		verifyNoMoreInteractions(userGroupDao, userRoleDao);
+	}
+
+	@Test
+	public void removeGroupWhenGroupNotExist() {
+
+		when(userRoleDao.removeGroup(anyString())).thenReturn(false);
+		doNothing().when(userGroupDao).removeGroup(anyString());
+
+		userRolesService.removeGroup(GROUP);
+
+		verify(userRoleDao).removeGroup(GROUP);
+		verify(userGroupDao, never()).removeGroup(GROUP);
+		verifyNoMoreInteractions(userGroupDao, userRoleDao);
+	}
+
+	@Test
+	public void removeGroupWithException() {
+		when(userRoleDao.removeGroup(anyString())).thenThrow(new DlabException("Exception"));
+
+		expectedException.expectMessage("Exception");
+		expectedException.expect(DlabException.class);
+
+		userRolesService.removeGroup(GROUP);
 	}
 
 	private UserGroupDto getUserGroup() {

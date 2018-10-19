@@ -28,10 +28,9 @@ import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,7 +45,7 @@ public class SystemInfoServiceImpl implements SystemInfoService {
 		HardwareAbstractionLayer hal = si.getHardware();
 		final OperatingSystem operatingSystem = si.getOperatingSystem();
 		return new SystemInfoDto(getOsInfo(operatingSystem), getProcessorInfo(hal), getMemoryInfo(hal),
-				getDiskInfoList(operatingSystem.getFileSystem()));
+				getDiskInfoList(File.listRoots()));
 	}
 
 	private OsInfo getOsInfo(OperatingSystem os) {
@@ -86,14 +85,14 @@ public class SystemInfoServiceImpl implements SystemInfoService {
 				.build();
 	}
 
-	private List<DiskInfo> getDiskInfoList(FileSystem fileSystem) {
-		return Arrays.stream(fileSystem.getFileStores()).map(this::getDiskInfo).collect(Collectors.toList());
+	private List<DiskInfo> getDiskInfoList(File[] roots) {
+		return Arrays.stream(roots).map(this::getDiskInfo).collect(Collectors.toList());
 	}
 
-	private DiskInfo getDiskInfo(OSFileStore fileStore) {
+	private DiskInfo getDiskInfo(File fileStore) {
 		return DiskInfo.builder()
 				.serialNumber(fileStore.getName())
-				.usedByteSpace(fileStore.getUsableSpace())
+				.usedByteSpace(fileStore.getTotalSpace() - fileStore.getFreeSpace())
 				.totalByteSpace(fileStore.getTotalSpace())
 				.build();
 	}

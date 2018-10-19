@@ -22,9 +22,9 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.*;
 import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
-import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -41,9 +41,9 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -51,6 +51,12 @@ import static org.mockito.Mockito.*;
 
 public class LibExploratoryResourceTest extends TestBase {
 
+	private static final String LIB_GROUP = "group";
+	private static final String LIB_NAME = "name";
+	private static final String LIB_VERSION = "version";
+	private static final String EXPLORATORY_NAME = "explName";
+	private static final String COMPUTATIONAL_NAME = "compName";
+	private static final String UUID = "uid";
 	private ExploratoryDAO exploratoryDAO = mock(ExploratoryDAO.class);
 	private LibraryService libraryService = mock(LibraryService.class);
 	private RESTService provisioningService = mock(RESTService.class);
@@ -59,8 +65,7 @@ public class LibExploratoryResourceTest extends TestBase {
 
 	@Rule
 	public final ResourceTestRule resources = getResourceTestRuleInstance(
-			new LibExploratoryResource(exploratoryDAO, libraryService, provisioningService, requestId,
-					externalLibraryService));
+			new LibExploratoryResource(exploratoryDAO, libraryService, externalLibraryService));
 
 	@Before
 	public void setup() throws AuthenticationException {
@@ -256,79 +261,49 @@ public class LibExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void libInstall() {
-		when(libraryService.generateLibraryInstallDTO(any(UserInfo.class), any(LibInstallFormDTO.class)))
-				.thenReturn(getLibraryInstallDTO());
-		when(libraryService.prepareComputationalLibInstallation(anyString(), any(LibInstallFormDTO.class),
-				any(LibraryInstallDTO.class))).thenReturn(getLibraryInstallDTO());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any()))
-				.thenReturn("someUuid");
-		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
+		when(libraryService.installComputationalLibs(any(UserInfo.class), anyString(), anyString(),
+				anyListOf(LibInstallDTO.class))).thenReturn(UUID);
 		LibInstallFormDTO libInstallFormDTO = new LibInstallFormDTO();
-		libInstallFormDTO.setComputationalName("compName");
-		libInstallFormDTO.setNotebookName("explName");
-		libInstallFormDTO.setLibs(Collections.emptyList());
+		libInstallFormDTO.setComputationalName(COMPUTATIONAL_NAME);
+		libInstallFormDTO.setNotebookName(EXPLORATORY_NAME);
+		libInstallFormDTO.setLibs(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION)));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_install")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(libInstallFormDTO));
 
-		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(UUID, response.readEntity(String.class));
 
-		verifyZeroInteractions(libraryService, provisioningService, requestId);
-	}
-
-	@Test
-	public void libInstallWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		when(libraryService.generateLibraryInstallDTO(any(UserInfo.class), any(LibInstallFormDTO.class)))
-				.thenReturn(getLibraryInstallDTO());
-		when(libraryService.prepareComputationalLibInstallation(anyString(), any(LibInstallFormDTO.class),
-				any(LibraryInstallDTO.class))).thenReturn(getLibraryInstallDTO());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any()))
-				.thenReturn("someUuid");
-		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
-		LibInstallFormDTO libInstallFormDTO = new LibInstallFormDTO();
-		libInstallFormDTO.setComputationalName("compName");
-		libInstallFormDTO.setNotebookName("explName");
-		libInstallFormDTO.setLibs(Collections.emptyList());
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/lib_install")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(libInstallFormDTO));
-
-		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verifyZeroInteractions(libraryService, provisioningService, requestId);
+		verify(libraryService).installComputationalLibs(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
+				eq(COMPUTATIONAL_NAME), eq(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION))));
+		verifyNoMoreInteractions(libraryService);
+		verifyZeroInteractions(provisioningService, requestId);
 	}
 
 
 	@Test
 	public void libInstallWithoutComputational() {
-		when(libraryService.generateLibraryInstallDTO(any(UserInfo.class), any(LibInstallFormDTO.class)))
-				.thenReturn(getLibraryInstallDTO());
-		when(libraryService.prepareExploratoryLibInstallation(anyString(), any(LibInstallFormDTO.class),
-				any(LibraryInstallDTO.class))).thenReturn(getLibraryInstallDTO());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any()))
-				.thenReturn("someUuid");
-		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
+		when(libraryService.installExploratoryLibs(any(UserInfo.class), anyString(), anyListOf(LibInstallDTO.class))).thenReturn(UUID);
 		LibInstallFormDTO libInstallFormDTO = new LibInstallFormDTO();
-		libInstallFormDTO.setComputationalName("");
-		libInstallFormDTO.setNotebookName("explName");
-		libInstallFormDTO.setLibs(Collections.emptyList());
+		libInstallFormDTO.setNotebookName(EXPLORATORY_NAME);
+		libInstallFormDTO.setLibs(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION)));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/lib_install")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(libInstallFormDTO));
 
-		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(UUID, response.readEntity(String.class));
 
-		verifyZeroInteractions(libraryService, provisioningService, requestId);
+		verify(libraryService).installExploratoryLibs(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
+				eq(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION))));
+		verifyNoMoreInteractions(libraryService);
+		verifyZeroInteractions(provisioningService, requestId);
 	}
 
 	@Test
@@ -447,16 +422,16 @@ public class LibExploratoryResourceTest extends TestBase {
 		UserComputationalResource ucResource = new UserComputationalResource();
 		ucResource.setComputationalName("compName");
 		return new UserInstanceDTO().withUser(USER).withExploratoryName("explName")
-				.withResources(Collections.singletonList(ucResource));
+				.withResources(singletonList(ucResource));
 	}
 
 	private List<Document> getDocuments() {
-		return Collections.singletonList(new Document());
+		return singletonList(new Document());
 	}
 
 	private List<LibInfoRecord> getLibInfoRecords() {
-		return Collections.singletonList(new LibInfoRecord(
-				new LibKey(), Collections.singletonList(new LibraryStatus())));
+		return singletonList(new LibInfoRecord(
+				new LibKey(), singletonList(new LibraryStatus())));
 	}
 
 	private LibraryInstallDTO getLibraryInstallDTO() {
