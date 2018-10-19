@@ -81,7 +81,9 @@ public class DexOauthServiceImpl implements DexOauthService {
 			final String tokenPayload = new String(Base64.decodeBase64(idToken.split("\\.")[1]));
 			final DexUser dexUser = mapper.readValue(tokenPayload, DexUser.class);
 			final UserInfo userInfo = new UserInfo(dexUser.getEmail(), idToken);
-			userInfo.addRoles(dexUser.getGroups());
+			if (dexUser.getGroups() != null) {
+				userInfo.addRoles(dexUser.getGroups());
+			}
 			final ZonedDateTime expirationDateTime =
 					LocalDateTime.now().plusSeconds(expiresAfter).atZone(ZoneId.systemDefault());
 			userInfo.setExpireAt(Date.from(expirationDateTime.toInstant()));
