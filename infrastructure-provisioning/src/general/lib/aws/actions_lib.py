@@ -1221,6 +1221,7 @@ def ensure_local_jars(os_user, jars_dir, ivy_dir='/opt/ivy/'):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             templates_dir = '/root/templates/'
+            ivy_settings = 'ivysettings.xml'
             sudo('mkdir -p {0}'.format(jars_dir))
             sudo('mkdir -p {0}'.format(ivy_dir))
             sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
@@ -1231,7 +1232,8 @@ def ensure_local_jars(os_user, jars_dir, ivy_dir='/opt/ivy/'):
                     {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             sudo('wget https://repo1.maven.org/maven2/org/apache/ivy/ivy/{0}/ivy-{0}.jar -O \
                     {1}ivy-{0}.jar'.format('2.4.0', ivy_dir))
-            put('{0}ivysettings.xml'.format(templates_dir), '{0}ivysettings.xml'.format(ivy_dir))
+            put('{0}{1}'.format(templates_dir, ivy_settings), '/tmp/{0}'.format(ivy_settings))
+            sudo('mv -f /tmp/{0} {1}{0}'.format(ivy_settings, ivy_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)
