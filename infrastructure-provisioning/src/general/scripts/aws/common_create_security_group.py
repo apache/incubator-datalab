@@ -75,8 +75,7 @@ if __name__ == "__main__":
                 with open('/tmp/ssn_sg_id', 'w') as f:
                     f.write(security_group_id)
             success = True
-        except Exception as err:
-            print(err)
+        except:
             success = False
     else:
         parser.print_help()
