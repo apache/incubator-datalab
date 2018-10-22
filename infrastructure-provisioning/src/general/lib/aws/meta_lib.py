@@ -316,6 +316,17 @@ def get_vpc_by_cidr(cidr):
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def get_cidr_by_vpc(vpc_id):
+    try:
+        client = boto3.client('ec2')
+        cidr = client.describe_vpcs(VpcIds=[vpc_id]).get('Vpcs')[0].get('CidrBlock')
+        return cidr
+    except Exception as err:
+        logging.error("Error with getting VPC CidrBlock by id: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting VPC CidrBlock by id",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def get_vpc_by_tag(tag_name, tag_value):
     try:

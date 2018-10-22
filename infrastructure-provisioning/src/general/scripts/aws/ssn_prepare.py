@@ -93,6 +93,8 @@ if __name__ == "__main__":
         try:
             if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
                 raise KeyError
+            elif os.environ['aws_vpc2_id'] and os.environ['conf_duo_vpc_enable'] == 'true':
+                os.environ['conf_vpc2_cidr'] = get_cidr_by_vpc(os.environ['aws_vpc2_id'])
         except KeyError:
             try:
                 pre_defined_vpc2 = True

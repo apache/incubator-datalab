@@ -135,6 +135,7 @@ if __name__ == "__main__":
             route_table = ec2.RouteTable(rt)
             try:
                 route_table.associate_with_subnet(SubnetId=subnet_id)
+                create_peer_routes(os.environ['aws_peering_id'], args.infra_tag_value)
             except exceptions.ClientError as err:
                 if 'Resource.AlreadyAssociated' in str(err):
                     print('Other route table is already associted with this subnet. Skipping...')
