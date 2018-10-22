@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.dto.status;
@@ -22,12 +21,14 @@ import com.epam.dlab.model.ResourceType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 /**
  * Describe the resource (host, cluster, storage) for check status in Cloud.
  */
+@NoArgsConstructor
 public class EnvResource {
 	@JsonProperty
 	private String id;
@@ -39,6 +40,12 @@ public class EnvResource {
 	private ResourceType resourceType;
 	@JsonProperty
 	private Date lastActivity;
+
+	public EnvResource(String id, String name, ResourceType resourceType) {
+		this.id = id;
+		this.name = name;
+		this.resourceType = resourceType;
+	}
 
 	/**
 	 * Return the id of resource. instanceId for host, clusterId for cluster, path for storage.
