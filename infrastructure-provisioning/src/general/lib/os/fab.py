@@ -303,14 +303,17 @@ def install_r_pkg(requisites):
         return "Fail to install R packages"
 
 
-def update_spark_jars(root_dir='/opt', jars_dir='/opt/jars'):
+def update_spark_jars(jars_dir='/opt/jars'):
     try:
-        configs = sudo('find {0} -name spark-defaults.conf -type f'.format(root_dir)).split('\r\n')
-        for conf in configs:
-            sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
-            sudo('''echo "# Generated spark.jars by DLab from {0}\n \
-                spark.jars $(find {0} -name '*.jar' | xargs | tr ' ' ',')" >> {1}'''.format(jars_dir, conf))
-            sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
+        configs = sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
+        if exists(jars_dir):
+            for conf in filter(None, configs):
+                sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
+                sudo('''echo "# Generated spark.jars by DLab from {0}\n \
+                    spark.jars $(find {0} -name '*.jar' | xargs | tr ' ' ',')" >> {1}'''.format(jars_dir, conf))
+                sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
+        else:
+            print("Can't find directory {0} with jar files".format(jars_dir))
     except Exception as err:
         append_result("Failed to update spark.jars parameter", str(err))
         print("Failed to update spark.jars parameter")
@@ -320,21 +323,23 @@ def update_spark_jars(root_dir='/opt', jars_dir='/opt/jars'):
 def install_java_pkg(requisites):
     status = list()
     error_parser = "ERROR|error|No such|no such|Please run|requires|module not found"
+    templates_dir = '/root/templates/'
     ivy_dir = '/opt/ivy'
     ivy_cache_dir = '{0}/cache/'.format(ivy_dir)
-    ivy_settings = '{0}/ivysettings.xml'.format(ivy_dir)
+    ivy_settings = 'ivysettings.xml'
     dest_dir = '/opt/jars/java'
     try:
         ivy_jar = sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version']))
-        sudo('mkdir -p {0}'.format(dest_dir))
+        sudo('mkdir -p {0} {1}'.format(ivy_dir, dest_dir))
+        put('{0}{1}'.format(templates_dir, ivy_settings), '{0}/{1}'.format(ivy_dir, ivy_settings), use_sudo=True)
         for java_pkg in requisites:
             sudo('rm -rf {0}'.format(ivy_cache_dir))
             sudo('mkdir -p {0}'.format(ivy_cache_dir))
             group, artifact, version, override = java_pkg
             print("Installing package (override: {3}): {0}:{1}:{2}".format(group, artifact, version, override))
-            sudo('java -jar {0} -settings {1} -cache {2} -dependency {3} {4} {5} 2>&1 | tee /tmp/tee.tmp; \
-                if ! grep -w -E  "({6})" /tmp/tee.tmp > /tmp/install_{4}.log; then echo "" > /tmp/install_{4}.log;fi'
-                 .format(ivy_jar, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser))
+            sudo('java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; \
+                if ! grep -w -E  "({7})" /tmp/tee.tmp > /tmp/install_{5}.log; then echo "" > /tmp/install_{5}.log;fi'
+                 .format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser))
             err = sudo('cat /tmp/install_{0}.log'.format(artifact)).replace('"', "'").strip()
             sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
                 if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(ivy_cache_dir, artifact))
@@ -344,7 +349,6 @@ def install_java_pkg(requisites):
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
             else:
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "failed", "error_message": err})
-        # sudo('chown -R {0}:{0} {1}'.format(os.environ['conf_os_user'], dest_dir))
         update_spark_jars()
         return status
     except Exception as err:
