@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
 
@@ -24,8 +24,7 @@ import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dic
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
-              '../../resources/resources-grid/resources-grid.component.css'],
-  encapsulation: ViewEncapsulation.None
+              '../../resources/resources-grid/resources-grid.component.css']
 })
 export class ReportingGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
