@@ -854,9 +854,11 @@ def remove_peering(tag_value):
         if os.environ['conf_duo_vpc_enable']=='true':
             peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
                                                                    {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
-        if peering_id:
-            client.delete_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
-            print("Peering connection {} has been deleted successfully".format(peering_id))
+            if peering_id:
+                client.delete_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
+                print("Peering connection {} has been deleted successfully".format(peering_id))
+            else:
+                print("There are no peering connections to delete")
         else:
             print("There are no peering connections to delete")
     except Exception as err:
