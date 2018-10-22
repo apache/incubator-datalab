@@ -73,7 +73,9 @@ if __name__ == "__main__":
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
-    edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
+    edge_conf['allowed_ip_cidr'] = list()
+    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+        edge_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ','')})
     edge_conf['network_type'] = os.environ['conf_network_type']
     edge_conf['all_ip_cidr'] = '0.0.0.0/0'
     if 'aws_user_predefined_s3_policies' not in os.environ:
@@ -158,13 +160,13 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": edge_conf['allowed_ip_cidr'],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 80,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": edge_conf['allowed_ip_cidr'],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]

@@ -64,7 +64,9 @@ if __name__ == "__main__":
         ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
-        allowed_ip_cidr = os.environ['conf_allowed_ip_cidr']
+        allowed_ip_cidr = list()
+        for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+            allowed_ip_cidr.append({"CidrIp": cidr.replace(' ','')})
         sg_name = instance_name + '-SG'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
@@ -129,19 +131,19 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 8080,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 22,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
@@ -153,13 +155,13 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 443,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": -1,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
                     },
                     {
