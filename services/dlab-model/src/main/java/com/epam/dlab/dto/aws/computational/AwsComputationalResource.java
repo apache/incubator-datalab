@@ -27,7 +27,6 @@ import lombok.ToString;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Stores info about the user's computational resources for notebook.
@@ -37,38 +36,40 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public class AwsComputationalResource extends UserComputationalResource {
 
-    @JsonProperty("instance_id")
-    private String instanceId;
-    @JsonProperty("master_node_shape")
-    private String masterShape;
-    @JsonProperty("slave_node_shape")
-    private String slaveShape;
-    @JsonProperty("slave_node_spot")
-    private Boolean slaveSpot = false;
-    @JsonProperty("slave_node_spot_pct_price")
-    private Integer slaveSpotPctPrice;
-    @JsonProperty("total_instance_number")
-    private String slaveNumber;
-    @JsonProperty("emr_version")
-    private String version;
+	@JsonProperty("instance_id")
+	private String instanceId;
+	@JsonProperty("master_node_shape")
+	private String masterShape;
+	@JsonProperty("slave_node_shape")
+	private String slaveShape;
+	@JsonProperty("slave_node_spot")
+	private Boolean slaveSpot;
+	@JsonProperty("slave_node_spot_pct_price")
+	private Integer slaveSpotPctPrice;
+	@JsonProperty("total_instance_number")
+	private String slaveNumber;
+	@JsonProperty("emr_version")
+	private String version;
+	private List<EmrConfig> config;
 
-    @Builder
-    public AwsComputationalResource(String computationalName, String computationalId, String imageName,
+	@Builder
+	public AwsComputationalResource(String computationalName, String computationalId, String imageName,
 									String templateName, String status, Date uptime,
 									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, Boolean slaveSpot,
 									Integer slaveSpotPctPrice, String slaveNumber, String version,
 									List<ResourceURL> resourceURL, Date lastActivity,
-									boolean checkInactivityRequired, Map<String, Object> config) {
+									boolean checkInactivityRequired, List<EmrConfig> config) {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, config);
-        this.instanceId = instanceId;
-        this.masterShape = masterShape;
-        this.slaveShape = slaveShape;
-        this.slaveSpot = slaveSpot;
-        this.slaveSpotPctPrice = slaveSpotPctPrice;
-        this.slaveNumber = slaveNumber;
-        this.version = version;
-    }
+				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired);
+		this.instanceId = instanceId;
+		this.masterShape = masterShape;
+		this.slaveShape = slaveShape;
+		this.slaveSpot = slaveSpot;
+		this.slaveSpotPctPrice = slaveSpotPctPrice;
+		this.slaveNumber = slaveNumber;
+		this.version = version;
+		this.config = config;
+	}
 }
