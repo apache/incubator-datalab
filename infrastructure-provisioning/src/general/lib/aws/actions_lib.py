@@ -238,6 +238,34 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
         append_result(str({"error": "Unable to create security group", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def create_route_by_id(subnet_id, vpc_id, peering_id, another_cidr):
+    client = boto3.client('ec2')
+    try:
+        table_id = client.describe_route_tables(Filters=[{'Name': 'association.subnet-id', 'Values': [subnet_id]}]).get(
+            'RouteTables')
+        if table_id:
+            final_id = table_id[0]['Associations'][0]['RouteTableId']
+        else:
+            table_id = client.describe_route_tables(
+                Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}, {'Name': 'association.main', 'Values': ['true']}]).get(
+                'RouteTables')
+            final_id = table_id[0]['Associations'][0]['RouteTableId']
+        for table in table_id:
+            routes = table.get('Routes')
+            routeExists = False
+            for route in routes:
+                if route.get('DestinationCidrBlock') == os.environ['conf_vpc2_cidr'].replace("'", ""):
+                    routeExists = True
+                if not routeExists:
+                    client.create_route(
+                        DestinationCidrBlock = os.environ['conf_vpc2_cidr'].replace("'", ""),
+                        VpcPeeringConnectionId = peering_id,
+                        RouteTableId = final_id)
+    except Exception as err:
+        logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create route",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def create_peer_routes(peering_id, service_base_name):
     client = boto3.client('ec2')
