@@ -39,6 +39,7 @@ args = parser.parse_args()
 
 
 def modify_conf_file(args):
+    os.environ['conf_vpc2_cidr'] = get_cidr_by_vpc(os.environ['aws_vpc2_id'])
     variables_list = {}
     for os_var in os.environ:
         if "'" not in os.environ[os_var] and os_var != 'aws_access_key' and os_var != 'aws_secret_access_key':
