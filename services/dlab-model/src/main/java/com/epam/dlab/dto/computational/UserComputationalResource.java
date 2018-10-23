@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -53,8 +52,6 @@ public class UserComputationalResource {
 	private Date lastActivity;
 	@JsonProperty("check_inactivity_required")
 	private boolean checkInactivityRequired;
-	@JsonProperty("config")
-	private Map<String, Object> config;
 	@JsonProperty("master_node_shape")
 	private String masterNodeShape;
 	@JsonProperty("dataengine_instance_shape")
@@ -63,7 +60,7 @@ public class UserComputationalResource {
 	public UserComputationalResource(String computationalName, String computationalId, String imageName,
 									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
 									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl, Date lastActivity,
-									 boolean checkInactivityRequired, Map<String, Object> config) {
+									 boolean checkInactivityRequired) {
 		this.computationalName = computationalName;
 		this.computationalId = computationalId;
 		this.imageName = imageName;
@@ -75,6 +72,5 @@ public class UserComputationalResource {
 		this.resourceUrl = resourceUrl;
 		this.lastActivity = lastActivity;
 		this.checkInactivityRequired = checkInactivityRequired;
-		this.config = config;
 	}
 }

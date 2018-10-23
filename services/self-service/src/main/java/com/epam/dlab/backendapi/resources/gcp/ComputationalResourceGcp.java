@@ -92,7 +92,6 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.slaveNumber(formDTO.getSlaveInstanceCount())
 					.masterNumber(formDTO.getMasterInstanceCount())
 					.preemptibleNumber(formDTO.getPreemptibleCount())
-					.config(formDTO.getConfig())
 					.version(formDTO.getVersion())
 					.checkInactivityRequired(formDTO.isCheckInactivityRequired()).build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,

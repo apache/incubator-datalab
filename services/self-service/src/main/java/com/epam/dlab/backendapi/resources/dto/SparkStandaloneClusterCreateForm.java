@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,6 +26,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SparkStandaloneClusterCreateForm extends ComputationalCreateFormDTO {
 
 	@NotBlank

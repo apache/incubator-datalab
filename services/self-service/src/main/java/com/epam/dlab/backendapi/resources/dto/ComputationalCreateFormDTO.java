@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
-import java.util.Map;
-
 /**
  * Stores info about creation of the computational resource.
  */
@@ -45,9 +43,6 @@ public class ComputationalCreateFormDTO {
 	@NotBlank
 	@JsonProperty("notebook_name")
 	private String notebookName;
-
-	@JsonProperty
-	private Map<String, Object> config;
 
 	@JsonProperty("check_inactivity_required")
 	private boolean checkInactivityRequired = true;
