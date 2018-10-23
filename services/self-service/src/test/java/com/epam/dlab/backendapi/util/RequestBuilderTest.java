@@ -837,27 +837,9 @@ public class RequestBuilderTest {
 	@Test
 	public void newComputationalCreateForAzure() {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.AZURE);
-		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
-		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
-		when(settingsDAO.getAzureRegion()).thenReturn("someAzureRegion");
-		when(settingsDAO.getAzureResourceGroupName()).thenReturn("someAzureResourceGroup");
-		when(settingsDAO.getAzureSecurityGroupName()).thenReturn("someAzureResourceGroupName");
-		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
-		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		ComputationalCreateFormDTO form = new AwsComputationalCreateForm();
-
-		requestBuilder.newComputationalCreate(userInfo, uiDto, form);
-
-		verify(configuration, times(3)).getCloudProvider();
-		verify(settingsDAO).getServiceBaseName();
-		verify(settingsDAO).getConfOsFamily();
-		verify(settingsDAO).getAzureRegion();
-		verify(settingsDAO).getAzureResourceGroupName();
-		verify(settingsDAO).getAzureSecurityGroupName();
-		verify(settingsDAO).getAzureSubnetName();
-		verify(settingsDAO).getAzureVpcName();
-		verifyNoMoreInteractions(configuration, settingsDAO);
+		expectedException.expect(UnsupportedOperationException.class);
+		requestBuilder.newComputationalCreate(userInfo, uiDto, new AwsComputationalCreateForm());
 	}
 
 	@Test
