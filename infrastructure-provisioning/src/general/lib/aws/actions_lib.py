@@ -254,13 +254,13 @@ def create_route_by_id(subnet_id, vpc_id, peering_id, another_cidr):
             routes = table.get('Routes')
             routeExists = False
             for route in routes:
-                if route.get('DestinationCidrBlock') == os.environ['conf_vpc2_cidr'].replace("'", ""):
+                if route.get('DestinationCidrBlock') == another_cidr:
                     routeExists = True
-                if not routeExists:
-                    client.create_route(
-                        DestinationCidrBlock = os.environ['conf_vpc2_cidr'].replace("'", ""),
-                        VpcPeeringConnectionId = peering_id,
-                        RouteTableId = final_id)
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock = another_cidr,
+                    VpcPeeringConnectionId = peering_id,
+                    RouteTableId = final_id)
     except Exception as err:
         logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create route",
