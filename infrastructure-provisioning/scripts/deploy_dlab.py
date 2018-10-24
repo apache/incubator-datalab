@@ -93,8 +93,11 @@ args = parser.parse_args()
 def generate_docker_command():
     docker_command = ''
     command = []
-    command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
-                   format(args.key_path, args.conf_key_name, args.workspace_path))
+    if args.action == 'terminate':
+        command.append('sudo docker run -i ')
+    else:
+        command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
+                       format(args.key_path, args.conf_key_name, args.workspace_path))
     if args.conf_cloud_provider == 'azure':
         command.append('-v {}:/root/azure_auth.json '.format(args.azure_auth_path))
     elif args.conf_cloud_provider == 'gcp':
