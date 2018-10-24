@@ -28,6 +28,10 @@ export class AppRoutingService {
       this.router.navigate(['/login']);
   }
 
+  redirectToNoAccessPage(): void {
+    this.router.navigate(['/403']);
+  }
+
   redirectToHomePage(): void {
     this.router.navigate(['/resources_list']);
   }
