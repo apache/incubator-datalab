@@ -181,36 +181,39 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@Override
-	public void stopSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
-		final UserInstanceDTO exploratory = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName,
-				true);
-		final UserComputationalResource computationalResource = getComputationalResource(exploratoryName,
-				computationalName, exploratory, UserInstanceStatus.RUNNING);
-		log.debug("{} spark cluster {} for exploratory {}", STOPPING.toString(), computationalName, exploratoryName);
-		updateComputationalStatus(userInfo.getName(), exploratoryName, computationalResource.getComputationalName(),
-				STOPPING);
-		final String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
-				userInfo.getAccessToken(),
-				requestBuilder.newComputationalStop(userInfo, exploratory,
-						computationalResource.getComputationalName()), String.class);
-		requestId.put(userInfo.getName(), uuid);
+	public void stopSparkCluster(UserInfo userInfo, String expName, String compName) {
+		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), expName, true);
+		final UserInstanceStatus requiredStatus = UserInstanceStatus.RUNNING;
+		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
+			log.debug("{} spark cluster {} for userInstance {}", STOPPING.toString(), compName, expName);
+			updateComputationalStatus(userInfo.getName(), expName, compName, STOPPING);
+			final String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
+					userInfo.getAccessToken(),
+					requestBuilder.newComputationalStop(userInfo, userInstance, compName), String.class);
+			requestId.put(userInfo.getName(), uuid);
+		} else {
+			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
+					requiredStatus.toString(), compName, expName));
+		}
 
 	}
 
 	@Override
-	public void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName) {
-		final UserInstanceDTO exploratory =
-				exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName, true);
-		final UserComputationalResource computationalResource = getComputationalResource(exploratoryName,
-				computationalName, exploratory, UserInstanceStatus.STOPPED);
-		log.debug("{} spark cluster {} for exploratory {}", STARTING.toString(),
-				computationalResource.getComputationalName(), exploratoryName);
-		updateComputationalStatus(userInfo.getName(), exploratoryName, computationalResource.getComputationalName(),
-				STARTING);
-		final String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_START_SPARK,
-				userInfo.getAccessToken(), requestBuilder.newComputationalStart(userInfo, exploratory,
-						computationalResource.getComputationalName()), String.class);
-		requestId.put(userInfo.getName(), uuid);
+	public void startSparkCluster(UserInfo userInfo, String expName, String compName) {
+		final UserInstanceDTO userInstance =
+				exploratoryDAO.fetchExploratoryFields(userInfo.getName(), expName, true);
+		final UserInstanceStatus requiredStatus = UserInstanceStatus.STOPPED;
+		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
+			log.debug("{} spark cluster {} for userInstance {}", STARTING.toString(), compName, expName);
+			updateComputationalStatus(userInfo.getName(), expName, compName, STARTING);
+			final String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_START_SPARK,
+					userInfo.getAccessToken(), requestBuilder.newComputationalStart(userInfo, userInstance,
+							compName), String.class);
+			requestId.put(userInfo.getName(), uuid);
+		} else {
+			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
+					requiredStatus.toString(), compName, expName));
+		}
 	}
 
 	/**
@@ -273,14 +276,13 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	private void stopClusters(UserInstanceDTO ui) {
-		final LocalDateTime now = LocalDateTime.now();
 		ui.getResources().stream()
-				.filter(c -> lastActivityBefore(now, c))
+				.filter(this::shouldClusterBeInactivated)
 				.forEach(c -> stopCluster(c, ui.getUser(), ui.getExploratoryName()));
 	}
 
-	private boolean lastActivityBefore(LocalDateTime now, UserComputationalResource c) {
-		return c.getLastActivity().plusMinutes(c.getMaxInactivity()).isBefore(now);
+	private boolean shouldClusterBeInactivated(UserComputationalResource c) {
+		return c.getLastActivity().plusMinutes(c.getMaxInactivity()).isBefore(LocalDateTime.now());
 	}
 
 	private void stopCluster(UserComputationalResource c, String user, String exploratoryName) {
@@ -324,22 +326,18 @@ public class ComputationalServiceImpl implements ComputationalService {
 				.build();
 	}
 
+	private boolean computationalWithStatusResourceExist(String compName,
+														 UserInstanceDTO ui, UserInstanceStatus status) {
+		return ui.getResources()
+				.stream()
+				.anyMatch(c -> computationalWithNameAndStatus(compName, c, status));
+	}
+
 	private boolean computationalWithNameAndStatus(String computationalName, UserComputationalResource compResource,
 												   UserInstanceStatus status) {
 		return compResource.getStatus().equals(status.toString()) &&
 				compResource.getDataEngineType() == SPARK_STANDALONE &&
 				compResource.getComputationalName().equals(computationalName);
-	}
-
-
-	private UserComputationalResource getComputationalResource(String expName, String compName,
-															   UserInstanceDTO ui, UserInstanceStatus status) {
-		return ui.getResources()
-				.stream()
-				.filter(c -> computationalWithNameAndStatus(compName, c, status))
-				.findAny()
-				.orElseThrow(() -> new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
-						status.toString(), compName, expName)));
 	}
 
 }

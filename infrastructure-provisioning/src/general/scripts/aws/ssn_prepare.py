@@ -136,21 +136,9 @@ if __name__ == "__main__":
                     },
                     {
                         "PrefixListIds": [],
-                        "FromPort": 8080,
-                        "IpRanges": allowed_ip_cidr,
-                        "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-                    },
-                    {
-                        "PrefixListIds": [],
                         "FromPort": 22,
                         "IpRanges": allowed_ip_cidr,
                         "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-                    },
-                    {
-                        "PrefixListIds": [],
-                        "FromPort": 3128,
-                        "IpRanges": [{"CidrIp": vpc_cidr}],
-                        "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
