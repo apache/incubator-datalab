@@ -77,5 +77,5 @@ public interface SchedulerJobService {
 	/**
 	 * Executes check cluster inactivity job for all running clusters.
 	 */
-	String executeCheckClusterInactivityJob(UserInfo userInfo);
+	void updateRunningClustersLastActivity(UserInfo userInfo);
 }

@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -45,11 +46,11 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
 										  String templateName, String status, Date uptime,
 										  SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 										  String dataEngineInstanceCount, String dataEngineInstanceShape,
-										  List<ResourceURL> resourceURL, Date lastActivity,
-										  boolean checkInactivityRequired) {
+										  List<ResourceURL> resourceURL, LocalDateTime lastActivity,
+										  boolean checkInactivityRequired, Long maxInactivity) {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired);
+				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, maxInactivity);
 		this.dataEngineInstanceCount = dataEngineInstanceCount;
 		this.dataEngineInstanceShape = dataEngineInstanceShape;
 	}

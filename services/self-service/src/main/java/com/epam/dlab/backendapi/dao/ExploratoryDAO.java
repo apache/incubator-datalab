@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.dao;
@@ -59,6 +58,7 @@ public class ExploratoryDAO extends BaseDAO {
 	private static final String EXPLORATORY_PASS = "exploratory_pass";
 	private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
 	public static final String EXPLORATORY_NOT_FOUND_MSG = "Exploratory for user %s with name %s not found";
+	private static final String COMPUTATIONAL_ID = "computational_id";
 
 	public ExploratoryDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -113,21 +113,6 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the status of exploratory.
-	 *
-	 * @param user            user name.
-	 * @param exploratoryName the name of exploratory.
-	 */
-	public UserInstanceStatus fetchExploratoryStatus(String user, String exploratoryName) {
-		return UserInstanceStatus.of(
-				findOne(USER_INSTANCES,
-						exploratoryCondition(user, exploratoryName),
-						fields(include(STATUS), excludeId()))
-						.orElse(new Document())
-						.getOrDefault(STATUS, EMPTY).toString());
-	}
-
-	/**
 	 * Finds and returns the info of all user's running notebooks.
 	 *
 	 * @param user user name.
@@ -139,9 +124,9 @@ public class ExploratoryDAO extends BaseDAO {
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *
-	 * @param user                         user name.
-	 * @param computationalFieldsRequired  true/false.
-	 * @param statuses                     array of statuses.
+	 * @param user                        user name.
+	 * @param computationalFieldsRequired true/false.
+	 * @param statuses                    array of statuses.
 	 */
 	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, boolean computationalFieldsRequired,
 																	 UserInstanceStatus... statuses) {
@@ -211,13 +196,35 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
+	 * Finds and returns the info about all exploratories in database.
+	 **/
+	public List<UserInstanceDTO> getInstancesByComputationalIdsAndStatus(List<String> ids, UserInstanceStatus status) {
+		return instancesByCompResourceIds(and(in(COMPUTATIONAL_ID, ids), eq(STATUS, status.toString())));
+	}
+
+	private List<UserInstanceDTO> instancesByCompResourceIds(Bson compCondition) {
+		return stream(getCollection(USER_INSTANCES)
+				.find(com.mongodb.client.model.Filters.elemMatch(COMPUTATIONAL_RESOURCES, compCondition))
+				.projection(include(COMPUTATIONAL_RESOURCES + ".$", EXPLORATORY_NAME, USER)))
+				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
+				.collect(Collectors.toList());
+	}
+
+	/**
 	 * Finds and returns the info of exploratory (without info about computational resources).
 	 *
 	 * @param user            user name.
 	 * @param exploratoryName the name of exploratory.
 	 */
 	public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName) {
-		return getExploratory(user, exploratoryName).orElseThrow(() ->
+		return getExploratory(user, exploratoryName, false).orElseThrow(() ->
+				new ResourceNotFoundException(String.format(EXPLORATORY_NOT_FOUND_MSG, user, exploratoryName)));
+
+	}
+
+	public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName,
+												  boolean includeComputationalResources) {
+		return getExploratory(user, exploratoryName, includeComputationalResources).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(EXPLORATORY_NOT_FOUND_MSG, user, exploratoryName)));
 
 	}
@@ -229,13 +236,14 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param exploratoryName the name of exploratory.
 	 */
 	public boolean isExploratoryExist(String user, String exploratoryName) {
-		return getExploratory(user, exploratoryName).isPresent();
+		return getExploratory(user, exploratoryName, false).isPresent();
 	}
 
-	private Optional<UserInstanceDTO> getExploratory(String user, String exploratoryName) {
+	private Optional<UserInstanceDTO> getExploratory(String user, String exploratoryName,
+													 boolean includeCompResources) {
 		return findOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
-				fields(exclude(COMPUTATIONAL_RESOURCES)),
+				includeCompResources ? null : fields(exclude(COMPUTATIONAL_RESOURCES)),
 				UserInstanceDTO.class);
 	}
 
@@ -323,9 +331,9 @@ public class ExploratoryDAO extends BaseDAO {
 	/**
 	 * Updates the scheduler's data for exploratory in Mongo database.
 	 *
-	 * @param user             user.
-	 * @param exploratoryName  name of exploratory.
-	 * @param dto              object of scheduler data.
+	 * @param user            user.
+	 * @param exploratoryName name of exploratory.
+	 * @param dto             object of scheduler data.
 	 * @return The result of an update operation.
 	 */
 	public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName,
@@ -338,9 +346,9 @@ public class ExploratoryDAO extends BaseDAO {
 	/**
 	 * Updates the requirement for reuploading key for all user's corresponding exploratories in Mongo database.
 	 *
-	 * @param user                 user name.
-	 * @param reuploadKeyRequired  true/false.
-	 * @param exploratoryStatuses  statuses of exploratory.
+	 * @param user                user name.
+	 * @param reuploadKeyRequired true/false.
+	 * @param exploratoryStatuses statuses of exploratory.
 	 */
 	public void updateReuploadKeyForExploratories(String user, boolean reuploadKeyRequired,
 												  UserInstanceStatus... exploratoryStatuses) {

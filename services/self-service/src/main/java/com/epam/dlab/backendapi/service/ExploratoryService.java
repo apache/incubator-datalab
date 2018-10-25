@@ -44,6 +44,4 @@ public interface ExploratoryService {
 												   UserInstanceStatus computationalStatus);
 
 	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
-
-	List<UserInstanceDTO> getInstancesByComputationalIds(List<String> computationalIds);
 }

@@ -19,6 +19,7 @@ package com.epam.dlab.backendapi.resources.aws;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
@@ -41,6 +42,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.base.DataEngineType.SPARK_STANDALONE;
 
 
 /**
@@ -126,11 +128,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
-			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
-			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
-		}
-
+		validate(form);
 		return computationalService.createSparkCluster(userInfo, form)
 				? Response.ok().build()
 				: Response.status(Response.Status.FOUND).build();
@@ -155,7 +153,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 
 		return Response.ok().build();
 	}
@@ -211,27 +209,44 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	/**
 	 * Updates 'check_inactivity_required' parameter for user's computational resource in database.
 	 *
-	 * @param userInfo                user info.
-	 * @param exploratoryName         name of exploratory.
-	 * @param computationalName       name of computational resource.
-	 * @param checkInactivityRequired true/false.
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@PUT
+	@ApiOperation("Updates inactivity configuration for computational resource")
+	@ApiResponses(@ApiResponse(code = 200, message = "Inactivity configuration successfully updated"))
 	@Path("/{exploratoryName}/{computationalName}/inactivity")
-	public Response updateInactivity(@Auth UserInfo userInfo,
-									 @PathParam("exploratoryName") String exploratoryName,
-									 @PathParam("computationalName") String computationalName,
-									 @QueryParam("check_inactivity") boolean checkInactivityRequired) {
-		log.debug("Updating check inactivity cluster flag to {} for computational resource {} affiliated with " +
-						"exploratory {} for user {}", checkInactivityRequired, computationalName, exploratoryName,
-				userInfo.getName());
-		computationalService.updateCheckInactivityFlag(userInfo, exploratoryName, computationalName,
-				checkInactivityRequired);
+	public Response updateInactivityConfig(@Auth UserInfo userInfo,
+										   @PathParam("exploratoryName") String exploratoryName,
+										   @PathParam("computationalName") String computationalName,
+										   InactivityConfigDTO inactivityConfig) {
+		final boolean inactivityEnabled = inactivityConfig.isInactivityEnabled();
+		final long maxInactivityTime = inactivityConfig.getMaxInactivityTimeMinutes();
+		log.debug("Updating check inactivity cluster flag to {} with max inactivity {} for computational resource {}" +
+						" affiliated with exploratory {} for user {}", inactivityEnabled, maxInactivityTime,
+				computationalName, exploratoryName, userInfo.getName());
+		computationalService.updateInactivityConfig(userInfo, exploratoryName, computationalName, inactivityConfig);
 		return Response.ok().build();
 	}
 
-	private void validate(@Auth UserInfo userInfo, AwsComputationalCreateForm formDTO) {
+	private void validate(SparkStandaloneClusterCreateForm form) {
+
+		int instanceCount = Integer.parseInt(form.getDataEngineInstanceCount());
+
+		if (instanceCount < configuration.getMinSparkInstanceCount()
+				|| instanceCount > configuration.getMaxSparkInstanceCount()) {
+			throw new IllegalArgumentException(String.format("Instance count should be in range [%d..%d]",
+					configuration.getMinSparkInstanceCount(), configuration.getMaxSparkInstanceCount()));
+		}
+
+		if (DataEngineType.fromDockerImageName(form.getImage()) != SPARK_STANDALONE) {
+			throw new IllegalArgumentException(String.format("Unknown data engine %s", form.getImage()));
+		}
+	}
+
+	private void validate(UserInfo userInfo, AwsComputationalCreateForm formDTO) {
 		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
 			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());

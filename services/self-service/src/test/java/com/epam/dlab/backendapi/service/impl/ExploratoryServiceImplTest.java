@@ -437,34 +437,6 @@ public class ExploratoryServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
-	@Test
-	public void getInstancesByComputationalIds() {
-		UserComputationalResource compResource1 = new UserComputationalResource();
-		compResource1.setImageName("YYYY.dataengine");
-		compResource1.setComputationalName("compName1");
-		compResource1.setStatus("stopped");
-		compResource1.setComputationalId("compId1");
-
-		UserComputationalResource compResource2 = new UserComputationalResource();
-		compResource2.setImageName("YYYY.dataengine");
-		compResource2.setComputationalName("compName2");
-		compResource2.setStatus("running");
-		compResource2.setComputationalId("compId2");
-
-		userInstance.setResources(Arrays.asList(compResource1, compResource2));
-		when(exploratoryDAO.getInstances()).thenReturn(Collections.singletonList(userInstance));
-
-		userInstance.setResources(Collections.singletonList(compResource1));
-		userInstance.setStatus(null);
-		List<UserInstanceDTO> expected = Collections.singletonList(userInstance);
-		List<UserInstanceDTO> actual = exploratoryService.getInstancesByComputationalIds(Collections.singletonList(
-				"compId1"));
-		assertEquals(actual, expected);
-
-		verify(exploratoryDAO).getInstances();
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
-
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}

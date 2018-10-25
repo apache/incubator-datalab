@@ -181,7 +181,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private void terminateCluster(String user, String exploratoryName, String computationalName) {
 		final UserInfo userInfo = systemUserInfoService.create(user);
-		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 	}
 
 	private List<UserResourceInfo> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
