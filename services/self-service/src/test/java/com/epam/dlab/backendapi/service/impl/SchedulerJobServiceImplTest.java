@@ -394,7 +394,7 @@ public class SchedulerJobServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 
-	@Test
+	/*@Test
 	public void executeCheckClusterInactivityJob() {
 		EnvResource resource = new EnvResource();
 		when(envDAO.findRunningClustersForCheckInactivity()).thenReturn(singletonList(resource));
@@ -403,7 +403,7 @@ public class SchedulerJobServiceImplTest {
 		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
 
 		String expected = "someUuid";
-		String actual = schedulerJobService.executeCheckClusterInactivityJob(userInfo);
+		String actual = schedulerJobService.updateRunningClustersLastActivity(userInfo);
 		assertEquals(expected, actual);
 
 		verify(envDAO).findRunningClustersForCheckInactivity();
@@ -418,13 +418,13 @@ public class SchedulerJobServiceImplTest {
 		when(envDAO.findRunningClustersForCheckInactivity()).thenReturn(Collections.emptyList());
 
 		String expected = "";
-		String actual = schedulerJobService.executeCheckClusterInactivityJob(userInfo);
+		String actual = schedulerJobService.updateRunningClustersLastActivity(userInfo);
 		assertEquals(expected, actual);
 
 		verify(envDAO).findRunningClustersForCheckInactivity();
 		verifyNoMoreInteractions(envDAO);
 		verifyZeroInteractions(provisioningService, requestId);
-	}
+	}*/
 
 	@Test
 	public void testStartComputationalByScheduler() {
@@ -878,7 +878,7 @@ public class SchedulerJobServiceImplTest {
 		verify(schedulerJobDAO)
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, STOPPED,
 						RUNNING);
-		verify(computationalService).terminateComputationalEnvironment(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
+		verify(computationalService).terminateComputational(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
 				eq(COMPUTATIONAL_NAME));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, computationalService);
 	}

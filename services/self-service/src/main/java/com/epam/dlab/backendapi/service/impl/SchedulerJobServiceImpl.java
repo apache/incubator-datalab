@@ -168,14 +168,13 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	@Override
-	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
+	public void updateRunningClustersLastActivity(UserInfo userInfo) {
 		List<EnvResource> runningClusters = envDAO.findRunningClustersForCheckInactivity();
 		if (!runningClusters.isEmpty()) {
 			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
 					userInfo.getAccessToken(), runningClusters, String.class);
 			requestId.put(userInfo.getName(), uuid);
-			return uuid;
-		} else return StringUtils.EMPTY;
+		}
 	}
 
 	private void stopComputational(SchedulerJobData job) {
@@ -192,7 +191,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String compName = job.getComputationalName();
 		final UserInfo userInfo = systemUserService.create(user);
 		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.terminateComputationalEnvironment(userInfo, expName, compName);
+		computationalService.terminateComputational(userInfo, expName, compName);
 	}
 
 	private void stopExploratory(SchedulerJobData job) {

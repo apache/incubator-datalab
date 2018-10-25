@@ -515,13 +515,13 @@ public class EnvironmentServiceImplTest {
 		final UserInfo userInfo = getUserInfo();
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		doNothing().when(computationalService)
-				.terminateComputationalEnvironment(any(UserInfo.class), anyString(), anyString());
+				.terminateComputational(any(UserInfo.class), anyString(), anyString());
 
 		environmentService.terminateComputational(USER, EXPLORATORY_NAME_1, "compName");
 
 		verify(systemUserInfoService).create(USER);
 		verify(computationalService)
-				.terminateComputationalEnvironment(refEq(userInfo), eq(EXPLORATORY_NAME_1), eq("compName"));
+				.terminateComputational(refEq(userInfo), eq(EXPLORATORY_NAME_1), eq("compName"));
 		verifyNoMoreInteractions(systemUserInfoService, computationalService);
 	}
 
