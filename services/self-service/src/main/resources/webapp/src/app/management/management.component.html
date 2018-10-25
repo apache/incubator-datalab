@@ -23,6 +23,8 @@ limitations under the License.
   </button>
 </div>
 
-<management-grid [allEnvironmentData]="allEnvironmentData" [uploadKey]="uploadKey" (refreshGrid)="buildGrid($event)" (actionToggle)="manageEnvironmentAction($event)"></management-grid>
+<div *ngIf="admin">
+  <management-grid [allEnvironmentData]="allEnvironmentData" [uploadKey]="uploadKey" (refreshGrid)="buildGrid($event)" (actionToggle)="manageEnvironmentAction($event)"></management-grid>
+</div>
 <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
 <progress-dialog #preloaderModal></progress-dialog>

@@ -16,31 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AccessDeniedComponent } from './access-denied.component';
+import { NavbarModule } from '../shared';
 
-@Injectable()
-export class AppRoutingService {
-  constructor(private router: Router) { }
-
-  redirectToLoginPage(): void {
-    if (this.router.url !== '/login')
-      this.router.navigate(['/login']);
-  }
-
-  redirectToNoAccessPage(): void {
-    this.router.navigate(['/403']);
-  }
-
-  redirectToHomePage(): void {
-    this.router.navigate(['/resources_list']);
-  }
-
-  redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_health_status']);
-  }
-
-  redirectToAzure(): void {
-    window.location.href =  `${ window.location.origin }/api/user/azure/init`;
-  }
-}
+@NgModule({
+    imports: [
+        CommonModule,
+        NavbarModule
+    ],
+    declarations: [AccessDeniedComponent],
+    exports: [AccessDeniedComponent]
+})
+export class AccessDeniedModule { }
