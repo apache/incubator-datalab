@@ -48,6 +48,6 @@ public class CheckInactivityComputationalJob implements Job {
 	public void execute(JobExecutionContext context) {
 		UserInfo userInfo = systemUserInfoService.create(SCHEDULER_USER);
 		log.info("Starting check inactivity cluster job on behalf of {}...", SCHEDULER_USER);
-		schedulerJobService.executeCheckClusterInactivityJob(userInfo);
+		schedulerJobService.updateRunningClustersLastActivity(userInfo);
 	}
 }

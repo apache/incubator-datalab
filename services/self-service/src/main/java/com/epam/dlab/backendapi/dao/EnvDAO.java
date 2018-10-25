@@ -78,7 +78,6 @@ public class EnvDAO extends BaseDAO {
 			COMPUTATIONAL_STATUS, COMPUTATIONAL_RESOURCES + "." + IMAGE);
 	private static final String COMPUTATIONAL_NAME = "computational_name";
 	private static final String COMPUTATIONAL_ID = "computational_id";
-	private static final String LAST_ACTIVITY = "last_activity";
 
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
@@ -120,8 +119,7 @@ public class EnvDAO extends BaseDAO {
 				.withId(computationalResource.getString(COMPUTATIONAL_ID))
 				.withName(computationalResource.getString(COMPUTATIONAL_NAME))
 				.withStatus(status.toString())
-				.withResourceType(ResourceType.COMPUTATIONAL)
-				.withLastActivity(computationalResource.getDate(LAST_ACTIVITY));
+				.withResourceType(ResourceType.COMPUTATIONAL);
 	}
 
 	@SuppressWarnings("unchecked")

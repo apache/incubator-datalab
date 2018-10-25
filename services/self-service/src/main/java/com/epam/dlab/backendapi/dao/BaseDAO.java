@@ -21,6 +21,7 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.util.mongo.IsoDateModule;
+import com.epam.dlab.util.mongo.JavaPrimitiveModule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -50,7 +51,8 @@ public class BaseDAO {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-			.registerModule(new IsoDateModule());
+			.registerModule(new IsoDateModule())
+			.registerModule(new JavaPrimitiveModule());
 
 	static final String FIELD_SET_DELIMETER = ".$.";
 	public static final String ID = "_id";

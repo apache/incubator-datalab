@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.dao;
 
 
+import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -28,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,12 +53,11 @@ public class ComputationalDAO extends BaseDAO {
 	static final String COMPUTATIONAL_ID = "computational_id";
 
 	static final String IMAGE = "image";
-	public static final String COMPUTATIONAL_NOT_FOUND_MSG = "Computational resource %s affiliated with exploratory " +
-			"%s for user %s not found";
 	private static final String COMPUTATIONAL_URL = "computational_url";
 	private static final String COMPUTATIONAL_URL_DESC = "description";
 	private static final String COMPUTATIONAL_URL_URL = "url";
 	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
+	private static final String MAX_INACTIVITY = "max_inactivity";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -248,11 +250,6 @@ public class ComputationalDAO extends BaseDAO {
 		} while (result.getModifiedCount() > 0);
 	}
 
-	public void updateLastActivityForCluster(String user, String exploratoryName, String computationalName,
-											 Date lastActivity) {
-		updateComputationalField(user, exploratoryName, computationalName, COMPUTATIONAL_LAST_ACTIVITY, lastActivity);
-	}
-
 	private Bson computationalFilter(String user, String exploratoryName, String computationalStatus, String
 			computationalImage, UserInstanceStatus[] excludedStatuses) {
 		final String[] statuses = Arrays.stream(excludedStatuses)
@@ -363,17 +360,21 @@ public class ComputationalDAO extends BaseDAO {
 	/**
 	 * Updates the requirement for checking inactivity for single computational resource in Mongo database.
 	 *
-	 * @param user                    user name.
-	 * @param exploratoryName         exploratory's name.
-	 * @param computationalName       name of computational resource.
-	 * @param checkInactivityRequired true/false.
+	 * @param user                user name.
+	 * @param exploratoryName     exploratory's name.
+	 * @param computationalName   name of computational resource.
+	 * @param inactivityConfigDTO true/false.
 	 */
 
-	public void updateCheckInactivityFlagForComputationalResource(String user, String exploratoryName,
-																  String computationalName,
-																  boolean checkInactivityRequired) {
-		updateComputationalField(user, exploratoryName, computationalName, CHECK_INACTIVITY_REQUIRED,
-				checkInactivityRequired);
+	public void updateInactivityConfiguration(String user, String exploratoryName,
+											  String computationalName,
+											  InactivityConfigDTO inactivityConfigDTO) {
+		final long maxInactivityTimeMinutes = inactivityConfigDTO.getMaxInactivityTimeMinutes();
+		final boolean inactivityEnabled = inactivityConfigDTO.isInactivityEnabled();
+		updateOne(USER_INSTANCES,
+				computationalCondition(user, EXPLORATORY_NAME, exploratoryName, COMPUTATIONAL_NAME, computationalName),
+				new Document(SET, new Document(computationalFieldFilter(CHECK_INACTIVITY_REQUIRED), inactivityEnabled)
+						.append(computationalFieldFilter(MAX_INACTIVITY), maxInactivityTimeMinutes)));
 	}
 
 	/**
@@ -398,13 +399,6 @@ public class ComputationalDAO extends BaseDAO {
 						statusList(computationalStatuses).contains(doc.getString(STATUS)) &&
 								computationalTypes.contains(DataEngineType.fromDockerImageName(doc.getString(IMAGE))))
 				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
-	}
-
-	public List<String> getComputationalNamesWhereStatusIn(String user, DataEngineType dataEngineType,
-														   String exploratoryName,
-														   UserInstanceStatus... computationalStatuses) {
-		return getComputationalResourcesWhereStatusIn(user, Collections.singletonList(dataEngineType),
-				exploratoryName, computationalStatuses);
 	}
 
 	/**
@@ -443,4 +437,9 @@ public class ComputationalDAO extends BaseDAO {
 	}
 
 
+	public void updateLastActivityDateForInstanceId(String instanceId, LocalDateTime lastActivity) {
+		updateOne(USER_INSTANCES, eq(computationalFieldFilter(COMPUTATIONAL_ID), instanceId),
+				set(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY),
+						Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
+	}
 }
