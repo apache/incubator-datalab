@@ -1220,13 +1220,13 @@ def spark_defaults(args):
 def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            sudo('mkdir -p ' + jars_dir)
-            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
-                 jars_dir + 'hadoop-aws-2.7.4.jar')
-            sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar -O ' +
-                 jars_dir + 'aws-java-sdk-1.7.4.jar')
-            sudo('wget http://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/0.4.20/hadoop-lzo-0.4.20.jar -O ' +
-                 jars_dir + 'hadoop-lzo-0.4.20.jar')
+            sudo('mkdir -p {0}'.format(jars_dir))
+            sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
+                    {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
+            sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
+                    {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
+            sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
+                    {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -1371,7 +1371,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                         local('sleep 5')
         local('touch /home/' + os_user + '/.ensure_dir/dataengine-service_' + cluster_name + '_interpreter_ensured')
     except:
-            sys.exit(1)
+        sys.exit(1)
 
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
@@ -1479,3 +1479,21 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
     local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/' + cluster_name)
     local('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
+
+
+def find_des_jars(all_jars, des_path):
+    try:
+        default_jars = ['hadoop-aws', 'hadoop-lzo', 'aws-java-sdk']
+        for i in default_jars:
+            for j in all_jars:
+                if i in j:
+                    print('Remove default cloud jar: {0}'.format(j))
+                    all_jars.remove(j)
+        additional_jars = ['hadoop-aws', 'aws-java-sdk-s3', 'hadoop-lzo', 'aws-java-sdk-core']
+        aws_filter = '\|'.join(additional_jars)
+        aws_jars = sudo('find {0} -name *.jar | grep "{1}"'.format(des_path, aws_filter)).split('\r\n')
+        all_jars.extend(aws_jars)
+        return all_jars
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)

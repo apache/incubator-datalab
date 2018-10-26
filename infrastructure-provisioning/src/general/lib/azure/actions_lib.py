@@ -1209,3 +1209,12 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
                 spark_dist_classpath, cluster_dir))
     except:
         sys.exit(1)
+
+
+def find_des_jars(all_jars, des_path):
+    try:
+        # Use this method to filter cloud jars (see an example in aws method)
+        return all_jars
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
