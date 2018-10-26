@@ -1371,7 +1371,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                         local('sleep 5')
         local('touch /home/' + os_user + '/.ensure_dir/dataengine-service_' + cluster_name + '_interpreter_ensured')
     except:
-            sys.exit(1)
+        sys.exit(1)
 
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
@@ -1479,3 +1479,21 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
     local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/' + cluster_name)
     local('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
+
+
+def find_des_jars(all_jars, des_path):
+    try:
+        default_jars = ['hadoop-aws', 'hadoop-lzo', 'aws-java-sdk']
+        for i in default_jars:
+            for j in all_jars:
+                if i in j:
+                    print('Remove default cloud jar: {0}'.format(j))
+                    all_jars.remove(j)
+        additional_jars = ['hadoop-aws', 'aws-java-sdk-s3', 'hadoop-lzo', 'aws-java-sdk-core']
+        aws_filter = '\|'.join(additional_jars)
+        aws_jars = sudo('find {0} -name *.jar | grep "{1}"'.format(des_path, aws_filter)).split('\r\n')
+        all_jars.extend(aws_jars)
+        return all_jars
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
