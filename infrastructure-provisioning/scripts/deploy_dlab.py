@@ -154,6 +154,12 @@ def deploy_dlab(args):
         format(args.workspace_path))
     local('cp {0}/services/provisioning-service/target/provisioning-service-*.jar {0}/web_app/provisioning-service/'.
         format(args.workspace_path))
+    local('sed -i "s/LDAP_HOST/{0}/g" {1}/services/security-service/security.yml'
+          .format(args.ldap_hostname, args.workspace_path))
+    local('sed -i "s/LDAP_USER/{0}/g" {1}/services/security-service/security.yml'
+          .format('{0},{1}'.format(args.ldap_service_username, args.ldap_dn), args.workspace_path))
+    local("sed -i 's/LDAP_PASS/{0}/g' {1}/services/security-service/security.yml"
+          .format(args.ldap_service_password, args.workspace_path))
     local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
     local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
         format(args.workspace_path))
