@@ -50,6 +50,10 @@ export class SchedulerModel {
     if (this.continueWith) this.continueWith();
   }
 
+  public setIdleTime(data) {
+    console.log('SET: ', data);
+  }
+
   private scheduleInstance(notebook, params, resourse) {
     return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
   }

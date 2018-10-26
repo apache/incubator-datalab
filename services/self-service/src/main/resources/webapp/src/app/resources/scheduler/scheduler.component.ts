@@ -43,6 +43,7 @@ export class SchedulerComponent implements OnInit {
   public inherit: boolean = false;
   public parentInherit: boolean = false;
   public enableSchedule: boolean = false;
+  public enableIdleTimes: boolean = false;
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -126,45 +127,62 @@ export class SchedulerComponent implements OnInit {
   }
 
   public toggleSchedule($event) {
-    this.enableSchedule = $event.checked;
-    this.timeReqiered = false;
-    
-    (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
-      ? this.schedulerForm.get('startDate').enable()
-      : this.schedulerForm.get('startDate').disable();
+    if (!this.enableIdleTimes) {
+      this.enableSchedule = $event.checked;
+      this.timeReqiered = false;
 
-    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+      (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
+        ? this.schedulerForm.get('startDate').enable()
+        : this.schedulerForm.get('startDate').disable();
+
+      this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+    }
+  }
+
+  public toggleIdleTimes($event) {
+    this.enableIdleTimes = $event.checked;
+    if (this.enableIdleTimes) {
+      this.model.setIdleTime({ inactivityEnabled: true, maxInactivityTimeMinutes: 12 });
+    } else {
+      this.model.setIdleTime({ inactivityEnabled: false });
+    }
   }
 
   public scheduleInstance_btnClick() {
-    let data = {
-      startDate: this.schedulerForm.controls.startDate.value,
-      finishDate: this.schedulerForm.controls.finishDate.value
-    };
 
-    if (!this.startTime && !this.endTime && this.enableSchedule) {
-      this.timeReqiered = true;
-      return false;
+    if (!this.enableIdleTimes) {
+      let data = {
+        startDate: this.schedulerForm.controls.startDate.value,
+        finishDate: this.schedulerForm.controls.finishDate.value
+      };
+
+      if (!this.startTime && !this.endTime && this.enableSchedule) {
+        this.timeReqiered = true;
+        return false;
+      }
+      const selectedDays = Object.keys(this.selectedStartWeekDays);
+      let parameters = {
+        begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
+        finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
+        start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
+        end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
+        start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
+        stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
+        timezone_offset: this.tzOffset,
+        sync_start_required: this.inherit
+      };
+
+      if(!this.enableSchedule) {
+        parameters = { begin_date: null, finish_date: null, start_time: null, end_time: null, start_days_repeat: [], stop_days_repeat: [], timezone_offset: null, sync_start_required: false };
+      }
+
+      (this.destination.type === 'СOMPUTATIONAL')
+        ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
+        : this.model.confirmAction(this.notebook.name, parameters);
+    } else {
+      console.log('ÍDDLE TIME PUSH');
+
     }
-    const selectedDays = Object.keys(this.selectedStartWeekDays);
-    let parameters = {
-      begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
-      finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
-      start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
-      end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
-      start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
-      stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
-      timezone_offset: this.tzOffset,
-      sync_start_required: this.inherit
-    };
-
-    if(!this.enableSchedule) {
-      parameters = { begin_date: null, finish_date: null, start_time: null, end_time: null, start_days_repeat: [], stop_days_repeat: [], timezone_offset: null, sync_start_required: false };
-    }
-
-    (this.destination.type === 'СOMPUTATIONAL')
-      ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
-      : this.model.confirmAction(this.notebook.name, parameters);
   }
 
   public close(): void {

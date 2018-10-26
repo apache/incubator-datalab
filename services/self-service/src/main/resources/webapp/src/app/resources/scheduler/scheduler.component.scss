@@ -26,6 +26,34 @@ limitations under the License.
   .mat-select-trigger {
     width: 180px;
   }
+  .enable-schedule {
+    display: flex;
+    margin-bottom: 10px;
+    .idle {
+      display: flex;
+      width: 50%;
+      i {
+        font-size: 20px;
+        padding: 0 15px 0 5px;
+        align-self: center;
+        user-select: none;
+        cursor: pointer;
+      }
+    }
+  }
+  .info-message, .idle-control {
+    height: 0;
+    opacity: 0;
+    visibility: hidden;
+    text-align: left;
+    transition: all .35s linear .2s;
+    &.show {
+      height: 40px;
+      visibility: visible;
+      opacity: 1;
+      margin-bottom: 15px;
+    }
+  }
   .col-3 {
     width: 33%;
     box-sizing: border-box;
@@ -101,11 +129,10 @@ limitations under the License.
     width: 100%;
     padding-right: 10px;
   }
-  .weekdays-note {
+  .note {
     display: flex;
     font-size: 12px;
     color: #36afd5;
-    margin-bottom: 15px;
   }
   .inherit {
     color: #718ba6;
