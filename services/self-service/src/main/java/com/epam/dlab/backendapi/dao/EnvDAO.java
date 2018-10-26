@@ -322,20 +322,22 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	private void updateEdgeStatus(String user, Document edge, String instanceId, EnvResource r) {
+		final String oldStatus = edge.getString(EDGE_STATUS);
 		LOGGER.trace("Update EDGE status for user {} with instance_id {} from {} to {}",
-				user, instanceId, edge.getString(EDGE_STATUS), r.getStatus());
-		String oldStatus = edge.getString(EDGE_STATUS);
+				user, instanceId, oldStatus, r.getStatus());
 		UserInstanceStatus oStatus =
 				(oldStatus == null ? UserInstanceStatus.CREATING : UserInstanceStatus.of(oldStatus));
-		UserInstanceStatus status = getInstanceNewStatus(oStatus, r.getStatus());
+		UserInstanceStatus status = oStatus != FAILED ? getInstanceNewStatus(oStatus, r.getStatus()) :
+				UserInstanceStatus.of(r.getStatus());
 		LOGGER.trace("EDGE status translated for user {} with instanceId {} from {} to {}",
 				user, instanceId, r.getStatus(), status);
-		if (oStatus != status) {
-			LOGGER.debug("EDGE status will be updated from {} to {}", oldStatus, status);
-			updateOne(USER_EDGE,
-					eq(ID, user),
-					Updates.set(EDGE_STATUS, status.toString()));
-		}
+		Optional.ofNullable(status)
+				.filter(s -> s != oStatus)
+				.ifPresent(s -> {
+					LOGGER.debug("EDGE status will be updated from {} to {}", oldStatus, status);
+					updateOne(USER_EDGE, eq(ID, user),
+							Updates.set(EDGE_STATUS, status.toString()));
+				});
 	}
 
 	/**
