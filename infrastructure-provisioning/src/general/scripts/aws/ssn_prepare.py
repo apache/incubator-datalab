@@ -90,6 +90,10 @@ if __name__ == "__main__":
                 append_result("Failed to create VPC. Exception:" + str(err))
                 sys.exit(1)
 
+        allowed_vpc_cidr_ip_ranges = list()
+        for cidr in get_vpc_cidr_by_id(os.environ['aws_vpc_id']):
+            allowed_vpc_cidr_ip_ranges.append({"CidrIp": cidr})
+
         try:
             if os.environ['aws_subnet_id'] == '':
                 raise KeyError
@@ -155,13 +159,13 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
-                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
                         "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 443,
-                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     }
                 ]
