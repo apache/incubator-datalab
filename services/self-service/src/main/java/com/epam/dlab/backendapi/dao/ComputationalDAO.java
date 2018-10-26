@@ -24,6 +24,7 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -54,6 +55,7 @@ public class ComputationalDAO extends BaseDAO {
 
 	static final String IMAGE = "image";
 	private static final String COMPUTATIONAL_URL = "computational_url";
+	private static final String EXPLORATORY_NAME = "exploratory_name";
 	private static final String COMPUTATIONAL_URL_DESC = "description";
 	private static final String COMPUTATIONAL_URL_URL = "url";
 	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
@@ -63,10 +65,10 @@ public class ComputationalDAO extends BaseDAO {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
 	}
 
-	private static Bson computationalCondition(String user, String exploratoryField, String exploratoryFieldValue,
-											   String compResourceField, String compResourceFieldValue) {
-		return and(eq(USER, user), eq(exploratoryField, exploratoryFieldValue),
-				eq(COMPUTATIONAL_RESOURCES + "." + compResourceField, compResourceFieldValue));
+	private static Bson computationalCondition(String user, String exploratoryFieldValue,
+											   String compResourceFieldValue) {
+		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryFieldValue),
+				eq(computationalFieldFilter(COMPUTATIONAL_NAME), compResourceFieldValue));
 	}
 
 	/**
@@ -78,19 +80,12 @@ public class ComputationalDAO extends BaseDAO {
 	 * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
 	 */
 	public boolean addComputational(String user, String exploratoryName, UserComputationalResource computationalDTO) {
-		Optional<Document> optional = findOne(USER_INSTANCES,
+		final UpdateResult updateResult = updateOne(USER_INSTANCES,
 				and(exploratoryCondition(user, exploratoryName),
-						elemMatch(COMPUTATIONAL_RESOURCES,
-								eq(COMPUTATIONAL_NAME, computationalDTO.getComputationalName())))
-		);
-		if (!optional.isPresent()) {
-			updateOne(USER_INSTANCES,
-					exploratoryCondition(user, exploratoryName),
-					push(COMPUTATIONAL_RESOURCES, convertToBson(computationalDTO)));
-			return true;
-		} else {
-			return false;
-		}
+						not(elemMatch(COMPUTATIONAL_RESOURCES,
+								eq(COMPUTATIONAL_NAME, computationalDTO.getComputationalName())))),
+				push(COMPUTATIONAL_RESOURCES, convertToBson(computationalDTO)));
+		return updateResult.getModifiedCount() > 0;
 	}
 
 	/**
@@ -105,21 +100,14 @@ public class ComputationalDAO extends BaseDAO {
 															  String computationalName) {
 		Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
 				and(exploratoryCondition(user, exploratoryName),
-						elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computationalName))),
-				fields(include(COMPUTATIONAL_RESOURCES), excludeId()),
+						Filters.elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computationalName))),
+				fields(include(COMPUTATIONAL_RESOURCES + ".$"), excludeId()),
 				UserInstanceDTO.class);
-		if (opt.isPresent()) {
-			List<UserComputationalResource> list = opt.get().getResources();
-			UserComputationalResource comp = list.stream()
-					.filter(r -> r.getComputationalName().equals(computationalName))
-					.findFirst()
-					.orElse(null);
-			if (comp != null) {
-				return comp;
-			}
-		}
-		throw new DlabException("Computational resource " + computationalName + " for user " + user + " with " +
-				"exploratory name " + exploratoryName + " not found.");
+		return opt.map(UserInstanceDTO::getResources)
+				.filter(l -> !l.isEmpty())
+				.map(l -> l.get(0))
+				.orElseThrow(() -> new DlabException("Computational resource " + computationalName + " for user " + user + " with " +
+						"exploratory name " + exploratoryName + " not found."));
 	}
 
 	public List<UserComputationalResource> findComputationalResourcesWithStatus(String user, String exploratoryName,
@@ -372,7 +360,7 @@ public class ComputationalDAO extends BaseDAO {
 		final long maxInactivityTimeMinutes = inactivityConfigDTO.getMaxInactivityTimeMinutes();
 		final boolean inactivityEnabled = inactivityConfigDTO.isInactivityEnabled();
 		updateOne(USER_INSTANCES,
-				computationalCondition(user, EXPLORATORY_NAME, exploratoryName, COMPUTATIONAL_NAME, computationalName),
+				computationalCondition(user, exploratoryName, computationalName),
 				new Document(SET, new Document(computationalFieldFilter(CHECK_INACTIVITY_REQUIRED), inactivityEnabled)
 						.append(computationalFieldFilter(MAX_INACTIVITY), maxInactivityTimeMinutes)));
 	}
@@ -414,7 +402,7 @@ public class ComputationalDAO extends BaseDAO {
 	private <T> UpdateResult updateComputationalField(String user, String exploratoryName, String computationalName,
 													  String fieldName, T fieldValue) {
 		return updateOne(USER_INSTANCES,
-				computationalCondition(user, EXPLORATORY_NAME, exploratoryName, COMPUTATIONAL_NAME, computationalName),
+				computationalCondition(user, exploratoryName, computationalName),
 				set(computationalFieldFilter(fieldName), fieldValue));
 	}
 

@@ -255,15 +255,12 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param computationalName name of cluster
 	 */
 	public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName, String computationalName) {
-		Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
+		return findOne(USER_INSTANCES,
 				runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
-				UserInstanceDTO.class);
-
-		if (opt.isPresent()) {
-			return opt.get();
-		}
-		throw new DlabException(String.format("Running notebook %s with running cluster %s not found for user %s",
-				exploratoryName, computationalName, user));
+				UserInstanceDTO.class)
+				.orElseThrow(() -> new DlabException(String.format("Running notebook %s with running cluster %s not " +
+								"found for user %s",
+						exploratoryName, computationalName, user)));
 	}
 
 	/**
