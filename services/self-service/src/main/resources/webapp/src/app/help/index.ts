@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
 
 import { AccessNotebookGuideComponent } from './accessnotebookguide/accessnotebookguide.component';
 import { PublicKeyGuideComponent } from './publickeyguide/publickeyguide.component';
-import { NavbarModule } from './../shared';
+import { NavbarModule } from '../shared';
 
 export * from './accessnotebookguide/accessnotebookguide.component';
 export * from './publickeyguide/publickeyguide.component';

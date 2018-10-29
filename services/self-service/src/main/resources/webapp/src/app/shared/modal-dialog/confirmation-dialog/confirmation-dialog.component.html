@@ -55,9 +55,6 @@ limitations under the License.
         <p *ngIf="model.notebook.name">Do you want to proceed?</p>
         <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
       </div>
-      <div class="text-right" *ngIf="processError">
-        <small class="danger_color">{{ errorMessage }}</small>
-      </div>
       <div class="text-center m-top-20">
         <button mat-raised-button type="button" class="butt action" (click)="bindDialog.close()">No</button>
         <button mat-raised-button type="button" class="butt butt-success action" (click)="model.confirmAction()">Yes</button>

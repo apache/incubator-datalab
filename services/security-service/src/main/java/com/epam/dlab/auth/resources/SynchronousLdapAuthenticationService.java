@@ -25,6 +25,7 @@ import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.auth.rest.AbstractAuthenticationService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -71,13 +72,14 @@ public class SynchronousLdapAuthenticationService extends AbstractAuthentication
 
 		log.debug("validating username:{} password:****** token:{} ip:{}", username, accessToken, remoteIp);
 
+		final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
 		if (accessToken != null && !accessToken.isEmpty()) {
 			UserInfo ui = getUserInfo(accessToken, userAgent, remoteIp);
 			if (ui != null) {
 				return Response.ok(accessToken).build();
 			} else {
-				log.debug("User info not found on login by access_token for user", username);
-				return Response.status(Response.Status.UNAUTHORIZED).build();
+				log.debug("User info not found on login by access_token for user {}", username);
+				return Response.status(unauthorized).build();
 			}
 		}
 
@@ -96,7 +98,9 @@ public class SynchronousLdapAuthenticationService extends AbstractAuthentication
 
 		} catch (Exception e) {
 			log.error("User {} is not authenticated", username, e);
-			return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
+			return Response.status(unauthorized)
+					.entity(new ErrorDTO(unauthorized.getStatusCode(), e.getMessage()))
+					.type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 

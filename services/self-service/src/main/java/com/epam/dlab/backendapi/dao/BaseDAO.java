@@ -21,6 +21,7 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.util.mongo.IsoDateModule;
+import com.epam.dlab.util.mongo.JavaPrimitiveModule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -30,7 +31,6 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -51,7 +51,8 @@ public class BaseDAO {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-			.registerModule(new IsoDateModule());
+			.registerModule(new IsoDateModule())
+			.registerModule(new JavaPrimitiveModule());
 
 	static final String FIELD_SET_DELIMETER = ".$.";
 	public static final String ID = "_id";
@@ -64,10 +65,12 @@ public class BaseDAO {
 	static final String TIMESTAMP = "timestamp";
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
 	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
-	private static final String ADD_TO_SET = "$addToSet";
+	protected static final String ADD_TO_SET = "$addToSet";
+	protected static final String UNSET_OPERATOR = "$unset";
 	private static final String PULL = "$pull";
 	private static final String PULL_ALL = "$pullAll";
 	private static final String EACH = "$each";
+	private static final String ELEMENT_AT_OPERATOR = "$arrayElemAt";
 
 	@Inject
 	protected MongoService mongoService;
@@ -289,8 +292,8 @@ public class BaseDAO {
 	 * @param collection collection name.
 	 * @param pipeline   the aggregate pipeline.
 	 */
-	private AggregateIterable<Document> aggregate(String collection,
-												  List<? extends Bson> pipeline) {
+	public AggregateIterable<Document> aggregate(String collection,
+												 List<? extends Bson> pipeline) {
 		return mongoService.getCollection(collection)
 				.aggregate(pipeline);
 	}
@@ -379,19 +382,6 @@ public class BaseDAO {
 	}
 
 	/**
-	 * Aggregates and returns one document according to the specified aggregation pipeline.
-	 *
-	 * @param collection collection name.
-	 * @param pipeline   the aggregate pipeline.
-	 * @throws DlabException if have more than one aggregated documents.
-	 */
-	Optional<Document> aggregateOne(String collection,
-									List<? extends Bson> pipeline) {
-		MongoIterable<Document> found = aggregate(collection, pipeline);
-		return limitOne(found);
-	}
-
-	/**
 	 * Deserializes given document to object and returns it.
 	 *
 	 * @param document element from database
@@ -432,37 +422,12 @@ public class BaseDAO {
 		return UUID.randomUUID().toString();
 	}
 
-	private static Object getDotted(Document d, String fieldName) {
-		if (fieldName.isEmpty()) {
-			return null;
-		}
-		final String[] fieldParts = StringUtils.split(fieldName, '.');
-		Object val = d.get(fieldParts[0]);
-		for (int i = 1; i < fieldParts.length; ++i) {
-			if (fieldParts[i].equals("$")
-					&& val instanceof ArrayList) {
-				ArrayList<?> array = (ArrayList<?>) val;
-				if (array.isEmpty()) {
-					return val;
-				} else {
-					val = array.get(0);
-				}
-			} else if (val instanceof Document) {
-				val = ((Document) val).get(fieldParts[i]);
-			} else {
-				return val;
-			}
-		}
-		return val;
-	}
-
-	static Object getDottedOrDefault(Document d, String fieldName, Object defaultValue) {
-		Object result = getDotted(d, fieldName);
-		return result == null ? defaultValue : result;
-	}
-
 	protected BasicDBObject addToSet(String columnName, Set<String> values) {
 		return new BasicDBObject(ADD_TO_SET, new BasicDBObject(columnName, new BasicDBObject(EACH, values)));
+	}
+
+	protected Bson unset(String columnName, String value) {
+		return new BasicDBObject(UNSET_OPERATOR, new BasicDBObject(columnName, value));
 	}
 
 	protected BasicDBObject pull(String columnName, String value) {
@@ -473,5 +438,11 @@ public class BaseDAO {
 		return new BasicDBObject(PULL_ALL, new BasicDBObject(columnName, values));
 	}
 
+	protected Document elementAt(String arrayColumnName, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList("$" + arrayColumnName, index));
+	}
 
+	protected Document elementAt(Bson bson, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList(bson, index));
+	}
 }

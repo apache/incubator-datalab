@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.backendapi.service.impl.CheckInactivityService;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;

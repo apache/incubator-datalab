@@ -16,8 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Injectable, EventEmitter } from '@angular/core';
-import { Response } from '@angular/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
@@ -27,8 +26,8 @@ import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/throw';
 
 import { LoginModel } from '../../login/login.model';
-import { ApplicationServiceFacade, AppRoutingService } from './';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from '../util';
+import { ApplicationServiceFacade, AppRoutingService } from '.';
+import { ErrorUtils, HTTP_STATUS_CODES } from '../util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
@@ -45,10 +44,10 @@ export class ApplicationSecurityService {
     private appRoutingService: AppRoutingService
   ) { }
 
-  public login(loginModel: LoginModel): Observable<boolean> {
+  public login(loginModel: LoginModel): Observable<boolean | {}> {
     return this.serviceFacade
       .buildLoginRequest(loginModel.toJsonString())
-      .map((response: Response) => {
+      .map(response => {
         if (response.status === HTTP_STATUS_CODES.OK) {
           if (!DICTIONARY.use_ldap) {
             this.setAuthToken(response.json().access_token);
@@ -69,7 +68,7 @@ export class ApplicationSecurityService {
     if (!!authToken) {
       return this.serviceFacade
         .buildLogoutRequest()
-        .map((response: Response) => {
+        .map(response => {
           this.clearAuthToken();
 
           return response.status === HTTP_STATUS_CODES.OK;
@@ -94,7 +93,7 @@ export class ApplicationSecurityService {
     if (authToken && currentUser) {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
-        .map((response: Response) => {
+        .map(response => {
           if (response.status === HTTP_STATUS_CODES.OK)
             return true;
 
@@ -102,8 +101,10 @@ export class ApplicationSecurityService {
           this.appRoutingService.redirectToLoginPage();
           return false;
         })
-        .catch((error: any) => {
-          this.handleError(error);
+        .catch(error => {
+          // this.handleError(error);
+          let errObj = error.json();
+          this.emmitMessage(errObj.message);
           this.clearAuthToken();
 
           return Observable.of(false);
@@ -129,7 +130,9 @@ export class ApplicationSecurityService {
         }
 
         if (response.status !== 200) {
-          this.handleError(response);
+          // this.handleError(response);
+          let errObj = response.json();
+          this.emmitMessage(errObj.message);
         }
         return false;
 
@@ -137,16 +140,18 @@ export class ApplicationSecurityService {
         if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
           window.location.href = error.headers.get('Location');
         } else {
-          this.handleError(error);
+          // this.handleError(error);
+          let errObj = error.json();
+          this.emmitMessage(errObj.message);
           return Observable.of(false);
         }
       });
   }
 
-  private handleError(error: any) {
-
-    this.emmitMessage(ErrorMapUtils.handleError(error));
-  }
+  // private handleError(error: any) {
+  //   // this.emmitMessage(ErrorUtils.handleError(error));
+  //   this.emmitMessage(error.message);
+  // }
 
   private emmitMessage(message): void {
     this.appRoutingService.redirectToLoginPage();

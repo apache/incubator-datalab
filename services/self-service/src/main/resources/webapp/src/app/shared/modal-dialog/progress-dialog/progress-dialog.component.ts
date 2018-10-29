@@ -19,7 +19,6 @@ limitations under the License.
 import { Component, OnInit, ViewChild, Input } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'progress-dialog',
   templateUrl: 'progress-dialog.component.html'
 })

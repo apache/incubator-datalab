@@ -18,6 +18,7 @@
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.ServiceConfiguration;
+import com.epam.dlab.backendapi.domain.SchedulerConfigurationData;
 import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequenceProvider;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
@@ -33,6 +34,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Configuration for Self Service.
@@ -80,9 +82,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private boolean billingSchedulerEnabled = false;
 
 	@JsonProperty
-	private boolean clusterInactivityCheckerEnabled = false;
-
-	@JsonProperty
 	private Duration clusterInactivityCheckingTimeout = Duration.minutes(100 * 365 * 24 * 60L);
 
 	@NotEmpty(groups = AwsValidation.class)
@@ -109,6 +108,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	@Valid
 	@NotNull
+	private Map<String, SchedulerConfigurationData> schedulers;
+
+
+	@Valid
+	@NotNull
 	private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
 
 	@JsonProperty("jerseyClient")
@@ -118,6 +122,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public long getMaxSessionDurabilityMilliseconds() {
 		return maxSessionDurabilityMilliseconds;
+	}
+
+	public Map<String, SchedulerConfigurationData> getSchedulers() {
+		return schedulers;
 	}
 
 	public SwaggerBundleConfiguration getSwaggerConfiguration() {
@@ -221,10 +229,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isMongoMigrationEnabled() {
 		return mongoMigrationEnabled;
-	}
-
-	public boolean isClusterInactivityCheckerEnabled() {
-		return clusterInactivityCheckerEnabled;
 	}
 
 	public Duration getClusterInactivityCheckingTimeout() {

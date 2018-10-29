@@ -27,7 +27,8 @@ import traceback
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -51,15 +52,18 @@ if __name__ == "__main__":
     edge_conf['bucket_name'] = '{}-{}-bucket'.format(edge_conf['service_base_name'],
                                                      os.environ['edge_user_name']).lower().replace('_', '-')
     edge_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(edge_conf['service_base_name']).lower().replace('_', '-')
-    edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name']).lower().replace('_', '-')
+    edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name']).lower().replace('_',
+                                                                                                                '-')
     edge_conf['role_name'] = '{}-{}-edge-Role'.format(edge_conf['service_base_name'].lower().replace('-', '_'),
                                                       os.environ['edge_user_name'])
-    edge_conf['role_profile_name'] = '{}-{}-edge-Profile'.format(edge_conf['service_base_name'].lower().replace('-', '_'),
+    edge_conf['role_profile_name'] = '{}-{}-edge-Profile'.format(edge_conf['service_base_name'].lower().replace('-',
+                                                                                                                '_'),
                                                                  os.environ['edge_user_name'])
     edge_conf['policy_name'] = '{}-{}-edge-Policy'.format(edge_conf['service_base_name'].lower().replace('-', '_'),
                                                           os.environ['edge_user_name'])
     edge_conf['edge_security_group_name'] = '{}-SG'.format(edge_conf['instance_name'])
-    edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'],
+                                                            os.environ['edge_user_name'])
     edge_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['notebook_dataengine_role_name'] = '{}-{}-nb-de-Role' \
@@ -68,13 +72,16 @@ if __name__ == "__main__":
         .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
     edge_conf['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
-    edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'],
+                                                                     os.environ['edge_user_name'])
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
     edge_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
-    edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
+    edge_conf['allowed_ip_cidr'] = list()
+    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+        edge_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ','')})
     edge_conf['network_type'] = os.environ['conf_network_type']
     edge_conf['all_ip_cidr'] = '0.0.0.0/0'
     if 'aws_user_predefined_s3_policies' not in os.environ:
@@ -112,7 +119,8 @@ if __name__ == "__main__":
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
-    tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
+    tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'],
+                                                                        os.environ['edge_user_name'])}
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
     print('NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr']))
 
@@ -159,14 +167,27 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": edge_conf['allowed_ip_cidr'],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
+                "FromPort": 3128,
+                "IpRanges": edge_conf['allowed_ip_cidr'],
+                "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
                 "FromPort": 80,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": edge_conf['allowed_ip_cidr'],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(
+                    edge_conf['service_base_name'])).get('Private') + "/32"}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
             }
         ]
         edge_sg_egress = [
@@ -316,7 +337,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(
+                    edge_conf['service_base_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -331,7 +353,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(
+                    edge_conf['service_base_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },

@@ -17,13 +17,13 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
+
 import { EnvironmentStatusModel } from './environment-status.model';
-import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
+import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
 import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
-import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 @Component({
-  moduleId: module.id,
   selector: 'health-status',
   templateUrl: 'health-status.component.html',
   styleUrls: ['./health-status.component.scss']
@@ -45,12 +45,14 @@ export class HealthStatusComponent implements OnInit {
   @ViewChild('keyUploadModal') keyUploadDialog;
   @ViewChild('preloaderModal') preloaderDialog;
   @ViewChild('ssnMonitor') ssnMonitorDialog;
+  @ViewChild('rolesGroupsModal') rolesGroupsDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
     private userResourceService: UserResourceService,
     private userAccessKeyService: UserAccessKeyService,
+    private rolesService: RolesGroupsService,
     public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
@@ -91,9 +93,9 @@ export class HealthStatusComponent implements OnInit {
   }
  
   openManageEnvironmentDialog() {
-    this.getActiveUsersList().subscribe(usersList => {
-      this.manageEnvironmentDialog.open({ isFooter: false }, usersList);
-    });
+    this.getActiveUsersList().subscribe(
+      usersList => this.manageEnvironmentDialog.open({ isFooter: false }, usersList),
+      () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
   }
 
   openSsnMonitorDialog() {
@@ -101,18 +103,71 @@ export class HealthStatusComponent implements OnInit {
       .subscribe(data => this.ssnMonitorDialog.open({ isHeader: false, isFooter: false }, data));
   }
 
-  manageEnvironment($event) {
+  openManageRolesDialog() {
+    this.rolesService.getGroupsData().subscribe(group => {
+        this.rolesService.getRolesData().subscribe(
+          roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
+          error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      },
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  getGroupsData() {
+    this.rolesService.getGroupsData().subscribe(
+      list => this.rolesGroupsDialog.updateGroupData(list),
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  manageEnvironment(event: {action: string, user: string}) {
     this.healthStatusService
-      .manageEnvironment($event.action, $event.user)
+      .manageEnvironment(event.action, event.user)
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
-              this.manageEnvironmentDialog.usersList = usersList;
-              this.buildGrid();
-            });
+            this.manageEnvironmentDialog.usersList = usersList;
+            this.toastr.success(`Action ${event.action } is processing!`, 'Processing!', { toastLife: 5000 });
+            this.buildGrid();
+          });
         },
-      (error) => {
-        this.manageEnvironmentDialog.errorMessage = JSON.parse(error.message).message;
-      });
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  manageRolesGroups($event) {
+    switch ($event.action) {
+      case 'create':
+        this.rolesService.setupNewGroup($event.value).subscribe(res => {
+          this.toastr.success('Group creation success!', 'Created!', { toastLife: 5000 });
+          this.getGroupsData();
+        }, () => this.toastr.error('Group creation failed!', 'Oops!', { toastLife: 5000 }));
+        break;
+      case 'update':
+        if ($event.type === 'roles') {
+          this.rolesService.setupRolesForGroup($event.value).subscribe(res => {
+            this.toastr.success('Roles list successfully updated!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed roles list updating!', 'Oops!', { toastLife: 5000 }));
+        } else if ($event.type === 'users') {
+          this.rolesService.setupUsersForGroup($event.value).subscribe(res => {
+            this.toastr.success('Users list successfully updated!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed users list updating!', 'Oops!', { toastLife: 5000 }));
+        }
+        break;
+      case 'delete':
+        if ($event.type === 'users') {
+          this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
+            this.toastr.success('Users was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed users deleting!', 'Oops!', { toastLife: 5000 }));
+        } else if ($event.type === 'group') {
+          console.log('delete group');
+          this.rolesService.removeGroupById($event.value).subscribe(res => {
+            this.toastr.success('Group was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed group deleting!', 'Oops!', { toastLife: 5000 }));
+        }
+        break;
+      default:
+    }
   }
 
   public generateUserKey($event) {
@@ -126,16 +181,16 @@ export class HealthStatusComponent implements OnInit {
   public checkUserAccessKey() {
     this.userAccessKeyService.checkUserAccessKey()
       .subscribe(
-        response => this.processAccessKeyStatus(response.status),
+        (response: any) => this.processAccessKeyStatus(response.status),
         error => this.processAccessKeyStatus(error.status));
   }
 
   private processAccessKeyStatus(status: number) {
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+      this.keyUploadDialog.open({ isFooter: false });
       this.uploadKey = false;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
 
       setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
     } else if (status === HTTP_STATUS_CODES.OK) {

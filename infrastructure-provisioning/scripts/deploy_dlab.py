@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--conf_service_base_name', type=str, help='unique name for DLab environment')
 parser.add_argument('--conf_network_type', type=str, default='', help='Define in which network DLab will be deployed. Possible options: public|private')
 parser.add_argument('--conf_vpc_cidr', type=str, default='', help='CIDR of VPC')
-parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='CIDR of IPs which will have access to SSN')
+parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='Comma-separated CIDR of IPs which will have access to SSN')
 parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Range of subnets which will be using for users environments. For example: 10.10.0.0/24 - 10.10.10.0/24')
 parser.add_argument('--conf_additional_tags', type=str, default='', help='Additional tags in format "Key1:Value1;Key2:Value2"')
 parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', help='Predefined policies for users instances')
@@ -97,8 +97,11 @@ args = parser.parse_args()
 def generate_docker_command():
     docker_command = ''
     command = []
-    command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
-                   format(args.key_path, args.conf_key_name, args.workspace_path))
+    if args.action == 'terminate':
+        command.append('sudo docker run -i ')
+    else:
+        command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
+                       format(args.key_path, args.conf_key_name, args.workspace_path))
     if args.conf_cloud_provider == 'azure':
         command.append('-v {}:/root/azure_auth.json '.format(args.azure_auth_path))
     elif args.conf_cloud_provider == 'gcp':
@@ -155,6 +158,12 @@ def deploy_dlab(args):
         format(args.workspace_path))
     local('cp {0}/services/provisioning-service/target/provisioning-service-*.jar {0}/web_app/provisioning-service/'.
         format(args.workspace_path))
+    local('sed -i "s/LDAP_HOST/{0}/g" {1}/services/security-service/security.yml'
+          .format(args.ldap_hostname, args.workspace_path))
+    local('sed -i "s/LDAP_USER/{0}/g" {1}/services/security-service/security.yml'
+          .format('{0},{1}'.format(args.ldap_service_username, args.ldap_dn), args.workspace_path))
+    local("sed -i 's/LDAP_PASS/{0}/g' {1}/services/security-service/security.yml"
+          .format(args.ldap_service_password, args.workspace_path))
     local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
     local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
         format(args.workspace_path))

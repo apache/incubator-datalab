@@ -21,9 +21,9 @@ import { CommonModule } from '@angular/common';
 
 import { DropdownListComponent } from './dropdown-list/dropdown-list.component';
 import { MultiSelectDropdownComponent } from './multi-select-dropdown/multi-select-dropdown.component';
-import { ClickOutsideModule } from '../../core/directives/click-outside/index';
+import { ClickOutsideModule } from '../../core/directives/click-outside';
 import { KeysPipeModule, UnderscorelessPipeModule } from '../../core/pipes';
-import { BubbleModule } from '../';
+import { BubbleModule } from '..';
 
 export * from './multi-select-dropdown/multi-select-dropdown.component';
 export * from './dropdown-list/dropdown-list.component';

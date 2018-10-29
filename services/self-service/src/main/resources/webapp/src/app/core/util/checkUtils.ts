@@ -16,13 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-
 export class CheckUtils {
   public static isJSON(str) {
     try {
-        JSON.parse(str);
+      JSON.parse(str);
     } catch (e) {
-        return false;
+      return false;
     }
     return true;
   }

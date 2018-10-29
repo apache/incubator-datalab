@@ -25,8 +25,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Map;
 import java.util.List;
 
 /**
@@ -37,37 +37,37 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class GcpComputationalResource extends UserComputationalResource {
 
-    @JsonProperty("instance_id")
-    private String instanceId;
-    @JsonProperty("master_node_shape")
-    private String masterShape;
-    @JsonProperty("slave_node_shape")
-    private String slaveShape;
-    @JsonProperty("total_slave_instance_number")
-    private String slaveNumber;
-    @JsonProperty("total_master_instance_number")
-    private String masterNumber;
+	@JsonProperty("instance_id")
+	private String instanceId;
+	@JsonProperty("master_node_shape")
+	private String masterShape;
+	@JsonProperty("slave_node_shape")
+	private String slaveShape;
+	@JsonProperty("total_slave_instance_number")
+	private String slaveNumber;
+	@JsonProperty("total_master_instance_number")
+	private String masterNumber;
 	@JsonProperty("total_preemptible_number")
 	private String preemptibleNumber;
-    @JsonProperty("dataproc_version")
-    private String version;
+	@JsonProperty("dataproc_version")
+	private String version;
 
-    @Builder
+	@Builder
 	public GcpComputationalResource(String computationalName, String computationalId, String imageName,
 									String templateName, String status, Date uptime,
 									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
 									String masterNumber, String preemptibleNumber, String version,
-									List<ResourceURL> resourceURL, Date lastActivity,
-									boolean checkInactivityRequired, Map<String, Object> config) {
+									List<ResourceURL> resourceURL, LocalDateTime lastActivity,
+									boolean checkInactivityRequired, Long maxInactivity) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, config);
-        this.instanceId = instanceId;
-        this.masterShape = masterShape;
-        this.slaveShape = slaveShape;
-        this.slaveNumber = slaveNumber;
-        this.masterNumber = masterNumber;
-        this.version = version;
-        this.preemptibleNumber = preemptibleNumber;
-    }
+				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, maxInactivity);
+		this.instanceId = instanceId;
+		this.masterShape = masterShape;
+		this.slaveShape = slaveShape;
+		this.slaveNumber = slaveNumber;
+		this.masterNumber = masterNumber;
+		this.version = version;
+		this.preemptibleNumber = preemptibleNumber;
+	}
 }

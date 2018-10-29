@@ -33,6 +33,7 @@ import { BillingReportService } from './services/billingReport.service';
 import { BackupService } from './services/backup.service';
 import { SchedulerService } from './services/scheduler.service';
 import { ManageEnvironmentsService } from './services/managementEnvironments.service';
+import { RolesGroupsService } from './services/rolesManagement.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -61,6 +62,7 @@ export class CoreModule {
         BackupService,
         SchedulerService,
         ManageEnvironmentsService,
+        RolesGroupsService,
         ApplicationServiceFacade
       ]
     };

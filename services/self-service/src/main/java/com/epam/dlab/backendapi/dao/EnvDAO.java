@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.dao;
@@ -50,8 +49,7 @@ import java.util.stream.Stream;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
-import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
-import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
+import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
@@ -80,7 +78,6 @@ public class EnvDAO extends BaseDAO {
 			COMPUTATIONAL_STATUS, COMPUTATIONAL_RESOURCES + "." + IMAGE);
 	private static final String COMPUTATIONAL_NAME = "computational_name";
 	private static final String COMPUTATIONAL_ID = "computational_id";
-	private static final String LAST_ACTIVITY = "last_activity";
 
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
@@ -122,8 +119,7 @@ public class EnvDAO extends BaseDAO {
 				.withId(computationalResource.getString(COMPUTATIONAL_ID))
 				.withName(computationalResource.getString(COMPUTATIONAL_NAME))
 				.withStatus(status.toString())
-				.withResourceType(ResourceType.COMPUTATIONAL)
-				.withLastActivity(computationalResource.getDate(LAST_ACTIVITY));
+				.withResourceType(ResourceType.COMPUTATIONAL);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -279,26 +275,26 @@ public class EnvDAO extends BaseDAO {
 		if ("pending".equalsIgnoreCase(newStatus) || "stopping".equalsIgnoreCase(newStatus)) {
 			return oldStatus;
 		} else if ("shutting-down".equalsIgnoreCase(newStatus)) {
-			status = UserInstanceStatus.TERMINATING;
+			status = TERMINATING;
 		} else {
 			status = UserInstanceStatus.of(newStatus);
 		}
 
 		switch (oldStatus) {
 			case CREATING_IMAGE:
-				return !status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
+				return !status.in(UserInstanceStatus.TERMINATED, TERMINATING,
 						UserInstanceStatus.RUNNING) ? status : oldStatus;
 			case CREATING:
 				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case RUNNING:
 			case STOPPING:
-				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+				return (status.in(TERMINATING, UserInstanceStatus.TERMINATED,
 						UserInstanceStatus.STOPPING, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case STARTING:
-				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+				return (status.in(TERMINATING, UserInstanceStatus.TERMINATED,
 						UserInstanceStatus.STOPPING) ? status : oldStatus);
 			case STOPPED:
-				return (status.in(UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+				return (status.in(TERMINATING, UserInstanceStatus.TERMINATED,
 						UserInstanceStatus.RUNNING) ? status : oldStatus);
 			case TERMINATING:
 				return (status.in(UserInstanceStatus.TERMINATED) ? status : oldStatus);
@@ -326,20 +322,22 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	private void updateEdgeStatus(String user, Document edge, String instanceId, EnvResource r) {
+		final String oldStatus = edge.getString(EDGE_STATUS);
 		LOGGER.trace("Update EDGE status for user {} with instance_id {} from {} to {}",
-				user, instanceId, edge.getString(EDGE_STATUS), r.getStatus());
-		String oldStatus = edge.getString(EDGE_STATUS);
+				user, instanceId, oldStatus, r.getStatus());
 		UserInstanceStatus oStatus =
 				(oldStatus == null ? UserInstanceStatus.CREATING : UserInstanceStatus.of(oldStatus));
-		UserInstanceStatus status = getInstanceNewStatus(oStatus, r.getStatus());
+		UserInstanceStatus status = oStatus != FAILED ? getInstanceNewStatus(oStatus, r.getStatus()) :
+				UserInstanceStatus.of(r.getStatus());
 		LOGGER.trace("EDGE status translated for user {} with instanceId {} from {} to {}",
 				user, instanceId, r.getStatus(), status);
-		if (oStatus != status) {
-			LOGGER.debug("EDGE status will be updated from {} to {}", oldStatus, status);
-			updateOne(USER_EDGE,
-					eq(ID, user),
-					Updates.set(EDGE_STATUS, status.toString()));
-		}
+		Optional.ofNullable(status)
+				.filter(s -> s != oStatus)
+				.ifPresent(s -> {
+					LOGGER.debug("EDGE status will be updated from {} to {}", oldStatus, status);
+					updateOne(USER_EDGE, eq(ID, user),
+							Updates.set(EDGE_STATUS, status.toString()));
+				});
 	}
 
 	/**
@@ -387,7 +385,7 @@ public class EnvDAO extends BaseDAO {
 			case CREATING:
 			case CONFIGURING:
 			case RUNNING:
-				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
+				return (status.in(UserInstanceStatus.TERMINATED, TERMINATING,
 						UserInstanceStatus.STOPPING, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case TERMINATING:
 				return (status.in(UserInstanceStatus.TERMINATED) ? status : oldStatus);
@@ -498,37 +496,16 @@ public class EnvDAO extends BaseDAO {
 	 * @param list            the list to add.
 	 * @param document        document with resource.
 	 * @param statusFieldName name of field that contains status information
-	 * @param resourceType
+	 * @param resourceType    type if resource EDGE/NOTEBOOK
 	 */
-	private void addResource(List<EnvResource> list, Document document, String statusFieldName, ResourceType
-			resourceType, String name) {
+	private void addResource(List<EnvResource> list, Document document, String statusFieldName,
+							 ResourceType resourceType, String name) {
 		LOGGER.trace("Add resource from {}", document);
-		getInstanceId(document).ifPresent(instanceId -> {
-			UserInstanceStatus status = UserInstanceStatus.of(document.getString(statusFieldName));
-			if (status == null) {
-				LOGGER.error("Unknown status {} from field {}, content is {}", document.getString(statusFieldName),
-						statusFieldName, document);
-				return;
-			}
-			switch (status) {
-				case CONFIGURING:
-				case CREATING:
-				case RUNNING:
-				case STARTING:
-				case STOPPED:
-				case STOPPING:
-				case TERMINATING:
-					EnvResource host = new EnvResource().withId(instanceId)
-							.withResourceType(resourceType)
-							.withName(name);
-					list.add(host);
-					break;
-				case FAILED:
-				case TERMINATED:
-				default:
-					break;
-			}
-		});
+		getInstanceId(document).ifPresent(instanceId ->
+				Optional.ofNullable(UserInstanceStatus.of(document.getString(statusFieldName)))
+						.filter(s -> s.in(CONFIGURING, CREATING, RUNNING, STARTING, STOPPED, STOPPING, TERMINATING) ||
+								(FAILED == s && ResourceType.EDGE == resourceType))
+						.ifPresent(s -> list.add(new EnvResource(instanceId, name, resourceType))));
 	}
 
 	private boolean notEmpty(List<EnvResource> hostList) {

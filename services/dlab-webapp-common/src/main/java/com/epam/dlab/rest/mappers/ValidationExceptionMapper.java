@@ -1,6 +1,4 @@
 /*
- * **************************************************************************
- *
  * Copyright (c) 2018, EPAM SYSTEMS INC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * ***************************************************************************
  */
 
 package com.epam.dlab.rest.mappers;
 
+import com.epam.dlab.rest.dto.ErrorDTO;
 import io.dropwizard.jersey.validation.ConstraintMessage;
 import io.dropwizard.jersey.validation.JerseyViolationException;
 import org.glassfish.jersey.server.model.Invocable;
@@ -34,11 +31,12 @@ public class ValidationExceptionMapper implements ExceptionMapper<JerseyViolatio
 	public Response toResponse(JerseyViolationException exception) {
 		Invocable invocable = exception.getInvocable();
 		final String errors =
-				exception.getConstraintViolations().stream().map((violation) -> ConstraintMessage.getMessage(violation
-						, invocable)).collect(Collectors.joining());
+				exception.getConstraintViolations()
+						.stream().map(violation -> ConstraintMessage.getMessage(violation, invocable))
+						.collect(Collectors.joining());
 		return Response.status(Response.Status.BAD_REQUEST)
-				.entity(errors)
-				.type(MediaType.TEXT_PLAIN_TYPE)
+				.entity(new ErrorDTO(Response.Status.BAD_REQUEST.getStatusCode(), errors))
+				.type(MediaType.APPLICATION_JSON)
 				.build();
 	}
 }

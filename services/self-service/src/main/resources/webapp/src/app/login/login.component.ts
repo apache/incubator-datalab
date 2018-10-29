@@ -21,11 +21,10 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from '../core/util';
+import { ErrorUtils, HTTP_STATUS_CODES } from '../core/util';
 import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'dlab-login',
   templateUrl: 'login.component.html',
   styleUrls: ['./login.component.css']
@@ -69,11 +68,12 @@ export class LoginComponent implements OnInit {
         }
 
         return false;
-      }, (error) => {
+      }, error => {
         if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
           window.location.href = error.headers.get('Location');
         } else {
-          this.error = ErrorMapUtils.handleError(error);
+          let errObj = error.json();
+          this.error = errObj.message;
           this.loading = false;
         }
       });

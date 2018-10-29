@@ -19,8 +19,8 @@ package com.epam.dlab.backendapi.schedulers.computational;
 
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
-import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -33,7 +33,7 @@ import org.quartz.JobExecutionContext;
  * never execute.
  */
 @Slf4j
-@Scheduled
+@Scheduled("inactivity")
 public class CheckInactivityComputationalJob implements Job {
 
 	private static final String SCHEDULER_USER = "scheduler_user";
@@ -48,6 +48,6 @@ public class CheckInactivityComputationalJob implements Job {
 	public void execute(JobExecutionContext context) {
 		UserInfo userInfo = systemUserInfoService.create(SCHEDULER_USER);
 		log.info("Starting check inactivity cluster job on behalf of {}...", SCHEDULER_USER);
-		schedulerJobService.executeCheckClusterInactivityJob(userInfo);
+		schedulerJobService.updateRunningClustersLastActivity(userInfo);
 	}
 }

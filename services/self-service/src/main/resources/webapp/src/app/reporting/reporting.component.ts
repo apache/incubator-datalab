@@ -17,9 +17,10 @@ limitations under the License.
 ****************************************************************************/
 
 
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
 
-import { BillingReportService, HealthStatusService, UserAccessKeyService }  from './../core/services';
+import { BillingReportService, HealthStatusService, UserAccessKeyService }  from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -74,7 +75,11 @@ export class ReportingComponent implements OnInit, OnDestroy {
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
-    private userAccessKeyService: UserAccessKeyService) { }
+    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef) {
+      this.toastr.setRootViewContainerRef(vcr);
+    }
 
   ngOnInit() {
     this.rebuildBillingReport();
@@ -119,9 +124,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   exportBillingReport($event): void {
     this.billingReportService.downloadReport(this.reportData)
-      .subscribe(data => {
-        FileUtils.downloadFile(data);
-      });
+      .subscribe(
+        data => FileUtils.downloadFile(data),
+        error => this.toastr.error('Billing report export failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   getDefaultFilterConfiguration(data): void {
@@ -190,7 +195,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   public checkUserAccessKey() {
     this.userAccessKeyService.checkUserAccessKey()
       .subscribe(
-        response => this.processAccessKeyStatus(response.status),
+        (response: any) => this.processAccessKeyStatus(response.status),
         error => this.processAccessKeyStatus(error.status));
   }
 
@@ -204,9 +209,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   private processAccessKeyStatus(status: number) {
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
+      this.keyUploadDialog.open({ isFooter: false });
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      this.preloaderDialog.open({ isHeader: false, isFooter: false });
+      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
 
       setTimeout(() => this.rebuildBillingReport(), this.CHECK_ACCESS_KEY_TIMEOUT);
     } else if (status === HTTP_STATUS_CODES.OK) {

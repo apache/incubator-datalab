@@ -18,31 +18,30 @@ limitations under the License.
 
 .checkbox-group {
   text-align: right;
-}
-
-.checkbox-group .spot-details,
-.checkbox-group .preemptible-details,
-.checkbox-group .config-details {
-  height: 0;
-  opacity: 0;
-  visibility: hidden;
-  text-align: left;
-  transition: all .35s linear .2s;
-}
-
-.checkbox-group > label {
-  display: inline-block;
-  line-height: 30px;
-  padding: 5px 15px 0;
-  cursor: pointer;
-}
-
-.checkbox-group .spot-details span.info {
-  color: #35afd5;
-  font-size: 13px;
-  text-align: justify;
-  display: inline-block;
-  padding: 25px 15px 0;
+  .spot-details {
+    height: 0;
+    opacity: 0;
+    visibility: hidden;
+    text-align: left;
+    transition: all .35s linear .2s;
+    .preemptible-details,
+    .config-details {
+      @extend .spot-details
+    }
+    span.info {
+      color: #35afd5;
+      font-size: 13px;
+      text-align: justify;
+      display: inline-block;
+      padding: 25px 15px 0;
+    }
+  }
+  & > label {
+    display: inline-block;
+    line-height: 30px;
+    padding: 5px 15px 0;
+    cursor: pointer;
+  }
 }
 
 .checkbox-group .spot-details.show,
@@ -63,7 +62,6 @@ limitations under the License.
 .form-wrapper {
   display: flex;
 }
-
 
 .modal-lg {
   .general-form {

@@ -18,39 +18,53 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from './../shared/material.module';
-
-import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule } from './../shared';
+import { MaterialModule } from '../shared/material.module';
+import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
+import { FormControlsModule } from '../shared/form-controls';
 import { HealthStatusComponent } from './health-status.component';
-import { HealthStatusGridModule } from './health-status-grid/health-status-grid.module';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import {
   ManageEnvironmentComponent,
   ConfirmActionDialog
 } from './manage-environment/manage-environment-dilog.component';
 
+import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
+
+import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
-import { ToastModule } from 'ng2-toastr/ng2-toastr';
+import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialog } from './manage-roles-groups/manage-roles-groups.component';
+import { ToastModule } from 'ng2-toastr';
+
+import { FormsModule } from '@angular/forms';
+export * from './environment-status.model';
 
 @NgModule({
+
   imports: [
     CommonModule,
     NavbarModule,
     ModalModule,
-    HealthStatusGridModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
+    BubbleModule,
+    ConfirmationDialogModule,
+    FormControlsModule,
     MaterialModule,
+    FormsModule,
     ToastModule.forRoot()
   ],
   declarations: [
+    GroupNameValidationDirective,
     HealthStatusComponent,
     BackupDilogComponent,
     ManageEnvironmentComponent,
     ConfirmActionDialog,
-    SsnMonitorComponent
+    ConfirmDeleteUserAccountDialog,
+    SsnMonitorComponent,
+    ManageRolesGroupsComponent,
+    HealthStatusGridComponent
   ],
-  entryComponents: [ConfirmActionDialog],
-  exports: [HealthStatusComponent]
+  entryComponents: [ConfirmActionDialog, ConfirmDeleteUserAccountDialog],
+  exports: [HealthStatusComponent, HealthStatusGridComponent, GroupNameValidationDirective]
 })
 export class HealthStatusModule {}

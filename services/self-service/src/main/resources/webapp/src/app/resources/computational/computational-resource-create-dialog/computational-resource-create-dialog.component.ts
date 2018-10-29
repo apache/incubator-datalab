@@ -16,18 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewEncapsulation, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Response } from '@angular/http';
+import { ToastsManager } from 'ng2-toastr';
 
-import { ComputationalResourceCreateModel } from './';
+import { ComputationalResourceCreateModel } from '.';
 import { UserResourceService } from '../../../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
+import { HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'computational-resource-create-dialog',
   templateUrl: 'computational-resource-create-dialog.component.html',
   styleUrls: ['./computational-resource-create-dialog.component.scss'],
@@ -47,8 +46,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
   delimitersRegex = /[-_]?/g;
-  processError: boolean = false;
-  errorMessage: string = '';
 
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
@@ -73,9 +70,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   constructor(
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
-    private ref: ChangeDetectorRef
+    private ref: ChangeDetectorRef,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
+    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -203,15 +203,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (!this.bindDialog.isOpened) {
       this.notebook_instance = notebook_instance;
       this.full_list = full_list;
-      this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name, (response: Response) => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          this.close();
-          this.buildGrid.emit();
-        }
-      },
-        (response: Response) => {
-          this.processError = true;
-          this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+      this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name,
+        response => {
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            this.close();
+            this.buildGrid.emit();
+          }
+        },
+        error => {
+          this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!', { toastLife: 5000 });
         },
         () => {
           this.template_description = this.model.selectedItem.description;
@@ -247,9 +247,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    let activeImage = DICTIONARY[this.model.selectedImage.image];
+    if (this.model.selectedImage && this.model.selectedImage.image) {
+      let activeImage = DICTIONARY[this.model.selectedImage.image];
 
-    if (this.model.selectedImage) {
       this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
 
@@ -325,22 +325,24 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private setDefaultParams(): void {
-    this.filterShapes();
-    this.shapes = {
-      master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
-      slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
-    };
-    if (DICTIONARY.cloud_provider !== 'azure') {
-      this.cluster_type.setDefaultOptions(this.model.resourceImages,
-        this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
-        if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
-          this.templates_list.setDefaultOptions(this.model.templates,
-            this.model.selectedItem.version, 'template', 'version', 'array');
+    if (this.model.selectedImage && this.model.selectedImage.shapes) {
+      this.filterShapes();
+      this.shapes = {
+        master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
+        slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
+      };
+      if (DICTIONARY.cloud_provider !== 'azure') {
+        this.cluster_type.setDefaultOptions(this.model.resourceImages,
+          this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
+          if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
+            this.templates_list.setDefaultOptions(this.model.templates,
+              this.model.selectedItem.version, 'template', 'version', 'array');
+      }
+      this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+      this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
     }
-    this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-    this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
   }
 
   private filterShapes(): void {
@@ -363,16 +365,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private resetDialog(): void {
-    this.processError = false;
-    this.errorMessage = '';
-
     this.spotInstance = false;
     this.initFormModel();
     this.getComputationalResourceLimits();
     this.model.resetModel();
     this.bindDialog.modalClass = 'modal-lg';
 
-    if (this.PROVIDER === 'aws')
+    if (this.PROVIDER === 'aws' && this.spotInstancesSelect)
       this.spotInstancesSelect.nativeElement['checked'] = false;
 
     if (this.PROVIDER === 'gcp' && this.preemptible)

@@ -66,7 +66,6 @@ import com.epam.dlab.util.UsernameUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -307,14 +306,15 @@ public class RequestBuilder {
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds());
 	}
 
-	public LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
+	public LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
+										   List<LibInstallDTO> libs) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
-				.withLibs(new ArrayList<>());
+				.withLibs(libs);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -330,7 +330,8 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
-														 UserComputationalResource computationalResource) {
+														 UserComputationalResource computationalResource,
+														 List<LibInstallDTO> libs) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
@@ -338,7 +339,7 @@ public class RequestBuilder {
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withComputationalImage(computationalResource.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withLibs(new ArrayList<>());
+				.withLibs(libs);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -362,8 +363,9 @@ public class RequestBuilder {
 		T computationalCreate;
 
 		switch (cloudProvider()) {
-			case AWS:
 			case AZURE:
+				throw new UnsupportedOperationException("Creating dataengine service is not supported yet");
+			case AWS:
 				AwsComputationalCreateForm awsForm = (AwsComputationalCreateForm) form;
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAws.class)
 						.withInstanceCount(awsForm.getInstanceCount())
@@ -371,8 +373,8 @@ public class RequestBuilder {
 						.withSlaveInstanceType(awsForm.getSlaveInstanceType())
 						.withSlaveInstanceSpot(awsForm.getSlaveInstanceSpot())
 						.withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
-						.withConfig(awsForm.getConfig())
-						.withVersion(awsForm.getVersion());
+						.withVersion(awsForm.getVersion())
+						.withConfig((awsForm.getConfig()));
 				break;
 			case GCP:
 				GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
@@ -382,7 +384,6 @@ public class RequestBuilder {
 						.withPreemptibleCount(gcpForm.getPreemptibleCount())
 						.withMasterInstanceType(gcpForm.getMasterInstanceType())
 						.withSlaveInstanceType(gcpForm.getSlaveInstanceType())
-						.withConfig(gcpForm.getConfig())
 						.withVersion(gcpForm.getVersion());
 				break;
 
@@ -410,15 +411,13 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveShape(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withDataEngineSlaveShape(form.getDataEngineInstanceShape());
 				break;
 			case AZURE:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
@@ -434,8 +433,7 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateGcp.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());

@@ -18,17 +18,14 @@ limitations under the License.
 
 import { Component, ViewEncapsulation, Input, OnInit } from '@angular/core';
 
-import { ApplicationSecurityService } from '../../core/services/applicationSecurity.service';
-import { HealthStatusService } from '../../core/services/healthStatus.service';
-import { AppRoutingService } from '../../core/services/appRouting.service';
-
+import { ApplicationSecurityService } from '../../core/services';
+import { AppRoutingService } from '../../core/services';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'dlab-navbar',
   templateUrl: 'navbar.component.html',
-  styleUrls: ['./navbar.component.css'],
+  styleUrls: ['./navbar.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 
@@ -42,8 +39,7 @@ export class NavbarComponent implements OnInit {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private appRoutingService: AppRoutingService,
-    private healthStatusService: HealthStatusService
+    private appRoutingService: AppRoutingService
   ) { }
 
   ngOnInit() {

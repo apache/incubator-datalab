@@ -354,6 +354,23 @@ def get_peering_by_tag(tag_name, tag_value):
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def get_vpc_cidr_by_id(vpc_id):
+    try:
+        cidr_list = list()
+        ec2 = boto3.client('ec2')
+        for vpc in ec2.describe_vpcs(VpcIds=[vpc_id]).get('Vpcs'):
+            for cidr_set in vpc.get('CidrBlockAssociationSet'):
+                cidr_list.append(cidr_set.get('CidrBlock'))
+            return cidr_list
+        return ''
+    except Exception as err:
+        logging.error("Error with getting VPC CIDR by ID: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting VPC CIDR by ID",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
 def get_emr_info(id, key=''):
     try:
         emr = boto3.client('emr')

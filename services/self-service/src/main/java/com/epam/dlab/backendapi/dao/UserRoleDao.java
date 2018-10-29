@@ -20,25 +20,27 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 
 import java.util.List;
 import java.util.Set;
 
 public interface UserRoleDao {
-	List<UserRoleDto> getUserRoles();
+	List<UserRoleDto> findAll();
 
 	void insert(UserRoleDto dto);
 
 	boolean update(UserRoleDto dto);
 
-	boolean addUserToRole(Set<String> users, Set<String> roleIds);
-
 	boolean addGroupToRole(Set<String> groups, Set<String> roleIds);
 
-	boolean removeUserFromRole(Set<String> users, Set<String> roleIds);
-
 	boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds);
+	void removeGroupWhenRoleNotIn(String group, Set<String> roleIds);
 
 	void remove(String roleId);
+
+	boolean removeGroup(String groupId);
+
+	List<UserGroupDto> aggregateRolesByGroup();
 }

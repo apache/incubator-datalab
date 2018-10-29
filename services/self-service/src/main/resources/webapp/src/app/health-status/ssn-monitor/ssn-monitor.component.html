@@ -22,83 +22,85 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div class="content-box" *ngIf="monitorData">
-      <div>
-        <mat-tab-group *ngIf="monitorData?.processorInfo">
-          <mat-tab label="CRU">
-            <mat-list-item class="list-header">
-              <div class="col">Name</div>
-              <div class="col">{{ monitorData.processorInfo.name }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Vendor</div>
-              <div class="col">{{ monitorData.processorInfo.vendor }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Logical Core Count</div>
-              <div class="col">{{ monitorData.processorInfo.logicalCoreCount }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Physical Core Count</div>
-              <div class="col">{{ monitorData.processorInfo.physicalCoreCount }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Current System Load</div>
-              <div class="col">{{ monitorData.processorInfo.currentSystemLoad /100 | percent:'1.0-3' }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">System Load Average</div>
-              <div class="col">{{ monitorData.processorInfo.systemLoadAverage/100 | percent:'1.0-3' }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">CPU 64 Bit</div>
-              <div class="col">{{ monitorData.processorInfo.cpu64Bit }}</div>
-            </mat-list-item>
+      <div class="ssn-info">
+        <mat-tab-group *ngIf="monitorData?.processorInfo" [dynamicHeight]="true">
+          <mat-tab label="CPU">
+            <div class="scrolling-content" id="scrolling">
+              <mat-list-item class="list-header">
+                <div class="col">Name</div>
+                <div class="col">{{ monitorData.processorInfo.name }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Vendor</div>
+                <div class="col">{{ monitorData.processorInfo.vendor }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Logical Core Count</div>
+                <div class="col">{{ monitorData.processorInfo.logicalCoreCount }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Physical Core Count</div>
+                <div class="col">{{ monitorData.processorInfo.physicalCoreCount }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Current System Load</div>
+                <div class="col">{{ monitorData.processorInfo.currentSystemLoad /100 | percent:'1.0-2' }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">System Load Average</div>
+                <div class="col">{{ monitorData.processorInfo.systemLoadAverage /100 | percent:'1.0-2' }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">CPU 64 Bit</div>
+                <div class="col">{{ monitorData.processorInfo.cpu64Bit }}</div>
+              </mat-list-item>
+            </div>
           </mat-tab>
 
           <mat-tab label="Memory">
-            <mat-list-item class="list-header">
-              <div class="col">Available Memory</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.availableMemory) }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Total Memory</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.totalMemory) }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Swap Total</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.swapTotal) }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Swap Used</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.swapUsed) }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Page Size</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.pageSize) }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Swap Page In</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.swapPagesIn) }}</div>
-            </mat-list-item>
-            <mat-list-item class="list-header">
-              <div class="col">Swap Page Out</div>
-              <div class="col">{{ convertSize(monitorData.memoryInfo.swapPagesOut) }}</div>
-            </mat-list-item>
+            <div class="scrolling-content" id="scrolling">
+              <mat-list-item class="list-header">
+                <div class="col">Available Memory</div>
+                <div class="col">{{ convertSize(monitorData.memoryInfo.availableMemory) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Total Memory</div>
+                <div class="col">{{ convertSize(monitorData.memoryInfo.totalMemory) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Swap Total</div>
+                <div class="col">{{ convertSize(monitorData.memoryInfo.swapTotal) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Swap Used</div>
+                <div class="col">{{ convertSize(monitorData.memoryInfo.swapUsed) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Pages Page In</div>
+                <div class="col">{{ convertSize(monitorData.memoryInfo.pagesPageIn) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Pages Page Out</div>
+                <div class="col">{{ convertSize(monitorData.memoryInfo.pagesPageOut) }}</div>
+              </mat-list-item>
+            </div>
 
           </mat-tab>
           <mat-tab label="HDD">
-            <div *ngFor="let disk of monitorData.disksInfo; let i = index">
-              <mat-list-item>
-                <div class="col"><strong>Disk {{i +1}}</strong></div>
-              </mat-list-item>
-              <mat-list-item>
-                <div class="col">Used Space</div>
-                <div class="col">{{ convertSize(disk.usedByteSpace) }}</div>
-              </mat-list-item>
-              <mat-list-item>
-                <div class="col">Total Space</div>
-                <div class="col">{{ convertSize(disk.totalByteSpace) }}</div>
-              </mat-list-item>
+            <div class="scrolling-content" id="scrolling">
+              <div *ngFor="let disk of monitorData.disksInfo; let i = index">
+                <mat-list-item>
+                  <div class="col"><strong>Disk {{i +1}}</strong></div>
+                </mat-list-item>
+                <mat-list-item>
+                  <div class="col">Used Space</div>
+                  <div class="col">{{ convertSize(disk.usedByteSpace) }}</div>
+                </mat-list-item>
+                <mat-list-item>
+                  <div class="col">Total Space</div>
+                  <div class="col">{{ convertSize(disk.totalByteSpace) }}</div>
+                </mat-list-item>
+              </div>
             </div>
           </mat-tab>
         </mat-tab-group>

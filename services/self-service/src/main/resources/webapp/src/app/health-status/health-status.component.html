@@ -19,8 +19,11 @@ limitations under the License.
 <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="isAdmin"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
+  <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()" *ngIf="isAdmin">
+    <i class="material-icons"></i>Roles
+  </button>
   <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()" *ngIf="isAdmin">
-    <i class="material-icons"></i>Open SSN Monitor
+    <i class="material-icons"></i>SSN Monitor
   </button>
   <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()" *ngIf="isAdmin">
     <i class="material-icons"></i>Manage environment
@@ -43,3 +46,4 @@ limitations under the License.
 <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
 <progress-dialog #preloaderModal></progress-dialog>
 <dlab-ssn-monitor #ssnMonitor></dlab-ssn-monitor>
+<dlab-manage-roles-groups #rolesGroupsModal (manageRolesGroupAction)="manageRolesGroups($event)"></dlab-manage-roles-groups>

@@ -25,21 +25,20 @@ import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.*;
-import com.epam.dlab.backendapi.domain.EnvStatusListener;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.service.impl.*;
-import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
+import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -68,7 +67,6 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
 				.toInstance(createAuthenticationService());
-		requestStaticInjection(EnvStatusListener.class, RequestId.class, RequestBuilder.class);
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
 				.toInstance(configuration.getProvisioningFactory()
 						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
@@ -93,8 +91,10 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
 		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);
-		bind(UserRolesService.class).to(UserRolesServiceImpl.class);
+		bind(UserGroupService.class).to(UserGroupServiceImpl.class);
+		bind(UserRoleService.class).to(UserRoleServiceImpl.class);
 		bind(UserRoleDao.class).to(UserRoleDaoImpl.class);
+		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
 	}
 
 	/**
@@ -131,7 +131,9 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 					return (T) Response.ok(TOKEN).build();
 				} else {
 					return (T) Response.status(Response.Status.UNAUTHORIZED)
-							.entity("Username or password are not valid")
+							.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
+									" are not valid"))
+							.type(MediaType.APPLICATION_JSON_TYPE)
 							.build();
 				}
 			}

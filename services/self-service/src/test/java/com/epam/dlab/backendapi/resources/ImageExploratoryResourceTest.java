@@ -207,7 +207,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
-		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName");
 		verifyNoMoreInteractions(imageExploratoryService);

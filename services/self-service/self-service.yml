@@ -114,9 +114,6 @@ logging:
       archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
       archivedFileCount: 10
 
-clusterInactivityCheckerEnabled: false
-clusterInactivityCheckingTimeout: 120m
-
 swaggerConfiguration:
   resourcePackage: com.epam.dlab.backendapi.resources
   title: DLab API
@@ -127,3 +124,28 @@ swaggerConfiguration:
   contactUrl: http://dlab.opensource.epam.com/
   license: Apache 2.0
   licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
+
+clusterInactivityCheckingTimeout: 120m
+
+schedulers:
+  inactivity:
+    enabled: false
+    interval: 120
+    timeUnit: MINUTES
+  startComputationalScheduler:
+    enabled: true
+    interval: 10
+    timeUnit: SECONDS
+  stopComputationalScheduler:
+    enabled: true
+    interval: 10
+    timeUnit: SECONDS
+  startExploratoryScheduler:
+    enabled: true
+    interval: 10
+    timeUnit: SECONDS
+  stopExploratoryScheduler:
+    enabled: true
+    interval: 10
+    timeUnit: SECONDS
+

@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.dto.ErrorDTO;
 import com.epam.dlab.validation.AwsValidation;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -77,6 +78,7 @@ public class SecurityResource implements SecurityAPI {
 	 * @return 500 Internal Server Error if post response fails.
 	 */
 	@POST
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/login")
 	@ApiOperation("Login attempt for user")
 	@ApiResponses({@ApiResponse(code = 500, message = "Internal server error occurred"),
@@ -89,7 +91,11 @@ public class SecurityResource implements SecurityAPI {
 			return securityService.post(LOGIN, credential, Response.class);
 		} catch (Exception e) {
 			log.error("Try login for user {} fail", credential.getUsername(), e);
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build();
+			final Status internalServerError = Status.INTERNAL_SERVER_ERROR;
+			return Response.status(internalServerError)
+					.entity(new ErrorDTO(internalServerError.getStatusCode(), e.getMessage()))
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 	}
 
@@ -102,6 +108,7 @@ public class SecurityResource implements SecurityAPI {
 	 * @return 500 Internal Server Error if post request fails.
 	 */
 	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
 	@Path("/authorize")
 	@ApiOperation(value = "Authorize attempt for user", authorizations =
 	@Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
@@ -148,7 +155,11 @@ public class SecurityResource implements SecurityAPI {
 			return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
 		} catch (Exception e) {
 			log.error("Try logout for accessToken {}", userInfo.getAccessToken(), e);
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build();
+			final Status internalServerError = Status.INTERNAL_SERVER_ERROR;
+			return Response.status(internalServerError)
+					.entity(new ErrorDTO(internalServerError.getStatusCode(), e.getMessage()))
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 		}
 	}
 }

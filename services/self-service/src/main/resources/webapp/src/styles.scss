@@ -247,6 +247,9 @@ input[type='number'] {
 .text-center {
   text-align: center !important;
 }
+.text-right {
+  text-align: right;
+}
 .m-top-10 {
   margin-top: 10px;
 }
@@ -268,6 +271,9 @@ input[type='number'] {
 
 .full-height {
   height: 100%;
+}
+.ani {
+  transition: all .35s ease-in-out;
 }
 
 #scrolling::-webkit-scrollbar,
@@ -352,6 +358,13 @@ toast-container {
       &.toast-error {
         background-image: none;
         color: #e2747d;
+        &::before {
+          content: "priority_high";
+        }
+      }
+      &.toast-info {
+        background-image: none;
+        color: #35afd5;
         &::before {
           content: "priority_high";
         }

@@ -18,7 +18,6 @@ limitations under the License.
 /* tslint:disable:no-empty */
 
 import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
 
 import { UserResourceService } from '../../../core/services';
 import { ComputationalResourceImage,
@@ -47,6 +46,7 @@ export class ComputationalResourceCreateModel {
   resourceImages: Array<ComputationalResourceImage> = [];
   templates: Array<ComputationalResourceApplicationTemplate> = [];
 
+  availableTemplates: boolean = false;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
@@ -105,6 +105,8 @@ export class ComputationalResourceCreateModel {
         data => {
           let computationalResourceImage;
 
+          this.availableTemplates = !!data.length;
+
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
             computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
 
@@ -115,8 +117,8 @@ export class ComputationalResourceCreateModel {
           if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider !== 'azure') {
             this.setSelectedClusterType(0);
           } else if (DICTIONARY.cloud_provider === 'azure') {
-            this.selectedItem = computationalResourceImage;
-            this.selectedImage = computationalResourceImage;
+            this.selectedItem = computationalResourceImage || {};
+            this.selectedImage = computationalResourceImage || {};
           }
 
           if (this.continueWith)
@@ -151,12 +153,12 @@ export class ComputationalResourceCreateModel {
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
     this.confirmAction = () => this.createComputationalResource()
       .subscribe(
-      (response: Response) => fnProcessResults(response),
-      (response: Response) => fnProcessErrors(response)
+      response => fnProcessResults(response),
+      error => fnProcessErrors(error)
       );
   }
 
-  private createComputationalResource(): Observable<Response> {
+  private createComputationalResource(): Observable<{}> {
     if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: this.computational_resource_alias,

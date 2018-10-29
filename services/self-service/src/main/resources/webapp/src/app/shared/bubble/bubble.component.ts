@@ -22,7 +22,6 @@ import { Component, Input, Output, EventEmitter, HostBinding,
 import { BubblesCollector, BubbleService } from './bubble.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'bubble-up',
   template: '<ng-content></ng-content>',
   styleUrls: ['./bubble.component.css'],

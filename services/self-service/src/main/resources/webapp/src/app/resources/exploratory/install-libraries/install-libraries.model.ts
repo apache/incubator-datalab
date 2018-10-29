@@ -17,78 +17,88 @@ limitations under the License.
 ****************************************************************************/
 
 import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
 
 import { LibrariesInstallationService } from '../../../core/services';
 
 interface Library {
-    group: string;
-    name: string;
-    version: string;
+  group: string;
+  name: string;
+  version: string;
 }
 
 export class InstallLibrariesModel {
-    confirmAction: Function;
-    notebook: any;
-    computational_name: string;
+  confirmAction: Function;
+  notebook: any;
+  computational_name: string;
 
-    public selectedLibs: Array<Library> = [];
-    private continueWith: Function;
-    private librariesInstallationService: LibrariesInstallationService;
+  public selectedLibs: Array<Library> = [];
+  private continueWith: Function;
+  private librariesInstallationService: LibrariesInstallationService;
 
-    static getDefault(librariesInstallationService): InstallLibrariesModel {
-        return new InstallLibrariesModel('', () => { }, () => { }, null, librariesInstallationService);
-    }
+  static getDefault(librariesInstallationService): InstallLibrariesModel {
+    return new InstallLibrariesModel('', () => {}, () => {}, null, librariesInstallationService);
+  }
 
-    constructor(
-        notebook: any,
-        fnProcessResults: any,
-        fnProcessErrors: any,
-        continueWith: Function,
-        librariesInstallationService: LibrariesInstallationService
-    ) {
-        this.notebook = notebook;
-        this.continueWith = continueWith;
-        this.librariesInstallationService = librariesInstallationService;
-        this.prepareModel(fnProcessResults, fnProcessErrors);
+  constructor(
+    notebook: any,
+    fnProcessResults: any,
+    fnProcessErrors: any,
+    continueWith: Function,
+    librariesInstallationService: LibrariesInstallationService
+  ) {
+    this.notebook = notebook;
+    this.continueWith = continueWith;
+    this.librariesInstallationService = librariesInstallationService;
+    this.prepareModel(fnProcessResults, fnProcessErrors);
 
-        if (this.continueWith) this.continueWith();
-    }
+    if (this.continueWith) this.continueWith();
+  }
 
-    public getLibrariesList(group: string, query: string): Observable<Response> {
-        let lib_query: any = { exploratory_name: this.notebook.name, group: group, start_with: query };
-        if (this.computational_name) lib_query.computational_name = this.computational_name;
+  public getLibrariesList(group: string, query: string): Observable<{}> {
+    let lib_query: any = {
+      exploratory_name: this.notebook.name,
+      group: group,
+      start_with: query
+    };
+    if (this.computational_name)
+      lib_query.computational_name = this.computational_name;
 
-        return this.librariesInstallationService
-            .getAvailableLibrariesList(lib_query);
-    }
+    return this.librariesInstallationService.getAvailableLibrariesList(
+      lib_query
+    );
+  }
 
-    public getDependencies(query: string): Observable<Response> {
-        return this.librariesInstallationService
-            .getAvailableDependencies(query);
-    }
+  public getDependencies(query: string): Observable<{}> {
+    return this.librariesInstallationService.getAvailableDependencies(query);
+  }
 
-    public getInstalledLibrariesList(notebook): Observable<Response> {
-        return this.librariesInstallationService.getInstalledLibrariesList(notebook.name)
-    }
+  public getInstalledLibrariesList(notebook): Observable<{}> {
+    return this.librariesInstallationService.getInstalledLibrariesList(
+      notebook.name
+    );
+  }
 
-    private installLibraries(retry?: Library, item?): Observable<Response> {
-        let lib_list: any = { exploratory_name: this.notebook.name, libs: (retry ? retry : this.selectedLibs) };
-        if (this.computational_name) lib_list.computational_name = this.computational_name;
-        if (item) lib_list.computational_name = item;
+  private installLibraries(retry?: Library, item?): Observable<{}> {
+    let lib_list: any = {
+      exploratory_name: this.notebook.name,
+      libs: retry ? retry : this.selectedLibs
+    };
+    if (this.computational_name)
+      lib_list.computational_name = this.computational_name;
+    if (item) lib_list.computational_name = item;
 
-        return this.librariesInstallationService
-            .installLibraries(lib_list);
-    }
+    return this.librariesInstallationService.installLibraries(lib_list);
+  }
 
-    public isEmpty(obj) {
-        if (obj) return Object.keys(obj).length === 0;
-    }
+  public isEmpty(obj) {
+    if (obj) return Object.keys(obj).length === 0;
+  }
 
-    private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-        this.confirmAction = (retry?: Library, item?) => this.installLibraries(retry, item)
-            .subscribe(
-            (response: Response) => fnProcessResults(response),
-            (response: Response) => fnProcessErrors(response));
-    }
+  private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
+    this.confirmAction = (retry?: Library, item?) =>
+      this.installLibraries(retry, item).subscribe(
+        response => fnProcessResults(response),
+        error => fnProcessErrors(error)
+      );
+  }
 }

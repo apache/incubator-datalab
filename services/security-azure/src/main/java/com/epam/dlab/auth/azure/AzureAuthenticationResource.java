@@ -24,6 +24,7 @@ import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.auth.rest.AbstractAuthenticationService;
 import com.epam.dlab.dto.azure.auth.AuthorizationCodeFlowResponse;
+import com.epam.dlab.rest.dto.ErrorDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -149,9 +150,9 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 					(azureLoginConfiguration, response))).build();
 		} catch (AuthenticationException e) {
 			log.error("OAuth authentication failed", e);
-			return Response.status(Response.Status.UNAUTHORIZED)
-					.entity(new AzureLocalAuthResponse(null, null,
-							"User authentication failed")).build();
+			final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
+			return Response.status(unauthorized)
+					.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
 		}
 	}
 
@@ -183,8 +184,8 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 				log.warn("Cannot handle authentication exception", ioException);
 			}
 		}
-		return Response.status(Response.Status.UNAUTHORIZED)
-				.entity(new AzureLocalAuthResponse(null, null,
-						"User authentication failed")).build();
+		final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
+		return Response.status(unauthorized)
+				.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
 	}
 }

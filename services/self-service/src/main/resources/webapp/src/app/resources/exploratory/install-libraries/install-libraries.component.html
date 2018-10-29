@@ -148,9 +148,6 @@ limitations under the License.
         </div>
       </mat-list>
     </div>
-    <div class="text-center error" *ngIf="processError">
-      <small>{{ errorMessage }}</small>
-    </div>
     <div class="text-center m-top-15 m-bott-10 actions" *ngIf="!uploading && notebook?.status === 'running'">
       <button mat-raised-button type="button" class="butt action" (click)="close()">Close</button>
       <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>

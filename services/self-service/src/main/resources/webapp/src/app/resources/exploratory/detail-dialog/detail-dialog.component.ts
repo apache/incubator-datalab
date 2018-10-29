@@ -22,7 +22,6 @@ import { DateUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'detail-dialog',
   templateUrl: 'detail-dialog.component.html'
 })

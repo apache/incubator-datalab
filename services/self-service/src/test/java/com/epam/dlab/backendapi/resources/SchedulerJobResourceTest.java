@@ -215,7 +215,7 @@ public class SchedulerJobResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
-		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(schedulerJobService);
@@ -272,7 +272,7 @@ public class SchedulerJobResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
-		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(USER.toLowerCase(),
 				"explName", "compName");

@@ -45,6 +45,10 @@ export class ApplicationServiceFacade {
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
+  private static readonly ROLES = 'roles';
+  private static readonly GROUPS = 'groups';
+  private static readonly GROUP_ROLE = 'group_role';
+  private static readonly GROUP_USER = 'group_user';
   private static readonly BACKUP = 'backup';
   private static readonly EDGE_NODE_START = 'edge_node_start';
   private static readonly EDGE_NODE_STOP = 'edge_node_stop';
@@ -83,7 +87,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
       body,
-      this.getRequestOptions(true, true));
+      this.getRequestOptions(false, true));
   }
 
   public buildGetAuthToken(body: any): Observable<Response> {
@@ -407,6 +411,55 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetGroupsData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetRolesData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.ROLES),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildSetupNewGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildSetupRolesForGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUP_ROLE),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildSetupUsersForGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildRemoveUsersForGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildRemoveGroupById(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -456,6 +509,10 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
     this.requestRegistry.Add(ApplicationServiceFacade.BACKUP, '/api/infrastructure/backup');
     this.requestRegistry.Add(ApplicationServiceFacade.SNN_MONITOR, '/api/sysinfo');
+    this.requestRegistry.Add(ApplicationServiceFacade.ROLES, '/api/role');
+    this.requestRegistry.Add(ApplicationServiceFacade.GROUPS, '/api/group');
+    this.requestRegistry.Add(ApplicationServiceFacade.GROUP_ROLE, 'api/group/role');
+    this.requestRegistry.Add(ApplicationServiceFacade.GROUP_USER, '/api/group/user');
 
     // Libraries Installation
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');

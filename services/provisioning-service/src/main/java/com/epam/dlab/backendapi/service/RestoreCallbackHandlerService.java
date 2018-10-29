@@ -20,35 +20,6 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import io.dropwizard.lifecycle.Managed;
-import io.dropwizard.util.Duration;
-import lombok.extern.slf4j.Slf4j;
-
-@Singleton
-@Slf4j
-public class RestoreCallbackHandlerService implements Managed {
-
-	@Inject
-	private CallbackHandlerDao callbackHandlerDao;
-	@Inject
-	private FolderListenerExecutor folderListenerExecutor;
-
-	@Override
-	public void start() {
-		log.info("Restoring callback handlers");
-		callbackHandlerDao.findAll().forEach(persistentFileHandler ->
-				folderListenerExecutor.start(persistentFileHandler.getDirectory(),
-						Duration.milliseconds(persistentFileHandler.getTimeout()),
-						persistentFileHandler.getHandler()));
-		log.info("Successfully restored file handlers");
-	}
-
-	@Override
-	public void stop() {
-		log.info("RestoreCallbackHandlerService stopped");
-	}
+public interface RestoreCallbackHandlerService {
+	void restore();
 }

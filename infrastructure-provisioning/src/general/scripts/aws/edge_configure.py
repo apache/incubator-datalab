@@ -48,6 +48,8 @@ if __name__ == "__main__":
         .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
     edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'],
                                                                      os.environ['edge_user_name'])
+    edge_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
+        .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     tag = {"Key": edge_conf['tag_name'],
            "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)

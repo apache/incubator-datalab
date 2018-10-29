@@ -297,7 +297,8 @@ List of parameters for SSN node deployment:
 | aws\_account\_id          | The The ID of Amazon account                                                            |
 | aws\_billing\_bucket      | The name of S3 bucket where billing reports will be placed                              |
 | aws\_report\_path         | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
-| action                    | In case of SSN node creation, this parameter should be set to “create”                  |
+| action                    | In case of SSN node creation, this parameter should be set to “create”
+| workspace\_path           | Path to DLab sources root
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   aws\_vpc\_id
@@ -526,7 +527,7 @@ Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a 
 
 ### Create
 
-In order to create Edge node using DLab Web UI – login and, click on the button “Upload”. Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
+In order to create Edge node using DLab Web UI – login and, click on the button “Upload” (Depending on authorization provider that was chosen on deployment stage, user may be taken from [LDAP](#LDAP_Authentication) or from [Azure AD (Oauth2)](#Azure_OAuth2_Authentication)). Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
 
 #### In Amazon
 
@@ -1739,11 +1740,11 @@ In order to start development of Front-end Web UI part of DLab - Git repository 
 
 -   Git 1.7 or higher
 -   Maven 3.3 or higher
--   Python 2.7
+-   Python 2.7 with library Fabric v1.14.0
 -   Mongo DB 3.0 or higher
 -   Docker 1.12 - Infrastructure provisioning
 -   Java Development Kit 8 – Back-end
--   Node.js 6.x & 7.x - WebUI
+-   Node.js 6.x or 7.x - WebUI
 -   Angular CLI v1.0.0-rc.1 or higher - WebUI
 -   TypeScript v2.0 or higher - WebUI
 -   Angular2 v2.4 – WebUI
@@ -1806,7 +1807,7 @@ Security service is REST based service for user authentication against LDAP/LDAP
 LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. 
 If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
 
-DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP ot OAuth2
+DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP or OAuth2
 If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure). 
 If Data Lake is enabled default permission scope(can be configured manually after deploy DLab) is Data Lake Store account so only if user has any role in scope of Data Lake Store Account resource he/she will be allowed to log in
 If Data Lake is disabled but Azure OAuth2 is in use default permission scope will be Resource Group where DLab is created and only users who have any roles in the resource group will be allowed to log in.
@@ -2362,7 +2363,6 @@ To apply some customization it is required to update a few properties in **secur
 ### Properties overview
 
 There are just a few properties based in which the customization could be done:
-
 - **ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com**
 - **ldapBindAttribute: uid**
 - **ldapSearchAttribute: uid**
@@ -2371,6 +2371,12 @@ Where the:
 - **ldapBindTemplate** is a user`s DN template which should be filed with custom value. Here the template could be changed: uid=%s,ou=People,dc=example,dc=com -> cn=%s,ou=People,dc=example,dc=com.
 - **ldapBindAttribute** - this is a major attribute, on which the DN is based on. Usually it is any of: uid or cn, or email.
 - **ldapSearchAttribute** - another attribute, based on which users will be looked up in LDAP.
+
+Additional parameters that are populated during deployment and may be changed in future are:
+- **ldapConnectionConfig.name: ldap user name**
+- **ldapConnectionConfig.ldapHost: ldap host**
+- **ldapConnectionConfig.ldapPort: ldap port**
+- **ldapConnectionConfig.credentials: ldap credentials**
  
 ### Scripts overview
 

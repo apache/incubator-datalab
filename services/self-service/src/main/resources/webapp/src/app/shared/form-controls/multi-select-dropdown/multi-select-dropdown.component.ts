@@ -19,10 +19,9 @@ limitations under the License.
 import { Input, Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'multi-select-dropdown',
   templateUrl: 'multi-select-dropdown.component.html',
-  styleUrls: ['../dropdowns.component.css'],
+  styleUrls: ['../dropdowns.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 
@@ -38,7 +37,7 @@ export class MultiSelectDropdownComponent {
     const index = model.indexOf(value);
     (index >= 0) ? model.splice(index, 1) : model.push(value);
 
-    this.onUpdate();
+    this.onUpdate($event);
     $event.preventDefault();
   }
 
@@ -46,17 +45,17 @@ export class MultiSelectDropdownComponent {
     this.model = [];
     this.items.forEach((item) => { this.model.push(item); });
 
-    this.onUpdate();
+    this.onUpdate($event);
     $event.preventDefault();
   }
 
   deselectAllOptions($event) {
     this.model = [];
-    this.onUpdate();
+    this.onUpdate($event);
     $event.preventDefault();
   }
 
-  onUpdate(): void {
-    this.selectionChange.emit({ model: this.model, type: this.type });
+  onUpdate($event): void {
+    this.selectionChange.emit({ model: this.model, type: this.type, $event });
   }
 }

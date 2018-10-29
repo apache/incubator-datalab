@@ -19,7 +19,7 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ModalModule } from '../index';
+import { ModalModule } from '..';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { MaterialModule } from '../../material.module';
 

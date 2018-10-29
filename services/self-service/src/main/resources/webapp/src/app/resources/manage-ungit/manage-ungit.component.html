@@ -56,9 +56,7 @@ limitations under the License.
             <p>You have no related accounts</p>
           </div>
         </mat-list>
-        <div class="info message error" *ngIf="processError">
-          <small>{{ errorMessage }}</small>
-        </div>
+
         <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm">
           <button mat-raised-button type="button" class="butt action" (click)="cancelAllModifyings()">Cancel</button>
           <button mat-raised-button type="button" class="butt butt-success action" (click)="editAccounts_btnClick()">Apply changes</button>

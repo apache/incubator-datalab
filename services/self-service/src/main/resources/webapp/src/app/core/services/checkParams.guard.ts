@@ -17,8 +17,8 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ApplicationSecurityService, AuthorizationGuard } from './';
+import {  CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { ApplicationSecurityService, AuthorizationGuard } from '.';
 
 import 'rxjs/add/operator/toPromise';
 
@@ -28,29 +28,35 @@ export class CheckParamsGuard implements CanActivate {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private _authGuard: AuthorizationGuard,
-    private router: Router
-  ) { }
+    private _authGuard: AuthorizationGuard
+  ) {}
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this._authGuard.canActivate(next, state).toPromise().then((auth: boolean) => {
+    return this._authGuard
+      .canActivate(next, state)
+      .toPromise()
+      .then((auth: boolean) => {
         const search = document.URL.split('?')[1];
 
-          if (search && this.checkParamsCoincidence(search)) {
-            this.result = search.split('&').reduce(function(prev, curr) {
-                const params = curr.split('=');
-                prev[decodeURIComponent(params[0])] = decodeURIComponent(params[1]);
-                return prev;
-            }, {});
+        if (search && this.checkParamsCoincidence(search)) {
+          this.result = search.split('&').reduce(function(prev, curr) {
+            const params = curr.split('=');
+            prev[decodeURIComponent(params[0])] = decodeURIComponent(params[1]);
+            return prev;
+          }, {});
 
-            return this.applicationSecurityService.redirectParams(this.result).toPromise();
-          }
+          return this.applicationSecurityService
+            .redirectParams(this.result)
+            .toPromise();
+        }
 
-          return Promise.resolve(!!auth);
-    });
+        return Promise.resolve(!!auth);
+      });
   }
 
   private checkParamsCoincidence(search): boolean {
-    return ['code', 'state', 'error', 'error_description'].some(el => search.indexOf(el));
+    return ['code', 'state', 'error', 'error_description'].some(el =>
+      search.indexOf(el)
+    );
   }
 }

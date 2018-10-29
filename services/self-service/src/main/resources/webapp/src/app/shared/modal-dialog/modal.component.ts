@@ -19,7 +19,6 @@ limitations under the License.
 import { Component, OnDestroy, Input, Output, EventEmitter, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'modal-dialog',
   templateUrl: 'modal.component.html',
   styleUrls: ['./modal.component.scss'],

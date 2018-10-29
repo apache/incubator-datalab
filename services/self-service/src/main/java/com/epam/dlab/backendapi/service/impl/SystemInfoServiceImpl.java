@@ -27,10 +27,10 @@ import com.google.inject.Inject;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,8 +43,9 @@ public class SystemInfoServiceImpl implements SystemInfoService {
 	@Override
 	public SystemInfoDto getSystemInfo() {
 		HardwareAbstractionLayer hal = si.getHardware();
-		return new SystemInfoDto(getOsInfo(si.getOperatingSystem()), getProcessorInfo(hal), getMemoryInfo(hal),
-				getDiskInfoList(hal));
+		final OperatingSystem operatingSystem = si.getOperatingSystem();
+		return new SystemInfoDto(getOsInfo(operatingSystem), getProcessorInfo(hal), getMemoryInfo(hal),
+				getDiskInfoList(File.listRoots()));
 	}
 
 	private OsInfo getOsInfo(OperatingSystem os) {
@@ -79,21 +80,20 @@ public class SystemInfoServiceImpl implements SystemInfoService {
 				.totalMemory(memory.getTotal())
 				.swapTotal(memory.getSwapTotal())
 				.swapUsed(memory.getSwapUsed())
-				.pageSize(memory.getPageSize())
-				.swapPagesIn(memory.getSwapPagesIn())
-				.swapPagesOut(memory.getSwapPagesOut())
+				.pagesPageIn(memory.getSwapPagesIn())
+				.pagesPageOut(memory.getSwapPagesOut())
 				.build();
 	}
 
-	private List<DiskInfo> getDiskInfoList(HardwareAbstractionLayer hal) {
-		return Arrays.stream(hal.getDiskStores()).map(this::getDiskInfo).collect(Collectors.toList());
+	private List<DiskInfo> getDiskInfoList(File[] roots) {
+		return Arrays.stream(roots).map(this::getDiskInfo).collect(Collectors.toList());
 	}
 
-	private DiskInfo getDiskInfo(HWDiskStore diskStore) {
+	private DiskInfo getDiskInfo(File fileStore) {
 		return DiskInfo.builder()
-				.serialNumber(diskStore.getSerial())
-				.usedByteSpace(diskStore.getWriteBytes())
-				.totalByteSpace(diskStore.getSize())
+				.serialNumber(fileStore.getName())
+				.usedByteSpace(fileStore.getTotalSpace() - fileStore.getFreeSpace())
+				.totalByteSpace(fileStore.getTotalSpace())
 				.build();
 	}
 }

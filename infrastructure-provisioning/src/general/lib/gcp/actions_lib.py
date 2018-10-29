@@ -1311,3 +1311,11 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
     local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
     local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
 
+
+def find_des_jars(all_jars, des_path):
+    try:
+        # Use this method to filter cloud jars (see an example in aws method)
+        return all_jars
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)

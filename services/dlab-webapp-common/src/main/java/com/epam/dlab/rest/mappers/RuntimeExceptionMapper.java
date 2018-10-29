@@ -13,14 +13,15 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.rest.mappers;
 
+import com.epam.dlab.rest.dto.ErrorDTO;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
@@ -28,30 +29,33 @@ import javax.ws.rs.ext.Provider;
 @Slf4j
 public class RuntimeExceptionMapper extends GenericExceptionMapper<RuntimeException> {
 
-    @Override
-    public Response toResponse(RuntimeException exception) {
-        if (exception instanceof WebApplicationException) {
-            return handleWebApplicationException(exception);
-        }
-        return super.toResponse(exception);
-    }
+	@Override
+	public Response toResponse(RuntimeException exception) {
+		if (exception instanceof WebApplicationException) {
+			return handleWebApplicationException(exception);
+		}
+		return super.toResponse(exception);
+	}
 
-    private Response handleWebApplicationException(RuntimeException exception) {
-        WebApplicationException webAppException = (WebApplicationException) exception;
+	private Response handleWebApplicationException(RuntimeException exception) {
+		WebApplicationException webAppException = (WebApplicationException) exception;
 
-        if (webAppException.getResponse().getStatusInfo() == Response.Status.UNAUTHORIZED
-                || webAppException.getResponse().getStatusInfo() == Response.Status.FORBIDDEN) {
+		if (webAppException.getResponse().getStatusInfo() == Response.Status.UNAUTHORIZED
+				|| webAppException.getResponse().getStatusInfo() == Response.Status.FORBIDDEN) {
 
-            return web(exception, Response.Status.UNAUTHORIZED);
-        } else if (webAppException.getResponse().getStatusInfo() == Response.Status.NOT_FOUND) {
-            return web(exception, Response.Status.NOT_FOUND);
-        }
+			return web(exception, Response.Status.UNAUTHORIZED);
+		} else if (webAppException.getResponse().getStatusInfo() == Response.Status.NOT_FOUND) {
+			return web(exception, Response.Status.NOT_FOUND);
+		}
 
-        return super.toResponse(exception);
-    }
+		return super.toResponse(exception);
+	}
 
-    private Response web(RuntimeException exception, Response.StatusType status) {
-        log.error("Web application exception: {}", exception.getMessage(), exception);
-        return Response.status(status).build();
-    }
+	private Response web(RuntimeException exception, Response.StatusType status) {
+		log.error("Web application exception: {}", exception.getMessage(), exception);
+		return Response.status(status)
+				.type(MediaType.APPLICATION_JSON)
+				.entity(new ErrorDTO(status.getStatusCode(), exception.getMessage()))
+				.build();
+	}
 }

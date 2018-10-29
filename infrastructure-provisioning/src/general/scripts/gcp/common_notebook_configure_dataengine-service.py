@@ -84,6 +84,27 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        params = "--hostname {0} " \
+                 "--keyfile {1} " \
+                 "--os_user {2} " \
+            .format(notebook_config['notebook_ip'],
+                    notebook_config['key_path'],
+                    os.environ['conf_os_user'])
+        try:
+            local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to configure Spark.", str(err))
+        actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
+        actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
+                                                os.environ['dataproc_version'], os.environ['conf_os_user'], notebook_config['key_path'])
+        sys.exit(1)
+
+    try:
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],

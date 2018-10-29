@@ -16,19 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
-
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
 
 import * as _moment from 'moment';
 import 'moment-timezone';
 
-import { HTTP_STATUS_CODES } from './../../core/util';
-
-import { SchedulerService } from './../../core/services';
+import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
+import { HTTP_STATUS_CODES } from '../../core/util';
 
 @Component({
   selector: 'dlab-scheduler',
@@ -63,8 +60,12 @@ export class SchedulerComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private schedulerService: SchedulerService,
-    private changeDetector : ChangeDetectorRef
-  ) {}
+    private changeDetector : ChangeDetectorRef,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
@@ -79,13 +80,13 @@ export class SchedulerComponent implements OnInit {
 
     if (!this.bindDialog.isOpened)
       this.model = new SchedulerModel(
-        (response: Response) => {
+        response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
             this.close();
             this.buildGrid.emit();
           }
         },
-        error => {},
+        error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }),
         () => {
           this.formInit();
           this.changeDetector.detectChanges();
@@ -195,7 +196,7 @@ export class SchedulerComponent implements OnInit {
         }
       },
       error => {
-        let errorMessage = JSON.parse(error.message);
+        this.toastr.info(error.message || 'Scheduler job data not found!', null, { toastLife: 5000 });
         this.toggleSchedule({checked: false});
       }
     );

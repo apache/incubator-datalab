@@ -20,8 +20,6 @@ import com.epam.dlab.dto.ResourceEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-import java.util.Map;
-
 public abstract class ComputationalBase<T extends ComputationalBase<?>> extends ResourceEnvBaseDTO<T> {
 	@SuppressWarnings("unchecked")
 	private final T self = (T) this;
@@ -34,17 +32,6 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 
 	@JsonProperty("notebook_template_name")
 	private String notebookTemplateName;
-
-	@JsonProperty
-	private Map<String, Object> config;
-
-	public Map<String, Object> getConfig() {
-		return config;
-	}
-
-	public void setConfig(Map<String, Object> config) {
-		this.config = config;
-	}
 
 	public String getComputationalName() {
 		return computationalName;
@@ -82,11 +69,6 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 
 	public T withNotebookTemplateName(String notebookTemplateName) {
 		setNotebookTemplateName(notebookTemplateName);
-		return self;
-	}
-
-	public T withConfig(Map<String, Object> config) {
-		setConfig(config);
 		return self;
 	}
 

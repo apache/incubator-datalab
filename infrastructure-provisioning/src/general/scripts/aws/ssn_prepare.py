@@ -35,6 +35,8 @@ if __name__ == "__main__":
     pre_defined_vpc = False
     pre_defined_subnet = False
     pre_defined_sg = False
+    pre_defined_vpc2 = False
+    pre_defined_subnet2 = False
     try:
         logging.info('[CREATE AWS CONFIG FILE]')
         print('[CREATE AWS CONFIG FILE]')
@@ -66,7 +68,9 @@ if __name__ == "__main__":
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
         vpc2_cidr = os.environ['conf_vpc2_cidr']
-        allowed_ip_cidr = os.environ['conf_allowed_ip_cidr']
+        allowed_ip_cidr = list()
+        for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+            allowed_ip_cidr.append({"CidrIp": cidr.replace(' ','')})
         sg_name = instance_name + '-SG'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
@@ -89,6 +93,10 @@ if __name__ == "__main__":
             except Exception as err:
                 append_result("Failed to create VPC. Exception:" + str(err))
                 sys.exit(1)
+
+        allowed_vpc_cidr_ip_ranges = list()
+        for cidr in get_vpc_cidr_by_id(os.environ['aws_vpc_id']):
+            allowed_vpc_cidr_ip_ranges.append({"CidrIp": cidr})
 
         try:
             if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
@@ -214,49 +222,37 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
-                        "FromPort": 8080,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
-                        "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-                    },
-                    {
-                        "PrefixListIds": [],
                         "FromPort": 22,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
-                        "FromPort": 3128,
-                        "IpRanges": [{"CidrIp": vpc_cidr}],
-                        "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
-                    },
-                    {
-                        "PrefixListIds": [],
                         "FromPort": 443,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": -1,
-                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
+                        "IpRanges": allowed_ip_cidr,
                         "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
-                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
                         "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 443,
-                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     }
                 ]

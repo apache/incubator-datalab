@@ -337,7 +337,10 @@ class AzureMeta:
                 vpc_name,
                 ip_address
             )
-            return result
+            if not result.available:
+                return self.check_free_ip(resource_group_name, vpc_name, result.available_ip_addresses[0])
+            if result.available:
+                return ip_address
         except Exception as err:
             logging.info(
                 "Unable to check private ip: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))

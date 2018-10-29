@@ -16,8 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
 
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES } from '../../../core/util';
@@ -42,8 +43,12 @@ export class AmiCreateDialogComponent {
 
   constructor(
     private _userResource: UserResourceService,
-    private _fb: FormBuilder
-  ) {}
+    private _fb: FormBuilder,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
     this._userResource.getImagesList().subscribe(res => this.imagesList = res);
@@ -63,12 +68,14 @@ export class AmiCreateDialogComponent {
   }
 
   public assignChanges(data) {
-    this._userResource.createAMI(data).subscribe(res => {
-      if (res.status === HTTP_STATUS_CODES.ACCEPTED) {
-        this.bindDialog.close();
-        this.buildGrid.emit();
-      }
-    });
+    this._userResource.createAMI(data).subscribe(
+      response => {
+        if (response.status === HTTP_STATUS_CODES.ACCEPTED) {
+          this.bindDialog.close();
+          this.buildGrid.emit();
+        }
+      },
+      error => this.toastr.error(error.message || `${ DICTIONARY.image.toLocaleUpperCase() } creation failed!`, 'Oops!', { toastLife: 5000 }));
   }
 
   private initFormModel(): void {
