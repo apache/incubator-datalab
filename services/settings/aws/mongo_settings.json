@@ -30,3 +30,11 @@
   "_id": "aws_security_groups_ids",
   "value": "sg-1a23bc45"
 }
+{
+  "_id": "aws_notebook_vpc_id",
+  "value": "vpc-12a345b6"
+}
+{
+  "_id": "aws_notebook_subnet_id",
+  "value": "subnet-78cd901e"
+}
