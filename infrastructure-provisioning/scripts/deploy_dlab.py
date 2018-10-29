@@ -138,7 +138,7 @@ def generate_docker_command():
     skipped_parameters = ['action', 'key_path', 'workspace_path', 'gcp_service_account_path', 'ssl_cert_path',
                           'ssl_key_path']
     for i in attrs:
-        if attrs[i] not in skipped_parameters:
+        if attrs[i] and i not in skipped_parameters:
             command.append("-e '{}={}' ".format(i, attrs[i]))
     command.append('-e "conf_resource=ssn" ')
     command.append('docker.dlab-ssn ')
