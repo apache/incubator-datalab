@@ -65,7 +65,6 @@ if __name__ == "__main__":
     print("Terminating EC2 instances")
     try:
         remove_ec2(args.tag_name, '*')
-        #remove_ec2(tag2, '*')
     except:
         sys.exit(1)
 
