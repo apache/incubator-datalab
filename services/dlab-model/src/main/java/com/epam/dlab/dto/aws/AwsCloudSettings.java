@@ -24,37 +24,31 @@ import lombok.*;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class AwsCloudSettings extends CloudSettings {
 
-    @JsonProperty("aws_iam_user")
-    private String awsIamUser;
-    @JsonProperty("aws_region")
-    private String awsRegion;
-    @JsonProperty("aws_subnet_id")
-    private String awsSubnetId;
-    @JsonProperty("aws_security_groups_ids")
-    private String awsSecurityGroupIds;
-    @JsonProperty("aws_vpc_id")
-    private String awsVpcId;
-    @JsonProperty("conf_tag_resource_id")
-    private String confTagResourceId;
+	@JsonProperty("aws_iam_user")
+	private String awsIamUser;
+	@JsonProperty("aws_region")
+	private String awsRegion;
+	@JsonProperty("aws_subnet_id")
+	private String awsSubnetId;
+	@JsonProperty("aws_security_groups_ids")
+	private String awsSecurityGroupIds;
+	@JsonProperty("aws_vpc_id")
+	private String awsVpcId;
+	@JsonProperty("conf_tag_resource_id")
+	private String confTagResourceId;
+	@JsonProperty("aws_notebook_subnet_id")
+	private String awsNotebookSubnetId;
+	@JsonProperty("aws_notebook_vpc_id")
+	private String awsNotebookVpcId;
 
-    @Builder
-    public AwsCloudSettings(String awsIamUser, String awsRegion, String awsSubnetId,
-                            String awsSecurityGroupIds, String awsVpcId, String confTagResourceId) {
-
-        this.awsIamUser = awsIamUser;
-        this.awsRegion = awsRegion;
-        this.awsSubnetId = awsSubnetId;
-        this.awsSecurityGroupIds = awsSecurityGroupIds;
-        this.awsVpcId = awsVpcId;
-        this.confTagResourceId = confTagResourceId;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getIamUser() {
-        return awsIamUser;
-    }
+	@Override
+	@JsonIgnore
+	public String getIamUser() {
+		return awsIamUser;
+	}
 }

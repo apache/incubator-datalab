@@ -180,7 +180,7 @@ def remove_emr_tag(emr_id, tag):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_rt(vpc_id, infra_tag_name, infra_tag_value):
+def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
     try:
         tag = {"Key": infra_tag_name, "Value": infra_tag_value}
         route_table = []
@@ -190,13 +190,14 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value):
         route_table.append(rt_id)
         print('Created Route-Table with ID: {}'.format(rt_id))
         create_tag(route_table, json.dumps(tag))
-        ig = ec2.create_internet_gateway()
-        ig_id = ig.get('InternetGateway').get('InternetGatewayId')
-        route_table = []
-        route_table.append(ig_id)
-        create_tag(route_table, json.dumps(tag))
-        ec2.attach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
-        ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
+        if not secondary:
+            ig = ec2.create_internet_gateway()
+            ig_id = ig.get('InternetGateway').get('InternetGatewayId')
+            route_table = []
+            route_table.append(ig_id)
+            create_tag(route_table, json.dumps(tag))
+            ec2.attach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
+            ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
         return rt_id
     except Exception as err:
         logging.info("Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -218,19 +219,111 @@ def create_subnet(vpc_id, subnet, tag):
 
 
 def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
-    ec2 = boto3.resource('ec2')
-    group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
-    time.sleep(10)
-    create_tag(group.id, tag)
     try:
-        group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
-    except:
-        print("Mentioned rule does not exist")
-    for rule in security_group_rules:
-        group.authorize_ingress(IpPermissions=[rule])
-    for rule in egress:
-        group.authorize_egress(IpPermissions=[rule])
-    return group.id
+        ec2 = boto3.resource('ec2')
+        group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
+        time.sleep(10)
+        create_tag(group.id, tag)
+        try:
+            group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
+        except:
+            print("Mentioned rule does not exist")
+        for rule in security_group_rules:
+            group.authorize_ingress(IpPermissions=[rule])
+        for rule in egress:
+            group.authorize_egress(IpPermissions=[rule])
+        return group.id
+    except Exception as err:
+        logging.info("Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create security group", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def create_route_by_id(subnet_id, vpc_id, peering_id, another_cidr):
+    client = boto3.client('ec2')
+    try:
+        table_id = client.describe_route_tables(Filters=[{'Name': 'association.subnet-id', 'Values': [subnet_id]}]).get(
+            'RouteTables')
+        if table_id:
+            final_id = table_id[0]['Associations'][0]['RouteTableId']
+        else:
+            table_id = client.describe_route_tables(
+                Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}, {'Name': 'association.main', 'Values': ['true']}]).get(
+                'RouteTables')
+            final_id = table_id[0]['Associations'][0]['RouteTableId']
+        for table in table_id:
+            routes = table.get('Routes')
+            routeExists = False
+            for route in routes:
+                if route.get('DestinationCidrBlock') == another_cidr:
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock = another_cidr,
+                    VpcPeeringConnectionId = peering_id,
+                    RouteTableId = final_id)
+    except Exception as err:
+        logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create route",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def create_peer_routes(peering_id, service_base_name):
+    client = boto3.client('ec2')
+    try:
+        route_tables = client.describe_route_tables(
+            Filters=[{'Name': 'tag:{}-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+        route_tables2 = client.describe_route_tables(Filters=[
+            {'Name': 'tag:{}-secondary-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+        for table in route_tables:
+            routes = table.get('Routes')
+            routeExists=False
+            for route in routes:
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock=os.environ['conf_vpc2_cidr'].replace("'", ""),
+                    VpcPeeringConnectionId=peering_id,
+                    RouteTableId=table.get('RouteTableId'))
+        for table in route_tables2:
+            routeExists=False
+            for route in routes:
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock=os.environ['conf_vpc_cidr'].replace("'", ""),
+                    VpcPeeringConnectionId=peering_id,
+                    RouteTableId=table.get('RouteTableId'))
+    except Exception as err:
+        logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create route",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_peering_connection(vpc_id, vpc2_id, service_base_name):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
+        client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
+        client.modify_vpc_peering_connection_options(
+            AccepterPeeringConnectionOptions={
+                'AllowDnsResolutionFromRemoteVpc': True,
+            },
+            RequesterPeeringConnectionOptions={
+                'AllowDnsResolutionFromRemoteVpc': True,
+            },
+            VpcPeeringConnectionId=peering.id
+        )
+        create_tag(peering.id, json.dumps(tag))
+        return peering.id
+    except Exception as err:
+        logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 
 def enable_auto_assign_ip(subnet_id):
@@ -239,8 +332,7 @@ def enable_auto_assign_ip(subnet_id):
         client.modify_subnet_attribute(MapPublicIpOnLaunch={'Value': True}, SubnetId=subnet_id)
     except Exception as err:
         logging.info("Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Subnet",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create Subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -761,12 +853,20 @@ def remove_subnets(tag_value):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        tag2_name = os.environ['conf_service_base_name'] + '-secondary-Tag'
         subnets = ec2.subnets.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
-        if subnets:
-            for subnet in subnets:
-                client.delete_subnet(SubnetId=subnet.id)
-                print("The subnet {} has been deleted successfully".format(subnet.id))
+        subnets2 = ec2.subnets.filter(
+            Filters=[{'Name': 'tag:{}'.format(tag2_name), 'Values': [tag_value]}])
+        if subnets or subnets2:
+            if subnets:
+                for subnet in subnets:
+                    client.delete_subnet(SubnetId=subnet.id)
+                    print("The subnet {} has been deleted successfully".format(subnet.id))
+            if subnets2:
+                for subnet in subnets2:
+                    client.delete_subnet(SubnetId=subnet.id)
+                    print("The subnet {} has been deleted successfully".format(subnet.id))
         else:
             print("There are no private subnets to delete")
     except Exception as err:
@@ -774,6 +874,25 @@ def remove_subnets(tag_value):
         append_result(str({"error": "Unable to remove subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
+def remove_peering(tag_value):
+    try:
+        client = boto3.client('ec2')
+        tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        if os.environ['conf_duo_vpc_enable']=='true':
+            peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
+                                                                   {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
+            if peering_id:
+                client.delete_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
+                print("Peering connection {} has been deleted successfully".format(peering_id))
+            else:
+                print("There are no peering connections to delete")
+        else:
+            print("There are no peering connections to delete")
+    except Exception as err:
+        logging.info("Unable to remove peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def remove_sgroups(tag_value):
     try:

@@ -28,7 +28,7 @@ import sys
 def start_data_engine(cluster_name):
     print("Start Data Engine")
     try:
-        start_ec2('user:tag', cluster_name)
+        start_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 

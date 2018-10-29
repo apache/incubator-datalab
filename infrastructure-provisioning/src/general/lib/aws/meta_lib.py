@@ -316,6 +316,17 @@ def get_vpc_by_cidr(cidr):
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def get_cidr_by_vpc(vpc_id):
+    try:
+        client = boto3.client('ec2')
+        cidr = client.describe_vpcs(VpcIds=[vpc_id]).get('Vpcs')[0].get('CidrBlock')
+        return cidr
+    except Exception as err:
+        logging.error("Error with getting VPC CidrBlock by id: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting VPC CidrBlock by id",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def get_vpc_by_tag(tag_name, tag_value):
     try:
@@ -330,6 +341,18 @@ def get_vpc_by_tag(tag_name, tag_value):
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def get_peering_by_tag(tag_name, tag_value):
+    try:
+        client = boto3.client('ec2')
+        peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
+                                                                   {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
+        return peering_id
+    except Exception as err:
+        logging.error("Error with getting peering connection ID by tag: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting peering connection ID by tag",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def get_vpc_cidr_by_id(vpc_id):
     try:
@@ -844,7 +867,7 @@ def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
         elif conf_type == 'computational_resource':
             group_tag_name = os.environ['conf_service_base_name'] + ':' + instance_id
             print(group_tag_name)
-            instance_list = get_ec2_list('user:tag', group_tag_name)
+            instance_list = get_ec2_list(os.environ['conf_tag_resource_id'], group_tag_name)
             for instance in instance_list:
                 private_list_ip.append(
                     get_instance_ip_address_by_id(instance.id).get('Private'))

@@ -42,6 +42,7 @@ if __name__ == "__main__":
     edge_conf['user_keyname'] = os.environ['edge_user_name']
     edge_conf['public_subnet_id'] = os.environ['aws_subnet_id']
     edge_conf['vpc_id'] = os.environ['aws_vpc_id']
+    edge_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     edge_conf['region'] = os.environ['aws_region']
     edge_conf['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
     edge_conf['instance_size'] = os.environ['aws_edge_instance_size']
@@ -106,7 +107,7 @@ if __name__ == "__main__":
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
         params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {} --user_subnets_range '{}'" \
-                 .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
+                 .format(edge_conf['vpc2_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
                          os.environ['edge_user_name'], edge_conf['private_subnet_prefix'],
                          os.environ['conf_user_subnets_range'])
         try:
@@ -374,7 +375,7 @@ if __name__ == "__main__":
         ]
 
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
-            format(edge_conf['notebook_security_group_name'], edge_conf['vpc_id'], json.dumps(private_sg_ingress),
+            format(edge_conf['notebook_security_group_name'], edge_conf['vpc2_id'], json.dumps(private_sg_ingress),
                    json.dumps(private_sg_egress), edge_conf['service_base_name'], edge_conf['notebook_instance_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -397,7 +398,7 @@ if __name__ == "__main__":
     print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
-            format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc_id'],
+            format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc2_id'],
                    json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
@@ -417,7 +418,7 @@ if __name__ == "__main__":
     print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
-            format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc_id'],
+            format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc2_id'],
                    json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
