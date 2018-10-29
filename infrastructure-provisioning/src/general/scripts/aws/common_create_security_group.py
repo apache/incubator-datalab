@@ -78,5 +78,6 @@ if __name__ == "__main__":
             parser.print_help()
             sys.exit(2)
     except Exception as err:
+        traceback.print_exc()
         print(str(err))
         sys.exit(1)
