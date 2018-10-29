@@ -64,6 +64,7 @@ COPY general/lib/gcp/* /usr/lib/python2.7/dlab/
 COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
 COPY general/files/os/${OS}/sources.list /root/files/
+COPY general/files/os/ivysettings.xml /root/templates/
 
 RUN chmod a+x /root/*.py && \
     chmod a+x /root/scripts/* && \

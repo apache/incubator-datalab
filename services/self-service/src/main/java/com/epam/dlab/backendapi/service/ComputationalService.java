@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -47,7 +48,7 @@ public interface ComputationalService {
 	 *                          <code>computationalName</code>
 	 * @param computationalName computational name
 	 */
-	void terminateComputationalEnvironment(UserInfo userInfo, String exploratoryName, String computationalName);
+	void terminateComputational(UserInfo userInfo, String exploratoryName, String computationalName);
 
 	boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO, UserComputationalResource
 			computationalResource);
@@ -64,10 +65,10 @@ public interface ComputationalService {
 	Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
 																 String computationalName);
 
-	void stopClustersByCondition(CheckInactivityClusterStatusDTO dto);
+	void stopClustersByInactivity(CheckInactivityClusterStatusDTO dto);
 
 	void updateLastActivityForClusters(CheckInactivityClusterStatusDTO dto);
 
-	void updateCheckInactivityFlag(UserInfo userInfo, String exploratoryName, String computationalName,
-								   boolean checkInactivityRequired);
+	void updateInactivityConfig(UserInfo userInfo, String exploratoryName, String computationalName,
+								InactivityConfigDTO inactivityConfigDTO);
 }

@@ -93,8 +93,11 @@ args = parser.parse_args()
 def generate_docker_command():
     docker_command = ''
     command = []
-    command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
-                   format(args.key_path, args.conf_key_name, args.workspace_path))
+    if args.action == 'terminate':
+        command.append('sudo docker run -i ')
+    else:
+        command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
+                       format(args.key_path, args.conf_key_name, args.workspace_path))
     if args.conf_cloud_provider == 'azure':
         command.append('-v {}:/root/azure_auth.json '.format(args.azure_auth_path))
     elif args.conf_cloud_provider == 'gcp':
@@ -151,6 +154,12 @@ def deploy_dlab(args):
         format(args.workspace_path))
     local('cp {0}/services/provisioning-service/target/provisioning-service-*.jar {0}/web_app/provisioning-service/'.
         format(args.workspace_path))
+    local('sed -i "s/LDAP_HOST/{0}/g" {1}/services/security-service/security.yml'
+          .format(args.ldap_hostname, args.workspace_path))
+    local('sed -i "s/LDAP_USER/{0}/g" {1}/services/security-service/security.yml'
+          .format('{0},{1}'.format(args.ldap_service_username, args.ldap_dn), args.workspace_path))
+    local("sed -i 's/LDAP_PASS/{0}/g' {1}/services/security-service/security.yml"
+          .format(args.ldap_service_password, args.workspace_path))
     local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
     local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
         format(args.workspace_path))

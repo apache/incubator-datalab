@@ -156,6 +156,7 @@ if __name__ == "__main__":
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
+        data_engine['network_type'] = os.environ['conf_network_type']
         data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
                                       '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
@@ -180,7 +181,10 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
         edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
-        edge_instance_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Public')
+        if data_engine['network_type'] == 'private':
+            edge_instance_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
+        else:
+            edge_instance_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Public')
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'

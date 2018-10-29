@@ -18,12 +18,14 @@
 package com.epam.dlab.dto.status;
 
 import com.epam.dlab.model.ResourceType;
+import com.epam.dlab.util.mongo.IsoLocalDateTimeDeSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Describe the resource (host, cluster, storage) for check status in Cloud.
@@ -38,8 +40,9 @@ public class EnvResource {
 	private String name;
 	@JsonProperty
 	private ResourceType resourceType;
+	@JsonDeserialize(using = IsoLocalDateTimeDeSerializer.class)
 	@JsonProperty
-	private Date lastActivity;
+	private LocalDateTime lastActivity;
 
 	public EnvResource(String id, String name, ResourceType resourceType) {
 		this.id = id;
@@ -117,15 +120,15 @@ public class EnvResource {
 		this.resourceType = resourceType;
 	}
 
-	public Date getLastActivity() {
+	public LocalDateTime getLastActivity() {
 		return lastActivity;
 	}
 
-	public void setLastActivity(Date lastActivity) {
+	public void setLastActivity(LocalDateTime lastActivity) {
 		this.lastActivity = lastActivity;
 	}
 
-	public EnvResource withLastActivity(Date lastActivity) {
+	public EnvResource withLastActivity(LocalDateTime lastActivity) {
 		setLastActivity(lastActivity);
 		return this;
 	}

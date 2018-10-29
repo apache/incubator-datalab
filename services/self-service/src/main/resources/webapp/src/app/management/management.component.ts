@@ -19,7 +19,7 @@ limitations under the License.
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr';
 
-import { HealthStatusService, ManageEnvironmentsService, UserAccessKeyService } from '../core/services';
+import { HealthStatusService, ManageEnvironmentsService, UserAccessKeyService, AppRoutingService } from '../core/services';
 import { EnvironmentModel } from './management.model';
 import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 
@@ -45,6 +45,7 @@ export class ManagementComponent implements OnInit {
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService,
     private userAccessKeyService: UserAccessKeyService,
+    private appRoutingService: AppRoutingService,
     public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
@@ -57,7 +58,6 @@ export class ManagementComponent implements OnInit {
 
   public buildGrid() {
     this.getEnvironmentHealthStatus();
-    this.getAllEnvironmentData();
   }
 
   public manageEnvironmentAction($event) {
@@ -129,6 +129,12 @@ export class ManagementComponent implements OnInit {
           this.billingEnabled = result.billingEnabled;
           this.admin = result.admin;
 
+          if (!this.admin) {
+            this.appRoutingService.redirectToNoAccessPage();
+            return false;
+          }
+
+          this.getAllEnvironmentData();
           this.checkUserAccessKey();
         });
   }

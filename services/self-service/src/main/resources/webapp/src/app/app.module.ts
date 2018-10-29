@@ -30,6 +30,7 @@ import { AppRoutingModule } from './app.routing.module';
 import { LoginModule } from './login/login.module';
 import { GuidesModule } from './help';
 import { NotFoundModule } from './not-found/not-found.module';
+import { AccessDeniedModule } from './access-denied/access-denied.module';
 import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
@@ -49,6 +50,7 @@ import { CoreModule } from './core/core.module';
     ResourcesModule,
     GuidesModule,
     NotFoundModule,
+    AccessDeniedModule,
     HealthStatusModule,
     ReportingModule,
     ManagenementModule,
