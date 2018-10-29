@@ -1,20 +1,13 @@
 {
   "status": "ok",
   "request_id": "${REQUEST_ID}",
-  "clusters": [
+  "resources": [
     {
-      "id": "dev-test-dataengine-jup_1-sp_1",
+      "id": "i-e649463cf6fd461bb",
       "status": "running",
-      "name": "sp_1",
+      "name": "jup_sc",
       "resourceType": "COMPUTATIONAL",
-      "lastActivity": 1533652097582
-    },
-    {
-      "id": "dev-test-des-jup_1-emr_1-da3cd",
-      "status": "running",
-      "name": "emr_1",
-      "resourceType": "COMPUTATIONAL",
-      "lastActivity": 1533652114629
+      "lastActivity": 1575842400000
     }
   ]
 }

@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -77,7 +76,6 @@ public class EnvDAO extends BaseDAO {
 					INSTANCE_ID,
 			COMPUTATIONAL_STATUS, COMPUTATIONAL_RESOURCES + "." + IMAGE);
 	private static final String COMPUTATIONAL_NAME = "computational_name";
-	private static final String COMPUTATIONAL_ID = "computational_id";
 
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
@@ -105,28 +103,42 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<EnvResource> findRunningClustersForCheckInactivity() {
-		return stream(find(USER_INSTANCES))
-				.map(exp -> stream((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
-						.filter(doc -> UserInstanceStatus.of(doc.getString(STATUS)) == RUNNING &&
-								doc.getBoolean(CHECK_INACTIVITY_REQUIRED))
-						.map(doc -> toEnvResourceComputational(doc, RUNNING)))
-				.flatMap(Function.identity()).collect(Collectors.toList());
+	public List<EnvResource> findRunningResourcesForCheckInactivity() {
+		return stream(find(USER_INSTANCES, or(eq(STATUS, RUNNING.toString()),
+				elemMatch(COMPUTATIONAL_RESOURCES, eq(STATUS, RUNNING.toString())))))
+				.flatMap(ui -> getRunningEnvResources(ui).stream())
+				.collect(Collectors.toList());
 	}
 
-	private EnvResource toEnvResourceComputational(Document computationalResource, UserInstanceStatus status) {
-		return new EnvResource()
-				.withId(computationalResource.getString(COMPUTATIONAL_ID))
-				.withName(computationalResource.getString(COMPUTATIONAL_NAME))
-				.withStatus(status.toString())
-				.withResourceType(ResourceType.COMPUTATIONAL);
+	private List<EnvResource> getRunningEnvResources(Document ui) {
+		final String exploratoryName = ui.getString(EXPLORATORY_NAME);
+		final List<EnvResource> envResources = getComputationalResources(ui)
+				.stream()
+				.filter(comp -> RUNNING.toString().equals(comp.getString(STATUS)))
+				.map(comp -> toEnvResource(String.join("_", exploratoryName,
+						comp.getString(COMPUTATIONAL_NAME)), comp.getString(INSTANCE_ID),
+						ResourceType.COMPUTATIONAL))
+				.collect(Collectors.toList());
+		if (UserInstanceStatus.of(ui.getString(STATUS)) == RUNNING) {
+			envResources.add(toEnvResource(exploratoryName, ui.getString(INSTANCE_ID),
+					ResourceType.EXPLORATORY));
+		}
+		return envResources;
+	}
+
+	private EnvResource toEnvResource(String name, String instanceId, ResourceType resType) {
+		return new EnvResource(instanceId, name, resType);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void addComputationalResources(List<EnvResource> hostList, List<EnvResource> clusterList, Document exp,
 										   String exploratoryName) {
-		((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
+		getComputationalResources(exp)
 				.forEach(comp -> addComputational(hostList, clusterList, exploratoryName, comp));
+	}
+
+	private List<Document> getComputationalResources(Document userInstanceDocument) {
+		return (List<Document>) userInstanceDocument.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList());
 	}
 
 	private void addComputational(List<EnvResource> hostList, List<EnvResource> clusterList, String exploratoryName,
@@ -206,7 +218,7 @@ public class EnvDAO extends BaseDAO {
 				.ifPresent(resource -> updateExploratoryStatus(user, exploratoryName, exp.getString(STATUS),
 						resource.getStatus()));
 
-		((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
+		(getComputationalResources(exp))
 				.stream()
 				.filter(this::instanceIdPresent)
 				.forEach(comp -> updateComputational(user, list, exploratoryName, comp));
@@ -505,7 +517,7 @@ public class EnvDAO extends BaseDAO {
 				Optional.ofNullable(UserInstanceStatus.of(document.getString(statusFieldName)))
 						.filter(s -> s.in(CONFIGURING, CREATING, RUNNING, STARTING, STOPPED, STOPPING, TERMINATING) ||
 								(FAILED == s && ResourceType.EDGE == resourceType))
-						.ifPresent(s -> list.add(new EnvResource(instanceId, name, resourceType))));
+						.ifPresent(s -> list.add(toEnvResource(name, instanceId, resourceType))));
 	}
 
 	private boolean notEmpty(List<EnvResource> hostList) {

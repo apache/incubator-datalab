@@ -18,7 +18,6 @@ package com.epam.dlab.backendapi.resources.gcp;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
@@ -94,7 +93,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.masterNumber(formDTO.getMasterInstanceCount())
 					.preemptibleNumber(formDTO.getPreemptibleCount())
 					.version(formDTO.getVersion())
-					.checkInactivityRequired(formDTO.isCheckInactivityRequired()).build();
+					.build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
 					gcpComputationalResource);
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
@@ -204,32 +203,6 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 
 		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
 
-		return Response.ok().build();
-	}
-
-	/**
-	 * Updates 'check_inactivity_required' parameter for user's computational resource in database.
-	 *
-	 * @param userInfo                user info.
-	 * @param exploratoryName         name of exploratory.
-	 * @param computationalName       name of computational resource.
-	 * @param inactivityConfig        inactivity configuration
-	 * @return 200 OK if operation is successfully triggered
-	 */
-	@PUT
-	@ApiOperation("Updates inactivity configuration for computational resource")
-	@ApiResponses(@ApiResponse(code = 200, message = "Inactivity configuration successfully updated"))
-	@Path("/{exploratoryName}/{computationalName}/inactivity")
-	public Response updateInactivity(@Auth UserInfo userInfo,
-									 @PathParam("exploratoryName") String exploratoryName,
-									 @PathParam("computationalName") String computationalName,
-									 InactivityConfigDTO inactivityConfig) {
-		final boolean inactivityEnabled = inactivityConfig.isInactivityEnabled();
-		final long maxInactivityTime = inactivityConfig.getMaxInactivityTimeMinutes();
-		log.debug("Updating check inactivity cluster flag to {} with max inactivity {} for computational resource {}" +
-						" affiliated with exploratory {} for user {}", inactivityEnabled, maxInactivityTime,
-				computationalName, exploratoryName, userInfo.getName());
-		computationalService.updateInactivityConfig(userInfo, exploratoryName, computationalName, inactivityConfig);
 		return Response.ok().build();
 	}
 

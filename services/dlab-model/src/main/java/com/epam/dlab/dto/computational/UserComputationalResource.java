@@ -52,19 +52,17 @@ public class UserComputationalResource {
 	private List<ResourceURL> resourceUrl;
 	@JsonProperty("last_activity")
 	private LocalDateTime lastActivity;
-	@JsonProperty("max_inactivity")
-	private Long maxInactivity;
-	@JsonProperty("check_inactivity_required")
-	private boolean checkInactivityRequired;
 	@JsonProperty("master_node_shape")
 	private String masterNodeShape;
 	@JsonProperty("dataengine_instance_shape")
 	private String dataengineShape;
+	@JsonProperty("instance_id")
+	private String instanceId;
 
 	public UserComputationalResource(String computationalName, String computationalId, String imageName,
 									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
 									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl,
-									 LocalDateTime lastActivity, boolean checkInactivityRequired, Long maxInactivity) {
+									 LocalDateTime lastActivity) {
 		this.computationalName = computationalName;
 		this.computationalId = computationalId;
 		this.imageName = imageName;
@@ -75,8 +73,6 @@ public class UserComputationalResource {
 		this.reuploadKeyRequired = reuploadKeyRequired;
 		this.resourceUrl = resourceUrl;
 		this.lastActivity = lastActivity;
-		this.checkInactivityRequired = checkInactivityRequired;
-		this.maxInactivity = maxInactivity;
 	}
 
 	public DataEngineType getDataEngineType() {

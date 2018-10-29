@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,7 +60,7 @@ public class ExploratoryDAO extends BaseDAO {
 	private static final String EXPLORATORY_PASS = "exploratory_pass";
 	private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
 	public static final String EXPLORATORY_NOT_FOUND_MSG = "Exploratory for user %s with name %s not found";
-	private static final String COMPUTATIONAL_ID = "computational_id";
+	private static final String EXPLORATORY_LAST_ACTIVITY = "last_activity";
 
 	public ExploratoryDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -199,7 +201,20 @@ public class ExploratoryDAO extends BaseDAO {
 	 * Finds and returns the info about all exploratories in database.
 	 **/
 	public List<UserInstanceDTO> getInstancesByComputationalIdsAndStatus(List<String> ids, UserInstanceStatus status) {
-		return instancesByCompResourceIds(and(in(COMPUTATIONAL_ID, ids), eq(STATUS, status.toString())));
+		return instancesByCompResourceIds(and(in(INSTANCE_ID, ids), eq(STATUS, status.toString())));
+	}
+
+	public List<UserInstanceDTO> getInstancesByIdsAndStatus(List<String> ids, UserInstanceStatus status) {
+		return stream(getCollection(USER_INSTANCES)
+				.find(and(in(INSTANCE_ID, ids), eq(STATUS, status.toString())))
+				.projection(fields(exclude(COMPUTATIONAL_RESOURCES))))
+				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
+				.collect(Collectors.toList());
+	}
+
+	public void updateLastActivityDateForInstanceId(String instanceId, LocalDateTime lastActivity) {
+		updateOne(USER_INSTANCES, eq(INSTANCE_ID, instanceId),
+				set(EXPLORATORY_LAST_ACTIVITY, Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
 	}
 
 	private List<UserInstanceDTO> instancesByCompResourceIds(Bson compCondition) {

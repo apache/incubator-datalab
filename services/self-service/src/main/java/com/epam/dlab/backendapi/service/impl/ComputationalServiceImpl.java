@@ -17,13 +17,11 @@
 package com.epam.dlab.backendapi.service.impl;
 
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
-import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -32,8 +30,10 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.*;
-import com.epam.dlab.dto.status.EnvResource;
+import com.epam.dlab.dto.computational.ComputationalStatusDTO;
+import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
+import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -42,11 +42,9 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.dto.base.DataEngineType.CLOUD_SERVICE;
@@ -83,9 +81,6 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Inject
 	private RequestId requestId;
-
-	@Inject
-	private SystemUserInfoService systemUserInfoService;
 
 
 	@Override
@@ -129,7 +124,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 			UserComputationalResource compResource = computationalDAO.fetchComputationalFields(userInfo
 					.getName(), exploratoryName, computationalName);
 
-			final DataEngineType dataEngineType = DataEngineType.fromDockerImageName(compResource.getImageName());
+			final DataEngineType dataEngineType = compResource.getDataEngineType();
 			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, exploratoryName,
 					exploratoryId, computationalName, compResource.getComputationalId(), dataEngineType);
 
@@ -255,45 +250,6 @@ public class ComputationalServiceImpl implements ComputationalService {
 		return Optional.empty();
 	}
 
-	@Override
-	public void stopClustersByInactivity(CheckInactivityClusterStatusDTO dto) {
-		List<String> resourceIds = dto.getClusters().stream().map(EnvResource::getId).collect(Collectors.toList());
-		List<UserInstanceDTO> instances = exploratoryDAO.getInstancesByComputationalIdsAndStatus(resourceIds, RUNNING);
-		instances.forEach(this::stopClusters);
-	}
-
-	@Override
-	public void updateLastActivityForClusters(CheckInactivityClusterStatusDTO dto) {
-		log.debug("Updating last activity date for clusters...");
-		dto.getClusters().forEach(r -> computationalDAO.updateLastActivityDateForInstanceId(r.getId(),
-				r.getLastActivity()));
-	}
-
-	@Override
-	public void updateInactivityConfig(UserInfo userInfo, String expName, String compName,
-									   InactivityConfigDTO inactivityConfig) {
-		computationalDAO.updateInactivityConfiguration(userInfo.getName(), expName, compName, inactivityConfig);
-	}
-
-	private void stopClusters(UserInstanceDTO ui) {
-		ui.getResources().stream()
-				.filter(this::shouldClusterBeInactivated)
-				.forEach(c -> stopCluster(c, ui.getUser(), ui.getExploratoryName()));
-	}
-
-	private boolean shouldClusterBeInactivated(UserComputationalResource c) {
-		return c.getLastActivity().plusMinutes(c.getMaxInactivity()).isBefore(LocalDateTime.now());
-	}
-
-	private void stopCluster(UserComputationalResource c, String user, String exploratoryName) {
-		final DataEngineType dataEngineType = DataEngineType.fromDockerImageName(c.getImageName());
-		if (dataEngineType == SPARK_STANDALONE) {
-			stopSparkCluster(systemUserInfoService.create(user), exploratoryName, c.getComputationalName());
-		} else if (dataEngineType == CLOUD_SERVICE) {
-			terminateComputational(systemUserInfoService.create(user), exploratoryName, c.getComputationalName());
-		}
-	}
-
 	/**
 	 * Updates the status of computational resource in database.
 	 *
@@ -322,7 +278,6 @@ public class ComputationalServiceImpl implements ComputationalService {
 				.status(CREATING.toString())
 				.dataEngineInstanceCount(form.getDataEngineInstanceCount())
 				.dataEngineInstanceShape(form.getDataEngineInstanceShape())
-				.checkInactivityRequired(form.isCheckInactivityRequired())
 				.build();
 	}
 

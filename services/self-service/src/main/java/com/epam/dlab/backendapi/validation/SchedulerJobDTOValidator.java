@@ -25,6 +25,7 @@ import com.epam.dlab.dto.SchedulerJobDTO;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Objects;
 
 public class SchedulerJobDTOValidator implements ConstraintValidator<SchedulerJobDTOValid, SchedulerJobDTO> {
 	@Override
@@ -34,6 +35,14 @@ public class SchedulerJobDTOValidator implements ConstraintValidator<SchedulerJo
 
 	@Override
 	public boolean isValid(SchedulerJobDTO schedulerJobDTO, ConstraintValidatorContext constraintValidatorContext) {
-		return !schedulerJobDTO.getStartDaysRepeat().isEmpty() || !schedulerJobDTO.getStopDaysRepeat().isEmpty();
+		if (!schedulerJobDTO.isCheckInactivityRequired()) {
+			return !schedulerJobDTO.getStartDaysRepeat().isEmpty() || !schedulerJobDTO.getStopDaysRepeat().isEmpty();
+		} else if (schedulerJobDTO.isCheckInactivityRequired() && Objects.isNull(schedulerJobDTO.getMaxInactivity())) {
+			constraintValidatorContext.disableDefaultConstraintViolation();
+			constraintValidatorContext.buildConstraintViolationWithTemplate("Max inactivity time should be set").addConstraintViolation();
+			return false;
+		} else {
+			return true;
+		}
 	}
 }

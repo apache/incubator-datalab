@@ -139,8 +139,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	public List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
 														  UserInstanceStatus computationalStatus) {
 		return getExploratoriesWithStatus(user, exploratoryStatus).stream()
-						.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
-						.collect(Collectors.toList());
+				.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -159,6 +159,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		}
 		return Optional.empty();
 	}
+
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
 																			 UserInstanceStatus computationalStatus) {

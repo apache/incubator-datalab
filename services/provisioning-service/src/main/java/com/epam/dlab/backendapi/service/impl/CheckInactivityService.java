@@ -23,8 +23,8 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
-import com.epam.dlab.backendapi.core.response.handlers.CheckInactivityClusterCallbackHandler;
-import com.epam.dlab.dto.computational.CheckInactivityClusterCallbackDTO;
+import com.epam.dlab.backendapi.core.response.handlers.CheckInactivityCallbackHandler;
+import com.epam.dlab.dto.computational.CheckInactivityCallbackDTO;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Singleton;
@@ -39,10 +39,10 @@ public class CheckInactivityService extends DockerService implements DockerComma
 	private static final String CHECK_INACTIVITY_CLUSTERS_ACTION = "check_inactivity_clusters";
 
 	public String checkClusterAction(String userName, List<EnvResource> clusters, DockerAction action) {
-		log.debug("Admin {} is checking inactivity for clusters...", userName);
-		log.debug("Obtained {} clusters: {}", clusters.size(), clusters);
+		log.debug("Admin {} is checking inactivity for resources...", userName);
+		log.debug("Obtained {} resources: {}", clusters.size(), clusters);
 		String uuid = getUuid();
-		CheckInactivityClusterCallbackDTO dto = buildCallbackDTO(uuid, clusters);
+		CheckInactivityCallbackDTO dto = buildCallbackDTO(uuid, clusters);
 		startCallbackListener(userName, dto);
 		RunDockerCommand runDockerCommand = buildRunDockerCommand(dto, action);
 		runDockerCmd(userName, uuid, runDockerCommand, dto);
@@ -54,7 +54,7 @@ public class CheckInactivityService extends DockerService implements DockerComma
 	}
 
 	private void runDockerCmd(String userName, String uuid, RunDockerCommand runDockerCommand,
-							  CheckInactivityClusterCallbackDTO callbackDto) {
+							  CheckInactivityCallbackDTO callbackDto) {
 		try {
 			final String command = commandBuilder.buildCommand(runDockerCommand, callbackDto);
 			log.trace("Docker command: {}", command);
@@ -65,11 +65,11 @@ public class CheckInactivityService extends DockerService implements DockerComma
 		}
 	}
 
-	private void startCallbackListener(String userName, CheckInactivityClusterCallbackDTO dto) {
+	private void startCallbackListener(String userName, CheckInactivityCallbackDTO dto) {
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
-				new CheckInactivityClusterCallbackHandler(
-						selfService, ApiCallbacks.CHECK_INACTIVITY_CLUSTERS_URI, userName, dto));
+				new CheckInactivityCallbackHandler(
+						selfService, ApiCallbacks.CHECK_INACTIVITY_CLUSTERS_URI, userName, dto.getId()));
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class CheckInactivityService extends DockerService implements DockerComma
 		return Directories.EDGE_LOG_DIRECTORY;
 	}
 
-	private RunDockerCommand buildRunDockerCommand(CheckInactivityClusterCallbackDTO callbackDto,
+	private RunDockerCommand buildRunDockerCommand(CheckInactivityCallbackDTO callbackDto,
 												   DockerAction action) {
 		return new RunDockerCommand()
 				.withInteractive()
@@ -92,13 +92,13 @@ public class CheckInactivityService extends DockerService implements DockerComma
 				.withAction(action);
 	}
 
-	private CheckInactivityClusterCallbackDTO buildCallbackDTO(String uuid, List<EnvResource> clusters) {
-		return new CheckInactivityClusterCallbackDTO()
+	private CheckInactivityCallbackDTO buildCallbackDTO(String uuid, List<EnvResource> clusters) {
+		return new CheckInactivityCallbackDTO()
 				.withId(uuid)
 				.withClusters(clusters);
 	}
 
-	private String getContainerName(CheckInactivityClusterCallbackDTO callbackDto) {
+	private String getContainerName(CheckInactivityCallbackDTO callbackDto) {
 		return nameContainer(callbackDto.getId(), CHECK_INACTIVITY_CLUSTERS_ACTION);
 	}
 }

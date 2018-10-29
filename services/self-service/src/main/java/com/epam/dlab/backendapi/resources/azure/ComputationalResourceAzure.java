@@ -21,7 +21,6 @@ import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.RoleType;
@@ -173,30 +172,6 @@ public class ComputationalResourceAzure {
 
 		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
 
-		return Response.ok().build();
-	}
-
-	/**
-	 * Updates 'check_inactivity_required' parameter for user's computational resource in database.
-	 *
-	 * @param userInfo                user info.
-	 * @param exploratoryName         name of exploratory.
-	 * @param computationalName       name of computational resource.
-	 * @param inactivityConfig        inactivity configuration
-	 * @return 200 OK if operation is successfully triggered
-	 */
-	@PUT
-	@Path("/{exploratoryName}/{computationalName}/inactivity")
-	public Response updateInactivity(@Auth UserInfo userInfo,
-									 @PathParam("exploratoryName") String exploratoryName,
-									 @PathParam("computationalName") String computationalName,
-									 InactivityConfigDTO inactivityConfig) {
-		final boolean inactivityEnabled = inactivityConfig.isInactivityEnabled();
-		final long maxInactivityTime = inactivityConfig.getMaxInactivityTimeMinutes();
-		log.debug("Updating check inactivity cluster flag to {} with max inactivity {} for computational resource {}" +
-						" affiliated with exploratory {} for user {}", inactivityEnabled, maxInactivityTime,
-				computationalName, exploratoryName, userInfo.getName());
-		computationalService.updateInactivityConfig(userInfo, exploratoryName, computationalName, inactivityConfig);
 		return Response.ok().build();
 	}
 }

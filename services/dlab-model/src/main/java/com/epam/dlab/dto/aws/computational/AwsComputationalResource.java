@@ -63,7 +63,7 @@ public class AwsComputationalResource extends UserComputationalResource {
 									boolean checkInactivityRequired, List<EmrConfig> config, Long maxInactivity) {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, maxInactivity);
+				reuploadKeyRequired, resourceURL, lastActivity);
 		this.instanceId = instanceId;
 		this.masterShape = masterShape;
 		this.slaveShape = slaveShape;
