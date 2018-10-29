@@ -46,7 +46,4 @@ if __name__ == "__main__":
         sys.exit(2)
 
     print("Installing proxy for notebooks.")
-    if configure_http_proxy_server(deeper_config):
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    configure_http_proxy_server(deeper_config)

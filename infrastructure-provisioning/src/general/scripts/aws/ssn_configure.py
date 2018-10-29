@@ -20,7 +20,7 @@
 
 from dlab.fab import *
 from dlab.actions_lib import *
-import sys, os
+import sys, os, json
 from fabric.api import *
 from dlab.ssn_lib import *
 import traceback
@@ -56,6 +56,11 @@ if __name__ == "__main__":
         billing_enabled = True
         dlab_ssh_user = os.environ['conf_os_user']
         network_type = os.environ['conf_network_type']
+        if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and \
+                'ssn_subdomain' in os.environ:
+            domain_created = True
+        else:
+            domain_created = False
 
         try:
             if os.environ['aws_vpc_id'] == '':
@@ -121,6 +126,9 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
+        if domain_created:
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
         remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)
@@ -138,7 +146,8 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'boto3 backoff argparse fabric==1.14.0 awscli pymongo pyyaml jinja2' --user {} --region {}". \
+        params = "--hostname {} --keyfile {} --pip_packages 'boto3 backoff argparse fabric==1.14.0 awscli pymongo " \
+                 "pyyaml jinja2' --user {} --region {}". \
             format(instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
                    os.environ['aws_region'])
 
@@ -149,6 +158,9 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing software: pip, packages.", str(err))
+        if domain_created:
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
         remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)
@@ -166,11 +178,15 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE SSN INSTANCE]')
         print('[CONFIGURE SSN INSTANCE]')
-        additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name, "security_group_id": os.environ['aws_security_groups_ids'], "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'], "admin_key": os.environ['conf_key_name']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
-            format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
-                   json.dumps(additional_config), dlab_ssh_user, os.environ['ssn_dlab_path'],
-                   os.environ['conf_tag_resource_id'])
+        additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name,
+                             "security_group_id": os.environ['aws_security_groups_ids'],
+                             "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'],
+                             "admin_key": os.environ['conf_key_name']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
+                 "--tag_resource_id {}".format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'],
+                                                                                    os.environ['conf_key_name']),
+                                               json.dumps(additional_config), dlab_ssh_user,
+                                               os.environ['ssn_dlab_path'], os.environ['conf_tag_resource_id'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -179,6 +195,9 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed configuring ssn.", str(err))
+        if domain_created:
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
         remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)
@@ -206,10 +225,13 @@ if __name__ == "__main__":
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"}]
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
-            format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
-                   json.dumps(additional_config), os.environ['conf_os_family'], dlab_ssh_user,
-                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], os.environ['aws_region'])
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} " \
+                 "--cloud_provider {} --region {}".format(instance_hostname,
+                                                          "{}{}.pem".format(os.environ['conf_key_dir'],
+                                                                            os.environ['conf_key_name']),
+                                                          json.dumps(additional_config), os.environ['conf_os_family'],
+                                                          dlab_ssh_user, os.environ['ssn_dlab_path'],
+                                                          os.environ['conf_cloud_provider'], os.environ['aws_region'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))
@@ -218,6 +240,9 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Unable to configure docker.", str(err))
+        if domain_created:
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
         remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)
@@ -303,6 +328,9 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Unable to configure UI.", str(err))
         print(err)
+        if domain_created:
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
         remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)
@@ -375,6 +403,9 @@ if __name__ == "__main__":
             params += "--key_id {}".format(os.environ['aws_access_key'])
             local("~/scripts/{}.py {}".format('ssn_finalize', params))
     except:
+        if domain_created:
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
         remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)

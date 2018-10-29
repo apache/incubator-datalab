@@ -30,20 +30,32 @@ def configure_http_proxy_server(config):
             sudo('apt-get -y install squid')
             template_file = config['template_file']
             proxy_subnet = config['exploratory_subnet']
-            with open("/tmp/tmpsquid.conf", 'w') as out:
-                with open(template_file) as tpl:
-                    for line in tpl:
-                        out.write(line.replace('PROXY_SUBNET', proxy_subnet))
-            put('/tmp/tmpsquid.conf', '/tmp/squid.conf')
+            put(template_file, '/tmp/squid.conf')
             sudo('\cp /tmp/squid.conf /etc/squid/squid.conf')
+            sudo('sed -i "s|PROXY_SUBNET|{}|g" /etc/squid/squid.conf'.format(proxy_subnet))
+            sudo('sed -i "s|EDGE_USER_NAME|{}|g" /etc/squid/squid.conf'.format(config['edge_user_name']))
+            sudo('sed -i "s|LDAP_HOST|{}|g" /etc/squid/squid.conf'.format(config['ldap_host']))
+            sudo('sed -i "s|LDAP_DN|{}|g" /etc/squid/squid.conf'.format(config['ldap_dn']))
+            sudo('sed -i "s|LDAP_SERVICE_USERNAME|{}|g" /etc/squid/squid.conf'.format(config['ldap_user']))
+            sudo('sed -i "s|LDAP_SERVICE_PASSWORD|{}|g" /etc/squid/squid.conf'.format(config['ldap_password']))
+            replace_string = ''
+            for cidr in config['vpc_cidrs']:
+                replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
+            sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            replace_string = ''
+            for cidr in config['allowed_ip_cidr']:
+                replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
+            sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
             sudo('service squid reload')
             sudo('sysv-rc-conf squid on')
             sudo('touch /tmp/http_proxy_ensured')
-        return True
-    except:
-        return False
+    except Exception as err:
+        print("Failed to install and configure squid: " + str(err))
+        sys.exit(1)
 
-def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username, ldap_user):
+
+def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username,
+                       ldap_user):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
             sudo('apt-get install -y wget')

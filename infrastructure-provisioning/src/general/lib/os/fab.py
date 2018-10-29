@@ -28,6 +28,7 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 import dlab.actions_lib
 import re
+import traceback
 
 
 def ensure_pip(requisites):
@@ -271,14 +272,19 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
 
 
 def ensure_ciphers():
-    sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
-    sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
-    sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
-    sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
     try:
-        sudo('service ssh restart')
-    except:
-        sudo('service sshd restart')
+        sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
+        sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
+        sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
+        sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
+        try:
+            sudo('service ssh restart')
+        except:
+            sudo('service sshd restart')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to ensure ciphers: ', str(err))
+        sys.exit(1)
 
 
 def install_r_pkg(requisites):

@@ -23,12 +23,18 @@ import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf_service_base_name', type=str, help='unique name for DLab environment')
-parser.add_argument('--conf_network_type', type=str, default='', help='Define in which network DLab will be deployed. Possible options: public|private')
+parser.add_argument('--conf_network_type', type=str, default='', help='Define in which network DLab will be deployed. '
+                                                                      'Possible options: public|private')
 parser.add_argument('--conf_vpc_cidr', type=str, default='', help='CIDR of VPC')
-parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='Comma-separated CIDR of IPs which will have access to SSN')
-parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Range of subnets which will be using for users environments. For example: 10.10.0.0/24 - 10.10.10.0/24')
-parser.add_argument('--conf_additional_tags', type=str, default='', help='Additional tags in format "Key1:Value1;Key2:Value2"')
-parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', help='Predefined policies for users instances')
+parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='Comma-separated CIDR of IPs which will have '
+                                                                         'access to SSN')
+parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Range of subnets which will be using for '
+                                                                            'users environments. For example: '
+                                                                            '10.10.0.0/24 - 10.10.10.0/24')
+parser.add_argument('--conf_additional_tags', type=str, default='', help='Additional tags in format '
+                                                                         '"Key1:Value1;Key2:Value2"')
+parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', help='Predefined policies for users '
+                                                                                    'instances')
 parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
 parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
 parser.add_argument('--aws_region', type=str, default='', help='AWS region')
@@ -39,15 +45,27 @@ parser.add_argument('--conf_os_family', type=str, default='',
                     help='Operating system type. Available options: debian, redhat')
 parser.add_argument('--conf_cloud_provider', type=str, default='',
                     help='Where DLab should be deployed. Available options: aws, azure, gcp')
+parser.add_argument('--ssn_hosted_zone_name', type=str, default='', help='Name of hosted zone')
+parser.add_argument('--ssn_hosted_zone_id', type=str, default='', help='ID of hosted zone')
+parser.add_argument('--ssn_subdomain', type=str, default='', help='Subdomain name')
+parser.add_argument('--ssn_assume_role_arn', type=str, default='NONE', help='Role ARN for creating Route53 record in '
+                                                                            'different AWS account, NONE - for '
+                                                                            'creating Route53 record in the same '
+                                                                            'AWS account')
+parser.add_argument('--ssl_cert_path', type=str, default='', help='Full path to SSL certificate')
+parser.add_argument('--ssl_key_path', type=str, default='', help='Full path to SSL certificate')
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--azure_vpc_name', type=str, default='', help='Azure VPC Name')
 parser.add_argument('--gcp_vpc_name', type=str, default='', help='GCP VPC Name')
 parser.add_argument('--aws_subnet_id', type=str, default='', help='AWS Subnet ID')
 parser.add_argument('--azure_subnet_name', type=str, default='', help='Azure Subnet Name')
 parser.add_argument('--gcp_subnet_name', type=str, default='', help='GCP Subnet Name')
-parser.add_argument('--aws_security_groups_ids', type=str, default='', help='One of more comma-separated Security groups IDs for SSN')
-parser.add_argument('--azure_security_group_name', type=str, default='', help='One of more comma-separated Security groups names for SSN')
-parser.add_argument('--gcp_firewall_name', type=str, default='', help='One of more comma-separated GCP Firewall rules for SSN')
+parser.add_argument('--aws_security_groups_ids', type=str, default='', help='One of more comma-separated Security '
+                                                                            'groups IDs for SSN')
+parser.add_argument('--azure_security_group_name', type=str, default='', help='One of more comma-separated Security '
+                                                                              'groups names for SSN')
+parser.add_argument('--gcp_firewall_name', type=str, default='', help='One of more comma-separated GCP Firewall rules '
+                                                                      'for SSN')
 parser.add_argument('--key_path', type=str, default='', help='Path to admin key (WITHOUT KEY NAME)')
 parser.add_argument('--conf_key_name', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--workspace_path', type=str, default='', help='Admin key name (WITHOUT ".pem")')
@@ -56,9 +74,12 @@ parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.large', hel
 parser.add_argument('--azure_ssn_instance_size', type=str, default='Standard_DS2_v2', help='The SSN instance shape')
 parser.add_argument('--gcp_ssn_instance_size', type=str, default='n1-standard-2', help='The SSN instance shape')
 parser.add_argument('--aws_account_id', type=str, default='', help='The ID of Amazon account')
-parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name of S3 bucket where billing reports will be placed.')
-parser.add_argument('--aws_job_enabled', type=str, default='false', help='Billing format. Available options: true (aws), false(epam)')
-parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
+parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name of S3 bucket where billing reports '
+                                                                       'will be placed.')
+parser.add_argument('--aws_job_enabled', type=str, default='false', help='Billing format. Available options: '
+                                                                         'true (aws), false(epam)')
+parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 '
+                                                                    'bucket')
 parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
 parser.add_argument('--azure_datalake_enable', type=str, default='', help='Provision DataLake storage account')
@@ -67,24 +88,32 @@ parser.add_argument('--azure_offer_number', type=str, default='', help='Azure of
 parser.add_argument('--azure_currency', type=str, default='', help='Azure currency code')
 parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
 parser.add_argument('--azure_application_id', type=str, default='', help='Azure login application ID')
-parser.add_argument('--azure_validate_permission_scope', type=str, default='true', help='Azure permission scope validation(true|false).')
+parser.add_argument('--azure_validate_permission_scope', type=str, default='true', help='Azure permission scope '
+                                                                                        'validation(true|false).')
 parser.add_argument('--azure_oauth2_enabled', type=str, default='false', help='Using OAuth2 for logging in DLab')
 parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
 parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
-parser.add_argument('--dlab_id', type=str, default="'user:user:tag'", help='Column name in report file that contains dlab id tag')
-parser.add_argument('--usage_date', type=str, default='UsageStartDate', help='Column name in report file that contains usage date tag')
-parser.add_argument('--product', type=str, default='ProductName', help='Column name in report file that contains product name tag')
-parser.add_argument('--usage_type', type=str, default='UsageType', help='Column name in report file that contains usage type tag')
-parser.add_argument('--usage', type=str, default='UsageQuantity', help='Column name in report file that contains usage tag')
+parser.add_argument('--dlab_id', type=str, default="'user:user:tag'", help='Column name in report file that contains '
+                                                                           'dlab id tag')
+parser.add_argument('--usage_date', type=str, default='UsageStartDate', help='Column name in report file that contains '
+                                                                             'usage date tag')
+parser.add_argument('--product', type=str, default='ProductName', help='Column name in report file that contains '
+                                                                       'product name tag')
+parser.add_argument('--usage_type', type=str, default='UsageType', help='Column name in report file that contains '
+                                                                        'sage type tag')
+parser.add_argument('--usage', type=str, default='UsageQuantity', help='Column name in report file that contains '
+                                                                       'usage tag')
 parser.add_argument('--cost', type=str, default='BlendedCost', help='Column name in report file that contains cost tag')
-parser.add_argument('--resource_id', type=str, default='ResourceId', help='Column name in report file that contains dlab resource id tag')
+parser.add_argument('--resource_id', type=str, default='ResourceId', help='Column name in report file that contains '
+                                                                          'dlab resource id tag')
 parser.add_argument('--ldap_hostname', type=str, default='', help='Ldap instance hostname')
 parser.add_argument('--ldap_dn', type=str, default='', help='Ldap distinguished name (dc=example,dc=com)')
 parser.add_argument('--ldap_ou', type=str, default='', help='Ldap organisation unit (ou=People)')
 parser.add_argument('--ldap_service_username', type=str, default='', help='Ldap admin user name')
 parser.add_argument('--ldap_service_password', type=str, default='', help='Ldap password for admin user')
-parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that contains tags')
+parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
+                                                                                  'contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
@@ -102,9 +131,14 @@ def generate_docker_command():
         command.append('-v {}:/root/azure_auth.json '.format(args.azure_auth_path))
     elif args.conf_cloud_provider == 'gcp':
         command.append('-v {}:/root/service_account.json '.format(args.gcp_service_account_path))
+    if args.ssl_cert_path != '' and args.ssl_key_path != '':
+        command.append('-v {}:/root/certs/dlab.crt -v {}:/root/certs/dlab.key '.format(args.ssl_cert_path,
+                                                                                       args.ssl_key_path))
     attrs = vars(args)
+    skipped_parameters = ['action', 'key_path', 'workspace_path', 'gcp_service_account_path', 'ssl_cert_path',
+                          'ssl_key_path']
     for i in attrs:
-        if attrs[i] and i != 'action' and i != 'key_path' and i != 'workspace_path' and i != 'gcp_service_account_path':
+        if attrs[i] not in skipped_parameters:
             command.append("-e '{}={}' ".format(i, attrs[i]))
     command.append('-e "conf_resource=ssn" ')
     command.append('docker.dlab-ssn ')
@@ -161,12 +195,13 @@ def deploy_dlab(args):
     local("sed -i 's/LDAP_PASS/{0}/g' {1}/services/security-service/security.yml"
           .format(args.ldap_service_password, args.workspace_path))
     local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
-    local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
-        format(args.workspace_path))
+    local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.format(
+        args.workspace_path))
 
     if args.conf_cloud_provider == 'azure':
         local('cp {0}/services/billing-azure/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-        local('cp {0}/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/'.format(args.workspace_path))
+        local('cp {0}/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/'.format(
+            args.workspace_path))
     elif args.conf_cloud_provider == 'aws':
         local('cp {0}/services/billing-aws/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
         local('cp {0}/services/billing-aws/target/billing-aws*.jar {0}/web_app/billing/'.format(args.workspace_path))

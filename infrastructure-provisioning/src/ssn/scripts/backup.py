@@ -31,7 +31,7 @@ parser.add_argument('--user', type=str, default='dlab-user', help='System userna
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
 parser.add_argument('--configs', type=str, default='skip', help='Comma separated names of config files, like "security.yml", etc. Default: skip. Also available: all')
 parser.add_argument('--keys', type=str, default='skip', help='Comma separated names of keys, like "user_name.pub". Default: skip. Also available: all')
-parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Default: skip. Also available: all')
+parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Default: skip. Also available: all')
 parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Default: skip. Also available: all')
 parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
 parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). Key without arguments. Default: disable')
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     conf_folder = 'conf/'
     keys_folder = '/home/{}/keys/'.format(os_user)
     certs_folder = '/etc/ssl/certs/'
-    all_certs = ['dhparam.pem', 'dlab-selfsigned.crt', 'dlab-selfsigned.key']
+    all_certs = ['dhparam.pem', 'dlab.crt', 'dlab.key']
     jars_folder = 'webapp/lib/'
     dlab_logs_folder = '/var/log/dlab/'
     docker_logs_folder = '/var/lib/docker/containers/'

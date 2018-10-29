@@ -43,7 +43,8 @@ if __name__ == "__main__":
                                                      os.environ['edge_user_name']).lower().replace('_', '-')
     edge_conf['shared_bucket_name'] = (edge_conf['service_base_name'] + '-shared-bucket').lower().replace('_', '-')
     edge_conf['edge_security_group_name'] = '{}-SG'.format(edge_conf['instance_name'])
-    edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'],
+                                                            os.environ['edge_user_name'])
     edge_conf['notebook_role_profile_name'] = '{}-{}-nb-Profile' \
         .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
     edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'],
@@ -64,6 +65,10 @@ if __name__ == "__main__":
         edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get(
             'Private')
         edge_conf['edge_public_ip'] = edge_conf['edge_private_ip']
+    edge_conf['vpc_cidrs'] = get_vpc_cidr_by_id(os.environ['aws_vpc_id'])
+    edge_conf['allowed_ip_cidr'] = list()
+    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+        edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
 
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
@@ -124,7 +129,14 @@ if __name__ == "__main__":
         print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
-                             "template_file": "/root/templates/squid.conf"}
+                             "template_file": "/root/templates/squid.conf",
+                             "edge_user_name": os.environ['edge_user_name'],
+                             "ldap_host": os.environ['ldap_hostname'],
+                             "ldap_dn": os.environ['ldap_dn'],
+                             "ldap_user": os.environ['ldap_service_username'],
+                             "ldap_password": os.environ['ldap_service_password'],
+                             "vpc_cidrs": edge_conf['vpc_cidrs'],
+                             "allowed_ip_cidr": edge_conf['allowed_ip_cidr']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}" \
                  .format(instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:

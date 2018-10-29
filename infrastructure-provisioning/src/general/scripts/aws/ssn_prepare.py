@@ -325,3 +325,36 @@ if __name__ == "__main__":
                 remove_route_tables(tag_name, True)
                 remove_vpc(os.environ['aws_vpc_id'])
             sys.exit(1)
+
+    if network_type == 'private':
+        instance_ip = get_instance_ip_address(tag_name, instance_name).get('Private')
+    else:
+        instance_ip = get_instance_ip_address(tag_name, instance_name).get('Public')
+
+    if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and 'ssn_subdomain' in os.environ:
+        try:
+            logging.info('[CREATING ROUTE53 RECORD]')
+            print('[CREATING ROUTE53 RECORD]')
+            try:
+                create_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                       os.environ['ssn_subdomain'], instance_ip)
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Failed to create route53 record.", str(err))
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
+            remove_ec2(tag_name, instance_name)
+            remove_all_iam_resources(instance)
+            remove_s3(instance)
+            if pre_defined_sg:
+                remove_sgroups(tag_name)
+            if pre_defined_subnet:
+                remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+                remove_subnets(service_base_name + "-subnet")
+            if pre_defined_vpc:
+                remove_vpc_endpoints(os.environ['aws_vpc_id'])
+                remove_route_tables(tag_name, True)
+                remove_vpc(os.environ['aws_vpc_id'])
+            sys.exit(1)

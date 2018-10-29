@@ -34,7 +34,7 @@ import traceback
 import urllib2
 import meta_lib
 import dlab.fab
-
+import uuid
 
 def backoff_log(err):
     logging.info("Unable to create Tag: " + \
@@ -425,6 +425,95 @@ def create_attach_policy(policy_name, role_name, file_path):
     except Exception as err:
         logging.info("Unable to attach Policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to attach Policy", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_route_53_record(hosted_zone_id, hosted_zone_name, subdomain, ip_address):
+    try:
+        if 'ssn_assume_role_arn' in os.environ:
+            role_session_name = str(uuid.uuid4()).split('-')[0]
+            sts_client = boto3.client('sts')
+            credentials = sts_client.assume_role(
+                RoleArn=os.environ['ssn_assume_role_arn'],
+                RoleSessionName=role_session_name
+            ).get('Credentials')
+            route53_client = boto3.client('route53',
+                                          aws_access_key_id=credentials.get('AccessKeyId'),
+                                          aws_secret_access_key=credentials.get('SecretAccessKey'),
+                                          )
+        else:
+            route53_client = boto3.client('route53')
+        route53_client.change_resource_record_sets(
+            HostedZoneId=hosted_zone_id,
+            ChangeBatch={
+                'Changes': [
+                    {
+                        'Action': 'CREATE',
+                        'ResourceRecordSet': {
+                            'Name': "{}.{}".format(subdomain, hosted_zone_name),
+                            'Type': 'A',
+                            'TTL': 300,
+                            'ResourceRecords': [
+                                {
+                                    'Value': ip_address
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+    except Exception as err:
+        logging.info("Unable to create Route53 record: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to create Route53 record",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_route_53_record(hosted_zone_id, hosted_zone_name, subdomain):
+    try:
+        if 'ssn_assume_role_arn' in os.environ:
+            role_session_name = str(uuid.uuid4()).split('-')[0]
+            sts_client = boto3.client('sts')
+            credentials = sts_client.assume_role(
+                RoleArn=os.environ['ssn_assume_role_arn'],
+                RoleSessionName=role_session_name
+            ).get('Credentials')
+            route53_client = boto3.client('route53',
+                                          aws_access_key_id=credentials.get('AccessKeyId'),
+                                          aws_secret_access_key=credentials.get('SecretAccessKey'),
+                                          )
+        else:
+            route53_client = boto3.client('route53')
+        for record_set in route53_client.list_resource_record_sets(HostedZoneId=hosted_zone_id).get('ResourceRecordSets'):
+            if record_set['Name'] == "{}.{}.".format(subdomain, hosted_zone_name):
+                for record in record_set['ResourceRecords']:
+                    route53_client.change_resource_record_sets(
+                        HostedZoneId=hosted_zone_id,
+                        ChangeBatch={
+                            'Changes': [
+                                {
+                                    'Action': 'DELETE',
+                                    'ResourceRecordSet': {
+                                        'Name': record_set['Name'],
+                                        'Type': 'A',
+                                        'TTL': 300,
+                                        'ResourceRecords': [
+                                            {
+                                                'Value': record['Value']
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    )
+    except Exception as err:
+        logging.info("Unable to remove Route53 record: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove Route53 record",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 

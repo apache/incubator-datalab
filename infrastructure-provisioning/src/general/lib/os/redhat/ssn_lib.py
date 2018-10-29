@@ -23,6 +23,8 @@ import yaml
 from dlab.fab import *
 from dlab.meta_lib import *
 import os
+import sys
+import traceback
 
 
 def ensure_docker_daemon(dlab_path, os_user, region):
@@ -60,9 +62,10 @@ def ensure_nginx(dlab_path):
             sudo('systemctl restart nginx.service')
             sudo('chkconfig nginx on')
             sudo('touch {}tmp/nginx_ensured'.format(dlab_path))
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to ensure Nginx: ', str(err))
+        sys.exit(1)
 
 
 def ensure_jenkins(dlab_path):
@@ -77,9 +80,10 @@ def ensure_jenkins(dlab_path):
             sudo('yum -y install jenkins')
             sudo('yum -y install policycoreutils-python')
             sudo('touch {}tmp/jenkins_ensured'.format(dlab_path))
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to ensure Jenkins: ', str(err))
+        sys.exit(1)
 
 
 def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
@@ -101,9 +105,10 @@ def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
             sudo('systemctl start jenkins.service')
             sudo('echo "jenkins ALL = NOPASSWD:ALL" >> /etc/sudoers')
             sudo('touch {}tmp/jenkins_configured'.format(dlab_path))
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure Jenkins: ', str(err))
+        sys.exit(1)
 
 
 def configure_nginx(config, dlab_path, hostname):
@@ -119,8 +124,10 @@ def configure_nginx(config, dlab_path, hostname):
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir -p /etc/nginx/locations')
             sudo('rm -f /etc/nginx/sites-enabled/default')
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure Nginx: ', str(err))
+        sys.exit(1)
 
     try:
         if not exists("/etc/nginx/locations/proxy_location_jenkins.conf"):
@@ -130,7 +137,8 @@ def configure_nginx(config, dlab_path, hostname):
                 with open(template_file) as tpl:
                     for line in tpl:
                         out.write(line)
-            put("/tmp/%s-tmpproxy_location_jenkins_template.conf" % random_file_part, '/tmp/proxy_location_jenkins.conf')
+            put("/tmp/%s-tmpproxy_location_jenkins_template.conf" % random_file_part,
+                '/tmp/proxy_location_jenkins.conf')
             sudo('\cp /tmp/proxy_location_jenkins.conf /etc/nginx/locations/')
             sudo("echo 'engineer:" + crypt.crypt(nginx_password, id_generator()) + "' > /etc/nginx/htpasswd")
             with open('jenkins_crids.txt', 'w+') as f:
@@ -209,7 +217,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 f.write(text)
             put('/root/templates/supervisor_svc.ini', '/tmp/supervisor_svc.ini')
             sudo('mv /tmp/supervisor_svc.ini ' + os.environ['ssn_dlab_path'] + 'tmp/')
-            sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
+            sudo('cp ' + os.environ['ssn_dlab_path'] +
+                 'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
             sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.ini {}'.format(supervisor_conf))
             sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
             try:
@@ -253,7 +262,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 sys.exit(1)
 
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile, host_string))
+                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                                                                                                         host_string))
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \
                          '--tag_resource_id {} ' \
@@ -301,7 +311,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
-                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
+                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
+                    os_user, keystore_passwd))
                 sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
                      -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
                 sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \

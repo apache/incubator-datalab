@@ -64,11 +64,7 @@ if __name__ == "__main__":
         sys.exit(2)
 
     print("Ensuring safest ssh ciphers")
-    try:
-        ensure_ciphers()
-    except:
-        print("Failed ensure ciphers")
-        sys.exit(1)
+    ensure_ciphers()
 
     print("Installing users key...")
     try:
