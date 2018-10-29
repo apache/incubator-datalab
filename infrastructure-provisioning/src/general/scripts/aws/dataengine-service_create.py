@@ -30,6 +30,7 @@ from dlab.actions_lib import *
 import json
 import traceback
 import logging
+import ast
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')
@@ -278,15 +279,6 @@ def action_validate(id):
         return ["True", state]
 
 
-def read_json(path):
-    try:
-        with open(path) as json_data:
-            data = json.load(json_data)
-    except:
-        data = []
-    return data
-
-
 def build_emr_cluster(args):
     try:
         # Parse applications
@@ -372,7 +364,7 @@ def build_emr_cluster(args):
                     VisibleToAllUsers=not args.auto_terminate,
                     JobFlowRole=args.ec2_role,
                     ServiceRole=args.service_role,
-                    Configurations=read_json(args.configurations))
+                    Configurations=ast.literal_eval(args.configurations))
             else:
                 result = socket.run_job_flow(
                     Name=args.name,
@@ -399,7 +391,7 @@ def build_emr_cluster(args):
                     VisibleToAllUsers=not args.auto_terminate,
                     JobFlowRole=args.ec2_role,
                     ServiceRole=args.service_role,
-                    Configurations=read_json(args.configurations))
+                    Configurations=ast.literal_eval(args.configurations))
             print("Cluster_id {}".format(result.get('JobFlowId')))
             return result.get('JobFlowId')
     except Exception as err:
