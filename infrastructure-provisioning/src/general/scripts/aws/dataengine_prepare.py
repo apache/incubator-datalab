@@ -90,6 +90,9 @@ if __name__ == "__main__":
         data_engine['cluster_nodes_resource_tag'] = {"Key": os.environ['conf_tag_resource_id'],
                                                      "Value": data_engine['service_base_name'] + ':' +
                                                               data_engine['cluster_name']}
+        data_engine['cluster_nodes_billing_tag'] = {"Key": os.environ['conf__billing_tag'],
+                                                     "Value": data_engine['service_base_name'] + ':' +
+                                                              data_engine['cluster_name']}
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
@@ -132,6 +135,7 @@ if __name__ == "__main__":
             data_engine['master_id'] = get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name'])
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
+            create_tag(data_engine['master_id'], data_engine['cluster_nodes_billing_tag'], False)
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
         except:
             traceback.print_exc()
@@ -158,6 +162,7 @@ if __name__ == "__main__":
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_billing_tag'], False)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
