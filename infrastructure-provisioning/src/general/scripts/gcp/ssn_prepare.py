@@ -63,7 +63,7 @@ if __name__ == "__main__":
     ssn_conf['network_tag'] = ssn_conf['instance_name']
     ssn_conf['instance_labels'] = {"name": ssn_conf['instance_name'],
                                    "sbn": ssn_conf['service_base_name'],
-                                   os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+                                   "product": "dlab"}
     ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     try:
