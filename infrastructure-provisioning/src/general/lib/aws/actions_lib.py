@@ -159,8 +159,8 @@ def create_tag(resource, tag, with_tag_res_id=True):
         )
         tags_list.append(
             {
-                'Key': os.environ['conf_billing_tag'],
-                'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+                'Key': os.environ['conf_billing_tag_key'],
+                'Value': os.environ['conf_billing_tag_value']
             }
         )
     if 'conf_additional_tags' in os.environ:
