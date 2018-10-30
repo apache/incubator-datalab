@@ -440,6 +440,7 @@ def create_route_53_record(hosted_zone_id, hosted_zone_name, subdomain, ip_addre
             route53_client = boto3.client('route53',
                                           aws_access_key_id=credentials.get('AccessKeyId'),
                                           aws_secret_access_key=credentials.get('SecretAccessKey'),
+                                          aws_session_token=credentials.get('SessionToken')
                                           )
         else:
             route53_client = boto3.client('route53')
@@ -483,6 +484,7 @@ def remove_route_53_record(hosted_zone_id, hosted_zone_name, subdomain):
             route53_client = boto3.client('route53',
                                           aws_access_key_id=credentials.get('AccessKeyId'),
                                           aws_secret_access_key=credentials.get('SecretAccessKey'),
+                                          aws_session_token=credentials.get('SessionToken')
                                           )
         else:
             route53_client = boto3.client('route53')
