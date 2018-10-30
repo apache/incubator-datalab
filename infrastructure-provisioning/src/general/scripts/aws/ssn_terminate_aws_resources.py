@@ -33,7 +33,7 @@ parser.add_argument('--de_sg', type=str)
 parser.add_argument('--service_base_name', type=str)
 parser.add_argument('--de_se_sg', type=str)
 args = parser.parse_args()
-
+tag2 = args.service_base_name + '-secondary-Tag'
 
 ##############
 # Run script #
@@ -87,6 +87,12 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    print("Removing peering connection")
+    try:
+        remove_peering('*')
+    except:
+        sys.exit(1)
+
     print("Removing s3 buckets")
     try:
         remove_s3()
@@ -102,6 +108,7 @@ if __name__ == "__main__":
     print("Removing route tables")
     try:
         remove_route_tables(args.tag_name)
+        remove_route_tables(tag2)
     except:
         sys.exit(1)
 
@@ -127,5 +134,20 @@ if __name__ == "__main__":
             remove_vpc(vpc_id)
         else:
             print("There is no pre-defined SSN VPC")
+    except:
+        sys.exit(1)
+
+    print("Removing notebook VPC")
+    try:
+        vpc_id = get_vpc_by_tag(tag2, args.service_base_name)
+        if vpc_id != '':
+            try:
+                remove_vpc_endpoints(vpc_id)
+            except:
+                print("There is no such VPC Endpoint")
+            remove_route_tables(tag2, True)
+            remove_vpc(vpc_id)
+        else:
+            print("There is no pre-defined notebook VPC")
     except:
         sys.exit(1)

@@ -43,12 +43,14 @@ if __name__ == "__main__":
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
         shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
+        tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
         ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
+        vpc2_cidr = os.environ['conf_vpc2_cidr']
         sg_name = instance_name + '-SG'
         pre_defined_vpc = False
         pre_defined_subnet = False
@@ -71,6 +73,26 @@ if __name__ == "__main__":
             tag = {"Key": tag_name, "Value": "{}-subnet".format(service_base_name)}
             os.environ['aws_subnet_id'] = get_subnet_by_tag(tag, True)
             pre_defined_subnet = True
+        try:
+            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
+                raise KeyError
+        except KeyError:
+            tag = {"Key": tag2_name, "Value": "{}-subnet".format(service_base_name)}
+            os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
+            pre_defined_vpc2 = True
+        try:
+            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_peering_id']:
+                raise KeyError
+        except KeyError:
+            os.environ['aws_peering_id'] = get_peering_by_tag(tag_name, service_base_name)
+            pre_defined_peering = True
+        try:
+            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
+                raise KeyError
+        except KeyError:
+            tag = {"Key": tag2_name, "Value": "{}-subnet".format(service_base_name)}
+            os.environ['aws_subnet2_id'] = get_subnet_by_tag(tag, True)
+            pre_defined_subnet2 = True
         try:
             if os.environ['aws_security_groups_ids'] == '':
                 raise KeyError
@@ -245,6 +267,18 @@ if __name__ == "__main__":
             "ssn_instance_size": os.environ['aws_ssn_instance_size'],
             "edge_instance_size": os.environ['aws_edge_instance_size']
         }
+        if os.environ['conf_duo_vpc_enable'] == 'true':
+            secondary_parameters = {
+                "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
+                "aws_notebook_subnet_id": os.environ['aws_subnet2_id'],
+                "aws_peering_id": os.environ['aws_peering_id']
+            }
+        else:
+            secondary_parameters = {
+                "aws_notebook_vpc_id": os.environ['aws_vpc_id'],
+                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
+            }
+        mongo_parameters.update(secondary_parameters)
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} " \

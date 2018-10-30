@@ -17,34 +17,40 @@
  */
 package com.epam.dlab.dto.computational;
 
-import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.status.EnvResource;
-import com.google.common.base.MoreObjects;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Setter
 @Getter
-public class CheckInactivityClusterStatusDTO extends StatusBaseDTO<CheckInactivityClusterStatusDTO> {
+public class CheckInactivityCallbackDTO extends ResourceBaseDTO<CheckInactivityCallbackDTO> {
 
-	private List<EnvResource> clusters;
-	private CheckInactivityClusterStatus checkInactivityClusterStatus;
+	@JsonProperty
+	private List<EnvResource> resources;
 
-	public CheckInactivityClusterStatusDTO withClusters(List<EnvResource> clusters) {
-		this.clusters = clusters;
+	@JsonProperty
+	private String id;
+
+	public CheckInactivityCallbackDTO withClusters(List<EnvResource> clusters) {
+		setResources(clusters);
 		return this;
 	}
 
-	public CheckInactivityClusterStatusDTO withCheckInactivityClustersStatus(CheckInactivityClusterStatus
-																					 checkInactivityClusterStatus) {
-		this.checkInactivityClusterStatus = checkInactivityClusterStatus;
+	public CheckInactivityCallbackDTO withId(String id) {
+		this.id = id;
 		return this;
 	}
 
 	@Override
-	public MoreObjects.ToStringHelper toStringHelper(Object self) {
-		return super.toStringHelper(self)
-				.add("clusters", clusters)
-				.add("checkInactivityClusterStatus", checkInactivityClusterStatus);
+	public String toString() {
+		return toStringHelper(this)
+				.add("resources", resources)
+				.add("id", id)
+				.toString();
 	}
+
 }

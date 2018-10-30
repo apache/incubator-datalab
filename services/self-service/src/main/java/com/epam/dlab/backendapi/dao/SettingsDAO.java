@@ -88,6 +88,10 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AWS_SUBNET_ID);
     }
 
+    public String getAwsNotebookVpcId(){return getSetting(AWS_NOTEBOOK_VPC_ID);}
+
+    public String getAwsNotebookSubnetId(){return getSetting(AWS_NOTEBOOK_SUBNET_ID);}
+
     public String getAzureRegion() {
         return getSetting(AZURE_REGION);
     }
