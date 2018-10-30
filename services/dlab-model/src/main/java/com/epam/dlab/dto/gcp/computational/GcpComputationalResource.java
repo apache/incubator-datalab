@@ -58,10 +58,9 @@ public class GcpComputationalResource extends UserComputationalResource {
 									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
 									String masterNumber, String preemptibleNumber, String version,
-									List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-									boolean checkInactivityRequired, Long maxInactivity) {
+									List<ResourceURL> resourceURL, LocalDateTime lastActivity) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, checkInactivityRequired, maxInactivity);
+				reuploadKeyRequired, resourceURL, lastActivity);
 		this.instanceId = instanceId;
 		this.masterShape = masterShape;
 		this.slaveShape = slaveShape;

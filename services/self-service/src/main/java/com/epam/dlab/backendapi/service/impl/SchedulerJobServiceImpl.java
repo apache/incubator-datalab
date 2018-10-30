@@ -168,11 +168,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	@Override
-	public void updateRunningClustersLastActivity(UserInfo userInfo) {
-		List<EnvResource> runningClusters = envDAO.findRunningClustersForCheckInactivity();
-		if (!runningClusters.isEmpty()) {
+	public void updateRunningResourcesLastActivity(UserInfo userInfo) {
+		List<EnvResource> resources = envDAO.findRunningResourcesForCheckInactivity();
+		if (!resources.isEmpty()) {
 			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-					userInfo.getAccessToken(), runningClusters, String.class);
+					userInfo.getAccessToken(), resources, String.class);
 			requestId.put(userInfo.getName(), uuid);
 		}
 	}
@@ -254,8 +254,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	/**
 	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.
-	 * All these clusters will obtain data which is equal to exploratory's except 'stopping' operation (it will be
-	 * performed automatically with notebook stopping since Spark clusters have such feature).
+	 * All these resources will obtain data which is equal to exploratory's except 'stopping' operation (it will be
+	 * performed automatically with notebook stopping since Spark resources have such feature).
 	 *
 	 * @param user            user's name
 	 * @param exploratoryName name of exploratory resource
