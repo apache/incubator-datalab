@@ -91,7 +91,7 @@ export class ModalComponent implements OnDestroy {
 
     this.isHide = true;
     this.clear = window.setTimeout(() => {
-      document.body.removeChild(this.backdropElement);
+      document.body.contains(this.backdropElement) && document.body.removeChild(this.backdropElement);
       document.body.className = document.body.className.replace(/modal-open\b/, '');
       this.el.nativeElement.classList.remove('out');
       this.isOpened = false;
