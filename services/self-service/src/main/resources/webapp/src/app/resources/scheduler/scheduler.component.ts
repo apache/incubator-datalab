@@ -26,6 +26,7 @@ import 'moment-timezone';
 import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
 import { HTTP_STATUS_CODES } from '../../core/util';
+import { log } from 'util';
 
 @Component({
   selector: 'dlab-scheduler',
@@ -53,6 +54,8 @@ export class SchedulerComponent implements OnInit {
   public tzOffset: string =  _moment().format('Z');
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
+
+  public inactivityLimits = { min: 10, max: 10080 };
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;
@@ -83,8 +86,8 @@ export class SchedulerComponent implements OnInit {
       this.model = new SchedulerModel(
         response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
+            this.toastr.success('Schedule data were successfully saved', 'Success!', { toastLife: 5000 });
             this.close();
-            this.buildGrid.emit();
           }
         },
         error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }),
@@ -127,25 +130,37 @@ export class SchedulerComponent implements OnInit {
   }
 
   public toggleSchedule($event) {
-    if (!this.enableIdleTimes) {
-      this.enableSchedule = $event.checked;
-      this.timeReqiered = false;
+    this.enableSchedule = $event.checked;
+    this.timeReqiered = false;
 
-      (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
-        ? this.schedulerForm.get('startDate').enable()
-        : this.schedulerForm.get('startDate').disable();
+    (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
+      ? this.schedulerForm.get('startDate').enable()
+      : this.schedulerForm.get('startDate').disable();
 
-      this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
-    }
+    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+
   }
 
   public toggleIdleTimes($event) {
     this.enableIdleTimes = $event.checked;
-    if (this.enableIdleTimes) {
-      this.model.setIdleTime({ inactivityEnabled: true, maxInactivityTimeMinutes: 12 });
-    } else {
-      this.model.setIdleTime({ inactivityEnabled: false });
+    this.enableIdleTimes && this.toggleSchedule({checked: false});
+
+    if (!this.enableIdleTimes) {
+      this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
+
+      (this.destination.type === 'СOMPUTATIONAL')
+          ? this.setInactivity(this.notebook.name, { inactivityEnabled: false }, this.destination.computational_name)
+          : this.setInactivity(this.notebook.name, { inactivityEnabled: false });
     }
+  }
+
+  public setInactivity(...params) {
+    this.model.setInactivityTime(params).subscribe(
+      () => {
+
+        this.toastr.success('Inactivity settings were successfully saved', 'Success!', { toastLife: 5000 });
+      },
+      error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public scheduleInstance_btnClick() {
@@ -180,13 +195,18 @@ export class SchedulerComponent implements OnInit {
         ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
         : this.model.confirmAction(this.notebook.name, parameters);
     } else {
-      console.log('ÍDDLE TIME PUSH');
+      let data = { inactivityEnabled: true, maxInactivityTimeMinutes: this.schedulerForm.controls.inactivityTime.value };
 
+      (this.destination.type === 'СOMPUTATIONAL')
+        ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
+        : this.setInactivity(this.notebook.name, data);
     }
   }
 
   public close(): void {
-    if (this.bindDialog.isOpened) this.bindDialog.close();
+    if (this.bindDialog.isOpened) {
+      this.bindDialog.close();
+    }
     this.buildGrid.emit();
 
     this.resetDialog();
@@ -195,7 +215,8 @@ export class SchedulerComponent implements OnInit {
   private formInit(start?, end?) {
     this.schedulerForm = this.formBuilder.group({
       startDate: { disabled: this.inherit, value: start ? _moment(start).format() : null },
-      finishDate: { disabled: false, value: end ? _moment(end).format() : null }
+      finishDate: { disabled: false, value: end ? _moment(end).format() : null },
+      inactivityTime: [this.inactivityLimits.min , this.validInactivityRange.bind(this)]
     });
   }
 
@@ -223,6 +244,13 @@ export class SchedulerComponent implements OnInit {
   private checkParentInherit() {
     this.schedulerService.getExploratorySchedule(this.notebook.name)
       .subscribe((res: any) => this.parentInherit = res.sync_start_required);
+  }
+
+  private validInactivityRange(control) {
+    if (control)
+      return this.enableIdleTimes
+          ? (control.value && control.value >= this.inactivityLimits.min && control.value <= this.inactivityLimits.max ? null : { valid: false })
+          : control.value;
   }
 
   private convertTimeFormat(time24: any) {

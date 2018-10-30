@@ -47,7 +47,10 @@ limitations under the License.
         <div class="control-group idle-control" [ngClass]="{ show: enableIdleTimes }">
           <label class="label">Idle time</label>
           <div class="control">
-            <input type="text" class="form-control" placeholder="Enter time in minu" />
+            <input type="number" class="form-control" min="10" max="10080" formControlName="inactivityTime" class="form-control" placeholder="Enter time in min" />
+            <span class="danger_color" *ngIf="!schedulerForm.controls.inactivityTime.valid">
+              <span>The value should be an integer greater than or equal to {{ inactivityLimits.min }} and cannot exceed 1 week ({{ inactivityLimits.max }}) in min</span>
+            </span>
           </div>
         </div>
 

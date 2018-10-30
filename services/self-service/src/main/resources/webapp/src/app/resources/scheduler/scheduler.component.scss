@@ -34,7 +34,7 @@ limitations under the License.
       width: 50%;
       i {
         font-size: 20px;
-        padding: 0 15px 0 5px;
+        padding-left: 10px;
         align-self: center;
         user-select: none;
         cursor: pointer;
@@ -47,10 +47,16 @@ limitations under the License.
     visibility: hidden;
     text-align: left;
     transition: all .35s linear .2s;
+    padding-bottom: 0;
     &.show {
-      height: 40px;
+      height: 30px;
       visibility: visible;
       opacity: 1;
+      margin-bottom: 50px;
+    }
+  }
+  .info-message {
+    &.show {
       margin-bottom: 15px;
     }
   }
