@@ -376,6 +376,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public builSetInactivityTime(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   public buildGetActiveUsers(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
