@@ -92,6 +92,7 @@ if __name__ == "__main__":
             os.environ['aws_billing_bucket'] = 'None'
             os.environ['aws_report_path'] = 'None'
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed deriving names.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -127,6 +128,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab-user'.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -157,6 +159,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing software: pip, packages.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -189,6 +192,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed configuring ssn.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -227,6 +231,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to configure docker.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -261,6 +266,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to configure UI.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -296,7 +302,7 @@ if __name__ == "__main__":
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
         try:
-            with open('jenkins_crids.txt') as f:
+            with open('jenkins_creds.txt') as f:
                 print(f.read())
         except:
             print("Jenkins is either configured already or have issues in configuration routine.")
@@ -323,7 +329,8 @@ if __name__ == "__main__":
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'], instance_hostname)
         local("~/scripts/{}.py {}".format('upload_response_file', params))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_role(ssn_conf['role_name'])

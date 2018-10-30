@@ -228,6 +228,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create sg.", str(err))
         sys.exit(1)
 
@@ -292,9 +293,9 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], emr_conf['key_name'])
         local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create EMR Cluster.", str(err))
         local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
         emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
         terminate_emr(emr_id)
         sys.exit(1)
-    sys.exit(0)

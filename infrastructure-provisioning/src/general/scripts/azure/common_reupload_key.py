@@ -44,6 +44,6 @@ if __name__ == "__main__":
             args.os_user, ip, args.keyfile, args.additional_config)
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            sys.exit(1)

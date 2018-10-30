@@ -135,6 +135,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         except:

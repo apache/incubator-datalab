@@ -75,7 +75,7 @@ if args.region == 'us-east-1':
 elif args.region == 'cn-north-1':
     endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
 else:
-    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
+    endpoint_url = 'https://s3-{}.amazonaws.com'.format(args.region)
 
 cp_config = "Name=CUSTOM_JAR, Args=aws " \
             "s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml " \
@@ -469,4 +469,3 @@ if __name__ == "__main__":
                 terminate_emr(cluster_id)
             s3_cleanup(args.s3_bucket, args.name, args.edge_user_name)
             sys.exit(1)
-    sys.exit(0)

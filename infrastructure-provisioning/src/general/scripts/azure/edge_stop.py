@@ -43,6 +43,7 @@ if __name__ == "__main__":
     try:
         AzureActions().stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop edge.", str(err))
         sys.exit(1)
 

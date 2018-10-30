@@ -45,6 +45,7 @@ if __name__ == "__main__":
         else:
             create_aws_config_files()
     except:
+        print('Error: {0}'.format(err))
         logging.info('Unable to create configuration')
         append_result("Unable to create configuration")
         traceback.print_exc()
@@ -91,6 +92,7 @@ if __name__ == "__main__":
                     raise Exception
                 os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create VPC. Exception:" + str(err))
                 sys.exit(1)
 

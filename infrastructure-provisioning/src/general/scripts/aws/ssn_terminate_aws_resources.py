@@ -53,7 +53,8 @@ if __name__ == "__main__":
                 print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
             print("There are no EMR clusters to terminate.")
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Deregistering notebook's AMI")
@@ -134,7 +135,8 @@ if __name__ == "__main__":
             remove_vpc(vpc_id)
         else:
             print("There is no pre-defined SSN VPC")
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing notebook VPC")
@@ -149,5 +151,6 @@ if __name__ == "__main__":
             remove_vpc(vpc_id)
         else:
             print("There is no pre-defined notebook VPC")
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

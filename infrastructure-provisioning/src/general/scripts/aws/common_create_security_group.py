@@ -41,11 +41,11 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
     try:
         rules = json.loads(args.security_group_rules)
         egress = json.loads(args.egress)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     nb_sg_id = get_security_group_by_name(args.nb_sg_name + '-SG')
@@ -74,14 +74,8 @@ if __name__ == "__main__":
             if args.ssn:
                 with open('/tmp/ssn_sg_id', 'w') as f:
                     f.write(security_group_id)
-            success = True
-        except:
-            success = False
+        except Exception as err:
+            print('Error: {0}'.format(err))
     else:
         parser.print_help()
         sys.exit(2)
-
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)

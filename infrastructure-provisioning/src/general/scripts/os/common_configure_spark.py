@@ -42,7 +42,7 @@ def update_spark_defaults_conf(spark_conf):
             sudo('''sed -i '/^# Updated/d' {0}'''.format(conf))
             sudo('''echo "# Updated by DLab at {0} >> {1}'''.format(timestamp, conf))
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -56,5 +56,3 @@ if __name__ == "__main__":
         update_spark_defaults_conf(args.spark_conf)
 
     update_spark_jars()
-
-    sys.exit(0)

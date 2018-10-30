@@ -99,7 +99,8 @@ if __name__ == "__main__":
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         print("Failed to generate variables dictionary.")
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
@@ -134,6 +135,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -167,6 +169,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -206,6 +209,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -249,6 +253,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -337,6 +342,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -395,9 +401,10 @@ if __name__ == "__main__":
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
 
         try:
-            with open('jenkins_crids.txt') as f:
+            with open('jenkins_creds.txt') as f:
                 print(f.read())
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             print("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:

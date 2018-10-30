@@ -113,6 +113,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         except:
@@ -134,6 +135,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
             GCPActions().remove_role(edge_conf['edge_role_name'])
@@ -156,6 +158,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
             GCPActions().remove_role(edge_conf['ps_role_name'])
@@ -246,6 +249,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
         GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
@@ -323,6 +327,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create firewall for private subnet.", str(err))
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
@@ -346,6 +351,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create bucket.", str(err))
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
@@ -367,6 +373,7 @@ if __name__ == "__main__":
         GCPActions().set_bucket_owner(edge_conf['bucket_name'], edge_conf['ps_service_account_name'])
         GCPActions().set_bucket_owner(edge_conf['shared_bucket_name'], edge_conf['ps_service_account_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to set bucket permissions.", str(err))
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
@@ -393,6 +400,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create static ip.", str(err))
         try:
             GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
@@ -436,6 +444,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create instance.", str(err))
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])

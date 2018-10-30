@@ -50,6 +50,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create dlab ssh user.", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -68,6 +69,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure proxy.", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -85,6 +87,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure dataengine service.", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -126,6 +129,7 @@ def configure_dataengine_service(instance, emr_conf):
             append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed edge reverse proxy template", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -142,6 +146,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)

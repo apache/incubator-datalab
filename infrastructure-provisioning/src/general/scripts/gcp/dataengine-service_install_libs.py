@@ -66,6 +66,7 @@ if __name__ == "__main__":
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
             data_engine['libs'] = os.environ['libs']
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
         try:
@@ -83,5 +84,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to install additional libraries.", str(err))
         sys.exit(1)

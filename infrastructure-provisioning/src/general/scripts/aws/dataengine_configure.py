@@ -48,6 +48,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -66,6 +67,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -86,6 +88,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -104,6 +107,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -125,6 +129,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -220,6 +225,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -238,6 +244,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -258,6 +265,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -276,6 +284,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -297,6 +306,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure master node", str(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
@@ -316,6 +326,7 @@ if __name__ == "__main__":
             if job.exitcode != 0:
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -353,6 +364,7 @@ if __name__ == "__main__":
             append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)

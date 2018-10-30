@@ -94,7 +94,7 @@ if __name__ == "__main__":
     try:
         conf_file_name = make_template()
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Configure connections")

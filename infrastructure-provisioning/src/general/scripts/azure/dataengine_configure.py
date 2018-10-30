@@ -48,6 +48,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -68,6 +69,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -87,6 +89,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -107,6 +110,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -125,6 +129,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -147,6 +152,7 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed configuring slave node", str(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
@@ -216,6 +222,7 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -237,6 +244,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -257,6 +265,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -276,6 +285,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -296,6 +306,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -314,6 +325,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
@@ -336,6 +348,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure master node", str(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
@@ -355,6 +368,7 @@ if __name__ == "__main__":
             if job.exitcode != 0:
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)

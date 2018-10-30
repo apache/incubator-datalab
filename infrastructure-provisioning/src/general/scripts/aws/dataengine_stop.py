@@ -69,6 +69,7 @@ if __name__ == "__main__":
         stop_data_engine("{}:{}".format(os.environ['conf_service_base_name'],
                                         data_engine_config['cluster_name']))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop Data Engine.", str(err))
         sys.exit(1)
 

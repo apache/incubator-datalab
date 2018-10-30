@@ -33,7 +33,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == vm.tags["SBN"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print("Instance {} has been terminated".format(vm.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing network interfaces")
@@ -42,7 +43,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == network_interface.tags["SBN"]:
                 AzureActions().delete_network_if(resource_group_name, network_interface.name)
                 print("Network interface {} has been removed".format(network_interface.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing static public IPs")
@@ -51,7 +53,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == static_public_ip.tags["SBN"]:
                 AzureActions().delete_static_public_ip(resource_group_name, static_public_ip.name)
                 print("Static public IP {} has been removed".format(static_public_ip.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing disks")
@@ -60,7 +63,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == disk.tags["SBN"]:
                 AzureActions().remove_disk(resource_group_name, disk.name)
                 print("Disk {} has been removed".format(disk.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing storage accounts")
@@ -69,7 +73,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == storage_account.tags["SBN"]:
                 AzureActions().remove_storage_account(resource_group_name, storage_account.name)
                 print("Storage account {} has been terminated".format(storage_account.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing Data Lake Store")
@@ -78,7 +83,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == datalake.tags["SBN"]:
                 AzureActions().delete_datalake_store(resource_group_name, datalake.name)
                 print("Data Lake Store {} has been terminated".format(datalake.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing images")
@@ -87,7 +93,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == image.tags["SBN"]:
                 AzureActions().remove_image(resource_group_name, image.name)
                 print("Image {} has been removed".format(image.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing security groups")
@@ -96,7 +103,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name == sg.tags["SBN"]:
                 AzureActions().remove_security_group(resource_group_name, sg.name)
                 print("Security group {} has been terminated".format(sg.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing VPC")
@@ -104,7 +112,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
         if AzureMeta().get_vpc(resource_group_name, service_base_name + '-vpc'):
             AzureActions().remove_vpc(resource_group_name, vpc_name)
             print("VPC {} has been terminated".format(vpc_name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing Resource Group")
@@ -112,7 +121,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
         if AzureMeta().get_resource_group(service_base_name):
             AzureActions().remove_resource_group(service_base_name, region)
             print("Resource group {} has been terminated".format(vpc_name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -142,6 +152,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to terminate ssn.", str(err))
         sys.exit(1)
 

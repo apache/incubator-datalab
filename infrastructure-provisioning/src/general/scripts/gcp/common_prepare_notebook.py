@@ -110,6 +110,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create instance.", str(err))
         GCPActions().remove_disk(notebook_config['instance_name'], notebook_config['zone'])
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
