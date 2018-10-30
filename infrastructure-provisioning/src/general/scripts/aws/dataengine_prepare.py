@@ -90,7 +90,7 @@ if __name__ == "__main__":
         data_engine['cluster_nodes_resource_tag'] = {"Key": os.environ['conf_tag_resource_id'],
                                                      "Value": data_engine['service_base_name'] + ':' +
                                                               data_engine['cluster_name']}
-        data_engine['cluster_nodes_billing_tag'] = {"Key": os.environ['conf__billing_tag'],
+        data_engine['cluster_nodes_billing_tag'] = {"Key": os.environ['conf_billing_tag'],
                                                      "Value": data_engine['service_base_name'] + ':' +
                                                               data_engine['cluster_name']}
         data_engine['primary_disk_size'] = '30'
