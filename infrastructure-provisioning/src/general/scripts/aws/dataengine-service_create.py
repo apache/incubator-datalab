@@ -303,8 +303,8 @@ def build_emr_cluster(args):
             tags.append({"Value": value, "Key": key})
         tags.append({'Key': os.environ['conf_tag_resource_id'],
                      'Value': '{}:{}'.format(args.service_base_name, args.name)})
-        tags.append({'Key': os.environ['conf_billing_tag_key'],
-                     'Value': os.environ['conf_billing_tag_value']})
+        tags.append({'Key': 'product',
+                     'Value': 'dlab'})
         if 'conf_additional_tags' in os.environ:
             for tag in os.environ['conf_additional_tags'].split(';'):
                 tags.append(
