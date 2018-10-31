@@ -1236,7 +1236,8 @@ def create_aws_config_files(generate_full_config=False):
         logging.info(local("chmod 550 " + aws_user_dir+" 2>&1", capture=True))
 
         return True
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
