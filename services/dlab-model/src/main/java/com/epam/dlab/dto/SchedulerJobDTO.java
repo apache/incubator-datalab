@@ -64,4 +64,9 @@ public class SchedulerJobDTO {
 	@JsonProperty("sync_start_required")
 	private boolean syncStartRequired = true;
 
+	@JsonProperty("max_inactivity")
+	private Long maxInactivity;
+	@JsonProperty("check_inactivity_required")
+	private boolean checkInactivityRequired;
+
 }

@@ -15,7 +15,7 @@
  *  * limitations under the License.
  *
  */
-package com.epam.dlab.backendapi.schedulers.computational;
+package com.epam.dlab.backendapi.schedulers;
 
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
@@ -34,7 +34,7 @@ import org.quartz.JobExecutionContext;
  */
 @Slf4j
 @Scheduled("inactivity")
-public class CheckInactivityComputationalJob implements Job {
+public class CheckInactivityScheduledJob implements Job {
 
 	private static final String SCHEDULER_USER = "scheduler_user";
 
@@ -48,6 +48,6 @@ public class CheckInactivityComputationalJob implements Job {
 	public void execute(JobExecutionContext context) {
 		UserInfo userInfo = systemUserInfoService.create(SCHEDULER_USER);
 		log.info("Starting check inactivity cluster job on behalf of {}...", SCHEDULER_USER);
-		schedulerJobService.updateRunningClustersLastActivity(userInfo);
+		schedulerJobService.updateRunningResourcesLastActivity(userInfo);
 	}
 }

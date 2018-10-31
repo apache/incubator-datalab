@@ -54,6 +54,7 @@ public class SchedulerJobDAO extends BaseDAO {
 
 	static final String SCHEDULER_DATA = "scheduler_data";
 	public static final String TIMEZONE_PREFIX = "UTC";
+	private static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 
 	public SchedulerJobDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -128,15 +129,6 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(toList());
 	}
 
-	private FindIterable<Document> userInstancesWithScheduler(Bson statusCondition) {
-		return find(USER_INSTANCES,
-				and(
-						statusCondition,
-						schedulerNotNullCondition()
-				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
-	}
-
 	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
 																			   DataEngineType dataEngineType,
 																			   UserInstanceStatus... statuses) {
@@ -145,7 +137,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				and(
 						eq(STATUS, exploratoryStatus.toString()),
 						ne(COMPUTATIONAL_RESOURCES, null),
-						schedulerNotNull
+						schedulerNotNull, eq(SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED, false)
 				),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
 
@@ -153,6 +145,15 @@ public class SchedulerJobDAO extends BaseDAO {
 				.map(doc -> computationalSchedulerDataStream(doc, dataEngineType, statuses))
 				.flatMap(Function.identity())
 				.collect(toList());
+	}
+
+	private FindIterable<Document> userInstancesWithScheduler(Bson statusCondition) {
+		return find(USER_INSTANCES,
+				and(
+						statusCondition,
+						schedulerNotNullCondition(), eq(SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED, false)
+				),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
 	}
 
 	private Stream<SchedulerJobData> computationalSchedulerDataStream(Document doc, DataEngineType computationalType,

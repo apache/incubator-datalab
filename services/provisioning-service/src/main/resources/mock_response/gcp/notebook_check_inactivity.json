@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "request_id": "${REQUEST_ID}",
-  "clusters": [
+  "resources": [
     {
       "id": "dev-test-dataengine-jup_1-sp_1",
       "status": "running",
