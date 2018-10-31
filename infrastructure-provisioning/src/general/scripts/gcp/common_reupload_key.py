@@ -24,7 +24,6 @@ from fabric.api import *
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 from dlab.fab import *
-import traceback
 import json
 
 parser = argparse.ArgumentParser()
