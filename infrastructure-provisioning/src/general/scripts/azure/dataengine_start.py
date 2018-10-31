@@ -35,7 +35,8 @@ def start_data_engine(resource_group_name, cluster_name):
             if cluster_name == vm.tags["Name"]:
                 AzureActions().start_instance(resource_group_name, vm.name)
                 print("Instance {} has been started".format(vm.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 

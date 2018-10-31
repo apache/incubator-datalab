@@ -41,7 +41,7 @@ def general_clean():
         remove_os_pkg(['nodejs', 'npm'])
         sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 def clean_jupyter():
@@ -57,7 +57,7 @@ def clean_jupyter():
         sudo('rm -f /etc/systemd/system/jupyter-notebook.service')
         sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 def clean_zeppelin():
@@ -71,7 +71,7 @@ def clean_zeppelin():
         sudo('rm -f /etc/systemd/system/zeppelin-notebook.service')
         sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 def clean_rstudio():
@@ -90,7 +90,7 @@ def clean_tensor():
         sudo('systemctl disable tensorboard')
         sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 def clean_tensor_rstudio():
@@ -100,7 +100,7 @@ def clean_tensor_rstudio():
         sudo('systemctl disable tensorboard')
         sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 if __name__ == "__main__":

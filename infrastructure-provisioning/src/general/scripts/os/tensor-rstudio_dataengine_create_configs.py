@@ -63,7 +63,8 @@ def configure_rstudio():
                   args.os_user + '/.Rprofile')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured')
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
@@ -76,7 +77,8 @@ def configure_rstudio():
             local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
                   args.os_user + '/.Rprofile')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
 
 

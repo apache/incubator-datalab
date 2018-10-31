@@ -154,6 +154,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         except:
@@ -188,6 +189,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:

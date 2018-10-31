@@ -38,4 +38,5 @@ if __name__ == "__main__":
             print("Creating Virtual Network {}".format(args.vpc_name))
             AzureActions().create_vpc(args.resource_group_name, args.vpc_name, args.region, args.vpc_cidr)
     else:
+        print("VPC name can't be empty.")
         sys.exit(1)

@@ -40,7 +40,6 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
     if args.ssn:
         tag = {"Key": args.infra_tag_name, "Value": "{}-subnet".format(args.infra_tag_value)}
     else:
@@ -148,11 +147,6 @@ if __name__ == "__main__":
             route_table.associate_with_subnet(SubnetId=subnet_id)
             with open('/tmp/ssn_subnet_id', 'w') as f:
                 f.write(subnet_id)
-        success = True
-    except:
-        success = False
-
-    if success:
-        sys.exit(0)
-    else:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

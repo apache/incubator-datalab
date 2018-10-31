@@ -38,7 +38,6 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
     if args.bucket_name:
         try:
             handler = open('/root/templates/edge_s3_policy.json', 'r')
@@ -50,7 +49,7 @@ if __name__ == "__main__":
                 policy = policy.replace('aws', 'aws-cn')
         except OSError:
             print("Failed to open policy template")
-            success = False
+            sys.exit(1)
 
         list_policies_arn = []
         if args.user_predefined_s3_policies != 'None':
@@ -87,18 +86,12 @@ if __name__ == "__main__":
                     iam.attach_role_policy(RoleName=args.notebook_role_name, PolicyArn=arn)
                     print('POLICY "{0}" has been attached to role "{1}"'.format(arn, args.notebook_role_name))
                     time.sleep(5)
-                success = True
             except botocore.exceptions.ClientError as e:
                 print(e.response['Error']['Message'])
-                success = False
-        except Exception as ex:
-            print(ex)
-            success = False
+                sys.exit(1)
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(2)
-
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)

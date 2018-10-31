@@ -35,7 +35,6 @@ if __name__ == "__main__":
 
     create_aws_config_files()
     print('Getting statuses of DLAB resources')
-    # Base config
 
     try:
         logging.info('[COLLECT DATA]')
@@ -47,5 +46,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to collect necessary information.", str(err))
         sys.exit(1)

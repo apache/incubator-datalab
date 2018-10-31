@@ -114,7 +114,8 @@ if __name__ == "__main__":
                 raise KeyError
         except KeyError:
             os.environ['aws_report_path'] = ''
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     try:
@@ -374,7 +375,7 @@ if __name__ == "__main__":
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
         try:
-            with open('jenkins_crids.txt') as f:
+            with open('jenkins_creds.txt') as f:
                 print(f.read())
         except:
             print("Jenkins is either configured already or have issues in configuration routine.")

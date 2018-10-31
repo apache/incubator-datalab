@@ -103,6 +103,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
@@ -133,6 +134,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
@@ -165,6 +167,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing http proxy.", str(err))
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
@@ -198,6 +201,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key. Excpeption: " + str(err))
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
@@ -246,5 +250,3 @@ if __name__ == "__main__":
     except:
         print("Failed writing results.")
         sys.exit(0)
-
-    sys.exit(0)

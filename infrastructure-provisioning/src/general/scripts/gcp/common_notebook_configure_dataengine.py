@@ -64,11 +64,13 @@ if __name__ == "__main__":
         try:
             notebook_config['spark_master_ip'] = GCPMeta().get_private_ip_address(notebook_config['master_node_name'])
             notebook_config['notebook_ip'] = GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
             GCPActions().remove_instance(slave_name, notebook_config['zone'])
@@ -89,6 +91,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
             GCPActions().remove_instance(slave_name, notebook_config['zone'])
@@ -111,6 +114,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
             GCPActions().remove_instance(slave_name, notebook_config['zone'])

@@ -48,7 +48,8 @@ def get_available_pip_pkgs(version):
             else:
                 local('sleep 5')
                 continue
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -64,7 +65,8 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
         for pkg in all_pkgs_other:
             pip_pkgs[pkg] = "N/A"
         return pip_pkgs
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 

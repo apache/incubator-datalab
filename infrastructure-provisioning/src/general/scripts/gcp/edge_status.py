@@ -34,7 +34,6 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     print('Getting statuses of DLAB resources')
-    # Base config
 
     try:
         logging.info('[COLLECT DATA]')
@@ -46,5 +45,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to collect information about DLAB resources.", str(err))
         sys.exit(1)

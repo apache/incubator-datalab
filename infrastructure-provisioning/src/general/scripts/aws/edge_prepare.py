@@ -116,6 +116,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
@@ -136,6 +137,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to creating roles.", str(err))
         sys.exit(1)
 
@@ -151,6 +153,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to creating roles.", str(err))
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         sys.exit(1)
@@ -387,6 +390,7 @@ if __name__ == "__main__":
             print('Waiting for changes to propagate')
             time.sleep(10)
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating security group for private subnet.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -407,6 +411,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create sg.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -427,6 +432,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create bucket.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -447,6 +453,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create bucket.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -468,6 +475,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create bucket policy.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -492,6 +500,7 @@ if __name__ == "__main__":
             raise Exception
 
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create instance.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -517,6 +526,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to associate elastic ip.", str(err))
             try:
                 edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')

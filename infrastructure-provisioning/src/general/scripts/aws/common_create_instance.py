@@ -43,7 +43,6 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
     instance_tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     if args.node_name != '':
         try:
@@ -57,14 +56,9 @@ if __name__ == "__main__":
             print("Instance_id {}".format(instance_id))
             print("Public_hostname {}".format(get_instance_attr(instance_id, 'public_dns_name')))
             print("Private_hostname {}".format(get_instance_attr(instance_id, 'private_dns_name')))
-            success = True
-        except:
-            success = False
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(2)
-
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)
