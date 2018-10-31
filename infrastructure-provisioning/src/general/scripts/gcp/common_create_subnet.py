@@ -91,7 +91,6 @@ if __name__ == "__main__":
         else:
             print("Creating Subnet {}".format(args.subnet_name))
             GCPActions().create_subnet(args.subnet_name, dlab_subnet_cidr, args.vpc_selflink, args.region)
-            AzureActions().create_subnet(args.resource_group_name, args.vpc_name, args.subnet_name, dlab_subnet_cidr)
     else:
         print("Subnet name can't be empty")
         sys.exit(1)
