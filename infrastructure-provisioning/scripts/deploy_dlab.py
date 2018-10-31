@@ -48,10 +48,8 @@ parser.add_argument('--conf_cloud_provider', type=str, default='',
 parser.add_argument('--ssn_hosted_zone_name', type=str, default='', help='Name of hosted zone')
 parser.add_argument('--ssn_hosted_zone_id', type=str, default='', help='ID of hosted zone')
 parser.add_argument('--ssn_subdomain', type=str, default='', help='Subdomain name')
-parser.add_argument('--ssn_assume_role_arn', type=str, default='NONE', help='Role ARN for creating Route53 record in '
-                                                                            'different AWS account, NONE - for '
-                                                                            'creating Route53 record in the same '
-                                                                            'AWS account')
+parser.add_argument('--ssn_assume_role_arn', type=str, default='', help='Role ARN for creating Route53 record in '
+                                                                        'different AWS account')
 parser.add_argument('--ssl_cert_path', type=str, default='', help='Full path to SSL certificate')
 parser.add_argument('--ssl_key_path', type=str, default='', help='Full path to SSL certificate')
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
