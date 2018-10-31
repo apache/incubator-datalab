@@ -137,6 +137,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create master instance.", str(err))
         sys.exit(1)
 
@@ -163,6 +164,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)

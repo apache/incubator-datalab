@@ -133,8 +133,7 @@ if __name__ == "__main__":
         keyfile_name = "/root/keys/{}.pem".format(dataproc_conf['key_name'])
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create Dataproc Cluster.", str(err))
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
         sys.exit(1)
-
-    sys.exit(0)

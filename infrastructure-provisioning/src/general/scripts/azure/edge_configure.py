@@ -75,6 +75,7 @@ if __name__ == "__main__":
         instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                         edge_conf['instance_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to generate infrastructure names", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -114,6 +115,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -144,6 +146,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -176,6 +179,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing http proxy.", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -209,6 +213,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key. Excpeption: " + str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -300,5 +305,3 @@ if __name__ == "__main__":
     except:
         print("Failed writing results.")
         sys.exit(0)
-
-    sys.exit(0)

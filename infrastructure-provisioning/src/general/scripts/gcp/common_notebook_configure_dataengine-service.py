@@ -77,6 +77,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing Dataproc kernels.", str(err))
         actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
         actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
@@ -98,6 +99,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure Spark.", str(err))
         actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
         actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],

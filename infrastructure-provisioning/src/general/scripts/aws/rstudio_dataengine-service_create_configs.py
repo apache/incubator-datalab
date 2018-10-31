@@ -62,7 +62,8 @@ def configure_rstudio():
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
@@ -75,7 +76,8 @@ def configure_rstudio():
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
 
 

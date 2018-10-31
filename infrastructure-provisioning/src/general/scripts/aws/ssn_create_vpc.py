@@ -38,7 +38,6 @@ if args.secondary:
 
 
 if __name__ == "__main__":
-    success = False
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     if args.vpc != '':
         try:
@@ -52,14 +51,9 @@ if __name__ == "__main__":
                 print("REQUESTED {}VPC ALREADY EXISTS".format(sec_str))
             print("{0}VPC_ID: {1}".format(sec_str, vpc_id))
             args.vpc_id = vpc_id
-            success = True
-        except:
-            success = False
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(2)
-
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)

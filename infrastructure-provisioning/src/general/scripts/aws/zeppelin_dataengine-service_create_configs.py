@@ -64,7 +64,7 @@ if args.region == 'us-east-1':
 elif args.region == 'cn-north-1':
     endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
 else:
-    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
+    endpoint_url = 'https://s3-{}.amazonaws.com'.format(args.region)
 
 
 def install_remote_livy(args):

@@ -145,8 +145,9 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
                     except:
                         local('sleep 5')
         local('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured')
-    except:
-            sys.exit(1)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
 
 def install_remote_livy(args):

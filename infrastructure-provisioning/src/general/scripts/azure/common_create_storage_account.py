@@ -55,6 +55,6 @@ if __name__ == "__main__":
                 print("CONTAINER {} has been created".format(args.container_name))
             else:
                 print("STORAGE ACCOUNT with name {0} could not be created. {1}".format(account_name, check.message))
-                sys.exit(1)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

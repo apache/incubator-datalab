@@ -59,5 +59,7 @@ if __name__ == "__main__":
                 for role in predefined_roles:
                     GCPActions().set_role_to_service_account(args.service_account_name, role, 'predefined')
     else:
-        sys.exit(1)
+        parser.print_help()
+        sys.exit(2)
+
 

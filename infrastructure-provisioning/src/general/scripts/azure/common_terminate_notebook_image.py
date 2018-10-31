@@ -42,5 +42,6 @@ if __name__ == "__main__":
                        "Action": "Delete existing notebook image"}
                 result.write(json.dumps(res))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)

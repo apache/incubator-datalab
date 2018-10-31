@@ -117,7 +117,7 @@ def configure_nginx(config, dlab_path, hostname):
             sudo('mv /tmp/proxy_location_jenkins.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
             sudo('\cp ' + os.environ['ssn_dlab_path'] + 'tmp/proxy_location_jenkins.conf /etc/nginx/locations/')
             sudo("echo 'engineer:" + crypt.crypt(nginx_password, id_generator()) + "' > /etc/nginx/htpasswd")
-            with open('jenkins_crids.txt', 'w+') as f:
+            with open('jenkins_creds.txt', 'w+') as f:
                 f.write("Jenkins credentials: engineer  / " + nginx_password)
     except:
         return False
