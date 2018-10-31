@@ -177,6 +177,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
+	@Override
+	public void removeScheduler(String user, String exploratoryName) {
+		schedulerJobDAO.removeScheduler(user, exploratoryName);
+	}
+
+	@Override
+	public void removeScheduler(String user, String exploratoryName, String computationalName) {
+		schedulerJobDAO.removeScheduler(user, exploratoryName, computationalName);
+	}
+
 	private void stopComputational(SchedulerJobData job) {
 		final String expName = job.getExploratoryName();
 		final String compName = job.getComputationalName();
