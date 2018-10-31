@@ -44,7 +44,7 @@ if __name__ == "__main__":
             create_aws_config_files(generate_full_config=True)
         else:
             create_aws_config_files()
-    except:
+    except Exception as err:
         print('Error: {0}'.format(err))
         logging.info('Unable to create configuration')
         append_result("Unable to create configuration")
@@ -118,6 +118,7 @@ if __name__ == "__main__":
                     raise Exception
                 os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create secondary VPC. Exception:" + str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
@@ -143,6 +144,7 @@ if __name__ == "__main__":
                     os.environ['aws_subnet_id'] = f.read()
                 enable_auto_assign_ip(os.environ['aws_subnet_id'])
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create Subnet.", str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
@@ -174,6 +176,7 @@ if __name__ == "__main__":
                 with open('/tmp/ssn_subnet_id', 'r') as f:
                     os.environ['aws_subnet2_id'] = f.read()
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create Subnet.", str(err))
                 if pre_defined_vpc:
                     remove_route_tables(tag_name, True)
@@ -199,6 +202,7 @@ if __name__ == "__main__":
                 create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc2_id']))
                 print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create peering connection.", str(err))
                 if pre_defined_vpc:
                     remove_route_tables(tag_name, True)
@@ -271,6 +275,7 @@ if __name__ == "__main__":
                 with open('/tmp/ssn_sg_id', 'r') as f:
                     os.environ['aws_security_groups_ids'] = f.read()
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed creating security group for SSN.", str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
@@ -291,6 +296,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create roles.", str(err))
         if pre_defined_sg:
             remove_sgroups(tag_name)
@@ -316,6 +322,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create an endpoint.", str(err))
         remove_all_iam_resources(instance)
         if pre_defined_sg:
@@ -345,6 +352,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Unable to create secondary endpoint.", str(err))
             remove_all_iam_resources(instance)
             if pre_defined_sg:
@@ -380,6 +388,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create bucket.", str(err))
         remove_all_iam_resources(instance)
         if pre_defined_sg:
@@ -410,6 +419,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create ssn instance.", str(err))
         remove_all_iam_resources(instance)
         remove_s3(instance)
@@ -443,6 +453,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to associate elastic ip.", str(err))
             remove_ec2(tag_name, instance_name)
             remove_all_iam_resources(instance)
