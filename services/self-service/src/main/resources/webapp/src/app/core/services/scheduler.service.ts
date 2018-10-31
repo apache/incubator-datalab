@@ -42,11 +42,11 @@ export class SchedulerService {
       .catch(ErrorUtils.handleServiceError);
   }
 
-  public setInactivityTime(notebook, data, resource?): Observable<{}> {
-    const param = resource ? `/${notebook}/${resource}/inactivity` : `/${notebook}/inactivity`;
-    return this.applicationServiceFacade
-      .builSetInactivityTime(param, data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
-  }
+  // public setInactivityTime(notebook, data, resource?): Observable<{}> {
+  //   const param = resource ? `/${notebook}/${resource}/inactivity` : `/${notebook}/inactivity`;
+  //   return this.applicationServiceFacade
+  //     .builSetInactivityTime(param, data)
+  //     .map(response => response)
+  //     .catch(ErrorUtils.handleServiceError);
+  // }
 }

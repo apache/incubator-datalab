@@ -149,15 +149,14 @@ export class SchedulerComponent implements OnInit {
       this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
 
       (this.destination.type === 'СOMPUTATIONAL')
-          ? this.setInactivity(this.notebook.name, { inactivityEnabled: false }, this.destination.computational_name)
-          : this.setInactivity(this.notebook.name, { inactivityEnabled: false });
+          ? this.setInactivity(this.notebook.name, { check_inactivity_required: false }, this.destination.computational_name)
+          : this.setInactivity(this.notebook.name, { check_inactivity_required: false });
     }
   }
-
+  
   public setInactivity(...params) {
     this.model.setInactivityTime(params).subscribe(
       () => {
-
         this.toastr.success('Inactivity settings were successfully saved', 'Success!', { toastLife: 5000 });
       },
       error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }));
@@ -195,7 +194,7 @@ export class SchedulerComponent implements OnInit {
         ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
         : this.model.confirmAction(this.notebook.name, parameters);
     } else {
-      let data = { inactivityEnabled: true, maxInactivityTimeMinutes: this.schedulerForm.controls.inactivityTime.value };
+      let data = { check_inactivity_required: true, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
 
       (this.destination.type === 'СOMPUTATIONAL')
         ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
@@ -231,6 +230,9 @@ export class SchedulerComponent implements OnInit {
           this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
           this.formInit(params.begin_date, params.finish_date);
+          this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity);
+
+          this.enableIdleTimes = params.check_inactivity_required;
           this.toggleSchedule({checked: true});
         }
       },

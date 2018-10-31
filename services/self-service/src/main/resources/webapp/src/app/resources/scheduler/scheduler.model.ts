@@ -55,13 +55,13 @@ export class SchedulerModel {
     if (this.continueWith) this.continueWith();
   }
 
-  public setInactivityTime(params) {
-    let [notebook, data, resource] = params;
-    return this.schedulerService.setInactivityTime(notebook, data, resource);
-  }
-
   private scheduleInstance(notebook, params, resourse) {
     return this.schedulerService.setExploratorySchedule(notebook, params, resourse)
+  }
+
+  public setInactivityTime(params) {
+    let [notebook, data, resource] = params;
+    return this.scheduleInstance(notebook, data, resource);
   }
 
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
