@@ -109,7 +109,7 @@ parser.add_argument('--resource_id', type=str, default='ResourceId', help='Colum
                                                                           'dlab resource id tag')
 parser.add_argument('--ldap_hostname', type=str, default='', help='Ldap instance hostname')
 parser.add_argument('--ldap_dn', type=str, default='', help='Ldap distinguished name (dc=example,dc=com)')
-parser.add_argument('--ldap_ou', type=str, default='', help='Ldap organisation unit (ou=People)')
+parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organisation unit (ou=People)')
 parser.add_argument('--ldap_service_username', type=str, default='', help='Ldap admin user name')
 parser.add_argument('--ldap_service_password', type=str, default='', help='Ldap password for admin user')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
