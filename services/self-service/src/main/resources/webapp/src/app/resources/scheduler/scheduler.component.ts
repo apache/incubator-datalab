@@ -44,7 +44,7 @@ export class SchedulerComponent implements OnInit {
   public inherit: boolean = false;
   public parentInherit: boolean = false;
   public enableSchedule: boolean = false;
-  public enableIdleTimes: boolean = false;
+  public enableIdleTime: boolean = false;
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -86,7 +86,7 @@ export class SchedulerComponent implements OnInit {
       this.model = new SchedulerModel(
         response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
-            this.toastr.success('Schedule data were successfully saved', 'Success!', { toastLife: 5000 });
+            // this.toastr.success('Schedule data were successfully saved', 'Success!', { toastLife: 5000 });
             this.close();
           }
         },
@@ -139,18 +139,19 @@ export class SchedulerComponent implements OnInit {
 
     this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
 
+    if (!this.enableSchedule) this.model.resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null);
   }
 
   public toggleIdleTimes($event) {
-    this.enableIdleTimes = $event.checked;
-    this.enableIdleTimes && this.toggleSchedule({checked: false});
+    this.enableIdleTime = $event.checked;
+    // this.enableIdleTimes && this.toggleSchedule({checked: false});
 
-    if (!this.enableIdleTimes) {
+    if (!this.enableIdleTime) {
       this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
 
       (this.destination.type === 'СOMPUTATIONAL')
-          ? this.setInactivity(this.notebook.name, { check_inactivity_required: false }, this.destination.computational_name)
-          : this.setInactivity(this.notebook.name, { check_inactivity_required: false });
+          ? this.setInactivity(this.notebook.name, null, this.destination.computational_name)
+          : this.setInactivity(this.notebook.name, null);
     }
   }
   
@@ -164,7 +165,7 @@ export class SchedulerComponent implements OnInit {
 
   public scheduleInstance_btnClick() {
 
-    if (!this.enableIdleTimes) {
+    if (!this.enableIdleTime) {
       let data = {
         startDate: this.schedulerForm.controls.startDate.value,
         finishDate: this.schedulerForm.controls.finishDate.value
@@ -175,7 +176,7 @@ export class SchedulerComponent implements OnInit {
         return false;
       }
       const selectedDays = Object.keys(this.selectedStartWeekDays);
-      let parameters = {
+      let parameters: any = {
         begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
         finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
         start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
@@ -183,7 +184,8 @@ export class SchedulerComponent implements OnInit {
         start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
         stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
         timezone_offset: this.tzOffset,
-        sync_start_required: this.inherit
+        sync_start_required: this.inherit,
+        check_inactivity_required: this.enableIdleTime
       };
 
       if(!this.enableSchedule) {
@@ -232,7 +234,7 @@ export class SchedulerComponent implements OnInit {
           this.formInit(params.begin_date, params.finish_date);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity);
 
-          this.enableIdleTimes = params.check_inactivity_required;
+          this.enableIdleTime = params.check_inactivity_required;
           this.toggleSchedule({checked: true});
         }
       },
@@ -250,7 +252,7 @@ export class SchedulerComponent implements OnInit {
 
   private validInactivityRange(control) {
     if (control)
-      return this.enableIdleTimes
+      return this.enableIdleTime
           ? (control.value && control.value >= this.inactivityLimits.min && control.value <= this.inactivityLimits.max ? null : { valid: false })
           : control.value;
   }

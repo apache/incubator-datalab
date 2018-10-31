@@ -56,12 +56,16 @@ export class SchedulerModel {
   }
 
   private scheduleInstance(notebook, params, resourse) {
-    return this.schedulerService.setExploratorySchedule(notebook, params, resourse)
+    return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
   }
 
   public setInactivityTime(params) {
     let [notebook, data, resource] = params;
     return this.scheduleInstance(notebook, data, resource);
+  }
+
+  public resetSchedule(notebook, resourse) {
+    return this.schedulerService.resetScheduleSettings(notebook, resourse);
   }
 
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {

@@ -29,23 +29,24 @@ limitations under the License.
     <div *ngIf="destination" class="content-box">
       <form [formGroup]="schedulerForm">
         <div class="enable-schedule">
-          <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)" [disabled]="enableIdleTimes">
+            <!-- [disabled]="enableIdleTime" -->
+          <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)">
             <span *ngIf="toggleSchedule" class="hold-label">Enable scheduler</span>
           </mat-slide-toggle>
           <div class="idle">
-            <mat-slide-toggle labelPosition="before" [checked]="enableIdleTimes" (change)="toggleIdleTimes($event)">
-              <span *ngIf="toggleSchedule" class="hold-label">Set idle time</span>
+            <mat-slide-toggle labelPosition="before" [checked]="enableIdleTime" (change)="toggleIdleTimes($event)">
+              <span *ngIf="toggleSchedule" class="hold-label">Inactivity time</span>
             </mat-slide-toggle>
-            <i class="material-icons" (click)="info = !info">help_outline</i>
+            <!-- <i class="material-icons" (click)="info = !info">help_outline</i> -->
           </div>
         </div>
 
-        <div class="note info-message" [ngClass]="{ show: info }">Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+        <!-- <div class="note info-message" [ngClass]="{ show: info }">Lorem ipsum dolor sit amet, consectetur adipisicing elit.
           Voluptas porro asperiores veritatis nobis quisquam saepe distinctio natus dolore!
-          Tempora similique impedit aliquid non eos hic officiis. Incidunt eligendi id iusto.</div>
+          Tempora similique impedit aliquid non eos hic officiis. Incidunt eligendi id iusto.</div> -->
 
-        <div class="control-group idle-control" [ngClass]="{ show: enableIdleTimes }">
-          <label class="label">Idle time</label>
+        <div class="control-group idle-control" [ngClass]="{ show: enableIdleTime }">
+          <label class="label">Inactivity time</label>
           <div class="control">
             <input type="number" class="form-control" min="10" max="10080" formControlName="inactivityTime" class="form-control" placeholder="Enter time in min" />
             <span class="danger_color" *ngIf="!schedulerForm.controls.inactivityTime.valid">
