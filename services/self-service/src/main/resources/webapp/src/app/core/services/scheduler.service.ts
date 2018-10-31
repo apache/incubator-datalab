@@ -41,4 +41,12 @@ export class SchedulerService {
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
+
+  public resetScheduleSettings(notebook, resource?): Observable<{}> {
+    const url = resource ? `/${notebook}/${resource}` : `/${notebook}`;
+    return this.applicationServiceFacade
+      .buildResetScheduleSettings(JSON.stringify(url))
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
 }
