@@ -103,7 +103,7 @@ parser.add_argument('--usage_date', type=str, default='UsageStartDate', help='Co
 parser.add_argument('--product', type=str, default='ProductName', help='Column name in report file that contains '
                                                                        'product name tag')
 parser.add_argument('--usage_type', type=str, default='UsageType', help='Column name in report file that contains '
-                                                                        'sage type tag')
+                                                                        'usage type tag')
 parser.add_argument('--usage', type=str, default='UsageQuantity', help='Column name in report file that contains '
                                                                        'usage tag')
 parser.add_argument('--cost', type=str, default='BlendedCost', help='Column name in report file that contains cost tag')
