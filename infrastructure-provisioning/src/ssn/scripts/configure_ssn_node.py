@@ -22,8 +22,10 @@ from fabric.api import *
 import argparse
 import json
 import sys
+import os
 from dlab.ssn_lib import *
 from dlab.fab import *
+import traceback
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -35,6 +37,15 @@ parser.add_argument('--tag_resource_id', type=str, default='')
 args = parser.parse_args()
 
 
+def set_hostname(subdomain, hosted_zone_name):
+    try:
+        sudo('hostnamectl set-hostname {0}.{1}'.format(subdomain, hosted_zone_name))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to set hostname: ', str(err))
+        sys.exit(1)
+
+
 def cp_key(keyfile, host_string, os_user):
     try:
         key_name=keyfile.split("/")
@@ -42,9 +53,10 @@ def cp_key(keyfile, host_string, os_user):
         sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/keys')
         local('scp -r -q -i {0} {0} {1}:/home/{3}/keys/{2}'.format(keyfile, host_string, key_name[-1], os_user))
         sudo('chmod 600 /home/' + os_user + '/keys/*.pem')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to copy key: ', str(err))
+        sys.exit(1)
 
 
 def cp_backup_scripts(dlab_path):
@@ -53,9 +65,10 @@ def cp_backup_scripts(dlab_path):
             put('/root/scripts/backup.py', "backup.py")
             put('/root/scripts/restore.py', "restore.py")
             run('chmod +x backup.py restore.py')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to copy backup scripts: ', str(err))
+        sys.exit(1)
 
 
 def cp_gitlab_scripts(dlab_path):
@@ -73,9 +86,10 @@ def cp_gitlab_scripts(dlab_path):
             run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
             run('sed -i "s,CONF_DLAB_PATH,{},g" gitlab.ini'.format(dlab_path))
             run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to copy gitlab scripts: ', str(err))
+        sys.exit(1)
 
 
 def creating_service_directories(dlab_path, os_user):
@@ -98,20 +112,27 @@ def creating_service_directories(dlab_path, os_user):
             sudo('ln -s /var/opt/dlab/log /var/log/dlab')
             sudo('chown -R ' + os_user + ':' + os_user + ' /var/opt/dlab/log')
             sudo('chown -R ' + os_user + ':' + os_user + ' ' + dlab_path)
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to create service directories: ', str(err))
+        sys.exit(1)
 
-        return True
-    except:
-        return False
 
-
-def generate_ssl(hostname):
+def configure_ssl_certs(hostname, custom_ssl_cert):
     try:
-        sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab-selfsigned.key \
-             -out /etc/ssl/certs/dlab-selfsigned.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+        if custom_ssl_cert:
+            put('/root/certs/dlab.crt', 'dlab.crt')
+            put('/root/certs/dlab.key', 'dlab.key')
+            sudo('mv dlab.crt /etc/ssl/certs/dlab.crt')
+            sudo('mv dlab.key /etc/ssl/certs/dlab.key')
+        else:
+            sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
+                 -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
         sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure SSL certificates: ', str(err))
+        sys.exit(1)
 
 
 ##############
@@ -126,47 +147,47 @@ if __name__ == "__main__":
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
+    if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and 'ssn_subdomain' in os.environ:
+        domain_created = True
+    else:
+        domain_created = False
+
+    if os.path.exists('/root/certs/dlab.crt') and os.path.exists('/root/certs/dlab.key'):
+        custom_ssl_cert = True
+    else:
+        custom_ssl_cert = False
 
     print("Creating service directories.")
-    if not creating_service_directories(args.dlab_path, args.os_user):
-        sys.exit(1)
+    creating_service_directories(args.dlab_path, args.os_user)
+
+    if domain_created:
+        print("Setting hostname")
+        set_hostname(os.environ['ssn_subdomain'], os.environ['ssn_hosted_zone_name'])
+        args.hostname = "{0}.{1}".format(os.environ['ssn_subdomain'], os.environ['ssn_hosted_zone_name'])
 
     print("Installing nginx as frontend.")
-    if not ensure_nginx(args.dlab_path):
-        sys.exit(1)
+    ensure_nginx(args.dlab_path)
 
-    print("Generating ssl key and cert for nginx.")
-    if not generate_ssl(args.hostname):
-        sys.exit(1)
+    print("Configuring ssl key and cert for nginx.")
+    configure_ssl_certs(args.hostname, custom_ssl_cert)
 
     print("Configuring nginx.")
-    if not configure_nginx(deeper_config, args.dlab_path, args.hostname):
-        sys.exit(1)
+    configure_nginx(deeper_config, args.dlab_path, args.hostname)
 
     print("Installing jenkins.")
-    if not ensure_jenkins(args.dlab_path):
-        sys.exit(1)
+    ensure_jenkins(args.dlab_path)
 
     print("Configuring jenkins.")
-    if not configure_jenkins(args.dlab_path, args.os_user, deeper_config, args.tag_resource_id):
-        sys.exit(1)
+    configure_jenkins(args.dlab_path, args.os_user, deeper_config, args.tag_resource_id)
 
     print("Copying key")
-    if not cp_key(args.keyfile, env.host_string, args.os_user):
-        sys.exit(1)
+    cp_key(args.keyfile, env.host_string, args.os_user)
 
     print("Copying backup scripts")
-    if not cp_backup_scripts(args.dlab_path):
-        sys.exit(1)
+    cp_backup_scripts(args.dlab_path)
 
     print("Copying gitlab scripts & files")
-    if not cp_gitlab_scripts(args.dlab_path):
-        sys.exit(1)
+    cp_gitlab_scripts(args.dlab_path)
 
     print("Ensuring safest ssh ciphers")
-    try:
-        ensure_ciphers()
-    except:
-        sys.exit(1)
-
-    sys.exit(0)
+    ensure_ciphers()
