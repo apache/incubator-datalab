@@ -28,7 +28,7 @@ import sys
 def stop_data_engine(cluster_name):
     print("Stop Data Engine")
     try:
-        stop_ec2('user:tag', cluster_name)
+        stop_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
@@ -69,6 +69,7 @@ if __name__ == "__main__":
         stop_data_engine("{}:{}".format(os.environ['conf_service_base_name'],
                                         data_engine_config['cluster_name']))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop Data Engine.", str(err))
         sys.exit(1)
 

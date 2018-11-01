@@ -92,6 +92,7 @@ if __name__ == "__main__":
                 raise Exception
             os.environ['azure_resource_group_name'] = ssn_conf['service_base_name']
         except Exception as err:
+            print('Error: {0}'.format(err))
             try:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             except:
@@ -116,6 +117,7 @@ if __name__ == "__main__":
                 raise Exception
             os.environ['azure_vpc_name'] = ssn_conf['vpc_name']
         except Exception as err:
+            print('Error: {0}'.format(err))
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             try:
@@ -143,6 +145,7 @@ if __name__ == "__main__":
                 raise Exception
             os.environ['azure_subnet_name'] = ssn_conf['subnet_name']
         except Exception as err:
+            print('Error: {0}'.format(err))
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
@@ -230,6 +233,7 @@ if __name__ == "__main__":
                 raise Exception
             os.environ['azure_security_group_name'] = ssn_conf['security_group_name']
         except Exception as err:
+            print('Error: {0}'.format(err))
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
@@ -251,6 +255,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -276,6 +281,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -318,6 +324,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
@@ -360,6 +367,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:

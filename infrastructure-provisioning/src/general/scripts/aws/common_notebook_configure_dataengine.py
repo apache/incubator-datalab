@@ -67,7 +67,8 @@ if __name__ == "__main__":
                 notebook_config['tag_name'], notebook_config['master_node_name'])
             notebook_config['notebook_ip'] = get_instance_private_ip_address(
                 notebook_config['tag_name'], notebook_config['notebook_name'])
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 

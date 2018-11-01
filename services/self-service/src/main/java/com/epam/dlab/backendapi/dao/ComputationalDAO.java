@@ -17,7 +17,6 @@
 package com.epam.dlab.backendapi.dao;
 
 
-import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -59,7 +58,6 @@ public class ComputationalDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_URL_DESC = "description";
 	private static final String COMPUTATIONAL_URL_URL = "url";
 	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
-	private static final String MAX_INACTIVITY = "max_inactivity";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -68,7 +66,7 @@ public class ComputationalDAO extends BaseDAO {
 	private static Bson computationalCondition(String user, String exploratoryFieldValue,
 											   String compResourceFieldValue) {
 		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryFieldValue),
-				eq(computationalFieldFilter(COMPUTATIONAL_NAME), compResourceFieldValue));
+				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, compResourceFieldValue));
 	}
 
 	/**
@@ -343,26 +341,6 @@ public class ComputationalDAO extends BaseDAO {
 															  String computationalName, boolean
 																	  reuploadKeyRequired) {
 		updateComputationalField(user, exploratoryName, computationalName, REUPLOAD_KEY_REQUIRED, reuploadKeyRequired);
-	}
-
-	/**
-	 * Updates the requirement for checking inactivity for single computational resource in Mongo database.
-	 *
-	 * @param user                user name.
-	 * @param exploratoryName     exploratory's name.
-	 * @param computationalName   name of computational resource.
-	 * @param inactivityConfigDTO true/false.
-	 */
-
-	public void updateInactivityConfiguration(String user, String exploratoryName,
-											  String computationalName,
-											  InactivityConfigDTO inactivityConfigDTO) {
-		final long maxInactivityTimeMinutes = inactivityConfigDTO.getMaxInactivityTimeMinutes();
-		final boolean inactivityEnabled = inactivityConfigDTO.isInactivityEnabled();
-		updateOne(USER_INSTANCES,
-				computationalCondition(user, exploratoryName, computationalName),
-				new Document(SET, new Document(computationalFieldFilter(CHECK_INACTIVITY_REQUIRED), inactivityEnabled)
-						.append(computationalFieldFilter(MAX_INACTIVITY), maxInactivityTimeMinutes)));
 	}
 
 	/**

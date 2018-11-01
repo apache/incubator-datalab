@@ -94,7 +94,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 */
 	@POST
 	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
-	@ApiOperation(value = "Starts notebook by name")
+	@ApiOperation("Starts notebook by name")
 	public String start(@ApiParam(hidden = true) @Auth UserInfo userInfo,
 						@ApiParam(value = "Notebook action form DTO", required = true)
 						@Valid @NotNull ExploratoryActionFormDTO formDTO) {
@@ -112,7 +112,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 */
 	@DELETE
 	@Path("/{name}/stop")
-	@ApiOperation(value = "Stops notebook by name")
+	@ApiOperation("Stops notebook by name")
 	public String stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,
 					   @ApiParam(value = "Notebook's name", required = true) @PathParam("name") String name) {
 		log.debug("Stopping exploratory environment {} for user {}", name, userInfo.getName());

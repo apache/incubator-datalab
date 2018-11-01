@@ -41,6 +41,7 @@ if __name__ == "__main__":
     print("Setting password for Rstudio user.")
     try:
         sudo('echo "{0}:{1}" | chpasswd'.format(args.os_user, args.rstudio_pass))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 

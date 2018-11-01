@@ -58,5 +58,5 @@ if __name__ == "__main__":
             print("Requested Data Lake Store '{}' is missing".format(datalake.name))
             sys.exit(1)
     except Exception as err:
-        print(str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)

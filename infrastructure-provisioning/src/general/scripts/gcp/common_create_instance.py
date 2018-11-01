@@ -58,4 +58,5 @@ if __name__ == "__main__":
                                          json.loads(args.labels), args.static_ip, args.primary_disk_size,
                                          args.secondary_disk_size, args.gpu_accelerator_type)
     else:
-        sys.exit(1)
+        parser.print_help()
+        sys.exit(2)

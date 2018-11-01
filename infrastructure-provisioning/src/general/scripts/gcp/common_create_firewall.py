@@ -47,4 +47,5 @@ if __name__ == "__main__":
                 print("Creating Egress Firewall {}".format(firewall_rule['name']))
                 GCPActions().create_firewall(firewall_rule)
     else:
-        sys.exit(1)
+        parser.print_help()
+        sys.exit(2)

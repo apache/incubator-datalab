@@ -35,13 +35,15 @@ def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path,
             if cluster_name == vm.tags["Name"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print("Instance {} has been terminated".format(vm.name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing Data Engine kernels from notebook")
     try:
         AzureActions().remove_dataengine_kernels(resource_group_name, notebook_name, os_user, key_path, cluster_name)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 

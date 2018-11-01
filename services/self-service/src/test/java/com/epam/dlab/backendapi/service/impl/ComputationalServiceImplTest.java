@@ -16,23 +16,20 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
-import com.epam.dlab.backendapi.resources.dto.InactivityConfigDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
-import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.*;
-import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -93,10 +90,6 @@ public class ComputationalServiceImplTest {
 	private RequestBuilder requestBuilder;
 	@Mock
 	private RequestId requestId;
-	@Mock
-	private ExploratoryService exploratoryService;
-	@Mock
-	private SystemUserInfoService systemUserInfoService;
 
 	@InjectMocks
 	private ComputationalServiceImpl computationalService;
@@ -553,118 +546,6 @@ public class ComputationalServiceImplTest {
 		verifyNoMoreInteractions(computationalDAO);
 	}
 
-	@Test
-	@SuppressWarnings("unchecked")
-	public void stopClustersByConditionForDataengines() {
-		CheckInactivityClusterStatusDTO dto = new CheckInactivityClusterStatusDTO()
-				.withCheckInactivityClustersStatus(CheckInactivityClusterStatus.COMPLETED)
-				.withClusters(singletonList(new EnvResource().withName(COMP_NAME).withId("someId")));
-		final List<UserComputationalResource> computationalResources =
-				singletonList(getUserComputationalResource(RUNNING, DOCKER_DLAB_DATAENGINE));
-		final UserInstanceDTO exploratory = new UserInstanceDTO();
-		exploratory.setExploratoryId("someId");
-		exploratory.setExploratoryName(EXPLORATORY_NAME);
-		exploratory.setResources(computationalResources);
-		when(exploratoryDAO.getInstancesByComputationalIdsAndStatus(anyList(), any(UserInstanceStatus.class)))
-				.thenReturn(singletonList(userInstance.withResources(computationalResources)));
-		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
-		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
-				.thenReturn(mock(UpdateResult.class));
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyBoolean())).thenReturn(exploratory);
-
-		ComputationalStopDTO computationalStopDTO = new ComputationalStopDTO();
-		when(requestBuilder.newComputationalStop(any(UserInfo.class), any(UserInstanceDTO.class), anyString()))
-				.thenReturn(computationalStopDTO);
-		when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
-				.thenReturn("someUuid");
-		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
-
-		computationalService.stopClustersByInactivity(dto);
-
-		verify(exploratoryDAO).getInstancesByComputationalIdsAndStatus(singletonList("someId"), RUNNING);
-		verify(systemUserInfoService).create(USER);
-		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStopping, "self"));
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, true);
-		verify(requestBuilder).newComputationalStop(refEq(userInfo), refEq(exploratory), eq(COMP_NAME));
-		verify(provisioningService)
-				.post(eq("computational/stop/spark"), eq(TOKEN), refEq(computationalStopDTO), eq(String.class));
-		verify(requestId).put(USER, "someUuid");
-		verifyNoMoreInteractions(exploratoryService, configuration, systemUserInfoService, computationalDAO,
-				exploratoryDAO, requestBuilder, provisioningService, requestId);
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void stopClustersByConditionForDataengineServices() {
-		CheckInactivityClusterStatusDTO dto = new CheckInactivityClusterStatusDTO()
-				.withCheckInactivityClustersStatus(CheckInactivityClusterStatus.COMPLETED)
-				.withClusters(singletonList(new EnvResource().withName(COMP_NAME).withId("someId")));
-		ucResource.setImageName(DOCKER_DLAB_DATAENGINE_SERVICE);
-		ucResource.setComputationalId("someId");
-		when(exploratoryDAO.getInstancesByComputationalIdsAndStatus(anyList(), any(UserInstanceStatus.class))).thenReturn(singletonList(
-				userInstance.withResources(singletonList(ucResource))));
-		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
-		final UserInstanceDTO exploratory = new UserInstanceDTO();
-		exploratory.setExploratoryId("someId");
-		exploratory.setExploratoryName(EXPLORATORY_NAME);
-
-		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
-		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
-				.thenReturn(mock(UpdateResult.class));
-		when(exploratoryDAO.fetchExploratoryId(anyString(), anyString())).thenReturn("someId");
-
-		ComputationalTerminateDTO computationalTerminateDTO = new ComputationalTerminateDTO();
-		when(requestBuilder.newComputationalTerminate(any(UserInfo.class), anyString(), anyString(), anyString(),
-				anyString(), any(DataEngineType.class))).thenReturn(computationalTerminateDTO);
-		when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
-				.thenReturn("someUuid");
-		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
-
-		computationalService.stopClustersByInactivity(dto);
-
-		verify(exploratoryDAO).getInstancesByComputationalIdsAndStatus(singletonList("someId"), RUNNING);
-		verify(systemUserInfoService).create(USER);
-		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
-		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusTerminating, "self"));
-		verify(exploratoryDAO).fetchExploratoryId(USER, EXPLORATORY_NAME);
-		verify(requestBuilder).newComputationalTerminate(refEq(userInfo), refEq(EXPLORATORY_NAME),
-				eq("someId"), eq(COMP_NAME), eq("someId"), eq(DataEngineType.CLOUD_SERVICE));
-		verify(provisioningService).post(eq("computational/terminate/cloud"), eq(TOKEN),
-				refEq(computationalTerminateDTO), eq(String.class));
-		verify(requestId).put(USER, "someUuid");
-		verifyNoMoreInteractions(exploratoryService, configuration, systemUserInfoService, computationalDAO,
-				exploratoryDAO, requestBuilder, provisioningService, requestId);
-	}
-
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void updateLastActivityForClusters() {
-		CheckInactivityClusterStatusDTO dto = new CheckInactivityClusterStatusDTO()
-				.withCheckInactivityClustersStatus(CheckInactivityClusterStatus.COMPLETED)
-				.withClusters(singletonList(new EnvResource().withName(COMP_NAME).withId("someId").withLastActivity(LAST_ACTIVITY)));
-		doNothing().when(computationalDAO).updateLastActivityDateForInstanceId(anyString(), any(LocalDateTime.class));
-
-		computationalService.updateLastActivityForClusters(dto);
-
-		verify(computationalDAO).updateLastActivityDateForInstanceId("someId", LAST_ACTIVITY);
-		verifyNoMoreInteractions(exploratoryService, computationalDAO);
-	}
-
-
-	@Test
-	public void updateCheckInactivityFlag() {
-		doNothing().when(computationalDAO).updateInactivityConfiguration(anyString(), anyString(),
-				anyString(), any(InactivityConfigDTO.class));
-
-		computationalService.updateInactivityConfig(userInfo, EXPLORATORY_NAME, COMP_NAME,
-				new InactivityConfigDTO(true, 1L));
-
-		verify(computationalDAO).updateInactivityConfiguration(eq(USER), eq(EXPLORATORY_NAME), eq(COMP_NAME),
-				refEq(new InactivityConfigDTO(true, 1L)));
-		verifyNoMoreInteractions(computationalDAO);
-	}
-
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
@@ -699,7 +580,6 @@ public class ComputationalServiceImplTest {
 				.imageName("dataengine")
 				.status(CREATING.toString())
 				.dataEngineInstanceCount(String.valueOf(2))
-				.checkInactivityRequired(true)
 				.build();
 	}
 
@@ -710,7 +590,10 @@ public class ComputationalServiceImplTest {
 		ucResource.setImageName(imageName);
 		ucResource.setStatus(status.toString());
 		ucResource.setLastActivity(LAST_ACTIVITY);
-		ucResource.setMaxInactivity(MAX_INACTIVITY);
+		final SchedulerJobDTO schedulerData = new SchedulerJobDTO();
+		schedulerData.setCheckInactivityRequired(true);
+		schedulerData.setMaxInactivity(MAX_INACTIVITY);
+		ucResource.setSchedulerData(schedulerData);
 		return ucResource;
 	}
 

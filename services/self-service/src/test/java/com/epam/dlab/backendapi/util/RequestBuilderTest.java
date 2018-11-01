@@ -108,6 +108,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -239,6 +241,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -274,6 +278,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -309,6 +315,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -377,6 +385,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -445,6 +455,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -509,6 +521,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -573,6 +587,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -637,6 +653,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -701,6 +719,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -765,6 +785,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -831,6 +853,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -883,6 +907,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -957,6 +983,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookVpcId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -1027,6 +1055,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -1101,6 +1131,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -1171,6 +1203,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 

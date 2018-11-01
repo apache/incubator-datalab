@@ -23,8 +23,10 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -40,7 +42,6 @@ import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
-import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static java.util.stream.Collectors.toList;
@@ -54,6 +55,7 @@ public class SchedulerJobDAO extends BaseDAO {
 
 	static final String SCHEDULER_DATA = "scheduler_data";
 	public static final String TIMEZONE_PREFIX = "UTC";
+	private static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 
 	public SchedulerJobDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -128,15 +130,6 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(toList());
 	}
 
-	private FindIterable<Document> userInstancesWithScheduler(Bson statusCondition) {
-		return find(USER_INSTANCES,
-				and(
-						statusCondition,
-						schedulerNotNullCondition()
-				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
-	}
-
 	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
 																			   DataEngineType dataEngineType,
 																			   UserInstanceStatus... statuses) {
@@ -145,7 +138,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				and(
 						eq(STATUS, exploratoryStatus.toString()),
 						ne(COMPUTATIONAL_RESOURCES, null),
-						schedulerNotNull
+						schedulerNotNull, eq(SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED, false)
 				),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
 
@@ -153,6 +146,26 @@ public class SchedulerJobDAO extends BaseDAO {
 				.map(doc -> computationalSchedulerDataStream(doc, dataEngineType, statuses))
 				.flatMap(Function.identity())
 				.collect(toList());
+	}
+
+	public void removeScheduler(String user, String exploratory) {
+		updateOne(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratory)),
+				unset(SCHEDULER_DATA, StringUtils.EMPTY));
+	}
+
+	public void removeScheduler(String user, String exploratory, String computational) {
+		updateOne(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratory),
+				Filters.elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computational))),
+				unset(COMPUTATIONAL_RESOURCES + ".$." + SCHEDULER_DATA, StringUtils.EMPTY));
+	}
+
+	private FindIterable<Document> userInstancesWithScheduler(Bson statusCondition) {
+		return find(USER_INSTANCES,
+				and(
+						statusCondition,
+						schedulerNotNullCondition(), eq(SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED, false)
+				),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
 	}
 
 	private Stream<SchedulerJobData> computationalSchedulerDataStream(Document doc, DataEngineType computationalType,

@@ -91,7 +91,9 @@ if __name__ == "__main__":
                                                args.instance_type, args.image_name, json.loads(args.tags), args.user_name,
                                                create_option, disk_id, args.instance_storage_account_type,
                                                args.image_type)
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
     else:
-        sys.exit(1)
+        parser.print_help()
+        sys.exit(2)

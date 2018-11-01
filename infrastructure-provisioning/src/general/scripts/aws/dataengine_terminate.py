@@ -31,7 +31,7 @@ def terminate_data_engine(tag_name, notebook_name,
                           cluster_name, remote_kernel_name):
     print("Terminating data engine cluster")
     try:
-        remove_ec2('user:tag', cluster_name)
+        remove_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 

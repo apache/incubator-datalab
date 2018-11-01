@@ -30,6 +30,7 @@ from dlab.actions_lib import *
 import json
 import traceback
 import logging
+import ast
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')
@@ -74,7 +75,7 @@ if args.region == 'us-east-1':
 elif args.region == 'cn-north-1':
     endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
 else:
-    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
+    endpoint_url = 'https://s3-{}.amazonaws.com'.format(args.region)
 
 cp_config = "Name=CUSTOM_JAR, Args=aws " \
             "s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml " \
@@ -278,15 +279,6 @@ def action_validate(id):
         return ["True", state]
 
 
-def read_json(path):
-    try:
-        with open(path) as json_data:
-            data = json.load(json_data)
-    except:
-        data = []
-    return data
-
-
 def build_emr_cluster(args):
     try:
         # Parse applications
@@ -372,7 +364,7 @@ def build_emr_cluster(args):
                     VisibleToAllUsers=not args.auto_terminate,
                     JobFlowRole=args.ec2_role,
                     ServiceRole=args.service_role,
-                    Configurations=read_json(args.configurations))
+                    Configurations=ast.literal_eval(args.configurations))
             else:
                 result = socket.run_job_flow(
                     Name=args.name,
@@ -399,7 +391,7 @@ def build_emr_cluster(args):
                     VisibleToAllUsers=not args.auto_terminate,
                     JobFlowRole=args.ec2_role,
                     ServiceRole=args.service_role,
-                    Configurations=read_json(args.configurations))
+                    Configurations=ast.literal_eval(args.configurations))
             print("Cluster_id {}".format(result.get('JobFlowId')))
             return result.get('JobFlowId')
     except Exception as err:
@@ -477,4 +469,3 @@ if __name__ == "__main__":
                 terminate_emr(cluster_id)
             s3_cleanup(args.s3_bucket, args.name, args.edge_user_name)
             sys.exit(1)
-    sys.exit(0)

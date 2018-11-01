@@ -39,9 +39,9 @@ def install_libs_on_slaves(slave, data_engine):
     try:
         # Run script to install additional libs
         local("~/scripts/{}.py {}".format('install_additional_libs', params))
-    except:
-        traceback.print_exc()
-        raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -96,5 +96,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to install additional libraries.", str(err))
         sys.exit(1)

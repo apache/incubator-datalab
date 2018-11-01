@@ -47,8 +47,9 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
                 actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user, key_path)
         else:
             print("There are no Dataproc clusters to terminate.")
-    except:
-       sys.exit(1)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
     print("Stopping data engine cluster")
     cluster_list = []
@@ -62,13 +63,15 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
                     print("Instance {} has been stopped".format(vm['name']))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Stopping notebook")
     try:
         GCPActions().stop_instance(instance_name, zone)
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 
@@ -101,6 +104,7 @@ if __name__ == "__main__":
                       os.environ['conf_os_user'], notebook_config['key_path'],
                       notebook_config['edge_user_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 

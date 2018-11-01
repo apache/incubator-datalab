@@ -184,8 +184,7 @@ export class ComputationalResourceCreateModel {
         dataproc_version: this.selectedItem.version,
         dataproc_master_count: 1,
         dataproc_slave_count: (this.computational_resource_count - 1),
-        dataproc_preemptible_count: this.preemptible_inst,
-        config: this.config
+        dataproc_preemptible_count: this.preemptible_inst
       });
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
@@ -194,8 +193,7 @@ export class ComputationalResourceCreateModel {
         dataengine_instance_shape: this.computational_resource_instance_shape,
         notebook_name: this.notebook_name,
         image: this.selectedImage.image,
-        template_name: this.selectedImage.template_name,
-        config: this.config
+        template_name: this.selectedImage.template_name
       });
     }
   };
