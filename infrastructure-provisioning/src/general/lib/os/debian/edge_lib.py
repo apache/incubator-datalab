@@ -38,6 +38,7 @@ def configure_http_proxy_server(config):
             sudo('sed -i "s|LDAP_DN|{}|g" /etc/squid/squid.conf'.format(config['ldap_dn']))
             sudo('sed -i "s|LDAP_SERVICE_USERNAME|{}|g" /etc/squid/squid.conf'.format(config['ldap_user']))
             sudo('sed -i "s|LDAP_SERVICE_PASSWORD|{}|g" /etc/squid/squid.conf'.format(config['ldap_password']))
+            sudo('sed -i "s|LDAP_AUTH_PATH|{}|g" /etc/squid/squid.conf'.format('/usr/lib/squid/basic_ldap_auth'))
             replace_string = ''
             for cidr in config['vpc_cidrs']:
                 replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
