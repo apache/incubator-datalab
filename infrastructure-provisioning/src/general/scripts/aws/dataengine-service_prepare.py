@@ -103,7 +103,9 @@ if __name__ == "__main__":
                 emr_conf['computational_name'],
                 args.uuid)
     emr_conf['bucket_name'] = '{0}-ssn-bucket'.format(emr_conf['service_base_name']).lower().replace('_', '-')
-    emr_conf['configurations'] = os.environ['emr_configuration']
+    emr_conf['configurations'] = '[]'
+    if 'emr_configurations' in os.environ:
+        emr_conf['configurations'] = os.environ['emr_configurations']
 
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']),
            "Value": "{}-{}-subnet".format(emr_conf['service_base_name'],
