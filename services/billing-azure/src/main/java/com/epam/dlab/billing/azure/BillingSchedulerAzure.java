@@ -26,7 +26,7 @@ import com.epam.dlab.billing.azure.model.AzureDlabBillableResource;
 import com.epam.dlab.billing.azure.model.BillingPeriod;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.InitializationException;
-import com.epam.dlab.util.mongo.IsoDateModule;
+import com.epam.dlab.util.mongo.modules.IsoDateModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
