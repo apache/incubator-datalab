@@ -20,8 +20,9 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.mongo.MongoService;
-import com.epam.dlab.util.mongo.IsoDateModule;
-import com.epam.dlab.util.mongo.JavaPrimitiveModule;
+import com.epam.dlab.util.mongo.modules.IsoDateModule;
+import com.epam.dlab.util.mongo.modules.JavaPrimitiveModule;
+import com.epam.dlab.util.mongo.modules.MongoModule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -52,7 +53,8 @@ public class BaseDAO {
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
 			.registerModule(new IsoDateModule())
-			.registerModule(new JavaPrimitiveModule());
+			.registerModule(new JavaPrimitiveModule())
+			.registerModule(new MongoModule());
 
 	static final String FIELD_SET_DELIMETER = ".$.";
 	public static final String ID = "_id";
@@ -64,7 +66,6 @@ public class BaseDAO {
 	public static final String ERROR_MESSAGE = "error_message";
 	static final String TIMESTAMP = "timestamp";
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
-	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 	protected static final String ADD_TO_SET = "$addToSet";
 	protected static final String UNSET_OPERATOR = "$unset";
 	private static final String PULL = "$pull";

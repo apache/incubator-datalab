@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.util.mongo;
+package com.epam.dlab.util.mongo.modules;
 
+import com.epam.dlab.util.mongo.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.JSR310StringParsableDeserializer;
