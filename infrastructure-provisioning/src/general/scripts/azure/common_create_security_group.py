@@ -43,6 +43,7 @@ if __name__ == "__main__":
                                                                   args.region, json.loads(args.tags),
                                                                   json.loads(args.list_rules))
             print("SECURITY GROUP {} has been created".format(args.security_group_name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 

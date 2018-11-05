@@ -44,7 +44,8 @@ if __name__ == "__main__":
             create_aws_config_files(generate_full_config=True)
         else:
             create_aws_config_files()
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         logging.info('Unable to create configuration')
         append_result("Unable to create configuration")
         traceback.print_exc()
@@ -91,6 +92,7 @@ if __name__ == "__main__":
                     raise Exception
                 os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create VPC. Exception:" + str(err))
                 sys.exit(1)
 
@@ -101,8 +103,6 @@ if __name__ == "__main__":
         try:
             if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
                 raise KeyError
-            elif os.environ['aws_vpc2_id'] and os.environ['conf_duo_vpc_enable'] == 'true':
-                os.environ['conf_vpc2_cidr'] = get_cidr_by_vpc(os.environ['aws_vpc2_id'])
         except KeyError:
             try:
                 pre_defined_vpc2 = True
@@ -116,6 +116,7 @@ if __name__ == "__main__":
                     raise Exception
                 os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create secondary VPC. Exception:" + str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
@@ -141,6 +142,7 @@ if __name__ == "__main__":
                     os.environ['aws_subnet_id'] = f.read()
                 enable_auto_assign_ip(os.environ['aws_subnet_id'])
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create Subnet.", str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
@@ -172,6 +174,7 @@ if __name__ == "__main__":
                 with open('/tmp/ssn_subnet_id', 'r') as f:
                     os.environ['aws_subnet2_id'] = f.read()
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create Subnet.", str(err))
                 if pre_defined_vpc:
                     remove_route_tables(tag_name, True)
@@ -197,6 +200,7 @@ if __name__ == "__main__":
                 create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc2_id']))
                 print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed to create peering connection.", str(err))
                 if pre_defined_vpc:
                     remove_route_tables(tag_name, True)
@@ -269,6 +273,7 @@ if __name__ == "__main__":
                 with open('/tmp/ssn_sg_id', 'r') as f:
                     os.environ['aws_security_groups_ids'] = f.read()
             except Exception as err:
+                print('Error: {0}'.format(err))
                 append_result("Failed creating security group for SSN.", str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
@@ -289,6 +294,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create roles.", str(err))
         if pre_defined_sg:
             remove_sgroups(tag_name)
@@ -314,6 +320,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create an endpoint.", str(err))
         remove_all_iam_resources(instance)
         if pre_defined_sg:
@@ -343,6 +350,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Unable to create secondary endpoint.", str(err))
             remove_all_iam_resources(instance)
             if pre_defined_sg:
@@ -378,6 +386,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create bucket.", str(err))
         remove_all_iam_resources(instance)
         if pre_defined_sg:
@@ -408,6 +417,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create ssn instance.", str(err))
         remove_all_iam_resources(instance)
         remove_s3(instance)
@@ -441,6 +451,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to associate elastic ip.", str(err))
             remove_ec2(tag_name, instance_name)
             remove_all_iam_resources(instance)
@@ -457,4 +468,37 @@ if __name__ == "__main__":
             if pre_defined_vpc2:
                 remove_route_tables(tag2_name, True)
                 remove_vpc(os.environ['aws_vpc2_id'])
+            sys.exit(1)
+
+    if network_type == 'private':
+        instance_ip = get_instance_ip_address(tag_name, instance_name).get('Private')
+    else:
+        instance_ip = get_instance_ip_address(tag_name, instance_name).get('Public')
+
+    if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and 'ssn_subdomain' in os.environ:
+        try:
+            logging.info('[CREATING ROUTE53 RECORD]')
+            print('[CREATING ROUTE53 RECORD]')
+            try:
+                create_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                       os.environ['ssn_subdomain'], instance_ip)
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Failed to create route53 record.", str(err))
+            remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
+                                   os.environ['ssn_subdomain'])
+            remove_ec2(tag_name, instance_name)
+            remove_all_iam_resources(instance)
+            remove_s3(instance)
+            if pre_defined_sg:
+                remove_sgroups(tag_name)
+            if pre_defined_subnet:
+                remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+                remove_subnets(service_base_name + "-subnet")
+            if pre_defined_vpc:
+                remove_vpc_endpoints(os.environ['aws_vpc_id'])
+                remove_route_tables(tag_name, True)
+                remove_vpc(os.environ['aws_vpc_id'])
             sys.exit(1)

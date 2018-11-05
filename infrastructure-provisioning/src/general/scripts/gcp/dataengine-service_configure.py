@@ -48,6 +48,7 @@ def configure_dataengine_service(instance, dataproc_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure proxy.", str(err))
         actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
@@ -65,6 +66,7 @@ def configure_dataengine_service(instance, dataproc_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure dataengine service.", str(err))
         actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
@@ -159,5 +161,3 @@ if __name__ == "__main__":
     except:
         print("Failed writing results.")
         sys.exit(1)
-
-    sys.exit(0)

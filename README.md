@@ -1631,7 +1631,7 @@ List of parameters for run backup:
 | --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
 | --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
 | --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
-| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Also available: skip. Default: all |
 | --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
 | --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
 | --logs         | All logs (include docker). Key without arguments. Default: disable                                                      |
@@ -1643,7 +1643,7 @@ List of parameters for run restore:
 | --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
 | --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
 | --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
-| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Also available: skip. Default: all |
 | --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
 | --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
 | --file         | Full or relative path to backup file or folder. Required field                                                          |

@@ -35,8 +35,6 @@ import javax.ws.rs.core.Response;
  * Manages scheduler jobs for exploratory environment
  */
 @Path("/infrastructure_provision/exploratory_environment/scheduler")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 @Api(value = "Service for scheduling operations with notebooks or clusters",
 		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 @Slf4j
@@ -62,12 +60,32 @@ public class SchedulerJobResource {
 	@Path("/{exploratoryName}")
 	@ApiOperation("Updates scheduler's data for notebook")
 	@ApiResponses(@ApiResponse(code = 200, message = "Scheduler's data for notebook was updated successfully"))
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateExploratoryScheduler(@ApiParam(hidden = true) @Auth UserInfo userInfo,
 											   @ApiParam(value = "Notebook's name", required = true)
 											   @PathParam("exploratoryName") String exploratoryName,
 											   @ApiParam(value = "Scheduler's data", required = true)
 											   @SchedulerJobDTOValid SchedulerJobDTO dto) {
 		schedulerJobService.updateExploratorySchedulerData(userInfo.getName(), exploratoryName, dto);
+		return Response.ok().build();
+	}
+
+	/**
+	 * Removes exploratory <code>exploratoryName<code/> for user <code>userInfo<code/>
+	 *
+	 * @param userInfo        user info
+	 * @param exploratoryName name of exploratory resource
+	 * @return response
+	 */
+	@DELETE
+	@Path("/{exploratoryName}")
+	@ApiOperation("Removes scheduler for notebook")
+	@ApiResponses(@ApiResponse(code = 200, message = "Scheduler's data for notebook was updated successfully"))
+	public Response removeExploratoryScheduler(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+											   @ApiParam(value = "Notebook's name", required = true)
+											   @PathParam("exploratoryName") String exploratoryName) {
+		log.debug("User {} is trying to remove scheduler for exploratory {}", userInfo.getName(), exploratoryName);
+		schedulerJobService.removeScheduler(userInfo.getName(), exploratoryName);
 		return Response.ok().build();
 	}
 
@@ -83,6 +101,7 @@ public class SchedulerJobResource {
 	 */
 	@POST
 	@Path("/{exploratoryName}/{computationalName}")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation("Updates scheduler's data for cluster")
 	@ApiResponses(@ApiResponse(code = 200, message = "Scheduler's data for cluster was updated successfully"))
 	public Response updateComputationalScheduler(@ApiParam(hidden = true) @Auth UserInfo userInfo,
@@ -98,6 +117,31 @@ public class SchedulerJobResource {
 		return Response.ok().build();
 	}
 
+	/**
+	 * Updates computational resource <code>computationalName<code/> affiliated with exploratory
+	 * <code>exploratoryName<code/> for user <code>userInfo<code/> with new scheduler job data
+	 *
+	 * @param userInfo          user info
+	 * @param exploratoryName   name of exploratory resource
+	 * @param computationalName name of computational resource
+	 * @return response
+	 */
+	@DELETE
+	@Path("/{exploratoryName}/{computationalName}")
+	@ApiOperation("Removes scheduler's data for cluster")
+	@ApiResponses(@ApiResponse(code = 200, message = "Scheduler's data for cluster was removed successfully"))
+	public Response removeComputationalScheduler(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+												 @ApiParam(value = "Notebook's name", required = true)
+												 @PathParam("exploratoryName") String exploratoryName,
+												 @ApiParam(value = "Cluster's name affiliated with notebook",
+														 required = true)
+												 @PathParam("computationalName") String computationalName) {
+		log.debug("User {} is trying to remove scheduler for computational {} connected with exploratory {}",
+				userInfo.getName(), computationalName, exploratoryName);
+		schedulerJobService.removeScheduler(userInfo.getName(), exploratoryName, computationalName);
+		return Response.ok().build();
+	}
+
 
 	/**
 	 * Returns scheduler job for exploratory resource <code>exploratoryName<code/>
@@ -108,6 +152,7 @@ public class SchedulerJobResource {
 	 */
 	@GET
 	@Path("/{exploratoryName}")
+	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation("Returns scheduler's data for notebook")
 	@ApiResponses(@ApiResponse(code = 200, message = "Scheduler's data for notebook fetched successfully"))
 	public Response fetchSchedulerJobForUserAndExploratory(@ApiParam(hidden = true) @Auth UserInfo userInfo,
@@ -130,6 +175,7 @@ public class SchedulerJobResource {
 	 */
 	@GET
 	@Path("/{exploratoryName}/{computationalName}")
+	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation("Returns scheduler's data for cluster")
 	@ApiResponses(@ApiResponse(code = 200, message = "Scheduler's data for cluster fetched successfully"))
 	public Response fetchSchedulerJobForComputationalResource(@ApiParam(hidden = true) @Auth UserInfo userInfo,

@@ -49,5 +49,6 @@ if __name__ == "__main__":
                                                             datalake_tags)
             print("DATA LAKE {} has been created".format(datalake_name))
 
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

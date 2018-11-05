@@ -96,6 +96,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -114,6 +115,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure proxy.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -130,6 +132,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -152,6 +155,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure rstudio.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -169,6 +173,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -184,6 +189,7 @@ if __name__ == "__main__":
             append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to setup git credentials.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -201,6 +207,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to post configuring instance.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -220,6 +227,7 @@ if __name__ == "__main__":
             append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to set edge reverse proxy template.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -236,6 +244,7 @@ if __name__ == "__main__":
                 if image_id != '':
                     print("Image was successfully created. It's ID is {}".format(image_id))
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed creating image.", str(err))
             remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
             sys.exit(1)

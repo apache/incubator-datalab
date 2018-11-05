@@ -75,7 +75,10 @@ public interface SchedulerJobService {
 	void terminateComputationalByScheduler();
 
 	/**
-	 * Executes check cluster inactivity job for all running clusters.
+	 * Executes check cluster inactivity job for all running resources.
 	 */
-	void updateRunningClustersLastActivity(UserInfo userInfo);
+	void updateRunningResourcesLastActivity(UserInfo userInfo);
+
+	void removeScheduler(String user, String exploratoryName);
+	void removeScheduler(String user, String exploratoryName, String computationalName);
 }

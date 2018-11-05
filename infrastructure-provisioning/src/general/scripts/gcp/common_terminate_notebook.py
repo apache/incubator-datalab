@@ -43,8 +43,9 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
             print("There are no Dataproc clusters to terminate.")
-    except:
-       sys.exit(1)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
     print("Terminating data engine cluster")
     try:
@@ -55,13 +56,15 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
                     print("Instance {} has been terminated".format(vm['name']))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Terminating notebook")
     try:
         GCPActions().remove_instance(instance_name, zone)
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to terminate notebook.", str(err))
         sys.exit(1)
 

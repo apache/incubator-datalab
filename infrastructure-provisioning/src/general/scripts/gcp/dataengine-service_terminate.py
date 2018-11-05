@@ -39,7 +39,8 @@ def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_us
             actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user, key_path)
         else:
             print("There are no Dataproc clusters to terminate.")
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -74,7 +75,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             append_result("Failed to terminate Dataproc cluster.", str(err))
             raise Exception
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     try:

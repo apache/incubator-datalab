@@ -42,5 +42,6 @@ if __name__ == "__main__":
         else:
             print("Creating Elastic IP")
             GCPActions().create_static_address(args.address_name, args.region)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

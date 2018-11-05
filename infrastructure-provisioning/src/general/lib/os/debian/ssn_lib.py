@@ -23,6 +23,8 @@ import yaml
 from dlab.fab import *
 from dlab.meta_lib import *
 import os
+import traceback
+import sys
 
 
 def ensure_docker_daemon(dlab_path, os_user, region):
@@ -52,9 +54,10 @@ def ensure_nginx(dlab_path):
             sudo('update-rc.d nginx defaults')
             sudo('update-rc.d nginx enable')
             sudo('touch ' + dlab_path + 'tmp/nginx_ensured')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to ensure Nginx: ', str(err))
+        sys.exit(1)
 
 
 def ensure_jenkins(dlab_path):
@@ -66,9 +69,10 @@ def ensure_jenkins(dlab_path):
             sudo('apt-get -y install openjdk-8-jdk')
             sudo('apt-get -y install jenkins')
             sudo('touch ' + dlab_path + 'tmp/jenkins_ensured')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to ensure Jenkins: ', str(err))
+        sys.exit(1)
 
 
 def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
@@ -86,9 +90,10 @@ def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
             sudo('service jenkins start')
             sudo('touch ' + dlab_path + '/tmp/jenkins_configured')
             sudo('echo "jenkins ALL = NOPASSWD:ALL" >> /etc/sudoers')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure Jenkins: ', str(err))
+        sys.exit(1)
 
 
 def configure_nginx(config, dlab_path, hostname):
@@ -102,8 +107,10 @@ def configure_nginx(config, dlab_path, hostname):
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir -p /etc/nginx/locations')
             sudo('rm -f /etc/nginx/sites-enabled/default')
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure Nginx: ', str(err))
+        sys.exit(1)
 
     try:
         if not exists("/etc/nginx/locations/proxy_location_jenkins.conf"):
@@ -117,7 +124,7 @@ def configure_nginx(config, dlab_path, hostname):
             sudo('mv /tmp/proxy_location_jenkins.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
             sudo('\cp ' + os.environ['ssn_dlab_path'] + 'tmp/proxy_location_jenkins.conf /etc/nginx/locations/')
             sudo("echo 'engineer:" + crypt.crypt(nginx_password, id_generator()) + "' > /etc/nginx/htpasswd")
-            with open('jenkins_crids.txt', 'w+') as f:
+            with open('jenkins_creds.txt', 'w+') as f:
                 f.write("Jenkins credentials: engineer  / " + nginx_password)
     except:
         return False

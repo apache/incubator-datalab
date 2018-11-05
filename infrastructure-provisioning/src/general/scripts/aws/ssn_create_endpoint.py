@@ -35,7 +35,6 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     waiter = time.sleep(10)
     if args.vpc_id:
@@ -78,19 +77,13 @@ if __name__ == "__main__":
                 if result:
                     endpoint = endpoint_id
             print("ENDPOINT: {}".format(endpoint))
-            success = True
         except botocore.exceptions.ClientError as err:
             print(err.response['Error']['Message'])
             print('Failed to create endpoint. Removing RT')
             ec2.delete_route_table(
                 RouteTableId=route_table[0]
             )
-            success = False
+            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(2)
-
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)

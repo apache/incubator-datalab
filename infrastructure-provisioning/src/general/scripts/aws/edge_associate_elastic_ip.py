@@ -46,5 +46,6 @@ if __name__ == "__main__":
 
         print("Associating Elastic IP to Edge")
         associate_elastic_ip(args.edge_id, allocation_id)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

@@ -84,6 +84,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to create VPC. Exception:" + str(err))
             if pre_defined_vpc:
                 try:
@@ -113,6 +114,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to create Subnet.", str(err))
             if pre_defined_vpc:
                 try:
@@ -174,6 +176,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to create Firewall.", str(err))
             if pre_defined_vpc:
                 GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
@@ -192,6 +195,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create Service account and role.", str(err))
         try:
             GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -224,6 +228,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create bucket.", str(err))
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
@@ -241,6 +246,7 @@ if __name__ == "__main__":
         print('[SET PERMISSIONS FOR SSN BUCKET]')
         GCPActions().set_bucket_owner(ssn_conf['ssn_bucket_name'], ssn_conf['service_account_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to set bucket permissions.", str(err))
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
@@ -265,6 +271,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create static ip.", str(err))
         try:
             GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
@@ -306,6 +313,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create ssn instance.", str(err))
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_role(ssn_conf['role_name'])

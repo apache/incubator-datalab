@@ -74,13 +74,12 @@ if __name__ == "__main__":
         emr_conf['computational_name'] = ''
     emr_conf['apps'] = 'Hadoop Hive Hue Spark'
     emr_conf['service_base_name'] = os.environ['conf_service_base_name']
-    emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
+    emr_conf['tag_name'] = '{0}-Tag'.format(emr_conf['service_base_name'])
     emr_conf['key_name'] = os.environ['conf_key_name']
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
-    emr_conf['edge_instance_name'] = emr_conf['service_base_name'] + \
-                                     "-" + os.environ['edge_user_name'] + '-edge'
-    emr_conf['edge_security_group_name'] = emr_conf['edge_instance_name'] + '-SG'
+    emr_conf['edge_instance_name'] = '{0}-{1}-edge'.format(emr_conf['service_base_name'], os.environ['edge_user_name'])
+    emr_conf['edge_security_group_name'] = '{0}-SG'.format(emr_conf['edge_instance_name'])
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
     emr_conf['instance_count'] = os.environ['emr_instance_count']
@@ -88,38 +87,34 @@ if __name__ == "__main__":
         emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
     emr_conf['role_service_name'] = os.environ['emr_service_role']
     emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name=' + \
-                       emr_conf['service_base_name'] + '-' + \
-                       os.environ['edge_user_name'] + '-des-' + \
-                       emr_conf['exploratory_name'] + '-' + \
-                       emr_conf['computational_name'] + '-' + \
-                       args.uuid + ', ' + \
-                       emr_conf['service_base_name'] + '-Tag=' + \
-                       emr_conf['service_base_name'] + '-' + \
-                       os.environ['edge_user_name'] + '-des-' + \
-                       emr_conf['exploratory_name'] + '-' + \
-                       emr_conf['computational_name'] + '-' + \
-                       args.uuid + ', Notebook=' + \
-                       os.environ['notebook_instance_name'] + \
-                       ', State=not-configured'
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + \
-                               '-' + os.environ['edge_user_name'] + \
-                               '-des-' + emr_conf['exploratory_name'] + \
-                               '-' + emr_conf['computational_name'] + \
-                               '-' + args.uuid
-    emr_conf['bucket_name'] = (emr_conf['service_base_name'] +
-                               '-ssn-bucket').lower().replace('_', '-')
+    emr_conf['tags'] = 'Name={0}-{1}-des-{2}-{3},' \
+                       '{0}-Tag={0}-{1}-des-{2}-{3},' \
+                       'Notebook={4},' \
+                       'State=not-configured'\
+        .format(emr_conf['service_base_name'],
+                os.environ['edge_user_name'],
+                emr_conf['exploratory_name'],
+                emr_conf['computational_name'],
+                os.environ['notebook_instance_name'])
+    emr_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}-{4}'\
+        .format(emr_conf['service_base_name'],
+                os.environ['edge_user_name'],
+                emr_conf['exploratory_name'],
+                emr_conf['computational_name'],
+                args.uuid)
+    emr_conf['bucket_name'] = '{0}-ssn-bucket'.format(emr_conf['service_base_name']).lower().replace('_', '-')
+    emr_conf['configurations'] = '[]'
+    if 'emr_configurations' in os.environ:
+        emr_conf['configurations'] = os.environ['emr_configurations']
 
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']),
            "Value": "{}-{}-subnet".format(emr_conf['service_base_name'],
                                           os.environ['edge_user_name'])}
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
-    emr_conf['key_path'] = os.environ['conf_key_dir'] + \
-                           os.environ['conf_key_name'] + '.pem'
+    emr_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     emr_conf['all_ip_cidr'] = '0.0.0.0/0'
-    emr_conf['additional_emr_sg_name'] = \
-        '{}-{}-de-se-additional-sg'.format(emr_conf['service_base_name'],
-                                           os.environ['edge_user_name'])
+    emr_conf['additional_emr_sg_name'] = '{}-{}-de-se-additional-sg'\
+        .format(emr_conf['service_base_name'], os.environ['edge_user_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     if os.environ['emr_slave_instance_spot'] == 'True':
@@ -235,6 +230,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create sg.", str(err))
         sys.exit(1)
 
@@ -243,28 +239,29 @@ if __name__ == "__main__":
     try:
         logging.info('[Creating EMR Cluster]')
         print('[Creating EMR Cluster]')
-        params = "--name {} " \
-                 "--applications '{}' " \
-                 "--master_instance_type {} " \
-                 "--slave_instance_type {} " \
-                 "--instance_count {} " \
-                 "--ssh_key {} " \
-                 "--release_label {} " \
-                 "--emr_timeout {} " \
-                 "--subnet {} " \
-                 "--service_role {} " \
-                 "--ec2_role {} " \
-                 "--nbs_ip {} " \
-                 "--nbs_user {} " \
-                 "--s3_bucket {} " \
-                 "--region {} " \
-                 "--tags '{}' " \
-                 "--key_dir {} " \
-                 "--edge_user_name {} " \
-                 "--slave_instance_spot {} " \
-                 "--bid_price {} " \
-                 "--service_base_name {} " \
-                 "--additional_emr_sg {}"\
+        params = "--name {0} " \
+                 "--applications '{1}' " \
+                 "--master_instance_type {2} " \
+                 "--slave_instance_type {3} " \
+                 "--instance_count {4} " \
+                 "--ssh_key {5} " \
+                 "--release_label {6} " \
+                 "--emr_timeout {7} " \
+                 "--subnet {8} " \
+                 "--service_role {9} " \
+                 "--ec2_role {10} " \
+                 "--nbs_ip {11} " \
+                 "--nbs_user {12} " \
+                 "--s3_bucket {13} " \
+                 "--region {14} " \
+                 "--tags '{15}' " \
+                 "--key_dir {16} " \
+                 "--edge_user_name {17} " \
+                 "--slave_instance_spot {18} " \
+                 "--bid_price {19} " \
+                 "--service_base_name {20} " \
+                 "--additional_emr_sg {21} " \
+                 "--configurations \"{22}\" "\
             .format(emr_conf['cluster_name'],
                     emr_conf['apps'],
                     emr_conf['master_instance_type'],
@@ -286,7 +283,8 @@ if __name__ == "__main__":
                     os.environ['emr_slave_instance_spot'],
                     str(emr_conf['slave_bid_price']),
                     emr_conf['service_base_name'],
-                    emr_conf['additional_emr_sg_name'])
+                    emr_conf['additional_emr_sg_name'],
+                    emr_conf['configurations'])
         try:
             local("~/scripts/{}.py {}".format('dataengine-service_create', params))
         except:
@@ -297,9 +295,9 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], emr_conf['key_name'])
         local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create EMR Cluster.", str(err))
         local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
         emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
         terminate_emr(emr_id)
         sys.exit(1)
-    sys.exit(0)

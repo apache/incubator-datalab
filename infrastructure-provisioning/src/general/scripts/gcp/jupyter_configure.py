@@ -72,6 +72,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -90,6 +91,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure proxy.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -106,6 +108,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -130,6 +133,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure jupyter.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -147,6 +151,7 @@ if __name__ == "__main__":
             append_result("Failed installing users key")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -163,6 +168,7 @@ if __name__ == "__main__":
             append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to setup git credentials.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)

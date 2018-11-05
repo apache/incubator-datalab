@@ -35,6 +35,7 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
 	private Integer slaveInstanceSpotPctPrice;
 	@JsonProperty("emr_version")
 	private String version;
+	@JsonProperty("emr_configurations")
 	private List<EmrConfig> config;
 
 	public String getInstanceCount() {

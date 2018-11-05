@@ -49,6 +49,7 @@ if __name__ == "__main__":
                 notebook_config['tag_name'], notebook_config['notebook_name'])
             notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
         params = "--os_user {} --instance_ip {} --keyfile '{}'" \
@@ -60,5 +61,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to get available libraries.", str(err))
         sys.exit(1)

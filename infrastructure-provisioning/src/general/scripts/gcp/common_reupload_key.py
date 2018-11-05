@@ -24,7 +24,6 @@ from fabric.api import *
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 from dlab.fab import *
-import traceback
 import json
 
 parser = argparse.ArgumentParser()
@@ -45,6 +44,6 @@ if __name__ == "__main__":
             args.os_user, ip, args.keyfile, args.additional_config)
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            sys.exit(1)
