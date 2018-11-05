@@ -74,10 +74,12 @@ if __name__ == "__main__":
         edge_conf['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         edge_conf['instance_tags'] = {"Name": edge_conf['instance_name'],
                                       "SBN": edge_conf['service_base_name'],
-                                      "User": edge_conf['user_name']}
+                                      "User": edge_conf['user_name'],
+                                      "product": "dlab"}
         edge_conf['storage_account_tags'] = {"Name": edge_conf['edge_storage_account_name'],
                                              "SBN": edge_conf['service_base_name'],
-                                             "User": edge_conf['user_name']}
+                                             "User": edge_conf['user_name'],
+                                             "product": "dlab"}
         edge_conf['primary_disk_size'] = '32'
 
         # FUSE in case of absence of user's key

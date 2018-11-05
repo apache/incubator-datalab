@@ -43,7 +43,8 @@ if __name__ == "__main__":
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
                               "Image": image_conf['image_name'],
-                              "FIN": image_conf['full_image_name']}
+                              "FIN": image_conf['full_image_name'],
+                              "product": "dlab"}
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])

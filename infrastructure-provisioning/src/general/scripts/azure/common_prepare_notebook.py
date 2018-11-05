@@ -71,7 +71,8 @@ if __name__ == "__main__":
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
                                    "User": notebook_config['user_name'],
-                                   "Exploratory": notebook_config['exploratory_name']}
+                                   "Exploratory": notebook_config['exploratory_name'],
+                                   "product": "dlab"}
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                       notebook_config['user_name'])

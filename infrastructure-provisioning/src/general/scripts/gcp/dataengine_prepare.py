@@ -101,12 +101,14 @@ if __name__ == "__main__":
                                    "sbn": data_engine['service_base_name'],
                                    "user": data_engine['edge_user_name'],
                                    "type": "slave",
-                                   "notebook_name": data_engine['notebook_name']}
+                                   "notebook_name": data_engine['notebook_name'],
+                                   "product": "dlab"}
     data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                     "sbn": data_engine['service_base_name'],
                                     "user": data_engine['edge_user_name'],
                                     "type": "master",
-                                    "notebook_name": data_engine['notebook_name']}
+                                    "notebook_name": data_engine['notebook_name'],
+                                    "product": "dlab"}
 
     try:
         logging.info('[CREATE MASTER NODE]')
