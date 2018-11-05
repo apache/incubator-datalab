@@ -81,9 +81,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@JsonProperty
 	private boolean billingSchedulerEnabled = false;
 
-	@JsonProperty
-	private Duration clusterInactivityCheckingTimeout = Duration.minutes(100 * 365 * 24 * 60L);
-
 	@NotEmpty(groups = AwsValidation.class)
 	@JsonProperty
 	private String billingConfFile;
@@ -105,6 +102,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private int privateKeySize = 2048;
 	@JsonProperty
 	private SwaggerBundleConfiguration swaggerConfiguration;
+	@JsonProperty
+	private int allowedBudgetUSD;
 
 	@Valid
 	@NotNull
@@ -231,7 +230,7 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 		return mongoMigrationEnabled;
 	}
 
-	public Duration getClusterInactivityCheckingTimeout() {
-		return clusterInactivityCheckingTimeout;
+	public int getAllowedBudgetUSD() {
+		return allowedBudgetUSD;
 	}
 }

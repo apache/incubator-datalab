@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.resources.dto;
@@ -35,6 +34,8 @@ public class HealthStatusPageDTO {
 	private boolean billingEnabled;
 	@JsonProperty
 	private boolean admin;
+	@JsonProperty
+	private int billingQuoteUsed;
 
 	/**
 	 * Return the status of environment.
@@ -123,11 +124,20 @@ public class HealthStatusPageDTO {
 		return this;
 	}
 
+	public HealthStatusPageDTO withBillingQuoteUsed(int billingQuoteUsedPct) {
+		this.billingQuoteUsed = billingQuoteUsedPct;
+		return this;
+	}
+
 	public boolean isBillingEnabled() {
 		return billingEnabled;
 	}
 
 	public boolean isAdmin() {
 		return admin;
+	}
+
+	public int getBillingQuoteUsed() {
+		return billingQuoteUsed;
 	}
 }

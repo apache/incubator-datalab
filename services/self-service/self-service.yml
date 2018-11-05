@@ -45,9 +45,9 @@ maxSparkInstanceCount: 14
 checkEnvStatusTimeout: 5m
 
 # Restrict access to DLab features using roles policy
-rolePolicyEnabled : true
+rolePolicyEnabled: true
 # Default access to DLab features using roles policy
-roleDefaultAccess : true
+roleDefaultAccess: true
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
@@ -66,34 +66,34 @@ maxSessionDurabilityMilliseconds: 288000000
 server:
   requestLog:
     appenders:
-      - type: file
-        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-        archive: true
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
-        archivedFileCount: 10
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-#    - type: http
-#      port: 8080
-    - type: https
-      port: 8443
-      certAlias: dlab
-      validateCerts: true
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
+  #    - type: http
+  #      port: 8080
+  - type: https
+    port: 8443
+    certAlias: dlab
+    validateCerts: true
+    keyStorePath: ${KEY_STORE_PATH}
+    keyStorePassword: ${KEY_STORE_PASSWORD}
+    trustStorePath: ${TRUST_STORE_PATH}
+    trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-#    - type: http
-#      port: 8081
-    - type: https
-      port: 8444
-      certAlias: dlab
-      validateCerts: true
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
+  #    - type: http
+  #      port: 8081
+  - type: https
+    port: 8444
+    certAlias: dlab
+    validateCerts: true
+    keyStorePath: ${KEY_STORE_PATH}
+    keyStorePassword: ${KEY_STORE_PASSWORD}
+    trustStorePath: ${TRUST_STORE_PATH}
+    trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 mongoMigrationEnabled: false
 
@@ -103,16 +103,16 @@ logging:
     com.epam: TRACE
   appenders:
 <#if DEV_MODE == "true">
-    - type: console
-      logFormat: "%-5p user:%X{user:-DLAB} [%d{ISO8601,UTC}] %c: %m%n%rEx"
+  - type: console
+    logFormat: "%-5p user:%X{user:-DLAB} [%d{ISO8601,UTC}] %c: %m%n%rEx"
 
-</#if>
-    - type: file
-      logFormat: "%-5p user:%X{user:-DLAB} [%d{ISO8601,UTC}] %c: %m%n%rEx"
-      currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
-      archive: true
-      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
-      archivedFileCount: 10
+  </#if>
+  - type: file
+    logFormat: "%-5p user:%X{user:-DLAB} [%d{ISO8601,UTC}] %c: %m%n%rEx"
+    currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
+    archive: true
+    archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
+    archivedFileCount: 10
 
 swaggerConfiguration:
   resourcePackage: com.epam.dlab.backendapi.resources
@@ -125,7 +125,7 @@ swaggerConfiguration:
   license: Apache 2.0
   licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
 
-clusterInactivityCheckingTimeout: 120m
+allowedBudgetUSD: 1000
 
 schedulers:
   inactivity:
@@ -148,4 +148,8 @@ schedulers:
     enabled: true
     interval: 10
     timeUnit: SECONDS
+  checkQuoteScheduler:
+    enabled: true
+    interval: 1
+    timeUnit: HOURS
 

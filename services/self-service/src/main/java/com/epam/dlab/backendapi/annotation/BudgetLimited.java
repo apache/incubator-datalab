@@ -15,15 +15,19 @@
  *  * limitations under the License.
  *
  */
-package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.auth.UserInfo;
-import org.bson.Document;
+package com.epam.dlab.backendapi.annotation;
 
-public interface BillingDAO<T> {
-	Double getTotalCost();
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-	int getBillingQuoteUsed();
-
-	Document getReport(UserInfo userInfo, T filter);
+/**
+ * Annotation used to disallow execution of method that is annotated by this annotation in case when
+ * budget limit in reached. Budget can be specified in self service configuration
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface BudgetLimited {
 }

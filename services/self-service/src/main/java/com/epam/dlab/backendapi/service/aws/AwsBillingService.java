@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
@@ -38,7 +39,7 @@ import java.util.List;
 public class AwsBillingService implements BillingService<AwsBillingFilter> {
 
 	@Inject
-	private AwsBillingDAO billingDAO;
+	private BillingDAO billingDAO;
 
 	@Override
 	public Document getReport(UserInfo userInfo, AwsBillingFilter filter) {

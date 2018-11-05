@@ -18,9 +18,13 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.SelfServiceApplication;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
+import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
 import com.epam.dlab.backendapi.resources.aws.BillingResourceAws;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
@@ -42,6 +46,9 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static com.google.inject.matcher.Matchers.any;
+
 public class AwsSelfServiceModule extends CloudModule {
 
 	@Override
@@ -52,6 +59,10 @@ public class AwsSelfServiceModule extends CloudModule {
 		bind(SchedulerConfiguration.class).toInstance(
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
 		bind(InfrastructureTemplateService.class).to(AwsInfrastructureTemplateService.class);
+		bind(BillingDAO.class).to(AwsBillingDAO.class);
+		final BudgetLimitInterceptor budgetLimitInterceptor = new BudgetLimitInterceptor();
+		requestInjection(budgetLimitInterceptor);
+		bindInterceptor(any(), annotatedWith(BudgetLimited.class), budgetLimitInterceptor);
 	}
 
 	@Override

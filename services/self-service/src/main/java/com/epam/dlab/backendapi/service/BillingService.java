@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.util.CSVFormatter;
 import com.epam.dlab.exceptions.DlabException;
 import jersey.repackaged.com.google.common.collect.Lists;
@@ -39,11 +39,11 @@ public interface BillingService<T> {
             StringBuilder builder = new StringBuilder(CSVFormatter.formatLine(Lists.newArrayList(getFirstLine(document)),
                     CSVFormatter.SEPARATOR, '\"'));
 
-            Boolean full = (Boolean) document.get(BillingDAO.FULL_REPORT);
+            Boolean full = (Boolean) document.get(BaseBillingDAO.FULL_REPORT);
             builder.append(getHeaders(full));
 
             @SuppressWarnings("unchecked")
-            List<Document> items = (List<Document>) document.get(BillingDAO.ITEMS);
+            List<Document> items = (List<Document>) document.get(BaseBillingDAO.ITEMS);
 
             items.forEach(d -> builder.append(getLine(full, d)));
 

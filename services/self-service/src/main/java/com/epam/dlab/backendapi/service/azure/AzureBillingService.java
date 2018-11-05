@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.service.azure;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
@@ -39,7 +40,7 @@ import java.util.List;
 public class AzureBillingService implements BillingService<AzureBillingFilter> {
 
     @Inject
-    private AzureBillingDAO billingDAO;
+    private BillingDAO billingDAO;
 
     @Override
     public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
@@ -70,7 +71,7 @@ public class AzureBillingService implements BillingService<AzureBillingFilter> {
 
         return String.format("Service base name: %s  " +
                         "Available reporting period from: %s to: %s",
-                document.get(BillingDAO.SERVICE_BASE_NAME),
+                document.get(BaseBillingDAO.SERVICE_BASE_NAME),
                 to.format(from.parse((String) document.get(MongoKeyWords.USAGE_FROM))),
                 to.format(from.parse((String) document.get(MongoKeyWords.USAGE_TO))));
     }
