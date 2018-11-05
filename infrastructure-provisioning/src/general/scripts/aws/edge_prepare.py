@@ -161,7 +161,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
         print('[CREATE SECURITY GROUPS FOR EDGE]')
-        edge_sg_ingress = [
+        edge_sg_ingress = format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
@@ -192,8 +192,8 @@ if __name__ == "__main__":
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
-        ]
-        edge_sg_egress = [
+        ])
+        edge_sg_egress = format_sg([
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
@@ -296,7 +296,7 @@ if __name__ == "__main__":
                 "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
-        ]
+        ])
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
             --egress '{}' --force {} --nb_sg_name {} --resource {}".\
             format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(edge_sg_ingress),
@@ -325,7 +325,7 @@ if __name__ == "__main__":
         rules_list = []
         for i in sg_list:
             rules_list.append({"GroupId": i})
-        private_sg_ingress = [
+        private_sg_ingress = format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [],
@@ -345,9 +345,9 @@ if __name__ == "__main__":
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
-        ]
+        ])
 
-        private_sg_egress = [
+        private_sg_egress = format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
@@ -375,7 +375,7 @@ if __name__ == "__main__":
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             }
-        ]
+        ])
 
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
             format(edge_conf['notebook_security_group_name'], edge_conf['vpc2_id'], json.dumps(private_sg_ingress),
