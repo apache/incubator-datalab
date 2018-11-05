@@ -884,15 +884,18 @@ def format_sg(sg_rules):
     try:
         formatted_sg_rules = list()
         for rule in sg_rules:
-            for ip_range in rule['IpRanges']:
-                formatted_rule = dict()
-                for key in rule.keys():
-                    if key == 'IpRanges':
-                        formatted_rule['IpRanges'] = [ip_range]
-                    else:
-                        formatted_rule[key] = rule[key]
-                if formatted_rule not in formatted_sg_rules:
-                    formatted_sg_rules.append(formatted_rule)
+            if rule['IpRanges']:
+                for ip_range in rule['IpRanges']:
+                    formatted_rule = dict()
+                    for key in rule.keys():
+                        if key == 'IpRanges':
+                            formatted_rule['IpRanges'] = [ip_range]
+                        else:
+                            formatted_rule[key] = rule[key]
+                    if formatted_rule not in formatted_sg_rules:
+                        formatted_sg_rules.append(formatted_rule)
+            else:
+                formatted_sg_rules.append(rule)
         return formatted_sg_rules
     except Exception as err:
         logging.error("Error with formatting SG rules: " + str(err) + "\n Traceback: " +
