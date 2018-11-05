@@ -222,7 +222,7 @@ if __name__ == "__main__":
                 pre_defined_sg = True
                 logging.info('[CREATE SG FOR SSN]')
                 print('[CREATE SG FOR SSN]')
-                ingress_sg_rules_template = [
+                ingress_sg_rules_template = format_sg([
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
@@ -259,10 +259,10 @@ if __name__ == "__main__":
                         "IpRanges": allowed_vpc_cidr_ip_ranges,
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     }
-                ]
-                egress_sg_rules_template = [
+                ])
+                egress_sg_rules_template = format_sg([
                     {"IpProtocol": "-1", "IpRanges": [{"CidrIp": all_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
-                ]
+                ])
                 params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
                     format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
                 try:
