@@ -1704,6 +1704,7 @@ docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/ju
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/rstudio_Dockerfile -t docker.dlab-rstudio .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/zeppelin_Dockerfile -t docker.dlab-zeppelin .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor_Dockerfile -t docker.dlab-tensor .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor-rstudio_Dockerfile -t docker.dlab-tensor-rstudio .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/deeplearning_Dockerfile -t docker.dlab-deeplearning .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/dataengine_Dockerfile -t docker.dlab-dataengine .
 ```
