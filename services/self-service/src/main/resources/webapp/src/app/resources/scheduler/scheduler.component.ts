@@ -72,7 +72,10 @@ export class SchedulerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.resetDialog();
+    this.bindDialog.onClosing = () => {
+      this.resetDialog();
+      this.buildGrid.emit();
+    }
   }
 
   public open(param, notebook, type, resource?): void {
@@ -87,6 +90,7 @@ export class SchedulerComponent implements OnInit {
         response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
             // this.toastr.success('Schedule data were successfully saved', 'Success!', { toastLife: 5000 });
+            this.buildGrid.emit();
             this.close();
           }
         },
@@ -133,25 +137,28 @@ export class SchedulerComponent implements OnInit {
     this.enableSchedule = $event.checked;
     this.timeReqiered = false;
 
+    this.enableSchedule && this.enableIdleTime && this.toggleIdleTimes({checked: false});
     (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
       ? this.schedulerForm.get('startDate').enable()
       : this.schedulerForm.get('startDate').disable();
 
     this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
 
-    if (!this.enableSchedule) this.model.resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null);
+    if (!this.enableSchedule)
+      this.model
+        .resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null)
+        .subscribe(res => {
+          debugger;
+          this.resetDialog();
+        });
   }
 
   public toggleIdleTimes($event) {
     this.enableIdleTime = $event.checked;
-    // this.enableIdleTimes && this.toggleSchedule({checked: false});
+    this.enableIdleTime && this.enableSchedule && this.toggleSchedule({checked: false});
 
     if (!this.enableIdleTime) {
       this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
-
-      (this.destination.type === 'СOMPUTATIONAL')
-          ? this.setInactivity(this.notebook.name, null, this.destination.computational_name)
-          : this.setInactivity(this.notebook.name, null);
     }
   }
   
@@ -188,10 +195,6 @@ export class SchedulerComponent implements OnInit {
         check_inactivity_required: this.enableIdleTime
       };
 
-      if(!this.enableSchedule) {
-        parameters = { begin_date: null, finish_date: null, start_time: null, end_time: null, start_days_repeat: [], stop_days_repeat: [], timezone_offset: null, sync_start_required: false };
-      }
-
       (this.destination.type === 'СOMPUTATIONAL')
         ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
         : this.model.confirmAction(this.notebook.name, parameters);
@@ -208,7 +211,6 @@ export class SchedulerComponent implements OnInit {
     if (this.bindDialog.isOpened) {
       this.bindDialog.close();
     }
-    this.buildGrid.emit();
 
     this.resetDialog();
   }
@@ -240,7 +242,7 @@ export class SchedulerComponent implements OnInit {
       },
       error => {
         this.toastr.info(error.message || 'Scheduler job data not found!', null, { toastLife: 5000 });
-        this.toggleSchedule({checked: false});
+        this.resetDialog();
       }
     );
   }
