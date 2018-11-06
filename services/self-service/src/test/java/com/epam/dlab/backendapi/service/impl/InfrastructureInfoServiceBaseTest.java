@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
@@ -51,6 +52,8 @@ public class InfrastructureInfoServiceBaseTest {
 	private KeyDAO keyDAO;
 	@Mock
 	private SelfServiceApplicationConfiguration configuration;
+	@Mock
+	private BillingDAO billingDAO;
 
 	@InjectMocks
 	private InfrastructureInfoServiceBase infrastructureInfoServiceBase = spy(InfrastructureInfoServiceBase.class);
@@ -100,6 +103,8 @@ public class InfrastructureInfoServiceBaseTest {
 		when(envDAO.getHealthStatusPageDTO(anyString(), anyBoolean())).thenReturn(new HealthStatusPageDTO()
 				.withStatus(HealthStatusEnum.OK));
 		when(configuration.isBillingSchedulerEnabled()).thenReturn(false);
+		when(configuration.getAllowedBudgetUSD()).thenReturn(100);
+		when(billingDAO.getBillingQuoteUsed()).thenReturn(10);
 
 		HealthStatusPageDTO actualHealthStatusPageDTO =
 				infrastructureInfoServiceBase.getHeathStatus(USER, false, true);
@@ -107,6 +112,7 @@ public class InfrastructureInfoServiceBaseTest {
 		assertEquals(HealthStatusEnum.OK.toString(), actualHealthStatusPageDTO.getStatus());
 		assertFalse(actualHealthStatusPageDTO.isBillingEnabled());
 		assertTrue(actualHealthStatusPageDTO.isAdmin());
+		assertEquals(10, actualHealthStatusPageDTO.getBillingQuoteUsed());
 
 		verify(envDAO).getHealthStatusPageDTO(USER, false);
 		verify(configuration).isBillingSchedulerEnabled();

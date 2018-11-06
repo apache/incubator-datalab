@@ -73,6 +73,9 @@ public class AzureSelfServiceModule extends CloudModule {
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
 		bind(InfrastructureTemplateService.class).to(AzureInfrastructureTemplateService.class);
 		bind(BillingDAO.class).to(AzureBillingDAO.class);
+		final BudgetLimitInterceptor budgetLimitInterceptor = new BudgetLimitInterceptor();
+		requestInjection(budgetLimitInterceptor);
+		bindInterceptor(any(), annotatedWith(BudgetLimited.class), budgetLimitInterceptor);
 	}
 
 	@Override
@@ -94,7 +97,6 @@ public class AzureSelfServiceModule extends CloudModule {
 		injector.getInstance(SecurityFactory.class).configure(injector, environment,
 				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
 
-		bindInterceptor(any(), annotatedWith(BudgetLimited.class), injector.getInstance(BudgetLimitInterceptor.class));
 	}
 
 	@Provides
