@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.dao.aws;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -51,7 +51,7 @@ import static com.mongodb.client.model.Projections.include;
 /**
  * DAO for user billing.
  */
-public class AwsBillingDAO extends BillingDAO {
+public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AwsBillingDAO.class);
 
 	public static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
@@ -195,18 +195,18 @@ public class AwsBillingDAO extends BillingDAO {
 		}
 	}
 
-	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, BillingDAO.ShapeInfo> shapes) {
+	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
 		// Add SSN and EDGE nodes
 		final String ssnShape = "t2.medium";
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
 			String serviceBaseName = settings.getServiceBaseName();
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
+			shapes.put(serviceBaseName + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
 			FindIterable<Document> docs = getCollection(USER_EDGE)
 					.find()
 					.projection(fields(include(ID, EDGE_STATUS)));
 			for (Document d : docs) {
 				shapes.put(String.join("-", serviceBaseName, UsernameUtils.removeDomain(d.getString(ID)), "edge"),
-						new BillingDAO.ShapeInfo(ssnShape, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
+						new ShapeInfo(ssnShape, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
 			}
 		}
 	}

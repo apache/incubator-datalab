@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.service.azure;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.exceptions.DlabException;
 import org.bson.Document;
@@ -46,7 +46,7 @@ public class AzureBillingServiceTest {
 	private Document basicDocument;
 
 	@Mock
-	private AzureBillingDAO billingDAO;
+	private BillingDAO<AzureBillingFilter> billingDAO;
 
 	@InjectMocks
 	private AzureBillingService azureBillingService;

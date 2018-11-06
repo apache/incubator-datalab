@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.AccessKeyService;
@@ -75,6 +76,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		}
 	}
 
+	@BudgetLimited
 	@Override
 	public String uploadKey(UserInfo user, String keyContent, boolean isPrimaryUploading) {
 		log.debug(isPrimaryUploading ? "The key uploading and EDGE node creating for user {} is starting..." :
@@ -92,6 +94,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 		}
 	}
 
+	@BudgetLimited
 	@Override
 	public String recoverEdge(UserInfo userInfo) {
 		log.debug("Recreating edge node for user {}", userInfo.getName());

@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
@@ -42,6 +43,8 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	private EnvDAO envDAO;
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
+	@Inject
+	private BillingDAO billingDAO;
 
 
 	@SuppressWarnings("unchecked")
@@ -68,7 +71,8 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 		try {
 			return envDAO.getHealthStatusPageDTO(user, fullReport)
 					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
-					.withAdmin(isAdmin);
+					.withAdmin(isAdmin)
+					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed());
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);
