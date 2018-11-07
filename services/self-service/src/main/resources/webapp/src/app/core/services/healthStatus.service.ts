@@ -18,6 +18,7 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs';
 
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 import { ApplicationServiceFacade, AppRoutingService } from '.';
@@ -25,12 +26,26 @@ import { HTTP_STATUS_CODES, ErrorUtils } from '../util';
 
 @Injectable()
 export class HealthStatusService {
+  private _statusData = new BehaviorSubject(<GeneralEnvironmentStatus>{});
+
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
-    ) { }
+  ) {
+      this.reloadInitialStatusData();
+  }
 
-   public isHealthStatusOk(): Observable<boolean> {
+  get statusData() {
+    return this._statusData.asObservable();
+  }
+
+  reloadInitialStatusData() {
+    this.getEnvironmentHealthStatus().subscribe(
+      (res: GeneralEnvironmentStatus) => this._statusData.next(res),
+      err => console.error("Error retrieving status"));
+  }
+
+  public isHealthStatusOk(): Observable<boolean> {
       return this.applicationServiceFacade
         .buildGetEnvironmentHealthStatus()
         .map(response => {
@@ -45,7 +60,10 @@ export class HealthStatusService {
   public getEnvironmentHealthStatus(): Observable<GeneralEnvironmentStatus> {
     return this.applicationServiceFacade
     .buildGetEnvironmentHealthStatus()
-    .map(response => response.json())
+    .map(response => {
+      this._statusData.next(response.json());
+      return response.json();
+    })
     .catch(ErrorUtils.handleServiceError);
   }
 
@@ -53,7 +71,10 @@ export class HealthStatusService {
     const body = '?full=1';
     return this.applicationServiceFacade
     .buildGetEnvironmentStatuses(body)
-    .map(response => response.json())
+    .map(response => {
+      this._statusData.next(response.json());
+      return response.json();
+    })
     .catch(ErrorUtils.handleServiceError);
   }
 

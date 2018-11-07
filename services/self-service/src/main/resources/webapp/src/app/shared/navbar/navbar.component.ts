@@ -23,14 +23,7 @@ import { Observable } from 'rxjs/Observable';
 import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
 import { AppRoutingService } from '../../core/services';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-
-export interface HealthStatus {
-  admin: boolean;
-  billingEnabled: boolean;
-  billingQuoteUsed: number;
-  list_resources: boolean;
-  healthStatus: string;
-}
+import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 
 @Component({
   selector: 'dlab-navbar',
@@ -41,20 +34,26 @@ export interface HealthStatus {
 export class NavbarComponent implements OnInit {
   readonly PROVIDER = DICTIONARY.cloud_provider;
   currentUserName: string;
-  healthStatus: HealthStatus | {} = {};
+  healthStatus: GeneralEnvironmentStatus | {} = {};
   isLoggedIn$: Observable<boolean>;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
     private healthStatusService: HealthStatusService
-  ) { }
+  ) {
+    this.healthStatusService.statusData.subscribe(
+      result => {
+        this.healthStatus = result;
+        console.log('úpdate')
+      }
+    )
+  }
 
   ngOnInit() {
     this.isLoggedInCheck();
 
     this.currentUserName = this.getUserName();
-    this.getEnvironmentHealthStatus();
   }
 
   isLoggedInCheck() {
@@ -71,10 +70,5 @@ export class NavbarComponent implements OnInit {
       () => this.appRoutingService.redirectToLoginPage(),
       error => console.log(error),
       () => this.appRoutingService.redirectToLoginPage());
-  }
-
-  private getEnvironmentHealthStatus() {
-    this.healthStatusService.getEnvironmentHealthStatus()
-      .subscribe((result: any) => this.healthStatus = result);
   }
 }

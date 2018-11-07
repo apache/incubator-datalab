@@ -16,8 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr';
+import { ISubscription } from "rxjs/Subscription";
 
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
@@ -28,9 +29,11 @@ import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
   templateUrl: 'health-status.component.html',
   styleUrls: ['./health-status.component.scss']
 })
-export class HealthStatusComponent implements OnInit {
+export class HealthStatusComponent implements OnInit, OnDestroy{
   private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
   private clear = undefined;
+  private subscription: ISubscription;
+
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
   billingEnabled: boolean;
@@ -39,6 +42,7 @@ export class HealthStatusComponent implements OnInit {
   notebookInProgress: boolean = false;
   usersList: Array<string> = [];
   uploadKey: boolean = true;
+  healthStatus2: any;
 
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
@@ -61,6 +65,16 @@ export class HealthStatusComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
+    this.subscription = this.healthStatusService.statusData.subscribe(
+      result => {
+        this.healthStatus2 = result;
+        console.log('úpdate on healthStatus2', this.healthStatus2)
+      }
+    )
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   buildGrid(): void {
