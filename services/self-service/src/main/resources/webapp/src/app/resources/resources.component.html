@@ -16,8 +16,6 @@ limitations under the License.
 
 -->
 
-<dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="admin"></dlab-navbar>
-
 <div class="sub-nav base-retreat">
   <div>
     <button mat-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus === 'error'" (click)="createNotebook_btnClick()">
