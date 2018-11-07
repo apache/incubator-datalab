@@ -47,6 +47,7 @@ export class BackupOptionsModel {
 export interface GeneralEnvironmentStatus {
   admin: boolean,
   billingEnabled: boolean,
+  billingQuoteUsed: number,
   list_resources: Array<EnvironmentStatusModel>,
   status: string
 }
