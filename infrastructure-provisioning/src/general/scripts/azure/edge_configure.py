@@ -173,7 +173,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
-                             "edge_user_name": os.environ['aws_iam_user'],
+                             "edge_user_name": os.environ['azure_iam_user'],
                              "ldap_host": os.environ['ldap_hostname'],
                              "ldap_dn": os.environ['ldap_dn'],
                              "ldap_user": os.environ['ldap_service_username'],
