@@ -16,11 +16,21 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewEncapsulation, Input, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
-import { ApplicationSecurityService } from '../../core/services';
+
+import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
 import { AppRoutingService } from '../../core/services';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
+
+export interface HealthStatus {
+  admin: boolean;
+  billingEnabled: boolean;
+  billingQuoteUsed: number;
+  list_resources: boolean;
+  healthStatus: string;
+}
 
 @Component({
   selector: 'dlab-navbar',
@@ -28,22 +38,27 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
   styleUrls: ['./navbar.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-
 export class NavbarComponent implements OnInit {
   readonly PROVIDER = DICTIONARY.cloud_provider;
   currentUserName: string;
-
-  @Input() healthStatus: string;
-  @Input() billingEnabled: boolean;
-  @Input() admin: boolean;
+  healthStatus: HealthStatus | {} = {};
+  isLoggedIn$: Observable<boolean>;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private appRoutingService: AppRoutingService
+    private appRoutingService: AppRoutingService,
+    private healthStatusService: HealthStatusService
   ) { }
 
   ngOnInit() {
+    this.isLoggedInCheck();
+
     this.currentUserName = this.getUserName();
+    this.getEnvironmentHealthStatus();
+  }
+
+  isLoggedInCheck() {
+     this.isLoggedIn$ = this.applicationSecurityService.isLoggedIn();
   }
 
   getUserName() {
@@ -56,5 +71,10 @@ export class NavbarComponent implements OnInit {
       () => this.appRoutingService.redirectToLoginPage(),
       error => console.log(error),
       () => this.appRoutingService.redirectToLoginPage());
+  }
+
+  private getEnvironmentHealthStatus() {
+    this.healthStatusService.getEnvironmentHealthStatus()
+      .subscribe((result: any) => this.healthStatus = result);
   }
 }
