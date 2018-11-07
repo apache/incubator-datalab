@@ -18,7 +18,6 @@
 
 package com.epam.dlab.backendapi.interceptor;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.exceptions.ResourceQuoteReachedException;
 import com.google.inject.Inject;
@@ -26,20 +25,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.lang.reflect.Method;
+
 @Slf4j
 public class BudgetLimitInterceptor implements MethodInterceptor {
-	@Inject
-	private SelfServiceApplicationConfiguration configuration;
 	@Inject
 	private BillingDAO billingDAO;
 
 	@Override
-	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-		if (billingDAO.getTotalCost() >= configuration.getAllowedBudgetUSD()) {
-			log.warn("Execution of method {} failed because of reaching resource limit quote",
-					methodInvocation.getMethod().getName());
+	public Object invoke(MethodInvocation mi) throws Throwable {
+		if (billingDAO.isBillingQuoteReached()) {
+			final Method method = mi.getMethod();
+			log.warn("Execution of method {} failed because of reaching resource limit quote", method.getName());
 			throw new ResourceQuoteReachedException("Operation can not be finished. Resource quote is reached");
 		}
-		return methodInvocation.proceed();
+		return mi.proceed();
 	}
 }

@@ -80,6 +80,11 @@ public class GcpSelfServiceModule extends CloudModule {
 			}
 
 			@Override
+			public boolean isBillingQuoteReached() {
+				return false;
+			}
+
+			@Override
 			public Document getReport(UserInfo userInfo, Object filter) {
 				return null;
 			}

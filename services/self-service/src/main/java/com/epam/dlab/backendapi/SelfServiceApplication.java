@@ -150,6 +150,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(SystemInfoResource.class));
 		jersey.register(injector.getInstance(UserGroupResource.class));
 		jersey.register(injector.getInstance(UserRoleResource.class));
+		jersey.register(injector.getInstance(ApplicationSettingResource.class));
 	}
 
 	private void applyMongoMigration(SelfServiceApplicationConfiguration configuration) {
