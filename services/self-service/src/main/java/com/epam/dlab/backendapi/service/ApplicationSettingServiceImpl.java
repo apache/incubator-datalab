@@ -1,4 +1,4 @@
-/*
+package com.epam.dlab.backendapi.service;/*
  *
  *  * Copyright (c) 2018, EPAM SYSTEMS INC
  *  *
@@ -15,17 +15,23 @@
  *  * limitations under the License.
  *
  */
-package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.auth.UserInfo;
-import org.bson.Document;
+import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.google.inject.Inject;
 
-public interface BillingDAO<T> {
-	Double getTotalCost();
+import java.util.Map;
 
-	int getBillingQuoteUsed();
+public class ApplicationSettingServiceImpl implements ApplicationSettingService {
+	@Inject
+	private SettingsDAO settingsDAO;
 
-	boolean isBillingQuoteReached();
+	@Override
+	public void setMaxBudget(Long maxBudget) {
+		settingsDAO.setMaxBudget(maxBudget);
+	}
 
-	Document getReport(UserInfo userInfo, T filter);
+	@Override
+	public Map<String, Object> getSettings() {
+		return settingsDAO.getSettings();
+	}
 }

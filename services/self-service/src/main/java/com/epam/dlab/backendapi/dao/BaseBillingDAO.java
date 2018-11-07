@@ -16,11 +16,9 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.google.inject.Inject;
-import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import lombok.Getter;
 import lombok.ToString;
@@ -28,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_ID;
@@ -38,6 +37,7 @@ import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Projections.*;
+import static java.util.Collections.singletonList;
 
 @Slf4j
 public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T> {
@@ -56,11 +56,12 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 	private static final String DATAENGINE_INSTANCE_COUNT = "dataengine_instance_count";
 
 	private static final String DATAENGINE_DOCKER_IMAGE = "image";
+	private static final int ONE_HUNDRED = 100;
+	private static final String TOTAL_FIELD_NAME = "total";
+	private static final String COST_FIELD = "$cost";
 
 	@Inject
 	protected SettingsDAO settings;
-	@Inject
-	private SelfServiceApplicationConfiguration configuration;
 
 	protected Map<String, ShapeInfo> getShapes(List<String> shapeNames) {
 		FindIterable<Document> userInstances = getUserInstances();
@@ -84,18 +85,22 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 
 	@Override
 	public Double getTotalCost() {
-		final AggregateIterable<Document> aggregate = aggregate(BILLING, Collections.singletonList(group(null, sum(
-				"total", "$cost"))));
-		if (aggregate.iterator().hasNext()) {
-			final Document totalDocument = aggregate.iterator().next();
-			return totalDocument.getDouble("total");
-		}
-		return 0.0d;
+		return Optional.ofNullable(
+				aggregate(BILLING, singletonList(group(null, sum(TOTAL_FIELD_NAME, COST_FIELD)))).first())
+				.map(d -> d.getDouble(TOTAL_FIELD_NAME))
+				.orElse(BigDecimal.ZERO.doubleValue());
 	}
 
 	@Override
 	public int getBillingQuoteUsed() {
-		return (getTotalCost().intValue() * 100) / configuration.getAllowedBudgetUSD();
+		return settings.getMaxBudget()
+				.map(aLong -> (getTotalCost().intValue() * ONE_HUNDRED) / aLong)
+				.orElse(BigDecimal.ZERO.intValue());
+	}
+
+	@Override
+	public boolean isBillingQuoteReached() {
+		return getBillingQuoteUsed() > ONE_HUNDRED;
 	}
 
 	private Optional<ShapeInfo> getComputationalShape(List<String> shapeNames, Document c) {
