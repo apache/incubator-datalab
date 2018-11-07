@@ -28,6 +28,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
+import { NavbarModule } from './shared';
 import { GuidesModule } from './help';
 import { NotFoundModule } from './not-found/not-found.module';
 import { AccessDeniedModule } from './access-denied/access-denied.module';
@@ -47,6 +48,7 @@ import { CoreModule } from './core/core.module';
     ReactiveFormsModule,
     HttpModule,
     LoginModule,
+    NavbarModule,
     ResourcesModule,
     GuidesModule,
     NotFoundModule,
