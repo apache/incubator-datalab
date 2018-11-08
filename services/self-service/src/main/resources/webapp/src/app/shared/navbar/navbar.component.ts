@@ -16,11 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewEncapsulation, OnInit } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-
+import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material';
+import { ISubscription } from 'rxjs/Subscription';
 
 import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
+import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
 import { AppRoutingService } from '../../core/services';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
@@ -31,16 +32,19 @@ import { GeneralEnvironmentStatus } from '../../health-status/environment-status
   styleUrls: ['./navbar.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
   currentUserName: string;
-  healthStatus: GeneralEnvironmentStatus | {} = {};
-  isLoggedIn$: Observable<boolean>;
+  healthStatus: GeneralEnvironmentStatus;
+  isLoggedIn: boolean;
+  subscription: ISubscription;
+  quotesLimit: number;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
-    private healthStatusService: HealthStatusService
+    private healthStatusService: HealthStatusService,
+    private dialog: MatDialog
   ) {
     this.healthStatusService.statusData.subscribe(
       result => {
@@ -51,13 +55,25 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isLoggedInCheck();
+    this.applicationSecurityService.loggedInStatus.subscribe(res => {
+      this.isLoggedIn = res;
 
+      if (this.isLoggedIn) {
+        this.healthStatusService.reloadInitialStatusData();
+        this.healthStatusService.statusData.subscribe(result => {
+          this.healthStatus = result;
+          this.checkQuoteUsed(this.healthStatus);
+          console.log('úpdate');
+        });
+      } 
+    });
+
+    this.quotesLimit = 70;
     this.currentUserName = this.getUserName();
   }
 
-  isLoggedInCheck() {
-     this.isLoggedIn$ = this.applicationSecurityService.isLoggedIn();
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   getUserName() {
@@ -70,5 +86,22 @@ export class NavbarComponent implements OnInit {
       () => this.appRoutingService.redirectToLoginPage(),
       error => console.log(error),
       () => this.appRoutingService.redirectToLoginPage());
+  }
+
+  public emitQuotes() {
+    const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
+      data: `NOTE: Currently used billing quote is ${ this.healthStatus.billingQuoteUsed }%`,
+      width: '550px'
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.applicationSecurityService.setBillingQuoteUsed('informed');
+    });
+  }
+
+  private checkQuoteUsed(params) {
+    if (params.billingQuoteUsed >= this.quotesLimit && !this.applicationSecurityService.getBillingQuoteUsed()) {
+      if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
+      this.emitQuotes();
+    }
   }
 }
