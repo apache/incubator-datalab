@@ -31,9 +31,7 @@ export class HealthStatusService {
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
-  ) {
-      this.reloadInitialStatusData();
-  }
+  ) {}
 
   get statusData() {
     return this._statusData.asObservable();
@@ -42,7 +40,7 @@ export class HealthStatusService {
   reloadInitialStatusData() {
     this.getEnvironmentHealthStatus().subscribe(
       (res: GeneralEnvironmentStatus) => this._statusData.next(res),
-      err => console.error("Error retrieving status"));
+      err => console.error('Error retrieving status'));
   }
 
   public isHealthStatusOk(): Observable<boolean> {
