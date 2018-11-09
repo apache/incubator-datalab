@@ -17,7 +17,8 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
+import com.epam.dlab.backendapi.service.UserSettingService;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpHeaders;
@@ -30,6 +31,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -39,10 +41,11 @@ import static org.mockito.Mockito.*;
 
 public class UserSettingsResourceTest extends TestBase {
 
-	private UserSettingsDAO userSettingsDAO = mock(UserSettingsDAO.class);
+	private UserSettingService userSettingService = mock(UserSettingService.class);
 
 	@Rule
-	public final ResourceTestRule resources = getResourceTestRuleInstance(new UserSettingsResource(userSettingsDAO));
+	public final ResourceTestRule resources =
+			getResourceTestRuleInstance(new UserSettingsResource(userSettingService));
 
 	@Before
 	public void setup() throws AuthenticationException {
@@ -51,7 +54,7 @@ public class UserSettingsResourceTest extends TestBase {
 
 	@Test
 	public void getSettings() {
-		when(userSettingsDAO.getUISettings(any(UserInfo.class))).thenReturn("someSettings");
+		when(userSettingService.getUISettings(any(UserInfo.class))).thenReturn("someSettings");
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
@@ -62,14 +65,14 @@ public class UserSettingsResourceTest extends TestBase {
 		assertEquals("someSettings", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).getUISettings(refEq(getUserInfo()));
-		verifyNoMoreInteractions(userSettingsDAO);
+		verify(userSettingService).getUISettings(refEq(getUserInfo()));
+		verifyNoMoreInteractions(userSettingService);
 	}
 
 	@Test
 	public void getSettingsWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(userSettingsDAO.getUISettings(any(UserInfo.class))).thenReturn("someSettings");
+		when(userSettingService.getUISettings(any(UserInfo.class))).thenReturn("someSettings");
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
@@ -80,13 +83,13 @@ public class UserSettingsResourceTest extends TestBase {
 		assertEquals("someSettings", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).getUISettings(refEq(getUserInfo()));
-		verifyNoMoreInteractions(userSettingsDAO);
+		verify(userSettingService).getUISettings(refEq(getUserInfo()));
+		verifyNoMoreInteractions(userSettingService);
 	}
 
 	@Test
 	public void saveSettings() {
-		doNothing().when(userSettingsDAO).setUISettings(any(UserInfo.class), anyString());
+		doNothing().when(userSettingService).saveUISettings(any(UserInfo.class), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
@@ -96,14 +99,14 @@ public class UserSettingsResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).setUISettings(refEq(getUserInfo()), eq("someSettings"));
-		verifyNoMoreInteractions(userSettingsDAO);
+		verify(userSettingService).saveUISettings(refEq(getUserInfo()), eq("someSettings"));
+		verifyNoMoreInteractions(userSettingService);
 	}
 
 	@Test
 	public void saveSettingsWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		doNothing().when(userSettingsDAO).setUISettings(any(UserInfo.class), anyString());
+		doNothing().when(userSettingService).saveUISettings(any(UserInfo.class), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
@@ -113,13 +116,13 @@ public class UserSettingsResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).setUISettings(refEq(getUserInfo()), eq("someSettings"));
-		verifyNoMoreInteractions(userSettingsDAO);
+		verify(userSettingService).saveUISettings(refEq(getUserInfo()), eq("someSettings"));
+		verifyNoMoreInteractions(userSettingService);
 	}
 
 	@Test
 	public void saveSettingsWithException() {
-		doThrow(new RuntimeException()).when(userSettingsDAO).setUISettings(any(UserInfo.class), anyString());
+		doThrow(new RuntimeException()).when(userSettingService).saveUISettings(any(UserInfo.class), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/user/settings")
 				.request()
@@ -131,7 +134,23 @@ public class UserSettingsResourceTest extends TestBase {
 				"processing your request. It has been logged"));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingsDAO).setUISettings(refEq(getUserInfo()), eq("someSettings"));
-		verifyNoMoreInteractions(userSettingsDAO);
+		verify(userSettingService).saveUISettings(refEq(getUserInfo()), eq("someSettings"));
+		verifyNoMoreInteractions(userSettingService);
+	}
+
+	@Test
+	public void saveAllowedBudget() {
+		doNothing().when(userSettingService).saveUISettings(any(UserInfo.class), anyString());
+		final Response response = resources.getJerseyTest()
+				.target("/user/settings/budget")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.put(Entity.json(singletonList(new UserAllowedBudgetDTO(USER, 10L))));
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(userSettingService).updateUsersBudget(singletonList(new UserAllowedBudgetDTO(USER, 10L)));
+		verifyNoMoreInteractions(userSettingService);
 	}
 }

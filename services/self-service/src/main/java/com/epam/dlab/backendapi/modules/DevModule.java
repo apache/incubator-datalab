@@ -97,6 +97,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(UserRoleDao.class).to(UserRoleDaoImpl.class);
 		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
 		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
+		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
 	}
 
 	/**

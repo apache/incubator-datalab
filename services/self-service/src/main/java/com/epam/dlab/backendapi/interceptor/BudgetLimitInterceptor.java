@@ -18,7 +18,9 @@
 
 package com.epam.dlab.backendapi.interceptor;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.exceptions.ResourceQuoteReachedException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -26,19 +28,33 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 @Slf4j
 public class BudgetLimitInterceptor implements MethodInterceptor {
+	private static final long ZERO = 0L;
 	@Inject
 	private BillingDAO billingDAO;
+	@Inject
+	private KeyDAO keyDAO;
 
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		if (billingDAO.isBillingQuoteReached()) {
+		if (userQuoteReached(mi) || billingDAO.isBillingQuoteReached()) {
 			final Method method = mi.getMethod();
 			log.warn("Execution of method {} failed because of reaching resource limit quote", method.getName());
 			throw new ResourceQuoteReachedException("Operation can not be finished. Resource quote is reached");
+		} else {
+			return mi.proceed();
 		}
-		return mi.proceed();
+	}
+
+	private Boolean userQuoteReached(MethodInvocation mi) {
+		return Arrays.stream(mi.getArguments())
+				.filter(arg -> arg.getClass().equals(UserInfo.class))
+				.findAny()
+				.map(u -> ((UserInfo) u).getName())
+				.map(u -> keyDAO.getAllowedBudget(u).orElse(ZERO) < billingDAO.getUserCost(u))
+				.orElse(Boolean.FALSE);
 	}
 }
