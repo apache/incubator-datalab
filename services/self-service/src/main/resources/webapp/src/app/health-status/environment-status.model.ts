@@ -36,7 +36,7 @@ export class BackupOptionsModel {
 
   setDegault(): void {
     this.configFiles = ['all'];
-    this.keys =['all'];
+    this.keys = ['all'];
     this.certificates = ['skip'];
     this.jars = ['skip'];
     this.databaseBackup = true;
@@ -45,9 +45,9 @@ export class BackupOptionsModel {
 }
 
 export interface GeneralEnvironmentStatus {
-  admin: boolean,
-  billingEnabled: boolean,
-  billingQuoteUsed: number,
-  list_resources: Array<EnvironmentStatusModel>,
-  status: string
+  admin: boolean;
+  billingEnabled: boolean;
+  billingQuoteUsed: number;
+  list_resources: Array<EnvironmentStatusModel>;
+  status: string;
 }

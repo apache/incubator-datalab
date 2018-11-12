@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -40,13 +40,13 @@ export class ManageEnvironmentComponent {
   }
 
   public applyAction(action, user) {
-    const dialogRef: MatDialogRef<ConfirmActionDialog> = this.dialog.open(ConfirmActionDialog, { data: {action, user}, width: '550px' });
+    const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
+      ConfirmActionDialogComponent, { data: {action, user}, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.manageEnv.emit({action, user});
     });
   }
 }
-
 
 @Component({
   selector: 'dialog-result-example-dialog',
@@ -67,9 +67,9 @@ export class ManageEnvironmentComponent {
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
   `]
 })
-export class ConfirmActionDialog {
+export class ConfirmActionDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ConfirmActionDialog>,
+    public dialogRef: MatDialogRef<ConfirmActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

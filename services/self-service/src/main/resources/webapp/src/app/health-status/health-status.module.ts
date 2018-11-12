@@ -25,7 +25,7 @@ import { HealthStatusComponent } from './health-status.component';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import {
   ManageEnvironmentComponent,
-  ConfirmActionDialog
+  ConfirmActionDialogComponent
 } from './manage-environment/manage-environment-dilog.component';
 
 import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
@@ -58,13 +58,13 @@ export * from './environment-status.model';
     HealthStatusComponent,
     BackupDilogComponent,
     ManageEnvironmentComponent,
-    ConfirmActionDialog,
+    ConfirmActionDialogComponent,
     ConfirmDeleteUserAccountDialog,
     SsnMonitorComponent,
     ManageRolesGroupsComponent,
     HealthStatusGridComponent
   ],
-  entryComponents: [ConfirmActionDialog, ConfirmDeleteUserAccountDialog],
+  entryComponents: [ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialog],
   exports: [HealthStatusComponent, HealthStatusGridComponent, GroupNameValidationDirective]
 })
 export class HealthStatusModule {}

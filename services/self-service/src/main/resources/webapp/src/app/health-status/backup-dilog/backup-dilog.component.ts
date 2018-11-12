@@ -58,7 +58,7 @@ export class BackupDilogComponent implements OnInit {
   }
 
   private checkValidity() {
-    let items = [];
+    const items = [];
 
     Object.keys(this.backupOptions).forEach(el => {
       if (this.backupOptions[el] instanceof Array) {

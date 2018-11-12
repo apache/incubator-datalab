@@ -20,7 +20,7 @@ limitations under the License.
 import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr';
 
-import { BillingReportService, HealthStatusService, UserAccessKeyService }  from '../core/services';
+import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -30,7 +30,10 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
+  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)"
+                (exportReport)="exportBillingReport()"
+                (setRangeOption)="setRangeOption($event)">
+  </dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer *ngIf="data">
     Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
@@ -99,7 +102,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
-          localStorage.setItem('report_period' , JSON.stringify({start_date: this.data[DICTIONARY.billing.dateFrom], end_date: this.data[DICTIONARY.billing.dateTo]}));
+          localStorage.setItem('report_period' , JSON.stringify({
+            start_date: this.data[DICTIONARY.billing.dateFrom],
+            end_date: this.data[DICTIONARY.billing.dateTo]}));
           this.reportingToolbar.setDateRange();
         }
 
@@ -151,7 +156,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
               shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
-          let parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+          const parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
           if (shapes.indexOf(parsedShape) === -1) {
             shapes.push(parsedShape);
           }

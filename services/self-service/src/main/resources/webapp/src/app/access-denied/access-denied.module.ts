@@ -22,11 +22,8 @@ import { AccessDeniedComponent } from './access-denied.component';
 import { NavbarModule } from '../shared';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        NavbarModule
-    ],
-    declarations: [AccessDeniedComponent],
-    exports: [AccessDeniedComponent]
+  imports: [CommonModule, NavbarModule],
+  declarations: [AccessDeniedComponent],
+  exports: [AccessDeniedComponent]
 })
-export class AccessDeniedModule { }
+export class AccessDeniedModule {}

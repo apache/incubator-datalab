@@ -23,7 +23,6 @@ import { ResourcesGridComponent } from './resources-grid';
 import { UserAccessKeyService, HealthStatusService } from '../core/services';
 import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
 import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
-import { NavbarComponent } from '../shared';
 
 @Component({
   selector: 'dlab-resources',
@@ -45,7 +44,6 @@ export class ResourcesComponent implements OnInit {
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
   @ViewChild('manageUngitDialog') manageUngitDialog;
   @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
-  @ViewChild(NavbarComponent) navbarComponent: NavbarComponent;
 
   private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
 
