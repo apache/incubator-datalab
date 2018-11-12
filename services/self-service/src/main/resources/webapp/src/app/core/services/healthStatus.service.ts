@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 import { ApplicationServiceFacade, AppRoutingService } from '.';
@@ -39,7 +39,10 @@ export class HealthStatusService {
 
   reloadInitialStatusData() {
     this.getEnvironmentHealthStatus().subscribe(
-      (res: GeneralEnvironmentStatus) => this._statusData.next(res),
+      (res: GeneralEnvironmentStatus) => {
+        this._statusData.next(res);
+        console.log('reload Initial Status Data');
+      },
       err => console.error('Error retrieving status'));
   }
 
@@ -96,7 +99,7 @@ export class HealthStatusService {
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
-  
+
   public isBillingEnabled(): Observable<boolean> {
     return this.applicationServiceFacade
     .buildGetEnvironmentHealthStatus()

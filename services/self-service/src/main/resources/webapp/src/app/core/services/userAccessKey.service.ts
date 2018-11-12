@@ -18,19 +18,45 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { ApplicationServiceFacade } from '.';
 import { ErrorUtils } from '../util';
 
 @Injectable()
 export class UserAccessKeyService {
+  _accessKeyEmitter: BehaviorSubject<any> = new BehaviorSubject<boolean>(null);
+
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
+
+  get accessKeyEmitter() {
+    return this._accessKeyEmitter.asObservable();
+  }
+
+  public initialUserAccessKeyCheck() {
+    console.log('initial User Access Key Check');
+    this.checkUserAccessKey().subscribe(
+      response => {
+      this._accessKeyEmitter.next(response);
+      console.log('initial User Access Key Check OK');
+    }, error => {
+      this._accessKeyEmitter.next(error);
+      console.error('Error retrieving access key');
+    });
+  }
 
   public checkUserAccessKey(): Observable<{}> {
     return this.applicationServiceFacade
       .buildCheckUserAccessKeyRequest()
-      .map(response => response)
+      .map(response => {
+        this._accessKeyEmitter.next(response);
+        return response;
+      })
       .catch(ErrorUtils.handleServiceError);
+  }
+
+  public setActionOnKeyAccept() {
+    console.log('data updated, key accepted');
   }
 
   public generateAccessKey(): Observable<{}> {
