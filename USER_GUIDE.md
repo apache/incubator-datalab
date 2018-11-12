@@ -18,6 +18,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage libraries](#manage_libraries)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Create image](#create_image)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Stop Notebook server](#notebook_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Notebook server](#notebook_terminate)
@@ -79,7 +81,7 @@ To do this click on “Upload” button on “Create initial infrastructure”, 
 
 Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Create initial infrastructure” dialog. DLab build-in wiki page will guide Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-After you hit Create or Generate button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
+After you hit "Create" or "Generate" button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
 
 <p align="center"> 
     <img src="doc/loading_key.png" alt="Loading user key" width="350">
@@ -95,7 +97,7 @@ As soon as an Edge node is created, Data Scientist will see a blank “List of R
 ----------------------
 ## Create notebook server <a name="notebook_create"></a>
 
-To create new analytical environment from “List of Resources” page click on Create new button.
+To create new analytical environment from “List of Resources” page click on "Create new" button.
 
 “Create analytical tool” popup will show-up. Data Scientist can choose a preferable analytical tool to be setup. Adding new analytical tools is supported by architecture, so you can expect new templates to show up in upcoming releases.
 
@@ -104,6 +106,7 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   Jupyter
 -   Apache Zeppelin
 -   RStudio
+-   TensorFlow with RStudio
 -   TensorFlow (Jupyter + TensorFlow)
 -   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
 
@@ -127,7 +130,7 @@ These groups have T-Shirt based shapes (configurable), that can help Data Scient
 
 \* Please refer to official documentation from Amazon that will help you understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) would be most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
 
-After you Select the template, fill in the Name and choose needed instance shape - you need to click on Create button for your instance to start creating. Corresponding record will show up in your dashboard:
+After you Select the template, fill in the Name and choose needed instance shape - you need to click on "Create" button for your instance to start creating. Corresponding record will show up in your dashboard:
 
 ![Dashboard](doc/main_page2.png)
 
@@ -188,6 +191,33 @@ After clicking on "Install" button you will see process of installation with app
 
 **Note:** If package can't be installed you will see "Failed" in status column and button to retry installation.
 
+### Create image <a name="create_image"></a>
+
+Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration. To create an AMI click on a gear icon ![gear](doc/gear_icon.png) in the Actions menu for a needed Notebook and hit "Create AMI":
+
+<p align="center"> 
+    <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_ami" width="150">
+</p>
+
+On Create AMI popup you will be asked to fill in:
+-   text box for an AMI name (mandatory)
+-   text box for an AMI description (optional)
+
+<p align="center"> 
+    <img src="doc/create_ami.png" alt="Create AMI" width="510">
+</p>
+
+After clicking on "Assign" button the Notebook status will change to Creating AMI. Once an image is created the Notebook status changes back to Running.
+
+To create new analytical environment from custom image click "Create new" button on “List of Resources” page. 
+
+“Create analytical tool” popup will show-up. Choose a template of a Notebook for which the custom image is created:
+
+<p align="center"> 
+    <img src="doc/create_notebook_from_ami.png" alt="Create notebook from AMI" width="560">
+</p>
+
+Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
@@ -254,7 +284,7 @@ This picture shows menu for creating Computational resource for Azure:
     <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="450">
 </p>
 
-If you click on Create button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
+If you click on "Create" button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
 
 ![Creating Computational resource](doc/emr_creating.png)
 
@@ -369,7 +399,7 @@ After creating repository you can see all commits and branches:
 
 On the top of window in the red field UI show us changed or new files to commit. You can uncheck or add some files to gitignore.
 
-**Note:** Git always checks you credentials. If this is your first commit after adding/changing credentials and after clicking on "Commit" button nothing happened - just click on Commit button again.
+**Note:** Git always checks you credentials. If this is your first commit after adding/changing credentials and after clicking on "Commit" button nothing happened - just click on "Commit" button again.
 
 On the right pane of window you also can see buttons to fetch last changes of repository, add upstreams and switch between branches.
 
@@ -458,7 +488,7 @@ On the center of header you can choose period of report in datepicker:
     <img src="doc/billing_datepicker.png" alt="Billing datepicker" width="400">
 </p>
 
-You can save billing report in csv format hitting Export button.
+You can save billing report in csv format hitting "Export" button.
 
 You can also filter data by each column:
 
