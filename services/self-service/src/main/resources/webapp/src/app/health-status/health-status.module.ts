@@ -19,7 +19,7 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../shared/material.module';
-import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
+import { ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
 import { FormControlsModule } from '../shared/form-controls';
 import { HealthStatusComponent } from './health-status.component';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
@@ -42,7 +42,6 @@ export * from './environment-status.model';
 
   imports: [
     CommonModule,
-    NavbarModule,
     ModalModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
