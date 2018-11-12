@@ -28,7 +28,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
-import { NavbarModule } from './shared';
+import { NavbarModule } from './shared/navbar';
 import { GuidesModule } from './help';
 import { NotFoundModule } from './not-found/not-found.module';
 import { AccessDeniedModule } from './access-denied/access-denied.module';
