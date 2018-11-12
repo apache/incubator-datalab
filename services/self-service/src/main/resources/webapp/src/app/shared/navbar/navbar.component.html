@@ -45,3 +45,9 @@ limitations under the License.
     <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span class="user-name">{{currentUserName}}</span></button>
   </div>
 </div>
+
+<key-upload-dialog #keyUploadModal
+  (generateUserKey)="generateUserKey($event)"
+  (checkInfrastructureCreationProgress)="checkCreationProgress($event)"
+  [primaryUploading]="true"></key-upload-dialog>
+<progress-dialog #preloaderModal></progress-dialog>

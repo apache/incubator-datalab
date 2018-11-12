@@ -16,15 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { ISubscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs/Subscription';
 
-import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
-import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
-import { AppRoutingService } from '../../core/services';
-import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import { ApplicationSecurityService, HealthStatusService, AppRoutingService, UserAccessKeyService } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import { HTTP_STATUS_CODES } from '../../core/util';
+
+import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
 
 @Component({
   selector: 'dlab-navbar',
@@ -34,38 +35,41 @@ import { GeneralEnvironmentStatus } from '../../health-status/environment-status
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
+
   currentUserName: string;
-  healthStatus: GeneralEnvironmentStatus;
   isLoggedIn: boolean;
-  subscription: ISubscription;
   quotesLimit: number;
+
+  healthStatus: GeneralEnvironmentStatus;
+  subscriptions: Subscription = new Subscription();
+
+  @ViewChild('keyUploadModal') keyUploadDialog;
+  @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
     private healthStatusService: HealthStatusService,
+    private userAccessKeyService: UserAccessKeyService,
     private dialog: MatDialog
-  ) {
-    this.healthStatusService.statusData.subscribe(
-      result => {
-        this.healthStatus = result;
-        console.log('úpdate')
-      }
-    )
-  }
+  ) { }
 
   ngOnInit() {
-    this.applicationSecurityService.loggedInStatus.subscribe(res => {
-      this.isLoggedIn = res;
+    this.applicationSecurityService.loggedInStatus.subscribe(response => {
+      this.isLoggedIn = response;
 
       if (this.isLoggedIn) {
-        this.healthStatusService.reloadInitialStatusData();
-        this.healthStatusService.statusData.subscribe(result => {
+        this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
+          console.log('úpdate healthStatus');
           this.healthStatus = result;
           this.checkQuoteUsed(this.healthStatus);
-          console.log('úpdate');
-        });
-      } 
+        }));
+        this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
+          console.log('úpdate accessKeyEmitter', response);
+          response && this.processAccessKeyStatus(response.status);
+        }));
+      }
     });
 
     this.quotesLimit = 70;
@@ -73,7 +77,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   getUserName() {
@@ -98,10 +102,32 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
+  public generateUserKey($event) {
+    console.log('generate key', $event);
+  }
+
+  public checkCreationProgress($event) {
+    console.log('checkCreationProgress key', $event);
+  }
+
   private checkQuoteUsed(params) {
     if (params.billingQuoteUsed >= this.quotesLimit && !this.applicationSecurityService.getBillingQuoteUsed()) {
       if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
       this.emitQuotes();
+    }
+  }
+
+  private processAccessKeyStatus(status: number) {
+    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
+      this.keyUploadDialog.open({ isFooter: false });
+    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
+      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
+      setTimeout(() => this.userAccessKeyService.initialUserAccessKeyCheck(), this.CHECK_ACCESS_KEY_TIMEOUT);
+
+      this.userAccessKeyService.setActionOnKeyAccept();
+    } else if (status === HTTP_STATUS_CODES.OK) {
+      this.preloaderDialog.close();
+      this.keyUploadDialog.close();
     }
   }
 }

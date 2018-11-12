@@ -16,8 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './navbar';
-
 export * from './modal-dialog';
 export * from './modal-dialog/confirmation-dialog';
 export * from './modal-dialog/progress-dialog';
