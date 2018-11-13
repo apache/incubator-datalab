@@ -303,7 +303,7 @@ Clicking on Computational resource name in DLab dashboard will open Computationa
     <img src="doc/emr_info.png" alt="Computational resource info" width="400">
 </p>
 
-Also you can go to computational resource master UI via link "Apache Spark Master' or "EMR Master".
+Also you can go to computational resource master UI via link "Apache Spark Master' or "EMR Master" (this functionality is only available for AWS cloud).
 
 Since Computational resource is up and running - you are now able to leverage cluster computational power to run your analytical jobs on.
 
