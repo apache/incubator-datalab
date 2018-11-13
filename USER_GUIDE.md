@@ -276,12 +276,19 @@ Also, if you would like to save some costs for your Computational resource you c
 
 This picture shows menu for creating Computational resource for AWS:
 <p align="center"> 
-    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="450">
+    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="565">
+</p>
+
+You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster ). The configuration object is referenced as a JSON file.
+To tune computational resource configuration check off "Configurations" check box and insert JSON format in text box:
+
+<p align="center"> 
+    <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="890">
 </p>
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
-    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="450">
+    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="571">
 </p>
 
 If you click on "Create" button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
