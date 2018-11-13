@@ -151,10 +151,6 @@ public abstract class KeyDAO extends BaseDAO {
 				Updates.set(EDGE_STATUS, status));
 	}
 
-	public void deleteEdge(String user) {
-		mongoService.getCollection(USER_EDGE).deleteOne(eq(ID, user));
-	}
-
 	/**
 	 * Return the status of EDGE node.
 	 *
