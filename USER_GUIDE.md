@@ -493,6 +493,22 @@ Administrator should confirm user environment stopping or termination by clickin
 
 ### Manage roles <a name="manage_roles"></a>
 
+Administrator can choose what instance shape(s) and notebook(s) can be allowed for certain group(s) or user(s).
+To do it click on "Manage roles" button. "Manage roles" popup will show-up:
+
+<p align="center"> 
+    <img src="doc/manage_role.png" alt="Manage roles" width="884">
+</p>
+
+To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
+New group will be added and appears on "Manage roles" popup.
+
+Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon ![delete](doc/delete_icon.png)for particular user. After that Hit "Yes" in confirmation popup.
+
+<p align="center"> 
+    <img src="doc/delete_group.png" alt="Delete group" width="879">
+</p>
+
 ### SSN monitor <a name="ssn_monitor"></a>
 
 --------------------------------
