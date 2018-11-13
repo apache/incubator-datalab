@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.dao;
@@ -40,8 +39,9 @@ import static com.mongodb.client.model.Updates.set;
  * DAO for manage the user key.
  */
 public abstract class KeyDAO extends BaseDAO {
-	static final String EDGE_STATUS = "edge_status";
+	private static final String EDGE_STATUS = "edge_status";
 	private static final String KEY_CONTENT = "content";
+	private static final String EDGE_ALLOWED_BUDGET = "allowed_budget";
 
 	/**
 	 * Store the user key to Mongo database.
@@ -86,27 +86,12 @@ public abstract class KeyDAO extends BaseDAO {
 	public void upsertKey(final String user, String content, boolean insertRequired) {
 		Document doc = new Document(SET,
 				new Document()
-				.append(ID, user)
-				.append(KEY_CONTENT, content)
-				.append(STATUS, insertRequired ? KeyLoadStatus.NEW.getStatus() : KeyLoadStatus.SUCCESS.getStatus())
+						.append(ID, user)
+						.append(KEY_CONTENT, content)
+						.append(STATUS, insertRequired ? KeyLoadStatus.NEW.getStatus() :
+								KeyLoadStatus.SUCCESS.getStatus())
 						.append(TIMESTAMP, new Date()));
 		updateOne(USER_KEYS, eq(ID, user), doc, insertRequired);
-	}
-
-	/**
-	 * Finds and returns the user key.
-	 *
-	 * @param user user name.
-	 */
-	public UserKeyDTO fetchKey(String user) {
-		Optional<UserKeyDTO> opt = findOne(USER_KEYS,
-				eq(ID, user),
-				UserKeyDTO.class);
-
-		if (opt.isPresent()) {
-			return opt.get();
-		}
-		throw new DlabException("Key of user " + user + " not found.");
 	}
 
 	/**
@@ -150,7 +135,7 @@ public abstract class KeyDAO extends BaseDAO {
 	public abstract Optional<? extends EdgeInfo> getEdgeInfoWhereStatusIn(String user, UserInstanceStatus... statuses);
 
 	protected <T extends EdgeInfo> Optional<T> getEdgeInfoWhereStatusIn(String user, Class<T> target,
-															  UserInstanceStatus... statuses) {
+																		UserInstanceStatus... statuses) {
 		return findOne(USER_EDGE,
 				and(eq(ID, user), in(EDGE_STATUS, statusList(statuses))),
 				target);
@@ -213,5 +198,12 @@ public abstract class KeyDAO extends BaseDAO {
 		updateOne(USER_EDGE,
 				and(eq(ID, user), in(EDGE_STATUS, statusList(edgeStatuses))),
 				Updates.set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
+	}
+
+	public Optional<Long> getAllowedBudget(String user) {
+		return findOne(USER_EDGE,
+				eq(ID, user),
+				fields(include(EDGE_ALLOWED_BUDGET), excludeId()))
+				.map(d -> d.getLong(EDGE_ALLOWED_BUDGET));
 	}
 }

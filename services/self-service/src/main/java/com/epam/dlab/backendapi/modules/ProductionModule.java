@@ -85,5 +85,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
 		bind(InactivityService.class).to(InactivityServiceImpl.class);
 		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
+		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
 	}
 }
