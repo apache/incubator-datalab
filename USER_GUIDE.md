@@ -506,7 +506,7 @@ New group will be added and appears on "Manage roles" popup.
 Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon ![delete](doc/delete_icon.png) for particular user. After that Hit "Yes" in confirmation popup.
 
 <p align="center"> 
-    <img src="doc/delete_group.png" alt="Delete group" width="879">
+    <img src="doc/delete_group.png" alt="Delete group" width="874">
 </p>
 
 ### SSN monitor <a name="ssn_monitor"></a>
