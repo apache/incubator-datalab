@@ -106,14 +106,12 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   Jupyter
 -   Apache Zeppelin
 -   RStudio
--   TensorFlow with RStudio
--   TensorFlow (Jupyter + TensorFlow)
+-   RStudio with TensorFlow
+-   Jupyter with TensorFlow
 -   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
 
-**Note:** terms 'Apache Zeppelin' and 'Apache Spark' hereinafter may be referred to as 'Zeppelin' and 'Spark' respectively or may have original reference.
-
 <p align="center"> 
-    <img src="doc/notebook_create.png" alt="Create notebook" width="480">
+    <img src="doc/notebook_create.png" alt="Create notebook" width="574">
 </p>
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
@@ -141,7 +139,7 @@ As soon as notebook server is created, its status will change to Running:
 When you click on the name of your Analytical tool in the dashboard – analytical tool popup will show up:
 
 <p align="center"> 
-    <img src="doc/notebook_info.png" alt="Notebook info" width="400">
+    <img src="doc/notebook_info.png" alt="Notebook info" width="570">
 </p>
 
 In the header you will see version of analytical tool, its status and shape.
@@ -154,7 +152,9 @@ In the body of the dialog:
 -   Shared bucket for all users
 -   Bucket that has been provisioned for your needs
 
-To access analytical tool Web UI – you need to configure SOCKS proxy. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
+To access analytical tool Web UI – you can use the first two links. In this case you don't need to open tunnel for Edge node and set SOCKS proxy. 
+
+Also you can use links via tunnel in order to access analytical tool Web UI. In this case you need to configure SOCKS proxy and open tunnel for Edge node. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
 
 ### Manage libraries <a name="manage_libraries"></a>
 
@@ -193,9 +193,7 @@ After clicking on "Install" button you will see process of installation with app
 
 ### Create image <a name="create_image"></a>
 
-Out of each analytical tool instance you can create an image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration.
-
-To create an AMI click on a gear icon ![gear](doc/gear_icon.png) in the Actions menu for a needed Notebook and hit "Create AMI":
+Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration. To create an AMI click on a gear icon ![gear](doc/gear_icon.png) in the Actions menu for a needed Notebook and hit "Create AMI":
 
 <p align="center"> 
     <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_ami" width="150">
@@ -448,7 +446,7 @@ Confirm you want to stop Edge node by clicking Yes:
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
 
-Administrator can use backup functionality. In order to do it click "Backup" button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
+Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
 
 <p align="center"> 
     <img src="doc/backup_options.png" alt="Backup options" width="515">
@@ -456,17 +454,17 @@ Administrator can use backup functionality. In order to do it click "Backup" but
 
 Confirm you want to do backup by clicking Apply.
 
-Administrator can manage users environment clicking on "Manage environment" button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
+Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="580">
 </p>
 
-If Administrator hit "Stop" button all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
+If Administrator hit Stop button all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
 
-If Administrator hit "Terminate" button all running and stopped instances will be terminated. User will not be able to Start the instance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
+If Administrator hit Terminate button all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
 
-Administrator should confirm user environment stopping or termination by clicking "Yes":
+Administrator should confirm user environment stopping or termination by clicking Yes:
 
 <p align="center"> 
     <img src="doc/manage_env_confirm.png" alt="Manage environment confirm" width="550">
