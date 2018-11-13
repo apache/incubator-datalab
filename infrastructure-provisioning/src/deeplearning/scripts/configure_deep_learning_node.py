@@ -53,13 +53,13 @@ caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
-keras_version = os.environ['notebook_keras_version']
+keras_version = '2.0.8'
 theano_version = os.environ['notebook_theano_version']
-
-cuda_version = os.environ['notebook_cuda_version']
-cuda_file_name = os.environ['notebook_cuda_file_name']
-cudnn_version = os.environ['notebook_cudnn_version']
-cudnn_file_name = os.environ['notebook_cudnn_file_name']
+tensorflow_version = '1.4.0'
+cuda_version = '8.0'
+cuda_file_name = 'cuda_8.0.44_linux-run'
+cudnn_version = '6.0'
+cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
 
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
