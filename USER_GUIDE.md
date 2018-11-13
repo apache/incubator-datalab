@@ -38,6 +38,14 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [DLab Health Status Page](#health_page)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Backup](#backup)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage environment](#manage_environment)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage roles](#manage_roles)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [SSN monitor](#ssn_monitor)
+
 [DLab billing report](#billing_page)
 
 [DLab Environment Management Page](#environment_management)
@@ -455,13 +463,17 @@ Confirm you want to stop Edge node by clicking Yes:
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
 
+### Backup <a name="backup"></a>
+
 Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
 
 <p align="center"> 
     <img src="doc/backup_options.png" alt="Backup options" width="515">
 </p>
 
-Confirm you want to do backup by clicking Apply.
+Confirm you want to do backup by clicking "Apply".
+
+### Manage environment <a name="manage_environment"></a>
 
 Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
 
@@ -478,6 +490,10 @@ Administrator should confirm user environment stopping or termination by clickin
 <p align="center"> 
     <img src="doc/manage_env_confirm.png" alt="Manage environment confirm" width="550">
 </p>
+
+### Manage roles <a name="manage_roles"></a>
+
+### SSN monitor <a name="ssn_monitor"></a>
 
 --------------------------------
 # DLab Billing report <a name="billing_page"></a>
@@ -545,7 +561,7 @@ Confirm stopping/decommissioning of the Computational resource by hitting Yes:
 
 --------------------------------
 
-# Web UI filters <a name="filters"></a>
+# Web UI filters <a name="filter"></a>
 
 You can leverage functionality of build-in UI filter to quickly manage the analytical tools and computational resources, which you only want to see in your dashboard.
 
