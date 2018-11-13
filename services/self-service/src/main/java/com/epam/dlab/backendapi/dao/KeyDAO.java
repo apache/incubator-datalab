@@ -41,20 +41,6 @@ import static com.mongodb.client.model.Updates.set;
 public abstract class KeyDAO extends BaseDAO {
 	private static final String EDGE_STATUS = "edge_status";
 	private static final String KEY_CONTENT = "content";
-	private static final String EDGE_ALLOWED_BUDGET = "allowed_budget";
-
-	/**
-	 * Store the user key to Mongo database.
-	 *
-	 * @param user    user name
-	 * @param content key
-	 */
-	public void insertKey(final String user, String content) {
-		UserKeyDTO key = new UserKeyDTO()
-				.withContent(content)
-				.withStatus(KeyLoadStatus.NEW.getStatus());
-		insertOne(USER_KEYS, key, user);
-	}
 
 	/**
 	 * Write the status of user key to Mongo database.
@@ -198,12 +184,5 @@ public abstract class KeyDAO extends BaseDAO {
 		updateOne(USER_EDGE,
 				and(eq(ID, user), in(EDGE_STATUS, statusList(edgeStatuses))),
 				Updates.set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
-	}
-
-	public Optional<Long> getAllowedBudget(String user) {
-		return findOne(USER_EDGE,
-				eq(ID, user),
-				fields(include(EDGE_ALLOWED_BUDGET), excludeId()))
-				.map(d -> d.getLong(EDGE_ALLOWED_BUDGET));
 	}
 }

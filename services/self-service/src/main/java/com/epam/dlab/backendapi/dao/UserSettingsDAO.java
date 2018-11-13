@@ -22,6 +22,8 @@ import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
 import io.dropwizard.auth.Auth;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Optional;
+
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_SETTINGS;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.set;
@@ -63,6 +65,11 @@ public class UserSettingsDAO extends BaseDAO {
 				eq(ID, allowedBudgetDTO.getName()),
 				set(USER_ALLOWED_BUDGET, allowedBudgetDTO.getBudget()),
 				true);
+	}
+
+	public Optional<Long> getAllowedBudget(String user) {
+		return findOne(USER_SETTINGS, eq(ID, user))
+				.flatMap(d -> Optional.ofNullable(d.getLong(USER_ALLOWED_BUDGET)));
 	}
 
 }
