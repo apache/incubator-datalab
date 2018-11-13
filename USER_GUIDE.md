@@ -511,6 +511,22 @@ Administrator can remove group or user. For that you should only click on "Delet
 
 ### SSN monitor <a name="ssn_monitor"></a>
 
+Administrator can monitor SSN HDD, Memory and CPU. 
+Clicking on "SSN monitor button" will open "SSN monitor" popup. 
+There are three tabs on  'SSN monitor' popup: CPU, HDD, Memory:
+
+<p align="center"> 
+    <img src="doc/cpu.png" alt="SSN CPU" width="562">
+</p>
+
+<p align="center"> 
+    <img src="doc/memory.png" alt="SSN memory" width="559">
+</p>
+
+<p align="center"> 
+    <img src="doc/hdd.png" alt="SSN HDD" width="557">
+</p>
+
 --------------------------------
 # DLab Billing report <a name="billing_page"></a>
 
