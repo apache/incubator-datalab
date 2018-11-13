@@ -481,9 +481,9 @@ Administrator can manage users environment clicking on Manage environment button
     <img src="doc/manage_environment.png" alt="Manage environment" width="580">
 </p>
 
-If Administrator hit Stop button all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
+If Administrator hit "Stop" icon ![stop](doc/stop_icon_env.png) all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
 
-If Administrator hit Terminate button all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
+If Administrator hit "Terminate" ![terminate](doc/terminate_icon_env.png) all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
 
 Administrator should confirm user environment stopping or termination by clicking Yes:
 
