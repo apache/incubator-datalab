@@ -387,7 +387,7 @@ On this tab you can also edit your credentials (click on pen icon) or delete (cl
 On every analytical tool instance you can see Git UI tool (ungit):
 
 <p align="center"> 
-    <img src="doc/git_ui_link.png" alt="Git_ui_link" width="400">
+    <img src="doc/git_ui_link.png" alt="Git_ui_link" width="570">
 </p>
 
 Before start working with git repositories, you need to change working directory on the top of window to:
