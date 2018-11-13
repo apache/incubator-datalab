@@ -329,19 +329,19 @@ Insert following “magics” before blocks of your code to start executing your
 ![RStudio](doc/rstudio.png)
 
 ---------------
-## Stop Spark cluster <a name="spark_stop"></a>
+## Stop  Apache Spark cluster <a name="spark_stop"></a>
 
-Once you have stopped working with a spark cluster and you would like to release cloud resources for the sake of the costs, you might want to Stop the spark cluster. You will be able to Start the spark cluster again after a while and proceed with your analytics.
+Once you have stopped working with a spark cluster and you would like to release cloud resources for the sake of the costs, you might want to Stop Apache Spark cluster. You will be able to Start apache Spark cluster again after a while and proceed with your analytics.
 
-To Stop the spark cluster click on ![stop](doc/stop_icon.png) button close to spark cluster alias.
+To Stop Apache Spark cluster click on ![stop](doc/stop_icon.png) button close to spark cluster alias.
 
-Hit YES in confirmation popup.
+Hit "YES" in confirmation popup.
 
 <p align="center"> 
     <img src="doc/spark_stop_confirm.png" alt="Spark stop confirm" width="400">
 </p>
 
-After you confirm your intent to Stop the spark cluster - the status will be changed to Stopping and will become Stopped in a while.
+After you confirm your intent to Apache Spark cluster - the status will be changed to Stopping and will become Stopped in a while.
 
 ------------------
 ## Terminate Computational resource <a name="computational_terminate"></a>
