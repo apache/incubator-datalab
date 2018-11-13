@@ -503,7 +503,7 @@ To do it click on "Manage roles" button. "Manage roles" popup will show-up:
 To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
 New group will be added and appears on "Manage roles" popup.
 
-Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon ![delete](doc/delete_icon.png)for particular user. After that Hit "Yes" in confirmation popup.
+Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon ![delete](doc/delete_icon.png) for particular user. After that Hit "Yes" in confirmation popup.
 
 <p align="center"> 
     <img src="doc/delete_group.png" alt="Delete group" width="879">
