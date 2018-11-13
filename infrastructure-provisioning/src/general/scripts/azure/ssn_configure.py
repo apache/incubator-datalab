@@ -366,8 +366,13 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        instance_hostname = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
+        if os.environ['conf_network_type'] == 'private':
+            instance_hostname = AzureMeta().get_private_ip_address(os.environ['azure_resource_group_name'],
                                                                        ssn_conf['instance_name'])
+        else:
+            instance_hostname = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
+                                                                       ssn_conf['instance_name'])
+
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 ssn_storage_account_name = storage_account.name

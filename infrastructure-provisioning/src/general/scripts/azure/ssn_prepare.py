@@ -57,7 +57,10 @@ if __name__ == "__main__":
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['network_interface_name'] = '{}-ssn-nif'.format(ssn_conf['service_base_name'])
-        ssn_conf['static_public_ip_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
+        if os.environ['conf_network_type'] == 'private':
+            ssn_conf['static_public_ip_name'] = 'None'      
+        else:
+            ssn_conf['static_public_ip_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
         ssn_conf['security_group_name'] = '{}-sg'.format(ssn_conf['service_base_name'])
         key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']), 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
