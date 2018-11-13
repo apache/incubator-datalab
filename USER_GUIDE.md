@@ -193,7 +193,9 @@ After clicking on "Install" button you will see process of installation with app
 
 ### Create image <a name="create_image"></a>
 
-Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration. To create an AMI click on a gear icon ![gear](doc/gear_icon.png) in the Actions menu for a needed Notebook and hit "Create AMI":
+Out of each analytical tool instance you can create an image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration.
+
+To create an AMI click on a gear icon ![gear](doc/gear_icon.png) in the Actions menu for a needed Notebook and hit "Create AMI":
 
 <p align="center"> 
     <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_ami" width="150">
@@ -446,7 +448,7 @@ Confirm you want to stop Edge node by clicking Yes:
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
 
-Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
+Administrator can use backup functionality. In order to do it click "Backup" button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
 
 <p align="center"> 
     <img src="doc/backup_options.png" alt="Backup options" width="515">
@@ -454,17 +456,17 @@ Administrator can use backup functionality. In order to do it click Backup butto
 
 Confirm you want to do backup by clicking Apply.
 
-Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
+Administrator can manage users environment clicking on "Manage environment" button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="580">
 </p>
 
-If Administrator hit Stop button all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
+If Administrator hit "Stop" button all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
 
-If Administrator hit Terminate button all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
+If Administrator hit "Terminate" button all running and stopped instances will be terminated. User will not be able to Start the instance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
 
-Administrator should confirm user environment stopping or termination by clicking Yes:
+Administrator should confirm user environment stopping or termination by clicking "Yes":
 
 <p align="center"> 
     <img src="doc/manage_env_confirm.png" alt="Manage environment confirm" width="550">
