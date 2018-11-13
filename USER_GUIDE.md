@@ -166,8 +166,8 @@ On every analytical tool instance you can install additional libraries by clicki
 
 After clicking you will see the window with 3 fields:
 -   Field for selecting an active resource to install libraries on
--   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Others)
--   Field for search available packages with autocomplete function
+-   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
+-   Field for search available packages with autocomplete function except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
 
 ![Install libraries dialog](doc/install_libs_form.png)
 
