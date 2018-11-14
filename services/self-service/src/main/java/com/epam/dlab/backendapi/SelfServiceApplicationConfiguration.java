@@ -102,8 +102,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private int privateKeySize = 2048;
 	@JsonProperty
 	private SwaggerBundleConfiguration swaggerConfiguration;
-	@JsonProperty
-	private int allowedBudgetUSD;
 
 	@Valid
 	@NotNull
@@ -228,9 +226,5 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isMongoMigrationEnabled() {
 		return mongoMigrationEnabled;
-	}
-
-	public int getAllowedBudgetUSD() {
-		return allowedBudgetUSD;
 	}
 }

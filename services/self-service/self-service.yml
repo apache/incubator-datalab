@@ -125,8 +125,6 @@ swaggerConfiguration:
   license: Apache 2.0
   licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
 
-allowedBudgetUSD: 1000
-
 schedulers:
   inactivity:
     enabled: false

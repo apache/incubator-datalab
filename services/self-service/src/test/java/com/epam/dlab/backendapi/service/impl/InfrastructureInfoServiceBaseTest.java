@@ -103,7 +103,6 @@ public class InfrastructureInfoServiceBaseTest {
 		when(envDAO.getHealthStatusPageDTO(anyString(), anyBoolean())).thenReturn(new HealthStatusPageDTO()
 				.withStatus(HealthStatusEnum.OK));
 		when(configuration.isBillingSchedulerEnabled()).thenReturn(false);
-		when(configuration.getAllowedBudgetUSD()).thenReturn(100);
 		when(billingDAO.getBillingQuoteUsed()).thenReturn(10);
 
 		HealthStatusPageDTO actualHealthStatusPageDTO =

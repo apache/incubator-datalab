@@ -31,6 +31,8 @@ public enum MongoSetting {
     /** Name of OS family. */
     CONF_OS_FAMILY("conf_os_family"),
 
+    CONF_MAX_BUDGET("conf_max_budget"),
+
 
     // AWS Related properties
     /** Name of AWS region. */

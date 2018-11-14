@@ -15,18 +15,36 @@
  *  * limitations under the License.
  *
  */
-package com.epam.dlab.backendapi.dao;
+
+package com.epam.dlab.backendapi.dao.gcp;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import org.bson.Document;
 
-public interface BillingDAO<T> {
-	Double getTotalCost();
-	Double getUserCost(String user);
+public class GcpBillingDao implements BillingDAO<Object> {
+	@Override
+	public Double getTotalCost() {
+		return null;
+	}
 
-	int getBillingQuoteUsed();
+	@Override
+	public Double getUserCost(String user) {
+		return null;
+	}
 
-	boolean isBillingQuoteReached();
+	@Override
+	public int getBillingQuoteUsed() {
+		return 0;
+	}
 
-	Document getReport(UserInfo userInfo, T filter);
+	@Override
+	public boolean isBillingQuoteReached() {
+		return false;
+	}
+
+	@Override
+	public Document getReport(UserInfo userInfo, Object filter) {
+		return null;
+	}
 }

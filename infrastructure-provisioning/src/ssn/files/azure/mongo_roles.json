@@ -155,7 +155,9 @@
     "pages": [
       "environment/*",
       "/api/infrastructure/backup",
-      "/roleManagement"
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings"
     ],
     "groups": [
       "$anyuser"
