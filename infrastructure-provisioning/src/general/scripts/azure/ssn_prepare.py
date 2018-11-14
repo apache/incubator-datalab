@@ -58,11 +58,9 @@ if __name__ == "__main__":
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['network_interface_name'] = '{}-ssn-nif'.format(ssn_conf['service_base_name'])
         if os.environ['conf_network_type'] == 'private':
-            ssn_conf['static_public_ip_name'] = 'None'    
-            ssn_conf['dynamic_ip'] = True        
+            ssn_conf['static_public_ip_name'] = 'None'      
         else:
             ssn_conf['static_public_ip_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
-            ssn_conf['dynamic_ip'] = False
         ssn_conf['security_group_name'] = '{}-sg'.format(ssn_conf['service_base_name'])
         key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']), 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
@@ -358,12 +356,12 @@ if __name__ == "__main__":
         print('[CREATE SSN INSTANCE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
-            --dlab_ssh_user_name {} --public_ip_name {} --dynamic_ip {} --public_key '''{}''' --primary_disk_size {} \
+            --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
             --instance_type {} --instance_storage_account_type {} --image_name {} --tags '{}'".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'],
                    os.environ['azure_vpc_name'], ssn_conf['network_interface_name'], os.environ['azure_security_group_name'],
                    os.environ['azure_subnet_name'], ssn_conf['service_base_name'], os.environ['azure_resource_group_name'],
-                   initial_user, ssn_conf['static_public_ip_name'], ssn_conf['dynamic_ip'], ssn_conf['public_ssh_key'],
+                   initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'],
                    ssn_conf['primary_disk_size'], 'ssn', ssn_conf['instance_storage_account_type'],
                    ssn_conf['ssn_image_name'], json.dumps(ssn_conf['instance_tags']))
         try:

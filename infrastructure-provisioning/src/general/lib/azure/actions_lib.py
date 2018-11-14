@@ -847,26 +847,13 @@ class AzureActions:
                           TypeError,
                           max_tries=5)
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
-                          tags, public_ip_name="None", dynamic_ip=False):
+                          tags, public_ip_name="None"):
         try:
             subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
             private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr)
             subnet_id = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
             security_group_id = meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
-            if public_ip_name == "None" and dynamic_ip:
-                ip_params = [{
-                    "name": interface_name,
-                    "private_ip_allocation_method": "Static",
-                    "private_ip_address": private_ip,
-                    "private_ip_address_version": "IPv4",
-                    "public_ip_address": {
-                        "public_ip_allocation_method", 'Dynamic'
-                    },
-                    "subnet": {
-                        "id": subnet_id
-                    }
-                }]
-            elif public_ip_name == "None" :
+            if public_ip_name == "None":
                 ip_params = [{
                     "name": interface_name,
                     "private_ip_allocation_method": "Static",

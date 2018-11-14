@@ -35,7 +35,6 @@ parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--dlab_ssh_user_name', type=str, default='')
 parser.add_argument('--public_ip_name', type=str, default='')
-parser.add_argument('--dynamic_ip', type=str, default=False)
 parser.add_argument('--public_key', type=str, default='')
 parser.add_argument('--primary_disk_size', type=str, default='')
 parser.add_argument('--security_group_name', type=str, default='')
@@ -79,8 +78,7 @@ if __name__ == "__main__":
                                                                             args.network_interface_name, args.region,
                                                                             args.security_group_name,
                                                                             json.loads(args.tags),
-                                                                            args.public_ip_name,
-                                                                            args.dynamic_ip)
+                                                                            args.public_ip_name)
                 disk = AzureMeta().get_disk(args.service_base_name, '{}-disk0'.format(
                     args.instance_name))
                 if disk:
