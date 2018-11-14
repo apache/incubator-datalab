@@ -83,7 +83,7 @@ When you log into DLab Web Application, the first thing you will have to setup i
 
 To do this click on “Upload” button on “Create initial infrastructure”, select your personal public key and hit “Create” button or click on "Generate" button on “Create initial infrastructure” and save your private key.
 
-<p align="center"> 
+<p align="center" class="facebox-popup"> 
     <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="400">
 </p>
 
@@ -147,7 +147,7 @@ As soon as notebook server is created, its status will change to Running:
 When you click on the name of your Analytical tool in the dashboard – analytical tool popup will show up:
 
 <p align="center"> 
-    <img src="doc/notebook_info.png" alt="Notebook info" width="570">
+    <img src="doc/notebook_info.png" alt="Notebook info" width="520">
 </p>
 
 In the header you will see version of analytical tool, its status and shape.
@@ -166,7 +166,7 @@ Also you can use links via tunnel in order to access analytical tool Web UI. In 
 
 ### Manage libraries <a name="manage_libraries"></a>
 
-On every analytical tool instance you can install additional libraries by clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
+On every analytical tool instance you can install additional libraries by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions column for a needed Notebook and hit Manage libraries:
 
 <p align="center"> 
     <img src="doc/notebook_menu_manage_libraries.png" alt="Notebook manage_libraries" width="150">
@@ -201,7 +201,7 @@ After clicking on "Install" button you will see process of installation with app
 
 ### Create image <a name="create_image"></a>
 
-Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration. To create an AMI click on a gear icon ![gear](doc/gear_icon.png) in the Actions menu for a needed Notebook and hit "Create AMI":
+Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration. To create an AMI click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions menu for a needed Notebook and hit "Create AMI":
 
 <p align="center"> 
     <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_ami" width="150">
@@ -212,7 +212,7 @@ On Create AMI popup you will be asked to fill in:
 -   text box for an AMI description (optional)
 
 <p align="center"> 
-    <img src="doc/create_ami.png" alt="Create AMI" width="510">
+    <img src="doc/create_ami.png" alt="Create AMI" width="480">
 </p>
 
 After clicking on "Assign" button the Notebook status will change to Creating AMI. Once an image is created the Notebook status changes back to Running.
@@ -231,7 +231,7 @@ Before clicking "Create" button you should choose the image from "Select AMI" an
 
 Once you have stopped working with an analytical tool and you would like to release cloud resources for the sake of the costs, you might want to Stop the notebook. You will be able to Start the notebook again after a while and proceed with your analytics.
 
-To Stop the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Stop:
+To Stop the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions column for a needed Notebook and hit Stop:
 
 <p align="center"> 
     <img src="doc/notebook_menu_stop.png" alt="Notebook stopping" width="150">
@@ -252,7 +252,7 @@ After you confirm you intent to Stop the notebook - the status will be changed t
 
 Once you have finished working with an analytical tool and you would like to release cloud resources for the sake of the costs, you might want to Terminate the notebook. You will not be able to Start the notebook which has been Terminated. Instead, you will have to create new Notebook server if you will need to proceed your analytical activities.
 
-To Terminate the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Terminate:
+To Terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions column for a needed Notebook and hit Terminate:
 
 **NOTE:** if any Computational resources have been linked to your notebook server – they will be automatically terminated if you stop the notebook.
 
@@ -284,19 +284,19 @@ Also, if you would like to save some costs for your Computational resource you c
 
 This picture shows menu for creating Computational resource for AWS:
 <p align="center"> 
-    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="565">
+    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="480">
 </p>
 
 You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster ). The configuration object is referenced as a JSON file.
 To tune computational resource configuration check off "Configurations" check box and insert JSON format in text box:
 
 <p align="center"> 
-    <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="890">
+    <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
-    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="571">
+    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="480">
 </p>
 
 If you click on "Create" button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
@@ -341,7 +341,7 @@ Insert following “magics” before blocks of your code to start executing your
 
 Once you have stopped working with a spark cluster and you would like to release cloud resources for the sake of the costs, you might want to Stop Apache Spark cluster. You will be able to Start apache Spark cluster again after a while and proceed with your analytics.
 
-To Stop Apache Spark cluster click on ![stop](doc/stop_icon.png) button close to spark cluster alias.
+To Stop Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to spark cluster alias.
 
 Hit "YES" in confirmation popup.
 
@@ -397,7 +397,7 @@ On this tab you can also edit your credentials (click on pen icon) or delete (cl
 On every analytical tool instance you can see Git UI tool (ungit):
 
 <p align="center"> 
-    <img src="doc/git_ui_link.png" alt="Git_ui_link" width="570">
+    <img src="doc/notebook_info.png" alt="Git_ui_link" width="520">
 </p>
 
 Before start working with git repositories, you need to change working directory on the top of window to:
@@ -468,7 +468,7 @@ In case you Edge node is Stopped or Terminated – you will have to Start or Rec
 Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
 
 <p align="center"> 
-    <img src="doc/backup_options.png" alt="Backup options" width="515">
+    <img src="doc/backup_options.png" alt="Backup options" width="480">
 </p>
 
 Confirm you want to do backup by clicking "Apply".
@@ -478,12 +478,12 @@ Confirm you want to do backup by clicking "Apply".
 Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
 
 <p align="center"> 
-    <img src="doc/manage_environment.png" alt="Manage environment" width="580">
+    <img src="doc/manage_environment.png" alt="Manage environment" width="520">
 </p>
 
-If Administrator hit "Stop" icon ![stop](doc/stop_icon_env.png) all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
+If Administrator hit "Stop" icon <img src="doc/stop_icon_env.png" alt="stop" width="22"> all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
 
-If Administrator hit "Terminate" icon ![terminate](doc/terminate_icon_env.png) all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
+If Administrator hit "Terminate" icon <img src="doc/terminate_icon_env.png" alt="terminate" width="22"> all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
 
 Administrator should confirm user environment stopping or termination by clicking Yes:
 
@@ -497,16 +497,16 @@ Administrator can choose what instance shape(s) and notebook(s) can be allowed f
 To do it click on "Manage roles" button. "Manage roles" popup will show-up:
 
 <p align="center"> 
-    <img src="doc/manage_role.png" alt="Manage roles" width="884">
+    <img src="doc/manage_role.png" alt="Manage roles" width="780">
 </p>
 
 To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
 New group will be added and appears on "Manage roles" popup.
 
-Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon ![delete](doc/delete_icon.png) for particular user. After that Hit "Yes" in confirmation popup.
+Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon <img src="doc/cross_icon.png" alt="delete" width="16"> for particular user. After that Hit "Yes" in confirmation popup.
 
 <p align="center"> 
-    <img src="doc/delete_group.png" alt="Delete group" width="874">
+    <img src="doc/delete_group.png" alt="Delete group" width="780">
 </p>
 
 ### SSN monitor <a name="ssn_monitor"></a>
@@ -516,15 +516,15 @@ Clicking on "SSN monitor button" will open "SSN monitor" popup.
 There are three tabs on  'SSN monitor' popup: CPU, HDD, Memory:
 
 <p align="center"> 
-    <img src="doc/cpu.png" alt="SSN CPU" width="562">
+    <img src="doc/cpu.png" alt="SSN CPU" width="480">
 </p>
 
 <p align="center"> 
-    <img src="doc/memory.png" alt="SSN memory" width="559">
+    <img src="doc/memory.png" alt="SSN memory" width="480">
 </p>
 
 <p align="center"> 
-    <img src="doc/hdd.png" alt="SSN HDD" width="557">
+    <img src="doc/hdd.png" alt="SSN HDD" width="480">
 </p>
 
 --------------------------------
@@ -597,7 +597,7 @@ Confirm stopping/decommissioning of the Computational resource by hitting Yes:
 
 You can leverage functionality of build-in UI filter to quickly manage the analytical tools and computational resources, which you only want to see in your dashboard.
 
-To do this, simply click on icon ![filter](doc/filter_icon.png) in dashboard header and filter your list by any of:
+To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" width="16"> in dashboard header and filter your list by any of:
 
 -   environment name (input field);
 -   status (multiple choice);
@@ -606,8 +606,7 @@ To do this, simply click on icon ![filter](doc/filter_icon.png) in dashboard hea
 
 ![Main page filter](doc/main_page_filter.png)
 
-Once your list of filtered by any of the columns, icon ![filter](doc/filter_icon.png) changes to
-![filter](doc/sort_icon.png) for a filtered columns only.
+Once your list of filtered by any of the columns, icon <img src="doc/filter_icon.png" alt="filter" width="16"> changes to <img src="doc/sort_icon.png" alt="filter" width="16"> for a filtered columns only.
 
 There is also an option for quick and easy way to filter out all inactive instances (Failed and Terminated) by clicking on “Show active” button in the ribbon. To switch back to the list of all resources, click on “Show all”.
 
@@ -617,7 +616,7 @@ Scheduler component allows to automatically schedule start/stop of notebook/clus
 - notebook scheduler;
 - data engine scheduler (currently spark cluster only);
 
-To create scheduler for a notebook click on a ![gear](doc/gear_icon.png) icon in the Actions column for a needed Notebook and hit Scheduler:
+To create scheduler for a notebook click on a <img src="doc/gear_icon.png" alt="gear" width="20"> icon in the Actions column for a needed Notebook and hit Scheduler:
 
 <p align="center"> 
     <img src="doc/notebook_menu_scheduler.png" alt="Notebook scheduler action" width="150">
@@ -654,7 +653,7 @@ In case when user private key was corrupted, lost etc. DLAB provide a possibilit
 It can be done on manage environment page using ACTIONS menu on edge instance:
 
 <p align="center"> 
-    <img src="doc/reupload_key_action.png" alt="Reupload key action" width="400">
+    <img src="doc/reupload_key_action.png" alt="Reupload key action" width="200">
 </p>
 
 After that similar to create initial environment dialog appeared where you can upload new key or generate new key-pair:
