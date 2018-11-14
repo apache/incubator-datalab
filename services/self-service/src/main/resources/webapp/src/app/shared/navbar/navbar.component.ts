@@ -23,8 +23,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { ApplicationSecurityService, HealthStatusService, AppRoutingService, UserAccessKeyService } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import { HTTP_STATUS_CODES } from '../../core/util';
-
+import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
 
 @Component({
@@ -35,7 +34,7 @@ import { NotificationDialogComponent } from '../modal-dialog/notification-dialog
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 5000;
 
   currentUserName: string;
   isLoggedIn: boolean;
@@ -61,13 +60,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
-          console.log('úpdate healthStatus');
+          console.log('úpdate healthStatus subscriptions NAV', result);
           this.healthStatus = result;
           this.checkQuoteUsed(this.healthStatus);
         }));
-        this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
-          console.log('úpdate accessKeyEmitter', response);
-          response && this.processAccessKeyStatus(response.status);
+        this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
+          console.log('accessKeyEmitter subscriptions NAV', result);
+          result && this.processAccessKeyStatus(result.status);
         }));
       }
     });
@@ -80,11 +79,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  getUserName() {
+  getUserName(): string {
     return this.applicationSecurityService.getCurrentUserName() || '';
   }
 
-  logout_btnClick() {
+  logout_btnClick(): void {
     this.applicationSecurityService.logout()
       .subscribe(
       () => this.appRoutingService.redirectToLoginPage(),
@@ -92,7 +91,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       () => this.appRoutingService.redirectToLoginPage());
   }
 
-  public emitQuotes() {
+  public emitQuotes(): void {
     const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
       data: `NOTE: Currently used billing quote is ${ this.healthStatus.billingQuoteUsed }%`,
       width: '550px'
@@ -102,30 +101,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  public generateUserKey($event) {
+  public generateUserKey($event): void {
     console.log('generate key', $event);
+    this.userAccessKeyService.generateAccessKey().subscribe(
+      data => {
+        FileUtils.downloadFile(data);
+      });
   }
 
-  public checkCreationProgress($event) {
+  public checkCreationProgress($event): void {
     console.log('checkCreationProgress key', $event);
+    this.userAccessKeyService.initialUserAccessKeyCheck();
   }
 
-  private checkQuoteUsed(params) {
+  private checkQuoteUsed(params): void {
     if (params.billingQuoteUsed >= this.quotesLimit && !this.applicationSecurityService.getBillingQuoteUsed()) {
       if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
       this.emitQuotes();
     }
   }
 
-  private processAccessKeyStatus(status: number) {
+  private processAccessKeyStatus(status: number): void {
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
       this.keyUploadDialog.open({ isFooter: false });
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
       !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
       setTimeout(() => this.userAccessKeyService.initialUserAccessKeyCheck(), this.CHECK_ACCESS_KEY_TIMEOUT);
-
-      this.userAccessKeyService.setActionOnKeyAccept();
     } else if (status === HTTP_STATUS_CODES.OK) {
+      this.userAccessKeyService.emitActionOnKeyUploadComplete();
       this.preloaderDialog.close();
       this.keyUploadDialog.close();
     }
