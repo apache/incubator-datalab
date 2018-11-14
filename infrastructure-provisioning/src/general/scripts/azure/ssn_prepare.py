@@ -75,8 +75,8 @@ if __name__ == "__main__":
                                            "SBN": ssn_conf['service_base_name']}
         ssn_conf['primary_disk_size'] = '32'
 
-    except:
-        print("Failed to generate variables dictionary.")
+    except Exception as err:
+        print("Failed to generate variables dictionary." + str(err))
         sys.exit(1)
 
     try:
