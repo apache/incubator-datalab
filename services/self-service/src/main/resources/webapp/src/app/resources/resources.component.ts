@@ -16,7 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 import { ToastsManager } from 'ng2-toastr';
 
 import { ResourcesGridComponent } from './resources-grid';
@@ -30,7 +31,7 @@ import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
   styleUrls: ['./resources.component.scss']
 })
 
-export class ResourcesComponent implements OnInit {
+export class ResourcesComponent implements OnInit, OnDestroy {
 
   public userUploadAccessKeyState: number;
   public exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
@@ -39,13 +40,11 @@ export class ResourcesComponent implements OnInit {
   public billingEnabled: boolean;
   public admin: boolean;
 
-  @ViewChild('keyUploadModal') keyUploadModal;
-  @ViewChild('preloaderModal') preloaderModal;
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
   @ViewChild('manageUngitDialog') manageUngitDialog;
   @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
 
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private userAccessKeyService: UserAccessKeyService,
@@ -59,12 +58,24 @@ export class ResourcesComponent implements OnInit {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.checkInfrastructureCreationProgress();
     this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
+
+    this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
+      console.log('úpdate accessKeyEmitter', response);
+      if (response) this.userUploadAccessKeyState = response.status;
+    }));
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   public createNotebook_btnClick(): void {
-    this.processAccessKeyStatus(this.userUploadAccessKeyState, true);
+    if (this.userUploadAccessKeyState === HTTP_STATUS_CODES.OK) {
+      if (!this.createAnalyticalModal.isOpened) this.createAnalyticalModal.open({ isFooter: false });
+    } else {
+      this.userAccessKeyService.initialUserAccessKeyCheck();
+    }
   }
 
   public refreshGrid(): void {
@@ -80,67 +91,9 @@ export class ResourcesComponent implements OnInit {
     }
   }
 
-  public checkInfrastructureCreationProgress() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-      (response: any) => this.processAccessKeyStatus(response.status, false),
-      error => {
-        this.processAccessKeyStatus(error.status, false);
-        error.status !== HTTP_STATUS_CODES.NOT_FOUND && this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
-      });
-  }
-
   public manageUngit(): void {
     if (!this.manageUngitDialog.isOpened)
         this.manageUngitDialog.open({ isFooter: false });
-  }
-
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.checkInfrastructureCreationProgress();
-    }, error => {
-      this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
-    });
-  }
-
-  private toggleDialogs(keyUploadDialogToggle, preloaderDialogToggle, createAnalyticalToolDialogToggle) {
-
-    if (keyUploadDialogToggle) {
-      this.keyUploadModal.open({ isFooter: false });
-    } else {
-      this.keyUploadModal.close();
-    }
-
-    if (preloaderDialogToggle) {
-      this.preloaderModal.open({ isHeader: false, isFooter: false });
-    } else {
-      this.preloaderModal.close();
-    }
-
-    if (createAnalyticalToolDialogToggle) {
-      if (!this.createAnalyticalModal.isOpened)
-        this.createAnalyticalModal.open({ isFooter: false });
-    } else {
-      if (this.createAnalyticalModal.isOpened)
-        this.createAnalyticalModal.close();
-    }
-  }
-
-  private processAccessKeyStatus(status: number, forceShowKeyUploadDialog: boolean) {
-    this.userUploadAccessKeyState = status;
-
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {// key haven't been uploaded
-      this.toggleDialogs(true, false, false);
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) { // Key uploading
-      this.toggleDialogs(false, true, false);
-      setTimeout(() => this.checkInfrastructureCreationProgress(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK && forceShowKeyUploadDialog) {
-      this.toggleDialogs(false, false, true);
-    } else if (status === HTTP_STATUS_CODES.OK) { // Key uploaded
-      this.toggleDialogs(false, false, false);
-    }
   }
 
   private getEnvironmentHealthStatus() {
@@ -152,7 +105,7 @@ export class ResourcesComponent implements OnInit {
           this.resourcesGrid.healthStatus = this.healthStatus;
           this.resourcesGrid.billingEnabled = this.billingEnabled;
 
-          this.checkInfrastructureCreationProgress();
+          this.userAccessKeyService.initialUserAccessKeyCheck();
         },
       error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
