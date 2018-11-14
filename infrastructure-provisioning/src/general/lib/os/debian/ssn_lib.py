@@ -143,9 +143,10 @@ def ensure_supervisor():
             sudo('update-rc.d supervisor defaults')
             sudo('update-rc.d supervisor enable')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/superv_ensured')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to install Supervisor: ', str(err))
+        sys.exit(1)
 
 
 def ensure_mongo():
@@ -156,9 +157,10 @@ def ensure_mongo():
             sudo('apt-get -y --allow-unauthenticated install mongodb-org')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to install MongoDB: ', str(err))
+        sys.exit(1)
 
 
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
@@ -293,7 +295,31 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             sudo('service nginx restart')
             sudo('service supervisor restart')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
-        return True
-    except:
-        return False
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to start Self-service: ', str(err))
+        sys.exit(1)
 
+
+def install_build_dep():
+    try:
+        if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
+            maven_version = '3.5.4'
+            sudo('apt-get install -y openjdk-8-jdk git wget unzip')
+            with cd('/opt/'):
+                sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
+                    maven_version.split('.')[0], maven_version))
+                sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
+                sudo('mv apache-maven-{} maven'.format(maven_version))
+            sudo('touch /etc/profile.d/maven.sh')
+            sudo("echo 'export M2_HOME=/opt/maven' >> /etc/profile.d/maven.sh")
+            sudo("echo 'export PATH=${M2_HOME}/bin:${PATH}' >> /etc/profile.d/maven.sh")
+            sudo('chmod +x /etc/profile.d/maven.sh')
+            sudo('source /etc/profile.d/maven.sh')
+            sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
+            sudo('apt-get install -y nodejs')
+            sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to install build dependencies for UI: ', str(err))
+        sys.exit(1)

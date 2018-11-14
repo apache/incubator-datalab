@@ -25,6 +25,7 @@ import argparse
 import json
 import sys
 import os
+import traceback
 from dlab.ssn_lib import *
 from dlab.fab import *
 
@@ -79,14 +80,18 @@ keystore_passwd = id_generator()
 
 
 def copy_ssn_libraries():
-    sudo('mkdir -p /usr/lib/python2.7/dlab/')
-    run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/dlab_libs/*')
-    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
-    if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
-    return True
+    try:
+        sudo('mkdir -p /usr/lib/python2.7/dlab/')
+        run('mkdir -p /tmp/dlab_libs/')
+        local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
+        run('chmod a+x /tmp/dlab_libs/*')
+        sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+        if exists('/usr/lib64'):
+            sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to copy ssn libraries: ', str(err))
+        sys.exit(1)
 
 
 def configure_mongo(mongo_passwd):
@@ -117,8 +122,9 @@ def configure_mongo(mongo_passwd):
             args.dlab_path, json.dumps(mongo_parameters)))
         return True
     except Exception as err:
-        print(err)
-        return False
+        traceback.print_exc()
+        print('Failed to configure MongoDB: ', str(err))
+        sys.exit(1)
 
 
 ##############
@@ -135,40 +141,33 @@ if __name__ == "__main__":
         sys.exit(2)
 
     print("Copying DLab libraries to SSN")
-    if not copy_ssn_libraries():
-        logging.error('Failed to copy DLab libraries')
-        sys.exit(1)
+    copy_ssn_libraries()
 
     print("Installing Supervisor")
-    if not ensure_supervisor():
-        logging.error('Failed to install Supervisor')
-        sys.exit(1)
+    ensure_supervisor()
 
     print("Installing MongoDB")
-    if not ensure_mongo():
-        logging.error('Failed to install MongoDB')
-        sys.exit(1)
+    ensure_mongo()
 
     print("Configuring MongoDB")
-    if not configure_mongo(mongo_passwd):
-        logging.error('MongoDB configuration script has failed.')
-        sys.exit(1)
+    configure_mongo(mongo_passwd)
 
     sudo('echo DLAB_CONF_DIR={} >> /etc/profile'.format(dlab_conf_dir))
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
 
-    print("Starting Self-Service(UI)")
-    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path,
-                    args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
-                    args.service_base_name, args.tag_resource_id, args.account_id,
-                    args.billing_bucket, args.aws_job_enabled, args.dlab_path, args.billing_enabled,
-                    args.authentication_file, args.offer_number, args.currency, args.locale,
-                    args.region_info, args.ldap_login, args.tenant_id, args.application_id,
-                    args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
-                    args.dlab_id, args.usage_date, args.product, args.usage_type,
-                    args.usage, args.cost, args.resource_id, args.tags):
-        logging.error('Failed to start UI')
-        print('Failed to UI')
-        sys.exit(1)
+    print("Installing build dependencies for UI")
+    install_build_dep()
 
-    sys.exit(0)
+    print("Building UI")
+    buid_ui()
+
+    print("Starting Self-Service(UI)")
+    start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path,
+             args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
+             args.service_base_name, args.tag_resource_id, args.account_id,
+             args.billing_bucket, args.aws_job_enabled, args.dlab_path, args.billing_enabled,
+             args.authentication_file, args.offer_number, args.currency, args.locale,
+             args.region_info, args.ldap_login, args.tenant_id, args.application_id,
+             args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
+             args.dlab_id, args.usage_date, args.product, args.usage_type,
+             args.usage, args.cost, args.resource_id, args.tags)
