@@ -349,6 +349,7 @@ def install_build_dep():
             sudo('source /etc/profile.d/maven.sh')
             sudo('bash -c "curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -"')
             sudo('yum install -y nodejs')
+            sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
     except Exception as err:
         traceback.print_exc()

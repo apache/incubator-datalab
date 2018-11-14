@@ -18,6 +18,7 @@
 #
 # ******************************************************************************
 
+from fabric.api import *
 import crypt
 import yaml
 from dlab.fab import *
@@ -318,6 +319,7 @@ def install_build_dep():
             sudo('source /etc/profile.d/maven.sh')
             sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
             sudo('apt-get install -y nodejs')
+            sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
     except Exception as err:
         traceback.print_exc()
