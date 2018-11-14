@@ -34,29 +34,28 @@ export class UserAccessKeyService {
   }
 
   public initialUserAccessKeyCheck() {
-    console.log('initial User Access Key Check');
     this.checkUserAccessKey().subscribe(
       response => {
       this._accessKeyEmitter.next(response);
       console.log('initial User Access Key Check OK');
     }, error => {
       this._accessKeyEmitter.next(error);
-      console.error('Error retrieving access key');
+      console.error('initial User Access Key Check', 'Error retrieving access key');
     });
   }
 
   public checkUserAccessKey(): Observable<{}> {
+    console.log('checkUserAccessKey');
     return this.applicationServiceFacade
       .buildCheckUserAccessKeyRequest()
       .map(response => {
-        this._accessKeyEmitter.next(response);
         return response;
       })
       .catch(ErrorUtils.handleServiceError);
   }
 
-  public setActionOnKeyAccept() {
-    console.log('data updated, key accepted');
+  public emitActionOnKeyUploadComplete() {
+    console.log('key uploaded!!!!!!!!!!!!!');
   }
 
   public generateAccessKey(): Observable<{}> {
