@@ -36,11 +36,6 @@ export class ManagementComponent implements OnInit {
   public allEnvironmentData: Array<EnvironmentModel>;
   public uploadKey: boolean = true;
 
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
-
-  @ViewChild('keyUploadModal') keyUploadDialog;
-  @ViewChild('preloaderModal') preloaderDialog;
-
   constructor(
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService,
@@ -71,36 +66,6 @@ export class ManagementComponent implements OnInit {
       .subscribe(
         () => this.buildGrid(),
         error =>  this.toastr.error('Environment management failed!', 'Oops!', { toastLife: 5000 }));
-  }
-
-  public checkUserAccessKey() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-        (response: any) => this.processAccessKeyStatus(response.status),
-        error => this.processAccessKeyStatus(error.status));
-  }
-
-  private processAccessKeyStatus(status: number) {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.keyUploadDialog.open({ isFooter: false });
-      this.uploadKey = false;
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
-
-      setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      this.preloaderDialog.close();
-      this.keyUploadDialog.close();
-      this.uploadKey = true;
-    }
-  }
-
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.buildGrid();
-      });
   }
 
   private getAllEnvironmentData() {
@@ -135,7 +100,7 @@ export class ManagementComponent implements OnInit {
           }
 
           this.getAllEnvironmentData();
-          this.checkUserAccessKey();
+          this.userAccessKeyService.initialUserAccessKeyCheck();
         });
   }
 }
