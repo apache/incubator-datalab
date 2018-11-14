@@ -34,7 +34,6 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--jupyter_version', type=str, default='')
-parser.add_argument('--tensorflow_version', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
@@ -113,7 +112,7 @@ if __name__ == "__main__":
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES AND FRAMEWORKS
     print("Install TensorFlow")
     install_tensor(args.os_user, cuda_version, cuda_file_name,
-                   cudnn_version, cudnn_file_name, args.tensorflow_version,
+                   cudnn_version, cudnn_file_name, tensorflow_version,
                    templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
