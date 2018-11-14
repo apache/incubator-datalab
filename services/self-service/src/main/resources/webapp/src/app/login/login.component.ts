@@ -16,12 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
-import { ErrorUtils, HTTP_STATUS_CODES } from '../core/util';
+import { HTTP_STATUS_CODES } from '../core/util';
 import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
@@ -42,8 +42,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
-    private healthStatusService: HealthStatusService,
-    private ref: ChangeDetectorRef
+    private healthStatusService: HealthStatusService
   ) {
     this.subscription = this.applicationSecurityService.emitter$
       .subscribe(message => this.error = message);
