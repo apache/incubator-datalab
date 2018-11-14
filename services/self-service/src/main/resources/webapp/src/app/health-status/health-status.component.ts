@@ -22,14 +22,14 @@ import { ISubscription } from 'rxjs/Subscription';
 
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
-import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
+import { FileUtils } from '../core/util';
 
 @Component({
   selector: 'health-status',
   templateUrl: 'health-status.component.html',
   styleUrls: ['./health-status.component.scss']
 })
-export class HealthStatusComponent implements OnInit, OnDestroy{
+export class HealthStatusComponent implements OnInit, OnDestroy {
   private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
   private clear = undefined;
   private subscription: ISubscription;
@@ -65,12 +65,11 @@ export class HealthStatusComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.buildGrid();
-    this.subscription = this.healthStatusService.statusData.subscribe(
-      result => {
+    this.subscription = this.healthStatusService.statusData.subscribe(result => {
         this.healthStatus2 = result;
-        console.log('úpdate on healthStatus2', this.healthStatus2)
+        console.log('úpdate on healthStatus2', this.healthStatus2);
       }
-    )
+    );
   }
 
   ngOnDestroy(): void {
@@ -88,7 +87,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy{
     this.billingEnabled = healthStatusList.billingEnabled;
     this.isAdmin = healthStatusList.admin;
 
-    this.checkUserAccessKey();
+    this.userAccessKeyService.initialUserAccessKeyCheck();
     this.getExploratoryList();
 
     if (healthStatusList.list_resources)
@@ -105,7 +104,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy{
   getActiveUsersList() {
     return this.healthStatusService.getActiveUsers();
   }
- 
+
   openManageEnvironmentDialog() {
     this.getActiveUsersList().subscribe(
       usersList => this.manageEnvironmentDialog.open({ isFooter: false }, usersList),
@@ -138,7 +137,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy{
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
             this.manageEnvironmentDialog.usersList = usersList;
-            this.toastr.success(`Action ${event.action } is processing!`, 'Processing!', { toastLife: 5000 });
+            this.toastr.success(`Action ${ event.action } is processing!`, 'Processing!', { toastLife: 5000 });
             this.buildGrid();
           });
         },
@@ -184,36 +183,6 @@ export class HealthStatusComponent implements OnInit, OnDestroy{
     }
   }
 
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.buildGrid();
-      });
-  }
-
-  public checkUserAccessKey() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-        (response: any) => this.processAccessKeyStatus(response.status),
-        error => this.processAccessKeyStatus(error.status));
-  }
-
-  private processAccessKeyStatus(status: number) {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.keyUploadDialog.open({ isFooter: false });
-      this.uploadKey = false;
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
-
-      setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      this.preloaderDialog.close();
-      this.keyUploadDialog.close();
-      this.uploadKey = true;
-    }
-  }
-
   createBackup($event) {
     this.backupService.createBackup($event).subscribe(result => {
       this.getBackupStatus(result);
@@ -232,8 +201,8 @@ export class HealthStatusComponent implements OnInit, OnDestroy{
 
   isEnvironmentsInProgress(data): boolean {
     return data.exploratory.some(el => {
-      return el.status === 'creating' || el.status === 'starting' || 
-        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring')
+      return el.status === 'creating' || el.status === 'starting' ||
+        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring');
     });
   }
 
