@@ -43,17 +43,8 @@ if __name__ == "__main__":
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
-
-        if os.environ['azure_vpc_name'] != '':
-            ssn_conf['vpc_name'] = os.environ['azure_vpc_name']
-        else:
-            ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
-        
-        if os.environ['azure_subnet_name'] != '':
-            ssn_conf['subnet_name'] = os.environ['azure_subnet_name']
-        else:
-            ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
-           
+        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
+        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         ssn_conf['subnet_prefix'] = '20'
@@ -148,7 +139,7 @@ if __name__ == "__main__":
         print("[CREATING SUBNET]")
         try:
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
-                format(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
+                format(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'], ssn_conf['region'],
                        ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
@@ -161,9 +152,9 @@ if __name__ == "__main__":
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
-                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] )
             try:
-                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] ,
                                              ssn_conf['subnet_name'])
             except:
                 print("Subnet hasn't been created.")
@@ -249,9 +240,9 @@ if __name__ == "__main__":
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
-                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                             ssn_conf['subnet_name'])
+                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] )
+                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] ,
+                                             os.environ['azure_subnet_name'])
             append_result("Failed to create Security groups. Exception:" + str(err))
             sys.exit(1)
 
@@ -271,10 +262,10 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] )
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] , os.environ['azure_subnet_name'])
         if pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'], os.environ['azure_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
@@ -297,12 +288,12 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] )
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] ,
+                                         os.environ['azure_subnet_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
+                                                 os.environ['azure_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
@@ -340,10 +331,10 @@ if __name__ == "__main__":
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
-                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] )
+                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] , os.environ['azure_subnet_name'])
             if pre_defined_sg:
-                AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
+                AzureActions().remove_security_group(os.environ['azure_resource_group_name'], os.environ['azure_security_group_name'])
             for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
                 if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                     AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
@@ -383,12 +374,12 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] )
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'] ,
+                                         os.environ['azure_subnet_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
+                                                 os.environ['azure_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
