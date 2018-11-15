@@ -43,14 +43,17 @@ if __name__ == "__main__":
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
-        if os.environ['azure_vpc_name'] != "":
+
+        if os.environ['azure_vpc_name'] != '':
             ssn_conf['vpc_name'] = os.environ['azure_vpc_name']
         else:
             ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
-        if os.environ['azure_subnet_name'] != "":
+        
+        if os.environ['azure_subnet_name'] != '':
             ssn_conf['subnet_name'] = os.environ['azure_subnet_name']
         else:
             ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+           
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         ssn_conf['subnet_prefix'] = '20'
