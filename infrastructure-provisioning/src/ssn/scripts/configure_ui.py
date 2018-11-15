@@ -219,7 +219,7 @@ if __name__ == "__main__":
     install_build_dep()
 
     print("Building UI")
-    buid_ui()
+    build_ui()
 
     print("Starting Self-Service(UI)")
     start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path,
