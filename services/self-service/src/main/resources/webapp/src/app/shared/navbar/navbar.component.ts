@@ -16,9 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { Subscription } from 'rxjs/Subscription';
+import { ToastsManager } from 'ng2-toastr';
 
 import { ApplicationSecurityService, HealthStatusService, AppRoutingService, UserAccessKeyService } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
@@ -51,8 +52,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private appRoutingService: AppRoutingService,
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
-    private dialog: MatDialog
-  ) { }
+    private dialog: MatDialog,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
@@ -102,7 +107,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userAccessKeyService.generateAccessKey().subscribe(
       data => {
         FileUtils.downloadFile(data);
-      });
+      }, error => this.toastr.error(error.message || 'Access key generation failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public checkCreationProgress($event): void {
