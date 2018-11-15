@@ -288,8 +288,8 @@ List of parameters for SSN node deployment:
 | aws\_region               | AWS region                                                                              |
 | conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS) 
-| conf\_duo\_vpc\_enable    | Insert "true" - if install DLab into two VPCs or "false" - if install DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
-| aws\_vpc\_id              | ID of the Virtual Private Cloud (VPC)                                                   |
+| conf\_duo\_vpc\_enable    | Insert "true" - if install DLab into two Virtual Private Clouds (VPCs) or "false" - if install DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
+| aws\_vpc\_id              | ID of the VPC                                                   |
 | aws\_subnet\_id           | ID of the public subnet                                                                 |
 | aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
 | key\_path                 | Path to admin key (without key name)                                                    |
