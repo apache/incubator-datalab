@@ -145,11 +145,12 @@ def build_ui():
         with cd(args.dlab_path + '/sources/'):
             sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
-        sudo('mkdir -p {}/web_app'.format(args.dlab_path))
-        sudo('mkdir -p {}/web_app/provisioning-service/'.format(args.dlab_path))
-        sudo('mkdir -p {}/web_app/security-service/'.format(args.dlab_path))
-        sudo('mkdir -p {}/web_app/self-service/'.format(args.dlab_path))
-        sudo('mkdir -p {}/web_app/billing/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/lib/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/conf/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/lib/provisioning-service/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/lib/security-service/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/lib/self-service/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/lib/billing/'.format(args.dlab_path))
         sudo('cp {0}/sources/services/self-service/self-service.yml {0}/web_app/self-service/'.format(args.dlab_path))
         sudo('cp {0}/sources/services/self-service/target/self-service-*.jar {0}/web_app/self-service/'.format(
             args.dlab_path))

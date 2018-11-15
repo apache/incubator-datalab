@@ -194,7 +194,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 f.write(text)
             put('/root/templates/supervisor_svc.conf', '/tmp/supervisor_svc.conf')
             sudo('mv /tmp/supervisor_svc.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
-            sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
+            sudo('cp ' + os.environ['ssn_dlab_path'] +
+                 'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
             sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.conf {}'.format(supervisor_conf))
             sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
             try:
@@ -223,8 +224,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                         sudo('sed -i "s|<LOGIN_PAGE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, hostname))
                     if os.environ['azure_datalake_enable'] == 'true':
                         permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/accounts/{}/providers/Microsoft.Authorization/'.format(
-                            subscription_id, service_base_name, data_lake_name
-                        )
+                            subscription_id, service_base_name, data_lake_name)
                     else:
                         permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Authorization/'.format(
                             subscription_id, service_base_name
