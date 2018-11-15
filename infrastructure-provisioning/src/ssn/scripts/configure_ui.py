@@ -108,22 +108,82 @@ def configure_mongo(mongo_passwd):
             sudo('systemctl enable mongod.service')
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
-                                                                                                      env.host_string))
+                                                                                             env.host_string))
         sudo('mv /tmp/resource_status.py ' + os.environ['ssn_dlab_path'] + 'tmp/')
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/configure_mongo.py ' + args.dlab_path + 'tmp/')
-        local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile, args.cloud_provider,
-                                                                                             env.host_string))
+        local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
+                                                                                          args.cloud_provider,
+                                                                                          env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
         mongo_parameters = json.loads(args.mongo_parameters)
         sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} --mongo_parameters '{}'".format(
             args.dlab_path, json.dumps(mongo_parameters)))
-        return True
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure MongoDB: ', str(err))
+        sys.exit(1)
+
+
+def build_ui():
+    try:
+        # Building Front-end
+        with cd(args.dlab_path + '/sources/services/self-service/src/main/resources/webapp/'):
+            sudo('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
+
+            if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
+                sudo('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format(
+                     '\'use_ldap\': false'))
+
+            sudo('npm install')
+            sudo('npm run build.prod')
+            sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
+
+        # Building Back-end
+        with cd(args.dlab_path + '/sources/'):
+            sudo('mvn -P{} -DskipTests package'.format(args.conf_cloud_provider))
+
+        sudo('mkdir -p {}/web_app'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/provisioning-service/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/security-service/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/self-service/'.format(args.dlab_path))
+        sudo('mkdir -p {}/web_app/billing/'.format(args.dlab_path))
+        sudo('cp {0}/sources/services/self-service/self-service.yml {0}/web_app/self-service/'.format(args.dlab_path))
+        sudo('cp {0}/sources/services/self-service/target/self-service-*.jar {0}/web_app/self-service/'.format(
+            args.dlab_path))
+        sudo('cp {0}/sources/services/provisioning-service/provisioning.yml {0}/web_app/provisioning-service/'.format(
+            args.dlab_path))
+        sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
+             '{0}/web_app/provisioning-service/'.format(args.dlab_path))
+        sudo('sed -i "s/LDAP_HOST/{0}/g" {1}/sources/services/security-service/security.yml'.format(
+            os.environ['ldap_hostname'], args.dlab_path))
+        sudo('sed -i "s/LDAP_USER/{0}/g" {1}/sources/services/security-service/security.yml'.format('{0},{1}'.format(
+            os.environ['ldap_service_username'], os.environ['ldap_dn']), args.dlab_path))
+        sudo("sed -i 's/LDAP_PASS/{0}/g' {1}/sources/services/security-service/security.yml".format(
+            os.environ['ldap_service_password'], args.dlab_path))
+        sudo('cp {0}/sources/services/security-service/security.yml {0}/web_app/security-service/'.format(args.dlab_path))
+        sudo('cp {0}/sources/services/security-service/target/security-service-*.jar '
+             '{0}/web_app/security-service/'.format(args.dlab_path))
+
+        if args.cloud_provider == 'azure':
+            sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/web_app/billing/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/'.format(
+                args.dlab_path))
+        elif args.cloud_provider == 'aws':
+            sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/web_app/billing/'.format(args.dlab_path))
+            sudo(
+                'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/web_app/billing/'.format(
+                    args.dlab_path))
+        elif args.cloud_provider == 'gcp':
+            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/web_app/billing/'.format(args.dlab_path))
+            sudo(
+                'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/web_app/billing/'.format(
+                    args.dlab_path))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to build UI: ', str(err))
         sys.exit(1)
 
 
