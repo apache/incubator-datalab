@@ -46,7 +46,9 @@ export class ApplicationSecurityService {
     private serviceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
   ) {
-    this.isLoggedIn().subscribe((response) => this._loggedInStatus.next(response), err => console.error('Error retrieving logging status'));
+    this.isLoggedIn().subscribe((response) => {
+      this._loggedInStatus.next(response);
+    }, err => console.error('Error retrieving logging status'));
   }
 
   get loggedInStatus() {
@@ -68,6 +70,7 @@ export class ApplicationSecurityService {
           this._loggedInStatus.next(true);
           return true;
         }
+        this._loggedInStatus.next(false);
         return false;
       }, this);
   }
