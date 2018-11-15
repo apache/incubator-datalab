@@ -22,7 +22,7 @@ ARG OS
 
 COPY infrastructure-provisioning/src/dataengine-service/fabfile.py /root/
 COPY infrastructure-provisioning/src/dataengine-service/description.json /root/
-COPY infrastructure-provisioning/src/infrastructure-provisioning/src/general/scripts/aws/dataengine-service_* /root/scripts/
+COPY infrastructure-provisioning/src/general/scripts/aws/dataengine-service_* /root/scripts/
 COPY infrastructure-provisioning/src/general/scripts/os/common_configure_proxy.py /root/scripts/
 COPY infrastructure-provisioning/src/general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
 COPY infrastructure-provisioning/src/general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_available_pkgs.py
