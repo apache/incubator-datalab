@@ -54,7 +54,7 @@ if __name__ == "__main__":
         ssn_conf['datalake_store_name'] = '{}-ssn-datalake'.format(ssn_conf['service_base_name'])
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
-        ssn_conf['vpc_name'] = os.environ['azure_vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
+        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         ssn_conf['security_group_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
         ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
@@ -64,19 +64,24 @@ if __name__ == "__main__":
         try:
             if os.environ['azure_resource_group_name'] == '':
                 raise KeyError
+            else:
+                pre_defined_resource_group = True
         except KeyError:
             os.environ['azure_resource_group_name'] = ssn_conf['service_base_name']
-            pre_defined_resource_group = True
         try:
             if os.environ['azure_vpc_name'] == '':
                 raise KeyError
+            else:
+                pre_defined_vpc = True
         except KeyError:
-            pre_defined_vpc = True
+            os.environ['azure_vpc_name'] = ssn_conf['vpc_name']
         try:
             if os.environ['azure_subnet_name'] == '':
                 raise KeyError
+            else:
+                pre_defined_subnet = True
         except KeyError:
-            pre_defined_subnet = True
+            os.environ['azure_subnet_name'] = ssn_conf['subnet_name']
         try:
             if os.environ['azure_offer_number'] == '':
                 raise KeyError
@@ -102,13 +107,13 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         print("Failed to generate variables dictionary.")
-        if pre_defined_resource_group:
+        if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if pre_defined_sg:
+        if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
@@ -136,13 +141,13 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
+        if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if pre_defined_sg:
+        if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
@@ -170,14 +175,14 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
+        if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
 
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if pre_defined_sg:
+        if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
@@ -210,13 +215,13 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
+        if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if pre_defined_sg:
+        if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
@@ -254,13 +259,13 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
+        if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if pre_defined_sg:
+        if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
@@ -343,13 +348,13 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
+        if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if pre_defined_sg:
+        if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
