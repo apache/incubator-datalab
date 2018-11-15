@@ -45,11 +45,7 @@ export class ApplicationSecurityService {
   constructor(
     private serviceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
-  ) {
-    this.isLoggedIn().subscribe((response) => {
-      this._loggedInStatus.next(response);
-    }, err => console.error('Error retrieving logging status'));
-  }
+  ) {}
 
   get loggedInStatus() {
     return this._loggedInStatus.asObservable();
