@@ -19,7 +19,7 @@ limitations under the License.
 <table class="dashboard_table">
   <tr>
     <th *ngFor="let column of filteringColumns"
-        ngClass="{{column.className || ''}}" [hidden]="column.name === 'cost' && !billingEnabled">
+        ngClass="{{column.className || ''}}" [hidden]="column.name === 'cost' && !healthStatus?.billingEnabled">
       {{column.title}}
       <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
         <i class="material-icons">
@@ -43,7 +43,7 @@ limitations under the License.
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
     </td>
-    <td *ngIf="billingEnabled"></td>
+    <td *ngIf="healthStatus?.billingEnabled"></td>
     <td>
       <div class="actions">
         <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
@@ -58,11 +58,11 @@ limitations under the License.
   </tr>
 
   <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
-    <td [colSpan]="!billingEnabled ? filteringColumns.length -1 : filteringColumns.length">To start working, please, create new environment</td>
+    <td [colSpan]="!healthStatus?.billingEnabled ? filteringColumns.length -1 : filteringColumns.length">To start working, please, create new environment</td>
   </tr>
 
   <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
-    <td [colSpan]="!billingEnabled ? filteringColumns.length -1 : filteringColumns.length">No matches found</td>
+    <td [colSpan]="!healthStatus?.billingEnabled ? filteringColumns.length -1 : filteringColumns.length">No matches found</td>
   </tr>
 
   <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
@@ -70,9 +70,9 @@ limitations under the License.
     <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{ env.status | underscoreless }}</td>
     <td>{{env.shape}}</td>
     <td>
-      <computational-resources-list [resources]="env.resources" [environment]="env" [healthStatus]="healthStatus" (buildGrid)="buildGrid($event)"></computational-resources-list>
+      <computational-resources-list [resources]="env.resources" [environment]="env" [healthStatus]="healthStatus?.status" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
-    <td *ngIf="billingEnabled">
+    <td *ngIf="healthStatus?.billingEnabled">
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
       <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}">
         <i class="material-icons">help_outline</i>
@@ -80,7 +80,7 @@ limitations under the License.
     </td>
     <td class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"
-            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus === 'error'}">
+            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus?.status === 'error'}">
       </span>
 
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">

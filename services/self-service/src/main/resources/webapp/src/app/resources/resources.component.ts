@@ -37,8 +37,8 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   public exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
   public computationalResources: Array<ComputationalResourceImage> = [];
   public healthStatus: any;
-  public billingEnabled: boolean;
-  public admin: boolean;
+  // public billingEnabled: boolean;
+  // public admin: boolean;
 
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
   @ViewChild('manageUngitDialog') manageUngitDialog;
@@ -61,7 +61,6 @@ export class ResourcesComponent implements OnInit, OnDestroy {
     this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
 
     this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
-      console.log('úpdate accessKeyEmitter', response);
       if (response) this.userUploadAccessKeyState = response.status;
     }));
   }
@@ -99,12 +98,8 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
         (result: any) => {
-          this.healthStatus = result.status;
-          this.billingEnabled = result.billingEnabled;
-          this.admin = result.admin;
+          this.healthStatus = result;
           this.resourcesGrid.healthStatus = this.healthStatus;
-          this.resourcesGrid.billingEnabled = this.billingEnabled;
-
           this.userAccessKeyService.initialUserAccessKeyCheck();
         },
       error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));

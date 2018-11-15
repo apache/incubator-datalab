@@ -18,7 +18,7 @@ limitations under the License.
 
 <div class="sub-nav base-retreat">
   <div>
-    <button mat-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus === 'error'" (click)="createNotebook_btnClick()">
+    <button mat-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus?.status === 'error'" (click)="createNotebook_btnClick()">
       <i class="material-icons">add</i>Create new
     </button>
   </div>
@@ -48,7 +48,4 @@ limitations under the License.
 <resources-grid></resources-grid>
 
 <exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid($event)"></exploratory-environment-create-dialog>
-<!-- <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"
-                   (checkInfrastructureCreationProgress)="checkInfrastructureCreationProgress($event)"></key-upload-dialog>
-<progress-dialog #preloaderModal></progress-dialog> -->
 <dlab-manage-ungit #manageUngitDialog></dlab-manage-ungit>
