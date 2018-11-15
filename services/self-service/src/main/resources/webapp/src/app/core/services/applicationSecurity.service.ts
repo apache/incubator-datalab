@@ -113,8 +113,10 @@ export class ApplicationSecurityService {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
         .map(response => {
-          if (response.status === HTTP_STATUS_CODES.OK)
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            this._loggedInStatus.next(true);
             return true;
+          }
 
           this.clearAuthToken();
           this.appRoutingService.redirectToLoginPage();
@@ -131,6 +133,7 @@ export class ApplicationSecurityService {
     }
 
     this.appRoutingService.redirectToLoginPage();
+    this._loggedInStatus.next(false);
     return Observable.of(false);
   }
 
@@ -150,7 +153,7 @@ export class ApplicationSecurityService {
 
         if (response.status !== 200) {
           // this.handleError(response);
-          let errObj = response.json();
+          const errObj = response.json();
           this.emmitMessage(errObj.message);
         }
         return false;
@@ -160,7 +163,7 @@ export class ApplicationSecurityService {
           window.location.href = error.headers.get('Location');
         } else {
           // this.handleError(error);
-          let errObj = error.json();
+          const errObj = error.json();
           this.emmitMessage(errObj.message);
           return Observable.of(false);
         }
