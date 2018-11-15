@@ -34,7 +34,7 @@ import { NotificationDialogComponent } from '../modal-dialog/notification-dialog
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 5000;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
 
   currentUserName: string;
   quotesLimit: number;
@@ -82,11 +82,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout_btnClick(): void {
-    this.applicationSecurityService.logout()
-      .subscribe(
+    this.applicationSecurityService.logout().subscribe(
       () => this.appRoutingService.redirectToLoginPage(),
-      error => console.log(error),
-      () => this.appRoutingService.redirectToLoginPage());
+      error => console.error(error));
   }
 
   public emitQuotes(): void {
@@ -108,7 +106,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   public checkCreationProgress($event): void {
-    console.log('checkCreationProgress key', $event);
     this.userAccessKeyService.initialUserAccessKeyCheck();
   }
 
