@@ -263,7 +263,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('dracut --force')
             with settings(warn_only=True):
                 reboot(wait=150)
-            sudo('yum -y install libglvnd-opengl dkms gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
+            sudo('yum -y install libglvnd-opengl libglvnd-devel dkms gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
