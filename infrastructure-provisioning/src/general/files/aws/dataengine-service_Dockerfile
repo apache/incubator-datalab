@@ -20,7 +20,7 @@ FROM docker.dlab-base:latest
 
 ARG OS
 
-COPY infrastructure-provisioning/src/ataengine-service/fabfile.py /root/
+COPY infrastructure-provisioning/src/dataengine-service/fabfile.py /root/
 COPY infrastructure-provisioning/src/dataengine-service/description.json /root/
 COPY infrastructure-provisioning/src/infrastructure-provisioning/src/general/scripts/aws/dataengine-service_* /root/scripts/
 COPY infrastructure-provisioning/src/general/scripts/os/common_configure_proxy.py /root/scripts/
