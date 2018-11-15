@@ -207,7 +207,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
             local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
             local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
-            local('sed -i "s|KEYNAME|{}|g" {}/web_app/provisioning-service/provisioning.yml'.
+            sudo('sed -i "s|KEYNAME|{}|g" {}/web_app/provisioning-service/provisioning.yml'.
                   format(os.environ['conf_key_name'], dlab_path))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
@@ -233,7 +233,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     # local('cp {0}/web_app/{2}/*.jar {1}{2}/'.format(dlab_path, web_path, service))
                     jar = sudo('cd {0}{1}; find {1}*.jar -type f'.format(web_path, service))
                     sudo('ln -s {0}{2}/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
-                    local('cp {0}/web_app/{1}/*.yml /tmp/yml_tmp/'.format(dlab_path, service))
+                    sudo('cp {0}/web_app/{1}/*.yml /tmp/yml_tmp/'.format(dlab_path, service))
                 if os.environ['conf_cloud_provider'] == 'azure':
                     for config in ['self-service', 'security']:
                         sudo('sed -i "s|<LOGIN_USE_LDAP>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, ldap_login))
