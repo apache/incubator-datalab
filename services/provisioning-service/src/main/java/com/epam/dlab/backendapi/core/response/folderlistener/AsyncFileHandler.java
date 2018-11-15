@@ -19,7 +19,6 @@
 package com.epam.dlab.backendapi.core.response.folderlistener;
 
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.util.LoggerUtils;
 import io.dropwizard.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +76,6 @@ public final class AsyncFileHandler implements Supplier<Boolean> {
 	public Boolean get() {
 		Path path = Paths.get(directory, fileName);
 		try {
-			LoggerUtils.populateUser(fileHandlerCallback.getUser());
 			boolean result = fileHandlerCallback.handle(fileName, readBytes(path));
 			if (result) {
 				try {
