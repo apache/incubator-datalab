@@ -143,7 +143,7 @@ def build_ui():
 
         # Building Back-end
         with cd(args.dlab_path + '/sources/'):
-            sudo('mvn -P{} -DskipTests package'.format(args.conf_cloud_provider))
+            sudo('mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
         sudo('mkdir -p {}/web_app'.format(args.dlab_path))
         sudo('mkdir -p {}/web_app/provisioning-service/'.format(args.dlab_path))
