@@ -21,7 +21,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class UserAllowedBudgetDTO {
+public class UserDTO {
 	@NotNull
 	private final String name;
 	@Min(0)

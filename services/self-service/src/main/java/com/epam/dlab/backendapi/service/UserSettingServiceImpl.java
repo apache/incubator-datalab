@@ -17,7 +17,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
-import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -39,7 +39,7 @@ public class UserSettingServiceImpl implements UserSettingService {
 	}
 
 	@Override
-	public void updateUsersBudget(List<UserAllowedBudgetDTO> budgets) {
+	public void updateUsersBudget(List<UserDTO> budgets) {
 		budgets.forEach(settingsDAO::updateBudget);
 	}
 }

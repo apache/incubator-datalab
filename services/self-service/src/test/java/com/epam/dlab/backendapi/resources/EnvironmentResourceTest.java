@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import io.dropwizard.auth.AuthenticationException;
@@ -31,7 +32,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -52,7 +53,8 @@ public class EnvironmentResourceTest extends TestBase {
 
 	@Test
 	public void getUsersWithActiveEnv() {
-		when(environmentService.getActiveUsers()).thenReturn(Collections.singleton("activeUser"));
+		when(environmentService.getActiveUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
+				null)));
 		final Response response = resources.getJerseyTest()
 				.target("/environment/user/active")
 				.request()
@@ -60,8 +62,9 @@ public class EnvironmentResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(Collections.singleton("activeUser"), response.readEntity(new GenericType<Set<String>>() {
-		}));
+		assertEquals(Collections.singletonList(new UserDTO("activeUser", null)),
+				response.readEntity(new GenericType<List<UserDTO>>() {
+				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(environmentService).getActiveUsers();
@@ -71,7 +74,8 @@ public class EnvironmentResourceTest extends TestBase {
 	@Test
 	public void getUsersWithActiveEnvWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(environmentService.getActiveUsers()).thenReturn(Collections.singleton("activeUser"));
+		when(environmentService.getActiveUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
+				null)));
 		final Response response = resources.getJerseyTest()
 				.target("/environment/user/active")
 				.request()

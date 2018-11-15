@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.service.UserSettingService;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -145,12 +145,12 @@ public class UserSettingsResourceTest extends TestBase {
 				.target("/user/settings/budget")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(singletonList(new UserAllowedBudgetDTO(USER, 10L))));
+				.put(Entity.json(singletonList(new UserDTO(USER, 10L))));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingService).updateUsersBudget(singletonList(new UserAllowedBudgetDTO(USER, 10L)));
+		verify(userSettingService).updateUsersBudget(singletonList(new UserDTO(USER, 10L)));
 		verifyNoMoreInteractions(userSettingService);
 	}
 }

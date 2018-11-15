@@ -18,7 +18,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import io.dropwizard.auth.Auth;
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,7 +60,7 @@ public class UserSettingsDAO extends BaseDAO {
 				true);
 	}
 
-	public void updateBudget(UserAllowedBudgetDTO allowedBudgetDTO) {
+	public void updateBudget(UserDTO allowedBudgetDTO) {
 		updateOne(USER_SETTINGS,
 				eq(ID, allowedBudgetDTO.getName()),
 				set(USER_ALLOWED_BUDGET, allowedBudgetDTO.getBudget()),
