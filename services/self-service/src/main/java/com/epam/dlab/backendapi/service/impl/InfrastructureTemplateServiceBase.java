@@ -36,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,7 +72,7 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
 					.filter(e -> exploratoryGpuIssuesAzureFilter(e) &&
 							UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage()))
-					.peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes()))
+					.peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES))
 					.collect(Collectors.toList());
 
 		} catch (DlabException e) {
@@ -85,10 +86,12 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	 *
 	 * @param user              user
 	 * @param environmentShapes shape types
+	 * @param roleType
 	 */
-	private void filterShapes(UserInfo user, HashMap<String, List<ComputationalResourceShapeDto>> environmentShapes) {
+	private void filterShapes(UserInfo user, HashMap<String, List<ComputationalResourceShapeDto>> environmentShapes,
+							  RoleType roleType) {
 		environmentShapes.forEach((k, v) -> v.removeIf(compResShapeDto ->
-				!UserRoles.checkAccess(user, RoleType.EXPLORATORY_SHAPES, compResShapeDto.getType())));
+				!UserRoles.checkAccess(user, roleType, compResShapeDto.getType())));
 	}
 
 	@Override
@@ -102,6 +105,7 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 
 			return Arrays.stream(array)
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
+					.peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES))
 					.filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage()))
 					.map(this::fullComputationalTemplate)
 					.collect(Collectors.toList());
