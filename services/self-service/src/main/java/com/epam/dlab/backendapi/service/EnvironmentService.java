@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public interface EnvironmentService {
 
 	Set<String> getAllUsers();
 
-	Set<String> getActiveUsers();
+	List<UserDTO> getActiveUsers();
 
 	List<UserResourceInfo> getAllEnv();
 

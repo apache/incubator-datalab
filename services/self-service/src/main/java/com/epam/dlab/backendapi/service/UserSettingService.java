@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 
 import java.util.List;
 
@@ -27,6 +27,6 @@ public interface UserSettingService {
 
 	String getUISettings(UserInfo userInfo);
 
-	void updateUsersBudget(List<UserAllowedBudgetDTO> budgets);
+	void updateUsersBudget(List<UserDTO> budgets);
 
 }

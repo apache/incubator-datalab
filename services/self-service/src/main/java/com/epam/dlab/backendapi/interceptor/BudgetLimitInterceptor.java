@@ -54,7 +54,7 @@ public class BudgetLimitInterceptor implements MethodInterceptor {
 				.filter(arg -> arg.getClass().equals(UserInfo.class))
 				.findAny()
 				.map(u -> ((UserInfo) u).getName())
-				.map(u -> userSettingsDAO.getAllowedBudget(u).orElse(ZERO) < billingDAO.getUserCost(u))
+				.map(u -> userSettingsDAO.getAllowedBudget(u).orElse(ZERO) > billingDAO.getUserCost(u))
 				.orElse(Boolean.FALSE);
 	}
 }

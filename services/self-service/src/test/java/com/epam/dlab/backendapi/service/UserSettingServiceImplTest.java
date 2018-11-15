@@ -20,7 +20,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
-import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -73,8 +73,8 @@ public class UserSettingServiceImplTest {
 		verifyNoMoreInteractions(settingsDAO);
 	}
 
-	private UserAllowedBudgetDTO getBudgetDTO() {
-		return new UserAllowedBudgetDTO(USER, BUDGET);
+	private UserDTO getBudgetDTO() {
+		return new UserDTO(USER, BUDGET);
 	}
 
 

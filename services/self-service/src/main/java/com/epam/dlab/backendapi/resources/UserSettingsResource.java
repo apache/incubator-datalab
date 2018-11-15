@@ -18,7 +18,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.UserAllowedBudgetDTO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.UserSettingService;
 import com.google.inject.Inject;
@@ -76,7 +76,7 @@ public class UserSettingsResource {
 	@ApiResponses(@ApiResponse(code = 200, message = "User's settings were updated successfully"))
 	@RolesAllowed("/user/settings")
 	public Response updateUsersBudget(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									  @Valid @ApiParam @NotEmpty List<UserAllowedBudgetDTO> budgets) {
+									  @Valid @ApiParam @NotEmpty List<UserDTO> budgets) {
 		LOGGER.debug("User {} is updating allowed budget for users: {}", userInfo.getName(), budgets);
 		userSettingService.updateUsersBudget(budgets);
 		return Response.ok().build();
