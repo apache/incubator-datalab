@@ -37,8 +37,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 5000;
 
   currentUserName: string;
-  isLoggedIn: boolean;
   quotesLimit: number;
+  isLoggedIn: boolean = false;
 
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
@@ -60,12 +60,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
-          console.log('úpdate healthStatus subscriptions NAV', result);
           this.healthStatus = result;
           this.checkQuoteUsed(this.healthStatus);
         }));
         this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
-          console.log('accessKeyEmitter subscriptions NAV', result);
           result && this.processAccessKeyStatus(result.status);
         }));
       }
