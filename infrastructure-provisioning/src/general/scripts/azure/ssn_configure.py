@@ -461,7 +461,7 @@ if __name__ == "__main__":
 
         print('Upload response file')
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
-            format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'], instance_hostname)
+            format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'], ssn_conf['instnace_ip'])
         local("~/scripts/{}.py {}".format('upload_response_file', params))
     except:
         sys.exit(1)
