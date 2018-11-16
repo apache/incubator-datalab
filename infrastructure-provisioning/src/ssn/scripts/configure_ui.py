@@ -145,18 +145,18 @@ def build_ui():
         with cd(args.dlab_path + '/sources/'):
             sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
-        sudo('mkdir -p {}/web_app/'.format(args.dlab_path))
+        sudo('mkdir -p {}/webapp/'.format(args.dlab_path))
         for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
-            sudo('mkdir -p {}/web_app/{}/lib/'.format(args.dlab_path, service))
-            sudo('mkdir -p {}/web_app/{}/conf/'.format(args.dlab_path, service))
-        sudo('cp {0}/sources/services/self-service/self-service.yml {0}/web_app/self-service/conf/'.format(
+            sudo('mkdir -p {}/webapp/{}/lib/'.format(args.dlab_path, service))
+            sudo('mkdir -p {}/webapp/{}/conf/'.format(args.dlab_path, service))
+        sudo('cp {0}/sources/services/self-service/self-service.yml {0}/webapp/self-service/conf/'.format(
             args.dlab_path))
-        sudo('cp {0}/sources/services/self-service/target/self-service-*.jar {0}/web_app/self-service/lib/'.format(
+        sudo('cp {0}/sources/services/self-service/target/self-service-*.jar {0}/webapp/self-service/lib/'.format(
             args.dlab_path))
-        sudo('cp {0}/sources/services/provisioning-service/provisioning.yml {0}/web_app/provisioning-service/conf/'.format(
+        sudo('cp {0}/sources/services/provisioning-service/provisioning.yml {0}/webapp/provisioning-service/conf/'.format(
             args.dlab_path))
         sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
-             '{0}/web_app/provisioning-service/lib/'.format(args.dlab_path))
+             '{0}/webapp/provisioning-service/lib/'.format(args.dlab_path))
 
         sudo('sed -i "s/LDAP_HOST/{0}/g" {1}/sources/services/security-service/security.yml'.format(
             os.environ['ldap_hostname'], args.dlab_path))
@@ -164,24 +164,24 @@ def build_ui():
             os.environ['ldap_service_username'], os.environ['ldap_dn']), args.dlab_path))
         sudo("sed -i 's/LDAP_PASS/{0}/g' {1}/sources/services/security-service/security.yml".format(
             os.environ['ldap_service_password'], args.dlab_path))
-        sudo('cp {0}/sources/services/security-service/security.yml {0}/web_app/security-service/conf/'.format(
+        sudo('cp {0}/sources/services/security-service/security.yml {0}/webapp/security-service/conf/'.format(
             args.dlab_path))
         sudo('cp {0}/sources/services/security-service/target/security-service-*.jar '
-             '{0}/web_app/security-service/lib/'.format(args.dlab_path))
+             '{0}/webapp/security-service/lib/'.format(args.dlab_path))
 
         if args.cloud_provider == 'azure':
-            sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/web_app/billing/conf/'.format(args.dlab_path))
-            sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/lib/'.format(
+            sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/webapp/billing/lib/'.format(
                 args.dlab_path))
         elif args.cloud_provider == 'aws':
-            sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/web_app/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
             sudo(
-                'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/web_app/billing/lib/'.format(
+                'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
                     args.dlab_path))
         elif args.cloud_provider == 'gcp':
-            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/web_app/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
             sudo(
-                'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/web_app/billing/lib/'.format(
+                'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/webapp/billing/lib/'.format(
                     args.dlab_path))
     except Exception as err:
         traceback.print_exc()
