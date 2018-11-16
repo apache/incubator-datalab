@@ -69,7 +69,7 @@ parser.add_argument('--tags', type=str, default=None)
 args = parser.parse_args()
 
 dlab_conf_dir = args.dlab_path + 'conf/'
-web_path = args.dlab_path + 'webapp/lib/'
+web_path = args.dlab_path + 'webapp/'
 local_log_filename = "{}_UI.log".format(args.request_id)
 local_log_filepath = "/logs/" + args.resource + "/" + local_log_filename
 logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
