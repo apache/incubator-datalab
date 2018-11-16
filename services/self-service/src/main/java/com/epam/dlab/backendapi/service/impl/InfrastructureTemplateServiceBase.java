@@ -36,11 +36,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_COMPUTATIONAL;
@@ -88,7 +87,7 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	 * @param environmentShapes shape types
 	 * @param roleType
 	 */
-	private void filterShapes(UserInfo user, HashMap<String, List<ComputationalResourceShapeDto>> environmentShapes,
+	private void filterShapes(UserInfo user, Map<String, List<ComputationalResourceShapeDto>> environmentShapes,
 							  RoleType roleType) {
 		environmentShapes.forEach((k, v) -> v.removeIf(compResShapeDto ->
 				!UserRoles.checkAccess(user, roleType, compResShapeDto.getType())));
