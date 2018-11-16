@@ -59,6 +59,12 @@ if __name__ == "__main__":
         ssn_conf['security_group_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
         ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        if os.environ['conf_network_type'] == 'private':
+            ssn_conf['instnace_ip'] = AzureMeta().get_private_ip_address(os.environ['azure_resource_group_name'],
+                                                                       ssn_conf['instance_name'])
+        else:
+            ssn_conf['instnace_ip'] = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
+                                                                       ssn_conf['instance_name'])
         ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'], ssn_conf['region'])
 
         try:
@@ -109,9 +115,10 @@ if __name__ == "__main__":
         print("Failed to generate variables dictionary.")
         if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_vpc:
+        if not pre_defined_subnet:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+        if not pre_defined_vpc:
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
@@ -132,7 +139,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
+            (ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -143,9 +150,10 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_vpc:
+        if not pre_defined_subnet:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+        if not pre_defined_vpc:
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
@@ -166,7 +174,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'backoff argparse fabric==1.14.0 pymongo pyyaml pycrypto azure==2.0.0' \
-            --user {} --region {}".format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'],
+            --user {} --region {}".format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'],
                                           ssn_conf['dlab_ssh_user'], ssn_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -177,10 +185,10 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_vpc:
+        if not pre_defined_subnet:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
-
+        if not pre_defined_vpc:
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
@@ -205,7 +213,7 @@ if __name__ == "__main__":
                              "security_group_id": ssn_conf['security_group_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
-            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
+            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
 
         try:
@@ -217,9 +225,10 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_vpc:
+        if not pre_defined_subnet:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+        if not pre_defined_vpc:
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
@@ -248,7 +257,7 @@ if __name__ == "__main__":
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
-            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
+            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
 
@@ -261,9 +270,10 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_vpc:
+        if not pre_defined_subnet:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+        if not pre_defined_vpc:
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
@@ -334,7 +344,7 @@ if __name__ == "__main__":
                  --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
                  --application_id {} --datalake_store_name {} --mongo_parameters '{}' --subscription_id {}  \
                  --validate_permission_scope {}". \
-            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
+            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
                    billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
@@ -350,9 +360,10 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         if not pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_vpc:
+        if not pre_defined_subnet:
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+        if not pre_defined_vpc:
             AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if not pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
@@ -371,13 +382,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        if os.environ['conf_network_type'] == 'private':
-            instance_hostname = AzureMeta().get_private_ip_address(os.environ['azure_resource_group_name'],
-                                                                       ssn_conf['instance_name'])
-        else:
-            instance_hostname = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
-                                                                       ssn_conf['instance_name'])
-
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 ssn_storage_account_name = storage_account.name
@@ -387,8 +391,11 @@ if __name__ == "__main__":
         print('[SUMMARY]')
         print("Service base name: {}".format(ssn_conf['service_base_name']))
         print("SSN Name: {}".format(ssn_conf['instance_name']))
-        print("SSN Public IP address: {}".format(instance_hostname))
-        print("SSN Hostname: {}".format(ssn_conf['instance_dns_name']))
+        if os.environ['conf_network_type'] == 'public':
+            print("SSN Public IP address: {}".format(ssn_conf['instnace_ip']))
+            print("SSN Hostname: {}".format(ssn_conf['instance_dns_name']))
+        else:
+            print("SSN Private IP address: {}".format(ssn_conf['instnace_ip']))
         print("Key name: {}".format(os.environ['conf_key_name']))
         print("VPC Name: {}".format(ssn_conf['vpc_name']))
         print("Subnet Name: {}".format(ssn_conf['subnet_name']))
@@ -405,8 +412,8 @@ if __name__ == "__main__":
             print("DataLake store name: {}".format(datalake_store_name))
             print("DataLake shared directory name: {}".format(ssn_conf['datalake_shared_directory_name']))
         print("Region: {}".format(ssn_conf['region']))
-        jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_dns_name'])
-        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_dns_name'])
+        jenkins_url = "http://{}/jenkins".format(ssn_conf['instnace_ip'])
+        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instnace_ip'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
 
@@ -421,7 +428,7 @@ if __name__ == "__main__":
             if os.environ['azure_datalake_enable'] == 'false':
                 res = {"service_base_name": ssn_conf['service_base_name'],
                        "instance_name": ssn_conf['instance_name'],
-                       "instance_hostname": ssn_conf['instance_dns_name'],
+                       "instance_hostname": ssn_conf['instnace_ip'],
                        "master_keyname": os.environ['conf_key_name'],
                        "vpc_id": ssn_conf['vpc_name'],
                        "subnet_id": ssn_conf['subnet_name'],
@@ -436,7 +443,7 @@ if __name__ == "__main__":
             else:
                 res = {"service_base_name": ssn_conf['service_base_name'],
                        "instance_name": ssn_conf['instance_name'],
-                       "instance_hostname": ssn_conf['instance_dns_name'],
+                       "instance_hostname": ssn_conf['instnace_ip'],
                        "master_keyname": os.environ['conf_key_name'],
                        "vpc_id": ssn_conf['vpc_name'],
                        "subnet_id": ssn_conf['subnet_name'],
