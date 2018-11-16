@@ -17,6 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
+import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -29,14 +30,35 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 export class ManageEnvironmentComponent {
   readonly DICTIONARY = DICTIONARY;
   public usersList: Array<string> = [];
+  public manageUsersForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
 
-  constructor(public dialog: MatDialog) { }
+  constructor(
+    private _fb: FormBuilder,
+    private fb: FormBuilder,
+    public dialog: MatDialog
+  ) { }
+
+  get usersEnvironments(): FormArray{
+    return <FormArray>this.manageUsersForm.get('users');
+  }
+
   public open(param, data): void {
     this.usersList = data;
+
+    if (!this.manageUsersForm) {
+      this.manageUsersForm = this._fb.group({
+        users: this._fb.array([this._fb.group({ name: '', budget: null })])
+      });
+    }
+    this.manageUsersForm.setControl('users', this._fb.array((this.usersList || []).map((x: any) => this._fb.group(x))));
     this.bindDialog.open(param);
+  }
+
+  public setBudgetLimits(value) {
+    console.log(value);
   }
 
   public applyAction(action, user) {

@@ -18,6 +18,9 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ToastModule } from 'ng2-toastr';
+
 import { MaterialModule } from '../shared/material.module';
 import { ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
 import { FormControlsModule } from '../shared/form-controls';
@@ -33,15 +36,15 @@ import { GroupNameValidationDirective } from './manage-roles-groups/group-name-v
 import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialog } from './manage-roles-groups/manage-roles-groups.component';
-import { ToastModule } from 'ng2-toastr';
 
-import { FormsModule } from '@angular/forms';
 export * from './environment-status.model';
 
 @NgModule({
 
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     ModalModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
@@ -49,7 +52,6 @@ export * from './environment-status.model';
     ConfirmationDialogModule,
     FormControlsModule,
     MaterialModule,
-    FormsModule,
     ToastModule.forRoot()
   ],
   declarations: [
