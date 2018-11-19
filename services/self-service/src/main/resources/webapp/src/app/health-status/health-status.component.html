@@ -40,7 +40,7 @@ limitations under the License.
                     [environmentsHealthStatuses]="environmentsHealthStatuses"
                     (refreshGrid)="buildGrid($event)"></health-status-grid>
 <dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)"></dlab-backup-dilog>
-<dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)"></dlab-manage-env-dilog>
+<dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)" (setBudget)="setBudgetLimits($event)"></dlab-manage-env-dilog>
 <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
 <progress-dialog #preloaderModal></progress-dialog>
 <dlab-ssn-monitor #ssnMonitor></dlab-ssn-monitor>

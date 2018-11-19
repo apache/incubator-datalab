@@ -34,10 +34,10 @@ export class ManageEnvironmentComponent {
 
   @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
+  @Output() setBudget: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     private _fb: FormBuilder,
-    private fb: FormBuilder,
     public dialog: MatDialog
   ) { }
 
@@ -58,7 +58,8 @@ export class ManageEnvironmentComponent {
   }
 
   public setBudgetLimits(value) {
-    console.log(value);
+    this.setBudget.emit(value);
+    this.bindDialog.close();
   }
 
   public applyAction(action, user) {

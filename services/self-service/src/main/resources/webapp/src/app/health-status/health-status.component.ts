@@ -22,7 +22,7 @@ import { ISubscription } from 'rxjs/Subscription';
 
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
-import { FileUtils } from '../core/util';
+import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
   selector: 'health-status',
@@ -142,6 +142,11 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
           });
         },
       error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+  setBudgetLimits($event) {
+    this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
+      result.status === HTTP_STATUS_CODES.OK && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
+    }, error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
 
   manageRolesGroups($event) {
