@@ -25,6 +25,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -36,6 +37,8 @@ import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
 import static java.util.Collections.singletonList;
 
@@ -85,10 +88,14 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 
 	@Override
 	public Double getTotalCost() {
-		return Optional.ofNullable(
-				aggregate(BILLING, singletonList(group(null, sum(TOTAL_FIELD_NAME, COST_FIELD)))).first())
-				.map(d -> d.getDouble(TOTAL_FIELD_NAME))
-				.orElse(BigDecimal.ZERO.doubleValue());
+		return aggregateBillingData(singletonList(group(null, sum(TOTAL_FIELD_NAME, COST_FIELD))));
+	}
+
+	@Override
+	public Double getUserCost(String user) {
+		final List<Bson> pipeline = Arrays.asList(match(eq(USER, user)),
+				group(null, sum(TOTAL_FIELD_NAME, COST_FIELD)));
+		return aggregateBillingData(pipeline);
 	}
 
 	@Override
@@ -106,6 +113,12 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 	private Optional<ShapeInfo> getComputationalShape(List<String> shapeNames, Document c) {
 		return isDataEngine(c.getString(DATAENGINE_DOCKER_IMAGE)) ? getDataEngineShape(shapeNames, c) :
 				getDataEngineServiceShape(shapeNames, c);
+	}
+
+	private Double aggregateBillingData(List<Bson> pipeline) {
+		return Optional.ofNullable(aggregate(BILLING, pipeline).first())
+				.map(d -> d.getDouble(TOTAL_FIELD_NAME))
+				.orElse(BigDecimal.ZERO.doubleValue());
 	}
 
 	private FindIterable<Document> getUserInstances() {

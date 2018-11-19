@@ -22,6 +22,7 @@ import org.bson.Document;
 
 public interface BillingDAO<T> {
 	Double getTotalCost();
+	Double getUserCost(String user);
 
 	int getBillingQuoteUsed();
 

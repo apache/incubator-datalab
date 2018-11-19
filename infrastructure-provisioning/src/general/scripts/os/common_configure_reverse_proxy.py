@@ -102,7 +102,7 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.edge_hostname
     put('/tmp/{}.conf'.format(conf_file_name), '/etc/nginx/locations', use_sudo=True)
-    sudo('service nginx restart')
+    sudo('service nginx reload')
 
 
 

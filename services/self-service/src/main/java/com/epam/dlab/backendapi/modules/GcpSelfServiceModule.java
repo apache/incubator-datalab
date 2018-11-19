@@ -17,12 +17,12 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.auth.SecurityFactory;
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.dao.gcp.GcpKeyDao;
 import com.epam.dlab.backendapi.resources.callback.gcp.EdgeCallbackGcp;
 import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
@@ -39,7 +39,6 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
-import org.bson.Document;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
@@ -68,27 +67,7 @@ public class GcpSelfServiceModule extends CloudModule {
 		bind(InfrastructureTemplateService.class).to(GcpInfrastructureTemplateService.class);
 		bind(SchedulerConfiguration.class).toInstance(
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
-		bind(BillingDAO.class).toInstance(new BillingDAO<Object>() {
-			@Override
-			public Double getTotalCost() {
-				return 0d;
-			}
-
-			@Override
-			public int getBillingQuoteUsed() {
-				return 0;
-			}
-
-			@Override
-			public boolean isBillingQuoteReached() {
-				return false;
-			}
-
-			@Override
-			public Document getReport(UserInfo userInfo, Object filter) {
-				return null;
-			}
-		});
+		bind(BillingDAO.class).toInstance(new GcpBillingDao());
 	}
 
 	@Provides

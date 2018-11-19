@@ -32,6 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -102,11 +103,12 @@ public class InfrastructureTemplateServiceBaseTest {
 
 	@Test
 	public void getComputationalTemplates() throws NoSuchFieldException, IllegalAccessException {
-		List<ComputationalMetadataDTO> expectedCmdDtoList = Arrays.asList(
-				new ComputationalMetadataDTO("dataengine-service"),
-				new ComputationalMetadataDTO("dataengine-service")
+		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
+		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
+		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(
+				computationalMetadataDTO
 		);
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray());
+		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
 				.map(e -> infrastructureTemplateServiceBaseChild.getCloudFullComputationalTemplate(e))
@@ -142,11 +144,10 @@ public class InfrastructureTemplateServiceBaseTest {
 
 	@Test
 	public void getComputationalTemplatesWithInapproprietaryImageName() {
-		List<ComputationalMetadataDTO> expectedCmdDtoList = Arrays.asList(
-				new ComputationalMetadataDTO("dataengine-service"),
-				new ComputationalMetadataDTO("blablabla")
-		);
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray());
+		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
+		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
+		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
+		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {

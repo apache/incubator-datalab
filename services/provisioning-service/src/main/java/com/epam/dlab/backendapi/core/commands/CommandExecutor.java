@@ -20,20 +20,17 @@ package com.epam.dlab.backendapi.core.commands;
 import com.epam.dlab.process.model.DlabProcess;
 import com.epam.dlab.process.model.ProcessId;
 import com.epam.dlab.process.model.ProcessInfo;
-import com.epam.dlab.util.LoggerUtils;
 import com.google.inject.Singleton;
 
 @Singleton
 public class CommandExecutor implements ICommandExecutor {
 
 	public ProcessInfo executeSync(final String username, final String uuid, String command) throws Exception {
-		LoggerUtils.populateUser(username);
 		return DlabProcess.getInstance().start(new ProcessId(username, uuid), "bash", "-c", command).get();
 
 	}
 
 	public void executeAsync(final String username, final String uuid, final String command) {
-		LoggerUtils.populateUser(username);
 		DlabProcess.getInstance().start(new ProcessId(username, uuid), "bash", "-c", command);
 	}
 }

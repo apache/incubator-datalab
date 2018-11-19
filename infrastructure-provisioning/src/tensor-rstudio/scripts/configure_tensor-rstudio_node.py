@@ -42,14 +42,14 @@ args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
 hadoop_version = os.environ['notebook_hadoop_version']
-tensorflow_version = '1.8.0'
+tensorflow_version = os.environ['notebook_tensorflow_version']
 nvidia_version = os.environ['notebook_nvidia_version']
 theano_version = os.environ['notebook_theano_version']
-keras_version = '2.1.6'
-cuda_version = '9.0'
-cuda_file_name = 'cuda_9.0.176_384.81_linux-run'
-cudnn_version = '7.1.4'
-cudnn_file_name = 'cudnn-9.0-linux-x64-v7.1.tgz'
+keras_version = os.environ['notebook_keras_version']
+cuda_version = os.environ['notebook_cuda_version']
+cuda_file_name = os.environ['notebook_cuda_file_name']
+cudnn_version = os.environ['notebook_cudnn_version']
+cudnn_file_name = os.environ['notebook_cudnn_file_name']
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"

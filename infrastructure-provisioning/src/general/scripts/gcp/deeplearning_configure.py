@@ -122,13 +122,12 @@ if __name__ == "__main__":
                  "--os_user {} --jupyter_version {} " \
                  "--scala_version {} --spark_version {} " \
                  "--hadoop_version {} --region {} " \
-                 "--tensorflow_version {} --r_mirror {} " \
-                 "--exploratory_name {}" \
+                 "--r_mirror {} --exploratory_name {}" \
                  .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
-                         os.environ['gcp_region'], os.environ['notebook_tensorflow_version'],
-                         os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
+                         os.environ['gcp_region'], os.environ['notebook_r_mirror'],
+                         notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:

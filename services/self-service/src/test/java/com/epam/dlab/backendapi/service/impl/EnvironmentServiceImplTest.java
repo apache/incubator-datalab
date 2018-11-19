@@ -21,6 +21,8 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
@@ -39,10 +41,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -73,6 +72,8 @@ public class EnvironmentServiceImplTest {
 	private EdgeService edgeService;
 	@Mock
 	private KeyDAO keyDAO;
+	@Mock
+	private UserSettingsDAO userSettingsDAO;
 
 	@InjectMocks
 	private EnvironmentServiceImpl environmentService;
@@ -83,11 +84,13 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void getActiveUsers() {
 		doReturn(Collections.singleton(USER)).when(envDAO).fetchActiveEnvUsers();
-		final Set<String> activeUsers = environmentService.getActiveUsers();
+		when(userSettingsDAO.getAllowedBudget(anyString())).thenReturn(Optional.empty());
+		final List<UserDTO> activeUsers = environmentService.getActiveUsers();
 
 		assertEquals(1, activeUsers.size());
-		assertTrue(activeUsers.contains(USER));
+		assertEquals(USER, activeUsers.get(0).getName());
 
+		verify(userSettingsDAO).getAllowedBudget(USER);
 		verify(envDAO).fetchActiveEnvUsers();
 		verifyNoMoreInteractions(envDAO);
 	}

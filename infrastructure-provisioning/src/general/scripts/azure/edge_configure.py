@@ -79,6 +79,8 @@ if __name__ == "__main__":
                                                                                     edge_conf['instance_name'])
         instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                         edge_conf['instance_name'])
+        edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
+                                                      edge_conf['vpc_name']).address_space.address_prefixes
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to generate infrastructure names", str(err))
@@ -175,7 +177,14 @@ if __name__ == "__main__":
         print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
-                             "template_file": "/root/templates/squid.conf"}
+                             "template_file": "/root/templates/squid.conf",
+                             "edge_user_name": os.environ['azure_iam_user'],
+                             "ldap_host": os.environ['ldap_hostname'],
+                             "ldap_dn": os.environ['ldap_dn'],
+                             "ldap_user": os.environ['ldap_service_username'],
+                             "ldap_password": os.environ['ldap_service_password'],
+                             "vpc_cidrs": edge_conf['vpc_cidrs'],
+                             "allowed_ip_cidr": ['0.0.0.0/0']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}" \
                  .format(instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
