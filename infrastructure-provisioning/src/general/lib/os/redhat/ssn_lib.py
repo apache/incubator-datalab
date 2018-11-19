@@ -228,9 +228,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 sudo('mkdir -p /var/log/application')
                 run('mkdir -p /tmp/yml_tmp/')
                 for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
-                    # sudo('mkdir -p {0}{1}/'.format(web_path, service))
-                    # sudo('chown -R {0}:{0} {1}{2}'.format(os_user, web_path, service))
-                    # local('cp {0}/web_app/{2}/*.jar {1}{2}/'.format(dlab_path, web_path, service))
                     jar = sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service))
                     sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(dlab_path, service))
