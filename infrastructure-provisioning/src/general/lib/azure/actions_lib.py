@@ -1079,6 +1079,24 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
             sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
                   /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            if 'spark_configurations' in os.environ:
+                spark_configurations = json.loads(os.environ['spark_configurations'])
+                new_spark_defaults = list()
+                spark_defaults = sudo('cat /opt/spark/conf/spark-default.conf')
+                current_spark_properties = spark_defaults.split('\n')
+                for param in current_spark_properties:
+                    for config in spark_configurations:
+                        if config['Classification'] == 'spark-defaults':
+                            for property in config['Properties']:
+                                if property in param:
+                                    param = property + ' ' + config['Properties'][property]
+                                else:
+                                    new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                    new_spark_defaults.append(param)
+                new_spark_defaults = set(new_spark_defaults)
+                sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+                for prop in new_spark_defaults:
+                    sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
     except Exception as err:
         logging.info(
@@ -1104,6 +1122,24 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
         local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     else:
         local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
+    if 'spark_configurations' in os.environ:
+        spark_configurations = json.loads(os.environ['spark_configurations'])
+        new_spark_defaults = list()
+        spark_defaults = local('cat /opt/spark/conf/spark-default.conf')
+        current_spark_properties = spark_defaults.split('\n')
+        for param in current_spark_properties:
+            for config in spark_configurations:
+                if config['Classification'] == 'spark-defaults':
+                    for property in config['Properties']:
+                        if property in param:
+                            param = property + ' ' + config['Properties'][property]
+                        else:
+                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
+            new_spark_defaults.append(param)
+        new_spark_defaults = set(new_spark_defaults)
+        local('echo "" > /opt/spark/conf/spark-defaults.conf')
+        for prop in new_spark_defaults:
+            local('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
