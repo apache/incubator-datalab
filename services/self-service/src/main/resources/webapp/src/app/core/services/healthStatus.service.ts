@@ -130,6 +130,13 @@ export class HealthStatusService {
       .catch(ErrorUtils.handleServiceError);
   }
 
+  public updateUsersBudget(data): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildUpdateUsersBudget(data)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
+
   public getSsnMonitorData(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetSsnMonitorData()
