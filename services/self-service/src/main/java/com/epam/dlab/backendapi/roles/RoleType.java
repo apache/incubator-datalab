@@ -25,6 +25,7 @@ public enum RoleType {
 	COMPUTATIONAL("computationals"),
 	EXPLORATORY("exploratories"),
 	EXPLORATORY_SHAPES("exploratory_shapes"),
+	COMPUTATIONAL_SHAPES("computational_shapes"),
 	PAGE("pages");
 
 	private String nodeName;
