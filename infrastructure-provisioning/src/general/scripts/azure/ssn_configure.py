@@ -32,20 +32,25 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-    instance = 'ssn'
-    pre_defined_resource_group = False
-    pre_defined_vpc = False
-    pre_defined_subnet = False
-    pre_defined_sg = False
-    billing_enabled = True
 
     try:
+        instance = 'ssn'
+        
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
 
+        billing_enabled = True
+
         ssn_conf = dict()
+        # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
+        # Check azure predefined resources
+        ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name', ssn_conf['service_base_name'])
+        ssn_conf['vpc_name'] = os.environ.get('azure_vpc_name', '{}-vpc'.format(ssn_conf['service_base_name']))
+        ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-ssn-subnet'.format(ssn_conf['service_base_name']))
+        ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(ssn_conf['service_base_name']))
+        # Default variables
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['ssn_storage_account_name'] = '{}-ssn-storage'.format(ssn_conf['service_base_name'])
         ssn_conf['ssn_container_name'] = '{}-ssn-container'.format(ssn_conf['service_base_name']).lower()
@@ -54,40 +59,17 @@ if __name__ == "__main__":
         ssn_conf['datalake_store_name'] = '{}-ssn-datalake'.format(ssn_conf['service_base_name'])
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
-        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
-        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
-        ssn_conf['security_group_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
+        
         ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         if os.environ['conf_network_type'] == 'private':
             ssn_conf['instnace_ip'] = AzureMeta().get_private_ip_address(os.environ['azure_resource_group_name'],
-                                                                       ssn_conf['instance_name'])
+                                                                        ssn_conf['instance_name'])
         else:
             ssn_conf['instnace_ip'] = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
-                                                                       ssn_conf['instance_name'])
+                                                                        ssn_conf['instance_name'])
         ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'], ssn_conf['region'])
 
-        try:
-            if os.environ['azure_resource_group_name'] == '':
-                raise KeyError
-            else:
-                pre_defined_resource_group = True
-        except KeyError:
-            os.environ['azure_resource_group_name'] = ssn_conf['service_base_name']
-        try:
-            if os.environ['azure_vpc_name'] == '':
-                raise KeyError
-            else:
-                pre_defined_vpc = True
-        except KeyError:
-            os.environ['azure_vpc_name'] = ssn_conf['vpc_name']
-        try:
-            if os.environ['azure_subnet_name'] == '':
-                raise KeyError
-            else:
-                pre_defined_subnet = True
-        except KeyError:
-            os.environ['azure_subnet_name'] = ssn_conf['subnet_name']
         try:
             if os.environ['azure_offer_number'] == '':
                 raise KeyError
@@ -111,62 +93,39 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
     except Exception as err:
-        print('Error: {0}'.format(err))
-        print("Failed to generate variables dictionary.")
-        if not pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_subnet:
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if not pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if not pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
-        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
-        append_result("Failed creating ssh user 'dlab-user'.", str(err))
+        print("Failed to generate variables dictionary." + str(err))
         sys.exit(1)
+
+    def clear_resources():
+        if 'azure_resource_group_name' not in os.environ:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        if 'azure_vpc_name' not in os.environ:
+            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        if 'azure_subnet_name' not in os.environ:
+            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                            ssn_conf['subnet_name'])
+        if 'azure_security_group_name' not in os.environ:
+            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
+            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
+            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
+        for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
+                AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+        AzureActions().remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
 
     try:
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
             (ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
-
-        try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        local("~/scripts/{}.py {}".format('create_ssh_user', params))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        if not pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_subnet:
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if not pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if not pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
-        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
+        #print('Error: {0}'.format(err))
+        traceback.print_exc()
+        clear_resources()
         append_result("Failed creating ssh user 'dlab-user'.", str(err))
         sys.exit(1)
 
@@ -176,32 +135,11 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --pip_packages 'backoff argparse fabric==1.14.0 pymongo pyyaml pycrypto azure==2.0.0' \
             --user {} --region {}".format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'],
                                           ssn_conf['dlab_ssh_user'], ssn_conf['region'])
-        try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        local("~/scripts/{}.py {}".format('install_prerequisites', params))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        if not pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_subnet:
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if not pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if not pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
-        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
+        #print('Error: {0}'.format(err))
+        traceback.print_exc()
+        clear_resources()
         append_result("Failed installing software: pip, packages.", str(err))
         sys.exit(1)
 
@@ -215,33 +153,11 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
             format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
-
-        try:
-            local("~/scripts/{}.py {}".format('configure_ssn_node', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        local("~/scripts/{}.py {}".format('configure_ssn_node', params))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        if not pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_subnet:
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if not pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if not pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
-        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
+        #print('Error: {0}'.format(err))
+        traceback.print_exc()
+        clear_resources()
         append_result("Failed configuring ssn.", str(err))
         sys.exit(1)
 
@@ -260,33 +176,11 @@ if __name__ == "__main__":
             format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
-
-        try:
-            local("~/scripts/{}.py {}".format('configure_docker', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        local("~/scripts/{}.py {}".format('configure_docker', params))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        if not pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_subnet:
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if not pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if not pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
-        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
+        #print('Error: {0}'.format(err))
+        traceback.print_exc()
+        clear_resources()
         append_result("Unable to configure docker.", str(err))
         sys.exit(1)
 
@@ -351,32 +245,11 @@ if __name__ == "__main__":
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
                    ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(mongo_parameters),
                    subscription_id, os.environ['azure_validate_permission_scope'])
-        try:
-            local("~/scripts/{}.py {}".format('configure_ui', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        local("~/scripts/{}.py {}".format('configure_ui', params))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        if not pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if not pre_defined_subnet:
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if not pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-        if not pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
-        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
+        #print('Error: {0}'.format(err))
+        traceback.print_exc()
+        clear_resources()
         append_result("Unable to configure UI.", str(err))
         sys.exit(1)
 
