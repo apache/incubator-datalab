@@ -22,7 +22,7 @@ import { ISubscription } from 'rxjs/Subscription';
 
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
-import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
+import { HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
   selector: 'health-status',
@@ -30,19 +30,15 @@ import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
   styleUrls: ['./health-status.component.scss']
 })
 export class HealthStatusComponent implements OnInit, OnDestroy {
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
   private clear = undefined;
   private subscription: ISubscription;
 
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
-  billingEnabled: boolean;
-  isAdmin: boolean;
   anyEnvInProgress: boolean = false;
   notebookInProgress: boolean = false;
   usersList: Array<string> = [];
   uploadKey: boolean = true;
-  healthStatus2: any;
 
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
@@ -65,11 +61,9 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.buildGrid();
-    this.subscription = this.healthStatusService.statusData.subscribe(result => {
-        this.healthStatus2 = result;
-        console.log('úpdate on healthStatus2', this.healthStatus2);
-      }
-    );
+    this.subscription = this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
+      this.uploadKey = result ? result.status === 200 : false;
+    });
   }
 
   ngOnDestroy(): void {
@@ -83,10 +77,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
   }
 
   loadHealthStatusList(healthStatusList): Array<EnvironmentStatusModel> {
-    this.healthStatus = healthStatusList.status;
-    this.billingEnabled = healthStatusList.billingEnabled;
-    this.isAdmin = healthStatusList.admin;
-
+    this.healthStatus = healthStatusList;
     this.userAccessKeyService.initialUserAccessKeyCheck();
     this.getExploratoryList();
 
@@ -143,6 +134,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
         },
       error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
+
   setBudgetLimits($event) {
     this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
       result.status === HTTP_STATUS_CODES.OK && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
