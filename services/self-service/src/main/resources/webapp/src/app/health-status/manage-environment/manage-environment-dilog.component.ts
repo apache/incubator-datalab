@@ -53,7 +53,10 @@ export class ManageEnvironmentComponent {
         users: this._fb.array([this._fb.group({ name: '', budget: null })])
       });
     }
-    this.manageUsersForm.setControl('users', this._fb.array((this.usersList || []).map((x: any) => this._fb.group(x))));
+    this.manageUsersForm.setControl('users',
+      this._fb.array((this.usersList || []).map((x: any) => this._fb.group({
+        name: x.name, budget: [x.budget, [Validators.min(0)]]
+    }))));
     this.bindDialog.open(param);
   }
 
