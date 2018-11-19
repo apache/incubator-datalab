@@ -97,7 +97,6 @@ def creating_service_directories(dlab_path, os_user):
         if not exists(dlab_path):
             sudo('mkdir -p ' + dlab_path)
             sudo('mkdir -p ' + dlab_path + 'conf')
-            sudo('mkdir -p ' + dlab_path + 'webapp/lib')
             sudo('mkdir -p ' + dlab_path + 'webapp/static')
             sudo('mkdir -p ' + dlab_path + 'template')
             sudo('mkdir -p ' + dlab_path + 'tmp')

@@ -53,8 +53,9 @@ def modify_conf_file(args):
 
 
 def add_china_repository(dlab_path):
-    with cd('{}sources/base/'.format(dlab_path)):
-        sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" Dockerfile'.format(os.environ['conf_pypi_mirror']))
+    with cd('{}sources/infrastructure-provisioning/src/base/'.format(dlab_path)):
+        sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" '
+             'Dockerfile'.format(os.environ['conf_pypi_mirror']))
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
@@ -62,19 +63,21 @@ def add_china_repository(dlab_path):
 def build_docker_images(image_list, region, dlab_path):
     try:
         if os.environ['conf_cloud_provider'] == 'azure':
-            local('scp -i {} /root/azure_auth.json {}:{}sources/base/azure_auth.json'.format(args.keyfile,
-                                                                                             env.host_string,
-                                                                                             args.dlab_path))
-            sudo('cp {0}sources/base/azure_auth.json /home/{1}/keys/azure_auth.json'.format(args.dlab_path, args.os_user))
+            local('scp -i {} /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
+                  'azure_auth.json'.format(args.keyfile, env.host_string, args.dlab_path))
+            sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
+                 '/home/{1}/keys/azure_auth.json'.format(args.dlab_path, args.os_user))
         if region == 'cn-north-1':
             add_china_repository(dlab_path)
         for image in image_list:
             name = image['name']
             tag = image['tag']
-            sudo('cd {0}sources/; cp general/files/{1}/{2}_description.json {2}/description.json'.format(args.dlab_path, args.cloud_provider, name))
-            sudo("cd {4}sources/; docker build --build-arg OS={2} --file general/files/{3}/{0}_Dockerfile -t docker.dlab-{0}:{1} ."
+            sudo('cd {0}sources/infrastructure-provisioning/src/; cp general/files/{1}/{2}_description.json '
+                 '{2}/description.json'.format(args.dlab_path, args.cloud_provider, name))
+            sudo("cd {4}sources/; docker build --build-arg OS={2} --file "
+                 "infrastructure-provisioning/src/general/files/{3}/{0}_Dockerfile -t docker.dlab-{0}:{1} ."
                  .format(name, tag, args.os_family, args.cloud_provider, args.dlab_path))
-        sudo('rm -f {}sources/base/azure_auth.json'.format(args.dlab_path))
+        sudo('rm -f {}sources/infrastructure-provisioning/src/base/azure_auth.json'.format(args.dlab_path))
         return True
     except:
         return False
