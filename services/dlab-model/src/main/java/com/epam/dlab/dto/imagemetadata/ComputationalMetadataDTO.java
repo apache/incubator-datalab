@@ -21,30 +21,30 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class ComputationalMetadataDTO extends ImageMetadataDTO {
-    @JsonProperty
-    protected String image;
-    @JsonProperty("template_name")
-    private String templateName;
-    @JsonProperty
-    private String description;
-    @JsonProperty("environment_type")
-    private String type;
-    @JsonProperty
-    private List<TemplateDTO> templates;
-    @JsonProperty("request_id")
-    private String requestId;
-    @JsonProperty(value = "computation_resources_shapes")
-    private HashMap<String, List<ComputationalResourceShapeDto>> computationResourceShapes;
+	@JsonProperty
+	protected String image;
+	@JsonProperty("template_name")
+	private String templateName;
+	@JsonProperty
+	private String description;
+	@JsonProperty("environment_type")
+	private String type;
+	@JsonProperty
+	private List<TemplateDTO> templates;
+	@JsonProperty("request_id")
+	private String requestId;
+	@JsonProperty(value = "computation_resources_shapes")
+	private Map<String, List<ComputationalResourceShapeDto>> computationResourceShapes;
 
-    public ComputationalMetadataDTO(String imageName) {
-        this.image = imageName;
-        setImageType(ImageType.COMPUTATIONAL);
-    }
+	public ComputationalMetadataDTO(String imageName) {
+		this.image = imageName;
+		setImageType(ImageType.COMPUTATIONAL);
+	}
 }

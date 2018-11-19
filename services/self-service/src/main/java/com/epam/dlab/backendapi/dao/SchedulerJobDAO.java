@@ -24,7 +24,6 @@ import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -67,7 +66,7 @@ public class SchedulerJobDAO extends BaseDAO {
 	 * @return Bson condition.
 	 */
 	private Bson schedulerNotNullCondition() {
-		return ne(SCHEDULER_DATA, null);
+		return and(exists(SCHEDULER_DATA), ne(SCHEDULER_DATA, null));
 	}
 
 	/**
@@ -133,14 +132,14 @@ public class SchedulerJobDAO extends BaseDAO {
 	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
 																			   DataEngineType dataEngineType,
 																			   UserInstanceStatus... statuses) {
-		final Bson schedulerNotNull = Projections.elemMatch(COMPUTATIONAL_RESOURCES, ne(SCHEDULER_DATA, null));
+		final Bson schedulerNotNull = Filters.elemMatch(COMPUTATIONAL_RESOURCES, schedulerNotNullCondition());
 		FindIterable<Document> userInstances = find(USER_INSTANCES,
 				and(
 						eq(STATUS, exploratoryStatus.toString()),
 						ne(COMPUTATIONAL_RESOURCES, null),
 						schedulerNotNull, eq(SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED, false)
 				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + ".$")));
 
 		return stream(userInstances)
 				.map(doc -> computationalSchedulerDataStream(doc, dataEngineType, statuses))

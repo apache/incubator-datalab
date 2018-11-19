@@ -21,25 +21,25 @@ FROM docker.dlab-base:latest
 
 ARG OS
 
-COPY deeplearning/ /root/
-COPY general/scripts/os/* /root/scripts/
-COPY general/scripts/gcp/deeplearning_* /root/scripts/
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
-COPY general/templates/os/${OS}/ungit.service /root/templates/
-COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
-COPY general/templates/os/pyspark_local_template.json /root/templates/
-COPY general/templates/os/py3spark_local_template.json /root/templates/
-COPY general/templates/os/pyspark_dataengine_template.json /root/templates/
-COPY general/templates/os/r_template.json /root/templates/
-COPY general/templates/os/run_template.sh /root/templates/
-COPY general/templates/os/tensorboard.service /root/templates/
-COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
-COPY general/files/os/toree_kernel.tar.gz /root/files/
-COPY general/templates/os/pyspark_dataengine-service_template.json /root/templates/
-COPY general/templates/os/r_dataengine-service_template.json /root/templates/
-COPY general/templates/os/toree_dataengine-service_* /root/templates/
-COPY general/templates/gcp/core-site.xml /root/templates/
+COPY infrastructure-provisioning/src/deeplearning/ /root/
+COPY infrastructure-provisioning/src/general/scripts/os/* /root/scripts/
+COPY infrastructure-provisioning/src/general/scripts/gcp/deeplearning_* /root/scripts/
+COPY infrastructure-provisioning/src/general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY infrastructure-provisioning/src/general/templates/os/${OS}/jupyter-notebook.service /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/${OS}/ungit.service /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/notebook_spark-defaults_local.conf /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/pyspark_local_template.json /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/py3spark_local_template.json /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/pyspark_dataengine_template.json /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/r_template.json /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/run_template.sh /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/tensorboard.service /root/templates/
+COPY infrastructure-provisioning/src/general/files/os/toree-assembly-0.2.0.jar /root/files/
+COPY infrastructure-provisioning/src/general/files/os/toree_kernel.tar.gz /root/files/
+COPY infrastructure-provisioning/src/general/templates/os/pyspark_dataengine-service_template.json /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/r_dataengine-service_template.json /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/toree_dataengine-service_* /root/templates/
+COPY infrastructure-provisioning/src/general/templates/gcp/core-site.xml /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

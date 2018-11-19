@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.dao.azure;
 
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -50,7 +50,7 @@ import static com.mongodb.client.model.Projections.include;
 
 @Singleton
 @Slf4j
-public class AzureBillingDAO extends BillingDAO {
+public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
 	public static final String SIZE = "size";
 
 	public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
@@ -200,7 +200,7 @@ public class AzureBillingDAO extends BillingDAO {
 
 		final String ssnSize = settings.getAzureSsnInstanceSize();
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnSize)) {
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnSize, UserInstanceStatus.RUNNING));
+			shapes.put(serviceBaseName + "-ssn", new BaseBillingDAO.ShapeInfo(ssnSize, UserInstanceStatus.RUNNING));
 		}
 
 
@@ -211,7 +211,7 @@ public class AzureBillingDAO extends BillingDAO {
 					.projection(fields(include(INSTANCE_ID, EDGE_STATUS)));
 			for (Document d : docs) {
 				shapes.put(d.getString(INSTANCE_ID),
-						new BillingDAO.ShapeInfo(edgeSize, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
+						new BaseBillingDAO.ShapeInfo(edgeSize, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
 			}
 		}
 	}

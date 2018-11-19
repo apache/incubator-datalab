@@ -15,6 +15,8 @@ CONTENTS
 
 [DLab Deployment](#DLab_Deployment)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of main DLab directory](#DLab_directory)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of log directory](#log_directory)
@@ -153,6 +155,31 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
 
+## Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
+
+#### In Amazon cloud
+If you want to deploy DLab from inside of your AWS account, you can use the following instruction:
+
+- Create an EC2 instance with the following settings:
+    - Shape of the instance shouldn't be less than t2.medium
+    - The instance should have access to Internet in order to install required prerequisites 
+    - The instance should have access to further DLab installation
+    - AMI - Ubuntu 16.04
+    - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
+- Connect to the instance via SSH and run the following commands:
+```
+    sudo su
+    apt-get update
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    apt-get update
+    apt-cache policy docker-ce
+    apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
+    usermod -a -G docker ubuntu
+    pip install fabric==1.14.0
+```
+- Clone DLab repository and run deploy script.
+
 ## Structure of main DLab directory <a name="DLab_directory"></a>
 
 DLab’s SSN node main directory structure is as follows:
@@ -210,6 +237,7 @@ Prerequisites:
  - IAM user
  - AWS access key ID and secret access key
  - The following permissions should be assigned for IAM user:
+ <a name="AWS_SSN_policy"></a>
 ```
 {
 	"Version": "2012-10-17",
@@ -287,8 +315,9 @@ List of parameters for SSN node deployment:
 | aws\_secret\_access\_key  | AWS user secret access key                                                              |
 | aws\_region               | AWS region                                                                              |
 | conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)                            |
-| aws\_vpc\_id              | ID of the Virtual Private Cloud (VPC)                                                   |
+| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS) 
+| conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
+| aws\_vpc\_id              | ID of the VPC                                                   |
 | aws\_subnet\_id           | ID of the public subnet                                                                 |
 | aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
 | key\_path                 | Path to admin key (without key name)                                                    |
@@ -1704,6 +1733,7 @@ docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/ju
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/rstudio_Dockerfile -t docker.dlab-rstudio .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/zeppelin_Dockerfile -t docker.dlab-zeppelin .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor_Dockerfile -t docker.dlab-tensor .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor-rstudio_Dockerfile -t docker.dlab-tensor-rstudio .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/deeplearning_Dockerfile -t docker.dlab-deeplearning .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/dataengine_Dockerfile -t docker.dlab-dataengine .
 ```

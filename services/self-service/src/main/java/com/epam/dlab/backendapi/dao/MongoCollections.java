@@ -34,7 +34,7 @@ public class MongoCollections {
 	public static final String USER_INSTANCES = "userInstances";
     /** Name of shapes. */
 	public static final String SHAPES = "shapes";
-	static final String USER_UI_SETTINGS = "userUISettings";
+	static final String USER_SETTINGS = "userSettings";
     /* Billing data. */
 	public static final String BILLING = "billing";
     /** User roles. */

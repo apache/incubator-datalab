@@ -148,69 +148,16 @@ def generate_docker_command():
     return docker_command.join(command)
 
 
-def build_front_end(args):
-    # Building front-end
-    with lcd(args.workspace_path + '/services/self-service/src/main/resources/webapp/'):
-        local('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.conf_cloud_provider))
-
-        if args.conf_cloud_provider == 'azure' and args.azure_datalake_enable == 'true':
-            local('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format('\'use_ldap\': false'))
-
-        local('npm install')
-        local('npm run build.prod')
-        local('sudo chown -R {} {}/*'.format(os.environ['USER'], args.workspace_path))
-
-
-def build_services():
-    # Building provisioning-service, security-service, self-service, billing
-    local('mvn -P{} -DskipTests package'.format(args.conf_cloud_provider))
-
-
 def build_docker_images(args):
     # Building base and ssn docker images
-    with lcd(args.workspace_path + '/infrastructure-provisioning/src/'):
-        local('sudo docker build --build-arg OS={0} --file general/files/{1}/base_Dockerfile '
-              '-t docker.dlab-base .'.format(args.conf_os_family, args.conf_cloud_provider))
-        local('sudo docker build --build-arg OS={0} --file general/files/{1}/ssn_Dockerfile '
-              '-t docker.dlab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider))
+    with lcd(args.workspace_path):
+        local('sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+              'base_Dockerfile -t docker.dlab-base .'.format(args.conf_os_family, args.conf_cloud_provider))
+        local('sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+              'ssn_Dockerfile -t docker.dlab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider))
 
 
 def deploy_dlab(args):
-    # Preparing files for deployment
-
-    local('mkdir -p {}/web_app'.format(args.workspace_path))
-    local('mkdir -p {}/web_app/provisioning-service/'.format(args.workspace_path))
-    local('mkdir -p {}/web_app/security-service/'.format(args.workspace_path))
-    local('mkdir -p {}/web_app/self-service/'.format(args.workspace_path))
-    local('mkdir -p {}/web_app/billing/'.format(args.workspace_path))
-    local('cp {0}/services/self-service/self-service.yml {0}/web_app/self-service/'.format(args.workspace_path))
-    local('cp {0}/services/self-service/target/self-service-*.jar {0}/web_app/self-service/'.
-        format(args.workspace_path))
-    local('cp {0}/services/provisioning-service/provisioning.yml {0}/web_app/provisioning-service/'.
-        format(args.workspace_path))
-    local('cp {0}/services/provisioning-service/target/provisioning-service-*.jar {0}/web_app/provisioning-service/'.
-        format(args.workspace_path))
-    local('sed -i "s/LDAP_HOST/{0}/g" {1}/services/security-service/security.yml'
-          .format(args.ldap_hostname, args.workspace_path))
-    local('sed -i "s/LDAP_USER/{0}/g" {1}/services/security-service/security.yml'
-          .format('{0},{1}'.format(args.ldap_service_username, args.ldap_dn), args.workspace_path))
-    local("sed -i 's/LDAP_PASS/{0}/g' {1}/services/security-service/security.yml"
-          .format(args.ldap_service_password, args.workspace_path))
-    local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
-    local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.format(
-        args.workspace_path))
-
-    if args.conf_cloud_provider == 'azure':
-        local('cp {0}/services/billing-azure/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-        local('cp {0}/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/'.format(
-            args.workspace_path))
-    elif args.conf_cloud_provider == 'aws':
-        local('cp {0}/services/billing-aws/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-        local('cp {0}/services/billing-aws/target/billing-aws*.jar {0}/web_app/billing/'.format(args.workspace_path))
-    elif args.conf_cloud_provider == 'gcp':
-        local('cp {0}/services/billing-gcp/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-        local('cp {0}/services/billing-gcp/target/billing-gcp*.jar {0}/web_app/billing/'.format(args.workspace_path))
-
     # Creating SSN node
     docker_command = generate_docker_command()
     local(docker_command)
@@ -227,14 +174,10 @@ if __name__ == "__main__":
         print("Workspace path isn't set, using current directory: {}".format(os.environ['PWD']))
         args.workspace_path = os.environ['PWD']
     if args.action == 'build':
-        build_front_end(args)
-        build_services()
         build_docker_images(args)
     elif args.action == 'deploy':
         deploy_dlab(args)
     elif args.action == 'create':
-        build_front_end(args)
-        build_services()
         build_docker_images(args)
         deploy_dlab(args)
     elif args.action == 'terminate':

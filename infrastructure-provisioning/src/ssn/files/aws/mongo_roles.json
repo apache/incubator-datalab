@@ -1,7 +1,7 @@
 [
   {
     "_id": "nbShapes_p2.xlarge_fetching",
-    "description": "Allow to use p2.xlarge instance shape",
+    "description": "Use p2.xlarge instance shape",
     "exploratory_shapes": [
       "p2.xlarge"
     ],
@@ -11,7 +11,7 @@
   },
   {
     "_id": "nbShapes_t2.medium_fetching",
-    "description": "Allow to use t2.medium instance shape",
+    "description": "Use t2.medium instance shape",
     "exploratory_shapes": [
       "t2.medium"
     ],
@@ -21,7 +21,7 @@
   },
   {
     "_id": "nbShapes_r3.xlarge_fetching",
-    "description": "Allow to use r3.xlarge instance shape",
+    "description": "Use r3.xlarge instance shape",
     "exploratory_shapes": [
       "r3.xlarge"
     ],
@@ -31,7 +31,7 @@
   },
   {
     "_id": "nbShapes_r4.2xlarge_fetching",
-    "description": "Allow to use r4.2xlarge instance shape",
+    "description": "Use r4.2xlarge instance shape",
     "exploratory_shapes": [
       "r4.2xlarge"
     ],
@@ -41,7 +41,7 @@
   },
   {
     "_id": "nbShapes_r3.4xlarge_fetching",
-    "description": "Allow to use r3.4xlarge instance shape",
+    "description": "Use r3.4xlarge instance shape",
     "exploratory_shapes": [
       "r3.4xlarge"
     ],
@@ -51,7 +51,7 @@
   },
   {
     "_id": "nbShapes_r3.8xlarge_fetching",
-    "description": "Allow to use r3.8xlarge instance shape",
+    "description": "Use r3.8xlarge instance shape",
     "exploratory_shapes": [
       "r3.8xlarge"
     ],
@@ -61,7 +61,7 @@
   },
   {
     "_id": "nbShapes_c4.large_fetching",
-    "description": "Allow to use c4.large instance shape",
+    "description": "Use c4.large instance shape",
     "exploratory_shapes": [
       "c4.large"
     ],
@@ -71,7 +71,7 @@
   },
   {
     "_id": "nbShapes_c4.2xlarge_fetching",
-    "description": "Allow to use c4.2xlarge instance shape",
+    "description": "Use c4.2xlarge instance shape",
     "exploratory_shapes": [
       "c4.2xlarge"
     ],
@@ -81,7 +81,7 @@
   },
   {
     "_id": "nbShapes_c4.8xlarge_fetching",
-    "description": "Allow to use c4.8xlarge instance shape",
+    "description": "Use c4.8xlarge instance shape",
     "exploratory_shapes": [
       "c4.8xlarge"
     ],
@@ -185,7 +185,99 @@
     "pages": [
       "environment/*",
       "/api/infrastructure/backup",
-      "/roleManagement"
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.xlarge_fetching",
+    "description": "Use c4.xlarge instance shape for computational",
+    "computational_shapes": [
+      "c4.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r3.xlarge_fetching",
+    "description": "Use r3.xlarge instance shape for computational",
+    "computational_shapes": [
+      "r3.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r4.2xlarge_fetching",
+    "description": "Use r4.2xlarge instance shape for computational",
+    "computational_shapes": [
+      "r4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r3.4xlarge_fetching",
+    "description": "Use r3.4xlarge instance shape for computational",
+    "computational_shapes": [
+      "r3.4xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r3.8xlarge_fetching",
+    "description": "Use r3.8xlarge instance shape for computational",
+    "computational_shapes": [
+      "r3.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.xlarge_fetching",
+    "description": "Use c4.xlarge instance shape for computational",
+    "computational_shapes": [
+      "c4.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.2xlarge_fetching",
+    "description": "Use c4.2xlarge instance shape for computational",
+    "computational_shapes": [
+      "c4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.8xlarge_fetching",
+    "description": "Use c4.8xlarge instance shape for computational",
+    "computational_shapes": [
+      "c4.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_p2.xlarge_fetching",
+    "description": "Use p2.xlarge instance shape for computational",
+    "computational_shapes": [
+      "p2.xlarge"
     ],
     "groups": [
       "$anyuser"

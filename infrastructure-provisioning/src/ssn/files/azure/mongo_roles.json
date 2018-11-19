@@ -11,7 +11,7 @@
   },
   {
     "_id": "nbShapes_Standard_E4s_v3_fetching",
-    "description": "Allow to use Standard_E4s_v3 instance shape",
+    "description": "Use Standard_E4s_v3 instance shape",
     "exploratory_shapes": [
       "Standard_E4s_v3"
     ],
@@ -21,7 +21,7 @@
   },
   {
     "_id": "nbShapes_Standard_E16s_v3_fetching",
-    "description": "Allow to use Standard_E16s_v3 instance shape",
+    "description": "Use Standard_E16s_v3 instance shape",
     "exploratory_shapes": [
       "Standard_E16s_v3"
     ],
@@ -31,7 +31,7 @@
   },
   {
     "_id": "nbShapes_Standard_E32s_v3_fetching",
-    "description": "Allow to use Standard_E32s_v3 instance shape",
+    "description": "Use Standard_E32s_v3 instance shape",
     "exploratory_shapes": [
       "Standard_E32s_v3"
     ],
@@ -41,7 +41,7 @@
   },
   {
     "_id": "nbShapes_Standard_F2s_fetching",
-    "description": "Allow to use Standard_F2s instance shape",
+    "description": "Use Standard_F2s instance shape",
     "exploratory_shapes": [
       "Standard_F2s"
     ],
@@ -51,7 +51,7 @@
   },
   {
     "_id": "nbShapes_Standard_F4s_fetching",
-    "description": "Allow to use Standard_F4s instance shape",
+    "description": "Use Standard_F4s instance shape",
     "exploratory_shapes": [
       "Standard_F4s"
     ],
@@ -61,7 +61,7 @@
   },
   {
     "_id": "nbShapes_Standard_F8s_fetching",
-    "description": "Allow to use Standard_F8s instance shape",
+    "description": "Use Standard_F8s instance shape",
     "exploratory_shapes": [
       "Standard_F8s"
     ],
@@ -71,7 +71,7 @@
   },
   {
     "_id": "nbShapes_Standard_F16s_fetching",
-    "description": "Allow to use Standard_F16s instance shape",
+    "description": "Use Standard_F16s instance shape",
     "exploratory_shapes": [
       "Standard_F16s"
     ],
@@ -155,7 +155,79 @@
     "pages": [
       "environment/*",
       "/api/infrastructure/backup",
-      "/roleManagement"
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_F4s_fetching",
+    "description": "Use Standard_F4s instance shape for computational",
+    "computational_shapes": [
+      "Standard_F4s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E4s_v3_fetching",
+    "description": "Use Standard_E4s_v3 instance shape for computational",
+    "computational_shapes": [
+      "Standard_E4s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E16s_v3_fetching",
+    "description": "Use Standard_E16s_v3 instance shape for computational",
+    "computational_shapes": [
+      "Standard_E16s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E32s_v3_fetching",
+    "description": "Use Standard_E32s_v3 instance shape for computational",
+    "computational_shapes": [
+      "Standard_E32s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_F8s_fetching",
+    "description": "Use Standard_F8s instance shape for computational",
+    "computational_shapes": [
+      "Standard_F8s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_F16s_fetching",
+    "description": "Use Standard_F16s instance shape for computational",
+    "computational_shapes": [
+      "Standard_F16s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_NC6_fetching",
+    "description": "Use Standard_NC6 instance shape for computational",
+    "computational_shapes": [
+      "Standard_NC6"
     ],
     "groups": [
       "$anyuser"

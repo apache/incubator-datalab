@@ -148,6 +148,17 @@ if __name__ == "__main__":
             },
             {
                 "name": "in-3",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "3128",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-4",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
@@ -324,6 +335,17 @@ if __name__ == "__main__":
             },
             {
                 "name": "out-16",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "389",
+                "source_address_prefix": '*',
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 250,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-17",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",

@@ -879,3 +879,28 @@ def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
+def format_sg(sg_rules):
+    try:
+        formatted_sg_rules = list()
+        for rule in sg_rules:
+            if rule['IpRanges']:
+                for ip_range in rule['IpRanges']:
+                    formatted_rule = dict()
+                    for key in rule.keys():
+                        if key == 'IpRanges':
+                            formatted_rule['IpRanges'] = [ip_range]
+                        else:
+                            formatted_rule[key] = rule[key]
+                    if formatted_rule not in formatted_sg_rules:
+                        formatted_sg_rules.append(formatted_rule)
+            else:
+                formatted_sg_rules.append(rule)
+        return formatted_sg_rules
+    except Exception as err:
+        logging.error("Error with formatting SG rules: " + str(err) + "\n Traceback: " +
+                      traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with formatting SG rules",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+

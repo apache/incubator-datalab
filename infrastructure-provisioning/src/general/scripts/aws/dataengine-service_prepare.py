@@ -158,7 +158,7 @@ if __name__ == "__main__":
     print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
     try:
         edge_group_id = check_security_group(emr_conf['edge_security_group_name'])
-        cluster_sg_ingress = [
+        cluster_sg_ingress = format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -179,8 +179,8 @@ if __name__ == "__main__":
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
-        ]
-        cluster_sg_egress = [
+        ])
+        cluster_sg_egress = format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -209,7 +209,7 @@ if __name__ == "__main__":
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             }
-        ]
+        ])
 
         params = "--name {} " \
                  "--vpc_id {} " \

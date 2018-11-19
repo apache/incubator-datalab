@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -83,6 +84,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	private RequestId requestId;
 
 
+	@BudgetLimited
 	@Override
 	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form) {
 
@@ -144,6 +146,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 		}
 	}
 
+	@BudgetLimited
 	@Override
 	public boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO,
 										   UserComputationalResource computationalResource) {
@@ -193,6 +196,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	}
 
+	@BudgetLimited
 	@Override
 	public void startSparkCluster(UserInfo userInfo, String expName, String compName) {
 		final UserInstanceDTO userInstance =
