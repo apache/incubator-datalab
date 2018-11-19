@@ -29,9 +29,11 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 public class BudgetLimitInterceptor implements MethodInterceptor {
+	private static final double ZERO = 0.0D;
 	@Inject
 	private BillingDAO billingDAO;
 	@Inject
@@ -53,7 +55,13 @@ public class BudgetLimitInterceptor implements MethodInterceptor {
 				.filter(arg -> arg.getClass().equals(UserInfo.class))
 				.findAny()
 				.map(u -> ((UserInfo) u).getName())
-				.map(u -> userSettingsDAO.getAllowedBudget(u).orElse(Long.MAX_VALUE) > billingDAO.getUserCost(u))
+				.map(this::isUserReachedQuote)
 				.orElse(Boolean.FALSE);
+	}
+
+	private Boolean isUserReachedQuote(String user) {
+		final Optional<Long> allowedBudget = userSettingsDAO.getAllowedBudget(user);
+		final Double userCost = billingDAO.getUserCost(user);
+		return allowedBudget.filter(aLong -> userCost != ZERO && aLong < userCost).isPresent();
 	}
 }
