@@ -229,7 +229,8 @@ public class RequestBuilder {
 				.withNotebookImage(exploratory.getDockerImage())
 				.withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
-				.withImageName(exploratory.getImageName());
+				.withImageName(exploratory.getImageName())
+				.withClusterConfig(exploratory.getClusterConfig());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -411,7 +412,8 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveShape(form.getDataEngineInstanceShape());
+						.withDataEngineSlaveShape(form.getDataEngineInstanceShape())
+						.withConfig(form.getConfig());
 				break;
 			case AZURE:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
