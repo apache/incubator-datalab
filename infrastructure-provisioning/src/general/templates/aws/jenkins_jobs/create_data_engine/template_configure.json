@@ -5,5 +5,6 @@
     "dataengine_instance_count":"EIC",
     "notebook_instance_name":"NNM",
     "computational_name": "CNAM",
-    "application": "APP"
+    "application": "APP",
+    "spark_configurations": "SPC"
 }

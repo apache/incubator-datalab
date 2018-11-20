@@ -8,5 +8,6 @@
     "application":"APP",
     "notebook_image_name":"IMAGE",
     "vpc_name":"VPC",
-    "git_creds": GIT
+    "git_creds": GIT,
+    "spark_configurations": "SPC"
 }
