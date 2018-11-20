@@ -190,5 +190,17 @@ public class SchedulerJobResource {
 		return Response.ok(schedulerJob).build();
 	}
 
+	@GET
+	@Path("active")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation("Returns information about scheduler that will take place in defined time")
+	@ApiResponses(@ApiResponse(code = 200, message = "List of active schedulers"))
+	public Response getActiveSchedulers(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+										@ApiParam(name = "Number of offset minutes from current time")
+										@QueryParam("minuteOffset") long minuteOffset) {
+		log.trace("Getting active schedulers for user {} and offset {}", userInfo.getName(), minuteOffset);
+		return Response.ok(schedulerJobService.getActiveSchedulers(userInfo.getName(), minuteOffset)).build();
+	}
+
 }
 
