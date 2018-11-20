@@ -16,9 +16,12 @@
 
 package com.epam.dlab.dto.gcp.computational;
 
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
+
+import java.util.List;
 
 
 public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputationalCreateGcp> {
@@ -29,6 +32,8 @@ public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputat
 	private String dataEngineSlaveSize;
 	@JsonProperty("gcp_dataengine_master_size")
 	private String dataEngineMasterSize;
+	@JsonProperty("spark_configurations")
+	private List<ClusterConfig> config;
 
 	public SparkComputationalCreateGcp withDataEngineInstanceCount(String dataEngineInstanceCount) {
 		this.dataEngineInstanceCount = dataEngineInstanceCount;
@@ -42,6 +47,11 @@ public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputat
 
 	public SparkComputationalCreateGcp withDataEngineMasterSize(String dataEngineMasterSize) {
 		this.dataEngineMasterSize = dataEngineMasterSize;
+		return this;
+	}
+
+	public SparkComputationalCreateGcp withConfig(List<ClusterConfig> config) {
+		this.config = config;
 		return this;
 	}
 

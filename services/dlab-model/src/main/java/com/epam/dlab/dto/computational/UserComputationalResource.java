@@ -18,6 +18,7 @@ package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -58,6 +59,7 @@ public class UserComputationalResource {
 	private String dataengineShape;
 	@JsonProperty("instance_id")
 	private String instanceId;
+	protected List<ClusterConfig> config;
 
 	public UserComputationalResource(String computationalName, String computationalId, String imageName,
 									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
