@@ -63,10 +63,10 @@ if __name__ == "__main__":
         ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         if os.environ['conf_network_type'] == 'private':
-            ssn_conf['instnace_ip'] = AzureMeta().get_private_ip_address(os.environ['azure_resource_group_name'],
+            ssn_conf['instnace_ip'] = AzureMeta().get_private_ip_address(ssn_conf['resource_group_name'],
                                                                         ssn_conf['instance_name'])
         else:
-            ssn_conf['instnace_ip'] = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
+            ssn_conf['instnace_ip'] = AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
                                                                         ssn_conf['instance_name'])
         ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'], ssn_conf['region'])
 
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         ldap_login = 'false'
         if os.environ['azure_datalake_enable'] == 'false':
             mongo_parameters = {
-                "azure_resource_group_name": os.environ['azure_resource_group_name'],
+                "azure_resource_group_name": ssn_conf['resource_group_name'],
                 "azure_region": ssn_conf['region'],
                 "azure_vpc_name": ssn_conf['vpc_name'],
                 "azure_subnet_name": ssn_conf['subnet_name'],
@@ -212,7 +212,7 @@ if __name__ == "__main__":
             datalake_store_name = None
         else:
             mongo_parameters = {
-                "azure_resource_group_name": os.environ['azure_resource_group_name'],
+                "azure_resource_group_name": ssn_conf['resource_group_name'],
                 "azure_region": ssn_conf['region'],
                 "azure_vpc_name": ssn_conf['vpc_name'],
                 "azure_subnet_name": ssn_conf['subnet_name'],
@@ -230,7 +230,7 @@ if __name__ == "__main__":
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
             subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
             datalake_application_id = os.environ['azure_application_id']
-            for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
+            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     datalake_store_name = datalake.name
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
@@ -255,7 +255,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 ssn_storage_account_name = storage_account.name
             if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
@@ -279,7 +279,7 @@ if __name__ == "__main__":
         print("Shared storage account name: {}".format(shared_storage_account_name))
         print("Shared container name: {}".format(ssn_conf['shared_container_name']))
         if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
+            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     datalake_store_name = datalake.name
             print("DataLake store name: {}".format(datalake_store_name))
