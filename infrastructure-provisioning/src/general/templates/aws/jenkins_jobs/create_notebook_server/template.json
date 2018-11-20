@@ -6,5 +6,5 @@
     "application":"APP",
     "notebook_image_name":"IMAGE",
     "git_creds": GIT,
-    "spark_configurations": "SPC"
+    "spark_configurations": SPC
 }

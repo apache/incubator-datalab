@@ -8,5 +8,5 @@
     "notebook_instance_name":"NNM",
     "computational_name": "CNAM",
     "application": "APP",
-    "spark_configurations": "SPC"
+    "spark_configurations": SPC
 }

@@ -9,5 +9,5 @@
     "notebook_image_name":"IMAGE",
     "vpc_name":"VPC",
     "git_creds": GIT,
-    "spark_configurations": "SPC"
+    "spark_configurations": SPC
 }

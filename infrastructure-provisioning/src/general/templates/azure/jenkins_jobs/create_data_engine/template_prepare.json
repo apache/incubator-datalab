@@ -11,5 +11,5 @@
     "computational_name": "CNAM",
     "notebook_image_name": "NIN",
     "application": "APP",
-    "spark_configurations": "SPC"
+    "spark_configurations": SPC
 }
