@@ -1619,7 +1619,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
     if 'spark_configurations' in os.environ:
         spark_configurations = json.loads(os.environ['spark_configurations'])
         new_spark_defaults = list()
-        spark_defaults = local('cat /opt/spark/conf/spark-default.conf')
+        spark_defaults = local('cat {0}spark/conf/spark-default.conf'.format(cluster_dir), capture=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             for config in spark_configurations:
@@ -1631,9 +1631,9 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
                             new_spark_defaults.append(property + ' ' + config['Properties'][property])
             new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        local('echo "" > /opt/spark/conf/spark-defaults.conf')
+        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
         for prop in new_spark_defaults:
-            local('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
 
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
