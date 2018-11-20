@@ -25,6 +25,7 @@ import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
 
 @Component({
   selector: 'computational-resource-create-dialog',
@@ -36,6 +37,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly PROVIDER = DICTIONARY.cloud_provider;
   readonly DICTIONARY = DICTIONARY;
+  readonly CLUSTER_CONFIGURATION = CLUSTER_CONFIGURATION;
 
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
@@ -177,8 +179,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectConfiguration($event) {
     this.bindDialog.modalClass = (($event.target.checked) ? 'modal-xl' : 'modal-lg');
-
-    !$event.target.checked && this.resourceForm.controls['configuration_parameters'].setValue('');
+    if ($event.target.checked) {
+      const template = (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
+        ? CLUSTER_CONFIGURATION.EMR
+        : CLUSTER_CONFIGURATION.SPARK;
+      this.resourceForm.controls['configuration_parameters'].setValue(JSON.stringify(template, undefined, 2));
+    } else {
+      this.resourceForm.controls['configuration_parameters'].setValue('');
+    }
   }
 
   private filterAvailableSpots() {
