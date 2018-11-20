@@ -35,6 +35,7 @@ import urllib2
 import dlab.fab
 import dlab.common_lib
 import backoff
+import ast
 
 
 class GCPActions:
@@ -1226,9 +1227,9 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             if 'spark_configurations' in os.environ:
-                spark_configurations = json.loads(os.environ['spark_configurations'])
+                spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
                 new_spark_defaults = list()
-                spark_defaults = sudo('cat /opt/spark/conf/spark-default.conf')
+                spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
                 current_spark_properties = spark_defaults.split('\n')
                 for param in current_spark_properties:
                     for config in spark_configurations:
@@ -1329,9 +1330,9 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
     local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
     local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     if 'spark_configurations' in os.environ:
-        spark_configurations = json.loads(os.environ['spark_configurations'])
+        spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
         new_spark_defaults = list()
-        spark_defaults = local('cat {0}spark/conf/spark-default.conf'.format(cluster_dir), capture=True)
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             for config in spark_configurations:
