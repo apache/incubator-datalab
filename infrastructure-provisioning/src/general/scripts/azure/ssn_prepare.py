@@ -105,6 +105,7 @@ if __name__ == "__main__":
             print("[CREATING VIRTUAL NETWORK]")
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
                 ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
+            local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
     except Exception as err:
         traceback.print_exc()
         print('Error creating VPC: ' + str(err))
