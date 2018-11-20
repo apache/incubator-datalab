@@ -26,9 +26,9 @@ limitations under the License.
 
      <div class="form-wrapper" *ngIf="model.availableTemplates">
       <div class="general-form">
-        <div class="checkbox-group" *ngIf="PROVIDER === 'aws' && model.selectedImage.image && model.selectedImage.image === 'docker.dlab-dataengine-service'">
+        <div class="checkbox-group">
           <label>
-            <input #configurationNode type="checkbox" (change)="selectConfiguration($event)" /> Configurations
+            <input #configurationNode type="checkbox" (change)="selectConfiguration($event)" /> Cluster configurations
           </label>
         </div>
 
