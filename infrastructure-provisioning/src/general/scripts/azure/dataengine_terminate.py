@@ -32,9 +32,12 @@ def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path,
     print("Terminating data engine cluster")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if cluster_name == vm.tags["Name"]:
-                AzureActions().remove_instance(resource_group_name, vm.name)
-                print("Instance {} has been terminated".format(vm.name))
+            try:
+                if cluster_name == vm.tags["Name"]:
+                    AzureActions().remove_instance(resource_group_name, vm.name)
+                    print("Instance {} has been terminated".format(vm.name))
+            except:
+                pass
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
