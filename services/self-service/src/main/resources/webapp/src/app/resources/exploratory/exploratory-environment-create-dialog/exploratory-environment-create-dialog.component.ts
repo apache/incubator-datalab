@@ -192,5 +192,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   private resetDialog(): void {
     this.initFormModel();
     this.model.resetModel();
+
+    this.configuration.nativeElement['checked'] = false;
   }
 }

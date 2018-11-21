@@ -135,7 +135,7 @@ export class ExploratoryEnvironmentCreateModel {
     if (this.notebookImage)
       params.notebook_image_name = this.notebookImage;
 
-    if (this.config) params.config = this.config;
+    if (this.config) params.cluster_config = this.config;
     return this.userResourceService.createExploratoryEnvironment(params);
   }
 
