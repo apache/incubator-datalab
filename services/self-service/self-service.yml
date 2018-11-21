@@ -147,4 +147,8 @@ schedulers:
     enabled: true
     interval: 1
     timeUnit: HOURS
+  checkUserQuoteScheduler:
+    enabled: true
+    interval: 1
+    timeUnit: HOURS
 
