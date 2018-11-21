@@ -1483,7 +1483,9 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
             new_spark_defaults = set(new_spark_defaults)
             sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
             for prop in new_spark_defaults:
+                prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1633,7 +1635,9 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
         new_spark_defaults = set(new_spark_defaults)
         local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
         for prop in new_spark_defaults:
+            prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
+        local('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
 
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
