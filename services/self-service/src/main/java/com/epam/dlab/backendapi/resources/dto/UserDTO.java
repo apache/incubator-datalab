@@ -25,5 +25,5 @@ public class UserDTO {
 	@NotNull
 	private final String name;
 	@Min(0)
-	private final Long budget;
+	private final Integer budget;
 }
