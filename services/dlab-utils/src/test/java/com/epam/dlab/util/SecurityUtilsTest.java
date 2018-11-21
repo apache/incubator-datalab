@@ -28,7 +28,7 @@ public class SecurityUtilsTest {
 				"\"password\":\"12345\""};
 		String actual = SecurityUtils.hideCreds(strings);
 		String expected = "bash -c \"edge_user_name\":\"edgeUserName\",\"conf_service_base_name\":\"SBN\", " +
-				"\"password\":\"***\" ";
+				"\"password\":\"***\"";
 		Assert.assertEquals(expected, actual);
 	}
 }
