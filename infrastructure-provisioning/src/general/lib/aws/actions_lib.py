@@ -1444,8 +1444,9 @@ def ensure_local_jars(os_user, jars_dir):
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
+def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        region = sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone')[:-1]
         if region == 'us-east-1':
             endpoint_url = 'https://s3.amazonaws.com'
         elif region == 'cn-north-1':
@@ -1460,7 +1461,7 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
         if os.environ['application'] == 'zeppelin':
             sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> '
                                                            '/tmp/notebook_spark-defaults_local.conf')
-        sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = dlab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
@@ -1606,9 +1607,10 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         sys.exit(1)
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
+    region = sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone')[:-1]
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
@@ -1715,16 +1717,16 @@ def prepare_disk(os_user):
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    try:
-        if exists('/opt/spark'):
-            sudo('rm -rf /opt/spark')
-        sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-        sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-        sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-        sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-    except Exception as err:
-        print('Error:', str(err))
-        sys.exit(1)
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 
 def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):

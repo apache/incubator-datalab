@@ -1042,7 +1042,7 @@ def ensure_local_jars(os_user, jars_dir):
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
+def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
         user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
             replace('_', '-') + '-storage'
@@ -1078,7 +1078,7 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
         put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
               /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-        sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = dlab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
@@ -1109,7 +1109,7 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
         sys.exit(1)
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
@@ -1137,7 +1137,6 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
             prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
         local('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
-
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
@@ -1175,41 +1174,41 @@ def prepare_disk(os_user):
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    try:
-        if exists('/opt/spark'):
-            sudo('rm -rf /opt/spark')
-        if os.environ['azure_datalake_enable'] == 'false':
-            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
-        else:
-            # Downloading Spark without Hadoop
-            sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
-                .format(spark_version))
-            sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
-            sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
-            sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
-            # Downloading Hadoop
-            hadoop_version = '3.0.0'
-            sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
-                .format(hadoop_version))
-            sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
-            sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
-            sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
-            # Configuring Hadoop and Spark
-            java_path = dlab.common_lib.find_java_path_remote()
-            sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
-            sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
-            sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
-            sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
-            spark_dist_classpath = sudo('/opt/hadoop/bin/hadoop classpath')
-            sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
-                spark_dist_classpath))
-    except Exception as err:
-        print('Error:', str(err))
-        sys.exit(1)
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            if os.environ['azure_datalake_enable'] == 'false':
+                sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+                sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+                sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+                sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+                sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+            else:
+                # Downloading Spark without Hadoop
+                sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
+                    .format(spark_version))
+                sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+                sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
+                sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
+                # Downloading Hadoop
+                hadoop_version = '3.0.0'
+                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
+                    .format(hadoop_version))
+                sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+                sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
+                sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
+                # Configuring Hadoop and Spark
+                java_path = dlab.common_lib.find_java_path_remote()
+                sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
+                sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
+                sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
+                sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
+                spark_dist_classpath = sudo('/opt/hadoop/bin/hadoop classpath')
+                sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
+                    spark_dist_classpath))
+                sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 
 def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):

@@ -1160,23 +1160,25 @@ class GCPActions:
 
 
 def ensure_local_jars(os_user, jars_dir):
-    try:
-        templates_dir = '/root/templates/'
-        sudo('mkdir -p {}'.format(jars_dir))
-        sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
-             .format('gcs-connector-latest-hadoop2.jar', jars_dir))
-        sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
-             .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
-        put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
-        sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
-        sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
-        put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-        if os.environ['application'] == 'zeppelin':
-            sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-        sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-    except Exception as err:
-        print('Error:', str(err))
-        sys.exit(1)
+    if not exists('/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
+        try:
+            templates_dir = '/root/templates/'
+            sudo('mkdir -p {}'.format(jars_dir))
+            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
+                 .format('gcs-connector-latest-hadoop2.jar', jars_dir))
+            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
+                 .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
+            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
+            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+            if os.environ['application'] == 'zeppelin':
+                sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
@@ -1207,24 +1209,24 @@ def prepare_disk(os_user):
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    try:
-        if exists('/opt/spark'):
-            sudo('rm -rf /opt/spark')
-        sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-        sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-        sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-        sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-    except Exception as err:
-        print('Error:', str(err))
-        sys.exit(1)
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
+def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
         put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         if os.environ['application'] == 'zeppelin':
             sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-        sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = dlab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
@@ -1323,7 +1325,7 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))

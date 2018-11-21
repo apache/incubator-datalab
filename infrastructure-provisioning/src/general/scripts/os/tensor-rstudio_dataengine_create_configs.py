@@ -87,6 +87,6 @@ if __name__ == "__main__":
     install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                              args.datalake_enabled)
     ensure_dataengine_tensorflow_jars(local_jars_dir)
-    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled)
     configure_rstudio()
 
