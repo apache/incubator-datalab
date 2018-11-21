@@ -16,8 +16,11 @@
 
 package com.epam.dlab.model.exploratory;
 
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -28,4 +31,5 @@ public class Exploratory {
 	private final String templateName;
 	private final String shape;
 	private final String imageName;
+	private final List<ClusterConfig> clusterConfig;
 }

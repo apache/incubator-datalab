@@ -98,7 +98,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.slaveNumber(form.getInstanceCount())
 					.config(form.getConfig())
 					.version(form.getVersion())
-					.checkInactivityRequired(form.isCheckInactivityRequired()).build();
+					.build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
 					awsComputationalResource);
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();

@@ -21,6 +21,7 @@
 import os
 import sys
 import time
+import ast
 import argparse
 from dlab.fab import *
 from fabric.api import *
@@ -31,6 +32,7 @@ parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_conf', type=str, default='')
+parser.add_argument('--cluster_name', type=str, default='')
 args = parser.parse_args()
 
 
@@ -46,6 +48,30 @@ def update_spark_defaults_conf(spark_conf):
         sys.exit(1)
 
 
+def add_custom_spark_properties(cluster_name):
+    try:
+        spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+        new_spark_defaults = list()
+        spark_defaults = sudo('cat /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
+        current_spark_properties = spark_defaults.split('\n')
+        for param in current_spark_properties:
+            for config in spark_configurations:
+                if config['Classification'] == 'spark-defaults':
+                    for property in config['Properties']:
+                        if property in param:
+                            param = property + ' ' + config['Properties'][property]
+                        else:
+                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
+            new_spark_defaults.append(param)
+        new_spark_defaults = set(new_spark_defaults)
+        sudo('echo "" > /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
+        for prop in new_spark_defaults:
+            sudo('echo "{0}" >> /opt/{1}/spark/conf/spark-defaults.conf'.format(prop, cluster_name))
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     print('Configure connections')
     env['connection_attempts'] = 100
@@ -56,3 +82,6 @@ if __name__ == "__main__":
         update_spark_defaults_conf(args.spark_conf)
 
     update_spark_jars()
+
+    if 'spark_configurations' in os.environ:
+        add_custom_spark_properties(args.cluster_name)

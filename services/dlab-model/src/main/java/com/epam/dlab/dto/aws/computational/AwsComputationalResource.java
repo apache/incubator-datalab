@@ -51,7 +51,6 @@ public class AwsComputationalResource extends UserComputationalResource {
 	private String slaveNumber;
 	@JsonProperty("emr_version")
 	private String version;
-	private List<EmrConfig> config;
 
 	@Builder
 	public AwsComputationalResource(String computationalName, String computationalId, String imageName,
@@ -60,7 +59,7 @@ public class AwsComputationalResource extends UserComputationalResource {
 									String instanceId, String masterShape, String slaveShape, Boolean slaveSpot,
 									Integer slaveSpotPctPrice, String slaveNumber, String version,
 									List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-									boolean checkInactivityRequired, List<EmrConfig> config, Long maxInactivity) {
+									List<ClusterConfig> config) {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
 				reuploadKeyRequired, resourceURL, lastActivity);

@@ -142,6 +142,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 				.imageName(formDTO.getImageName())
 				.templateName(formDTO.getTemplateName())
 				.version(formDTO.getVersion())
+				.clusterConfig(formDTO.getClusterConfig())
 				.shape(formDTO.getShape()).build();
 	}
 }
