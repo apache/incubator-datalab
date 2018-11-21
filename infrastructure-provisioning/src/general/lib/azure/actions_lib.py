@@ -1079,6 +1079,11 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
         sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
               /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
         sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        if memory_type == 'driver':
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+                                                                                              spark_memory))
         if 'spark_configurations' in os.environ:
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
@@ -1098,18 +1103,7 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
             for prop in new_spark_defaults:
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
     except Exception as err:
-        logging.info(
-            "Unable to configure Spark: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to configure Spark",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
-    try:
-        if memory_type == 'driver':
-            spark_memory = dlab.fab.get_spark_memory()
-            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
-    except:
+        print('Error:', str(err))
         sys.exit(1)
 
 

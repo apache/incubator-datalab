@@ -1225,6 +1225,11 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
         if os.environ['application'] == 'zeppelin':
             sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
         sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        if memory_type == 'driver':
+            spark_memory = dlab.fab.get_spark_memory()
+            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+                                                                                              spark_memory))
         if 'spark_configurations' in os.environ:
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
@@ -1243,10 +1248,6 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
             sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
             for prop in new_spark_defaults:
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
-        if memory_type == 'driver':
-            spark_memory = dlab.fab.get_spark_memory()
-            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
