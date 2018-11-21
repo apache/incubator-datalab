@@ -109,6 +109,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.model.setSelectedClusterType($event.model.index);
       this.setDefaultParams();
       this.getComputationalResourceLimits();
+      this.selectConfiguration();
     }
 
     if (this.shapes[$event.model.type])
@@ -177,9 +178,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
   }
 
-  public selectConfiguration($event) {
-    this.bindDialog.modalClass = (($event.target.checked) ? 'modal-xl' : 'modal-lg');
-    if ($event.target.checked) {
+  public selectConfiguration() {
+    this.bindDialog.modalClass = ((this.configuration.nativeElement.checked) ? 'modal-xl' : 'modal-lg');
+    if (this.configuration.nativeElement.checked) {
       const template = (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
         : CLUSTER_CONFIGURATION.SPARK;
