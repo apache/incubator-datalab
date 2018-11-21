@@ -67,9 +67,9 @@ public class UserSettingsDAO extends BaseDAO {
 				true);
 	}
 
-	public Optional<Long> getAllowedBudget(String user) {
+	public Optional<Integer> getAllowedBudget(String user) {
 		return findOne(USER_SETTINGS, eq(ID, user))
-				.flatMap(d -> Optional.ofNullable(d.getLong(USER_ALLOWED_BUDGET)));
+				.flatMap(d -> Optional.ofNullable(d.getInteger(USER_ALLOWED_BUDGET)));
 	}
 
 }
