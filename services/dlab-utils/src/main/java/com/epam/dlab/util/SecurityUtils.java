@@ -17,19 +17,21 @@
  */
 package com.epam.dlab.util;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SecurityUtils {
+
+	private static final String PASS_REGEX = "\"password\":\".+?\"";
+	private static final String PASS_REPLACEMENT = "\"password\":\"\\*\\*\\*\"";
 
 	private SecurityUtils() {
 	}
 
 	public static String hideCreds(String... strings) {
-		StringBuilder sb = new StringBuilder();
-		Stream.of(strings).forEach(str ->
-				sb.append(str.replaceAll("\"password\":\".*\"", "\"password\":\"\\*\\*\\*\""))
-						.append(" "));
-		return sb.toString();
+		return Stream.of(strings)
+				.map(str -> str.replaceAll(PASS_REGEX, PASS_REPLACEMENT))
+				.collect(Collectors.joining(" "));
 	}
 
 }
