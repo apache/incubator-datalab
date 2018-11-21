@@ -242,7 +242,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private initFormModel(): void {
     this.resourceForm = this._fb.group({
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern),
+                                this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0, [this.validPreemptibleRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
@@ -256,12 +257,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private getComputationalResourceLimits(): void {
     if (this.model.selectedImage && this.model.selectedImage.image) {
-      let activeImage = DICTIONARY[this.model.selectedImage.image];
+      const activeImage = DICTIONARY[this.model.selectedImage.image];
 
       this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
 
-      if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+      if (DICTIONARY.cloud_provider === 'gcp' && this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max] - 1;
         this.minPreemptibleInstanceNumber = this.model.selectedImage.limits.min_dataproc_preemptible_instance_count;
       }
@@ -281,7 +282,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private validInstanceNumberRange(control) {
     if (control && control.value)
-      if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+      if (DICTIONARY.cloud_provider === 'gcp' && this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.validPreemptibleNumberRange();
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
       } else {
@@ -292,12 +293,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private validPreemptibleRange(control) {
     if (this.preemptible)
       return this.preemptible.nativeElement['checked']
-        ? (control.value !== null && control.value >= this.minPreemptibleInstanceNumber && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false })
+        ? (control.value !== null
+          && control.value >= this.minPreemptibleInstanceNumber
+          && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false })
         : control.value;
   }
 
   private validPreemptibleNumberRange() {
-    let instance_value = this.resourceForm.controls['instance_number'].value;
+    const instance_value = this.resourceForm.controls['instance_number'].value;
     this.maxPreemptibleInstanceNumber = Math.max((this.maxInstanceNumber - instance_value), 0);
 
     const value = this.resourceForm.controls['preemptible_instance_number'].value;
@@ -324,12 +327,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private checkDuplication(control) {
     if (this.containsComputationalResource(control.value))
-      return { duplication: true }
+      return { duplication: true };
   }
 
   private providerMaxLength(control) {
     if (DICTIONARY.cloud_provider !== 'aws')
-      return control.value.length <=10 ? null : { valid: false };
+      return control.value.length <= 10 ? null : { valid: false };
   }
 
   private setDefaultParams(): void {
