@@ -72,7 +72,8 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 			return envDAO.getHealthStatusPageDTO(user, fullReport)
 					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
 					.withAdmin(isAdmin)
-					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed());
+					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed())
+					.withBillingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user));
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);

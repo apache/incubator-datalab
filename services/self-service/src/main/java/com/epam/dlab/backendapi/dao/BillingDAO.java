@@ -22,11 +22,15 @@ import org.bson.Document;
 
 public interface BillingDAO<T> {
 	Double getTotalCost();
+
 	Double getUserCost(String user);
 
 	int getBillingQuoteUsed();
+	int getBillingUserQuoteUsed(String user);
 
 	boolean isBillingQuoteReached();
+
+	boolean isUserQuoteReached(String user);
 
 	Document getReport(UserInfo userInfo, T filter);
 }

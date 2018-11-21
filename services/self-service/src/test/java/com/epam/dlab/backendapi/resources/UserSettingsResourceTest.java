@@ -145,12 +145,12 @@ public class UserSettingsResourceTest extends TestBase {
 				.target("/user/settings/budget")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(singletonList(new UserDTO(USER, 10L))));
+				.put(Entity.json(singletonList(new UserDTO(USER, 10))));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(userSettingService).updateUsersBudget(singletonList(new UserDTO(USER, 10L)));
+		verify(userSettingService).updateUsersBudget(singletonList(new UserDTO(USER, 10)));
 		verifyNoMoreInteractions(userSettingService);
 	}
 }

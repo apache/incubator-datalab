@@ -40,7 +40,7 @@ public class UserSettingServiceImplTest {
 	private static final String SETTINGS = "settings";
 	private static final String TOKEN = "Token";
 	private static final String USER = "user";
-	private static final Long BUDGET = 10L;
+	private static final Integer BUDGET = 10;
 	@Mock
 	private UserSettingsDAO settingsDAO;
 	@InjectMocks

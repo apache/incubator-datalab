@@ -29,6 +29,7 @@ import org.bson.conversions.Bson;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_ID;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
@@ -65,6 +66,8 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 
 	@Inject
 	protected SettingsDAO settings;
+	@Inject
+	private UserSettingsDAO userSettingsDAO;
 
 	protected Map<String, ShapeInfo> getShapes(List<String> shapeNames) {
 		FindIterable<Document> userInstances = getUserInstances();
@@ -100,15 +103,33 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 
 	@Override
 	public int getBillingQuoteUsed() {
-		return settings.getMaxBudget()
-				.map(aLong -> (getTotalCost().intValue() * ONE_HUNDRED) / aLong)
-				.orElse(BigDecimal.ZERO.intValue());
+		return toPercentage(() -> settings.getMaxBudget(), getTotalCost());
+	}
+
+	@Override
+	public int getBillingUserQuoteUsed(String user) {
+		return toPercentage(() -> userSettingsDAO.getAllowedBudget(user), getUserCost(user));
 	}
 
 	@Override
 	public boolean isBillingQuoteReached() {
-		return getBillingQuoteUsed() > ONE_HUNDRED;
+		return getBillingQuoteUsed() >= ONE_HUNDRED;
 	}
+
+	@Override
+	public boolean isUserQuoteReached(String user) {
+		final Double userCost = getUserCost(user);
+		return userSettingsDAO.getAllowedBudget(user)
+				.filter(allowedBudget -> userCost != 0D && allowedBudget <= userCost)
+				.isPresent();
+	}
+
+	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
+		return allowedBudget.get()
+				.map(userBudget -> (totalCost.intValue() * ONE_HUNDRED) / userBudget)
+				.orElse(BigDecimal.ZERO.intValue());
+	}
+
 
 	private Optional<ShapeInfo> getComputationalShape(List<String> shapeNames, Document c) {
 		return isDataEngine(c.getString(DATAENGINE_DOCKER_IMAGE)) ? getDataEngineShape(shapeNames, c) :
