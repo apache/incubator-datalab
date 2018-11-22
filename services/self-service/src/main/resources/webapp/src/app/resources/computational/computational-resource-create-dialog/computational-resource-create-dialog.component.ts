@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewEncapsulation, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastsManager } from 'ng2-toastr';
 
@@ -30,8 +30,7 @@ import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
 @Component({
   selector: 'computational-resource-create-dialog',
   templateUrl: 'computational-resource-create-dialog.component.html',
-  styleUrls: ['./computational-resource-create-dialog.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./computational-resource-create-dialog.component.scss']
 })
 
 export class ComputationalResourceCreateDialogComponent implements OnInit {
@@ -179,7 +178,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectConfiguration() {
-    this.bindDialog.modalClass = ((this.configuration.nativeElement.checked) ? 'modal-xl' : 'modal-lg');
     if (this.configuration.nativeElement.checked) {
       const template = (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
@@ -381,7 +379,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.initFormModel();
     this.getComputationalResourceLimits();
     this.model.resetModel();
-    this.bindDialog.modalClass = 'modal-lg';
 
     if (this.PROVIDER === 'aws' && this.spotInstancesSelect)
       this.spotInstancesSelect.nativeElement['checked'] = false;
