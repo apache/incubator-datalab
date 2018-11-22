@@ -116,6 +116,30 @@ if __name__ == "__main__":
             print("Resources hasn't been removed: " + str(err))
         append_result("Failed to create VPC. Exception: " + str(err))
         sys.exit(1)
+
+    try:
+        if 'azure_subnet_name' in os.environ:    
+            logging.info('VPC predefined')
+            print('Peering')
+        else:
+            logging.info('[CREATING Peering]')
+            print("[CREATING Peering]")
+            params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
+                format(ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
+                       ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
+            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+    except Exception as err:
+        traceback.print_exc()
+        print('Error creating Subnet: ' + str(err))
+        try:
+            if 'azure_resource_group_name' not in os.environ:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if 'azure_vpc_name' not in os.environ:
+                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        except Exception as err:
+            print("Resources hasn't been removed: " + str(err))
+        append_result("Failed to create Subnet. Exception: " + str(err))
+        sys.exit(1)
     
     try:
         if 'azure_subnet_name' in os.environ:    
@@ -182,17 +206,6 @@ if __name__ == "__main__":
                     "priority": 120,
                     "direction": "Inbound"
                 },
-                # {
-                #     "name": "in-4",
-                #     "protocol": "*",
-                #     "source_port_range": "*",
-                #     "destination_port_range": "*",
-                #     "source_address_prefix": "*",
-                #     "destination_address_prefix": "*",
-                #     "access": "Deny",
-                #     "priority": 200,
-                #     "direction": "Inbound"
-                # },
                 {
                     "name": "out-1",
                     "protocol": "*",
