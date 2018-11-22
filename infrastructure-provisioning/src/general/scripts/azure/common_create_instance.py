@@ -53,33 +53,33 @@ if __name__ == "__main__":
     create_option = 'fromImage'
     if args.instance_name != '':
         try:
-            if AzureMeta().get_instance(args.service_base_name, args.instance_name):
+            if AzureMeta().get_instance(args.resource_group_name, args.instance_name):
                 print("REQUESTED INSTANCE {} ALREADY EXISTS".format(args.instance_name))
             else:
                 if args.public_ip_name != 'None':
-                    if AzureMeta().get_static_ip(args.service_base_name, args.public_ip_name):
+                    if AzureMeta().get_static_ip(args.resource_group_name, args.public_ip_name):
                         print("REQUESTED PUBLIC IP ADDRESS {} ALREADY EXISTS.".format(args.public_ip_name))
                         static_public_ip_address = AzureMeta().get_static_ip(
-                            args.service_base_name, args.public_ip_name).ip_address
+                            args.resource_group_name, args.public_ip_name).ip_address
                     else:
                         print("Creating Static IP address {}".format(args.public_ip_name))
                         static_public_ip_address = \
-                            AzureActions().create_static_public_ip(args.service_base_name, args.public_ip_name,
+                            AzureActions().create_static_public_ip(args.resource_group_name, args.public_ip_name,
                                                                    args.region, args.instance_name,
                                                                    json.loads(args.tags))
-                if AzureMeta().get_network_interface(args.service_base_name, args.network_interface_name):
+                if AzureMeta().get_network_interface(args.resource_group_name, args.network_interface_name):
                     print("REQUESTED NETWORK INTERFACE {} ALREADY EXISTS.".format(args.network_interface_name))
-                    network_interface_id = AzureMeta().get_network_interface(args.service_base_name,
+                    network_interface_id = AzureMeta().get_network_interface(args.resource_group_name,
                                                                              args.network_interface_name).id
                 else:
                     print("Creating Network Interface {}".format(args.network_interface_name))
-                    network_interface_id = AzureActions().create_network_if(args.service_base_name, args.vpc_name,
+                    network_interface_id = AzureActions().create_network_if(args.resource_group_name, args.vpc_name,
                                                                             args.subnet_name,
                                                                             args.network_interface_name, args.region,
                                                                             args.security_group_name,
                                                                             json.loads(args.tags),
                                                                             args.public_ip_name)
-                disk = AzureMeta().get_disk(args.service_base_name, '{}-disk0'.format(
+                disk = AzureMeta().get_disk(args.resource_group_name, '{}-disk0'.format(
                     args.instance_name))
                 if disk:
                     create_option = 'attach'

@@ -32,12 +32,10 @@ def terminate_nb(resource_group_name, notebook_name):
     print("Terminating data engine cluster")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            try:
+            if "notebook_name" in vm.tags:
                 if notebook_name == vm.tags['notebook_name']:
                     AzureActions().remove_instance(resource_group_name, vm.name)
                     print("Instance {} has been terminated".format(vm.name))
-            except:
-                pass
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -45,9 +43,10 @@ def terminate_nb(resource_group_name, notebook_name):
     print("Terminating notebook")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if notebook_name == vm.tags["Name"]:
-                AzureActions().remove_instance(resource_group_name, vm.name)
-                print("Instance {} has been terminated".format(vm.name))
+            if "Name" in vm.tags:
+                if notebook_name == vm.tags["Name"]:
+                    AzureActions().remove_instance(resource_group_name, vm.name)
+                    print("Instance {} has been terminated".format(vm.name))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

@@ -41,19 +41,7 @@ if __name__ == "__main__":
     try:
         notebook_config = dict()
         notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        edge_status = AzureMeta().get_instance_status(os.environ['conf_service_base_name'],
-                                                      os.environ['conf_service_base_name'] + '-' +
-                                                      notebook_config['user_name'] + '-edge')
-        if edge_status != 'running':
-            logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = AzureMeta().get_private_ip_address(os.environ['conf_service_base_name'],
-                                                              os.environ['conf_service_base_name'] + '-ssn')
-            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                ssn_hostname)
-            append_result("Edge node is unavailable")
-            sys.exit(1)
-
+        
         print('Generating infrastructure names and tags')
         try:
             notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -107,6 +95,24 @@ if __name__ == "__main__":
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
+        sys.exit(1)
+
+    try:
+        edge_status = AzureMeta().get_instance_status(notebook_config['resource_group_name'],
+                                                      os.environ['conf_service_base_name'] + '-' +
+                                                      notebook_config['user_name'] + '-edge')
+        if edge_status != 'running':
+            logging.info('ERROR: Edge node is unavailable! Aborting...')
+            print('ERROR: Edge node is unavailable! Aborting...')
+            ssn_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                              os.environ['conf_service_base_name'] + '-ssn')
+            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
+                                ssn_hostname)
+            append_result("Edge node is unavailable")
+            sys.exit(1)
+    except Exception as err:
+        print("Failed to verify edge status.")
+        append_result("Failed to verify edge status.", str(err))
         sys.exit(1)
 
     with open('/root/result.json', 'w') as f:

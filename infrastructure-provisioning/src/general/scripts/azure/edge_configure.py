@@ -68,10 +68,15 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                                   edge_conf['private_subnet_name']).address_prefix
-        edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                       edge_conf['instance_name'])
-        edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                                   edge_conf['instance_name'])
+        if os.environ['conf_network_type'] == 'private':
+            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
+                                                                                    edge_conf['instance_name'])
+            edge_conf['edge_public_ip'] =  edge_conf['edge_private_ip']
+        else:
+            edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                                        edge_conf['instance_name'])
+            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
+                                                                                    edge_conf['instance_name'])
         instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                         edge_conf['instance_name'])
         edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
