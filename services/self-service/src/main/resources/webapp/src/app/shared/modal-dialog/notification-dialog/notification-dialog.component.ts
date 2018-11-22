@@ -16,18 +16,26 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
-import { AccessNotebookGuideComponent } from './accessnotebookguide/accessnotebookguide.component';
-import { PublicKeyGuideComponent } from './publickeyguide/publickeyguide.component';
-
-export * from './accessnotebookguide/accessnotebookguide.component';
-export * from './publickeyguide/publickeyguide.component';
-
-@NgModule({
-  imports: [CommonModule],
-  declarations: [AccessNotebookGuideComponent, PublicKeyGuideComponent],
-  exports: [AccessNotebookGuideComponent, PublicKeyGuideComponent]
+@Component({
+  selector: 'notification-dialog',
+  template: `
+  <div mat-dialog-content class="content">
+    {{ data }}
+  </div>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+  </div>
+  `,
+  styles: [`
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+  `]
 })
-export class GuidesModule {}
+export class NotificationDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<NotificationDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
+}

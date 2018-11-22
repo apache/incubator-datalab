@@ -26,17 +26,29 @@ limitations under the License.
         <mat-list>
           <mat-list-item class="list-header">
             <div class="username">User</div>
+            <div class="quotes">Limit</div>
             <div class="action">Actions</div>
           </mat-list-item>
-          <div class="scrolling-content" id="scrolling">
-            <mat-list-item *ngFor="let item of usersList">
-              <div class="username ellipsis">{{ item }}</div>
-              <div class="action">
-                <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i class="material-icons">pause_circle_outline</i></span>
-                <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)"><i class="material-icons">phonelink_off</i></span>
-              </div>
-            </mat-list-item>
-          </div>
+          <form [formGroup]="manageUsersForm" (submit)="setBudgetLimits(manageUsersForm.value)" novalidate>
+            <div class="scrolling-content" id="scrolling" formArrayName="users">
+              <mat-list-item  *ngFor="let item of usersEnvironments.controls; let i=index" [formGroupName]="i"> 
+                <div class="username ellipsis">{{ manageUsersForm.controls['users'].controls[i].value['name'] }}</div>
+                <div class="quotes">
+                    <input type="number" min="0" placeholder="Enter limit" formControlName="budget">
+                    <span class="danger_color" *ngIf="!manageUsersForm.controls['users'].controls[i].controls['budget'].valid">Only positive integers are allowed</span>
+                </div>
+                <div class="action">
+                  <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i class="material-icons">pause_circle_outline</i></span>
+                  <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)"><i class="material-icons">phonelink_off</i></span>
+               </div> 
+              </mat-list-item>
+            </div>
+            <div class="text-center m-top-30">
+              <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
+              <button mat-raised-button type="submit" [disabled]="!manageUsersForm.valid"
+                      class="butt butt-success action" [ngClass]="{'not-allowed': !manageUsersForm.valid}">Create</button>
+            </div>
+          </form>
         </mat-list>
       </div>
       <div class="info message" *ngIf="!usersList.length">No active users environments</div>

@@ -16,21 +16,21 @@ limitations under the License.
 
 -->
 
-<dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="isAdmin"></dlab-navbar>
-
 <div class="sub-nav base-retreat">
-  <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()" *ngIf="isAdmin">
-    <i class="material-icons"></i>Roles
-  </button>
-  <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()" *ngIf="isAdmin">
-    <i class="material-icons"></i>SSN Monitor
-  </button>
-  <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()" *ngIf="isAdmin">
-    <i class="material-icons"></i>Manage environment
-  </button>
-  <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup" *ngIf="isAdmin">
-    <i class="material-icons">backup</i>Backup
-  </button>
+  <div *ngIf="healthStatus?.admin" class="admin-group">
+    <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()">
+      <i class="material-icons"></i>Roles
+    </button>
+    <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()">
+      <i class="material-icons"></i>SSN Monitor
+    </button>
+    <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()">
+      <i class="material-icons"></i>Manage environment
+    </button>
+    <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup">
+      <i class="material-icons">backup</i>Backup
+    </button>
+  </div>
   <button mat-raised-button class="butt" (click)="buildGrid()">
     <i class="material-icons">autorenew</i>Refresh
   </button>
@@ -42,7 +42,7 @@ limitations under the License.
                     [environmentsHealthStatuses]="environmentsHealthStatuses"
                     (refreshGrid)="buildGrid($event)"></health-status-grid>
 <dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)"></dlab-backup-dilog>
-<dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)"></dlab-manage-env-dilog>
+<dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)" (setBudget)="setBudgetLimits($event)"></dlab-manage-env-dilog>
 <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
 <progress-dialog #preloaderModal></progress-dialog>
 <dlab-ssn-monitor #ssnMonitor></dlab-ssn-monitor>

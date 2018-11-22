@@ -6,10 +6,6 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./access-denied.component.scss']
 })
 export class AccessDeniedComponent implements OnInit {
-
   constructor() { }
-
-  ngOnInit() {
-  }
-
+  ngOnInit() { }
 }

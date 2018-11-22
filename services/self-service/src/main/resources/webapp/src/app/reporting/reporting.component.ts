@@ -20,7 +20,7 @@ limitations under the License.
 import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr';
 
-import { BillingReportService, HealthStatusService, UserAccessKeyService }  from '../core/services';
+import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -30,15 +30,15 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="admin"></dlab-navbar>
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
+  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)"
+                (exportReport)="exportBillingReport()"
+                (setRangeOption)="setRangeOption($event)">
+  </dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer *ngIf="data">
     Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
 
-  <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
-  <progress-dialog #preloaderModal></progress-dialog>
   `,
   styles: [`
     footer {
@@ -57,13 +57,9 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 })
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
 
   @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
-
-  @ViewChild('keyUploadModal') keyUploadDialog;
-  @ViewChild('preloaderModal') preloaderDialog;
 
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
@@ -83,7 +79,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.rebuildBillingReport();
-    this.getEnvironmentHealthStatus();
   }
 
   ngOnDestroy() {
@@ -100,7 +95,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
-          localStorage.setItem('report_period' , JSON.stringify({start_date: this.data[DICTIONARY.billing.dateFrom], end_date: this.data[DICTIONARY.billing.dateTo]}));
+          localStorage.setItem('report_period' , JSON.stringify({
+            start_date: this.data[DICTIONARY.billing.dateFrom],
+            end_date: this.data[DICTIONARY.billing.dateTo]}));
           this.reportingToolbar.setDateRange();
         }
 
@@ -152,7 +149,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
               shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
-          let parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+          const parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
           if (shapes.indexOf(parsedShape) === -1) {
             shapes.push(parsedShape);
           }
@@ -192,34 +189,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
-  public checkUserAccessKey() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-        (response: any) => this.processAccessKeyStatus(response.status),
-        error => this.processAccessKeyStatus(error.status));
-  }
-
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.rebuildBillingReport();
-      });
-  }
-
-  private processAccessKeyStatus(status: number) {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.keyUploadDialog.open({ isFooter: false });
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
-
-      setTimeout(() => this.rebuildBillingReport(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      this.preloaderDialog.close();
-      this.keyUploadDialog.close();
-    }
-  }
-
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
@@ -227,7 +196,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
 
-        this.checkUserAccessKey();
+        this.userAccessKeyService.initialUserAccessKeyCheck();
       });
   }
 }

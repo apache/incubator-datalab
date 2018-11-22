@@ -148,7 +148,6 @@ export class SchedulerComponent implements OnInit {
       this.model
         .resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null)
         .subscribe(res => {
-          debugger;
           this.resetDialog();
         });
   }

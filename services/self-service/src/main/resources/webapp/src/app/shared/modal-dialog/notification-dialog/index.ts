@@ -19,15 +19,16 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { AccessNotebookGuideComponent } from './accessnotebookguide/accessnotebookguide.component';
-import { PublicKeyGuideComponent } from './publickeyguide/publickeyguide.component';
+import { ModalModule } from '..';
+import { NotificationDialogComponent } from './notification-dialog.component';
+import { MaterialModule } from '../../material.module';
 
-export * from './accessnotebookguide/accessnotebookguide.component';
-export * from './publickeyguide/publickeyguide.component';
+export * from './notification-dialog.component';
 
 @NgModule({
-  imports: [CommonModule],
-  declarations: [AccessNotebookGuideComponent, PublicKeyGuideComponent],
-  exports: [AccessNotebookGuideComponent, PublicKeyGuideComponent]
+  imports: [CommonModule, ModalModule, MaterialModule],
+  declarations: [NotificationDialogComponent],
+  entryComponents: [NotificationDialogComponent],
+  exports: [NotificationDialogComponent]
 })
-export class GuidesModule {}
+export class NotificationDialogModule {}
