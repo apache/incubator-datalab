@@ -151,7 +151,8 @@ def generate_docker_command():
 def build_docker_images(args):
     # Building base and ssn docker images
     with lcd(args.workspace_path):
-        local('sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+        local('sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
+              'infrastructure-provisioning/src/general/files/{1}/'
               'base_Dockerfile -t docker.dlab-base .'.format(args.conf_os_family, args.conf_cloud_provider))
         local('sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
               'ssn_Dockerfile -t docker.dlab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider))
