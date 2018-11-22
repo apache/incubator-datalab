@@ -71,11 +71,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
           result && this.processAccessKeyStatus(result.status);
         }));
+        this.currentUserName = this.getUserName();
       }
     });
 
     this.quotesLimit = 70;
-    this.currentUserName = this.getUserName();
   }
 
   ngOnDestroy(): void {
