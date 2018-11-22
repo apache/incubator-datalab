@@ -79,7 +79,7 @@ def create_s3_bucket(bucket_name, tag, region):
         tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
                                                                          bucket_name})
-        tags.append({'Key': 'product', 'Value': 'dlab'})
+        tags.append({'Key': os.environ['conf_billing_tag_key'], 'Value': os.environ['conf_billing_tag_value']})
         if 'conf_additional_tags' in os.environ:
             for tag in os.environ['conf_additional_tags'].split(';'):
                 tags.append(
@@ -158,8 +158,8 @@ def create_tag(resource, tag, with_tag_res_id=True):
         )
         tags_list.append(
             {
-                'Key': 'product',
-                'Value': 'dlab'
+                'Key': os.environ['conf_billing_tag_key'],
+                'Value': os.environ['conf_billing_tag_value']
             }
         )
     if 'conf_additional_tags' in os.environ:

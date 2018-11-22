@@ -64,16 +64,16 @@ if __name__ == "__main__":
         ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         ssn_conf['instance_tags'] = {"Name": ssn_conf['instance_name'],
                                      "SBN": ssn_conf['service_base_name'],
-                                     "product": "dlab"}
+                                     os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['ssn_storage_account_tags'] = {"Name": ssn_conf['ssn_storage_account_name'],
                                                 "SBN": ssn_conf['service_base_name'],
-                                                "product": "dlab"}
+                                                os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['shared_storage_account_tags'] = {"Name": ssn_conf['shared_storage_account_name'],
                                                    "SBN": ssn_conf['service_base_name'],
-                                                   "product": "dlab"}
+                                                   os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['datalake_store_tags'] = {"Name": ssn_conf['datalake_store_name'],
                                            "SBN": ssn_conf['service_base_name'],
-                                           "product": "dlab"}
+                                           os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['primary_disk_size'] = '32'
 
     except:

@@ -96,13 +96,13 @@ if __name__ == "__main__":
                                      "User": data_engine['user_name'],
                                      "Type": "slave",
                                      "notebook_name": data_engine['notebook_name'],
-                                     "product": "dlab"}
+                                     os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         data_engine['master_tags'] = {"Name": data_engine['cluster_name'],
                                       "SBN": data_engine['service_base_name'],
                                       "User": data_engine['user_name'],
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name'],
-                                      "product": "dlab"}
+                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         data_engine['primary_disk_size'] = '32'
         data_engine['image_type'] = 'default'
         data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(data_engine['service_base_name'],

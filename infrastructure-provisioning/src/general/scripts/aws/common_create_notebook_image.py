@@ -45,7 +45,7 @@ if __name__ == "__main__":
                               "User": image_conf['user_name'],
                               "Image": image_conf['image_name'],
                               "FIN": image_conf['full_image_name'],
-                              "product": "dlab"}
+                              os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
 
         ami_id = get_ami_id_by_name(image_conf['full_image_name'])
         if ami_id == '':
