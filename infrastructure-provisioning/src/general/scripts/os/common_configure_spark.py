@@ -66,7 +66,9 @@ def add_custom_spark_properties(cluster_name):
         new_spark_defaults = set(new_spark_defaults)
         sudo('echo "" > /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
         for prop in new_spark_defaults:
+            prop = prop.rstrip()
             sudo('echo "{0}" >> /opt/{1}/spark/conf/spark-defaults.conf'.format(prop, cluster_name))
+        sudo('sed -i "/^\s*$/d" /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

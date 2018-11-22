@@ -25,6 +25,7 @@ from dlab.fab import *
 from dlab.actions_lib import *
 from fabric.api import *
 import json
+import os
 
 
 parser = argparse.ArgumentParser()
@@ -32,6 +33,8 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--resource_type', type=str, default='')
+parser.add_argument('--spark_type', type=str, default='local')
+parser.add_argument('--cluster_name', type=str, default='local')
 args = parser.parse_args()
 
 
@@ -46,5 +49,12 @@ if __name__ == "__main__":
         memory_type = ''
     else:
         memory_type = 'driver'
-
-    configure_local_spark(jars_dir, templates_dir, memory_type)
+    if args.spark_type == 'local':
+        configure_local_spark(jars_dir, templates_dir, memory_type)
+    elif args.spark_type == 'dataengine':
+        cluster_dir = '/opt/' + args.cluster_name + '/'
+        if 'azure_datalake_enable' in os.environ:
+            datalake_enabled = os.environ['azure_datalake_enable']
+        else:
+            datalake_enabled = 'false'
+        configure_dataengine_spark(args.cluster_name, jars_dir, cluster_dir, datalake_enabled)

@@ -46,11 +46,6 @@ limitations under the License.
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-            <name>Spark_configurations</name>
-            <description></description>
-            <defaultValue>[]</defaultValue>
-        </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>
           <description></description>
@@ -60,6 +55,11 @@ limitations under the License.
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+            <name>Spark_configurations</name>
+            <description></description>
+            <defaultValue>[]</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>

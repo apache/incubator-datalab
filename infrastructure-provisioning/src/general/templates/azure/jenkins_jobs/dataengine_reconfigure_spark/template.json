@@ -1,0 +1,8 @@
+{
+    "conf_resource": "dataengine",
+    "request_id": "RID",
+    "edge_user_name": "EUN",
+    "computational_id": "CNAM",
+    "application": "APP",
+    "spark_configurations": SPC
+}

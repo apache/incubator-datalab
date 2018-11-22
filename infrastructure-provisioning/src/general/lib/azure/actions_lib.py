@@ -1114,7 +1114,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
     if datalake_enabled == 'false':
-        local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
+        local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     else:
         local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
     if 'spark_configurations' in os.environ:

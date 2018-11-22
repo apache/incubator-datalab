@@ -1329,7 +1329,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
-    local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
+    local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     if 'spark_configurations' in os.environ:
         spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
         new_spark_defaults = list()
