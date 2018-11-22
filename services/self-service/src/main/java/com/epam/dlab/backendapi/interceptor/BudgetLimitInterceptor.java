@@ -20,7 +20,6 @@ package com.epam.dlab.backendapi.interceptor;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.UserSettingsDAO;
 import com.epam.dlab.exceptions.ResourceQuoteReachedException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +28,11 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Optional;
 
 @Slf4j
 public class BudgetLimitInterceptor implements MethodInterceptor {
-	private static final double ZERO = 0.0D;
 	@Inject
 	private BillingDAO billingDAO;
-	@Inject
-	private UserSettingsDAO userSettingsDAO;
 
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
@@ -55,13 +50,7 @@ public class BudgetLimitInterceptor implements MethodInterceptor {
 				.filter(arg -> arg.getClass().equals(UserInfo.class))
 				.findAny()
 				.map(u -> ((UserInfo) u).getName())
-				.map(this::isUserReachedQuote)
+				.map(billingDAO::isUserQuoteReached)
 				.orElse(Boolean.FALSE);
-	}
-
-	private Boolean isUserReachedQuote(String user) {
-		final Optional<Long> allowedBudget = userSettingsDAO.getAllowedBudget(user);
-		final Double userCost = billingDAO.getUserCost(user);
-		return allowedBudget.filter(aLong -> userCost != ZERO && aLong < userCost).isPresent();
 	}
 }

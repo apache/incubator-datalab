@@ -39,7 +39,17 @@ public class GcpBillingDao implements BillingDAO<Object> {
 	}
 
 	@Override
+	public int getBillingUserQuoteUsed(String user) {
+		return 0;
+	}
+
+	@Override
 	public boolean isBillingQuoteReached() {
+		return false;
+	}
+
+	@Override
+	public boolean isUserQuoteReached(String user) {
 		return false;
 	}
 

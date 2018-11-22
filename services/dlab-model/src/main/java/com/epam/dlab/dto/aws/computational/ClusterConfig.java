@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class EmrConfig {
+public class ClusterConfig {
 	@JsonProperty("Classification")
 	@NotEmpty(message = "'Classification' field should not be empty")
 	private String classification;
@@ -17,5 +17,5 @@ public class EmrConfig {
 	@NotNull(message = "'Properties' field should not be empty")
 	private Map<String, Object> properties;
 	@JsonProperty("Configurations")
-	private List<EmrConfig> configurations;
+	private List<ClusterConfig> configurations;
 }

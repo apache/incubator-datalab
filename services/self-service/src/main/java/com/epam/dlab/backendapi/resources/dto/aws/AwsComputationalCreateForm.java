@@ -17,15 +17,11 @@
 package com.epam.dlab.backendapi.resources.dto.aws;
 
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
-import com.epam.dlab.dto.aws.computational.EmrConfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
-
-import javax.validation.Valid;
-import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -54,7 +50,5 @@ public class AwsComputationalCreateForm extends ComputationalCreateFormDTO {
 	@JsonProperty("emr_version")
 	private String version;
 
-	@Valid
-	private List<EmrConfig> config;
 
 }
