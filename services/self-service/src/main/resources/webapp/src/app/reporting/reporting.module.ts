@@ -24,7 +24,7 @@ import { ToastModule } from 'ng2-toastr';
 import { MaterialModule } from '../shared/material.module';
 import { FormControlsModule } from '../shared/form-controls';
 import { ReportingComponent } from './reporting.component';
-import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule } from '../shared';
+import { ModalModule, UploadKeyDialogModule, ProgressDialogModule } from '../shared';
 import { KeysPipeModule, LineBreaksPipeModule } from '../core/pipes';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
@@ -33,7 +33,6 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
   imports: [
     CommonModule,
     ModalModule,
-    NavbarModule,
     FormControlsModule,
     KeysPipeModule,
     LineBreaksPipeModule,

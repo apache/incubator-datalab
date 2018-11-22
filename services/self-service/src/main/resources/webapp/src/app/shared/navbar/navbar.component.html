@@ -16,8 +16,8 @@ limitations under the License.
 
 -->
 
-<div class="nav-bar">
-  <div class="menu-area">
+<div class="nav-bar" *ngIf="isLoggedIn">
+  <div class="menu-area" *ngIf="healthStatus">
 
     <button class="hamburger" [matMenuTriggerFor]="menu">
       <span class="line"></span>
@@ -29,8 +29,8 @@ limitations under the License.
       <mat-menu #menu="matMenu" [overlapTrigger]="false">
         <a class="nav-item" mat-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
         <a class="nav-item" mat-menu-item [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a>
-        <a *ngIf="billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/billing_report']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
-        <a *ngIf="admin" class="nav-item" mat-menu-item [routerLink]="['/environment_management']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
+        <a *ngIf="healthStatus.billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/billing_report']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
+        <a *ngIf="healthStatus.admin" class="nav-item" mat-menu-item [routerLink]="['/environment_management']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
       </mat-menu>
     </nav>
     <a [routerLink]="['/resources_list']" class="navbar-logo">
@@ -38,10 +38,16 @@ limitations under the License.
     </a>
   </div>
 
-  <div class="control-area">
-    <a *ngIf="healthStatus" [routerLink]="['/environment_health_status']" class="statusbar">
-      <span class="material-icons" ngClass="{{healthStatus || ''}}">radio_button_checked</span>
+  <div class="control-area" *ngIf="healthStatus">
+    <a *ngIf="healthStatus.status" [routerLink]="['/environment_health_status']" class="statusbar">
+      <span class="material-icons" ngClass="{{healthStatus.status || ''}}">radio_button_checked</span>
     </a>
     <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span class="user-name">{{currentUserName}}</span></button>
   </div>
 </div>
+
+<key-upload-dialog #keyUploadModal
+  (generateUserKey)="generateUserKey($event)"
+  (checkInfrastructureCreationProgress)="checkCreationProgress($event)"
+  [primaryUploading]="true"></key-upload-dialog>
+<progress-dialog #preloaderModal></progress-dialog>

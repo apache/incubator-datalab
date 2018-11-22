@@ -19,14 +19,10 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccessDeniedComponent } from './access-denied.component';
-import { NavbarModule } from '../shared';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        NavbarModule
-    ],
-    declarations: [AccessDeniedComponent],
-    exports: [AccessDeniedComponent]
+  imports: [CommonModule],
+  declarations: [AccessDeniedComponent],
+  exports: [AccessDeniedComponent]
 })
-export class AccessDeniedModule { }
+export class AccessDeniedModule {}
