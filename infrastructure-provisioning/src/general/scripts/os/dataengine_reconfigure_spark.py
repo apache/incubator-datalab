@@ -67,6 +67,9 @@ if __name__ == "__main__":
                 data_engine['tag_name'], data_engine['master_node_name'])
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
             data_engine['instance_count'] = int(node_count(data_engine['cluster_name']))
+            data_engine['notebook_name'] = os.environ['notebook_instance_name']
+            data_engine['notebook_ip'] = get_instance_private_ip_address(
+                data_engine['tag_name'], data_engine['notebook_name'])
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
@@ -92,6 +95,16 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+
+        params = "--os_user {} --instance_ip {} --keyfile '{}' --resource_type notebook --spark_type dataengine" \
+            .format(data_engine['os_user'], data_engine['notebook_ip'], data_engine['keyfile'])
+        try:
+            # Run script to get available libs
+            local("~/scripts/{}.py {}".format('reconfigure_spark', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to reconfigure Spark.", str(err))

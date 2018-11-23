@@ -1610,7 +1610,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
-    region = sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone')[:-1]
+    region = local('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture=True)[:-1]
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
