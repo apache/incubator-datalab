@@ -21,17 +21,21 @@ limitations under the License.
   .col {
     width: 50%;
     .control-group {
+      position: relative;
       .label {
         width: 40%;
         padding-left: 10px;
       }
       .control {
         width: 60%;
-        span {
-          &.danger_color {
-            // position: absolute;
-          }
-        }
+      }
+    }
+    span {
+      &.danger_color {
+        position: absolute;
+        padding-left: 5px;
+        bottom: 0;
+        right: 0;
       }
     }
   }
@@ -45,7 +49,9 @@ limitations under the License.
 .checkbox-group {
   text-align: left;
   input[type="checkbox"] {
-    margin: 5px;
+    vertical-align: middle;
+    margin-left: 10px;
+    margin-right: 5px;
   }
   .spot-details,
   .preemptible-details,
@@ -65,12 +71,14 @@ limitations under the License.
   .spot-details {
     &.show {
       height: 50px;
+      text-align: right;
     }
   }
   .config-details {
     &.show {
       height: 240px;
       padding-top: 10px;
+      text-align: right;
       textarea {
         background: #f8f8f8 !important;
         height: 100%;
@@ -82,6 +90,7 @@ limitations under the License.
   & > label {
     font-size: 15px;
     font-weight: 600;
+    padding-bottom: 10px;
     cursor: pointer;
   }
   &.control-group {
@@ -93,6 +102,17 @@ limitations under the License.
       display: inline-block;
       padding-top: 5px;
       padding-bottom: 10px;
+    }
+    span {
+      &.danger_color {
+        text-align: right;
+      }
+    }
+    .label {
+      width: 20%;
+    }
+    .control {
+      width: 80%;
     }
   }
 }

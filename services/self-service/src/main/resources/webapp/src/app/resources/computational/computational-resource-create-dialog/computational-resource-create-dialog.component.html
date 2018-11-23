@@ -114,7 +114,7 @@ limitations under the License.
           <label class="spot-label label">
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />
             <span>Spot instance</span>
-            <span *ngIf="spotInstancesSelect?.nativeElement['checked']"> in bit, %</span>
+            <span *ngIf="spotInstancesSelect?.nativeElement['checked']"> bit, %</span>
           </label>
           <div class="control spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] }">
             <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="isNumberKey($event)">
