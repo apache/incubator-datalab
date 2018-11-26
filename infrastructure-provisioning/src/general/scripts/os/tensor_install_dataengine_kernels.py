@@ -66,8 +66,11 @@ if __name__ == "__main__":
         region = os.environ['aws_region']
     except:
         region = ''
+    if 'spark_configurations' not in os.environ:
+        os.environ['spark_configurations'] = None
     configure_notebook(args.keyfile, env.host_string)
     sudo("/usr/bin/python /usr/local/bin/tensor_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} --datalake_enabled {}".
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} "
+         "--datalake_enabled {} --spark_configurations '{}'".
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,
-                args.datalake_enabled))
+                args.datalake_enabled, os.environ['spark_configurations']))

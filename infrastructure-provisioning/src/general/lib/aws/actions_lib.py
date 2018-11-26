@@ -1607,7 +1607,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         sys.exit(1)
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled):
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     region = local('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture=True)[:-1]
@@ -1620,8 +1620,8 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/{}/notebook_spark-defaults_local.conf'""".format(cluster_name))
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/{}/notebook_spark-defaults_local.conf'.format(cluster_name))
     local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
-    if 'spark_configurations' in os.environ:
-        spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+    if spark_configs:
+        spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
         spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
         current_spark_properties = spark_defaults.split('\n')

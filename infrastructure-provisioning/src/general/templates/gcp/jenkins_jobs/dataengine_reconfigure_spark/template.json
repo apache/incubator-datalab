@@ -4,5 +4,6 @@
     "edge_user_name": "EUN",
     "computational_id": "CNAM",
     "application": "APP",
+    "notebook_instance_name":"NNM",
     "spark_configurations": SPC
 }

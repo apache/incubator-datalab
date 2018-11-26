@@ -40,6 +40,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
+parser.add_argument('--spark_configurations', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
@@ -156,7 +157,8 @@ if __name__ == "__main__":
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
         install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                                  args.datalake_enabled)
-        configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled)
+        configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled,
+                                   args.spark_configurations)
         pyspark_kernel(args)
         toree_kernel(args)
         if args.r_enabled == 'true':

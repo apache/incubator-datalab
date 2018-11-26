@@ -96,8 +96,9 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
 
-        params = "--os_user {} --instance_ip {} --keyfile '{}' --resource_type notebook --spark_type dataengine" \
-            .format(data_engine['os_user'], data_engine['notebook_ip'], data_engine['keyfile'])
+        params = "--os_user {} --instance_ip {} --keyfile '{}' --resource_type notebook --spark_type dataengine " \
+                 "--cluster_name {}".format(data_engine['os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
+                                            data_engine['cluster_name'])
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('reconfigure_spark', params))
