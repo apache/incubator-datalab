@@ -54,7 +54,7 @@ limitations under the License.
                     <span class="danger_color" *ngIf="!resourceForm.controls.cluster_alias_name.valid
                                               && resourceForm.controls['cluster_alias_name'].dirty
                                               && !resourceForm.controls['cluster_alias_name'].hasError('duplication')">
-                      Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'
+                      Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can't end with special characters
                     </span>
                 </div>
               </div>
