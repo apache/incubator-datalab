@@ -59,7 +59,8 @@ if __name__ == "__main__":
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
                                    "User": notebook_config['user_name'],
-                                   "Exploratory": notebook_config['exploratory_name']}
+                                   "Exploratory": notebook_config['exploratory_name'],
+                                   os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
 
         # generating variables regarding EDGE proxy on Notebook instance

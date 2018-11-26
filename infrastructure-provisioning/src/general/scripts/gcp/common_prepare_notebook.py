@@ -92,7 +92,8 @@ if __name__ == "__main__":
                                                          notebook_config['edge_user_name'])
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
-                                 "user": notebook_config['edge_user_name']}
+                                 "user": notebook_config['edge_user_name'],
+                                 "product": "dlab"}
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')

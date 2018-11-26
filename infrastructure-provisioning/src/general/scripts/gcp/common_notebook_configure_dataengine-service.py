@@ -58,7 +58,8 @@ if __name__ == "__main__":
         "name": notebook_config['cluster_name'],
         "sbn": notebook_config['service_base_name'],
         "user": notebook_config['edge_user_name'],
-        "notebook_name": os.environ['notebook_instance_name']
+        "notebook_name": os.environ['notebook_instance_name'],
+        "product": "dlab"
     }
 
     try:
