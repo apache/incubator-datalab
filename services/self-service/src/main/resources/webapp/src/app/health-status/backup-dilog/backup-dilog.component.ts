@@ -40,10 +40,11 @@ export class BackupDilogComponent implements OnInit {
   }
 
   public open(param): void {
+    this.valid = true;
     this.bindDialog.open(param);
   }
 
-  public onHoldChanged($event, key) {
+  public onHoldChanged($event, key): void {
     this.backupOptions[key] instanceof Array
       ? (this.backupOptions[key][0] = $event.checked ? 'all' : 'skip')
       : (this.backupOptions[key] = !this.backupOptions[key]);
@@ -51,13 +52,13 @@ export class BackupDilogComponent implements OnInit {
     this.checkValidity();
   }
 
-  public applyOptions() {
+  public applyOptions(): void {
     this.backupOpts.emit(this.backupOptions);
     this.backupOptions.setDegault();
     this.bindDialog.close();
   }
 
-  private checkValidity() {
+  private checkValidity(): void {
     const items = [];
 
     Object.keys(this.backupOptions).forEach(el => {
