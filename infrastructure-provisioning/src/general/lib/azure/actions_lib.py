@@ -102,7 +102,8 @@ class AzureActions:
                 {
                     'location': region,
                     'tags': {
-                        'Name': vpc_name
+                        'Name': vpc_name,
+                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']
                     },
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
