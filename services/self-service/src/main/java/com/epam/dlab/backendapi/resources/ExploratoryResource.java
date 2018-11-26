@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.exploratory.Exploratory;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
@@ -39,6 +40,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Provides the REST API for the exploratory.
@@ -135,7 +137,18 @@ public class ExploratoryResource implements ExploratoryAPI {
 		return exploratoryService.terminate(userInfo, name);
 	}
 
-	private Exploratory getExploratory(@Valid @NotNull ExploratoryCreateFormDTO formDTO) {
+	@PUT
+	@Path("/{name}/reconfigure")
+	@ApiOperation(value = "Reconfigure notebook spark cluster")
+	public Response reconfigureSpark(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Notebook's name", required = true) @PathParam("name") String name,
+									 @ApiParam(value = "Notebook cluster configuration", required = true) List<ClusterConfig> config) {
+		log.debug("Updating exploratory {} spark cluster for user {}", name, userInfo.getName());
+		exploratoryService.updateClusterConfig(userInfo, name, config);
+		return Response.accepted().build();
+	}
+
+	private Exploratory getExploratory(ExploratoryCreateFormDTO formDTO) {
 		return Exploratory.builder()
 				.name(formDTO.getName())
 				.dockerImage(formDTO.getImage())

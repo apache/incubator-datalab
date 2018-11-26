@@ -32,7 +32,6 @@ import org.bson.conversions.Bson;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
@@ -43,6 +42,7 @@ import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.push;
 import static com.mongodb.client.model.Updates.set;
+import static java.util.stream.Collectors.toList;
 
 /**
  * DAO for user computational resources.
@@ -58,6 +58,7 @@ public class ComputationalDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_URL_DESC = "description";
 	private static final String COMPUTATIONAL_URL_URL = "url";
 	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
+	private static final String CONFIG = "config";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -120,7 +121,7 @@ public class ComputationalDAO extends BaseDAO {
 		return userInstanceDTO.getResources()
 				.stream()
 				.filter(computationalResource -> computationalResource.getStatus().equals(status.toString()))
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	/**
@@ -198,7 +199,7 @@ public class ComputationalDAO extends BaseDAO {
 		List<String> exploratoryNames = stream(find(USER_INSTANCES,
 				and(eq(USER, user), in(STATUS, statusList(exploratoryStatuses))),
 				fields(include(EXPLORATORY_NAME)))).map(d -> d.getString(EXPLORATORY_NAME))
-				.collect(Collectors.toList());
+				.collect(toList());
 
 		exploratoryNames.forEach(explName ->
 				getComputationalResourcesWhereStatusIn(user, computationalTypes, explName, oldComputationalStatuses)
@@ -276,6 +277,10 @@ public class ComputationalDAO extends BaseDAO {
 			if (dto.getLastActivity() != null) {
 				values.append(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY), dto.getLastActivity());
 			}
+			if (dto.getConfig() != null) {
+				values.append(computationalFieldFilter(CONFIG),
+						dto.getConfig().stream().map(this::convertToBson).collect(toList()));
+			}
 			return updateOne(USER_INSTANCES, and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
 					elemMatch(COMPUTATIONAL_RESOURCES,
 							and(eq(COMPUTATIONAL_NAME, dto.getComputationalName()),
@@ -288,7 +293,8 @@ public class ComputationalDAO extends BaseDAO {
 
 	private List<Map<String, String>> getResourceUrlData(ComputationalStatusDTO dto) {
 		return dto.getResourceUrl().stream()
-				.map(this::toUrlDocument).collect(Collectors.toList());
+				.map(this::toUrlDocument)
+				.collect(toList());
 	}
 
 	private LinkedHashMap<String, String> toUrlDocument(ResourceURL url) {
@@ -319,7 +325,7 @@ public class ComputationalDAO extends BaseDAO {
 		List<String> exploratoryNames = stream(find(USER_INSTANCES,
 				and(eq(USER, user), in(STATUS, statusList(exploratoryStatuses))),
 				fields(include(EXPLORATORY_NAME)))).map(d -> d.getString(EXPLORATORY_NAME))
-				.collect(Collectors.toList());
+				.collect(toList());
 
 		exploratoryNames.forEach(explName ->
 				getComputationalResourcesWhereStatusIn(user, computationalTypes, explName, computationalStatuses)
@@ -364,7 +370,7 @@ public class ComputationalDAO extends BaseDAO {
 				.filter(doc ->
 						statusList(computationalStatuses).contains(doc.getString(STATUS)) &&
 								computationalTypes.contains(DataEngineType.fromDockerImageName(doc.getString(IMAGE))))
-				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
+				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(toList());
 	}
 
 	/**
