@@ -183,8 +183,8 @@ def create_product_tag(resource):
         resource = [resource]
     tags_list.append(
         {
-            'Key': 'product',
-            'Value': 'dlab'
+            'Key': os.environ['conf_billing_tag_key'],
+            'Value': os.environ['conf_billing_tag_value']
         }
     )
     ec2.create_tags(
