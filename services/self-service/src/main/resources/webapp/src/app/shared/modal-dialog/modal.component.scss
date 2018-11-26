@@ -239,7 +239,7 @@ limitations under the License.
   .dialog-body {
     padding-top: 0;
     .content-box {
-      padding: 25px 35px 45px;
+      padding: 25px 35px 35px;
     }
   }
   .upload-key {
@@ -400,5 +400,11 @@ limitations under the License.
   }
   .time_info {
     margin-top: 15px;
+  }
+}
+
+.create-cluster {
+  .dialog-header {
+    padding-left: 45px !important;
   }
 }

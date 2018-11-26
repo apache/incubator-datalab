@@ -77,7 +77,6 @@ export class UploadKeyDialogComponent implements OnInit {
           }
         },
         error => {
-          debugger;
           this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
         },
         this.userAccessKeyService);

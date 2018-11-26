@@ -17,23 +17,22 @@ limitations under the License.
 ****************************************************************************/
 
 export const CLUSTER_CONFIGURATION = {
- EMR: [{
-    'Classification': 'classification-name',
-    'Properties': {
-      'hadoop.security.groups.cache.secs': 'value'
+  EMR: [{
+    Classification: 'classification-name',
+    Properties: {
+      property_name: 'property_value'
     }
   }, {
-    'Classification': 'classification-name',
-    'Properties': {
-      'mapred.tasktracker.map.tasks.maximum': 'value',
-      'mapreduce.map.sort.spill.percent': 'value',
-      'mapreduce.tasktracker.reduce.tasks.maximum': 'value'
+    Classification: 'classification-name',
+    Properties: {
+      property_name: 'property_value',
+      property_name_x: 'property_value'
     }
   }],
   SPARK: [{
-    'Classification': 'spark-defaults',
-    'Properties': {
-      'spark.driver.extraClassPath': '/path/to*'
+    Classification: 'spark-defaults',
+    Properties: {
+      property_name: 'property_value'
     }
   }]
 };

@@ -18,14 +18,17 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ToastModule } from 'ng2-toastr';
+
 import { MaterialModule } from '../shared/material.module';
-import { NavbarModule, ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
+import { ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
 import { FormControlsModule } from '../shared/form-controls';
 import { HealthStatusComponent } from './health-status.component';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import {
   ManageEnvironmentComponent,
-  ConfirmActionDialog
+  ConfirmActionDialogComponent
 } from './manage-environment/manage-environment-dilog.component';
 
 import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
@@ -33,16 +36,15 @@ import { GroupNameValidationDirective } from './manage-roles-groups/group-name-v
 import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialog } from './manage-roles-groups/manage-roles-groups.component';
-import { ToastModule } from 'ng2-toastr';
 
-import { FormsModule } from '@angular/forms';
 export * from './environment-status.model';
 
 @NgModule({
 
   imports: [
     CommonModule,
-    NavbarModule,
+    FormsModule,
+    ReactiveFormsModule,
     ModalModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
@@ -50,7 +52,6 @@ export * from './environment-status.model';
     ConfirmationDialogModule,
     FormControlsModule,
     MaterialModule,
-    FormsModule,
     ToastModule.forRoot()
   ],
   declarations: [
@@ -58,13 +59,13 @@ export * from './environment-status.model';
     HealthStatusComponent,
     BackupDilogComponent,
     ManageEnvironmentComponent,
-    ConfirmActionDialog,
+    ConfirmActionDialogComponent,
     ConfirmDeleteUserAccountDialog,
     SsnMonitorComponent,
     ManageRolesGroupsComponent,
     HealthStatusGridComponent
   ],
-  entryComponents: [ConfirmActionDialog, ConfirmDeleteUserAccountDialog],
+  entryComponents: [ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialog],
   exports: [HealthStatusComponent, HealthStatusGridComponent, GroupNameValidationDirective]
 })
 export class HealthStatusModule {}

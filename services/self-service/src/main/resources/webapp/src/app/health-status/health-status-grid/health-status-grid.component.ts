@@ -27,7 +27,7 @@ import { FileUtils } from '../../core/util';
 @Component({
   selector: 'health-status-grid',
   templateUrl: 'health-status-grid.component.html',
-  styleUrls: ['./health-status-grid.component.css',
+  styleUrls: ['./health-status-grid.component.scss',
               '../../resources/resources-grid/resources-grid.component.css']
 })
 export class HealthStatusGridComponent implements OnInit {
@@ -51,7 +51,7 @@ export class HealthStatusGridComponent implements OnInit {
     }
 
     ngOnInit(): void { }
-    
+
     buildGrid(): void {
       this.refreshGrid.emit();
     }

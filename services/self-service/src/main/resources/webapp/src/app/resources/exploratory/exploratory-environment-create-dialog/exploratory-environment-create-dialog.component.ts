@@ -37,7 +37,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
 
   model: ExploratoryEnvironmentCreateModel;
   templateDescription: string;
-  namePattern = '[-_a-zA-Z0-9]+';
+  namePattern = '[\\w-_]+(?<!-)(?<!_)';
   resourceGrid: any;
   userImages: Array<any>;
   environment_shape: string;

@@ -56,7 +56,7 @@ limitations under the License.
             <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.environment_name.valid
                                        && createExploratoryEnvironmentForm.controls['environment_name'].dirty
                                        && !createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')">Name
-              <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'
+              <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can't end with special characters
             </span>
           </div>
         </div>
