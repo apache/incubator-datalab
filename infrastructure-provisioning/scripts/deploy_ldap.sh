@@ -189,7 +189,7 @@ ldappasswd -s ${INITIAL_USER_PASS} -w ${ADMIN_USER_PASS} -D "cn=admin,${LDAP_DN}
 
 # Installing and configuring PHPLDAPAdmin
 apt-get install -y phpldapadmin
-sed -i "s@$servers->setValue('server','name'.*@$servers->setValue('server','name','Lilly LDAP');@" /etc/phpldapadmin/config.php
+sed -i "s@$servers->setValue('server','name'.*@$servers->setValue('server','name','OpenLDAP server');@" /etc/phpldapadmin/config.php
 sed -i "s@$servers->setValue('server','base'.*@$servers->setValue('server','base',array('${LDAP_DN}'));@" /etc/phpldapadmin/config.php
 sed -i "s@$servers->setValue('login','bind_id'.*@$servers->setValue('login','bind_id','cn=admin,${LDAP_DN}');@" /etc/phpldapadmin/config.php
 
