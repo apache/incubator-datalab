@@ -16,43 +16,15 @@ limitations under the License.
 
 ****************************************************************************/
 
-.confirmation-dialog {
-  color: #718ba6;
-  p {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0;
-    margin-bottom: 10px;
-    &.info {
-      font-weight: 500;
-    }
-  }
-  .resources {
-    .cluster {
-      width: 45%;
-    }
-    .status {
-      width: 30%;
-    }
-    .size {
-      width: 15%;
-    }
-    .scrolling-content {
-      max-height: 200px;
-    }
-  }
-  .empty-list {
+.links_block {
+  display: flex;
+  flex-direction: column;
+  > p {
     display: flex;
-    width: 100%;
-    justify-content: center;
-    color: #35afd5;
-    padding: 15px;
+    flex: 1;
+    min-width: 0;
   }
-
-  .list-header {
-    border-top: 1px solid #edf1f5;
-    border-bottom: 1px solid #edf1f5;
-    color: #577289;
-    width: 100%;
+  .description {
+    white-space: nowrap;
   }
 }
