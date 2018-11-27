@@ -41,6 +41,7 @@ if __name__ == "__main__":
         if args.elastic_ip == 'None':
             print("Allocating Elastic IP")
             allocation_id = allocate_elastic_ip()
+            create_product_tag(allocation_id)
         else:
             allocation_id = get_allocation_id_by_elastic_ip(args.elastic_ip)
 
