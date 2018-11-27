@@ -22,6 +22,7 @@ import os
 import sys
 import logging
 import traceback
+import json
 from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
@@ -110,3 +111,13 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed to reconfigure Spark.", str(err))
         sys.exit(1)
+
+    try:
+        with open("/root/result.json", 'w') as result:
+            res = {"service_base_name": data_engine['service_base_name'],
+                   "Action": "Reconfigure Spark on Data Engine"}
+            print(json.dumps(res))
+            result.write(json.dumps(res))
+    except:
+        print("Failed writing results.")
+        sys.exit(0)

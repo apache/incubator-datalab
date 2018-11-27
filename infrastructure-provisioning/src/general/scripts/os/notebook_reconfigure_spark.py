@@ -20,6 +20,7 @@
 
 import os
 import sys
+import json
 import logging
 import traceback
 from dlab.fab import *
@@ -64,3 +65,14 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed to reconfigure Spark.", str(err))
         sys.exit(1)
+
+
+    try:
+        with open("/root/result.json", 'w') as result:
+            res = {"service_base_name": notebook_config['service_base_name'],
+                   "Action": "Reconfigure Spark on Notebook"}
+            print(json.dumps(res))
+            result.write(json.dumps(res))
+    except:
+        print("Failed writing results.")
+        sys.exit(0)
