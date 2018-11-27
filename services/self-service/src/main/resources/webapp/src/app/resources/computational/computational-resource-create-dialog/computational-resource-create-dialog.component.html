@@ -37,9 +37,6 @@ limitations under the License.
           <div class="control">
             <dropdown-list #clusterType (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
-          <div class="mt-5" *ngIf="model.resourceImages">
-            <small *ngIf="model.selectedImage">{{ model.selectedImage.description }}</small>
-          </div>
         </div>
 
         <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!model.templates.length">
