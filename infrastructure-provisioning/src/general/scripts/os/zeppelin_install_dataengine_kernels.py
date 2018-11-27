@@ -71,7 +71,7 @@ if __name__ == "__main__":
     except:
         region = ''
     if 'spark_configurations' not in os.environ:
-        os.environ['spark_configurations'] = None
+        os.environ['spark_configurations'] = '[]'
     configure_notebook(args.keyfile, env.host_string)
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']

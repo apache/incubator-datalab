@@ -63,7 +63,7 @@ if __name__ == "__main__":
         else:
             datalake_enabled = 'false'
         if 'spark_configurations' not in os.environ:
-            os.environ['spark_configurations'] = None
+            os.environ['spark_configurations'] = '[]'
         sudo('/usr/bin/python /usr/local/bin/notebook_reconfigure_dataengine_spark.py --cluster_name {0} '
              '--jars_dir {1} --cluster_dir {2} --datalake_enabled {3} --spark_configurations "{4}"'.format(
               args.cluster_name, jars_dir, cluster_dir, datalake_enabled, os.environ['spark_configurations']))

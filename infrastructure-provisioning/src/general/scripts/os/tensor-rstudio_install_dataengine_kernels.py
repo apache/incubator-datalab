@@ -66,7 +66,7 @@ if __name__ == "__main__":
     except:
         region = ''
     if 'spark_configurations' not in os.environ:
-        os.environ['spark_configurations'] = None
+        os.environ['spark_configurations'] = '[]'
     configure_notebook(args.keyfile, env.host_string)
     sudo("/usr/bin/python /usr/local/bin/tensor-rstudio_dataengine_create_configs.py "
          "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} "

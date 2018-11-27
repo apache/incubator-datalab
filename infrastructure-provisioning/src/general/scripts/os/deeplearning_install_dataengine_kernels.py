@@ -71,7 +71,7 @@ if __name__ == "__main__":
         region = ''
     configure_notebook(args.keyfile, env.host_string)
     if 'spark_configurations' not in os.environ:
-        os.environ['spark_configurations'] = None
+        os.environ['spark_configurations'] = '[]'
     sudo("/usr/bin/python /usr/local/bin/deeplearning_dataengine_create_configs.py "
          "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} "
          "--datalake_enabled {} --spark_configurations '{}'".format(args.cluster_name, args.spark_version,
