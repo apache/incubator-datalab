@@ -16,26 +16,21 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
-
+import { Component, ViewChild } from '@angular/core';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
     selector: 'cost-details-dialog',
     templateUrl: 'cost-details-dialog.component.html',
-    styleUrls: ['cost-details-dialog.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    styleUrls: ['cost-details-dialog.component.scss']
 })
 export class CostDetailsDialogComponent {
   readonly DICTIONARY = DICTIONARY;
-
-  notebook: any;
-  tooltip: boolean = false;
+  public notebook: any;
 
   @ViewChild('bindDialog') bindDialog;
 
   public open(params, notebook): void {
-    this.tooltip = false;
     this.notebook = notebook;
     this.bindDialog.open(params);
   }
@@ -43,10 +38,5 @@ export class CostDetailsDialogComponent {
   public close(): void {
     if (this.bindDialog.isOpened)
       this.bindDialog.close();
-  }
-
-  public isEllipsisActive($event): void {
-    if ($event.target.offsetWidth < $event.target.scrollWidth)
-      this.tooltip = true;
   }
 }
