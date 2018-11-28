@@ -1241,7 +1241,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 for config in spark_configurations:
                     if config['Classification'] == 'spark-defaults':
                         for property in config['Properties']:
-                            if property in param:
+                            if property == param.split(' ')[0]:
                                 param = property + ' ' + config['Properties'][property]
                             else:
                                 new_spark_defaults.append(property + ' ' + config['Properties'][property])
@@ -1339,7 +1339,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
             for config in spark_configurations:
                 if config['Classification'] == 'spark-defaults':
                     for property in config['Properties']:
-                        if property in param:
+                        if property == param.split(' ')[0]:
                             param = property + ' ' + config['Properties'][property]
                         else:
                             new_spark_defaults.append(property + ' ' + config['Properties'][property])
