@@ -28,12 +28,20 @@ limitations under the License.
       height: 250px;
       visibility: visible;
       opacity: 1;
+      position: relative;
     }
     textarea {
       height: 100%;
       background: #f8f8f8 !important;
       resize: none;
       font-size: 14px
+    }
+    span {
+      &.danger_color {
+        position: absolute;
+        bottom: -16px;
+        right: 0;
+      }
     }
   }
 }
