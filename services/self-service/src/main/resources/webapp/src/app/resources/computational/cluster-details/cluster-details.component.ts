@@ -18,8 +18,12 @@ limitations under the License.
 
 import { Component, ViewChild } from '@angular/core';
 import { DateUtils } from '../../../core/util';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
+import { CheckUtils } from '../../../core/util';
+import { DataengineConfigurationService } from '../../../core/services';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
 
 @Component({
   selector: 'dlab-cluster-details',
@@ -33,10 +37,17 @@ export class DetailComputationalResourcesComponent {
   resource: any;
   environment: any;
   @ViewChild('bindDialog') bindDialog;
+  @ViewChild('configurationNode') configuration;
 
   upTimeInHours: number;
   upTimeSince: string = '';
   tooltip: boolean = false;
+  public configurationForm: FormGroup;
+
+  constructor(
+    private dataengineConfigurationService: DataengineConfigurationService,
+    private _fb: FormBuilder
+  ) {}
 
   public open(param, environment, resource): void {
     this.tooltip = false;
@@ -45,12 +56,39 @@ export class DetailComputationalResourcesComponent {
 
     this.upTimeInHours = (this.resource.up_time) ? DateUtils.diffBetweenDatesInHours(this.resource.up_time) : 0;
     this.upTimeSince = (this.resource.up_time) ? new Date(this.resource.up_time).toString() : '';
+    this.initFormModel();
 
+    if (this.resource.image === 'docker.dlab-dataengine') this.getClusterConfiguration();
     this.bindDialog.open(param);
   }
 
   public isEllipsisActive($event): void {
     if ($event.target.offsetWidth < $event.target.scrollWidth)
       this.tooltip = true;
+  }
+
+  public getClusterConfiguration(): void {
+    this.dataengineConfigurationService
+      .getClusterConfiguration(this.environment.name, this.resource.name)
+      .subscribe(result => {
+        console.log(result);
+      });
+  }
+
+  public editClusterConfiguration(): void {
+
+  }
+
+  private initFormModel(): void {
+    this.configurationForm = this._fb.group({
+      configuration_parameters: ['', [this.validConfiguration.bind(this)]]
+    });
+  }
+
+  private validConfiguration(control) {
+    if (this.configuration)
+      return this.configuration.nativeElement['checked']
+        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+        : null;
   }
 }

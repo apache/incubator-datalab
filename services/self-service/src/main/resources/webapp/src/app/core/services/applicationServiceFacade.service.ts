@@ -475,6 +475,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildGetClusterConfiguration(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      null,
+      this.getRequestOptions(false, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 

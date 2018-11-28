@@ -16,21 +16,21 @@ limitations under the License.
 
 ****************************************************************************/
 
-.config-details {
-  height: 0;
-  opacity: 0;
-  visibility: hidden;
-  text-align: left;
-  transition: all .35s linear .2s;
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
-  &.show {
-    height: 200px;
-    visibility: visible;
-    opacity: 1;
-    textarea {
-      height: 100%;
-      margin-top: 10px;
-      resize: none;
-    }
+import { ApplicationServiceFacade } from '.';
+import { ErrorUtils } from '../util';
+
+@Injectable()
+export class DataengineConfigurationService {
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
+
+  public getClusterConfiguration(exploratory, cluster): Observable<{}> {
+    const url = `/${exploratory}/${cluster}/config`;
+    return this.applicationServiceFacade
+      .buildGetClusterConfiguration(url)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
   }
 }

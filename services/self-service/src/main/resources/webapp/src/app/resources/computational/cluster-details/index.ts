@@ -18,14 +18,16 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ModalModule } from '../../../shared';
+import { MaterialModule } from '../../../shared/material.module';
 import { DetailComputationalResourcesComponent } from './cluster-details.component';
 
 export * from './cluster-details.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule],
+  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule, MaterialModule],
   declarations: [DetailComputationalResourcesComponent],
   exports: [DetailComputationalResourcesComponent],
 })
