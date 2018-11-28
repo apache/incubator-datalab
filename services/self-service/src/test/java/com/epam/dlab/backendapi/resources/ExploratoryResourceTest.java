@@ -33,10 +33,12 @@ import org.junit.Test;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -266,6 +268,27 @@ public class ExploratoryResourceTest extends TestBase {
 
 		verify(exploratoryService).updateClusterConfig(refEq(getUserInfo()), eq("someName"),
 				eq(Collections.singletonList(new ClusterConfig())));
+		verifyNoMoreInteractions(exploratoryService);
+	}
+
+	@Test
+	public void getSparkConfig() {
+		final ClusterConfig config = new ClusterConfig();
+		config.setClassification("test");
+		when(exploratoryService.getClusterConfig(any(UserInfo.class), anyString())).thenReturn(Collections.singletonList(config));
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/someName/cluster/config")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		final List<ClusterConfig> clusterConfigs = response.readEntity(new GenericType<List<ClusterConfig>>() {
+		});
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(1, clusterConfigs.size());
+		assertEquals("test", clusterConfigs.get(0).getClassification());
+
+		verify(exploratoryService).getClusterConfig(refEq(getUserInfo()), eq("someName"));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 

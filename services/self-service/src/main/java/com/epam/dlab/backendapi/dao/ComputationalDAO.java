@@ -19,10 +19,12 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.*;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -371,6 +373,20 @@ public class ComputationalDAO extends BaseDAO {
 						statusList(computationalStatuses).contains(doc.getString(STATUS)) &&
 								computationalTypes.contains(DataEngineType.fromDockerImageName(doc.getString(IMAGE))))
 				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ClusterConfig> getClusterConfig(String user, String exploratoryName, String computationalName) {
+		return findOne(USER_INSTANCES,
+				and(exploratoryCondition(user, exploratoryName),
+						Filters.elemMatch(COMPUTATIONAL_RESOURCES, and(eq(COMPUTATIONAL_NAME, computationalName),
+								notNull(CONFIG)))),
+				fields(include(COMPUTATIONAL_RESOURCES + ".$"), excludeId())
+		).map(d -> ((List<Document>) d.get(COMPUTATIONAL_RESOURCES)).get(0))
+				.map(d -> convertFromDocument((List<Document>) d.get(CONFIG),
+						new TypeReference<List<ClusterConfig>>() {
+						}))
+				.orElse(Collections.emptyList());
 	}
 
 	/**

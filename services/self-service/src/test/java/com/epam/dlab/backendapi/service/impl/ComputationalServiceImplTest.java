@@ -619,6 +619,37 @@ public class ComputationalServiceImplTest {
 
 	}
 
+	@Test
+	public void testGetClusterConfig() {
+		when(computationalDAO.getClusterConfig(anyString(), anyString(), anyString())).thenReturn(Collections.singletonList(getClusterConfig()));
+
+		final List<ClusterConfig> clusterConfig = computationalService.getClusterConfig(getUserInfo(),
+				EXPLORATORY_NAME, COMP_NAME);
+		final ClusterConfig config = clusterConfig.get(0);
+
+		assertEquals(1, clusterConfig.size());
+		assertEquals("test", config.getClassification());
+		assertNull(config.getConfigurations());
+		assertNull(config.getProperties());
+	}
+
+
+	@Test
+	public void testGetClusterConfigWithException() {
+		when(computationalDAO.getClusterConfig(anyString(), anyString(), anyString())).thenThrow(new RuntimeException(
+				"Exception"));
+
+		expectedException.expectMessage("Exception");
+		expectedException.expect(RuntimeException.class);
+		computationalService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME, COMP_NAME);
+	}
+
+	private ClusterConfig getClusterConfig() {
+		final ClusterConfig config = new ClusterConfig();
+		config.setClassification("test");
+		return config;
+	}
+
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}

@@ -43,6 +43,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.singletonList;
@@ -480,6 +481,35 @@ public class ExploratoryServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO);
 		verifyZeroInteractions(requestBuilder, requestId, provisioningService);
 
+	}
+
+	@Test
+	public void testGetClusterConfig() {
+
+		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenReturn(Collections.singletonList(getClusterConfig()));
+		final List<ClusterConfig> clusterConfig = exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
+
+		assertEquals(1, clusterConfig.size());
+		assertEquals("classification", clusterConfig.get(0).getClassification());
+
+		verify(exploratoryDAO).getClusterConfig(getUserInfo().getName(), EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void testGetClusterConfigWithException() {
+
+		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenThrow(new RuntimeException("Exception"));
+
+		expectedException.expect(RuntimeException.class);
+		expectedException.expectMessage("Exception");
+		exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
+	}
+
+	private ClusterConfig getClusterConfig() {
+		final ClusterConfig config = new ClusterConfig();
+		config.setClassification("classification");
+		return config;
 	}
 
 	private UserInfo getUserInfo() {

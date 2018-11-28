@@ -20,9 +20,11 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.*;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.inject.Singleton;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -455,6 +457,16 @@ public class ExploratoryDAO extends BaseDAO {
 					new Document(SET, values));
 		}
 
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ClusterConfig> getClusterConfig(String user, String exploratoryName) {
+		return findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName), notNull(CLUSTER_CONFIG)),
+				fields(include(CLUSTER_CONFIG), excludeId()))
+				.map(d -> convertFromDocument((List<Document>) d.get(CLUSTER_CONFIG),
+						new TypeReference<List<ClusterConfig>>() {
+						}))
+				.orElse(Collections.emptyList());
 	}
 
 	private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ResourceURL url) {

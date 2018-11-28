@@ -181,6 +181,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		return Optional.empty();
 	}
 
+	@Override
+	public List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName) {
+		return exploratoryDAO.getClusterConfig(user.getName(), exploratoryName);
+	}
+
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
 																			 UserInstanceStatus computationalStatus) {

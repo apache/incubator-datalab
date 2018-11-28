@@ -47,4 +47,6 @@ public interface ExploratoryService {
 	void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config);
 
 	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
+
+	List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName);
 }

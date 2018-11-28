@@ -226,6 +226,21 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		return Response.ok().build();
 	}
 
+	@GET
+	@Path("{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Returns Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully returned")
+	)
+	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+											 required = true)
+									 @PathParam("exploratoryName") String exploratoryName,
+									 @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+									 @PathParam("computationalName") String computationalName) {
+		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
+	}
+
 	private void validate(SparkStandaloneClusterCreateForm form) {
 
 		int instanceCount = Integer.parseInt(form.getDataEngineInstanceCount());

@@ -66,4 +66,6 @@ public interface ComputationalService {
 
 	Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
 																 String computationalName);
+
+	List<ClusterConfig> getClusterConfig(UserInfo userInfo, String exploratoryName, String computationalName);
 }
