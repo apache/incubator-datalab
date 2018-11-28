@@ -58,7 +58,7 @@ def add_custom_spark_properties(cluster_name):
             for config in spark_configurations:
                 if config['Classification'] == 'spark-defaults':
                     for property in config['Properties']:
-                        if property in param:
+                        if property == param.split(' ')[0]:
                             param = property + ' ' + config['Properties'][property]
                         else:
                             new_spark_defaults.append(property + ' ' + config['Properties'][property])
