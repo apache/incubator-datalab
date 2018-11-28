@@ -27,6 +27,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.*;
@@ -46,6 +47,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +63,7 @@ public class ComputationalServiceImplTest {
 	private static final long MAX_INACTIVITY = 10L;
 	private static final String DOCKER_DLAB_DATAENGINE = "docker.dlab-dataengine";
 	private static final String DOCKER_DLAB_DATAENGINE_SERVICE = "docker.dlab-dataengine-service";
+	private static final String COMP_ID = "compId";
 	private final String USER = "test";
 	private final String TOKEN = "token";
 	private final String EXPLORATORY_NAME = "expName";
@@ -546,6 +549,76 @@ public class ComputationalServiceImplTest {
 		verifyNoMoreInteractions(computationalDAO);
 	}
 
+	@Test
+	public void testUpdateSparkClusterConfig() {
+		final ComputationalClusterConfigDTO clusterConfigDTO = new ComputationalClusterConfigDTO();
+		final UserInstanceDTO userInstanceDto = getUserInstanceDto();
+		final List<ClusterConfig> config = Collections.singletonList(new ClusterConfig());
+		userInstanceDto.setResources(Collections.singletonList(getUserComputationalResource(RUNNING, COMP_NAME)));
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
+		when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
+				any(UserComputationalResource.class), anyListOf(ClusterConfig.class))).thenReturn(clusterConfigDTO);
+		when(provisioningService.post(anyString(), anyString(), any(ComputationalClusterConfigDTO.class), any()))
+				.thenReturn("someUuid");
+		computationalService.updateSparkClusterConfig(getUserInfo(), EXPLORATORY_NAME, COMP_NAME,
+				config);
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, true);
+		verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(userInstanceDto),
+				refEq(getUserComputationalResource(RUNNING, COMP_NAME)),
+				eq(Collections.singletonList(new ClusterConfig())));
+		verify(requestId).put(USER, "someUuid");
+		verify(computationalDAO).updateComputationalFields(refEq(new ComputationalStatusDTO()
+				.withConfig(config)
+				.withUser(USER)
+				.withExploratoryName(EXPLORATORY_NAME)
+				.withComputationalName(COMP_NAME)
+				.withStatus(UserInstanceStatus.RECONFIGURING.toString()), "self"));
+		verify(provisioningService).post(eq("computational/spark/reconfigure"), eq(getUserInfo().getAccessToken()),
+				refEq(new ComputationalClusterConfigDTO()), eq(String.class));
+
+	}
+
+	@Test
+	public void testUpdateSparkClusterConfigWhenClusterIsNotRunning() {
+		final UserInstanceDTO userInstanceDto = getUserInstanceDto();
+		final List<ClusterConfig> config = Collections.singletonList(new ClusterConfig());
+		userInstanceDto.setResources(Collections.singletonList(getUserComputationalResource(STOPPED, COMP_NAME)));
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
+		try {
+			computationalService.updateSparkClusterConfig(getUserInfo(), EXPLORATORY_NAME, COMP_NAME,
+					config);
+		} catch (ResourceNotFoundException e) {
+			assertEquals("Running computational resource with name compName for exploratory expName not found",
+					e.getMessage());
+		}
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, true);
+		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(provisioningService, requestBuilder, requestId);
+
+	}
+
+	@Test
+	public void testUpdateSparkClusterConfigWhenClusterIsNotFound() {
+		final UserInstanceDTO userInstanceDto = getUserInstanceDto();
+		final List<ClusterConfig> config = Collections.singletonList(new ClusterConfig());
+		userInstanceDto.setResources(Collections.singletonList(getUserComputationalResource(STOPPED, COMP_NAME)));
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
+		try {
+			computationalService.updateSparkClusterConfig(getUserInfo(), EXPLORATORY_NAME, COMP_NAME + "X",
+					config);
+		} catch (ResourceNotFoundException e) {
+			assertEquals("Running computational resource with name compNameX for exploratory expName not found",
+					e.getMessage());
+		}
+
+		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, true);
+		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(provisioningService, requestBuilder, requestId);
+
+	}
+
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
@@ -590,6 +663,7 @@ public class ComputationalServiceImplTest {
 		ucResource.setImageName(imageName);
 		ucResource.setStatus(status.toString());
 		ucResource.setLastActivity(LAST_ACTIVITY);
+		ucResource.setComputationalId(COMP_ID);
 		final SchedulerJobDTO schedulerData = new SchedulerJobDTO();
 		schedulerData.setCheckInactivityRequired(true);
 		schedulerData.setMaxInactivity(MAX_INACTIVITY);

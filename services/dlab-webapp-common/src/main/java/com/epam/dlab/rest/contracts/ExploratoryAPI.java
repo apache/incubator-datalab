@@ -22,6 +22,7 @@ public interface ExploratoryAPI {
     String LIBRARY = "library/";
     String EXPLORATORY = "exploratory";
     String EXPLORATORY_CREATE = EXPLORATORY + "/create";
+    String EXPLORATORY_RECONFIGURE_SPARK = EXPLORATORY + "/reconfigure_spark";
     String EXPLORATORY_START = EXPLORATORY + "/start";
     String EXPLORATORY_TERMINATE = EXPLORATORY + "/terminate";
     String EXPLORATORY_STOP = EXPLORATORY + "/stop";

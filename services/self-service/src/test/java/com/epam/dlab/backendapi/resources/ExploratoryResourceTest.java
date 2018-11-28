@@ -20,6 +20,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.exploratory.Exploratory;
 import io.dropwizard.auth.AuthenticationException;
@@ -35,6 +36,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -249,6 +251,21 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(exploratoryService).terminate(getUserInfo(), "someName");
+		verifyNoMoreInteractions(exploratoryService);
+	}
+
+	@Test
+	public void updateSparkConfig() {
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/someName/reconfigure")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.put(Entity.json(Collections.singletonList(new ClusterConfig())));
+
+		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+
+		verify(exploratoryService).updateClusterConfig(refEq(getUserInfo()), eq("someName"),
+				eq(Collections.singletonList(new ClusterConfig())));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 

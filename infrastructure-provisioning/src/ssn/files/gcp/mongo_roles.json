@@ -1,7 +1,7 @@
 [
   {
     "_id": "nbShapes_n1-highcpu-2_fetching",
-    "description": "Use n1-highcpu-2 instance shape",
+    "description": "Use n1-highcpu-2 instance shape for notebook",
     "exploratory_shapes": [
       "n1-highcpu-2"
     ],
@@ -11,7 +11,7 @@
   },
   {
     "_id": "nbShapes_n1-highcpu-8_fetching",
-    "description": "Use n1-highcpu-8 instance shape",
+    "description": "Use n1-highcpu-8 instance shape for notebook",
     "exploratory_shapes": [
       "n1-highcpu-8"
     ],
@@ -21,7 +21,7 @@
   },
   {
     "_id": "nbShapes_n1-highcpu-32_fetching",
-    "description": "Use n1-highcpu-32 instance shape",
+    "description": "Use n1-highcpu-32 instance shape for notebook",
     "exploratory_shapes": [
       "n1-highcpu-32"
     ],
@@ -31,7 +31,7 @@
   },
   {
     "_id": "nbShapes_n1-highmem-4_fetching",
-    "description": "Use n1-highmem-4 instance shape",
+    "description": "Use n1-highmem-4 instance shape for notebook",
     "exploratory_shapes": [
       "n1-highmem-4"
     ],
@@ -41,7 +41,7 @@
   },
   {
     "_id": "nbShapes_n1-highmem-16_fetching",
-    "description": "Use n1-highmem-16 instance shape",
+    "description": "Use n1-highmem-16 instance shape for notebook",
     "exploratory_shapes": [
       "n1-highmem-16"
     ],
@@ -51,7 +51,7 @@
   },
   {
     "_id": "nbShapes_n1-highmem-32_fetching",
-    "description": "Use n1-highmem-32 instance shape",
+    "description": "Use n1-highmem-32 instance shape for notebook",
     "exploratory_shapes": [
       "n1-highmem-32"
     ],
@@ -61,7 +61,7 @@
   },
   {
     "_id": "nbShapes_n1-standard-1_fetching",
-    "description": "Use n1-standard-1 instance shape",
+    "description": "Use n1-standard-1 instance shape for notebook",
     "exploratory_shapes": [
       "n1-standard-1"
     ],
@@ -71,7 +71,7 @@
   },
   {
     "_id": "nbShapes_n1-standard-2_fetching",
-    "description": "Use n1-standard-2 instance shape",
+    "description": "Use n1-standard-2 instance shape for notebook",
     "exploratory_shapes": [
       "n1-standard-2"
     ],
@@ -150,22 +150,8 @@
     ]
   },
   {
-    "_id": "admin",
-    "description": "Allow to execute administration operation",
-    "pages": [
-      "environment/*",
-      "/api/infrastructure/backup",
-      "/roleManagement",
-      "/api/settings",
-      "/user/settings"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
     "_id": "compShapes_n1-standard-1_fetching",
-    "description": "Use n1-standard-1 instance shape for computational",
+    "description": "Use n1-standard-1 instance shape for cluster",
     "computational_shapes": [
       "n1-standard-1"
     ],
@@ -175,7 +161,7 @@
   },
   {
     "_id": "compShapes_n1-standard-2_fetching",
-    "description": "Use n1-standard-2 instance shape for computational",
+    "description": "Use n1-standard-2 instance shape for cluster",
     "computational_shapes": [
       "n1-standard-1"
     ],
@@ -185,7 +171,7 @@
   },
   {
     "_id": "compShapes_n1-highmem-4_fetching",
-    "description": "Use n1-highmem-4 instance shape for computational",
+    "description": "Use n1-highmem-4 instance shape for cluster",
     "computational_shapes": [
       "n1-highmem-4"
     ],
@@ -195,7 +181,7 @@
   },
   {
     "_id": "compShapes_n1-highmem-16_fetching",
-    "description": "Use n1-highmem-16 instance shape for computational",
+    "description": "Use n1-highmem-16 instance shape for cluster",
     "computational_shapes": [
       "n1-highmem-16"
     ],
@@ -205,7 +191,7 @@
   },
   {
     "_id": "compShapes_n1-highmem-32_fetching",
-    "description": "Use n1-highmem-32 instance shape for computational",
+    "description": "Use n1-highmem-32 instance shape for cluster",
     "computational_shapes": [
       "n1-highmem-32"
     ],
@@ -215,7 +201,7 @@
   },
   {
     "_id": "compShapes_n1-highcpu-8_fetching",
-    "description": "Use n1-highcpu-8 instance shape for computational",
+    "description": "Use n1-highcpu-8 instance shape for cluster",
     "computational_shapes": [
       "n1-highcpu-8"
     ],
@@ -225,7 +211,7 @@
   },
   {
     "_id": "compShapes_n1-highcpu-2_fetching",
-    "description": "Use n1-highcpu-2 instance shape for computational",
+    "description": "Use n1-highcpu-2 instance shape for cluster",
     "computational_shapes": [
       "n1-highcpu-2"
     ],
@@ -235,9 +221,23 @@
   },
   {
     "_id": "compShapes_n1-highcpu-32_fetching",
-    "description": "Use n1-highcpu-32 instance shape for computational",
+    "description": "Use n1-highcpu-32 instance shape for cluster",
     "computational_shapes": [
       "n1-highcpu-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "admin",
+    "description": "Allow to execute administration operation",
+    "pages": [
+      "environment/*",
+      "/api/infrastructure/backup",
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings"
     ],
     "groups": [
       "$anyuser"

@@ -26,7 +26,7 @@ public interface EnvironmentService {
 
 	Set<String> getAllUsers();
 
-	List<UserDTO> getActiveUsers();
+	List<UserDTO> getUsers();
 
 	List<UserResourceInfo> getAllEnv();
 
