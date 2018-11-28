@@ -22,8 +22,9 @@ import { DateUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-  selector: 'detail-computational-resources',
-  templateUrl: 'detail-computational-resources.component.html'
+  selector: 'dlab-cluster-details',
+  templateUrl: 'cluster-details.component.html',
+  styleUrls: ['./cluster-details.component.scss']
 })
 
 export class DetailComputationalResourcesComponent {

@@ -15,19 +15,3 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
-
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-import { ModalModule } from '../../../shared';
-import { DetailComputationalResourcesComponent } from './detail-computational-resources.component';
-
-export * from './detail-computational-resources.component';
-
-@NgModule({
-  imports: [CommonModule, ModalModule],
-  declarations: [DetailComputationalResourcesComponent],
-  exports: [DetailComputationalResourcesComponent],
-})
-
-export class DetailComputationalResourcesModule { }

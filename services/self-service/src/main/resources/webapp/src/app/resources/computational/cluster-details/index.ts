@@ -19,24 +19,15 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MaterialModule } from '../../../shared/material.module';
 import { ModalModule } from '../../../shared';
-import { ComputationalResourcesListComponent, ConfirmationDialog } from './computational-resources-list.component';
-import { DetailComputationalResourcesModule } from '../cluster-details';
-import { SchedulerModule } from '../../scheduler';
+import { DetailComputationalResourcesComponent } from './cluster-details.component';
 
-export * from './computational-resources-list.component';
+export * from './cluster-details.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ModalModule,
-    DetailComputationalResourcesModule,
-    SchedulerModule,
-    MaterialModule
-  ],
-  declarations: [ComputationalResourcesListComponent, ConfirmationDialog],
-  entryComponents: [ConfirmationDialog],
-  exports: [ComputationalResourcesListComponent]
+  imports: [CommonModule, ModalModule],
+  declarations: [DetailComputationalResourcesComponent],
+  exports: [DetailComputationalResourcesComponent],
 })
-export class ComputationalResourcesModule {}
+
+export class DetailComputationalResourcesModule { }
