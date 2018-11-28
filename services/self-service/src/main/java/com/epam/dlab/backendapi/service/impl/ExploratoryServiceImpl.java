@@ -29,6 +29,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
@@ -143,6 +144,24 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		return getExploratoriesWithStatus(user, exploratoryStatus).stream()
 				.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config) {
+		final String userName = userInfo.getName();
+		final String token = userInfo.getAccessToken();
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName,
+				exploratoryName);
+		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
+				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
+		final String uuid = provisioningService.post(EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
+				String.class);
+		requestId.put(userName, uuid);
+		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
+				.withUser(userName)
+				.withExploratoryName(exploratoryName)
+				.withConfig(config)
+				.withStatus(UserInstanceStatus.RECONFIGURING.toString()));
 	}
 
 	/**

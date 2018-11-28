@@ -29,13 +29,12 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
-import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
-import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.computational.*;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
@@ -60,6 +59,8 @@ public class ComputationalServiceImpl implements ComputationalService {
 			"computational resource {} for user {}";
 	private static final EnumMap<DataEngineType, String> DATA_ENGINE_TYPE_TERMINATE_URLS;
 	private static final String DATAENGINE_NOT_PRESENT_FORMAT = "There is no %s dataengine %s for exploratory %s";
+	private static final String RUNNING_COMP_RES_NOT_FOUND = "Running computational resource with " +
+			"name %s for exploratory %s not found";
 
 	static {
 		DATA_ENGINE_TYPE_TERMINATE_URLS = new EnumMap<>(DataEngineType.class);
@@ -213,6 +214,34 @@ public class ComputationalServiceImpl implements ComputationalService {
 			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
 					requiredStatus.toString(), compName, expName));
 		}
+	}
+
+	@Override
+	public void updateSparkClusterConfig(UserInfo userInfo, String exploratoryName, String computationalName,
+										 List<ClusterConfig> config) {
+		final String userName = userInfo.getName();
+		final String token = userInfo.getAccessToken();
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO
+				.fetchExploratoryFields(userName, exploratoryName, true);
+		final UserComputationalResource compResource = userInstanceDTO
+				.getResources()
+				.stream()
+				.filter(cr -> cr.getComputationalName().equals(computationalName) && cr.getStatus().equals(UserInstanceStatus.RUNNING.toString()))
+				.findAny()
+				.orElseThrow(() -> new ResourceNotFoundException(String.format(RUNNING_COMP_RES_NOT_FOUND,
+						computationalName, exploratoryName)));
+		final ComputationalClusterConfigDTO clusterConfigDto = requestBuilder.newClusterConfigUpdate(userInfo,
+				userInstanceDTO, compResource, config);
+		final String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_RECONFIGURE_SPARK, token,
+				clusterConfigDto, String.class);
+		computationalDAO.updateComputationalFields(new ComputationalStatusDTO()
+				.withComputationalName(computationalName)
+				.withExploratoryName(exploratoryName)
+				.withConfig(config)
+				.withStatus(RECONFIGURING.toString())
+				.withUser(userName));
+		requestId.put(userName, uuid);
+
 	}
 
 	/**
