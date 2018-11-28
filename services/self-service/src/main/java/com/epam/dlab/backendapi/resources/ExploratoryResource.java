@@ -130,7 +130,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 */
 	@DELETE
 	@Path("/{name}/terminate")
-	@ApiOperation(value = "Terminates notebook by name")
+	@ApiOperation("Terminates notebook by name")
 	public String terminate(@ApiParam(hidden = true) @Auth UserInfo userInfo,
 							@ApiParam(value = "Notebook's name", required = true) @PathParam("name") String name) {
 		log.debug("Terminating exploratory environment {} for user {}", name, userInfo.getName());
@@ -139,13 +139,22 @@ public class ExploratoryResource implements ExploratoryAPI {
 
 	@PUT
 	@Path("/{name}/reconfigure")
-	@ApiOperation(value = "Reconfigure notebook spark cluster")
+	@ApiOperation("Reconfigure notebook spark cluster")
 	public Response reconfigureSpark(@ApiParam(hidden = true) @Auth UserInfo userInfo,
 									 @ApiParam(value = "Notebook's name", required = true) @PathParam("name") String name,
 									 @ApiParam(value = "Notebook cluster configuration", required = true) List<ClusterConfig> config) {
 		log.debug("Updating exploratory {} spark cluster for user {}", name, userInfo.getName());
 		exploratoryService.updateClusterConfig(userInfo, name, config);
 		return Response.accepted().build();
+	}
+
+	@GET
+	@Path("/{name}/cluster/config")
+	@ApiOperation("Gets notebook spark cluster config")
+	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Notebook's name", required = true) @PathParam("name") String name) {
+		log.debug("Getting exploratory {} spark cluster configuration for user {}", name, userInfo.getName());
+		return Response.ok(exploratoryService.getClusterConfig(userInfo, name)).build();
 	}
 
 	private Exploratory getExploratory(ExploratoryCreateFormDTO formDTO) {

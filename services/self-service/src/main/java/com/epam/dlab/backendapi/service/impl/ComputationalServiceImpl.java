@@ -283,6 +283,11 @@ public class ComputationalServiceImpl implements ComputationalService {
 		return Optional.empty();
 	}
 
+	@Override
+	public List<ClusterConfig> getClusterConfig(UserInfo userInfo, String exploratoryName, String computationalName) {
+		return computationalDAO.getClusterConfig(userInfo.getName(), exploratoryName, computationalName);
+	}
+
 	/**
 	 * Updates the status of computational resource in database.
 	 *
