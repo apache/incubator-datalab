@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, ViewChild, OnInit, ViewContainerRef, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastsManager } from 'ng2-toastr';
 
@@ -44,6 +44,8 @@ export class DetailDialogComponent implements OnInit {
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('configurationNode') configuration;
+
+  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     private dataengineConfigurationService: DataengineConfigurationService,
@@ -98,7 +100,7 @@ export class DetailDialogComponent implements OnInit {
       .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.name)
       .subscribe(result => {
         this.bindDialog.close();
-        this.toastr.success(`Reconfiguration is processing!`, 'Processing!', { toastLife: 5000 });
+        this.buildGrid.emit();
       },
       error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!', { toastLife: 5000 }));
   }

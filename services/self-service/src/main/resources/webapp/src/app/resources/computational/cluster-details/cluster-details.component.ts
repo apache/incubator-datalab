@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, ViewChild, OnInit, ViewContainerRef, Output, EventEmitter } from '@angular/core';
 import { DateUtils } from '../../../core/util';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastsManager } from 'ng2-toastr';
@@ -45,6 +45,8 @@ export class DetailComputationalResourcesComponent implements OnInit {
   tooltip: boolean = false;
   config: Array<{}> = [];
   public configurationForm: FormGroup;
+
+  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     private dataengineConfigurationService: DataengineConfigurationService,
@@ -99,7 +101,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
       .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name)
       .subscribe(result => {
         this.bindDialog.close();
-        this.toastr.success(`Reconfiguration is processing!`, 'Processing!', { toastLife: 5000 });
+        this.buildGrid.emit();
       },
       error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!', { toastLife: 5000 }));
   }
