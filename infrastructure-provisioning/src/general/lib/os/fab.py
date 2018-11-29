@@ -278,9 +278,9 @@ def ensure_ciphers():
         sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
         sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
         try:
-            sudo('service ssh restart')
+            sudo('service ssh reload')
         except:
-            sudo('service sshd restart')
+            sudo('service sshd reload')
     except Exception as err:
         traceback.print_exc()
         print('Failed to ensure ciphers: ', str(err))
