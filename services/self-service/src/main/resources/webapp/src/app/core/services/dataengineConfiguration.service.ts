@@ -35,7 +35,7 @@ export class DataengineConfigurationService {
   }
 
   public editClusterConfiguration(data, exploratory, cluster): Observable<{}> {
-    const url = `dataengine/${exploratory}/${cluster}/config`;
+    const url = `/dataengine/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildEditClusterConfiguration(url, data)
       .map(response => response.json())
