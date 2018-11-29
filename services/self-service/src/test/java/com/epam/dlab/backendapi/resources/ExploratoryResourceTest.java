@@ -264,7 +264,7 @@ public class ExploratoryResourceTest extends TestBase {
 				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(Collections.singletonList(new ClusterConfig())));
 
-		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
 		verify(exploratoryService).updateClusterConfig(refEq(getUserInfo()), eq("someName"),
 				eq(Collections.singletonList(new ClusterConfig())));
