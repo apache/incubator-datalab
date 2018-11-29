@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, ViewChild } from '@angular/core';
 import { DateUtils } from '../../../core/util';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
@@ -69,14 +69,18 @@ export class DetailComputationalResourcesComponent {
 
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
-      .getClusterConfiguration(this.environment.name, this.resource.name)
+      .getClusterConfiguration(this.environment.name, this.resource.computational_name)
       .subscribe(result => {
         console.log(result);
       });
   }
 
-  public editClusterConfiguration(): void {
-
+  public editClusterConfiguration(data): void {
+    this.dataengineConfigurationService
+      .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name)
+      .subscribe(result => {
+        console.log(result);
+      });
   }
 
   private initFormModel(): void {
