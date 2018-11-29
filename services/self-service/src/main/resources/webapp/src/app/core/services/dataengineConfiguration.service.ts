@@ -38,7 +38,7 @@ export class DataengineConfigurationService {
     const url = `/dataengine/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildEditClusterConfiguration(url, data)
-      .map(response => response.json())
+      .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
 
@@ -54,7 +54,7 @@ export class DataengineConfigurationService {
     const url = `/${exploratory}/reconfigure`;
     return this.applicationServiceFacade
       .buildEditExploratorySparkConfiguration(url, data)
-      .map(response => response.json())
+      .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
 }

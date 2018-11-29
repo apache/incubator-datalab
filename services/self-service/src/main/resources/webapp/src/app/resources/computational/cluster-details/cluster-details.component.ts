@@ -16,9 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, ViewContainerRef } from '@angular/core';
 import { DateUtils } from '../../../core/util';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
 
 import { CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
@@ -47,8 +48,12 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   constructor(
     private dataengineConfigurationService: DataengineConfigurationService,
-    private _fb: FormBuilder
-  ) {}
+    private _fb: FormBuilder,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
@@ -85,7 +90,8 @@ export class DetailComputationalResourcesComponent implements OnInit {
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
       .getClusterConfiguration(this.environment.name, this.resource.computational_name)
-      .subscribe((result: any) => this.config = result);
+      .subscribe((result: any) => this.config = result,
+      error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public editClusterConfiguration(data): void {
@@ -93,7 +99,9 @@ export class DetailComputationalResourcesComponent implements OnInit {
       .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name)
       .subscribe(result => {
         this.bindDialog.close();
-      });
+        this.toastr.success(`Reconfiguration is processing!`, 'Processing!', { toastLife: 5000 });
+      },
+      error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public resetDialog() {

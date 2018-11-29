@@ -16,8 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
 
 import { DateUtils, CheckUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
@@ -46,8 +47,12 @@ export class DetailDialogComponent implements OnInit {
 
   constructor(
     private dataengineConfigurationService: DataengineConfigurationService,
-    private _fb: FormBuilder
-  ) {}
+    private _fb: FormBuilder,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
@@ -73,7 +78,9 @@ export class DetailDialogComponent implements OnInit {
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
       .getExploratorySparkConfiguration(this.notebook.name)
-      .subscribe((result: any) => this.config = result);
+      .subscribe(
+        (result: any) => this.config = result,
+        error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public selectConfiguration() {
@@ -91,7 +98,9 @@ export class DetailDialogComponent implements OnInit {
       .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.name)
       .subscribe(result => {
         this.bindDialog.close();
-      });
+        this.toastr.success(`Reconfiguration is processing!`, 'Processing!', { toastLife: 5000 });
+      },
+      error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public resetDialog() {
