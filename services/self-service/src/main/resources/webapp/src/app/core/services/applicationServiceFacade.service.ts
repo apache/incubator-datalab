@@ -482,6 +482,27 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildEditClusterConfiguration(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildGetExploratorySparkConfiguration(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
+      null,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildEditExploratorySparkConfiguration(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
+      data,
+      this.getRequestOptions(false, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 

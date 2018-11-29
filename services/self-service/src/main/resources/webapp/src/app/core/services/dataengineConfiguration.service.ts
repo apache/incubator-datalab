@@ -33,4 +33,28 @@ export class DataengineConfigurationService {
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
+
+  public editClusterConfiguration(data, exploratory, cluster): Observable<{}> {
+    const url = `dataengine/${exploratory}/${cluster}/config`;
+    return this.applicationServiceFacade
+      .buildEditClusterConfiguration(url, data)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
+
+  public getExploratorySparkConfiguration(exploratory): Observable<{}> {
+    const url = `/${exploratory}/cluster/config`;
+    return this.applicationServiceFacade
+      .buildGetExploratorySparkConfiguration(url)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
+
+  public editExploratorySparkConfiguration(data, exploratory): Observable<{}> {
+    const url = `/${exploratory}/reconfigure`;
+    return this.applicationServiceFacade
+      .buildEditExploratorySparkConfiguration(url, data)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
 }
