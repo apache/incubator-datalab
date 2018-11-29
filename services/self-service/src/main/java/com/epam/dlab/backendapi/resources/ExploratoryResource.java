@@ -145,7 +145,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 									 @ApiParam(value = "Notebook cluster configuration", required = true) List<ClusterConfig> config) {
 		log.debug("Updating exploratory {} spark cluster for user {}", name, userInfo.getName());
 		exploratoryService.updateClusterConfig(userInfo, name, config);
-		return Response.accepted().build();
+		return Response.ok().build();
 	}
 
 	@GET
