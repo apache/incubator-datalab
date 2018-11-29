@@ -16,16 +16,19 @@ limitations under the License.
 
 ****************************************************************************/
 
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective } from './click-outside.directive';
+import { ScrollDirective } from './scrollTo.directive';
 
+export * from './scrollTo.directive';
 export * from './click-outside.directive';
 
 @NgModule({
   imports: [CommonModule],
-  declarations: [ClickOutsideDirective],
-  exports: [ClickOutsideDirective]
+  declarations: [ClickOutsideDirective, ScrollDirective],
+  exports: [ClickOutsideDirective, ScrollDirective]
 })
 
-export class ClickOutsideModule { }
+export class DirectivesModule { }

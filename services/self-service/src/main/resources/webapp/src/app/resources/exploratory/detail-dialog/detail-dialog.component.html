@@ -32,7 +32,7 @@ limitations under the License.
         </tr>
       </table>
       <div class="content-box">
-        <div class="scroll-box">
+        <div class="scroll-box" id="scrolling">
           <div class="detail-info" *ngIf="!notebook.error_message">
             <p>Edge Node IP Address {{notebook.ip}}</p>
             <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
@@ -50,7 +50,7 @@ limitations under the License.
             <div class="links_block">
               <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
               <p *ngIf="notebook.bucket_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
-            </div>гг
+            </div>
             <p>{{ DICTIONARY.collaboration_storage }}: </p>
             <div class="links_block">
               <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
@@ -78,7 +78,7 @@ limitations under the License.
 
           <div class="checkbox-group">
             <label>
-              <input #configurationNode type="checkbox"/> Cluster configurations
+              <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
             </label>
             <div class="checkbox-group">
               <form [formGroup]="configurationForm" novalidate>
@@ -89,7 +89,7 @@ limitations under the License.
               </form>
             </div>
           </div>
-          <div class="text-center m-top-20" *ngIf="configuration?.nativeElement['checked']">
+          <div [scrollTo]="configuration?.nativeElement['checked']" class="text-center m-top-20 m-bott-10" *ngIf="configuration?.nativeElement['checked']">
             <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
             <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
                     class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"

@@ -30,7 +30,7 @@ export class DataengineConfigurationService {
     const url = `/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildGetClusterConfiguration(url)
-      .map(response => response)
+      .map(response => response.json())
       .catch(ErrorUtils.handleServiceError);
   }
 
@@ -38,7 +38,7 @@ export class DataengineConfigurationService {
     const url = `dataengine/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildEditClusterConfiguration(url, data)
-      .map(response => response)
+      .map(response => response.json())
       .catch(ErrorUtils.handleServiceError);
   }
 
@@ -46,7 +46,7 @@ export class DataengineConfigurationService {
     const url = `/${exploratory}/cluster/config`;
     return this.applicationServiceFacade
       .buildGetExploratorySparkConfiguration(url)
-      .map(response => response)
+      .map(response => response.json())
       .catch(ErrorUtils.handleServiceError);
   }
 
@@ -54,7 +54,7 @@ export class DataengineConfigurationService {
     const url = `/${exploratory}/reconfigure`;
     return this.applicationServiceFacade
       .buildEditExploratorySparkConfiguration(url, data)
-      .map(response => response)
+      .map(response => response.json())
       .catch(ErrorUtils.handleServiceError);
   }
 }

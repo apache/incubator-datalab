@@ -108,7 +108,7 @@ limitations under the License.
           </div>
         </div>
 
-        <div class="checkbox-group control-group" *ngIf="PROVIDER === 'aws' && model.selectedImage?.image === 'docker.dlab-dataengine-service'"
+        <div class="checkbox-group control-group" *ngIf="PROVIDER === 'aws'"
             [hidden]="!model.templates.length || !isAvailableSpots()">
           <label class="spot-label label">
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />
@@ -127,7 +127,7 @@ limitations under the License.
 
         <div class="checkbox-group">
           <label>
-            <input #configurationNode type="checkbox"/> Cluster configurations
+            <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
           </label>
         </div>
         <div class="checkbox-group">

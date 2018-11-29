@@ -16,27 +16,20 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ElementRef, HostBinding, Input } from '@angular/core';
+import { Directive } from '@angular/core';
 
-import { ModalModule } from '../../../shared';
-import { MaterialModule } from '../../../shared/material.module';
-import { DetailDialogComponent } from './detail-dialog.component';
-import { DirectivesModule } from '../../../core/directives';
-
-export * from './detail-dialog.component';
-
-@NgModule({
-  imports: [
-    CommonModule,
-    ModalModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    DirectivesModule
-  ],
-  declarations: [DetailDialogComponent],
-  exports: [DetailDialogComponent]
+@Directive({
+  selector: '[scrollTo]'
 })
-export class DetailDialogModule {}
+export class ScrollDirective {
+  constructor(private elRef: ElementRef) {}
+
+  @Input()
+  set scrollTo(condition) {
+    if (condition) {
+      const scrollable = this.elRef.nativeElement;
+      scrollable.scrollIntoView(false);
+    }
+  }
+}
