@@ -77,7 +77,7 @@ limitations under the License.
 
         <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine'">
           <label>
-            <input #configurationNode type="checkbox"/> Cluster configurations
+            <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
           </label>
           <div class="checkbox-group">
             <form [formGroup]="configurationForm" novalidate>

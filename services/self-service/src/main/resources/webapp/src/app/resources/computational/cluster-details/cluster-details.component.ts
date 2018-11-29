@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { DateUtils } from '../../../core/util';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
@@ -31,7 +31,7 @@ import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/c
   styleUrls: ['./cluster-details.component.scss']
 })
 
-export class DetailComputationalResourcesComponent {
+export class DetailComputationalResourcesComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   resource: any;
@@ -42,12 +42,17 @@ export class DetailComputationalResourcesComponent {
   upTimeInHours: number;
   upTimeSince: string = '';
   tooltip: boolean = false;
+  config: Array<{}> = [];
   public configurationForm: FormGroup;
 
   constructor(
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder
   ) {}
+
+  ngOnInit() {
+    this.bindDialog.onClosing = () => this.resetDialog();
+  }
 
   public open(param, environment, resource): void {
     this.tooltip = false;
@@ -67,20 +72,34 @@ export class DetailComputationalResourcesComponent {
       this.tooltip = true;
   }
 
+  public selectConfiguration() {
+    if (this.configuration.nativeElement.checked) {
+
+      this.configurationForm.controls['configuration_parameters']
+        .setValue(JSON.stringify(this.config.length ? this.config : CLUSTER_CONFIGURATION.SPARK, undefined, 2));
+    } else {
+      this.configurationForm.controls['configuration_parameters'].setValue('');
+    }
+  }
+
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
       .getClusterConfiguration(this.environment.name, this.resource.computational_name)
-      .subscribe(result => {
-        console.log(result);
-      });
+      .subscribe((result: any) => this.config = result);
   }
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
       .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name)
       .subscribe(result => {
-        console.log(result);
+        this.bindDialog.close();
       });
+  }
+
+  public resetDialog() {
+    this.initFormModel();
+
+    this.configuration.nativeElement['checked'] = false;
   }
 
   private initFormModel(): void {
