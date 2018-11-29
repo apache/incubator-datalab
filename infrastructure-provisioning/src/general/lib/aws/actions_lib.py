@@ -1239,8 +1239,9 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
             response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
             for ebs in response:
-                snapshot_id = ebs.get('Ebs').get('SnapshotId')
-                create_tag(snapshot_id, tag)
+                if ebs.get('Ebs'):
+                    snapshot_id = ebs.get('Ebs').get('SnapshotId')
+                    create_tag(snapshot_id, tag)
             create_tag(image.id, tag)
             if tags:
                 all_tags = json.loads(tags)
