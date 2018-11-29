@@ -16,20 +16,39 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+.scroll-box {
+  max-height: 70vh;
+  overflow-y: auto;
+}
 
-import { ModalModule } from '../../../shared';
-import { MaterialModule } from '../../../shared/material.module';
-import { DetailDialogComponent } from './detail-dialog.component';
-
-export * from './detail-dialog.component';
-
-@NgModule({
-  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule, MaterialModule],
-  declarations: [DetailDialogComponent],
-  exports: [DetailDialogComponent],
-})
-
-export class DetailDialogModule { }
+.checkbox-group {
+  label {
+    input[type="checkbox"] {
+      margin: 10px 0;
+    }
+  }
+}
+.config-details {
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+  text-align: left;
+  transition: all .35s linear .2s;
+  position: relative;
+  &.show {
+    height: 200px;
+    visibility: visible;
+    opacity: 1;
+    textarea {
+      height: 100%;
+      resize: none;
+    }
+    span {
+      .danger_color {
+        position: absolute;
+        bottom: -16px;
+        right: 0;
+      }
+    }
+  }
+}
