@@ -97,7 +97,7 @@ export class DetailDialogComponent implements OnInit {
   public resetDialog() {
     this.initFormModel();
 
-    this.configuration.nativeElement['checked'] = false;
+    if (this.configuration) this.configuration.nativeElement['checked'] = false;
   }
 
   private initFormModel(): void {

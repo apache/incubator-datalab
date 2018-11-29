@@ -75,7 +75,7 @@ limitations under the License.
           </p>
         </div>
 
-        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine'">
+        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
           </label>
