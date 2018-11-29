@@ -24,6 +24,7 @@ import com.epam.dlab.util.mongo.modules.IsoDateModule;
 import com.epam.dlab.util.mongo.modules.JavaPrimitiveModule;
 import com.epam.dlab.util.mongo.modules.MongoModule;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
@@ -43,6 +44,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static com.mongodb.client.model.Filters.*;
 
 /**
  * Implements the base API for Mongo database.
@@ -341,7 +344,7 @@ public class BaseDAO {
 										 Bson condition,
 										 Bson projection) {
 		FindIterable<Document> found = find(collection, condition, projection);
-		return limitOne(found);
+			return limitOne(found);
 	}
 
 	/**
@@ -396,6 +399,17 @@ public class BaseDAO {
 		}
 	}
 
+	<T> T convertFromDocument(List<Document> documents, TypeReference<T> valueTypeRef) {
+		final String jsonArray = documents.stream()
+				.map(Document::toJson)
+				.collect(Collectors.joining(",", "[", "]"));
+		try {
+			return MAPPER.readValue(jsonArray, valueTypeRef);
+		} catch (IOException e) {
+			throw new DlabException("error converting array " + jsonArray, e);
+		}
+	}
+
 	protected Document getGroupingFields(String... fieldNames) {
 		Document d = new Document();
 		for (String name : fieldNames) {
@@ -445,5 +459,9 @@ public class BaseDAO {
 
 	protected Document elementAt(Bson bson, int index) {
 		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList(bson, index));
+	}
+
+	protected Bson notNull(String fieldName) {
+		return and(exists(fieldName), ne(fieldName, null));
 	}
 }

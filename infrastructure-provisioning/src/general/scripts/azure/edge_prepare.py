@@ -47,7 +47,10 @@ if __name__ == "__main__":
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
         edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-subnet'
         edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-nif'
-        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-ip'
+        if os.environ['conf_network_type'] == 'private':
+            edge_conf['static_public_ip_name'] = 'None'
+        else:
+            edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-ip'
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
@@ -74,10 +77,12 @@ if __name__ == "__main__":
         edge_conf['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         edge_conf['instance_tags'] = {"Name": edge_conf['instance_name'],
                                       "SBN": edge_conf['service_base_name'],
-                                      "User": edge_conf['user_name']}
+                                      "User": edge_conf['user_name'],
+                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         edge_conf['storage_account_tags'] = {"Name": edge_conf['edge_storage_account_name'],
                                              "SBN": edge_conf['service_base_name'],
-                                             "User": edge_conf['user_name']}
+                                             "User": edge_conf['user_name'],
+                                             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         edge_conf['primary_disk_size'] = '32'
 
         # FUSE in case of absence of user's key

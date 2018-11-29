@@ -23,7 +23,8 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'detail-dialog',
-  templateUrl: 'detail-dialog.component.html'
+  templateUrl: 'detail-dialog.component.html',
+  styleUrls: ['detail-dialog.component.scss']
 })
 
 export class DetailDialogComponent {

@@ -1,5 +1,5 @@
 {
-  "template_name": "EMR cluster",
+  "template_name": "AWS EMR cluster",
   "description": "Image for EMR provisioning",
   "environment_type": "computational",
   "computation_resources_shapes":

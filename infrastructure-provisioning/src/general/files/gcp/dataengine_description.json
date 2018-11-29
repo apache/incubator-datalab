@@ -1,5 +1,5 @@
 {
-  "template_name": "Apache Spark cluster",
+  "template_name": "Apache Spark standalone cluster",
   "description": "Apache Spark standalone cluster",
   "environment_type": "computational",
   "computation_resources_shapes":

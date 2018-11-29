@@ -67,9 +67,9 @@ export class ManageEnvironmentComponent {
 
   public applyAction(action, user) {
     const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
-      ConfirmActionDialogComponent, { data: {action, user}, width: '550px' });
+      ConfirmActionDialogComponent, { data: {action, user: user.value.name}, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
-      if (result) this.manageEnv.emit({action, user});
+      if (result) this.manageEnv.emit({action, user: user.value.name});
     });
   }
 }

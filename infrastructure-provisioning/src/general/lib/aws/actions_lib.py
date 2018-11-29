@@ -80,6 +80,7 @@ def create_s3_bucket(bucket_name, tag, region):
         tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
                                                                          bucket_name})
+        tags.append({'Key': os.environ['conf_billing_tag_key'], 'Value': os.environ['conf_billing_tag_value']})
         if 'conf_additional_tags' in os.environ:
             for tag in os.environ['conf_additional_tags'].split(';'):
                 tags.append(
@@ -156,6 +157,12 @@ def create_tag(resource, tag, with_tag_res_id=True):
                 'Value': os.environ['conf_service_base_name'] + ':' + resource_name
             }
         )
+        tags_list.append(
+            {
+                'Key': os.environ['conf_billing_tag_key'],
+                'Value': os.environ['conf_billing_tag_value']
+            }
+        )
     if 'conf_additional_tags' in os.environ:
         for tag in os.environ['conf_additional_tags'].split(';'):
             tags_list.append(
@@ -169,7 +176,22 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
-
+def create_product_tag(resource):
+    print('Tag product for the resource {} will be created'.format(resource))
+    tags_list = list()
+    ec2 = boto3.client('ec2')
+    if type(resource) != list:
+        resource = [resource]
+    tags_list.append(
+        {
+            'Key': os.environ['conf_billing_tag_key'],
+            'Value': os.environ['conf_billing_tag_value']
+        }
+    )
+    ec2.create_tags(
+        Resources=resource,
+        Tags=tags_list
+    )
 
 def remove_emr_tag(emr_id, tag):
     try:
@@ -1203,6 +1225,7 @@ def remove_vpc_endpoints(vpc_id):
 def create_image_from_instance(tag_name='', instance_name='', image_name='', tags=''):
     try:
         ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
         instances = ec2.instances.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                      {'Name': 'instance-state-name', 'Values': ['running']}])
@@ -1215,6 +1238,10 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
             tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+            response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
+            for ebs in response:
+                snapshot_id = ebs.get('Ebs').get('SnapshotId')
+                create_tag(snapshot_id, tag)
             create_tag(image.id, tag)
             if tags:
                 all_tags = json.loads(tags)

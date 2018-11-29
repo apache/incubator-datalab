@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -39,6 +40,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.base.DataEngineType.SPARK_STANDALONE;
@@ -203,6 +205,40 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
 
 		return Response.ok().build();
+	}
+
+	@PUT
+	@Path("dataengine/{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Updates Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully updated")
+	)
+	public Response updateDataEngineConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+										   @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+												   required = true)
+										   @PathParam("exploratoryName") String exploratoryName,
+										   @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+										   @PathParam("computationalName") String computationalName,
+										   @ApiParam(value = "Spark cluster config", required = true)
+										   @Valid @NotNull List<ClusterConfig> config) {
+
+		computationalService.updateSparkClusterConfig(userInfo, exploratoryName, computationalName, config);
+		return Response.ok().build();
+	}
+
+	@GET
+	@Path("{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Returns Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully returned")
+	)
+	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+											 required = true)
+									 @PathParam("exploratoryName") String exploratoryName,
+									 @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+									 @PathParam("computationalName") String computationalName) {
+		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
 	}
 
 	private void validate(SparkStandaloneClusterCreateForm form) {

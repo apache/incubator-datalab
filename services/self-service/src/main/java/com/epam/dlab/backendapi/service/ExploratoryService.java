@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.model.exploratory.Exploratory;
 
 import java.util.List;
@@ -43,5 +44,9 @@ public interface ExploratoryService {
 	List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
 												   UserInstanceStatus computationalStatus);
 
+	void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config);
+
 	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
+
+	List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName);
 }

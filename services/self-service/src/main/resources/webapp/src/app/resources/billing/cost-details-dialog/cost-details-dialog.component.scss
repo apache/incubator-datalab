@@ -33,12 +33,12 @@ limitations under the License.
   }
   .resource-type,
   .cost-currency {
-   width: 12%;
+    width: 10%;
   }
   .resource-name,
   .usage-date-start,
   .usage-date-end {
-    width: 12%;
+    width: 15%;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 10px;
@@ -60,7 +60,7 @@ limitations under the License.
 
 
 .scrolling-content {
-  max-height: 275px;
+  max-height: 285px;
   overflow-y: auto;
 }
 .mat-list-item-content {

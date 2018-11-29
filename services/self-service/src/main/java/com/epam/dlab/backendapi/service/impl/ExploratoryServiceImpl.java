@@ -29,6 +29,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
@@ -145,6 +146,24 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.collect(Collectors.toList());
 	}
 
+	@Override
+	public void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config) {
+		final String userName = userInfo.getName();
+		final String token = userInfo.getAccessToken();
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName,
+				exploratoryName);
+		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
+				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
+		final String uuid = provisioningService.post(EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
+				String.class);
+		requestId.put(userName, uuid);
+		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
+				.withUser(userName)
+				.withExploratoryName(exploratoryName)
+				.withConfig(config)
+				.withStatus(UserInstanceStatus.RECONFIGURING.toString()));
+	}
+
 	/**
 	 * Returns user instance's data by it's name.
 	 *
@@ -160,6 +179,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			log.warn("User instance with exploratory name {} for user {} not found.", exploratoryName, user);
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName) {
+		return exploratoryDAO.getClusterConfig(user.getName(), exploratoryName);
 	}
 
 

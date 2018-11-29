@@ -788,24 +788,62 @@ def get_allocation_id_by_elastic_ip(elastic_ip):
 
 def get_ec2_price(instance_shape, region):
     try:
-        regions = {'us-west-2': 'Oregon', 'us-east-1': 'N. Virginia', 'us-east-2': 'Ohio', 'us-west-1': 'N. California',
-                   'ca-central-1': 'Central', 'eu-west-1': 'Ireland', 'eu-central-1': 'Frankfurt',
-                   'eu-west-2': 'London', 'ap-northeast-1': 'Tokyo', 'ap-northeast-2': 'Seoul',
-                   'ap-southeast-1': 'Singapore', 'ap-southeast-2': 'Sydney', 'ap-south-1': 'Mumbai',
-                   'sa-east-1': 'Sao Paulo'}
-        response = urllib2.urlopen(
-            'https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json')
-        price_json = response.read()
-        pricing = json.loads(price_json)
-        for i in pricing.get('products'):
-            if pricing.get('products').get(i).get('attributes').get('instanceType') == instance_shape\
-                    and pricing.get('products').get(i).get('attributes').get('operatingSystem') == 'Linux' \
-                    and regions.get(region) in pricing.get('products').get(i).get('attributes').get('location') \
-                    and pricing.get('products').get(i).get('attributes').get('tenancy') == 'Shared':
-                for j in pricing.get('terms').get('OnDemand').get(i):
-                    for h in pricing.get('terms').get('OnDemand').get(i).get(j).get('priceDimensions'):
-                        return float(pricing.get('terms').get('OnDemand').get(i).get(j).get('priceDimensions').get(h).
-                                     get('pricePerUnit').get('USD'))
+        price = '0.001'
+        # Price API endpoints: us-east-1, ap-south-1
+        client = boto3.client('pricing', 'us-east-1')
+        # Price API require full name of region, for example: eu-west-1 -> 'EU (Ireland)'
+        # endpoints will be loaded from: botocore/botocore/data/endpoints.json
+        data = client._loader._cache.get(('load_data', 'endpoints'))
+        standard_partition = filter(lambda x: 'AWS Standard' == x['partitionName'], data['partitions'])[0]
+        region_description = standard_partition['regions'][region]['description']
+
+        response = client.get_products(
+            ServiceCode='AmazonEC2',
+            Filters=[
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'instanceType',
+                    'Value': '{0}'.format(instance_shape)
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'operatingSystem',
+                    'Value': 'Linux'
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'tenancy',
+                    'Value': 'Shared'
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'location',
+                    'Value': '{0}'.format(region_description)
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'preInstalledSw',
+                    'Value': 'NA'
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'capacityStatus',
+                    'Value': 'UnusedCapacityReservation'
+                }
+            ],
+            FormatVersion='aws_v1',
+            NextToken='',
+            MaxResults=1
+        )
+
+        data = json.loads(response['PriceList'][0])
+        ondemand = data['terms']['OnDemand']
+        for offer in ondemand:
+            if (data['product']['sku'] in offer):
+                for i in ondemand[offer]['priceDimensions'].keys():
+                    price = ondemand[offer]['priceDimensions'][i]['pricePerUnit']['USD']
+
+        return price
     except Exception as err:
         logging.error("Error with getting EC2 price: " + str(err) + "\n Traceback: " +
                       traceback.print_exc(file=sys.stdout))

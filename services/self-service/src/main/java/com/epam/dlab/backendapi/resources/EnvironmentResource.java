@@ -51,7 +51,7 @@ public class EnvironmentResource {
 			@ApiResponse(code = 200, message = "Active users were fetched successfully")})
 	public Response getUsersWithActiveEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		log.debug("User {} requested information about active environments", userInfo.getName());
-		return Response.ok(environmentService.getActiveUsers()).build();
+		return Response.ok(environmentService.getUsers()).build();
 	}
 
 	@GET

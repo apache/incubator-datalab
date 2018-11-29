@@ -38,7 +38,7 @@ public class CheckUserQuoteScheduler implements Job {
 
 	@Override
 	public void execute(JobExecutionContext context) {
-		environmentService.getActiveUsers()
+		environmentService.getUsers()
 				.stream()
 				.map(UserDTO::getName)
 				.filter(billingDAO::isUserQuoteReached)

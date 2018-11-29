@@ -29,9 +29,9 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
-import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
 import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
@@ -66,6 +66,38 @@ public class SparkClusterService extends DockerService implements DockerCommands
 
 	public String start(UserInfo ui, ComputationalStartDTO dto) {
 		return action(ui, dto, START);
+	}
+
+	public String updateConfig(UserInfo ui, ComputationalClusterConfigDTO clusterConfigDTO) {
+		String uuid = DockerCommands.generateUUID();
+		folderListenerExecutor.start(configuration.getImagesDirectory(),
+				configuration.getResourceStatusPollTimeout(),
+				getFileHandlerCallback(RECONFIGURE_SPARK, uuid, clusterConfigDTO));
+		runReconfigureSparkDockerCommand(ui, clusterConfigDTO, uuid);
+		return uuid;
+	}
+
+	private void runReconfigureSparkDockerCommand(UserInfo ui, ComputationalClusterConfigDTO clusterConfigDTO, String uuid) {
+		try {
+			final RunDockerCommand dockerCommand = new RunDockerCommand()
+					.withInteractive()
+					.withName(nameContainer(clusterConfigDTO.getEdgeUserName(), RECONFIGURE_SPARK,
+							clusterConfigDTO.getExploratoryName(),
+							clusterConfigDTO.getComputationalName()))
+					.withVolumeForRootKeys(configuration.getKeyDirectory())
+					.withVolumeForResponse(configuration.getImagesDirectory())
+					.withVolumeForLog(configuration.getDockerLogDirectory(), SPARK_ENGINE.getName())
+					.withResource(SPARK_ENGINE.getName())
+					.withRequestId(uuid)
+					.withConfKeyName(configuration.getAdminKey())
+					.withImage(DataEngineType.getDockerImageName(SPARK_ENGINE))
+					.withAction(RECONFIGURE_SPARK);
+
+			commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(dockerCommand,
+					clusterConfigDTO));
+		} catch (JsonProcessingException e) {
+			throw new DlabException("Could not" + RECONFIGURE_SPARK.toString() + "computational resources cluster", e);
+		}
 	}
 
 	private String action(UserInfo ui, ComputationalBase<?> dto, DockerAction action) {

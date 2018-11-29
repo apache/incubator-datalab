@@ -118,8 +118,8 @@ if __name__ == "__main__":
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     if os.environ['emr_slave_instance_spot'] == 'True':
-        emr_conf['slave_bid_price'] = (float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region'])) *
-                                       int(os.environ['emr_slave_instance_spot_pct_price']))/100
+        ondemand_price = float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region']))
+        emr_conf['slave_bid_price'] = (ondemand_price * int(os.environ['emr_slave_instance_spot_pct_price'])) / 100
     else:
         emr_conf['slave_bid_price'] = 0
 

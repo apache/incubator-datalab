@@ -20,9 +20,11 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.*;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.inject.Singleton;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,7 @@ import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
@@ -58,6 +61,7 @@ public class ExploratoryDAO extends BaseDAO {
 	private static final String EXPLORATORY_URL_URL = "url";
 	private static final String EXPLORATORY_USER = "exploratory_user";
 	private static final String EXPLORATORY_PASS = "exploratory_pass";
+	private static final String CLUSTER_CONFIG = "cluster_config";
 	private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
 	public static final String EXPLORATORY_NOT_FOUND_MSG = "Exploratory for user %s with name %s not found";
 	private static final String EXPLORATORY_LAST_ACTIVITY = "last_activity";
@@ -412,8 +416,7 @@ public class ExploratoryDAO extends BaseDAO {
 					).collect(Collectors.toList()));
 		} else if (dto.getPrivateIp() != null) {
 			UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
-			if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getResourceUrl() != null) { // IP was
-				// changed
+			if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getResourceUrl() != null) {
 				values.append(EXPLORATORY_URL, inst.getResourceUrl().stream()
 						.map(url -> replaceIp(dto.getPrivateIp(), inst, url))
 						.collect(Collectors.toList()));
@@ -428,6 +431,9 @@ public class ExploratoryDAO extends BaseDAO {
 		}
 		if (dto.getExploratoryPassword() != null) {
 			values.append(EXPLORATORY_PASS, dto.getExploratoryPassword());
+		}
+		if (dto.getConfig() != null) {
+			values.append(CLUSTER_CONFIG, dto.getConfig().stream().map(this::convertToBson).collect(toList()));
 		}
 		return updateOne(USER_INSTANCES,
 				exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
@@ -451,6 +457,16 @@ public class ExploratoryDAO extends BaseDAO {
 					new Document(SET, values));
 		}
 
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ClusterConfig> getClusterConfig(String user, String exploratoryName) {
+		return findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName), notNull(CLUSTER_CONFIG)),
+				fields(include(CLUSTER_CONFIG), excludeId()))
+				.map(d -> convertFromDocument((List<Document>) d.get(CLUSTER_CONFIG),
+						new TypeReference<List<ClusterConfig>>() {
+						}))
+				.orElse(Collections.emptyList());
 	}
 
 	private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ResourceURL url) {

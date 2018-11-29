@@ -35,16 +35,20 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     try:
         instance = 'ssn'
-        pre_defined_resource_group = False
-        pre_defined_vpc = False
-        pre_defined_subnet = False
-        pre_defined_sg = False
+
+        logging.info('[DERIVING NAMES]')
+        print('[DERIVING NAMES]')
+
         ssn_conf = dict()
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
-        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
-        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+        # Check azure predefined resources
+        ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name', ssn_conf['service_base_name'])
+        ssn_conf['vpc_name'] = os.environ.get('azure_vpc_name', '{}-vpc'.format(ssn_conf['service_base_name']))
+        ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-ssn-subnet'.format(ssn_conf['service_base_name']))
+        ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(ssn_conf['service_base_name']))
+        # Default variables
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         ssn_conf['subnet_prefix'] = '20'
@@ -57,115 +61,121 @@ if __name__ == "__main__":
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['network_interface_name'] = '{}-ssn-nif'.format(ssn_conf['service_base_name'])
-        ssn_conf['static_public_ip_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
-        ssn_conf['security_group_name'] = '{}-sg'.format(ssn_conf['service_base_name'])
+        if os.environ['conf_network_type'] == 'private':
+            ssn_conf['static_public_ip_name'] = 'None'      
+        else:
+            ssn_conf['static_public_ip_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
         key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']), 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
         ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         ssn_conf['instance_tags'] = {"Name": ssn_conf['instance_name'],
-                                     "SBN": ssn_conf['service_base_name']}
+                                     "SBN": ssn_conf['service_base_name'],
+                                     os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['ssn_storage_account_tags'] = {"Name": ssn_conf['ssn_storage_account_name'],
-                                                "SBN": ssn_conf['service_base_name']}
+                                                "SBN": ssn_conf['service_base_name'],
+                                                os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['shared_storage_account_tags'] = {"Name": ssn_conf['shared_storage_account_name'],
-                                                   "SBN": ssn_conf['service_base_name']}
+                                                   "SBN": ssn_conf['service_base_name'],
+                                                   os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['datalake_store_tags'] = {"Name": ssn_conf['datalake_store_name'],
-                                           "SBN": ssn_conf['service_base_name']}
+                                           "SBN": ssn_conf['service_base_name'],
+                                           os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['primary_disk_size'] = '32'
-
-    except:
-        print("Failed to generate variables dictionary.")
+    except Exception as err:
+        print("Failed to generate variables dictionary." + str(err))
         sys.exit(1)
 
     try:
-        if os.environ['azure_resource_group_name'] == '':
-            raise KeyError
-    except KeyError:
-        pre_defined_resource_group = True
-        logging.info('[CREATING RESOURCE GROUP]')
-        print("[CREATING RESOURCE GROUP]")
-        try:
-            params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
-            try:
-                local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-            os.environ['azure_resource_group_name'] = ssn_conf['service_base_name']
-        except Exception as err:
-            print('Error: {0}'.format(err))
-            try:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
-            except:
-                print("Resource group hasn't been created.")
-            append_result("Failed to create Resource Group. Exception:" + str(err))
-            sys.exit(1)
-
+        if 'azure_resource_group_name' in os.environ:
+            logging.info('Resource group predefined')
+            print('Resource group predefined')
+        else:
+            logging.info('[CREATING RESOURCE GROUP]')
+            print("[CREATING RESOURCE GROUP]")
+            params = "--resource_group_name {} --region {}".format(ssn_conf['resource_group_name'], ssn_conf['region'])
+            local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
+    except Exception as err:
+        traceback.print_exc()
+        print('Error creating resource group: ' + str(err))
+        append_result("Failed to create Resource Group. Exception: " + str(err))
+        sys.exit(1)
+    
     try:
-        if os.environ['azure_vpc_name'] == '':
-            raise KeyError
-    except KeyError:
-        pre_defined_vpc = True
-        logging.info('[CREATING VIRTUAL NETWORK]')
-        print("[CREATING VIRTUAL NETWORK]")
-        try:
+        if 'azure_vpc_name' in os.environ:
+            logging.info('VPC predefined')
+            print('VPC predefined')
+        else:
+            logging.info('[CREATING VIRTUAL NETWORK]')
+            print("[CREATING VIRTUAL NETWORK]")
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
-                os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
-            try:
-                local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-            os.environ['azure_vpc_name'] = ssn_conf['vpc_name']
+                ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
+            local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+    except Exception as err:
+        traceback.print_exc()
+        print('Error creating VPC: ' + str(err))
+        try:
+            if 'azure_resource_group_name' not in os.environ:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         except Exception as err:
-            print('Error: {0}'.format(err))
-            if pre_defined_resource_group:
-                AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-            try:
-                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            except:
-                print("Virtual Network hasn't been created.")
-            append_result("Failed to create Virtual Network. Exception:" + str(err))
-            sys.exit(1)
+            print("Resources hasn't been removed: " + str(err))
+        append_result("Failed to create VPC. Exception: " + str(err))
+        sys.exit(1)
 
     try:
-        if os.environ['azure_subnet_name'] == '':
-            raise KeyError
-    except KeyError:
-        pre_defined_vpc = True
-        logging.info('[CREATING SUBNET]')
-        print("[CREATING SUBNET]")
-        try:
+        if 'azure_subnet_name' in os.environ:    
+            logging.info('VPC predefined')
+            print('Peering')
+        else:
+            logging.info('[CREATING Peering]')
+            print("[CREATING Peering]")
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
-                format(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
+                format(ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
                        ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
-            try:
-                local("~/scripts/{}.py {}".format('common_create_subnet', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-            os.environ['azure_subnet_name'] = ssn_conf['subnet_name']
+            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+    except Exception as err:
+        traceback.print_exc()
+        print('Error creating Subnet: ' + str(err))
+        try:
+            if 'azure_resource_group_name' not in os.environ:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if 'azure_vpc_name' not in os.environ:
+                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
         except Exception as err:
-            print('Error: {0}'.format(err))
-            if pre_defined_resource_group:
-                AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-            if pre_defined_vpc:
-                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            try:
-                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                             ssn_conf['subnet_name'])
-            except:
-                print("Subnet hasn't been created.")
-            append_result("Failed to create Subnet. Exception:" + str(err))
-            sys.exit(1)
+            print("Resources hasn't been removed: " + str(err))
+        append_result("Failed to create Subnet. Exception: " + str(err))
+        sys.exit(1)
+    
+    try:
+        if 'azure_subnet_name' in os.environ:    
+            logging.info('Subnet predefined')
+            print('Subnet predefined')
+        else:
+            logging.info('[CREATING SUBNET]')
+            print("[CREATING SUBNET]")
+            params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
+                format(ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
+                       ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
+            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+    except Exception as err:
+        traceback.print_exc()
+        print('Error creating Subnet: ' + str(err))
+        try:
+            if 'azure_resource_group_name' not in os.environ:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if 'azure_vpc_name' not in os.environ:
+                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        except Exception as err:
+            print("Resources hasn't been removed: " + str(err))
+        append_result("Failed to create Subnet. Exception: " + str(err))
+        sys.exit(1)
 
     try:
-        if os.environ['azure_security_group_name'] == '':
-            raise KeyError
-    except KeyError:
-        pre_defined_sg = True
-        logging.info('[CREATING SECURITY GROUPS]')
-        print("[CREATING SECURITY GROUPS]")
-        try:
+        if 'azure_security_group_name' in os.environ:
+            logging.info('Security group predefined')
+            print('Security group predefined')
+        else:
+            logging.info('[CREATING SECURITY GROUP]')
+            print("[CREATING SECURITY GROUP]")
             list_rules = [
                 {
                     "name": "in-1",
@@ -201,17 +211,6 @@ if __name__ == "__main__":
                     "direction": "Inbound"
                 },
                 {
-                    "name": "in-4",
-                    "protocol": "*",
-                    "source_port_range": "*",
-                    "destination_port_range": "*",
-                    "source_address_prefix": "*",
-                    "destination_address_prefix": "*",
-                    "access": "Deny",
-                    "priority": 200,
-                    "direction": "Inbound"
-                },
-                {
                     "name": "out-1",
                     "protocol": "*",
                     "source_port_range": "*",
@@ -224,48 +223,47 @@ if __name__ == "__main__":
                 }
             ]
             params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}'  --list_rules '{}'".\
-                format(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'], ssn_conf['region'],
+                format(ssn_conf['resource_group_name'], ssn_conf['security_group_name'], ssn_conf['region'],
                        json.dumps(ssn_conf['instance_tags']), json.dumps(list_rules))
-            try:
-                local("~/scripts/{}.py {}".format('common_create_security_group', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-            os.environ['azure_security_group_name'] = ssn_conf['security_group_name']
-        except Exception as err:
-            print('Error: {0}'.format(err))
-            if pre_defined_resource_group:
-                AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-            if pre_defined_vpc:
-                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+    except Exception as err:
+        traceback.print_exc()
+        print('Error creating Security group: ' + str(err))
+        try:
+            if 'azure_resource_group_name' not in os.environ:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if 'azure_vpc_name' not in os.environ:
+                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+            if 'azure_subnet_name' not in os.environ:
+                AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
                                              ssn_conf['subnet_name'])
-            append_result("Failed to create Security groups. Exception:" + str(err))
-            sys.exit(1)
+        except Exception as err:
+            print("Resources hasn't been removed: " + str(err))
+        append_result("Failed to create Security group. Exception: " + str(err))
+        sys.exit(1)
 
     try:
         logging.info('[CREATE SSN STORAGE ACCOUNT AND CONTAINER]')
         print('[CREATE SSN STORAGE ACCOUNT AND CONTAINER]')
         params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
                  format(ssn_conf['ssn_container_name'], json.dumps(ssn_conf['ssn_storage_account_tags']),
-                        os.environ['azure_resource_group_name'], ssn_conf['region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+                        ssn_conf['resource_group_name'], ssn_conf['region'])
+        local("~/scripts/{}.py {}".format('common_create_storage_account', params))
     except Exception as err:
+        traceback.print_exc()
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
-        if pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+        if 'azure_resource_group_name' not in os.environ:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        if 'azure_vpc_name' not in os.environ:
+            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        if 'azure_subnet_name' not in os.environ:
+            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                            ssn_conf['subnet_name'])
+        if 'azure_security_group_name' not in os.environ:
+            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
+                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
         append_result("Failed to create SSN storage account and container. Exception:" + str(err))
         sys.exit(1)
 
@@ -274,28 +272,25 @@ if __name__ == "__main__":
         print('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
         params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
             format(ssn_conf['shared_container_name'], json.dumps(ssn_conf['shared_storage_account_tags']),
-                   os.environ['azure_resource_group_name'], ssn_conf['region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+                   ssn_conf['resource_group_name'], ssn_conf['region'])
+        local("~/scripts/{}.py {}".format('common_create_storage_account', params))
     except Exception as err:
+        traceback.print_exc()
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+        if 'azure_resource_group_name' not in os.environ:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        if 'azure_vpc_name' not in os.environ:
+            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        if 'azure_subnet_name' not in os.environ:
+            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                            ssn_conf['subnet_name'])
+        if 'azure_security_group_name' not in os.environ:
+            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
+                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
             if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
+                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
         append_result("Failed to create SSN storage account and container. Exception:" + str(err))
         sys.exit(1)
 
@@ -305,7 +300,7 @@ if __name__ == "__main__":
             print('[CREATE DATA LAKE STORE]')
             params = "--datalake_name {} --datalake_tags '{}' --resource_group_name {} --region {}". \
                      format(ssn_conf['datalake_store_name'], json.dumps(ssn_conf['datalake_store_tags']),
-                            os.environ['azure_resource_group_name'], ssn_conf['region'])
+                            ssn_conf['resource_group_name'], ssn_conf['region'])
             try:
                 local("~/scripts/{}.py {}".format('ssn_create_datalake', params))
             except:
@@ -315,7 +310,7 @@ if __name__ == "__main__":
             logging.info('[CREATE DATA LAKE SHARED DIRECTORY]')
             print('[CREATE DATA LAKE SHARED DIRECTORY]')
             params = "--resource_group_name {} --datalake_name {} --directory_name {} --service_base_name {} --ad_group {}". \
-                format(os.environ['azure_resource_group_name'], ssn_conf['datalake_store_name'],
+                format(ssn_conf['resource_group_name'], ssn_conf['datalake_store_name'],
                        ssn_conf['datalake_shared_directory_name'], ssn_conf['service_base_name'],
                        os.environ['azure_ad_group_id'])
             try:
@@ -324,20 +319,23 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            traceback.print_exc()
             print('Error: {0}'.format(err))
-            if pre_defined_resource_group:
-                AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-            if pre_defined_vpc:
-                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
-            if pre_defined_sg:
-                AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
-            for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+            if 'azure_resource_group_name' not in os.environ:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if 'azure_vpc_name' not in os.environ:
+                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+            if 'azure_subnet_name' not in os.environ:
+                AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                                ssn_conf['subnet_name'])
+            if 'azure_security_group_name' not in os.environ:
+                AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+            for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
                 if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
+                    AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
+            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
+                    AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
             append_result("Failed to create Data Lake Store. Exception:" + str(err))
             sys.exit(1)
 
@@ -356,37 +354,34 @@ if __name__ == "__main__":
             --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
             --instance_type {} --instance_storage_account_type {} --image_name {} --tags '{}'".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'],
-                   os.environ['azure_vpc_name'], ssn_conf['network_interface_name'], os.environ['azure_security_group_name'],
-                   os.environ['azure_subnet_name'], ssn_conf['service_base_name'], os.environ['azure_resource_group_name'],
+                   ssn_conf['vpc_name'], ssn_conf['network_interface_name'], ssn_conf['security_group_name'],
+                   ssn_conf['subnet_name'], ssn_conf['service_base_name'], ssn_conf['resource_group_name'],
                    initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'],
                    ssn_conf['primary_disk_size'], 'ssn', ssn_conf['instance_storage_account_type'],
                    ssn_conf['ssn_image_name'], json.dumps(ssn_conf['instance_tags']))
-        try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        local("~/scripts/{}.py {}".format('common_create_instance', params))
     except Exception as err:
+        traceback.print_exc()
         print('Error: {0}'.format(err))
-        if pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+        if 'azure_resource_group_name' not in os.environ:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        if 'azure_vpc_name' not in os.environ:
+            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        if 'azure_subnet_name' not in os.environ:
+            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                            ssn_conf['subnet_name'])
+        if 'azure_security_group_name' not in os.environ:
+            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
+                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
             if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
+                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
+        for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
             if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
+                AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
         try:
-            AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
+            AzureActions().remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         except:
             print("The instance {} hasn't been created".format(ssn_conf['instance_name']))
         append_result("Failed to create instance. Exception:" + str(err))

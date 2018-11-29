@@ -182,6 +182,7 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 				case CREATE:
 				case CONFIGURE:
 				case START:
+				case RECONFIGURE_SPARK:
 					return UserInstanceStatus.RUNNING;
 				case STOP:
 					return UserInstanceStatus.STOPPED;
