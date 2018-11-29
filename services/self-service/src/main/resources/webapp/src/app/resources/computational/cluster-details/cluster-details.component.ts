@@ -17,46 +17,48 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, ViewChild } from '@angular/core';
+import { DateUtils } from '../../../core/util';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
-import { DateUtils, CheckUtils } from '../../../core/util';
-import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
-import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
 
 @Component({
-  selector: 'detail-dialog',
-  templateUrl: 'detail-dialog.component.html',
-  styleUrls: ['./detail-dialog.component.scss']
+  selector: 'dlab-cluster-details',
+  templateUrl: 'cluster-details.component.html',
+  styleUrls: ['./cluster-details.component.scss']
 })
 
-export class DetailDialogComponent {
+export class DetailComputationalResourcesComponent {
   readonly DICTIONARY = DICTIONARY;
 
-  notebook: any;
+  resource: any;
+  environment: any;
+  @ViewChild('bindDialog') bindDialog;
+  @ViewChild('configurationNode') configuration;
+
   upTimeInHours: number;
   upTimeSince: string = '';
   tooltip: boolean = false;
-
   public configurationForm: FormGroup;
-
-  @ViewChild('bindDialog') bindDialog;
-  @ViewChild('configurationNode') configuration;
 
   constructor(
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder
   ) {}
 
-  public open(param, notebook): void {
+  public open(param, environment, resource): void {
     this.tooltip = false;
-    this.notebook = notebook;
+    this.resource = resource;
+    this.environment = environment;
 
-    this.upTimeInHours = (notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
-    this.upTimeSince = (notebook.time) ? new Date(this.notebook.time).toString() : '';
-
+    this.upTimeInHours = (this.resource.up_time) ? DateUtils.diffBetweenDatesInHours(this.resource.up_time) : 0;
+    this.upTimeSince = (this.resource.up_time) ? new Date(this.resource.up_time).toString() : '';
     this.initFormModel();
-    this.getClusterConfiguration();
+
+    if (this.resource.image === 'docker.dlab-dataengine') this.getClusterConfiguration();
     this.bindDialog.open(param);
   }
 
@@ -67,7 +69,7 @@ export class DetailDialogComponent {
 
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
-      .getExploratorySparkConfiguration(this.notebook.name)
+      .getClusterConfiguration(this.environment.name, this.resource.computational_name)
       .subscribe(result => {
         console.log(result);
       });
@@ -75,7 +77,7 @@ export class DetailDialogComponent {
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
-      .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.name)
+      .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name)
       .subscribe(result => {
         console.log(result);
       });

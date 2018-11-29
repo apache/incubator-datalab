@@ -238,9 +238,6 @@ limitations under the License.
 
   .dialog-body {
     padding-top: 0;
-    .content-box {
-      padding: 25px 35px 35px;
-    }
   }
   .upload-key {
     margin-bottom: 20px;
@@ -329,7 +326,9 @@ limitations under the License.
     }
   }
 }
-
+.content-box {
+  padding: 25px 35px 35px;
+}
 .detail-header {
   border-bottom: 0;
   width: 100%;
@@ -390,7 +389,6 @@ limitations under the License.
   }
   span {
     font-size: 14px;
-    color: #9cadbe;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;

@@ -31,46 +31,72 @@ limitations under the License.
           <td>{{notebook.shape}}</td>
         </tr>
       </table>
-      <div  class="content-box">
-        <div class="detail-info" *ngIf="!notebook.error_message">
-          <p>Edge Node IP Address {{notebook.ip}}</p>
-          <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
-          <p>Open following URL(s) in your browser to access this box:</p>
-          <div class="links_block">
-            <p *ngFor="let item of notebook.url">
-              <strong class="description">{{item.description}}:&#32;</strong>
-              <a href="{{item.url}}" class="ellipsis link" target="_blank">&#32;{{item.url}}</a>
+      <div class="content-box">
+        <div class="scroll-box">
+          <div class="detail-info" *ngIf="!notebook.error_message">
+            <p>Edge Node IP Address {{notebook.ip}}</p>
+            <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
+            <p>Open following URL(s) in your browser to access this box:</p>
+            <div class="links_block">
+              <p *ngFor="let item of notebook.url">
+                <strong><b class="highlight">&#9642;</b> {{item.description}}:</strong>
+                <a href="{{item.url}}" target="_blank">{{item.url}}</a>
+              </p>
+            </div>
+            <p *ngIf="notebook.username">Node User: <strong>{{ notebook.username }}</strong></p>
+            <p *ngIf="notebook.password">Password: <strong>{{ notebook.password }}</strong></p>
+
+            <p class="m-top-30">{{ DICTIONARY.personal_storage }}: </p>
+            <div class="links_block">
+              <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
+              <p *ngIf="notebook.bucket_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
+            </div>гг
+            <p>{{ DICTIONARY.collaboration_storage }}: </p>
+            <div class="links_block">
+              <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
+              <p *ngIf="notebook.shared_bucket_name"><b class="highlight">&#9642;</b> {{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
+            </div>
+            <br/>
+
+            <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
+              <p>Data Lake Store: </p>
+              <div  class="links_block">
+                <p><b class="highlight">&#9642;</b> Data Lake Store Account: <strong>{{ notebook.datalake_name }}</strong></p>
+                <p><b class="highlight">&#9642;</b> Personal folder: <strong>{{ notebook.datalake_directory }}</strong></p>
+                <p><b class="highlight">&#9642;</b> Collaboration folder: <strong>{{ notebook.datalake_shared_directory }}</strong></p>
+              </div>
+            </div>
+
+            <p>
+              <a href="#/help/accessnotebookguide" target="_blank">
+                <small class="helper_instruction">
+                    <i class="material-icons">help_outline</i>
+                    Read instruction how to create the tunnel</small>
+              </a>
             </p>
           </div>
-          <p *ngIf="notebook.username">Node User: <strong>{{ notebook.username }}</strong></p>
-          <p *ngIf="notebook.password">Password: <strong>{{ notebook.password }}</strong></p>
 
-          <p class="m-top-15">{{ DICTIONARY.personal_storage }}: </p>
-          <div class="links_block">
-            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name"> {{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
-            <p *ngIf="notebook.bucket_name"> {{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
-          </div>
-          <p>{{ DICTIONARY.collaboration_storage }}: </p>
-          <div class="links_block">
-            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name"> {{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
-            <p *ngIf="notebook.shared_bucket_name"> {{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
-          </div>
-          <br/>
-
-          <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
-            <p>Data Lake Store: </p>
-            <div  class="links_block">
-              <p>Data Lake Store Account: <strong>{{ notebook.datalake_name }}</strong></p>
-              <p>Personal folder: <strong>{{ notebook.datalake_directory }}</strong></p>
-              <p>Collaboration folder: <strong>{{ notebook.datalake_shared_directory }}</strong></p>
+          <div class="checkbox-group">
+            <label>
+              <input #configurationNode type="checkbox"/> Cluster configurations
+            </label>
+            <div class="checkbox-group">
+              <form [formGroup]="configurationForm" novalidate>
+                <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
+                  <textarea formControlName="configuration_parameters" placeholder="Please insert valid object" data-gramm_editor="false"></textarea>
+                  <span class="danger_color" *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
+                </div>
+              </form>
             </div>
           </div>
-          <p>
-            <a href="#/help/accessnotebookguide" target="_blank">
-              <small class="helper_instruction"><i class="material-icons">help_outline</i>Read instruction how to create the tunnel</small>
-            </a>
-          </p>
+          <div class="text-center m-top-20" *ngIf="configuration?.nativeElement['checked']">
+            <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
+            <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
+                    class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
+                    (click)="editClusterConfiguration(configurationForm.value)">Update</button>
+          </div>
         </div>
+
         <div class="detail-info" *ngIf="notebook.error_message">
           <p class="failed">{{ notebook.error_message }}</p>
         </div>

@@ -79,6 +79,7 @@ limitations under the License.
       height: 240px;
       padding-top: 10px;
       text-align: right;
+      position: relative;
       textarea {
         background: #f8f8f8 !important;
         height: 100%;
@@ -105,7 +106,9 @@ limitations under the License.
     }
     span {
       &.danger_color {
-        text-align: right;
+        position: absolute;
+        bottom: -15px;
+        right: 0;
       }
     }
     .label {

@@ -73,7 +73,7 @@ limitations under the License.
           </label>
           <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
             <textarea formControlName="configuration_parameters" placeholder="Please insert valid object" data-gramm_editor="false"></textarea>
-            <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.configuration_parameters.valid && createExploratoryEnvironmentForm.controls['configuration_parameters'].dirty && createExploratoryEnvironmentForm.controls['configuration_parameters'].touched">Configuration parameters is not in a valid format</span>
+            <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.configuration_parameters.valid && createExploratoryEnvironmentForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
           </div>
         </div>
         

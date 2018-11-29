@@ -16,15 +16,39 @@ limitations under the License.
 
 ****************************************************************************/
 
-.links_block {
-  display: flex;
-  flex-direction: column;
-  > p {
-    display: flex;
-    flex: 1;
-    min-width: 0;
+.scroll-box {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.checkbox-group {
+  label {
+    input[type="checkbox"] {
+      margin: 10px 0;
+    }
   }
-  .description {
-    white-space: nowrap;
+}
+.config-details {
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+  text-align: left;
+  transition: all .35s linear .2s;
+  position: relative;
+  &.show {
+    height: 200px;
+    visibility: visible;
+    opacity: 1;
+    textarea {
+      height: 100%;
+      resize: none;
+    }
+    span {
+      .danger_color {
+        position: absolute;
+        bottom: -16px;
+        right: 0;
+      }
+    }
   }
 }

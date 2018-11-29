@@ -16,32 +16,20 @@ limitations under the License.
 
 ****************************************************************************/
 
-.checkbox-group {
-  text-align: right;
-  .config-details {
-    height: 0;
-    opacity: 0;
-    visibility: hidden;
-    text-align: left;
-    transition: all .35s linear .2s;
-    &.show {
-      height: 250px;
-      visibility: visible;
-      opacity: 1;
-      position: relative;
-    }
-    textarea {
-      height: 100%;
-      background: #f8f8f8 !important;
-      resize: none;
-      font-size: 14px
-    }
-    span {
-      &.danger_color {
-        position: absolute;
-        bottom: -16px;
-        right: 0;
-      }
-    }
-  }
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { ModalModule } from '../../../shared';
+import { MaterialModule } from '../../../shared/material.module';
+import { DetailComputationalResourcesComponent } from './cluster-details.component';
+
+export * from './cluster-details.component';
+
+@NgModule({
+  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule, MaterialModule],
+  declarations: [DetailComputationalResourcesComponent],
+  exports: [DetailComputationalResourcesComponent],
+})
+
+export class DetailComputationalResourcesModule { }

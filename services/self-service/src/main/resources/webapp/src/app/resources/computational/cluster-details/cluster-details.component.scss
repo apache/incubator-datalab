@@ -16,18 +16,34 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-import { ModalModule } from '../../../shared';
-import { DetailComputationalResourcesComponent } from './detail-computational-resources.component';
-
-export * from './detail-computational-resources.component';
-
-@NgModule({
-  imports: [CommonModule, ModalModule],
-  declarations: [DetailComputationalResourcesComponent],
-  exports: [DetailComputationalResourcesComponent],
-})
-
-export class DetailComputationalResourcesModule { }
+.checkbox-group {
+  label {
+    input[type="checkbox"] {
+      margin: 10px 0;
+    }
+  }
+}
+.config-details {
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+  text-align: left;
+  transition: all .35s linear .2s;
+  position: relative;
+  &.show {
+    height: 200px;
+    visibility: visible;
+    opacity: 1;
+    textarea {
+      height: 100%;
+      resize: none;
+    }
+    span {
+      .danger_color {
+        position: absolute;
+        bottom: -16px;
+        right: 0;
+      }
+    }
+  }
+}

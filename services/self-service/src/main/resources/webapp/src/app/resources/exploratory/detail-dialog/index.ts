@@ -18,14 +18,16 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ModalModule } from '../../../shared';
+import { MaterialModule } from '../../../shared/material.module';
 import { DetailDialogComponent } from './detail-dialog.component';
 
 export * from './detail-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule],
+  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule, MaterialModule],
   declarations: [DetailDialogComponent],
   exports: [DetailDialogComponent],
 })

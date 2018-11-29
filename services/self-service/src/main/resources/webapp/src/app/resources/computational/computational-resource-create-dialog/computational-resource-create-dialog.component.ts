@@ -255,7 +255,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    if (this.model.selectedImage && this.model.selectedImage.image) {
+    if (this.model.availableTemplates && this.model.selectedImage && this.model.selectedImage.image) {
       const activeImage = DICTIONARY[this.model.selectedImage.image];
 
       this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
@@ -367,8 +367,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         }, {});
 
       if (DICTIONARY.cloud_provider !== 'azure') {
-        this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
-        this.model.setSelectedClusterType(0);
+        const images = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
+        this.model.resourceImages = images;
+        (images.length > 0) ? this.model.setSelectedClusterType(0) : this.model.availableTemplates = false;
       }
       this.model.selectedImage.shapes.resourcesShapeTypes = filtered;
     }
