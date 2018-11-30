@@ -44,6 +44,7 @@ def get_from_stdin():
     else:
         return "{}"
 
+
 if __name__ == "__main__":
     # Get request ID as if it will need everywhere
     request_id = 'ssn'
@@ -170,3 +171,7 @@ if __name__ == "__main__":
     elif args.action == 'terminate_image':
         with hide('running'):
             local("/bin/terminate_image.py")
+
+    elif args.action == 'reconfigure_spark':
+        with hide('running'):
+            local("/bin/reconfigure_spark.py")

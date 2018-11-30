@@ -32,6 +32,7 @@ import {
 } from './manage-environment/manage-environment-dilog.component';
 
 import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
+import { DirectivesModule } from '../core/directives';
 
 import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
@@ -52,6 +53,7 @@ export * from './environment-status.model';
     ConfirmationDialogModule,
     FormControlsModule,
     MaterialModule,
+    DirectivesModule,
     ToastModule.forRoot()
   ],
   declarations: [

@@ -123,7 +123,7 @@ limitations under the License.
       </form>
       <div class="text-center m-top-30">
         <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
-        <button mat-raised-button type="button" class="butt butt-success action" (click)="scheduleInstance_btnClick()">Save</button>
+        <button mat-raised-button type="button" class="butt butt-success action" [disabled]="!enableSchedule && !enableIdleTime" (click)="scheduleInstance_btnClick()">Save</button>
       </div>
     </div>
   </modal-content>

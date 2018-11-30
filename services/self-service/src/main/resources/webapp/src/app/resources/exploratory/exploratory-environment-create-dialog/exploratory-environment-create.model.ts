@@ -38,6 +38,7 @@ export class ExploratoryEnvironmentCreateModel {
   private environment_template_name: string;
   private environment_version: string;
   private environment_shape: string;
+  private config: any;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
@@ -83,12 +84,13 @@ export class ExploratoryEnvironmentCreateModel {
     }
   }
 
-  public setCreatingParams(name, shape): void {
+  public setCreatingParams(name, shape, config?): void {
     this.environment_image = this.selectedItem.image;
     this.environment_version = this.selectedItem.version;
     this.environment_template_name = this.selectedItem.template_name;
     this.environment_name = name;
     this.environment_shape = shape;
+    this.config = config;
   }
 
   public loadTemplates(): void {
@@ -123,7 +125,7 @@ export class ExploratoryEnvironmentCreateModel {
   }
 
   private createExploratoryEnvironment(): Observable<{}> {
-    let params: any = {
+    const params: any = {
       image: this.environment_image,
       template_name: this.environment_template_name,
       name: this.environment_name,
@@ -133,6 +135,7 @@ export class ExploratoryEnvironmentCreateModel {
     if (this.notebookImage)
       params.notebook_image_name = this.notebookImage;
 
+    if (this.config) params.cluster_config = this.config;
     return this.userResourceService.createExploratoryEnvironment(params);
   }
 
@@ -144,7 +147,7 @@ export class ExploratoryEnvironmentCreateModel {
     environment_shape: string,
     fnProcessResults: any, fnProcessErrors: any): void {
 
-    this.setCreatingParams(environment_name, environment_shape);
+    this.setCreatingParams(environment_name, environment_shape, this.config);
     this.confirmAction = () => this.createExploratoryEnvironment()
       .subscribe(
         response => fnProcessResults(response),

@@ -128,3 +128,20 @@ def terminate():
         traceback.print_exc()
         append_result("Failed terminating Data Engine.", str(err))
         sys.exit(1)
+
+
+# Main function for reconfiguring Spark for Data Engine
+def reconfigure_spark():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("~/scripts/{}.py".format('dataengine_reconfigure_spark'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed to reconfigure Spark for Data Engine.", str(err))
+        sys.exit(1)

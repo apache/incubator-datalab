@@ -148,7 +148,7 @@ limitations under the License.
 
 <computational-resource-create-dialog #computationalResourceModal (buildGrid)="buildGrid($event)"></computational-resource-create-dialog>
 <confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
-<detail-dialog #detailDialog></detail-dialog>
+<detail-dialog #detailDialog (buildGrid)="buildGrid($event)"></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
 <install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
 <dlab-scheduler #envScheduler (buildGrid)="buildGrid($event)"></dlab-scheduler>
