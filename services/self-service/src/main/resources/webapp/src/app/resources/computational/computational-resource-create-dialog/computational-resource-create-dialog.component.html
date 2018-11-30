@@ -54,7 +54,7 @@ limitations under the License.
                     <span class="danger_color" *ngIf="!resourceForm.controls.cluster_alias_name.valid
                                               && resourceForm.controls['cluster_alias_name'].dirty
                                               && !resourceForm.controls['cluster_alias_name'].hasError('duplication')">
-                      Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can't end with special characters
+                      Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can not end with special characters
                     </span>
                 </div>
               </div>
@@ -132,7 +132,7 @@ limitations under the License.
         </div>
         <div class="checkbox-group">
           <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
-            <textarea formControlName="configuration_parameters" placeholder="Cluster configurations template, JSON" data-gramm_editor="false"></textarea>
+            <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
             <span class="danger_color" *ngIf="!resourceForm.controls.configuration_parameters.valid && resourceForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
           </div>
         </div>
