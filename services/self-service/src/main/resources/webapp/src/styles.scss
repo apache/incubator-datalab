@@ -35,9 +35,7 @@ limitations under the License.
   background-color: #35afd5 !important;
   width: 50% !important;
 }
-.ssn-monitor-dialog .mat-ink-bar {
-  // width: 33% !important;
-}
+
 .mat-ink-bar {
   background-color: #35afd5 !important;
 }
@@ -107,6 +105,7 @@ limitations under the License.
 
 .creating,
 .configuring,
+.reconfiguring,
 .installing,
 .reuploading,
 .highlight {

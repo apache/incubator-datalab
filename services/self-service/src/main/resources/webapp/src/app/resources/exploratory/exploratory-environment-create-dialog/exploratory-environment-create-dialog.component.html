@@ -56,7 +56,7 @@ limitations under the License.
             <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.environment_name.valid
                                        && createExploratoryEnvironmentForm.controls['environment_name'].dirty
                                        && !createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')">Name
-              <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'
+              <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can't end with special characters
             </span>
           </div>
         </div>
@@ -66,6 +66,17 @@ limitations under the License.
             <dropdown-list #shapesList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
         </div>
+
+        <div class="checkbox-group">
+          <label>
+            <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Spark configurations
+          </label>
+          <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
+            <textarea formControlName="configuration_parameters" placeholder="Please insert valid object" data-gramm_editor="false"></textarea>
+            <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.configuration_parameters.valid && createExploratoryEnvironmentForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
+          </div>
+        </div>
+        
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!createExploratoryEnvironmentForm.valid || !this.environment_shape" class="butt butt-success action">Create</button>

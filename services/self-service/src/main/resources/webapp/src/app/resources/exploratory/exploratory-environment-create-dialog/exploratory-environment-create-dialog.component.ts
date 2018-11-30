@@ -22,12 +22,14 @@ import { ToastsManager } from 'ng2-toastr';
 
 import { ExploratoryEnvironmentCreateModel } from '.';
 import { UserResourceService } from '../../../core/services';
-import { ErrorUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { CheckUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 
 @Component({
   selector: 'exploratory-environment-create-dialog',
-  templateUrl: 'exploratory-environment-create-dialog.component.html'
+  templateUrl: 'exploratory-environment-create-dialog.component.html',
+  styleUrls: ['./create-environment.component.scss']
 })
 
 export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
@@ -35,11 +37,11 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
 
   model: ExploratoryEnvironmentCreateModel;
   templateDescription: string;
-  namePattern = '[-_a-zA-Z0-9]+';
+  namePattern = '[\\w-_]+(?<!-)(?<!_)';
   resourceGrid: any;
   userImages: Array<any>;
   environment_shape: string;
-  
+
   public createExploratoryEnvironmentForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
@@ -47,13 +49,14 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   @ViewChild('templatesList') templates_list;
   @ViewChild('shapesList') shapes_list;
   @ViewChild('imagesList') userImagesList;
+  @ViewChild('configurationNode') configuration;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
-    private changeDetector : ChangeDetectorRef,
+    private changeDetector: ChangeDetectorRef,
     public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
@@ -68,18 +71,27 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
 
   initFormModel(): void {
     this.createExploratoryEnvironmentForm = this._fb.group({
-      environment_name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]]
+      environment_name: ['', [Validators.required, Validators.pattern(this.namePattern),
+                              this.providerMaxLength, this.checkDuplication.bind(this)]],
+      configuration_parameters: ['', [this.validConfiguration.bind(this)]]
     });
   }
 
   providerMaxLength(control) {
     if (DICTIONARY.cloud_provider !== 'aws')
-      return control.value.length <=10 ? null : { valid: false };
+      return control.value.length <= 10 ? null : { valid: false };
+  }
+
+  private validConfiguration(control) {
+    if (this.configuration)
+      return this.configuration.nativeElement['checked']
+        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+        : null;
   }
 
   checkDuplication(control) {
     if (this.resourceGrid.containsNotebook(control.value))
-      return { duplication: true }
+      return { duplication: true };
   }
 
   shapePlaceholder(resourceShapes, byField: string): string {
@@ -119,7 +131,10 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   }
 
   createExploratoryEnvironment_btnClick($event, data) {
-    this.model.setCreatingParams(data.environment_name, this.environment_shape);
+    this.model.setCreatingParams(
+      data.environment_name,
+      this.environment_shape,
+      data.configuration_parameters ? JSON.parse(data.configuration_parameters) : null);
     this.model.confirmAction();
     $event.preventDefault();
     return false;
@@ -152,11 +167,21 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
     this.userResourceService.getUserImages(image)
       .subscribe((res: any) => {
         this.userImages = res.filter(el => el.status === 'CREATED');
-        
+
         this.changeDetector.detectChanges();
         this.setDefaultParams();
       },
       error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!', { toastLife: 5000 }));
+  }
+
+  public selectConfiguration() {
+    if (this.configuration.nativeElement.checked) {
+
+      this.createExploratoryEnvironmentForm.controls['configuration_parameters']
+        .setValue(JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2));
+    } else {
+      this.createExploratoryEnvironmentForm.controls['configuration_parameters'].setValue('');
+    }
   }
 
   public close(): void {
@@ -167,5 +192,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   private resetDialog(): void {
     this.initFormModel();
     this.model.resetModel();
+
+    this.configuration.nativeElement['checked'] = false;
   }
 }

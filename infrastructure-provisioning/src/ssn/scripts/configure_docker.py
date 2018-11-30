@@ -74,9 +74,16 @@ def build_docker_images(image_list, region, dlab_path):
             tag = image['tag']
             sudo('cd {0}sources/infrastructure-provisioning/src/; cp general/files/{1}/{2}_description.json '
                  '{2}/description.json'.format(args.dlab_path, args.cloud_provider, name))
-            sudo("cd {4}sources/; docker build --build-arg OS={2} --file "
-                 "infrastructure-provisioning/src/general/files/{3}/{0}_Dockerfile -t docker.dlab-{0}:{1} ."
-                 .format(name, tag, args.os_family, args.cloud_provider, args.dlab_path))
+            if name == 'base':
+                sudo("cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
+                     "--build-arg SRC_PATH="" --file general/files/{3}/{0}_Dockerfile "
+                     "-t docker.dlab-{0}:{1} .".format(name, tag, args.os_family, args.cloud_provider, args.dlab_path))
+            else:
+                sudo("cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
+                     "--file general/files/{3}/{0}_Dockerfile -t docker.dlab-{0}:{1} .".format(name, tag,
+                                                                                               args.os_family,
+                                                                                               args.cloud_provider,
+                                                                                               args.dlab_path))
         sudo('rm -f {}sources/infrastructure-provisioning/src/base/azure_auth.json'.format(args.dlab_path))
         return True
     except:
