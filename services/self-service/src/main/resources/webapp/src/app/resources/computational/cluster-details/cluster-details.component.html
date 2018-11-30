@@ -88,7 +88,7 @@ limitations under the License.
             </form>
           </div>
         </div>
-        <div class="text-center m-top-20" *ngIf="configuration?.nativeElement['checked']">
+        <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked']">
           <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
                   class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"

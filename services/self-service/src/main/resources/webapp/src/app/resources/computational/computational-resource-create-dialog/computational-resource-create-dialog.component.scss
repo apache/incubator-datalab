@@ -94,6 +94,13 @@ limitations under the License.
     padding-bottom: 10px;
     cursor: pointer;
   }
+  span {
+    &.danger_color {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+    }
+  }
   &.control-group {
     padding: 0;
     span.info {

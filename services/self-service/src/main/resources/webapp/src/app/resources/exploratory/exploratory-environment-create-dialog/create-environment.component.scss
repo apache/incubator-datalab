@@ -17,7 +17,6 @@ limitations under the License.
 ****************************************************************************/
 
 .checkbox-group {
-  text-align: right;
   .config-details {
     height: 0;
     opacity: 0;
@@ -39,8 +38,8 @@ limitations under the License.
     span {
       &.danger_color {
         position: absolute;
-        bottom: -16px;
-        right: 0;
+        bottom: -20px;
+        left: 0;
       }
     }
   }

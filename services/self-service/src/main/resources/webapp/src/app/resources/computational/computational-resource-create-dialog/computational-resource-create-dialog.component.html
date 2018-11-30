@@ -136,7 +136,7 @@ limitations under the License.
             <span class="danger_color" *ngIf="!resourceForm.controls.configuration_parameters.valid && resourceForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
           </div>
         </div>
-        <div class="text-center m-top-20">
+        <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!resourceForm.valid"
                   class="butt butt-success action" [ngClass]="{'not-allowed': !resourceForm.valid}">Create</button>
