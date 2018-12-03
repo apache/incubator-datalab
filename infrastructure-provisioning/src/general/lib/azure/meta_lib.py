@@ -416,15 +416,14 @@ class AzureMeta:
                                    virtual_network_peering_name):
         try:
             result = self.network_client.virtual_network_peerings.get(resource_group_name,
-                                                                      virtual_network_name,
-                                                                      virtual_network_peering_name)
-        return result.peering_state
-    except Exception as error:
-        logging.info(
+                                                                        virtual_network_name,
+                                                                        virtual_network_peering_name)
+            return result.peering_state
+        except Exception as err:
+            logging.info(
                 "Unable to get peering status: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to get peering status",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
+            append_result(str({"error": "Unable to get peering status", "error_message": str(
+                err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
     def get_disk(self, resource_group_name, disk_name):
