@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, OnInit, ViewContainerRef, Output, EventEmitter } from '@angular/core';
+import { Component, ViewChild, OnInit, ViewContainerRef, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastsManager } from 'ng2-toastr';
 
@@ -51,7 +51,8 @@ export class DetailDialogComponent implements OnInit {
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder,
     public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public vcr: ViewContainerRef,
+    private ref: ChangeDetectorRef
   ) {
     this.toastr.setRootViewContainerRef(vcr);
   }
@@ -90,6 +91,7 @@ export class DetailDialogComponent implements OnInit {
 
       this.configurationForm.controls['configuration_parameters']
         .setValue(JSON.stringify(this.config.length ? this.config : CLUSTER_CONFIGURATION.SPARK, undefined, 2));
+      document.querySelector('#config').scrollIntoView({ block: 'start', behavior: 'smooth' });
     } else {
       this.configurationForm.controls['configuration_parameters'].setValue('');
     }
