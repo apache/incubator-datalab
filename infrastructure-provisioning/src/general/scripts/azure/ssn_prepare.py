@@ -45,9 +45,13 @@ if __name__ == "__main__":
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
         # Check azure predefined resources
         ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name', ssn_conf['service_base_name'])
+        ssn_conf['source_resource_group_name'] = os.environ.get('azure_source_resource_group_name', 'azure_resource_group_name')
         ssn_conf['vpc_name'] = os.environ.get('azure_vpc_name', '{}-vpc'.format(ssn_conf['service_base_name']))
         ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-ssn-subnet'.format(ssn_conf['service_base_name']))
         ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(ssn_conf['service_base_name']))
+        # Verify vpc deployment
+        if os.environ['conf_network_type'] == 'private' and os.environ.get('azure_vpc_name') == None and os.environ.get('azure_source_vpc_name') == None:
+            raise Exception('Not possible to deploy private environment without predefined vpc or without source vpc')
         # Default variables
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
@@ -115,6 +119,28 @@ if __name__ == "__main__":
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
         append_result("Failed to create VPC. Exception: " + str(err))
+        sys.exit(1)
+
+    try:
+        if 'azure_vpc_name' not in os.environ and os.environ['conf_network_type'] == 'private':
+            logging.info('[CREATING VPC PEERING]')
+            print("[CREATING VPC PEERING]")
+            virtual_network_peering_name = '{}_to_{}'.format(ssn_conf['vpc_name'], ssn_conf['azure_source_vpc_name'])
+            params_source = "--source_resource_group_name {} --destination_resource_group_name {} " \
+            "--source_virtual_network_name {} --destination_virtual_network_name {}".format(ssn_conf['source_resource_group_name'], 
+                        ssn_conf['resource_group_name'], os.environ['azure_source_vpc_name'], ssn_conf['vpc_name'])
+            local("~/scripts/{}.py {}".format('ssn_create_peering', params))
+    except Exception as err:
+        traceback.print_exc()
+        print('Error creating VPC peering: ' + str(err))
+        try:
+            if 'azure_resource_group_name' not in os.environ:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if 'azure_vpc_name' not in os.environ:
+                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        except Exception as err:
+            print("Resources hasn't been removed: " + str(err))
+        append_result("Failed to create VPC peering. Exception: " + str(err))
         sys.exit(1)
 
     try:
