@@ -19,6 +19,17 @@ limitations under the License.
 .scroll-box {
   max-height: 65vh;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.links_block {
+  > p {
+    display: flex;
+    .description {
+      white-space: nowrap;
+      padding-right: 5px;
+    }
+  }
 }
 
 .checkbox-group {
