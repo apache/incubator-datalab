@@ -63,6 +63,7 @@ export class ApplicationServiceFacade {
   private static readonly GIT_CREDS = 'git_creds';
   private static readonly BILLING = 'billing';
   private static readonly DOWNLOAD_REPORT = 'download_report';
+  private static readonly SETTINGS = 'settings';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -426,6 +427,20 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetTotalBudgetData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildUpdateTotalBudgetData(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildGetGroupsData(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
@@ -557,6 +572,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.GROUPS, '/api/group');
     this.requestRegistry.Add(ApplicationServiceFacade.GROUP_ROLE, 'api/group/role');
     this.requestRegistry.Add(ApplicationServiceFacade.GROUP_USER, '/api/group/user');
+    this.requestRegistry.Add(ApplicationServiceFacade.SETTINGS, '/api/settings');
 
     // Libraries Installation
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');
