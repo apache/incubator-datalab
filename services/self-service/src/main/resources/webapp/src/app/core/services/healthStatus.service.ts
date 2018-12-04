@@ -152,9 +152,11 @@ export class HealthStatusService {
   }
 
   public updateTotalBudgetData(data): Observable<{}> {
-    const url = `/budget/${data}`;
+    const url = (data && data > 0) ? `/budget/${data}` : '/budget';
+    const method = (data && data > 0) ? 2 : 3;
+
     return this.applicationServiceFacade
-      .buildUpdateTotalBudgetData(url)
+      .buildUpdateTotalBudgetData(url, method)
       .map(response => response)
       .catch(error => error);
   }

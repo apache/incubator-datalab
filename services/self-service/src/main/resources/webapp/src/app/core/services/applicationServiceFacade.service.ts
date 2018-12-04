@@ -434,8 +434,8 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-  public buildUpdateTotalBudgetData(param): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildUpdateTotalBudgetData(param, method: number): Observable<Response> {
+    return this.buildRequest(method,
       this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS) + param,
       null,
       this.getRequestOptions(true, true));
