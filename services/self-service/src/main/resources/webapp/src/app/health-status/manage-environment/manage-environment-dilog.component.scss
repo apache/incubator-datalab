@@ -31,6 +31,11 @@ limitations under the License.
     max-height: 275px;
     overflow-y: auto;
   }
+  .user-env {
+    display: flex;
+    width: 100%;
+    position: relative;
+  }
   .username {
     width: 55%;
   }
