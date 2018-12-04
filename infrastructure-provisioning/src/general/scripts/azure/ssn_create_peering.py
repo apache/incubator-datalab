@@ -35,17 +35,17 @@ if __name__ == "__main__":
         source_virtual_network_peering_name = '{}_to_{}'.format(args.source_virtual_network_name, args.destination_virtual_network_name)
         destination_virtual_network_peering_name = '{}_to_{}'.format(args.destination_virtual_network_name, args.source_virtual_network_name)
 
-        destination_vnet_id = AzureMeta().get_vnet(
+        destination_vnet_id = AzureMeta().get_vpc(
             args.destination_resource_group_name,
             args.destination_virtual_network_name,
         ).id
 
-        source_vnet_id = AzureMeta().get_vnet(
+        source_vnet_id = AzureMeta().get_vpc(
             args.source_resource_group_name,
             args.source_virtual_network_name,
         ).id
 
-        print("Creating Virtual Network {}".format(args.vpc_name))
+        print("Creating Virtual Network peering {} and {}".format(source_virtual_network_peering_name, destination_virtual_network_peering_name))
         AzureActions().create_virtual_network_peerings(
                 args.source_resource_group_name,
                 args.source_virtual_network_name,

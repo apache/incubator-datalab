@@ -602,8 +602,9 @@ def node_count(cluster_name):
         node_list = []
         resource_group_name = os.environ['azure_resource_group_name']
         for node in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if cluster_name == node.tags["Name"]:
-                node_list.append(node.name)
+            if "Name" in node.tags:
+                if cluster_name == node.tags["Name"]:
+                    node_list.append(node.name)
         result = len(node_list)
         return result
     except Exception as err:
