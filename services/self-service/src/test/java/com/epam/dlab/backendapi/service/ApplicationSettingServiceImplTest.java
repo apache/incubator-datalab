@@ -17,6 +17,7 @@
  */
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.backendapi.dao.MongoSetting;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,15 @@ public class ApplicationSettingServiceImplTest {
 		assertEquals("value", settings.get("key"));
 
 		verify(settingsDAO).getSettings();
+		verifyNoMoreInteractions(settingsDAO);
+	}
+
+	@Test
+	public void removeMaxBudget() {
+
+		applicationSettingService.removeMaxBudget();
+
+		verify(settingsDAO).removeSetting(MongoSetting.CONF_MAX_BUDGET);
 		verifyNoMoreInteractions(settingsDAO);
 	}
 }
