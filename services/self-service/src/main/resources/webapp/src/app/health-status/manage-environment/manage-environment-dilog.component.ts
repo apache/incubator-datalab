@@ -94,7 +94,7 @@ export class ManageEnvironmentComponent {
 
   private userValidityCheck(control) {
     if (control && control.value) {
-      return this.getCurrentTotalValue() >= this.getCurrentUsersTotal() ? null : { overrun: true };
+      return (this.getCurrentTotalValue() && this.getCurrentTotalValue() < this.getCurrentUsersTotal()) ? { overrun: true } : null;
     }
   }
 }
