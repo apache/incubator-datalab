@@ -515,10 +515,15 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):
     try:
+        cluster_re = ['-{}"'.format(cluster_name),
+                      '-{}-'.format(cluster_name),
+                      '-{}/'.format(cluster_name)]
         get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
         data = open('Rprofile').read()
-        conf = [i for i in data.split('\n') if i != '']
-        conf = [i for i in conf if cluster_name not in i]
+        conf = filter(None, data.split('\n'))
+        # Filter config from any math of cluster_name in line,
+        # separated by defined symbols to avoid partly matches
+        conf = [i for i in conf if not any(x in i for x in cluster_re)]
         comment_all = lambda x: x if x.startswith('#master') else '#{}'.format(x)
         uncomment = lambda x: x[1:] if not x.startswith('#master') else x
         conf =[comment_all(i) for i in conf]
@@ -533,10 +538,12 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
         get('/home/{}/.Renviron'.format(os_user), 'Renviron')
         data = open('Renviron').read()
-        conf = [i for i in data.split('\n') if i != '']
+        conf = filter(None, data.split('\n'))
         comment_all = lambda x: x if x.startswith('#') else '#{}'.format(x)
         conf = [comment_all(i) for i in conf]
-        conf = [i for i in conf if cluster_name not in i]
+        # Filter config from any math of cluster_name in line,
+        # separated by defined symbols to avoid partly matches
+        conf = [i for i in conf if not any(x in i for x in cluster_re)]
         if active_cluster:
             activate_cluster = lambda x: x[1:] if active_cluster in x else x
             conf = [activate_cluster(i) for i in conf]
