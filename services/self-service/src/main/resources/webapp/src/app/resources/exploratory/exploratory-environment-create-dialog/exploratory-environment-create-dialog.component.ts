@@ -37,7 +37,8 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
 
   model: ExploratoryEnvironmentCreateModel;
   templateDescription: string;
-  namePattern = '[\\w-_]+(?<!-)(?<!_)';
+  // namePattern = '[a-zA-Z0-9-_]+';
+  namePattern = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   resourceGrid: any;
   userImages: Array<any>;
   environment_shape: string;
@@ -154,6 +155,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
         this.templateDescription = this.model.selectedItem.description;
       },
       () => {
+        this.initFormModel();
         this.bindDialog.open(params);
         this.setDefaultParams();
         this.getImagesList();
@@ -175,8 +177,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   }
 
   public selectConfiguration() {
-    if (this.configuration.nativeElement.checked) {
-
+    if (this.configuration.nativeElement.checked && this.createExploratoryEnvironmentForm) {
       this.createExploratoryEnvironmentForm.controls['configuration_parameters']
         .setValue(JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2));
     } else {
