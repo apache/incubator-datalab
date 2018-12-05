@@ -143,4 +143,21 @@ export class HealthStatusService {
       .map(response => response.json())
       .catch(error => error);
   }
+
+  public getTotalBudgetData(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetTotalBudgetData()
+      .map(response => response.json())
+      .catch(error => error);
+  }
+
+  public updateTotalBudgetData(data): Observable<{}> {
+    const url = (data && data > 0) ? `/budget/${data}` : '/budget';
+    const method = (data && data > 0) ? 2 : 3;
+
+    return this.applicationServiceFacade
+      .buildUpdateTotalBudgetData(url, method)
+      .map(response => response)
+      .catch(error => error);
+  }
 }

@@ -44,7 +44,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   template_description: string;
   shapes: any;
   spotInstance: boolean = true;
-  clusterNamePattern: string = '[\\w-_]+(?<!-)(?<!_)';
+  // clusterNamePattern: string = '[a-zA-Z0-9-_]+';
+  clusterNamePattern: string = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
   delimitersRegex = /[-_]?/g;
 
@@ -341,16 +342,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
         slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
       };
-      if (DICTIONARY.cloud_provider !== 'azure') {
+      if (DICTIONARY.cloud_provider !== 'azure' && this.cluster_type) {
         this.cluster_type.setDefaultOptions(this.model.resourceImages,
           this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
           if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
             this.templates_list.setDefaultOptions(this.model.templates,
               this.model.selectedItem.version, 'template', 'version', 'array');
       }
-      this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+      this.master_shapes_list && this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
         this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-      this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.slave_shapes_list && this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
         this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
     }
   }

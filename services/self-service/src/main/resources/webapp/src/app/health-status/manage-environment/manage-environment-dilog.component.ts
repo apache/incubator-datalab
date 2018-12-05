@@ -31,6 +31,7 @@ export class ManageEnvironmentComponent {
   readonly DICTIONARY = DICTIONARY;
   public usersList: Array<string> = [];
   public manageUsersForm: FormGroup;
+  public manageTotalsForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
@@ -45,18 +46,15 @@ export class ManageEnvironmentComponent {
     return <FormArray>this.manageUsersForm.get('users');
   }
 
-  public open(param, data): void {
+  public open(param, data, settings): void {
     this.usersList = data;
+    !this.manageUsersForm && this.initForm();
 
-    if (!this.manageUsersForm) {
-      this.manageUsersForm = this._fb.group({
-        users: this._fb.array([this._fb.group({ name: '', budget: null })])
-      });
-    }
     this.manageUsersForm.setControl('users',
-      this._fb.array((this.usersList || []).map((x: any) => this._fb.group({
-        name: x.name, budget: [x.budget, [Validators.min(0)]]
+    this._fb.array((this.usersList || []).map((x: any) => this._fb.group({
+      name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]]
     }))));
+    this.manageUsersForm.controls['total'].setValue(settings.conf_max_budget || null);
     this.bindDialog.open(param);
   }
 
@@ -71,6 +69,33 @@ export class ManageEnvironmentComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.manageEnv.emit({action, user: user.value.name});
     });
+  }
+
+  private initForm(): void {
+    this.manageUsersForm = this._fb.group({
+      total: [null, [Validators.min(0), this.totalValidityCheck.bind(this)]],
+      users: this._fb.array([this._fb.group({ name: '', budget: null })])
+    });
+  }
+
+  private getCurrentUsersTotal(): number {
+    return this.manageUsersForm.value.users.reduce((memo, el) => memo += el.budget, 0);
+  }
+
+  private getCurrentTotalValue(): number {
+    return this.manageUsersForm.value.total;
+  }
+
+  private totalValidityCheck(control) {
+    return (control && control.value)
+      ? (control.value >= this.getCurrentUsersTotal() ? null : { overrun: true })
+      : null;
+  }
+
+  private userValidityCheck(control) {
+    if (control && control.value) {
+      return (this.getCurrentTotalValue() && this.getCurrentTotalValue() < this.getCurrentUsersTotal()) ? { overrun: true } : null;
+    }
   }
 }
 
