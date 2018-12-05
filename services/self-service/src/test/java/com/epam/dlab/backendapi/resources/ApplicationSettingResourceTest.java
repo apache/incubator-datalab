@@ -71,7 +71,7 @@ public class ApplicationSettingResourceTest extends TestBase {
 				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
 
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(HttpStatus.SC_NO_CONTENT, response.getStatus());
 
 		verify(applicationSettingService).removeMaxBudget();
 		verifyNoMoreInteractions(applicationSettingService);

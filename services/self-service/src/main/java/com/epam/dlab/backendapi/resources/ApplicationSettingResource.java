@@ -58,11 +58,11 @@ public class ApplicationSettingResource {
 	@DELETE
 	@Path("budget")
 	@ApiOperation("Removes max budget allowed application setting")
-	@ApiResponses(@ApiResponse(code = 200, message = "Setting is removed"))
+	@ApiResponses(@ApiResponse(code = 204, message = "Setting is removed"))
 	public Response removeAllowedBudget(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		log.debug("User {} is removing max budget application setting", userInfo.getName());
 		settingService.removeMaxBudget();
-		return Response.ok().build();
+		return Response.noContent().build();
 	}
 
 	@GET
