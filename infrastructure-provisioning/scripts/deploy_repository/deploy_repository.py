@@ -61,6 +61,7 @@ def vpc_exist(return_id=False):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS VPC: {}'.format(str(err)))
+        raise Exception
 
 
 def create_vpc(vpc_cidr):
@@ -74,6 +75,7 @@ def create_vpc(vpc_cidr):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating AWS VPC: {}'.format(str(err)))
+        raise Exception
 
 
 def enable_vpc_dns(vpc_id):
@@ -83,6 +85,7 @@ def enable_vpc_dns(vpc_id):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with modifying AWS VPC attributes: {}'.format(str(err)))
+        raise Exception
 
 
 def create_rt(vpc_id):
@@ -108,6 +111,7 @@ def create_rt(vpc_id):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating AWS Route Table: {}'.format(str(err)))
+        raise Exception
 
 
 def remove_vpc(vpc_id):
@@ -117,6 +121,7 @@ def remove_vpc(vpc_id):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS VPC: {}'.format(str(err)))
+        raise Exception
 
 
 def create_tag(resource, tag, with_tag_res_id=True):
@@ -159,6 +164,7 @@ def create_tag(resource, tag, with_tag_res_id=True):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with setting tag: {}'.format(str(err)))
+        raise Exception
 
 
 def create_subnet(vpc_id, subnet_cidr):
@@ -174,6 +180,7 @@ def create_subnet(vpc_id, subnet_cidr):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating AWS Subnet: {}'.format(str(err)))
+        raise Exception
 
 
 def remove_subnet():
@@ -189,6 +196,7 @@ def remove_subnet():
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS Subnet: {}'.format(str(err)))
+        raise Exception
 
 
 def get_route_table_by_tag(tag_value):
@@ -200,6 +208,7 @@ def get_route_table_by_tag(tag_value):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS Route tables: {}'.format(str(err)))
+        raise Exception
 
 
 def create_security_group(security_group_name, vpc_id):
@@ -265,6 +274,7 @@ def create_security_group(security_group_name, vpc_id):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating AWS security group: {}'.format(str(err)))
+        raise Exception
 
 
 def get_vpc_cidr_by_id(vpc_id):
@@ -278,6 +288,7 @@ def get_vpc_cidr_by_id(vpc_id):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS VPC CIDR: {}'.format(str(err)))
+        raise Exception
 
 
 def format_sg(sg_rules):
@@ -300,6 +311,7 @@ def format_sg(sg_rules):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with formating AWS SG rules: {}'.format(str(err)))
+        raise Exception
 
 
 def remove_sgroups():
@@ -315,6 +327,7 @@ def remove_sgroups():
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS SG: {}'.format(str(err)))
+        raise Exception
 
 
 def create_instance():
@@ -340,6 +353,7 @@ def create_instance():
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating AWS EC2 instance: {}'.format(str(err)))
+        raise Exception
 
 
 def tag_intance_volume(instance_id, node_name, instance_tag):
@@ -363,6 +377,7 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with tagging AWS EC2 instance volumes: {}'.format(str(err)))
+        raise Exception
 
 
 def get_instance_attr(instance_id, attribute_name):
@@ -376,6 +391,7 @@ def get_instance_attr(instance_id, attribute_name):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS EC2 instance attributes: {}'.format(str(err)))
+        raise Exception
 
 
 def get_ami_id(ami_name):
@@ -412,6 +428,7 @@ def get_ami_id(ami_name):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS AMI ID: {}'.format(str(err)))
+        raise Exception
 
 
 def remove_route_tables():
@@ -431,6 +448,7 @@ def remove_route_tables():
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS Route Tables: {}'.format(str(err)))
+        raise Exception
 
 
 def remove_ec2():
@@ -450,6 +468,7 @@ def remove_ec2():
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing EC2 instances: {}'.format(str(err)))
+        raise Exception
 
 
 def remove_internet_gateways(vpc_id, tag_value):
@@ -468,6 +487,7 @@ def remove_internet_gateways(vpc_id, tag_value):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS Internet gateways: {}'.format(str(err)))
+        raise Exception
 
 
 def enable_auto_assign_ip(subnet_id):
@@ -476,6 +496,7 @@ def enable_auto_assign_ip(subnet_id):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with enabling auto-assign of public IP addresses: {}'.format(str(err)))
+        raise Exception
 
 
 def subnet_exist(return_id=False):
@@ -496,6 +517,7 @@ def subnet_exist(return_id=False):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS Subnet: {}'.format(str(err)))
+        raise Exception
 
 
 def sg_exist(return_id=False):
@@ -510,6 +532,7 @@ def sg_exist(return_id=False):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS Security group: {}'.format(str(err)))
+        raise Exception
 
 
 def ec2_exist(return_id=False):
@@ -526,6 +549,7 @@ def ec2_exist(return_id=False):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS EC2 instance: {}'.format(str(err)))
+        raise Exception
 
 
 def allocate_elastic_ip():
@@ -540,6 +564,7 @@ def allocate_elastic_ip():
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating AWS Elastic IP: {}'.format(str(err)))
+        raise Exception
 
 
 def release_elastic_ip():
@@ -550,16 +575,17 @@ def release_elastic_ip():
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS Elastic IP: {}'.format(str(err)))
+        raise Exception
 
 
 def associate_elastic_ip(instance_id, allocation_id):
     try:
-        allocation_id = ec2_client.associate_address(InstanceId=instance_id, AllocationId=allocation_id).get('AssociationId')
+        ec2_client.associate_address(InstanceId=instance_id, AllocationId=allocation_id).get('AssociationId')
         print("AWS Elastic IP address has been associated.")
-        return allocation_id
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with associating AWS Elastic IP: {}'.format(str(err)))
+        raise Exception
 
 
 def disassociate_elastic_ip(association_id):
@@ -569,6 +595,7 @@ def disassociate_elastic_ip(association_id):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with disassociating AWS Elastic IP: {}'.format(str(err)))
+        raise Exception
 
 
 def elastic_ip_exist(return_id=False, return_parameter='AllocationId'):
@@ -588,6 +615,7 @@ def elastic_ip_exist(return_id=False, return_parameter='AllocationId'):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS Elastic IP: {}'.format(str(err)))
+        raise Exception
 
 
 def create_route_53_record(hosted_zone_id, hosted_zone_name, subdomain, ip_address):
@@ -615,6 +643,7 @@ def create_route_53_record(hosted_zone_id, hosted_zone_name, subdomain, ip_addre
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating AWS Route53 record: {}'.format(str(err)))
+        raise Exception
 
 
 def remove_route_53_record(hosted_zone_id, hosted_zone_name, subdomain):
@@ -647,6 +676,7 @@ def remove_route_53_record(hosted_zone_id, hosted_zone_name, subdomain):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS Route53 record: {}'.format(str(err)))
+        raise Exception
 
 
 def get_instance_ip_address_by_id(instance_id, ip_address_type):
@@ -659,6 +689,7 @@ def get_instance_ip_address_by_id(instance_id, ip_address_type):
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with getting AWS EC2 instance IP address: {}'.format(str(err)))
+        raise Exception
 
 
 if __name__ == "__main__":
