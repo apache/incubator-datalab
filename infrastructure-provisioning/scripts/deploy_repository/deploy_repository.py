@@ -42,6 +42,9 @@ parser.add_argument('--instance_type', type=str, default='t2.medium', help='Inst
 parser.add_argument('--region', required=True, type=str, default='', help='AWS region name')
 parser.add_argument('--elastic_ip', type=str, default='', help='Elastic IP address')
 parser.add_argument('--network_type', type=str, default='public', help='Network type: public or private')
+parser.add_argument('--hosted_zone_name', type=str, default='', help='Name of hosted zone')
+parser.add_argument('--hosted_zone_id', type=str, default='', help='ID of hosted zone')
+parser.add_argument('--subdomain', type=str, default='', help='Subdomain name')
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
 
@@ -90,7 +93,7 @@ def create_rt(vpc_id):
         rt = ec2_client.create_route_table(VpcId=vpc_id)
         rt_id = rt.get('RouteTable').get('RouteTableId')
         route_table.append(rt_id)
-        print('Created Route-Table with ID: {}'.format(rt_id))
+        print('Created AWS Route-Table with ID: {}'.format(rt_id))
         create_tag(route_table, json.dumps(tag))
         create_tag(route_table, json.dumps(name_tag))
         ig = ec2_client.create_internet_gateway()
@@ -104,13 +107,13 @@ def create_rt(vpc_id):
         return rt_id
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with creating Route Table: {}'.format(str(err)))
+        print('Error with creating AWS Route Table: {}'.format(str(err)))
 
 
 def remove_vpc(vpc_id):
     try:
         ec2_client.delete_vpc(VpcId=vpc_id)
-        print("VPC {} has been removed".format(vpc_id))
+        print("AWS VPC {} has been removed".format(vpc_id))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS VPC: {}'.format(str(err)))
@@ -166,6 +169,7 @@ def create_subnet(vpc_id, subnet_cidr):
         create_tag(subnet.id, tag)
         create_tag(subnet.id, name_tag)
         subnet.reload()
+        print('AWS Subnet has been created')
         return subnet.id
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
@@ -179,9 +183,9 @@ def remove_subnet():
         if subnets:
             for subnet in subnets:
                 ec2_client.delete_subnet(SubnetId=subnet.id)
-                print("The subnet {} has been deleted successfully".format(subnet.id))
+                print("The AWS subnet {} has been deleted successfully".format(subnet.id))
         else:
-            print("There are no private subnets to delete")
+            print("There are no private AWS subnets to delete")
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS Subnet: {}'.format(str(err)))
@@ -195,7 +199,7 @@ def get_route_table_by_tag(tag_value):
         return rt_id
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with getting Route tables: {}'.format(str(err)))
+        print('Error with getting AWS Route tables: {}'.format(str(err)))
 
 
 def create_security_group(security_group_name, vpc_id):
@@ -295,7 +299,7 @@ def format_sg(sg_rules):
         return formatted_sg_rules
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with formating SG rules: {}'.format(str(err)))
+        print('Error with formating AWS SG rules: {}'.format(str(err)))
 
 
 def remove_sgroups():
@@ -305,12 +309,12 @@ def remove_sgroups():
         if sgs:
             for sg in sgs:
                 ec2_client.delete_security_group(GroupId=sg.id)
-                print("The security group {} has been deleted successfully".format(sg.id))
+                print("The AWS security group {} has been deleted successfully".format(sg.id))
         else:
-            print("There are no security groups to delete")
+            print("There are no AWS security groups to delete")
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with removing SG: {}'.format(str(err)))
+        print('Error with removing AWS SG: {}'.format(str(err)))
 
 
 def create_instance():
@@ -335,7 +339,7 @@ def create_instance():
         return ''
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with creating EC2 instance: {}'.format(str(err)))
+        print('Error with creating AWS EC2 instance: {}'.format(str(err)))
 
 
 def tag_intance_volume(instance_id, node_name, instance_tag):
@@ -358,7 +362,7 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
             counter += 1
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with tagging EC2 instance volumes: {}'.format(str(err)))
+        print('Error with tagging AWS EC2 instance volumes: {}'.format(str(err)))
 
 
 def get_instance_attr(instance_id, attribute_name):
@@ -371,7 +375,7 @@ def get_instance_attr(instance_id, attribute_name):
         return ''
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with getting EC2 instance attributes: {}'.format(str(err)))
+        print('Error with getting AWS EC2 instance attributes: {}'.format(str(err)))
 
 
 def get_ami_id(ami_name):
@@ -403,11 +407,11 @@ def get_ami_id(ami_name):
         for i in response:
             image_id = i.get('ImageId')
         if image_id == '':
-            raise Exception("Unable to find image id with name: " + ami_name)
+            raise Exception("Unable to find AWS AMI id with name: " + ami_name)
         return image_id
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with getting AMI ID: {}'.format(str(err)))
+        print('Error with getting AWS AMI ID: {}'.format(str(err)))
 
 
 def remove_route_tables():
@@ -421,12 +425,12 @@ def remove_route_tables():
                     ec2_client.disassociate_route_table(AssociationId=association.get('RouteTableAssociationId'))
                     print("Association {} has been removed".format(association.get('RouteTableAssociationId')))
                 ec2_client.delete_route_table(RouteTableId=rtable)
-                print("Route table {} has been removed".format(rtable))
+                print("AWS Route table {} has been removed".format(rtable))
             else:
-                print("There are no route tables to remove")
+                print("There are no AWS route tables to remove")
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with removing Route Tables: {}'.format(str(err)))
+        print('Error with removing AWS Route Tables: {}'.format(str(err)))
 
 
 def remove_ec2():
@@ -458,12 +462,12 @@ def remove_internet_gateways(vpc_id, tag_value):
         for i in response:
             ig_id = i.get('InternetGatewayId')
         ec2_client.detach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
-        print("Internet gateway {0} has been detached from VPC {1}".format(ig_id, vpc_id))
+        print("AWS Internet gateway {0} has been detached from VPC {1}".format(ig_id, vpc_id))
         ec2_client.delete_internet_gateway(InternetGatewayId=ig_id)
-        print("Internet gateway {} has been deleted successfully".format(ig_id))
+        print("AWS Internet gateway {} has been deleted successfully".format(ig_id))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with removing Internet gateways: {}'.format(str(err)))
+        print('Error with removing AWS Internet gateways: {}'.format(str(err)))
 
 
 def enable_auto_assign_ip(subnet_id):
@@ -531,6 +535,7 @@ def allocate_elastic_ip():
         allocation_id = ec2_client.allocate_address(Domain='vpc').get('AllocationId')
         create_tag(allocation_id, tag)
         create_tag(allocation_id, name_tag)
+        print('AWS Elastic IP address has been allocated')
         return allocation_id
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
@@ -541,6 +546,7 @@ def release_elastic_ip():
     try:
         allocation_id = elastic_ip_exist(True)
         ec2_client.release_address(AllocationId=allocation_id)
+        print("AWS Elastic IP address has been released.")
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with removing AWS Elastic IP: {}'.format(str(err)))
@@ -549,6 +555,7 @@ def release_elastic_ip():
 def associate_elastic_ip(instance_id, allocation_id):
     try:
         allocation_id = ec2_client.associate_address(InstanceId=instance_id, AllocationId=allocation_id).get('AssociationId')
+        print("AWS Elastic IP address has been associated.")
         return allocation_id
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
@@ -558,6 +565,7 @@ def associate_elastic_ip(instance_id, allocation_id):
 def disassociate_elastic_ip(association_id):
     try:
         ec2_client.disassociate_address(AssociationId=association_id)
+        print("AWS Elastic IP address has been disassociated.")
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with disassociating AWS Elastic IP: {}'.format(str(err)))
@@ -582,21 +590,95 @@ def elastic_ip_exist(return_id=False, return_parameter='AllocationId'):
         print('Error with getting AWS Elastic IP: {}'.format(str(err)))
 
 
+def create_route_53_record(hosted_zone_id, hosted_zone_name, subdomain, ip_address):
+    try:
+        route53_client.change_resource_record_sets(
+            HostedZoneId=hosted_zone_id,
+            ChangeBatch={
+                'Changes': [
+                    {
+                        'Action': 'CREATE',
+                        'ResourceRecordSet': {
+                            'Name': "{}.{}".format(subdomain, hosted_zone_name),
+                            'Type': 'A',
+                            'TTL': 300,
+                            'ResourceRecords': [
+                                {
+                                    'Value': ip_address
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with creating AWS Route53 record: {}'.format(str(err)))
+
+
+def remove_route_53_record(hosted_zone_id, hosted_zone_name, subdomain):
+    try:
+        for record_set in route53_client.list_resource_record_sets(
+                HostedZoneId=hosted_zone_id).get('ResourceRecordSets'):
+            if record_set['Name'] == "{}.{}.".format(subdomain, hosted_zone_name):
+                for record in record_set['ResourceRecords']:
+                    route53_client.change_resource_record_sets(
+                        HostedZoneId=hosted_zone_id,
+                        ChangeBatch={
+                            'Changes': [
+                                {
+                                    'Action': 'DELETE',
+                                    'ResourceRecordSet': {
+                                        'Name': record_set['Name'],
+                                        'Type': 'A',
+                                        'TTL': 300,
+                                        'ResourceRecords': [
+                                            {
+                                                'Value': record['Value']
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    )
+        print("AWS Route53 record has been removed.")
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with removing AWS Route53 record: {}'.format(str(err)))
+
+
+def get_instance_ip_address_by_id(instance_id, ip_address_type):
+    try:
+        instances = ec2_resource.instances.filter(
+            Filters=[{'Name': 'instance-id', 'Values': [instance_id]},
+                     {'Name': 'instance-state-name', 'Values': ['running']}])
+        for instance in instances:
+            return getattr(instance, ip_address_type)
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with getting AWS EC2 instance IP address: {}'.format(str(err)))
+
+
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
+    route53_client = boto3.client('route53')
     tag_name = args.service_base_name + '-Tag'
     pre_defined_vpc = False
     pre_defined_subnet = False
     pre_defined_sg = False
     if args.action == 'terminate':
+        if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+            remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
         if elastic_ip_exist():
             try:
                 association_id = elastic_ip_exist(True, 'AssociationId')
                 disassociate_elastic_ip(association_id)
             except:
-                print("Elastic IP address isn't associated with instance or there is an error with disassociating it")
-                pass
+                print("AWS Elastic IP address isn't associated with instance or there is an error "
+                      "with disassociating it")
             release_elastic_ip()
         if ec2_exist():
             remove_ec2()
@@ -612,7 +694,7 @@ if __name__ == "__main__":
     elif args.action == 'create':
         if not args.vpc_id and not vpc_exist():
             try:
-                print('Creating AWS VPC')
+                print('[CREATING AWS VPC]')
                 args.vpc_id = create_vpc(args.vpc_cidr)
                 enable_vpc_dns(args.vpc_id)
                 rt_id = create_rt(args.vpc_id)
@@ -627,11 +709,11 @@ if __name__ == "__main__":
         print('AWS VPC ID: {}'.format(args.vpc_id))
         if not args.subnet_id and not subnet_exist():
             try:
-                print('Creating AWS subnet')
+                print('[CREATING AWS SUBNET]')
                 args.subnet_id = create_subnet(args.vpc_id, args.subnet_cidr)
                 if args.network_type == 'public':
                     enable_auto_assign_ip(args.subnet_id)
-                print("Associating route_table with the subnet")
+                print("[ASSOCIATING ROUTE TABLE WITH THE SUBNET]")
                 rt = get_route_table_by_tag(args.service_base_name)
                 route_table = ec2_resource.RouteTable(rt)
                 route_table.associate_with_subnet(SubnetId=args.subnet_id)
@@ -640,8 +722,7 @@ if __name__ == "__main__":
                 try:
                     remove_subnet()
                 except:
-                    print("Subnet hasn't been created or there is an error with removing it")
-                    pass
+                    print("AWS Subnet hasn't been created or there is an error with removing it")
                 if pre_defined_vpc:
                     remove_internet_gateways(args.vpc_id, args.service_base_name)
                     remove_route_tables()
@@ -652,14 +733,14 @@ if __name__ == "__main__":
         print('AWS Subnet ID: {}'.format(args.subnet_id))
         if not args.sg_id and not sg_exist():
             try:
-                print('Creating AWS Security Group')
+                print('[CREATING AWS SECURITY GROUP]')
                 args.sg_id = create_security_group(args.service_base_name + '-sg', args.vpc_id)
                 pre_defined_sg = True
             except:
                 try:
                     remove_sgroups()
                 except:
-                    print("Security Group hasn't been created or there is an error with removing it")
+                    print("AWS Security Group hasn't been created or there is an error with removing it")
                     pass
                 if pre_defined_subnet:
                     remove_subnet()
@@ -674,14 +755,13 @@ if __name__ == "__main__":
 
         if not ec2_exist():
             try:
-                print('Creating AWS EC2 instance')
+                print('[CREATING AWS EC2 INSTANCE]')
                 ec2_id = create_instance()
             except:
                 try:
                     remove_ec2()
                 except:
-                    print("EC2 instance hasn't been created or there is an error with removing it")
-                    pass
+                    print("AWS EC2 instance hasn't been created or there is an error with removing it")
                 if pre_defined_sg:
                     remove_sgroups()
                 if pre_defined_subnet:
@@ -697,14 +777,13 @@ if __name__ == "__main__":
         if args.network_type == 'public':
             if not elastic_ip_exist():
                 try:
-                    print('Allocating Elastic IP address')
+                    print('[ALLOCATING AWS ELASTIC IP ADDRESS]')
                     allocate_elastic_ip()
                 except:
                     try:
                         release_elastic_ip()
                     except:
-                        print("Elastic IP address hasn't been created or there is an error with removing it")
-                        pass
+                        print("AWS Elastic IP address hasn't been created or there is an error with removing it")
                     remove_ec2()
                     if pre_defined_sg:
                         remove_sgroups()
@@ -716,7 +795,7 @@ if __name__ == "__main__":
                         remove_vpc(args.vpc_id)
                     sys.exit(1)
             try:
-                print('Associating Elastic IP address to EC2 instance')
+                print('[ASSOCIATING AWS ELASTIC IP ADDRESS TO EC2 INSTANCE]')
                 allocation_id = elastic_ip_exist(True)
                 associate_elastic_ip(ec2_id, allocation_id)
             except:
@@ -724,8 +803,7 @@ if __name__ == "__main__":
                     association_id = elastic_ip_exist(True, 'AssociationId')
                     disassociate_elastic_ip(association_id)
                 except:
-                    print("Elastic IP address hasn't been associated or there is an error with disassociating it")
-                    pass
+                    print("AWS Elastic IP address hasn't been associated or there is an error with disassociating it")
                 release_elastic_ip()
                 remove_ec2()
                 if pre_defined_sg:
@@ -737,5 +815,44 @@ if __name__ == "__main__":
                     remove_route_tables()
                     remove_vpc(args.vpc_id)
                 sys.exit(1)
+
+        if args.network_type == 'public':
+            ec2_ip_address = get_instance_ip_address_by_id(ec2_id, 'public_ip_address')
+        else:
+            ec2_ip_address = get_instance_ip_address_by_id(ec2_id, 'private_ip_address')
+
+        if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+            try:
+                print('[CREATING AWS ROUTE53 RECORD]')
+                create_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain, ec2_ip_address)
+            except:
+                try:
+                    remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
+                except:
+                    print("AWS Route53 record hasn't been created or there is an error with removing it")
+                if args.network_type == 'public':
+                    association_id = elastic_ip_exist(True, 'AssociationId')
+                    disassociate_elastic_ip(association_id)
+                    release_elastic_ip()
+                remove_ec2()
+                if pre_defined_sg:
+                    remove_sgroups()
+                if pre_defined_subnet:
+                    remove_subnet()
+                if pre_defined_vpc:
+                    remove_internet_gateways(args.vpc_id, args.service_base_name)
+                    remove_route_tables()
+                    remove_vpc(args.vpc_id)
+                sys.exit(1)
+
+        print('[SUMMARY]')
+        print("AWS VPC ID: {0}".format(args.vpc_id))
+        print("AWS Subnet ID: {0}".format(args.subnet_id))
+        print("AWS Security Group ID: {0}".format(args.sg_id))
+        print("AWS EC2 ID: {0}".format(ec2_id))
+        print("AWS EC2 IP address: {0}".format(ec2_ip_address))
+        if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+            print("DNS name: {0}".format(args.subdomain + '.' + args.hosted_zone_name))
+
     else:
         print('Invalid action: {}'.format(args.action))
