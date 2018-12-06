@@ -64,6 +64,20 @@ public class ApplicationSettingResourceTest extends TestBase {
 	}
 
 	@Test
+	public void removeMaxBudget() {
+		final Response response = resources.getJerseyTest()
+				.target("/settings/budget")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.delete();
+
+		assertEquals(HttpStatus.SC_NO_CONTENT, response.getStatus());
+
+		verify(applicationSettingService).removeMaxBudget();
+		verifyNoMoreInteractions(applicationSettingService);
+	}
+
+	@Test
 	public void getSettings() {
 
 		when(applicationSettingService.getSettings()).thenReturn(Collections.singletonMap("key", "value"));

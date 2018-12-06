@@ -96,10 +96,15 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
     return this.healthStatusService.getActiveUsers();
   }
 
+  getTotalBudgetData() {
+    return this.healthStatusService.getTotalBudgetData();
+  }
+
   openManageEnvironmentDialog() {
-    this.getActiveUsersList().subscribe(
-      usersList => this.manageEnvironmentDialog.open({ isFooter: false }, usersList),
-      () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
+    this.getActiveUsersList().subscribe(usersList => {
+      this.getTotalBudgetData().subscribe(total => this.manageEnvironmentDialog.open({ isFooter: false }, usersList, total));
+    },
+    () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
   }
 
   openSsnMonitorDialog() {
@@ -137,7 +142,11 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
 
   setBudgetLimits($event) {
     this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
-      result.status === HTTP_STATUS_CODES.OK && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
+      this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
+        result.status === HTTP_STATUS_CODES.OK
+        && res.status === HTTP_STATUS_CODES.NO_CONTENT
+        && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
+      });
     }, error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
 

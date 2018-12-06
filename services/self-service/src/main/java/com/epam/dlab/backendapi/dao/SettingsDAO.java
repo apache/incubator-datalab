@@ -171,6 +171,10 @@ public class SettingsDAO extends BaseDAO {
 		setSetting(CONF_MAX_BUDGET, budget.toString());
 	}
 
+	public void removeSetting(MongoSetting setting) {
+		getCollection(SETTINGS).deleteOne(eq(ID, setting.getId()));
+	}
+
 	public Map<String, Object> getSettings() {
 		return stream(getCollection(SETTINGS).find())
 				.collect(Collectors.toMap(d -> d.getString(ID), d -> d.get(VALUE)));

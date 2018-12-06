@@ -26,6 +26,7 @@ import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.constraints.Min;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -49,8 +50,18 @@ public class ApplicationSettingResource {
 	@ApiOperation("Updates max budget allowed application setting")
 	@ApiResponses(@ApiResponse(code = 204, message = "Setting is updated"))
 	public Response setMaxBudget(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-								 @ApiParam @PathParam("maxBudgetAllowed") Long maxBudget) {
+								 @ApiParam @PathParam("maxBudgetAllowed") @Min(1) Long maxBudget) {
 		settingService.setMaxBudget(maxBudget);
+		return Response.noContent().build();
+	}
+
+	@DELETE
+	@Path("budget")
+	@ApiOperation("Removes max budget allowed application setting")
+	@ApiResponses(@ApiResponse(code = 204, message = "Setting is removed"))
+	public Response removeAllowedBudget(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+		log.debug("User {} is removing max budget application setting", userInfo.getName());
+		settingService.removeMaxBudget();
 		return Response.noContent().build();
 	}
 

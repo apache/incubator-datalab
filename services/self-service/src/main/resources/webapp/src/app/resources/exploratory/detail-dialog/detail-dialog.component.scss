@@ -19,6 +19,17 @@ limitations under the License.
 .scroll-box {
   max-height: 65vh;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.links_block {
+  > p {
+    display: flex;
+    .description {
+      white-space: nowrap;
+      padding-right: 5px;
+    }
+  }
 }
 
 .checkbox-group {
@@ -38,26 +49,19 @@ limitations under the License.
   }
 }
 .config-details {
-  height: 0;
-  opacity: 0;
-  visibility: hidden;
   text-align: left;
   transition: all .35s linear .2s;
   position: relative;
-  &.show {
-    height: 200px;
-    visibility: visible;
-    opacity: 1;
-    textarea {
-      height: 100%;
-      resize: none;
-    }
-    span {
-      .danger_color {
-        position: absolute;
-        bottom: -16px;
-        right: 0;
-      }
+  height: 320px;
+  textarea {
+    height: 100%;
+    resize: none;
+  }
+  span {
+    .danger_color {
+      position: absolute;
+      bottom: -16px;
+      right: 0;
     }
   }
 }

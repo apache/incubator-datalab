@@ -20,6 +20,8 @@ import java.util.Map;
 
 public interface ApplicationSettingService {
 
+	void removeMaxBudget();
+
 	void setMaxBudget(Long maxBudget);
 
 	Map<String, Object> getSettings();
