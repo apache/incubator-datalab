@@ -40,6 +40,7 @@ parser.add_argument('--allowed_ip_cidr', type=str, default='', help='Comma-separ
 parser.add_argument('--key_name', type=str, default='', help='Key name (WITHOUT ".pem")')
 parser.add_argument('--instance_type', type=str, default='t2.medium', help='Instance shape')
 parser.add_argument('--region', required=True, type=str, default='', help='AWS region name')
+parser.add_argument('--elastic_ip', type=str, default='', help='Elastic IP address')
 parser.add_argument('--network_type', type=str, default='public', help='Network type: public or private')
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
@@ -430,32 +431,12 @@ def remove_route_tables():
 
 def remove_ec2():
     try:
-        association_id = ''
-        allocation_id = ''
         inst = ec2_resource.instances.filter(
             Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']},
                      {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(args.service_base_name)]}])
         instances = list(inst)
         if instances:
             for instance in instances:
-                # try:
-                #     response = ec2_client.describe_instances(InstanceIds=[instance.id])
-                #     for i in response.get('Reservations'):
-                #         for h in i.get('Instances'):
-                #             elastic_ip = h.get('PublicIpAddress')
-                #             try:
-                #                 response = ec2_client.describe_addresses(PublicIps=[elastic_ip]).get('Addresses')
-                #                 for el_ip in response:
-                #                     allocation_id = el_ip.get('AllocationId')
-                #                     association_id = el_ip.get('AssociationId')
-                #                     # disassociate_elastic_ip(association_id)
-                #                     # release_elastic_ip(allocation_id)
-                #                     print("Releasing Elastic IP: {}".format(elastic_ip))
-                #             except:
-                #                 print("There is no such Elastic IP: {}".format(elastic_ip))
-                # except Exception as err:
-                #     print(err)
-                #     print("There is no Elastic IP to disassociate from instance: {}".format(instance.id))
                 ec2_client.terminate_instances(InstanceIds=[instance.id])
                 waiter = ec2_client.get_waiter('instance_terminated')
                 waiter.wait(InstanceIds=[instance.id])
@@ -543,6 +524,64 @@ def ec2_exist(return_id=False):
         print('Error with getting AWS EC2 instance: {}'.format(str(err)))
 
 
+def allocate_elastic_ip():
+    try:
+        tag = {"Key": tag_name, "Value": "{}".format(args.service_base_name)}
+        name_tag = {"Key": "Name", "Value": "{}-eip".format(args.service_base_name)}
+        allocation_id = ec2_client.allocate_address(Domain='vpc').get('AllocationId')
+        create_tag(allocation_id, tag)
+        create_tag(allocation_id, name_tag)
+        return allocation_id
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with creating AWS Elastic IP: {}'.format(str(err)))
+
+
+def release_elastic_ip():
+    try:
+        allocation_id = elastic_ip_exist(True)
+        ec2_client.release_address(AllocationId=allocation_id)
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with removing AWS Elastic IP: {}'.format(str(err)))
+
+
+def associate_elastic_ip(instance_id, allocation_id):
+    try:
+        allocation_id = ec2_client.associate_address(InstanceId=instance_id, AllocationId=allocation_id).get('AssociationId')
+        return allocation_id
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with associating AWS Elastic IP: {}'.format(str(err)))
+
+
+def disassociate_elastic_ip(association_id):
+    try:
+        ec2_client.disassociate_address(AssociationId=association_id)
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with disassociating AWS Elastic IP: {}'.format(str(err)))
+
+
+def elastic_ip_exist(return_id=False, return_parameter='AllocationId'):
+    try:
+        elastic_ip_created = False
+        elastic_ips = ec2_client.describe_addresses(
+            Filters=[
+                {'Name': 'tag-key', 'Values': [tag_name]},
+                {'Name': 'tag-value', 'Values': [args.service_base_name]}
+            ]
+        ).get('Addresses')
+        for elastic_ip in elastic_ips:
+            if return_id:
+                return elastic_ip.get(return_parameter)
+            elastic_ip_created = True
+        return elastic_ip_created
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with getting AWS Elastic IP: {}'.format(str(err)))
+
+
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
@@ -551,6 +590,14 @@ if __name__ == "__main__":
     pre_defined_subnet = False
     pre_defined_sg = False
     if args.action == 'terminate':
+        if elastic_ip_exist():
+            try:
+                association_id = elastic_ip_exist(True, 'AssociationId')
+                disassociate_elastic_ip(association_id)
+            except:
+                print("Elastic IP address isn't associated with instance or there is an error with disassociating it")
+                pass
+            release_elastic_ip()
         if ec2_exist():
             remove_ec2()
         if sg_exist():
@@ -593,6 +640,7 @@ if __name__ == "__main__":
                 try:
                     remove_subnet()
                 except:
+                    print("Subnet hasn't been created or there is an error with removing it")
                     pass
                 if pre_defined_vpc:
                     remove_internet_gateways(args.vpc_id, args.service_base_name)
@@ -611,6 +659,7 @@ if __name__ == "__main__":
                 try:
                     remove_sgroups()
                 except:
+                    print("Security Group hasn't been created or there is an error with removing it")
                     pass
                 if pre_defined_subnet:
                     remove_subnet()
@@ -626,11 +675,12 @@ if __name__ == "__main__":
         if not ec2_exist():
             try:
                 print('Creating AWS EC2 instance')
-                create_instance()
+                ec2_id = create_instance()
             except:
                 try:
                     remove_ec2()
                 except:
+                    print("EC2 instance hasn't been created or there is an error with removing it")
                     pass
                 if pre_defined_sg:
                     remove_sgroups()
@@ -644,5 +694,48 @@ if __name__ == "__main__":
         else:
             ec2_id = ec2_exist(True)
 
+        if args.network_type == 'public':
+            if not elastic_ip_exist():
+                try:
+                    print('Allocating Elastic IP address')
+                    allocate_elastic_ip()
+                except:
+                    try:
+                        release_elastic_ip()
+                    except:
+                        print("Elastic IP address hasn't been created or there is an error with removing it")
+                        pass
+                    remove_ec2()
+                    if pre_defined_sg:
+                        remove_sgroups()
+                    if pre_defined_subnet:
+                        remove_subnet()
+                    if pre_defined_vpc:
+                        remove_internet_gateways(args.vpc_id, args.service_base_name)
+                        remove_route_tables()
+                        remove_vpc(args.vpc_id)
+                    sys.exit(1)
+            try:
+                print('Associating Elastic IP address to EC2 instance')
+                allocation_id = elastic_ip_exist(True)
+                associate_elastic_ip(ec2_id, allocation_id)
+            except:
+                try:
+                    association_id = elastic_ip_exist(True, 'AssociationId')
+                    disassociate_elastic_ip(association_id)
+                except:
+                    print("Elastic IP address hasn't been associated or there is an error with disassociating it")
+                    pass
+                release_elastic_ip()
+                remove_ec2()
+                if pre_defined_sg:
+                    remove_sgroups()
+                if pre_defined_subnet:
+                    remove_subnet()
+                if pre_defined_vpc:
+                    remove_internet_gateways(args.vpc_id, args.service_base_name)
+                    remove_route_tables()
+                    remove_vpc(args.vpc_id)
+                sys.exit(1)
     else:
         print('Invalid action: {}'.format(args.action))
