@@ -25,7 +25,8 @@ import json
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--service_base_name', type=str, default='', help='unique name for repository environment')
+parser.add_argument('--service_base_name', required=True, type=str, default='',
+                    help='unique name for repository environment')
 parser.add_argument('--vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--vpc_cidr', type=str, default='172.31.0.0/16', help='Cidr of VPC')
 parser.add_argument('--subnet_id', type=str, default='', help='AWS Subnet ID')
@@ -38,8 +39,9 @@ parser.add_argument('--allowed_ip_cidr', type=str, default='', help='Comma-separ
                                                                     'access to the instance')
 parser.add_argument('--key_name', type=str, default='', help='Key name (WITHOUT ".pem")')
 parser.add_argument('--instance_type', type=str, default='t2.medium', help='Instance shape')
-parser.add_argument('--region', type=str, default='', help='AWS region name')
+parser.add_argument('--region', required=True, type=str, default='', help='AWS region name')
 parser.add_argument('--network_type', type=str, default='public', help='Network type: public or private')
+parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
 
 
@@ -169,10 +171,10 @@ def create_subnet(vpc_id, subnet_cidr):
         print('Error with creating AWS Subnet: {}'.format(str(err)))
 
 
-def remove_subnet(tag_value):
+def remove_subnet():
     try:
         subnets = ec2_resource.subnets.filter(
-            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
+            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [args.service_base_name]}])
         if subnets:
             for subnet in subnets:
                 ec2_client.delete_subnet(SubnetId=subnet.id)
@@ -494,11 +496,14 @@ def enable_auto_assign_ip(subnet_id):
 def subnet_exist(return_id=False):
     try:
         subnet_created = False
-        for subnet in ec2_resource.subnets.filter(Filters=[
-            {'Name': 'tag-key', 'Values': [tag_name]},
-            {'Name': 'tag-value', 'Values': [args.service_base_name]},
-            {'Name': 'vpc-id', 'Values': [args.vpc_id]}
-        ]):
+        if args.vpc_id:
+            filters = [{'Name': 'tag-key', 'Values': [tag_name]},
+                       {'Name': 'tag-value', 'Values': [args.service_base_name]},
+                       {'Name': 'vpc-id', 'Values': [args.vpc_id]}]
+        else:
+            filters = [{'Name': 'tag-key', 'Values': [tag_name]},
+                       {'Name': 'tag-value', 'Values': [args.service_base_name]}]
+        for subnet in ec2_resource.subnets.filter(Filters=filters):
             if return_id:
                 return subnet.id
             subnet_created = True
@@ -545,83 +550,99 @@ if __name__ == "__main__":
     pre_defined_vpc = False
     pre_defined_subnet = False
     pre_defined_sg = False
-    if not args.vpc_id and not vpc_exist():
-        try:
-            print('Creating AWS VPC')
-            args.vpc_id = create_vpc(args.vpc_cidr)
-            enable_vpc_dns(args.vpc_id)
-            rt_id = create_rt(args.vpc_id)
-            pre_defined_vpc = True
-        except:
+    if args.action == 'terminate':
+        if ec2_exist():
+            remove_ec2()
+        if sg_exist():
+            remove_sgroups()
+        if subnet_exist():
+            remove_subnet()
+        if vpc_exist():
+            args.vpc_id = vpc_exist(True)
             remove_internet_gateways(args.vpc_id, args.service_base_name)
             remove_route_tables()
             remove_vpc(args.vpc_id)
-            sys.exit(1)
-    elif not args.vpc_id and vpc_exist():
-        args.vpc_id = vpc_exist(True)
-    print('AWS VPC ID: {}'.format(args.vpc_id))
-    if not args.subnet_id and not subnet_exist():
-        try:
-            print('Creating AWS subnet')
-            args.subnet_id = create_subnet(args.vpc_id, args.subnet_cidr)
-            if args.network_type == 'public':
-                enable_auto_assign_ip(args.subnet_id)
-            print("Associating route_table with the subnet")
-            rt = get_route_table_by_tag(args.service_base_name)
-            route_table = ec2_resource.RouteTable(rt)
-            route_table.associate_with_subnet(SubnetId=args.subnet_id)
-            pre_defined_subnet = True
-        except:
+    elif args.action == 'create':
+        if not args.vpc_id and not vpc_exist():
             try:
-                remove_subnet(args.service_base_name + "-subnet")
+                print('Creating AWS VPC')
+                args.vpc_id = create_vpc(args.vpc_cidr)
+                enable_vpc_dns(args.vpc_id)
+                rt_id = create_rt(args.vpc_id)
+                pre_defined_vpc = True
             except:
-                pass
-            if pre_defined_vpc:
                 remove_internet_gateways(args.vpc_id, args.service_base_name)
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
-            sys.exit(1)
-    if not args.subnet_id and subnet_exist():
-        args.subnet_id = subnet_exist(True)
-    print('AWS Subnet ID: {}'.format(args.subnet_id))
-    if not args.sg_id and not sg_exist():
-        try:
-            print('Creating AWS Security Group')
-            args.sg_id = create_security_group(args.service_base_name + '-sg', args.vpc_id)
-            pre_defined_sg = True
-        except:
+                sys.exit(1)
+        elif not args.vpc_id and vpc_exist():
+            args.vpc_id = vpc_exist(True)
+        print('AWS VPC ID: {}'.format(args.vpc_id))
+        if not args.subnet_id and not subnet_exist():
             try:
-                remove_sgroups()
+                print('Creating AWS subnet')
+                args.subnet_id = create_subnet(args.vpc_id, args.subnet_cidr)
+                if args.network_type == 'public':
+                    enable_auto_assign_ip(args.subnet_id)
+                print("Associating route_table with the subnet")
+                rt = get_route_table_by_tag(args.service_base_name)
+                route_table = ec2_resource.RouteTable(rt)
+                route_table.associate_with_subnet(SubnetId=args.subnet_id)
+                pre_defined_subnet = True
             except:
-                pass
-            if pre_defined_subnet:
-                remove_subnet(args.service_base_name + "-subnet")
-            if pre_defined_vpc:
-                remove_internet_gateways(args.vpc_id, args.service_base_name)
-                remove_route_tables()
-                remove_vpc(args.vpc_id)
-            sys.exit(1)
-    if not args.sg_id and sg_exist():
-        args.sg_id = sg_exist(True)
-    print('AWS Security Group ID: {}'.format(args.sg_id))
+                try:
+                    remove_subnet()
+                except:
+                    pass
+                if pre_defined_vpc:
+                    remove_internet_gateways(args.vpc_id, args.service_base_name)
+                    remove_route_tables()
+                    remove_vpc(args.vpc_id)
+                sys.exit(1)
+        if not args.subnet_id and subnet_exist():
+            args.subnet_id = subnet_exist(True)
+        print('AWS Subnet ID: {}'.format(args.subnet_id))
+        if not args.sg_id and not sg_exist():
+            try:
+                print('Creating AWS Security Group')
+                args.sg_id = create_security_group(args.service_base_name + '-sg', args.vpc_id)
+                pre_defined_sg = True
+            except:
+                try:
+                    remove_sgroups()
+                except:
+                    pass
+                if pre_defined_subnet:
+                    remove_subnet()
+                if pre_defined_vpc:
+                    remove_internet_gateways(args.vpc_id, args.service_base_name)
+                    remove_route_tables()
+                    remove_vpc(args.vpc_id)
+                sys.exit(1)
+        if not args.sg_id and sg_exist():
+            args.sg_id = sg_exist(True)
+        print('AWS Security Group ID: {}'.format(args.sg_id))
 
-    if not ec2_exist():
-        try:
-            print('Creating AWS EC2 instance')
-            create_instance()
-        except:
+        if not ec2_exist():
             try:
-                remove_ec2()
+                print('Creating AWS EC2 instance')
+                create_instance()
             except:
-                pass
-            if pre_defined_sg:
-                remove_sgroups()
-            if pre_defined_subnet:
-                remove_subnet(args.service_base_name + "-subnet")
-            if pre_defined_vpc:
-                remove_internet_gateways(args.vpc_id, args.service_base_name)
-                remove_route_tables()
-                remove_vpc(args.vpc_id)
-            sys.exit(1)
+                try:
+                    remove_ec2()
+                except:
+                    pass
+                if pre_defined_sg:
+                    remove_sgroups()
+                if pre_defined_subnet:
+                    remove_subnet()
+                if pre_defined_vpc:
+                    remove_internet_gateways(args.vpc_id, args.service_base_name)
+                    remove_route_tables()
+                    remove_vpc(args.vpc_id)
+                sys.exit(1)
+        else:
+            ec2_id = ec2_exist(True)
+
     else:
-        ec2_id = ec2_exist(True)
+        print('Invalid action: {}'.format(args.action))
