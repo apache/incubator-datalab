@@ -1474,6 +1474,13 @@ def ensure_local_jars(os_user, jars_dir):
 
 def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        # Checking if spark.jars parameter was generated previously
+        spark_jars_paths = None
+        if exists('/opt/spark/conf/spark-defaults.conf'):
+            try:
+                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+            except:
+                spark_jars_paths = None
         region = sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone')[:-1]
         if region == 'us-east-1':
             endpoint_url = 'https://s3.amazonaws.com'
@@ -1515,6 +1522,8 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
             sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+            if spark_jars_paths:
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)

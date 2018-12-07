@@ -1223,6 +1223,13 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
 
 def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        # Checking if spark.jars parameter was generated previously
+        spark_jars_paths = None
+        if exists('/opt/spark/conf/spark-defaults.conf'):
+            try:
+                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+            except:
+                spark_jars_paths = None
         put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         if os.environ['application'] == 'zeppelin':
             sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
@@ -1252,6 +1259,8 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
             sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+            if spark_jars_paths:
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
