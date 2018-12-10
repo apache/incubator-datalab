@@ -110,6 +110,13 @@
             ],
             "Effect": "Allow",
             "Resource": "*"
+        },
+        {
+            "Action": [
+                "pricing:GetProducts"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
         }
     ]
 }

@@ -69,9 +69,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private UserSettingsDAO settingsDAO;
 
 	@Override
-	public List<UserDTO> getActiveUsers() {
-		log.debug("Getting users that have at least 1 running instance");
-		return envDAO.fetchActiveEnvUsers()
+	public List<UserDTO> getUsers() {
+		return getAllUsers()
 				.stream()
 				.map(u -> new UserDTO(u, settingsDAO.getAllowedBudget(u).orElse(null)))
 				.collect(toList());

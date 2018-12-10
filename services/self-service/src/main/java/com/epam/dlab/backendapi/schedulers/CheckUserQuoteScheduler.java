@@ -19,6 +19,7 @@
 package com.epam.dlab.backendapi.schedulers;
 
 import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.google.inject.Inject;
@@ -26,9 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
-@Scheduled("checkQuoteScheduler")
+@Scheduled("checkUserQuoteScheduler")
 @Slf4j
-public class CheckQuoteScheduler implements Job {
+public class CheckUserQuoteScheduler implements Job {
+
 	@Inject
 	private BillingDAO billingDAO;
 	@Inject
@@ -36,9 +38,11 @@ public class CheckQuoteScheduler implements Job {
 
 	@Override
 	public void execute(JobExecutionContext context) {
-		if (billingDAO.isBillingQuoteReached()) {
-			log.warn("Stopping all environments because of reaching budget quote");
-			environmentService.stopAll();
-		}
+		environmentService.getUsers()
+				.stream()
+				.map(UserDTO::getName)
+				.filter(billingDAO::isUserQuoteReached)
+				.peek(u -> log.warn("Stopping {} user env because of reaching user billing quote", u))
+				.forEach(environmentService::stopEnvironment);
 	}
 }

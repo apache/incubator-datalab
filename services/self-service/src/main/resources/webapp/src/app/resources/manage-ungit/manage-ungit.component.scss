@@ -16,14 +16,22 @@ limitations under the License.
 
 ****************************************************************************/
 
-.modal-dialog .manage-ungit .modal-body {
-  padding: 0 20px;
-}
-
 .manage-ungit {
+  .content-box {
+    height: 440px;
+    padding: 25px 35px;
+  }
   .scrollingList {
     overflow-x: hidden;
     padding: 5px;
+    &.info {
+      display: flex;
+      justify-content: center;
+      height: 300px;
+      p {
+        align-self: center;
+      }
+    }
   }
   .mail-field,
   .user-field,
@@ -64,7 +72,8 @@ limitations under the License.
     .control-group {
       width: 100%;
       font-family: 'Open Sans', sans-serif;
-      padding: 10px 0;
+      padding: 10px 0 25px;
+      position: relative;
       input[type='text'],
       input[type='password'],
       input[type='email'] {
@@ -76,6 +85,11 @@ limitations under the License.
       }
       .control {
         width: 70%;
+      }
+      .danger_color {
+        position: absolute;
+        top: 45px;
+        padding: 0;
       }
     }
     .col {

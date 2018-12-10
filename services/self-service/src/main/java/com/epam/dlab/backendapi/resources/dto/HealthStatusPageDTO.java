@@ -36,6 +36,8 @@ public class HealthStatusPageDTO {
 	private boolean admin;
 	@JsonProperty
 	private int billingQuoteUsed;
+	@JsonProperty
+	private int billingUserQuoteUsed;
 
 	/**
 	 * Return the status of environment.
@@ -129,6 +131,11 @@ public class HealthStatusPageDTO {
 		return this;
 	}
 
+	public HealthStatusPageDTO withBillingUserQuoteUsed(int billingUserQuoteUsed) {
+		this.billingUserQuoteUsed = billingUserQuoteUsed;
+		return this;
+	}
+
 	public boolean isBillingEnabled() {
 		return billingEnabled;
 	}
@@ -139,5 +146,9 @@ public class HealthStatusPageDTO {
 
 	public int getBillingQuoteUsed() {
 		return billingQuoteUsed;
+	}
+
+	public int getBillingUserQuoteUsed() {
+		return billingUserQuoteUsed;
 	}
 }

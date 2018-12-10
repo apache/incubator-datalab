@@ -34,6 +34,7 @@ import { BackupService } from './services/backup.service';
 import { SchedulerService } from './services/scheduler.service';
 import { ManageEnvironmentsService } from './services/managementEnvironments.service';
 import { RolesGroupsService } from './services/rolesManagement.service';
+import { DataengineConfigurationService } from './services/dataengineConfiguration.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -63,7 +64,8 @@ export class CoreModule {
         SchedulerService,
         ManageEnvironmentsService,
         RolesGroupsService,
-        ApplicationServiceFacade
+        ApplicationServiceFacade,
+        DataengineConfigurationService
       ]
     };
   }

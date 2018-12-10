@@ -34,6 +34,9 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 export class ApplicationSecurityService {
   private accessTokenKey: string = 'access_token';
   private userNameKey: string = 'user_name';
+  private quoteUsedKey: string = 'billing_quote';
+  private _loggedInStatus = new BehaviorSubject<boolean>(null);
+
   readonly DICTIONARY = DICTIONARY;
 
   emitter: BehaviorSubject<any> = new BehaviorSubject<any>('');
@@ -42,7 +45,11 @@ export class ApplicationSecurityService {
   constructor(
     private serviceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
-  ) { }
+  ) {}
+
+  get loggedInStatus() {
+    return this._loggedInStatus.asObservable();
+  }
 
   public login(loginModel: LoginModel): Observable<boolean | {}> {
     return this.serviceFacade
@@ -56,8 +63,10 @@ export class ApplicationSecurityService {
             this.setAuthToken(response.text());
             this.setUserName(loginModel.username);
           }
+          this._loggedInStatus.next(true);
           return true;
         }
+        this._loggedInStatus.next(false);
         return false;
       }, this);
   }
@@ -70,6 +79,8 @@ export class ApplicationSecurityService {
         .buildLogoutRequest()
         .map(response => {
           this.clearAuthToken();
+          this.setBillingQuoteUsed('');
+          this._loggedInStatus.next(false);
 
           return response.status === HTTP_STATUS_CODES.OK;
         }, this);
@@ -86,6 +97,14 @@ export class ApplicationSecurityService {
     return localStorage.getItem(this.accessTokenKey);
   }
 
+  public getBillingQuoteUsed(): string {
+    return localStorage.getItem(this.quoteUsedKey);
+  }
+
+  public setBillingQuoteUsed(quoteUsedKey): void {
+    localStorage.setItem(this.quoteUsedKey, quoteUsedKey);
+  }
+
   public isLoggedIn(): Observable<boolean> {
     const authToken = this.getAuthToken();
     const currentUser = this.getCurrentUserName();
@@ -94,8 +113,10 @@ export class ApplicationSecurityService {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
         .map(response => {
-          if (response.status === HTTP_STATUS_CODES.OK)
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            this._loggedInStatus.next(true);
             return true;
+          }
 
           this.clearAuthToken();
           this.appRoutingService.redirectToLoginPage();
@@ -112,6 +133,7 @@ export class ApplicationSecurityService {
     }
 
     this.appRoutingService.redirectToLoginPage();
+    this._loggedInStatus.next(false);
     return Observable.of(false);
   }
 
@@ -131,7 +153,7 @@ export class ApplicationSecurityService {
 
         if (response.status !== 200) {
           // this.handleError(response);
-          let errObj = response.json();
+          const errObj = response.json();
           this.emmitMessage(errObj.message);
         }
         return false;
@@ -141,7 +163,7 @@ export class ApplicationSecurityService {
           window.location.href = error.headers.get('Location');
         } else {
           // this.handleError(error);
-          let errObj = error.json();
+          const errObj = error.json();
           this.emmitMessage(errObj.message);
           return Observable.of(false);
         }

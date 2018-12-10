@@ -36,7 +36,7 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
 	@JsonProperty("emr_version")
 	private String version;
 	@JsonProperty("emr_configurations")
-	private List<EmrConfig> config;
+	private List<ClusterConfig> config;
 
 	public String getInstanceCount() {
 		return instanceCount;
@@ -116,15 +116,15 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
 		return this;
 	}
 
-	public List<EmrConfig> getConfig() {
+	public List<ClusterConfig> getConfig() {
 		return config;
 	}
 
-	public void setConfig(List<EmrConfig> config) {
+	public void setConfig(List<ClusterConfig> config) {
 		this.config = config;
 	}
 
-	public ComputationalCreateAws withConfig(List<EmrConfig> config) {
+	public ComputationalCreateAws withConfig(List<ClusterConfig> config) {
 		setConfig(config);
 		return this;
 	}

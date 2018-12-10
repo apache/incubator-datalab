@@ -19,15 +19,16 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ModalModule } from '../../../shared';
-import { DetailComputationalResourcesComponent } from './detail-computational-resources.component';
+import { ModalModule } from '..';
+import { NotificationDialogComponent } from './notification-dialog.component';
+import { MaterialModule } from '../../material.module';
 
-export * from './detail-computational-resources.component';
+export * from './notification-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule],
-  declarations: [DetailComputationalResourcesComponent],
-  exports: [DetailComputationalResourcesComponent],
+  imports: [CommonModule, ModalModule, MaterialModule],
+  declarations: [NotificationDialogComponent],
+  entryComponents: [NotificationDialogComponent],
+  exports: [NotificationDialogComponent]
 })
-
-export class DetailComputationalResourcesModule { }
+export class NotificationDialogModule {}

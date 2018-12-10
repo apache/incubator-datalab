@@ -34,8 +34,12 @@ limitations under the License.
     .status {
       width: 30%;
     }
+    .size {
+      width: 15%;
+    }
     .scrolling-content {
       max-height: 200px;
+      overflow-y: auto;
     }
   }
   .empty-list {

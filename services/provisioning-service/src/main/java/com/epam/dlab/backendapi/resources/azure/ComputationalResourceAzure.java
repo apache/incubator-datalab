@@ -19,6 +19,7 @@ package com.epam.dlab.backendapi.resources.azure;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.impl.SparkClusterService;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
+import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
 import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
@@ -77,6 +78,14 @@ public class ComputationalResourceAzure {
 				dto.getComputationalName(), ui.getName(), dto);
 
 		return sparkClusterService.start(ui, dto);
+	}
+
+	@POST
+	@Path(ComputationalAPI.COMPUTATIONAL_RECONFIGURE_SPARK)
+	public String reconfigureSparkCluster(@Auth UserInfo ui, ComputationalClusterConfigDTO config) {
+		log.debug("User is reconfiguring {} spark cluster for exploratory {}", ui.getName(),
+				config.getComputationalName(), config.getNotebookInstanceName());
+		return sparkClusterService.updateConfig(ui, config);
 	}
 
 }

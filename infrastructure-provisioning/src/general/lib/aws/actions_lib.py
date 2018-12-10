@@ -35,6 +35,7 @@ import urllib2
 import meta_lib
 import dlab.fab
 import uuid
+import ast
 
 def backoff_log(err):
     logging.info("Unable to create Tag: " + \
@@ -79,6 +80,7 @@ def create_s3_bucket(bucket_name, tag, region):
         tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
                                                                          bucket_name})
+        tags.append({'Key': os.environ['conf_billing_tag_key'], 'Value': os.environ['conf_billing_tag_value']})
         if 'conf_additional_tags' in os.environ:
             for tag in os.environ['conf_additional_tags'].split(';'):
                 tags.append(
@@ -155,6 +157,12 @@ def create_tag(resource, tag, with_tag_res_id=True):
                 'Value': os.environ['conf_service_base_name'] + ':' + resource_name
             }
         )
+        tags_list.append(
+            {
+                'Key': os.environ['conf_billing_tag_key'],
+                'Value': os.environ['conf_billing_tag_value']
+            }
+        )
     if 'conf_additional_tags' in os.environ:
         for tag in os.environ['conf_additional_tags'].split(';'):
             tags_list.append(
@@ -168,7 +176,22 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
-
+def create_product_tag(resource):
+    print('Tag product for the resource {} will be created'.format(resource))
+    tags_list = list()
+    ec2 = boto3.client('ec2')
+    if type(resource) != list:
+        resource = [resource]
+    tags_list.append(
+        {
+            'Key': os.environ['conf_billing_tag_key'],
+            'Value': os.environ['conf_billing_tag_value']
+        }
+    )
+    ec2.create_tags(
+        Resources=resource,
+        Tags=tags_list
+    )
 
 def remove_emr_tag(emr_id, tag):
     try:
@@ -1202,6 +1225,7 @@ def remove_vpc_endpoints(vpc_id):
 def create_image_from_instance(tag_name='', instance_name='', image_name='', tags=''):
     try:
         ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
         instances = ec2.instances.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                      {'Name': 'instance-state-name', 'Values': ['running']}])
@@ -1214,6 +1238,11 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
             tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+            response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
+            for ebs in response:
+                if ebs.get('Ebs'):
+                    snapshot_id = ebs.get('Ebs').get('SnapshotId')
+                    create_tag(snapshot_id, tag)
             create_tag(image.id, tag)
             if tags:
                 all_tags = json.loads(tags)
@@ -1443,30 +1472,60 @@ def ensure_local_jars(os_user, jars_dir):
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
-    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
-        try:
-            if region == 'us-east-1':
-                endpoint_url = 'https://s3.amazonaws.com'
-            elif region == 'cn-north-1':
-                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
-            else:
-                endpoint_url = 'https://s3-' + region + '.amazonaws.com'
-            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-            sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(endpoint_url))
-            sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
-            if os.environ['application'] == 'zeppelin':
-                sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
-        except:
-            sys.exit(1)
+def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        # Checking if spark.jars parameter was generated previously
+        spark_jars_paths = None
+        if exists('/opt/spark/conf/spark-defaults.conf'):
+            try:
+                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+            except:
+                spark_jars_paths = None
+        region = sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone')[:-1]
+        if region == 'us-east-1':
+            endpoint_url = 'https://s3.amazonaws.com'
+        elif region == 'cn-north-1':
+            endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+        else:
+            endpoint_url = 'https://s3-' + region + '.amazonaws.com'
+        put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(
+            endpoint_url))
+        sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
+             '/tmp/notebook_spark-defaults_local.conf')
+        if os.environ['application'] == 'zeppelin':
+            sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> '
+                                                           '/tmp/notebook_spark-defaults_local.conf')
+        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = dlab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
-    except:
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+                                                                                              spark_memory))
+        if 'spark_configurations' in os.environ:
+            spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+            new_spark_defaults = list()
+            spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
+            current_spark_properties = spark_defaults.split('\n')
+            for param in current_spark_properties:
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
+            new_spark_defaults = set(new_spark_defaults)
+            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            for prop in new_spark_defaults:
+                prop = prop.rstrip()
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+            if spark_jars_paths:
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+    except Exception as err:
+        print('Error:', str(err))
         sys.exit(1)
     
 
@@ -1585,9 +1644,10 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         sys.exit(1)
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
+    region = local('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture=True)[:-1]
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
@@ -1596,7 +1656,27 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, data
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/{}/notebook_spark-defaults_local.conf'""".format(cluster_name))
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/{}/notebook_spark-defaults_local.conf'.format(cluster_name))
-    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
+    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
+    if spark_configs:
+        spark_configurations = ast.literal_eval(spark_configs)
+        new_spark_defaults = list()
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
+        current_spark_properties = spark_defaults.split('\n')
+        for param in current_spark_properties:
+            for config in spark_configurations:
+                if config['Classification'] == 'spark-defaults':
+                    for property in config['Properties']:
+                        if property == param.split(' ')[0]:
+                            param = property + ' ' + config['Properties'][property]
+                        else:
+                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
+            new_spark_defaults.append(param)
+        new_spark_defaults = set(new_spark_defaults)
+        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        for prop in new_spark_defaults:
+            prop = prop.rstrip()
+            local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
+        local('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
 
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
@@ -1681,7 +1761,8 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
             sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
             sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
 
 

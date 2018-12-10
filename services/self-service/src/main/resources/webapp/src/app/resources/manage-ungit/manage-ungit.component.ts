@@ -89,7 +89,6 @@ export class ManageUngitComponent implements OnInit {
 
   public cancelAllModifyings() {
     this.editableForm = false;
-    
     this.getGitCredentials();
     this.resetForm();
   }
@@ -109,7 +108,9 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(ConfirmDeleteAccountDialog, { data: item, width: '550px' });
+    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(
+      ConfirmDeleteAccountDialog,
+      { data: item, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);

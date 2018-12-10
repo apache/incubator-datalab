@@ -35,7 +35,7 @@ def modify_conf_file():
     try:
         variables_list = json.loads(args.variables_list)
         conf_list = []
-        conf_file = open('{}sources/general/conf/dlab.ini'.format(args.dlab_dir), 'r')
+        conf_file = open('{}sources/infrastructure-provisioning/src/general/conf/dlab.ini'.format(args.dlab_dir), 'r')
         for line in conf_file:
             conf_list.append(line)
 
@@ -58,7 +58,7 @@ def modify_conf_file():
                     print('Such variable doesn`t exist!')
                     config.remove_option(section, option)
 
-        with open('{}sources/general/conf/overwrite.ini'.format(args.dlab_dir), 'w') as conf_file_final:
+        with open('{}sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.dlab_dir), 'w') as conf_file_final:
             config.write(conf_file_final)
     except Exception as error:
         print('Error with modifying conf files:')

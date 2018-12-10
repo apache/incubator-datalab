@@ -29,6 +29,7 @@ import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.AwsComputationalTerminateDTO;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
@@ -46,10 +47,7 @@ import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.keyload.UploadFile;
-import com.epam.dlab.dto.computational.ComputationalStartDTO;
-import com.epam.dlab.dto.computational.ComputationalStopDTO;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
-import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.computational.*;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.gcp.computational.ComputationalCreateGcp;
@@ -229,7 +227,8 @@ public class RequestBuilder {
 				.withNotebookImage(exploratory.getDockerImage())
 				.withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
-				.withImageName(exploratory.getImageName());
+				.withImageName(exploratory.getImageName())
+				.withClusterConfig(exploratory.getClusterConfig());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -411,7 +410,8 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveShape(form.getDataEngineInstanceShape());
+						.withDataEngineSlaveShape(form.getDataEngineInstanceShape())
+						.withConfig(form.getConfig());
 				break;
 			case AZURE:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
@@ -533,6 +533,32 @@ public class RequestBuilder {
 				.logsBackup(backupFormDTO.isLogsBackup())
 				.id(id)
 				.build();
+	}
+
+	public ComputationalClusterConfigDTO newClusterConfigUpdate(UserInfo userInfo, UserInstanceDTO userInstanceDTO,
+																UserComputationalResource compRes,
+																List<ClusterConfig> config) {
+		final ComputationalClusterConfigDTO clusterConfigDTO = newResourceSysBaseDTO(userInfo,
+				ComputationalClusterConfigDTO.class)
+				.withExploratoryName(userInstanceDTO.getExploratoryName())
+				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
+				.withComputationalName(compRes.getComputationalName())
+				.withApplicationName(compRes.getImageName());
+		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
+		clusterConfigDTO.setConfig(config);
+		return clusterConfigDTO;
+	}
+
+	public ExploratoryReconfigureSparkClusterActionDTO newClusterConfigUpdate(UserInfo userInfo,
+																			  UserInstanceDTO userInstance,
+																			  List<ClusterConfig> config) {
+
+		return newResourceSysBaseDTO(userInfo, ExploratoryReconfigureSparkClusterActionDTO.class)
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+				.withNotebookImage(userInstance.getImageName())
+				.withConfig(config);
 	}
 
 	private CloudProvider cloudProvider() {

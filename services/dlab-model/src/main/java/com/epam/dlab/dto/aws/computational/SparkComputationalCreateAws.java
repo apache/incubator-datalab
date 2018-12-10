@@ -20,52 +20,49 @@ import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
+import java.util.List;
+
 public class SparkComputationalCreateAws extends ComputationalBase<SparkComputationalCreateAws> {
 
-    @JsonProperty("dataengine_instance_count")
-    private String dataEngineInstanceCount;
-    @JsonProperty("aws_dataengine_slave_shape")
-    private String dataEngineSlaveShape;
-    @JsonProperty("aws_dataengine_master_shape")
-    private String dataEngineMasterShape;
+	@JsonProperty("dataengine_instance_count")
+	private String dataEngineInstanceCount;
+	@JsonProperty("aws_dataengine_slave_shape")
+	private String dataEngineSlaveShape;
+	@JsonProperty("aws_dataengine_master_shape")
+	private String dataEngineMasterShape;
+	@JsonProperty("spark_configurations")
+	private List<ClusterConfig> config;
 
-    public SparkComputationalCreateAws withDataEngineInstanceCount(String dataEngineInstanceCount) {
-        this.dataEngineInstanceCount = dataEngineInstanceCount;
-        return this;
-    }
+	public SparkComputationalCreateAws withDataEngineInstanceCount(String dataEngineInstanceCount) {
+		this.dataEngineInstanceCount = dataEngineInstanceCount;
+		return this;
+	}
 
-    public SparkComputationalCreateAws withDataEngineSlaveShape(String dataEngineSlaveSize) {
-        this.dataEngineSlaveShape = dataEngineSlaveSize;
-        return this;
-    }
+	public SparkComputationalCreateAws withDataEngineSlaveShape(String dataEngineSlaveSize) {
+		this.dataEngineSlaveShape = dataEngineSlaveSize;
+		return this;
+	}
 
-    public SparkComputationalCreateAws withDataEngineMasterShape(String dataEngineMasterSize) {
-        this.dataEngineMasterShape = dataEngineMasterSize;
-        return this;
-    }
+	public SparkComputationalCreateAws withDataEngineMasterShape(String dataEngineMasterSize) {
+		this.dataEngineMasterShape = dataEngineMasterSize;
+		return this;
+	}
 
-    public String getDataEngineInstanceCount() {
-        return dataEngineInstanceCount;
-    }
+	public SparkComputationalCreateAws withConfig(List<ClusterConfig> config) {
+		this.config = config;
+		return this;
+	}
 
-    public String getDataEngineSlaveShape() {
-        return dataEngineSlaveShape;
-    }
+	@Override
+	public MoreObjects.ToStringHelper toStringHelper(Object self) {
+		return super.toStringHelper(self)
+				.add("dataEngineInstanceCount", dataEngineInstanceCount)
+				.add("dataEngineSlaveShape", dataEngineSlaveShape)
+				.add("dataEngineMasterShape", dataEngineMasterShape);
+	}
 
-    public String getDataEngineMasterShape() {
-        return dataEngineMasterShape;
-    }
-
-    @Override
-    public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return super.toStringHelper(self)
-                .add("dataEngineInstanceCount", dataEngineInstanceCount)
-                .add("dataEngineSlaveShape", dataEngineSlaveShape)
-                .add("dataEngineMasterShape", dataEngineMasterShape);
-    }
-
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
-    }
+	@Override
+	public String toString() {
+		return toStringHelper(this).toString();
+	}
 }

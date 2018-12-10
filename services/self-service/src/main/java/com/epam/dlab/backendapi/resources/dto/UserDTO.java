@@ -24,6 +24,6 @@ import javax.validation.constraints.NotNull;
 public class UserDTO {
 	@NotNull
 	private final String name;
-	@Min(0)
-	private final Long budget;
+	@Min(1)
+	private final Integer budget;
 }

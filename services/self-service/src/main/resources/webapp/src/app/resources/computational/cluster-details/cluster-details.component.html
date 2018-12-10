@@ -74,7 +74,29 @@ limitations under the License.
             <a href="{{item.url}}" target="_blank">{{ item.url }}</a>
           </p>
         </div>
+
+        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running'">
+          <label>
+            <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
+          </label>
+          <div class="checkbox-group">
+            <form [formGroup]="configurationForm" novalidate>
+              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
+                <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
+                <span class="danger_color" *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked']">
+          <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
+          <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
+                  class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
+                  (click)="editClusterConfiguration(configurationForm.value)">Update</button>
+        </div>
       </div>
+
+
       <div class="row-wrap detail-info content-box" *ngIf="resource.error_message">
         <p class="failed">{{resource.error_message}}</p>
       </div>

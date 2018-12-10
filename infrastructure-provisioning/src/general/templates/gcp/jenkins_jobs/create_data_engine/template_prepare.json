@@ -7,5 +7,6 @@
     "gcp_dataengine_slave_size":"GDSS",
     "notebook_instance_name":"NNM",
     "computational_name": "CNAM",
-    "application": "APP"
+    "application": "APP",
+    "spark_configurations": SPC
 }

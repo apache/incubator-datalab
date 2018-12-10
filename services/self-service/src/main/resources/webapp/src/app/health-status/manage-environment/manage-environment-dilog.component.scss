@@ -17,29 +17,59 @@ limitations under the License.
 ****************************************************************************/
 
 .manage-env-dialog {
-  .mat-list-item-content {
-    padding: 0 !important;
-    justify-content: space-between;
-    color: #577289;
+  .mat-list {
+    .mat-list-item {
+      height: 60px;
+      position: relative;
+      .mat-list-item-content {
+        padding: 0 !important;
+        justify-content: space-between;
+        color: #577289;
+      }
+    }
   }
   .scrolling-content {
-    max-height: 275px;
+    max-height: 300px;
+    min-height: 140px;
     overflow-y: auto;
   }
   .username {
-    width: 80%;
+    width: 45%;
+  }
+  .quotes {
+    width: 40%;
+    margin-right: 10px;
+    .danger_color {
+      position: absolute;
+      padding-top: 2px;
+    }
   }
   .action {
-    width: 20%;
+    width: 15%;
     span {
       padding: 3px;
       cursor: pointer;
       &:hover {
-        color: #718ba6;
+        color: #35afd5;
       }
       i {
         font-size: 20px;
       }
+    }
+  }
+  .total-budget {
+    border-top: 1px solid #edf1f5;
+    padding-top: 15px;
+    .control {
+      position: relative;
+      width: 56%;
+      .danger_color {
+        position: absolute;
+        padding-top: 2px;
+      }
+    }
+    .label {
+      width: 44%;
     }
   }
 }

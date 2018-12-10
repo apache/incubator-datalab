@@ -23,7 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
 public abstract class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
 	@SuppressWarnings("unchecked")
 	private final T self = (T) this;

@@ -34,6 +34,7 @@ parser.add_argument('--exploratory_name', type=str, default='')
 parser.add_argument('--additional_info', type=str, default='')
 args = parser.parse_args()
 
+
 def make_template():
     conf_file_name = args.exploratory_name
     additional_info = json.loads(args.additional_info)
@@ -84,6 +85,7 @@ def make_template():
         f.write(tf_template.render(config))
         f.close()
     return conf_file_name
+
 
 ##############
 # Run script #

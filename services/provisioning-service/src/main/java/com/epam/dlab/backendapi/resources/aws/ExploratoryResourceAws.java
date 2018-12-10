@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.resources.base.ExploratoryService;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -37,31 +38,37 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class ExploratoryResourceAws {
 
-    @Inject
-    private ExploratoryService exploratoryService;
+	@Inject
+	private ExploratoryService exploratoryService;
 
 
-    @Path("/create")
-    @POST
-    public String create(@Auth UserInfo ui, ExploratoryCreateAws dto) throws JsonProcessingException {
-        return exploratoryService.action(ui.getName(), dto, DockerAction.CREATE);
-    }
+	@Path("/create")
+	@POST
+	public String create(@Auth UserInfo ui, ExploratoryCreateAws dto) throws JsonProcessingException {
+		return exploratoryService.action(ui.getName(), dto, DockerAction.CREATE);
+	}
 
-    @Path("/start")
-    @POST
-    public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
-        return exploratoryService.action(ui.getName(), dto, DockerAction.START);
-    }
+	@Path("/start")
+	@POST
+	public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
+		return exploratoryService.action(ui.getName(), dto, DockerAction.START);
+	}
 
-    @Path("/terminate")
-    @POST
-    public String terminate(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
-        return exploratoryService.action(ui.getName(), dto, DockerAction.TERMINATE);
-    }
+	@Path("/terminate")
+	@POST
+	public String terminate(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
+		return exploratoryService.action(ui.getName(), dto, DockerAction.TERMINATE);
+	}
 
-    @Path("/stop")
-    @POST
-    public String stop(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
-        return exploratoryService.action(ui.getName(), dto, DockerAction.STOP);
-    }
+	@Path("/stop")
+	@POST
+	public String stop(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
+		return exploratoryService.action(ui.getName(), dto, DockerAction.STOP);
+	}
+
+	@Path("/reconfigure_spark")
+	@POST
+	public String reconfigureSpark(@Auth UserInfo ui, ExploratoryReconfigureSparkClusterActionDTO dto) throws JsonProcessingException {
+		return exploratoryService.action(ui.getName(), dto, DockerAction.RECONFIGURE_SPARK);
+	}
 }

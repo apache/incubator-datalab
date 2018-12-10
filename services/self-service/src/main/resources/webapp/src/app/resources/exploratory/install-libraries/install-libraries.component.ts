@@ -122,6 +122,15 @@ export class InstallLibrariesComponent implements OnInit {
     (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
+  public filterGroups(groupsList) {
+    const PREVENT_TEMPLATES = ['rstudio', 'rstudio with tensorflow'];
+    const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
+    const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
+
+    const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
+    return SortUtil.libGroupsSort(filteredGroups);
+  }
+
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
@@ -240,7 +249,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
-      this.groupsList = SortUtil.libGroupsSort(groupsList);
+      this.groupsList = this.filterGroups(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
     } else {

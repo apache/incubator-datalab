@@ -20,6 +20,7 @@ import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
+import com.epam.dlab.model.scheduler.SchedulerJobData;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;
@@ -28,12 +29,15 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -80,7 +84,7 @@ public class SchedulerJobResourceTest extends TestBase {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TOKEN)
+				.header("Authorization", String.join(" ", "Bearer", TOKEN))
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -277,6 +281,32 @@ public class SchedulerJobResourceTest extends TestBase {
 		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(USER.toLowerCase(),
 				"explName", "compName");
 		verifyNoMoreInteractions(schedulerJobService);
+	}
+
+	@Test
+	public void testGetActiveSchedulers() {
+		when(schedulerJobService.getActiveSchedulers(anyString(), anyLong()))
+				.thenReturn(Collections.singletonList(new SchedulerJobData(USER, "exploratoryName", null,
+						getSchedulerJobDTO())));
+		final long minuteOffset = 10L;
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/scheduler/active")
+				.queryParam("minuteOffset", minuteOffset)
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+		final List<SchedulerJobData> activeSchedulers = response.readEntity(new GenericType<List<SchedulerJobData>>() {
+		});
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(1, activeSchedulers.size());
+		assertEquals(Collections.singletonList(new SchedulerJobData(USER, "exploratoryName", null,
+				getSchedulerJobDTO())), activeSchedulers);
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(schedulerJobService).getActiveSchedulers(USER.toLowerCase(), minuteOffset);
+		verifyNoMoreInteractions(schedulerJobService);
+
 	}
 
 	private SchedulerJobDTO getSchedulerJobDTO() {

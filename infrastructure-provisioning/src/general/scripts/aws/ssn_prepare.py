@@ -91,6 +91,7 @@ if __name__ == "__main__":
                     traceback.print_exc()
                     raise Exception
                 os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
+                create_product_tag(os.environ['aws_vpc_id'])
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create VPC. Exception:" + str(err))
@@ -115,6 +116,7 @@ if __name__ == "__main__":
                     traceback.print_exc()
                     raise Exception
                 os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
+                create_product_tag(os.environ['aws_vpc2_id'])
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create secondary VPC. Exception:" + str(err))
@@ -140,6 +142,7 @@ if __name__ == "__main__":
                     raise Exception
                 with open('/tmp/ssn_subnet_id', 'r') as f:
                     os.environ['aws_subnet_id'] = f.read()
+                create_product_tag(os.environ['aws_subnet_id'])
                 enable_auto_assign_ip(os.environ['aws_subnet_id'])
             except Exception as err:
                 print('Error: {0}'.format(err))
@@ -173,6 +176,7 @@ if __name__ == "__main__":
                     raise Exception
                 with open('/tmp/ssn_subnet_id', 'r') as f:
                     os.environ['aws_subnet2_id'] = f.read()
+                create_product_tag(os.environ['aws_subnet2_id'])
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create Subnet.", str(err))

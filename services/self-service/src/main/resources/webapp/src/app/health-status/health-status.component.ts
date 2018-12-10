@@ -16,25 +16,25 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr';
+import { ISubscription } from 'rxjs/Subscription';
 
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
-import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
+import { HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
   selector: 'health-status',
   templateUrl: 'health-status.component.html',
   styleUrls: ['./health-status.component.scss']
 })
-export class HealthStatusComponent implements OnInit {
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
+export class HealthStatusComponent implements OnInit, OnDestroy {
   private clear = undefined;
+  private subscription: ISubscription;
+
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
-  billingEnabled: boolean;
-  isAdmin: boolean;
   anyEnvInProgress: boolean = false;
   notebookInProgress: boolean = false;
   usersList: Array<string> = [];
@@ -61,6 +61,13 @@ export class HealthStatusComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
+    this.subscription = this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
+      this.uploadKey = result ? result.status === 200 : false;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   buildGrid(): void {
@@ -70,11 +77,8 @@ export class HealthStatusComponent implements OnInit {
   }
 
   loadHealthStatusList(healthStatusList): Array<EnvironmentStatusModel> {
-    this.healthStatus = healthStatusList.status;
-    this.billingEnabled = healthStatusList.billingEnabled;
-    this.isAdmin = healthStatusList.admin;
-
-    this.checkUserAccessKey();
+    this.healthStatus = healthStatusList;
+    this.userAccessKeyService.initialUserAccessKeyCheck();
     this.getExploratoryList();
 
     if (healthStatusList.list_resources)
@@ -91,11 +95,16 @@ export class HealthStatusComponent implements OnInit {
   getActiveUsersList() {
     return this.healthStatusService.getActiveUsers();
   }
- 
+
+  getTotalBudgetData() {
+    return this.healthStatusService.getTotalBudgetData();
+  }
+
   openManageEnvironmentDialog() {
-    this.getActiveUsersList().subscribe(
-      usersList => this.manageEnvironmentDialog.open({ isFooter: false }, usersList),
-      () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
+    this.getActiveUsersList().subscribe(usersList => {
+      this.getTotalBudgetData().subscribe(total => this.manageEnvironmentDialog.open({ isFooter: false }, usersList, total));
+    },
+    () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
   }
 
   openSsnMonitorDialog() {
@@ -124,11 +133,21 @@ export class HealthStatusComponent implements OnInit {
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
             this.manageEnvironmentDialog.usersList = usersList;
-            this.toastr.success(`Action ${event.action } is processing!`, 'Processing!', { toastLife: 5000 });
+            this.toastr.success(`Action ${ event.action } is processing!`, 'Processing!', { toastLife: 5000 });
             this.buildGrid();
           });
         },
       error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  setBudgetLimits($event) {
+    this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
+      this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
+        result.status === HTTP_STATUS_CODES.OK
+        && res.status === HTTP_STATUS_CODES.NO_CONTENT
+        && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
+      });
+    }, error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
 
   manageRolesGroups($event) {
@@ -170,36 +189,6 @@ export class HealthStatusComponent implements OnInit {
     }
   }
 
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.buildGrid();
-      });
-  }
-
-  public checkUserAccessKey() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-        (response: any) => this.processAccessKeyStatus(response.status),
-        error => this.processAccessKeyStatus(error.status));
-  }
-
-  private processAccessKeyStatus(status: number) {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.keyUploadDialog.open({ isFooter: false });
-      this.uploadKey = false;
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
-
-      setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      this.preloaderDialog.close();
-      this.keyUploadDialog.close();
-      this.uploadKey = true;
-    }
-  }
-
   createBackup($event) {
     this.backupService.createBackup($event).subscribe(result => {
       this.getBackupStatus(result);
@@ -218,8 +207,8 @@ export class HealthStatusComponent implements OnInit {
 
   isEnvironmentsInProgress(data): boolean {
     return data.exploratory.some(el => {
-      return el.status === 'creating' || el.status === 'starting' || 
-        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring')
+      return el.status === 'creating' || el.status === 'starting' ||
+        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring');
     });
   }
 

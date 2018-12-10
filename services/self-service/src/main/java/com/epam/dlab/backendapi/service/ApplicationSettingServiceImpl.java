@@ -16,6 +16,7 @@ package com.epam.dlab.backendapi.service;/*
  *
  */
 
+import com.epam.dlab.backendapi.dao.MongoSetting;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.google.inject.Inject;
 
@@ -24,6 +25,11 @@ import java.util.Map;
 public class ApplicationSettingServiceImpl implements ApplicationSettingService {
 	@Inject
 	private SettingsDAO settingsDAO;
+
+	@Override
+	public void removeMaxBudget() {
+		settingsDAO.removeSetting(MongoSetting.CONF_MAX_BUDGET);
+	}
 
 	@Override
 	public void setMaxBudget(Long maxBudget) {

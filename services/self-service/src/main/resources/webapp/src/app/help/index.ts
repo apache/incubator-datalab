@@ -21,23 +21,13 @@ import { CommonModule } from '@angular/common';
 
 import { AccessNotebookGuideComponent } from './accessnotebookguide/accessnotebookguide.component';
 import { PublicKeyGuideComponent } from './publickeyguide/publickeyguide.component';
-import { NavbarModule } from '../shared';
 
 export * from './accessnotebookguide/accessnotebookguide.component';
 export * from './publickeyguide/publickeyguide.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    NavbarModule
-  ],
-  declarations: [
-    AccessNotebookGuideComponent,
-    PublicKeyGuideComponent
-  ],
-  exports: [
-    AccessNotebookGuideComponent,
-    PublicKeyGuideComponent
-  ]
+  imports: [CommonModule],
+  declarations: [AccessNotebookGuideComponent, PublicKeyGuideComponent],
+  exports: [AccessNotebookGuideComponent, PublicKeyGuideComponent]
 })
-export class GuidesModule { }
+export class GuidesModule {}

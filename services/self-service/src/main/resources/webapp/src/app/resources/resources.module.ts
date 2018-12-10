@@ -27,7 +27,6 @@ import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/explorat
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
 import {
-  NavbarModule,
   ModalModule,
   ProgressDialogModule,
   UploadKeyDialogModule
@@ -43,7 +42,6 @@ import {
     ProgressDialogModule,
     UploadKeyDialogModule,
     ExploratoryEnvironmentCreateDialogModule,
-    NavbarModule,
     MaterialModule
   ],
   declarations: [

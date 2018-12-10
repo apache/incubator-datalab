@@ -44,6 +44,7 @@ export class ApplicationServiceFacade {
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
   private static readonly USER_PREFERENCES = 'user_preferences';
+  private static readonly BUDGET = 'budget';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
   private static readonly ROLES = 'roles';
   private static readonly GROUPS = 'groups';
@@ -62,6 +63,7 @@ export class ApplicationServiceFacade {
   private static readonly GIT_CREDS = 'git_creds';
   private static readonly BILLING = 'billing';
   private static readonly DOWNLOAD_REPORT = 'download_report';
+  private static readonly SETTINGS = 'settings';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -411,9 +413,30 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildUpdateUsersBudget(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUDGET),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
   public buildGetSsnMonitorData(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.SNN_MONITOR),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetTotalBudgetData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildUpdateTotalBudgetData(param, method: number): Observable<Response> {
+    return this.buildRequest(method,
+      this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS) + param,
       null,
       this.getRequestOptions(true, true));
   }
@@ -467,6 +490,34 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildGetClusterConfiguration(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildEditClusterConfiguration(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetExploratorySparkConfiguration(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildEditExploratorySparkConfiguration(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -508,6 +559,7 @@ export class ApplicationServiceFacade {
 
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
+    this.requestRegistry.Add(ApplicationServiceFacade.BUDGET, '/api/user/settings/budget');
 
     // Environment Health Status
     this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS, '/api/infrastructure/status');
@@ -520,6 +572,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.GROUPS, '/api/group');
     this.requestRegistry.Add(ApplicationServiceFacade.GROUP_ROLE, 'api/group/role');
     this.requestRegistry.Add(ApplicationServiceFacade.GROUP_USER, '/api/group/user');
+    this.requestRegistry.Add(ApplicationServiceFacade.SETTINGS, '/api/settings');
 
     // Libraries Installation
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');

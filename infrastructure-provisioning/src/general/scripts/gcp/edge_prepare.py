@@ -86,7 +86,8 @@ if __name__ == "__main__":
     edge_conf['network_tag'] = edge_conf['instance_name']
     edge_conf['instance_labels'] = {"name": edge_conf['instance_name'],
                                     "sbn": edge_conf['service_base_name'],
-                                    "user": edge_conf['edge_user_name']}
+                                    "user": edge_conf['edge_user_name'],
+                                    "product": "dlab"}
     edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     # FUSE in case of absence of user's key

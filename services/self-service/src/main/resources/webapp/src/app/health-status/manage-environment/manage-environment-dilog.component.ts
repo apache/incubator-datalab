@@ -16,7 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
+import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -29,24 +30,74 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 export class ManageEnvironmentComponent {
   readonly DICTIONARY = DICTIONARY;
   public usersList: Array<string> = [];
+  public manageUsersForm: FormGroup;
+  public manageTotalsForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
+  @Output() setBudget: EventEmitter<{}> = new EventEmitter();
 
-  constructor(public dialog: MatDialog) { }
-  public open(param, data): void {
+  constructor(
+    private _fb: FormBuilder,
+    public dialog: MatDialog
+  ) { }
+
+  get usersEnvironments(): FormArray{
+    return <FormArray>this.manageUsersForm.get('users');
+  }
+
+  public open(param, data, settings): void {
     this.usersList = data;
+    !this.manageUsersForm && this.initForm();
+
+    this.manageUsersForm.setControl('users',
+    this._fb.array((this.usersList || []).map((x: any) => this._fb.group({
+      name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]]
+    }))));
+    this.manageUsersForm.controls['total'].setValue(settings.conf_max_budget || null);
     this.bindDialog.open(param);
   }
 
+  public setBudgetLimits(value) {
+    this.setBudget.emit(value);
+    this.bindDialog.close();
+  }
+
   public applyAction(action, user) {
-    const dialogRef: MatDialogRef<ConfirmActionDialog> = this.dialog.open(ConfirmActionDialog, { data: {action, user}, width: '550px' });
+    const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
+      ConfirmActionDialogComponent, { data: {action, user: user.value.name}, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
-      if (result) this.manageEnv.emit({action, user});
+      if (result) this.manageEnv.emit({action, user: user.value.name});
     });
   }
-}
 
+  private initForm(): void {
+    this.manageUsersForm = this._fb.group({
+      total: [null, [Validators.min(0), this.totalValidityCheck.bind(this)]],
+      users: this._fb.array([this._fb.group({ name: '', budget: null })])
+    });
+  }
+
+  private getCurrentUsersTotal(): number {
+    return this.manageUsersForm.value.users.reduce((memo, el) => memo += el.budget, 0);
+  }
+
+  private getCurrentTotalValue(): number {
+    return this.manageUsersForm.value.total;
+  }
+
+  private totalValidityCheck(control) {
+    return (control && control.value)
+      ? (control.value >= this.getCurrentUsersTotal() ? null : { overrun: true })
+      : null;
+  }
+
+  private userValidityCheck(control) {
+    if (control && control.value) {
+      return (this.getCurrentTotalValue() && this.getCurrentTotalValue() < this.getCurrentUsersTotal()) ? { overrun: true } : null;
+    }
+  }
+}
 
 @Component({
   selector: 'dialog-result-example-dialog',
@@ -67,9 +118,9 @@ export class ManageEnvironmentComponent {
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
   `]
 })
-export class ConfirmActionDialog {
+export class ConfirmActionDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ConfirmActionDialog>,
+    public dialogRef: MatDialogRef<ConfirmActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

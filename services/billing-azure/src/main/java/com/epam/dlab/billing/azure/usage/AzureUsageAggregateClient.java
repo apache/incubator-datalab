@@ -17,6 +17,7 @@
 package com.epam.dlab.billing.azure.usage;
 
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
+import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -28,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 @Slf4j
 public class AzureUsageAggregateClient {
@@ -80,14 +82,19 @@ public class AzureUsageAggregateClient {
 		this.authToken = authToken;
 	}
 
-	private UsageAggregateResponse postProcess(UsageAggregateResponse usageAggregateResponse) throws IOException {
-		for (UsageAggregateRecord usageAggregateRecord : usageAggregateResponse.getValue()) {
-			InstanceData instanceData = objectMapper.readValue(usageAggregateRecord.getProperties().getInstanceData(),
-					InstanceData.class);
-
-			usageAggregateRecord.getProperties().setParsedInstanceData(instanceData);
-		}
-
+	private UsageAggregateResponse postProcess(UsageAggregateResponse usageAggregateResponse) {
+		usageAggregateResponse.getValue()
+				.stream()
+				.filter(r -> Objects.nonNull(r.getProperties().getInstanceData()))
+				.forEach(r -> r.getProperties().setParsedInstanceData(toInstanceData(r)));
 		return usageAggregateResponse;
+	}
+
+	private InstanceData toInstanceData(UsageAggregateRecord r) {
+		try {
+			return objectMapper.readValue(r.getProperties().getInstanceData(), InstanceData.class);
+		} catch (IOException e) {
+			throw new DlabException("Can not parse instance data", e);
+		}
 	}
 }
