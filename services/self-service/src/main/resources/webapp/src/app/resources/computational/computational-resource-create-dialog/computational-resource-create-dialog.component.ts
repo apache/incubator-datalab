@@ -44,7 +44,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   template_description: string;
   shapes: any;
   spotInstance: boolean = true;
-  // clusterNamePattern: string = '[a-zA-Z0-9-_]+';
   clusterNamePattern: string = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
   delimitersRegex = /[-_]?/g;
