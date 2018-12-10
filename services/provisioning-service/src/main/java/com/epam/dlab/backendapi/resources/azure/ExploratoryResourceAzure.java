@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.resources.base.ExploratoryService;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
+import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -61,5 +62,11 @@ public class ExploratoryResourceAzure {
     @POST
     public String stop(@Auth UserInfo ui, ExploratoryActionStopAzure dto) throws JsonProcessingException {
         return exploratoryService.action(ui.getName(), dto, DockerAction.STOP);
+    }
+
+    @Path("/reconfigure_spark")
+    @POST
+    public String reconfigureSpark(@Auth UserInfo ui, ExploratoryReconfigureSparkClusterActionDTO dto) throws JsonProcessingException {
+        return exploratoryService.action(ui.getName(), dto, DockerAction.RECONFIGURE_SPARK);
     }
 }
