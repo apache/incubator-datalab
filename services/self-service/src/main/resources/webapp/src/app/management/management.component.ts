@@ -19,7 +19,7 @@ limitations under the License.
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr';
 
-import { HealthStatusService, ManageEnvironmentsService, UserAccessKeyService } from '../core/services';
+import { HealthStatusService, ManageEnvironmentsService, UserAccessKeyService, AppRoutingService } from '../core/services';
 import { EnvironmentModel } from './management.model';
 import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
 
@@ -36,15 +36,11 @@ export class ManagementComponent implements OnInit {
   public allEnvironmentData: Array<EnvironmentModel>;
   public uploadKey: boolean = true;
 
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
-
-  @ViewChild('keyUploadModal') keyUploadDialog;
-  @ViewChild('preloaderModal') preloaderDialog;
-
   constructor(
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService,
     private userAccessKeyService: UserAccessKeyService,
+    private appRoutingService: AppRoutingService,
     public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
@@ -57,7 +53,6 @@ export class ManagementComponent implements OnInit {
 
   public buildGrid() {
     this.getEnvironmentHealthStatus();
-    this.getAllEnvironmentData();
   }
 
   public manageEnvironmentAction($event) {
@@ -71,36 +66,6 @@ export class ManagementComponent implements OnInit {
       .subscribe(
         () => this.buildGrid(),
         error =>  this.toastr.error('Environment management failed!', 'Oops!', { toastLife: 5000 }));
-  }
-
-  public checkUserAccessKey() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-        (response: any) => this.processAccessKeyStatus(response.status),
-        error => this.processAccessKeyStatus(error.status));
-  }
-
-  private processAccessKeyStatus(status: number) {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.keyUploadDialog.open({ isFooter: false });
-      this.uploadKey = false;
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
-
-      setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      this.preloaderDialog.close();
-      this.keyUploadDialog.close();
-      this.uploadKey = true;
-    }
-  }
-
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.buildGrid();
-      });
   }
 
   private getAllEnvironmentData() {
@@ -129,7 +94,13 @@ export class ManagementComponent implements OnInit {
           this.billingEnabled = result.billingEnabled;
           this.admin = result.admin;
 
-          this.checkUserAccessKey();
+          if (!this.admin) {
+            this.appRoutingService.redirectToNoAccessPage();
+            return false;
+          }
+
+          this.getAllEnvironmentData();
+          this.userAccessKeyService.initialUserAccessKeyCheck();
         });
   }
 }

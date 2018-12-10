@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
@@ -41,11 +42,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -213,7 +214,8 @@ public class ExploratoryServiceImplTest {
 		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME, UserInstanceStatus
-				.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+						.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.FAILED);
 		verify(requestBuilder).newExploratoryStop(userInfo, userInstance);
 		verify(provisioningService).post(exploratoryTerminate, TOKEN, eaDto, String.class);
 		verify(requestId).put(USER, UUID);
@@ -331,7 +333,7 @@ public class ExploratoryServiceImplTest {
 	@Test
 	public void updateExploratoryStatusesWithRunningStatus() {
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 
@@ -349,7 +351,7 @@ public class ExploratoryServiceImplTest {
 	public void updateExploratoryStatusesWithStoppingStatus() {
 		userInstance.setStatus("stopping");
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 		doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
@@ -372,7 +374,7 @@ public class ExploratoryServiceImplTest {
 	public void updateExploratoryStatusesWithTerminatingStatus() {
 		userInstance.setStatus("terminating");
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 		when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class)))
@@ -405,7 +407,7 @@ public class ExploratoryServiceImplTest {
 	@Test
 	public void getInstancesWithStatuses() {
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), anyBoolean(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		exploratoryService.getInstancesWithStatuses(USER, UserInstanceStatus.RUNNING, UserInstanceStatus.RUNNING);
 
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, true, UserInstanceStatus.RUNNING);
@@ -438,31 +440,76 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	public void getInstancesByComputationalIds() {
-		UserComputationalResource compResource1 = new UserComputationalResource();
-		compResource1.setImageName("YYYY.dataengine");
-		compResource1.setComputationalName("compName1");
-		compResource1.setStatus("stopped");
-		compResource1.setComputationalId("compId1");
+	public void testUpdateExploratoryClusterConfig() {
 
-		UserComputationalResource compResource2 = new UserComputationalResource();
-		compResource2.setImageName("YYYY.dataengine");
-		compResource2.setComputationalName("compName2");
-		compResource2.setStatus("running");
-		compResource2.setComputationalId("compId2");
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
+		when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
+				anyListOf(ClusterConfig.class))).thenReturn(new ExploratoryReconfigureSparkClusterActionDTO());
+		when(provisioningService.post(anyString(), anyString(), any(ExploratoryReconfigureSparkClusterActionDTO.class)
+				, any())).thenReturn(UUID);
 
-		userInstance.setResources(Arrays.asList(compResource1, compResource2));
-		when(exploratoryDAO.getInstances()).thenReturn(Collections.singletonList(userInstance));
+		exploratoryService.updateClusterConfig(getUserInfo(), EXPLORATORY_NAME, singletonList(new ClusterConfig()));
 
-		userInstance.setResources(Collections.singletonList(compResource1));
-		userInstance.setStatus(null);
-		List<UserInstanceDTO> expected = Collections.singletonList(userInstance);
-		List<UserInstanceDTO> actual = exploratoryService.getInstancesByComputationalIds(Collections.singletonList(
-				"compId1"));
-		assertEquals(actual, expected);
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(getUserInstanceDto()),
+				refEq(singletonList(new ClusterConfig())));
+		verify(requestId).put(USER, UUID);
+		verify(provisioningService).post(eq("exploratory/reconfigure_spark"), eq(TOKEN),
+				refEq(new ExploratoryReconfigureSparkClusterActionDTO(), "self"), eq(String.class));
+		verify(exploratoryDAO).updateExploratoryFields(refEq(new ExploratoryStatusDTO()
+				.withUser(USER)
+				.withConfig(singletonList(new ClusterConfig()))
+				.withStatus(UserInstanceStatus.RECONFIGURING.toString())
+				.withExploratoryName(EXPLORATORY_NAME), "self"));
+		verifyNoMoreInteractions(requestBuilder, requestId, exploratoryDAO, provisioningService);
+	}
 
-		verify(exploratoryDAO).getInstances();
+	@Test
+	public void testUpdateExploratoryClusterConfigWhenNotRunning() {
+
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenThrow(new ResourceNotFoundException("EXCEPTION"));
+
+		try {
+
+			exploratoryService.updateClusterConfig(getUserInfo(), EXPLORATORY_NAME,
+					singletonList(new ClusterConfig()));
+		} catch (ResourceNotFoundException e) {
+			assertEquals("EXCEPTION", e.getMessage());
+		}
+
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(requestBuilder, requestId, provisioningService);
+
+	}
+
+	@Test
+	public void testGetClusterConfig() {
+
+		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenReturn(Collections.singletonList(getClusterConfig()));
+		final List<ClusterConfig> clusterConfig = exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
+
+		assertEquals(1, clusterConfig.size());
+		assertEquals("classification", clusterConfig.get(0).getClassification());
+
+		verify(exploratoryDAO).getClusterConfig(getUserInfo().getName(), EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void testGetClusterConfigWithException() {
+
+		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenThrow(new RuntimeException("Exception"));
+
+		expectedException.expect(RuntimeException.class);
+		expectedException.expectMessage("Exception");
+		exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
+	}
+
+	private ClusterConfig getClusterConfig() {
+		final ClusterConfig config = new ClusterConfig();
+		config.setClassification("classification");
+		return config;
 	}
 
 	private UserInfo getUserInfo() {
@@ -476,7 +523,7 @@ public class ExploratoryServiceImplTest {
 		compResource.setStatus("stopped");
 		compResource.setComputationalId("compId");
 		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME).withStatus("running")
-				.withResources(Collections.singletonList(compResource));
+				.withResources(singletonList(compResource));
 	}
 
 	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {

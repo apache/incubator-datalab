@@ -31,6 +31,8 @@ public enum MongoSetting {
     /** Name of OS family. */
     CONF_OS_FAMILY("conf_os_family"),
 
+    CONF_MAX_BUDGET("conf_max_budget"),
+
 
     // AWS Related properties
     /** Name of AWS region. */
@@ -41,6 +43,8 @@ public enum MongoSetting {
     AWS_VPC_ID("aws_vpc_id"),
 	/** Id of virtual private cloud subnet for AWS account. */
     AWS_SUBNET_ID("aws_subnet_id"),
+    AWS_NOTEBOOK_VPC_ID("aws_notebook_vpc_id"),
+    AWS_NOTEBOOK_SUBNET_ID("aws_notebook_subnet_id"),
 
 
     // Azure related properties

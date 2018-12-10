@@ -67,7 +67,8 @@ if __name__ == "__main__":
                 notebook_config['tag_name'], notebook_config['master_node_name'])
             notebook_config['notebook_ip'] = get_instance_private_ip_address(
                 notebook_config['tag_name'], notebook_config['notebook_name'])
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
@@ -97,6 +98,30 @@ if __name__ == "__main__":
             slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(notebook_config['tag_name'], slave_name)
         append_result("Failed installing Dataengine kernels.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        params = "--hostname {0} " \
+                 "--keyfile {1} " \
+                 "--os_user {2} " \
+                 "--cluster_name {3}" \
+            .format(notebook_config['notebook_ip'],
+                    notebook_config['key_path'],
+                    notebook_config['dlab_ssh_user'],
+                    notebook_config['cluster_name'])
+        try:
+            local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
+        for i in range(notebook_config['instance_count'] - 1):
+            slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(notebook_config['tag_name'], slave_name)
+        append_result("Failed to configure Spark.", str(err))
         sys.exit(1)
 
     try:

@@ -35,13 +35,15 @@ def terminate_data_engine(zone, notebook_name, os_user, key_path, cluster_name):
         if 'items' in instances:
             for i in instances['items']:
                 GCPActions().remove_instance(i['name'], zone)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing Data Engine kernels from notebook")
     try:
         remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 

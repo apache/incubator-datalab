@@ -28,26 +28,27 @@ import org.hibernate.validator.constraints.NotBlank;
 @ToString(callSuper = true)
 public class AwsComputationalCreateForm extends ComputationalCreateFormDTO {
 
-    @NotBlank
-    @JsonProperty("emr_instance_count")
-    private String instanceCount;
+	@NotBlank
+	@JsonProperty("emr_instance_count")
+	private String instanceCount;
 
-    @NotBlank
-    @JsonProperty("emr_master_instance_type")
-    private String masterInstanceType;
+	@NotBlank
+	@JsonProperty("emr_master_instance_type")
+	private String masterInstanceType;
 
-    @NotBlank
-    @JsonProperty("emr_slave_instance_type")
-    private String slaveInstanceType;
+	@NotBlank
+	@JsonProperty("emr_slave_instance_type")
+	private String slaveInstanceType;
 
-    @JsonProperty("emr_slave_instance_spot")
-    private Boolean slaveInstanceSpot = false;
+	@JsonProperty("emr_slave_instance_spot")
+	private Boolean slaveInstanceSpot = false;
 
-    @JsonProperty("emr_slave_instance_spot_pct_price")
-    private Integer slaveInstanceSpotPctPrice;
+	@JsonProperty("emr_slave_instance_spot_pct_price")
+	private Integer slaveInstanceSpotPctPrice;
 
-    @NotBlank
-    @JsonProperty("emr_version")
-    private String version;
+	@NotBlank
+	@JsonProperty("emr_version")
+	private String version;
+
 
 }

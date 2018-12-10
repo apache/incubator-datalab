@@ -82,6 +82,30 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        params = "--hostname {0} " \
+                 "--keyfile {1} " \
+                 "--os_user {2} " \
+            .format(notebook_config['notebook_ip'],
+                    notebook_config['key_path'],
+                    os.environ['conf_os_user'])
+        try:
+            local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
+            remove_emr_tag(notebook_config['cluster_id'], ['State'])
+            tag_emr_volume(notebook_config['cluster_id'], notebook_config['cluster_name'], os.environ['conf_tag_resource_id'])
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to configure Spark.", str(err))
+        emr_id = get_emr_id_by_name(notebook_config['cluster_name'])
+        terminate_emr(emr_id)
+        remove_kernels(notebook_config['cluster_name'], notebook_config['tag_name'], os.environ['notebook_instance_name'],
+                       os.environ['conf_os_user'], notebook_config['key_path'], os.environ['emr_version'])
+        sys.exit(1)
+
+    try:
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],

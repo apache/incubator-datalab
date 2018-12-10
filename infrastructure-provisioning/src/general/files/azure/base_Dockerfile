@@ -18,6 +18,7 @@
 
 FROM ubuntu:16.04
 ARG OS
+ARG SRC_PATH
 
 # Install any .deb dependecies
 RUN apt-get update && \
@@ -55,14 +56,15 @@ RUN mkdir -p /root/conf && \
     mkdir -p /usr/lib/python2.7/dlab && \
     mkdir -p /root/keys/.ssh
 
-COPY base/ /root
-COPY general/conf/* /root/conf/
-COPY general/api/*.py /bin/
-COPY general/scripts/azure/common_* /root/scripts/
-COPY general/lib/azure/* /usr/lib/python2.7/dlab/
-COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
-COPY general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
-COPY general/files/os/${OS}/sources.list /root/files/
+COPY ${SRC_PATH}base/ /root
+COPY ${SRC_PATH}general/conf/* /root/conf/
+COPY ${SRC_PATH}general/api/*.py /bin/
+COPY ${SRC_PATH}general/scripts/azure/common_* /root/scripts/
+COPY ${SRC_PATH}general/lib/azure/* /usr/lib/python2.7/dlab/
+COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
+COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
+COPY ${SRC_PATH}general/files/os/${OS}/sources.list /root/files/
+COPY ${SRC_PATH}general/files/os/ivysettings.xml /root/templates/
 
 RUN chmod a+x /root/*.py && \
     chmod a+x /root/scripts/* && \

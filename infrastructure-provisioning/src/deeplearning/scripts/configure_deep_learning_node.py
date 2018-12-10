@@ -34,7 +34,6 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--jupyter_version', type=str, default='')
-parser.add_argument('--tensorflow_version', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
@@ -53,13 +52,13 @@ caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
-keras_version = os.environ['notebook_keras_version']
+keras_version = '2.0.8'
 theano_version = os.environ['notebook_theano_version']
-
-cuda_version = os.environ['notebook_cuda_version']
-cuda_file_name = os.environ['notebook_cuda_file_name']
-cudnn_version = os.environ['notebook_cudnn_version']
-cudnn_file_name = os.environ['notebook_cudnn_file_name']
+tensorflow_version = '1.4.0'
+cuda_version = '8.0'
+cuda_file_name = 'cuda_8.0.44_linux-run'
+cudnn_version = '6.0'
+cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
 
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
@@ -113,7 +112,7 @@ if __name__ == "__main__":
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES AND FRAMEWORKS
     print("Install TensorFlow")
     install_tensor(args.os_user, cuda_version, cuda_file_name,
-                   cudnn_version, cudnn_file_name, args.tensorflow_version,
+                   cudnn_version, cudnn_file_name, tensorflow_version,
                    templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
@@ -140,7 +139,7 @@ if __name__ == "__main__":
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
+    configure_local_spark(jars_dir, templates_dir)
 
     # INSTALL JUPYTER KERNELS
     print("Install pyspark local kernel for Jupyter")

@@ -18,6 +18,9 @@ limitations under the License.
 
 .sub-nav {
   justify-content: flex-end;
+  .admin-group {
+    margin-right: 10px;
+  }
   button {
     margin-right: 10px;
     &:last-child {

@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.gcp.computational.GcpComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
@@ -38,6 +39,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 
@@ -92,9 +94,8 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.slaveNumber(formDTO.getSlaveInstanceCount())
 					.masterNumber(formDTO.getMasterInstanceCount())
 					.preemptibleNumber(formDTO.getPreemptibleCount())
-					.config(formDTO.getConfig())
 					.version(formDTO.getVersion())
-					.checkInactivityRequired(formDTO.isCheckInactivityRequired()).build();
+					.build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
 					gcpComputationalResource);
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
@@ -154,7 +155,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 
 		return Response.ok().build();
 	}
@@ -207,27 +208,38 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 		return Response.ok().build();
 	}
 
-	/**
-	 * Updates 'check_inactivity_required' parameter for user's computational resource in database.
-	 *
-	 * @param userInfo                user info.
-	 * @param exploratoryName         name of exploratory.
-	 * @param computationalName       name of computational resource.
-	 * @param checkInactivityRequired true/false.
-	 * @return 200 OK if operation is successfully triggered
-	 */
 	@PUT
-	@Path("/{exploratoryName}/{computationalName}/inactivity")
-	public Response updateInactivity(@Auth UserInfo userInfo,
-									 @PathParam("exploratoryName") String exploratoryName,
-									 @PathParam("computationalName") String computationalName,
-									 @QueryParam("check_inactivity") boolean checkInactivityRequired) {
-		log.debug("Updating check inactivity cluster flag to {} for computational resource {} affiliated with " +
-						"exploratory {} for user {}", checkInactivityRequired, computationalName, exploratoryName,
-				userInfo.getName());
-		computationalService.updateCheckInactivityFlag(userInfo, exploratoryName, computationalName,
-				checkInactivityRequired);
+	@Path("dataengine/{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Updates Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully updated")
+	)
+	public Response updateDataEngineConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+										   @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+												   required = true)
+										   @PathParam("exploratoryName") String exploratoryName,
+										   @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+										   @PathParam("computationalName") String computationalName,
+										   @ApiParam(value = "Spark cluster config", required = true)
+										   @Valid @NotNull List<ClusterConfig> config) {
+
+		computationalService.updateSparkClusterConfig(userInfo, exploratoryName, computationalName, config);
 		return Response.ok().build();
+	}
+
+	@GET
+	@Path("{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Returns Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully returned")
+	)
+	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+											 required = true)
+									 @PathParam("exploratoryName") String exploratoryName,
+									 @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+									 @PathParam("computationalName") String computationalName) {
+		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
 	}
 
 	private void validate(@Auth UserInfo userInfo, GcpComputationalCreateForm formDTO) {

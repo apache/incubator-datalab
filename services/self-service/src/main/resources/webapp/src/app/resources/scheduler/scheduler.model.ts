@@ -33,6 +33,9 @@ export class SchedulerModel {
   private continueWith: Function;
   private schedulerService: SchedulerService;
 
+  fnProcessResults: any;
+  fnProcessErrors: any;
+
   static getDefault(schedulerService): SchedulerModel {
     return new SchedulerModel(() => {}, () => {}, null, schedulerService);
   }
@@ -43,6 +46,8 @@ export class SchedulerModel {
     continueWith: Function,
     schedulerService: SchedulerService
   ) {
+    this.fnProcessResults = fnProcessResults;
+    this.fnProcessErrors = fnProcessErrors;
     this.continueWith = continueWith;
     this.schedulerService = schedulerService;
     this.prepareModel(fnProcessResults, fnProcessErrors);
@@ -52,6 +57,15 @@ export class SchedulerModel {
 
   private scheduleInstance(notebook, params, resourse) {
     return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
+  }
+
+  public setInactivityTime(params) {
+    let [notebook, data, resource] = params;
+    return this.scheduleInstance(notebook, data, resource);
+  }
+
+  public resetSchedule(notebook, resourse) {
+    return this.schedulerService.resetScheduleSettings(notebook, resourse);
   }
 
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {

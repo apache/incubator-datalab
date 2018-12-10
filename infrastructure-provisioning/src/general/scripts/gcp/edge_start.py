@@ -46,10 +46,8 @@ if __name__ == "__main__":
     try:
         GCPActions().start_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to start edge.", str(err))
-        sys.exit(1)
-
-    except:
         sys.exit(1)
 
     try:

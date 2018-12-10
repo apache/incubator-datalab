@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EdgeService;
@@ -32,9 +33,7 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.epam.dlab.dto.UserInstanceStatus.*;
-import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_START;
-import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_STOP;
-import static com.epam.dlab.rest.contracts.EdgeAPI.EDGE_TERMINATE;
+import static com.epam.dlab.rest.contracts.EdgeAPI.*;
 
 @Singleton
 @Slf4j
@@ -54,6 +53,7 @@ public class EdgeServiceImpl implements EdgeService {
 	private RequestId requestId;
 
 
+	@BudgetLimited
 	@Override
 	public String start(UserInfo userInfo) {
 		log.debug("Starting EDGE node for user {}", userInfo.getName());

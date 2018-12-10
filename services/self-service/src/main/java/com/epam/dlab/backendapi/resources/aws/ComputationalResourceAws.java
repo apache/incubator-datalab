@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -39,8 +40,10 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.base.DataEngineType.SPARK_STANDALONE;
 
 
 /**
@@ -97,7 +100,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.slaveNumber(form.getInstanceCount())
 					.config(form.getConfig())
 					.version(form.getVersion())
-					.checkInactivityRequired(form.isCheckInactivityRequired()).build();
+					.build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
 					awsComputationalResource);
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
@@ -126,11 +129,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
-			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
-			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
-		}
-
+		validate(form);
 		return computationalService.createSparkCluster(userInfo, form)
 				? Response.ok().build()
 				: Response.status(Response.Status.FOUND).build();
@@ -155,7 +154,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 
 		return Response.ok().build();
 	}
@@ -208,30 +207,56 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		return Response.ok().build();
 	}
 
-	/**
-	 * Updates 'check_inactivity_required' parameter for user's computational resource in database.
-	 *
-	 * @param userInfo                user info.
-	 * @param exploratoryName         name of exploratory.
-	 * @param computationalName       name of computational resource.
-	 * @param checkInactivityRequired true/false.
-	 * @return 200 OK if operation is successfully triggered
-	 */
 	@PUT
-	@Path("/{exploratoryName}/{computationalName}/inactivity")
-	public Response updateInactivity(@Auth UserInfo userInfo,
-									 @PathParam("exploratoryName") String exploratoryName,
-									 @PathParam("computationalName") String computationalName,
-									 @QueryParam("check_inactivity") boolean checkInactivityRequired) {
-		log.debug("Updating check inactivity cluster flag to {} for computational resource {} affiliated with " +
-						"exploratory {} for user {}", checkInactivityRequired, computationalName, exploratoryName,
-				userInfo.getName());
-		computationalService.updateCheckInactivityFlag(userInfo, exploratoryName, computationalName,
-				checkInactivityRequired);
+	@Path("dataengine/{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Updates Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully updated")
+	)
+	public Response updateDataEngineConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+										   @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+												   required = true)
+										   @PathParam("exploratoryName") String exploratoryName,
+										   @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+										   @PathParam("computationalName") String computationalName,
+										   @ApiParam(value = "Spark cluster config", required = true)
+										   @Valid @NotNull List<ClusterConfig> config) {
+
+		computationalService.updateSparkClusterConfig(userInfo, exploratoryName, computationalName, config);
 		return Response.ok().build();
 	}
 
-	private void validate(@Auth UserInfo userInfo, AwsComputationalCreateForm formDTO) {
+	@GET
+	@Path("{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Returns Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully returned")
+	)
+	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+											 required = true)
+									 @PathParam("exploratoryName") String exploratoryName,
+									 @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+									 @PathParam("computationalName") String computationalName) {
+		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
+	}
+
+	private void validate(SparkStandaloneClusterCreateForm form) {
+
+		int instanceCount = Integer.parseInt(form.getDataEngineInstanceCount());
+
+		if (instanceCount < configuration.getMinSparkInstanceCount()
+				|| instanceCount > configuration.getMaxSparkInstanceCount()) {
+			throw new IllegalArgumentException(String.format("Instance count should be in range [%d..%d]",
+					configuration.getMinSparkInstanceCount(), configuration.getMaxSparkInstanceCount()));
+		}
+
+		if (DataEngineType.fromDockerImageName(form.getImage()) != SPARK_STANDALONE) {
+			throw new IllegalArgumentException(String.format("Unknown data engine %s", form.getImage()));
+		}
+	}
+
+	private void validate(UserInfo userInfo, AwsComputationalCreateForm formDTO) {
 		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
 			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());

@@ -16,12 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
-import { ErrorUtils, HTTP_STATUS_CODES } from '../core/util';
+import { HTTP_STATUS_CODES } from '../core/util';
 import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
@@ -30,29 +30,34 @@ import { DICTIONARY } from '../../dictionary/global.dictionary';
   styleUrls: ['./login.component.css']
 })
 
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
   model = new LoginModel('', '');
   error: string;
   loading = false;
   userPattern = '\\w+.*\\w+';
 
-  subscription: Subscription;
+  subscriptions: Subscription;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
-    private healthStatusService: HealthStatusService,
-    private ref: ChangeDetectorRef
+    private healthStatusService: HealthStatusService
   ) {
-    this.subscription = this.applicationSecurityService.emitter$
+    this.subscriptions = this.applicationSecurityService.emitter$
       .subscribe(message => this.error = message);
   }
 
   ngOnInit() {
     this.applicationSecurityService.isLoggedIn().subscribe(result => {
-      this.checkHealthStatusAndRedirect(result);
+      console.log('LOGGED IN  /login component');
+
+      result && this.checkHealthStatusAndRedirect(result);
     });
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   login_btnClick() {
@@ -72,7 +77,7 @@ export class LoginComponent implements OnInit {
         if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
           window.location.href = error.headers.get('Location');
         } else {
-          let errObj = error.json();
+          const errObj = error.json();
           this.error = errObj.message;
           this.loading = false;
         }
@@ -90,15 +95,13 @@ export class LoginComponent implements OnInit {
   }
 
   checkHealthStatusAndRedirect(isLoggedIn) {
-    if (isLoggedIn)
-      this.healthStatusService.isHealthStatusOk()
-        .subscribe(isHealthStatusOk => {
-          if (isLoggedIn && !isHealthStatusOk) {
-            this.appRoutingService.redirectToHealthStatusPage();
-          } else {
-            this.appRoutingService.redirectToHomePage();
-          }
-        });
+    this.healthStatusService.isHealthStatusOk()
+      .subscribe(isHealthStatusOk => {
+        if (isLoggedIn && !isHealthStatusOk) {
+          this.appRoutingService.redirectToHealthStatusPage();
+        } else {
+          this.appRoutingService.redirectToHomePage();
+        }
+      });
   }
 }
-

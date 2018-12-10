@@ -45,6 +45,7 @@ parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
+parser.add_argument('--spark_configurations', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
@@ -145,8 +146,9 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
                     except:
                         local('sleep 5')
         local('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured')
-    except:
-            sys.exit(1)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
 
 def install_remote_livy(args):
@@ -169,7 +171,8 @@ if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
     install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                              args.datalake_enabled)
-    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled,
+                               args.spark_configurations)
     if args.multiple_clusters == 'true':
         install_remote_livy(args)
     configure_zeppelin_dataengine_interpreter(args.cluster_name, cluster_dir, args.os_user,

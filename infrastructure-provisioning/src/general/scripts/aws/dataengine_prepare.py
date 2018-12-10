@@ -90,6 +90,8 @@ if __name__ == "__main__":
         data_engine['cluster_nodes_resource_tag'] = {"Key": os.environ['conf_tag_resource_id'],
                                                      "Value": data_engine['service_base_name'] + ':' +
                                                               data_engine['cluster_name']}
+        data_engine['cluster_nodes_billing_tag'] = {"Key": os.environ['conf_billing_tag_key'],
+                                                     "Value": os.environ['conf_billing_tag_value']}
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
@@ -132,11 +134,13 @@ if __name__ == "__main__":
             data_engine['master_id'] = get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name'])
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
+            create_tag(data_engine['master_id'], data_engine['cluster_nodes_billing_tag'], False)
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create master instance.", str(err))
         sys.exit(1)
 
@@ -158,11 +162,13 @@ if __name__ == "__main__":
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_billing_tag'], False)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)

@@ -19,17 +19,21 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.*;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
@@ -40,6 +44,7 @@ import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.push;
 import static com.mongodb.client.model.Updates.set;
+import static java.util.stream.Collectors.toList;
 
 /**
  * DAO for user computational resources.
@@ -50,21 +55,21 @@ public class ComputationalDAO extends BaseDAO {
 	static final String COMPUTATIONAL_ID = "computational_id";
 
 	static final String IMAGE = "image";
-	public static final String COMPUTATIONAL_NOT_FOUND_MSG = "Computational resource %s affiliated with exploratory " +
-			"%s for user %s not found";
 	private static final String COMPUTATIONAL_URL = "computational_url";
+	private static final String EXPLORATORY_NAME = "exploratory_name";
 	private static final String COMPUTATIONAL_URL_DESC = "description";
 	private static final String COMPUTATIONAL_URL_URL = "url";
 	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
+	private static final String CONFIG = "config";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
 	}
 
-	private static Bson computationalCondition(String user, String exploratoryField, String exploratoryFieldValue,
-											   String compResourceField, String compResourceFieldValue) {
-		return and(eq(USER, user), eq(exploratoryField, exploratoryFieldValue),
-				eq(COMPUTATIONAL_RESOURCES + "." + compResourceField, compResourceFieldValue));
+	private static Bson computationalCondition(String user, String exploratoryFieldValue,
+											   String compResourceFieldValue) {
+		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryFieldValue),
+				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, compResourceFieldValue));
 	}
 
 	/**
@@ -76,19 +81,12 @@ public class ComputationalDAO extends BaseDAO {
 	 * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
 	 */
 	public boolean addComputational(String user, String exploratoryName, UserComputationalResource computationalDTO) {
-		Optional<Document> optional = findOne(USER_INSTANCES,
+		final UpdateResult updateResult = updateOne(USER_INSTANCES,
 				and(exploratoryCondition(user, exploratoryName),
-						elemMatch(COMPUTATIONAL_RESOURCES,
-								eq(COMPUTATIONAL_NAME, computationalDTO.getComputationalName())))
-		);
-		if (!optional.isPresent()) {
-			updateOne(USER_INSTANCES,
-					exploratoryCondition(user, exploratoryName),
-					push(COMPUTATIONAL_RESOURCES, convertToBson(computationalDTO)));
-			return true;
-		} else {
-			return false;
-		}
+						not(elemMatch(COMPUTATIONAL_RESOURCES,
+								eq(COMPUTATIONAL_NAME, computationalDTO.getComputationalName())))),
+				push(COMPUTATIONAL_RESOURCES, convertToBson(computationalDTO)));
+		return updateResult.getModifiedCount() > 0;
 	}
 
 	/**
@@ -103,21 +101,14 @@ public class ComputationalDAO extends BaseDAO {
 															  String computationalName) {
 		Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
 				and(exploratoryCondition(user, exploratoryName),
-						elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computationalName))),
-				fields(include(COMPUTATIONAL_RESOURCES), excludeId()),
+						Filters.elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computationalName))),
+				fields(include(COMPUTATIONAL_RESOURCES + ".$"), excludeId()),
 				UserInstanceDTO.class);
-		if (opt.isPresent()) {
-			List<UserComputationalResource> list = opt.get().getResources();
-			UserComputationalResource comp = list.stream()
-					.filter(r -> r.getComputationalName().equals(computationalName))
-					.findFirst()
-					.orElse(null);
-			if (comp != null) {
-				return comp;
-			}
-		}
-		throw new DlabException("Computational resource " + computationalName + " for user " + user + " with " +
-				"exploratory name " + exploratoryName + " not found.");
+		return opt.map(UserInstanceDTO::getResources)
+				.filter(l -> !l.isEmpty())
+				.map(l -> l.get(0))
+				.orElseThrow(() -> new DlabException("Computational resource " + computationalName + " for user " + user + " with " +
+						"exploratory name " + exploratoryName + " not found."));
 	}
 
 	public List<UserComputationalResource> findComputationalResourcesWithStatus(String user, String exploratoryName,
@@ -132,7 +123,7 @@ public class ComputationalDAO extends BaseDAO {
 		return userInstanceDTO.getResources()
 				.stream()
 				.filter(computationalResource -> computationalResource.getStatus().equals(status.toString()))
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	/**
@@ -210,7 +201,7 @@ public class ComputationalDAO extends BaseDAO {
 		List<String> exploratoryNames = stream(find(USER_INSTANCES,
 				and(eq(USER, user), in(STATUS, statusList(exploratoryStatuses))),
 				fields(include(EXPLORATORY_NAME)))).map(d -> d.getString(EXPLORATORY_NAME))
-				.collect(Collectors.toList());
+				.collect(toList());
 
 		exploratoryNames.forEach(explName ->
 				getComputationalResourcesWhereStatusIn(user, computationalTypes, explName, oldComputationalStatuses)
@@ -246,11 +237,6 @@ public class ComputationalDAO extends BaseDAO {
 					new Document(SET,
 							new Document(computationalFieldFilter(STATUS), dataengineServiceStatus.toString())));
 		} while (result.getModifiedCount() > 0);
-	}
-
-	public void updateLastActivityForCluster(String user, String exploratoryName, String computationalName,
-											 Date lastActivity) {
-		updateComputationalField(user, exploratoryName, computationalName, COMPUTATIONAL_LAST_ACTIVITY, lastActivity);
 	}
 
 	private Bson computationalFilter(String user, String exploratoryName, String computationalStatus, String
@@ -293,6 +279,10 @@ public class ComputationalDAO extends BaseDAO {
 			if (dto.getLastActivity() != null) {
 				values.append(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY), dto.getLastActivity());
 			}
+			if (dto.getConfig() != null) {
+				values.append(computationalFieldFilter(CONFIG),
+						dto.getConfig().stream().map(this::convertToBson).collect(toList()));
+			}
 			return updateOne(USER_INSTANCES, and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
 					elemMatch(COMPUTATIONAL_RESOURCES,
 							and(eq(COMPUTATIONAL_NAME, dto.getComputationalName()),
@@ -305,7 +295,8 @@ public class ComputationalDAO extends BaseDAO {
 
 	private List<Map<String, String>> getResourceUrlData(ComputationalStatusDTO dto) {
 		return dto.getResourceUrl().stream()
-				.map(this::toUrlDocument).collect(Collectors.toList());
+				.map(this::toUrlDocument)
+				.collect(toList());
 	}
 
 	private LinkedHashMap<String, String> toUrlDocument(ResourceURL url) {
@@ -336,7 +327,7 @@ public class ComputationalDAO extends BaseDAO {
 		List<String> exploratoryNames = stream(find(USER_INSTANCES,
 				and(eq(USER, user), in(STATUS, statusList(exploratoryStatuses))),
 				fields(include(EXPLORATORY_NAME)))).map(d -> d.getString(EXPLORATORY_NAME))
-				.collect(Collectors.toList());
+				.collect(toList());
 
 		exploratoryNames.forEach(explName ->
 				getComputationalResourcesWhereStatusIn(user, computationalTypes, explName, computationalStatuses)
@@ -361,22 +352,6 @@ public class ComputationalDAO extends BaseDAO {
 	}
 
 	/**
-	 * Updates the requirement for checking inactivity for single computational resource in Mongo database.
-	 *
-	 * @param user                    user name.
-	 * @param exploratoryName         exploratory's name.
-	 * @param computationalName       name of computational resource.
-	 * @param checkInactivityRequired true/false.
-	 */
-
-	public void updateCheckInactivityFlagForComputationalResource(String user, String exploratoryName,
-																  String computationalName,
-																  boolean checkInactivityRequired) {
-		updateComputationalField(user, exploratoryName, computationalName, CHECK_INACTIVITY_REQUIRED,
-				checkInactivityRequired);
-	}
-
-	/**
 	 * Returns names of computational resources which status is among existing ones. Also these resources will
 	 * have predefined type.
 	 *
@@ -397,14 +372,21 @@ public class ComputationalDAO extends BaseDAO {
 				.filter(doc ->
 						statusList(computationalStatuses).contains(doc.getString(STATUS)) &&
 								computationalTypes.contains(DataEngineType.fromDockerImageName(doc.getString(IMAGE))))
-				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(Collectors.toList());
+				.map(doc -> doc.getString(COMPUTATIONAL_NAME)).collect(toList());
 	}
 
-	public List<String> getComputationalNamesWhereStatusIn(String user, DataEngineType dataEngineType,
-														   String exploratoryName,
-														   UserInstanceStatus... computationalStatuses) {
-		return getComputationalResourcesWhereStatusIn(user, Collections.singletonList(dataEngineType),
-				exploratoryName, computationalStatuses);
+	@SuppressWarnings("unchecked")
+	public List<ClusterConfig> getClusterConfig(String user, String exploratoryName, String computationalName) {
+		return findOne(USER_INSTANCES,
+				and(exploratoryCondition(user, exploratoryName),
+						Filters.elemMatch(COMPUTATIONAL_RESOURCES, and(eq(COMPUTATIONAL_NAME, computationalName),
+								notNull(CONFIG)))),
+				fields(include(COMPUTATIONAL_RESOURCES + ".$"), excludeId())
+		).map(d -> ((List<Document>) d.get(COMPUTATIONAL_RESOURCES)).get(0))
+				.map(d -> convertFromDocument((List<Document>) d.get(CONFIG),
+						new TypeReference<List<ClusterConfig>>() {
+						}))
+				.orElse(Collections.emptyList());
 	}
 
 	/**
@@ -420,7 +402,7 @@ public class ComputationalDAO extends BaseDAO {
 	private <T> UpdateResult updateComputationalField(String user, String exploratoryName, String computationalName,
 													  String fieldName, T fieldValue) {
 		return updateOne(USER_INSTANCES,
-				computationalCondition(user, EXPLORATORY_NAME, exploratoryName, COMPUTATIONAL_NAME, computationalName),
+				computationalCondition(user, exploratoryName, computationalName),
 				set(computationalFieldFilter(fieldName), fieldValue));
 	}
 
@@ -443,4 +425,9 @@ public class ComputationalDAO extends BaseDAO {
 	}
 
 
+	public void updateLastActivityDateForInstanceId(String instanceId, LocalDateTime lastActivity) {
+		updateOne(USER_INSTANCES, eq(computationalFieldFilter(COMPUTATIONAL_ID), instanceId),
+				set(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY),
+						Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
+	}
 }

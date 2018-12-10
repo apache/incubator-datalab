@@ -28,11 +28,29 @@ limitations under the License.
   <modal-content>
     <div *ngIf="destination" class="content-box">
       <form [formGroup]="schedulerForm">
-        <div class="enable-schedule m-bott-10">
+        <div class="enable-schedule">
           <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)">
             <span *ngIf="toggleSchedule" class="hold-label">Enable scheduler</span>
           </mat-slide-toggle>
+          <div class="idle">
+            <mat-slide-toggle labelPosition="before" [checked]="enableIdleTime" (change)="toggleIdleTimes($event)">
+              <span *ngIf="toggleSchedule" class="hold-label">Inactivity time</span>
+            </mat-slide-toggle>
+          </div>
         </div>
+
+        <div class="note m-bott-10">NOTE: In case of turning on inactivity time-check, your schedule configuration will be decommissioned.</div>
+
+        <div class="control-group idle-control" [ngClass]="{ show: enableIdleTime }">
+          <label class="label">Inactivity time</label>
+          <div class="control">
+            <input type="number" class="form-control" min="10" max="10080" formControlName="inactivityTime" class="form-control" placeholder="Enter time in min" />
+            <span class="danger_color" *ngIf="!schedulerForm.controls.inactivityTime.valid">
+              <span>The value should be an integer greater than or equal to {{ inactivityLimits.min }} and cannot exceed 1 week ({{ inactivityLimits.max }}) in min</span>
+            </span>
+          </div>
+        </div>
+
         <div class="row-wrap">
           <div class="col-3">
             <mat-form-field>
@@ -91,7 +109,7 @@ limitations under the License.
             </mat-button-toggle>
           </div>
         </div>
-        <span class="weekdays-note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified</span>
+        <span class="note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified.</span>
         <div class="inherit" *ngIf="destination">
           <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
             <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
@@ -105,7 +123,7 @@ limitations under the License.
       </form>
       <div class="text-center m-top-30">
         <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
-        <button mat-raised-button type="button" class="butt butt-success action" (click)="scheduleInstance_btnClick()">Save</button>
+        <button mat-raised-button type="button" class="butt butt-success action" [disabled]="!enableSchedule && !enableIdleTime" (click)="scheduleInstance_btnClick()">Save</button>
       </div>
     </div>
   </modal-content>

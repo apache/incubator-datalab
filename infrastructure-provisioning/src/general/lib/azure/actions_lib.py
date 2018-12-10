@@ -40,6 +40,7 @@ import sys, time
 import os, json
 import dlab.fab
 import dlab.common_lib
+import ast
 
 
 class AzureActions:
@@ -102,7 +103,8 @@ class AzureActions:
                 {
                     'location': region,
                     'tags': {
-                        'Name': vpc_name
+                        'Name': vpc_name,
+                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']
                     },
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
@@ -1041,8 +1043,15 @@ def ensure_local_jars(os_user, jars_dir):
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
+def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        # Checking if spark.jars parameter was generated previously
+        spark_jars_paths = None
+        if exists('/opt/spark/conf/spark-defaults.conf'):
+            try:
+                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+            except:
+                spark_jars_paths = None
         user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
             replace('_', '-') + '-storage'
         shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
@@ -1074,36 +1083,70 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type=
         else:
             sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
             sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
-        if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
-            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-            sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-                  /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
-    except Exception as err:
-        logging.info(
-            "Unable to configure Spark: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to configure Spark",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
-    try:
+        put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+              /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = dlab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
-    except:
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+                                                                                              spark_memory))
+        if 'spark_configurations' in os.environ:
+            spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+            new_spark_defaults = list()
+            spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
+            current_spark_properties = spark_defaults.split('\n')
+            for param in current_spark_properties:
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
+            new_spark_defaults = set(new_spark_defaults)
+            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            for prop in new_spark_defaults:
+                prop = prop.rstrip()
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+            if spark_jars_paths:
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+    except Exception as err:
+        print('Error:', str(err))
         sys.exit(1)
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
-    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
+    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
     if datalake_enabled == 'false':
-        local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
+        local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     else:
         local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
+    if spark_configs:
+        spark_configurations = ast.literal_eval(spark_configs)
+        new_spark_defaults = list()
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
+        current_spark_properties = spark_defaults.split('\n')
+        for param in current_spark_properties:
+            for config in spark_configurations:
+                if config['Classification'] == 'spark-defaults':
+                    for property in config['Properties']:
+                        if property == param.split(' ')[0]:
+                            param = property + ' ' + config['Properties'][property]
+                        else:
+                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
+            new_spark_defaults.append(param)
+        new_spark_defaults = set(new_spark_defaults)
+        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        for prop in new_spark_defaults:
+            prop = prop.rstrip()
+            local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
+        local('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
@@ -1173,7 +1216,8 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
                     spark_dist_classpath))
                 sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
 
 
@@ -1208,4 +1252,13 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
             local('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
                 spark_dist_classpath, cluster_dir))
     except:
+        sys.exit(1)
+
+
+def find_des_jars(all_jars, des_path):
+    try:
+        # Use this method to filter cloud jars (see an example in aws method)
+        return all_jars
+    except Exception as err:
+        print('Error:', str(err))
         sys.exit(1)

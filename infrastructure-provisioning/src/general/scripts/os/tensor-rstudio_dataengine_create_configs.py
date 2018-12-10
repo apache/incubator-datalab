@@ -40,6 +40,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
+parser.add_argument('--spark_configurations', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
@@ -63,7 +64,8 @@ def configure_rstudio():
                   args.os_user + '/.Rprofile')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured')
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
@@ -76,7 +78,8 @@ def configure_rstudio():
             local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
                   args.os_user + '/.Rprofile')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
 
 
@@ -85,6 +88,7 @@ if __name__ == "__main__":
     install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                              args.datalake_enabled)
     ensure_dataengine_tensorflow_jars(local_jars_dir)
-    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled,
+                               args.spark_configurations)
     configure_rstudio()
 

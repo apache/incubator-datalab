@@ -40,7 +40,8 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
                     print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
             print("There are no EMR clusters to terminate.")
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
@@ -109,7 +110,8 @@ if __name__ == "__main__":
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     try:

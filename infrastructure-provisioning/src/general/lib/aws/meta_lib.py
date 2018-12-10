@@ -316,6 +316,17 @@ def get_vpc_by_cidr(cidr):
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def get_cidr_by_vpc(vpc_id):
+    try:
+        client = boto3.client('ec2')
+        cidr = client.describe_vpcs(VpcIds=[vpc_id]).get('Vpcs')[0].get('CidrBlock')
+        return cidr
+    except Exception as err:
+        logging.error("Error with getting VPC CidrBlock by id: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting VPC CidrBlock by id",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def get_vpc_by_tag(tag_name, tag_value):
     try:
@@ -328,6 +339,35 @@ def get_vpc_by_tag(tag_name, tag_value):
             file=sys.stdout))
         append_result(str({"error": "Error with getting VPC ID by tag",
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def get_peering_by_tag(tag_name, tag_value):
+    try:
+        client = boto3.client('ec2')
+        peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
+                                                                   {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
+        return peering_id
+    except Exception as err:
+        logging.error("Error with getting peering connection ID by tag: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting peering connection ID by tag",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def get_vpc_cidr_by_id(vpc_id):
+    try:
+        cidr_list = list()
+        ec2 = boto3.client('ec2')
+        for vpc in ec2.describe_vpcs(VpcIds=[vpc_id]).get('Vpcs'):
+            for cidr_set in vpc.get('CidrBlockAssociationSet'):
+                cidr_list.append(cidr_set.get('CidrBlock'))
+            return cidr_list
+        return ''
+    except Exception as err:
+        logging.error("Error with getting VPC CIDR by ID: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting VPC CIDR by ID",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -748,24 +788,62 @@ def get_allocation_id_by_elastic_ip(elastic_ip):
 
 def get_ec2_price(instance_shape, region):
     try:
-        regions = {'us-west-2': 'Oregon', 'us-east-1': 'N. Virginia', 'us-east-2': 'Ohio', 'us-west-1': 'N. California',
-                   'ca-central-1': 'Central', 'eu-west-1': 'Ireland', 'eu-central-1': 'Frankfurt',
-                   'eu-west-2': 'London', 'ap-northeast-1': 'Tokyo', 'ap-northeast-2': 'Seoul',
-                   'ap-southeast-1': 'Singapore', 'ap-southeast-2': 'Sydney', 'ap-south-1': 'Mumbai',
-                   'sa-east-1': 'Sao Paulo'}
-        response = urllib2.urlopen(
-            'https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json')
-        price_json = response.read()
-        pricing = json.loads(price_json)
-        for i in pricing.get('products'):
-            if pricing.get('products').get(i).get('attributes').get('instanceType') == instance_shape\
-                    and pricing.get('products').get(i).get('attributes').get('operatingSystem') == 'Linux' \
-                    and regions.get(region) in pricing.get('products').get(i).get('attributes').get('location') \
-                    and pricing.get('products').get(i).get('attributes').get('tenancy') == 'Shared':
-                for j in pricing.get('terms').get('OnDemand').get(i):
-                    for h in pricing.get('terms').get('OnDemand').get(i).get(j).get('priceDimensions'):
-                        return float(pricing.get('terms').get('OnDemand').get(i).get(j).get('priceDimensions').get(h).
-                                     get('pricePerUnit').get('USD'))
+        price = '0.001'
+        # Price API endpoints: us-east-1, ap-south-1
+        client = boto3.client('pricing', 'us-east-1')
+        # Price API require full name of region, for example: eu-west-1 -> 'EU (Ireland)'
+        # endpoints will be loaded from: botocore/botocore/data/endpoints.json
+        data = client._loader._cache.get(('load_data', 'endpoints'))
+        standard_partition = filter(lambda x: 'AWS Standard' == x['partitionName'], data['partitions'])[0]
+        region_description = standard_partition['regions'][region]['description']
+
+        response = client.get_products(
+            ServiceCode='AmazonEC2',
+            Filters=[
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'instanceType',
+                    'Value': '{0}'.format(instance_shape)
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'operatingSystem',
+                    'Value': 'Linux'
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'tenancy',
+                    'Value': 'Shared'
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'location',
+                    'Value': '{0}'.format(region_description)
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'preInstalledSw',
+                    'Value': 'NA'
+                },
+                {
+                    'Type': 'TERM_MATCH',
+                    'Field': 'capacityStatus',
+                    'Value': 'UnusedCapacityReservation'
+                }
+            ],
+            FormatVersion='aws_v1',
+            NextToken='',
+            MaxResults=1
+        )
+
+        data = json.loads(response['PriceList'][0])
+        ondemand = data['terms']['OnDemand']
+        for offer in ondemand:
+            if (data['product']['sku'] in offer):
+                for i in ondemand[offer]['priceDimensions'].keys():
+                    price = ondemand[offer]['priceDimensions'][i]['pricePerUnit']['USD']
+
+        return price
     except Exception as err:
         logging.error("Error with getting EC2 price: " + str(err) + "\n Traceback: " +
                       traceback.print_exc(file=sys.stdout))
@@ -803,7 +881,7 @@ def node_count(cluster_name):
         ec2 = boto3.client('ec2')
         node_list = ec2.describe_instances(Filters=[
             {'Name': 'instance-state-name', 'Values': ['running']},
-            {'Name': 'tag:Name', 'Values': [cluster_name + '*']}]).get('Reservations')
+            {'Name': 'tag:Name', 'Values': [cluster_name + '-*']}]).get('Reservations')
         result = len(node_list)
         return result
     except Exception as err:
@@ -827,7 +905,7 @@ def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
         elif conf_type == 'computational_resource':
             group_tag_name = os.environ['conf_service_base_name'] + ':' + instance_id
             print(group_tag_name)
-            instance_list = get_ec2_list('user:tag', group_tag_name)
+            instance_list = get_ec2_list(os.environ['conf_tag_resource_id'], group_tag_name)
             for instance in instance_list:
                 private_list_ip.append(
                     get_instance_ip_address_by_id(instance.id).get('Private'))
@@ -836,6 +914,31 @@ def get_list_private_ip_by_conf_type_and_id(conf_type, instance_id):
         logging.error("Error getting private ip by conf_type and id: " + str(err) + "\n Traceback: " +
                       traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Error getting private ip by conf_type and id",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def format_sg(sg_rules):
+    try:
+        formatted_sg_rules = list()
+        for rule in sg_rules:
+            if rule['IpRanges']:
+                for ip_range in rule['IpRanges']:
+                    formatted_rule = dict()
+                    for key in rule.keys():
+                        if key == 'IpRanges':
+                            formatted_rule['IpRanges'] = [ip_range]
+                        else:
+                            formatted_rule[key] = rule[key]
+                    if formatted_rule not in formatted_sg_rules:
+                        formatted_sg_rules.append(formatted_rule)
+            else:
+                formatted_sg_rules.append(rule)
+        return formatted_sg_rules
+    except Exception as err:
+        logging.error("Error with formatting SG rules: " + str(err) + "\n Traceback: " +
+                      traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with formatting SG rules",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 

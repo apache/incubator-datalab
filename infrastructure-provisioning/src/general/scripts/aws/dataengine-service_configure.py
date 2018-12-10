@@ -50,6 +50,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create dlab ssh user.", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -68,6 +69,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure proxy.", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -85,6 +87,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure dataengine service.", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -126,6 +129,7 @@ def configure_dataengine_service(instance, emr_conf):
             append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed edge reverse proxy template", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -142,6 +146,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key", str(err))
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
@@ -180,6 +185,7 @@ if __name__ == "__main__":
     emr_conf['instance_count'] = os.environ['emr_instance_count']
     emr_conf['notebook_ip'] = get_instance_ip_address(emr_conf['tag_name'],
                                                       os.environ['notebook_instance_name']).get('Private')
+    emr_conf['network_type'] = os.environ['conf_network_type']
     emr_conf['role_service_name'] = os.environ['emr_service_role']
     emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
     emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + \
@@ -208,8 +214,12 @@ if __name__ == "__main__":
     emr_conf['edge_instance_name'] = emr_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     emr_conf['edge_instance_hostname'] = get_instance_private_ip_address(emr_conf['tag_name'],
                                                                          emr_conf['edge_instance_name'])
-    emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
-                                                                         emr_conf['edge_instance_name']).get('Public')
+    if emr_conf['network_type'] == 'private':
+        emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
+                                                               emr_conf['edge_instance_name']).get('Private')
+    else:
+        emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
+                                                                             emr_conf['edge_instance_name']).get('Public')
     emr_conf['user_keyname'] = os.environ['edge_user_name']
     emr_conf['os_user'] = os.environ['conf_os_user']
     emr_conf['initial_user'] = 'ec2-user'

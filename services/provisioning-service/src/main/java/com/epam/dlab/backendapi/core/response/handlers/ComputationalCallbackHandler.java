@@ -33,10 +33,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 public class ComputationalCallbackHandler extends ResourceCallbackHandler<ComputationalStatusDTO> {
@@ -99,26 +101,29 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 
 	private String instanceId(JsonNode jsonNode) {
 		if (jsonNode != null && jsonNode.isArray()) {
-			List<String> ids = new ArrayList<>();
-			for (JsonNode id : jsonNode) {
-				ids.add(id.textValue());
-			}
-			return String.join(";", ids);
+			return StreamSupport.stream(jsonNode.spliterator(), false)
+					.map(JsonNode::textValue)
+					.collect(Collectors.joining(";"));
+		} else {
+			return getTextValue(jsonNode);
 		}
 
-		return getTextValue(jsonNode);
 	}
 
 	private List<ResourceURL> extractUrl(JsonNode resultNode) {
 		final JsonNode nodeUrl = resultNode.get(COMPUTATIONAL_URL_FIELD);
-		if (nodeUrl != null) {
-			try {
-				return mapper.readValue(nodeUrl.toString(), new TypeReference<List<ResourceURL>>() {
-				});
-			} catch (IOException e) {
-				log.warn("Cannot parse field {} for UUID {} in JSON", RESPONSE_NODE + "." + RESULT_NODE + "." +
-						COMPUTATIONAL_URL_FIELD, getUUID(), e);
-			}
+		return Optional.ofNullable(nodeUrl)
+				.map(this::getUrls)
+				.orElse(Collections.emptyList());
+	}
+
+	private List<ResourceURL> getUrls(JsonNode nodeUrl) {
+		try {
+			return mapper.readValue(nodeUrl.toString(), new TypeReference<List<ResourceURL>>() {
+			});
+		} catch (IOException e) {
+			log.warn("Cannot parse field {} for UUID {} in JSON", RESPONSE_NODE + "." + RESULT_NODE + "." +
+					COMPUTATIONAL_URL_FIELD, getUUID(), e);
 		}
 		return Collections.emptyList();
 	}

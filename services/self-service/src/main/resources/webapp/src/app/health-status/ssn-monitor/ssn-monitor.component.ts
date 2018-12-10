@@ -17,7 +17,6 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from './../../../dictionary/global.dictionary';
 
 @Component({
@@ -35,15 +34,10 @@ export class SsnMonitorComponent implements OnInit {
   @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
 
-  constructor(public dialog: MatDialog) { }
-
   ngOnInit() {}
 
   public open(param, data): void {
     this.monitorData = data || {};
-
-    console.log(this.monitorData);
-    
     this.bindDialog.open(param);
   }
 
@@ -51,12 +45,11 @@ export class SsnMonitorComponent implements OnInit {
     if (obj) return Object.keys(obj).length === 0;
   }
 
-
   public convertSize(bytes) {
-    if (bytes == 0) return "0 Byte";
+    if (Number(bytes) === 0) return '0 Byte';
 
-    var sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
-    var i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return parseFloat((bytes / Math.pow(1024, i)).toFixed(3)) + " " + sizes[i]
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return parseFloat((bytes / Math.pow(1024, i)).toFixed(3)) + ' ' + sizes[i];
   }
 }

@@ -101,12 +101,14 @@ if __name__ == "__main__":
                                    "sbn": data_engine['service_base_name'],
                                    "user": data_engine['edge_user_name'],
                                    "type": "slave",
-                                   "notebook_name": data_engine['notebook_name']}
+                                   "notebook_name": data_engine['notebook_name'],
+                                   "product": "dlab"}
     data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                     "sbn": data_engine['service_base_name'],
                                     "user": data_engine['edge_user_name'],
                                     "type": "master",
-                                    "notebook_name": data_engine['notebook_name']}
+                                    "notebook_name": data_engine['notebook_name'],
+                                    "product": "dlab"}
 
     try:
         logging.info('[CREATE MASTER NODE]')
@@ -123,6 +125,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create instance.", str(err))
         GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
         sys.exit(1)
@@ -144,6 +147,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:

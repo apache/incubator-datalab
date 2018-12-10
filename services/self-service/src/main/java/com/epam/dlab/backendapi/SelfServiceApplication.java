@@ -117,6 +117,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(new ResourceNotFoundExceptionMapper());
 		jersey.register(new DlabValidationExceptionMapper());
 		jersey.register(new ValidationExceptionMapper());
+		jersey.register(new ResourceQuoteReachedExceptionMapper());
 		jersey.register(injector.getInstance(SecurityResource.class));
 		jersey.register(injector.getInstance(KeyUploaderResource.class));
 		jersey.register(injector.getInstance(EdgeResource.class));
@@ -145,10 +146,11 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(BackupCallback.class));
 		jersey.register(injector.getInstance(EnvironmentResource.class));
 		jersey.register(injector.getInstance(ReuploadKeyCallback.class));
-		jersey.register(injector.getInstance(CheckInactiveClusterCallback.class));
+		jersey.register(injector.getInstance(CheckInactivityCallback.class));
 		jersey.register(injector.getInstance(SystemInfoResource.class));
 		jersey.register(injector.getInstance(UserGroupResource.class));
 		jersey.register(injector.getInstance(UserRoleResource.class));
+		jersey.register(injector.getInstance(ApplicationSettingResource.class));
 	}
 
 	private void applyMongoMigration(SelfServiceApplicationConfiguration configuration) {

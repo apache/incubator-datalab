@@ -13,16 +13,17 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
-import java.util.Map;
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * Stores info about creation of the computational resource.
@@ -46,10 +47,10 @@ public class ComputationalCreateFormDTO {
 	@JsonProperty("notebook_name")
 	private String notebookName;
 
-	@JsonProperty
-	private Map<String, Object> config;
-
 	@JsonProperty("check_inactivity_required")
 	private boolean checkInactivityRequired = true;
+
+	@Valid
+	private List<ClusterConfig> config;
 
 }

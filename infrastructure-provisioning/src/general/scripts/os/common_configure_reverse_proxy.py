@@ -34,6 +34,7 @@ parser.add_argument('--exploratory_name', type=str, default='')
 parser.add_argument('--additional_info', type=str, default='')
 args = parser.parse_args()
 
+
 def make_template():
     conf_file_name = args.exploratory_name
     additional_info = json.loads(args.additional_info)
@@ -85,6 +86,7 @@ def make_template():
         f.close()
     return conf_file_name
 
+
 ##############
 # Run script #
 ##############
@@ -94,7 +96,7 @@ if __name__ == "__main__":
     try:
         conf_file_name = make_template()
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Configure connections")
@@ -102,7 +104,7 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.edge_hostname
     put('/tmp/{}.conf'.format(conf_file_name), '/etc/nginx/locations', use_sudo=True)
-    sudo('service nginx restart')
+    sudo('service nginx reload')
 
 
 

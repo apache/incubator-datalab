@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
 
@@ -70,7 +70,7 @@ export class ReportingGridComponent implements OnInit {
 
   resetFiltering(): void {
     this.filteredReportData.defaultConfigurations();
-    
+
     this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);
   }

@@ -24,9 +24,34 @@ limitations under the License.
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
+          <name>User_name</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Notebook_name</name>
+          <description>Name of the Notebook server</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>exploratory_name</name>
+          <description>Short name of notebook instance</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>computational_name</name>
+          <description>Short name of cluster instance</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>Nodes_Count</name>
           <description>Number of nodes the new cluster will consist of</description>
           <defaultValue></defaultValue>
+          <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>slave_spot_instance</name>
@@ -42,6 +67,7 @@ limitations under the License.
           <name>slave_instance_spot_pct_price</name>
           <description>The percentage of EC2 instance price which will be used for Spot price. If spot instances is disabled, the value of this parameter can be anything.</description>
           <defaultValue>70</defaultValue>
+          <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Master_node_size</name>
@@ -93,11 +119,13 @@ limitations under the License.
           <name>Service_role</name>
           <description></description>
           <defaultValue>EMR_DefaultRole</defaultValue>
+          <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>EMR_EC2_role</name>
           <description></description>
           <defaultValue>EMR_EC2_DefaultRole</defaultValue>
+          <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Release_label</name>
@@ -105,23 +133,15 @@ limitations under the License.
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>emr-5.6.0</string>
+              <string>emr-5.12.0</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Notebook_name</name>
-          <description>Name of the Notebook server</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>User_name</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>Timeout</name>
           <description>Timeout for EMR during build. Not mandatory</description>
           <defaultValue>1500</defaultValue>
+          <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>notebook_app</name>
@@ -135,6 +155,18 @@ limitations under the License.
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>aws_notebook_vpc_id</name>
+          <description>Notebook VPC ID (secondary or the same VPC ID for deploy)</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>configutations</name>
+          <description>Custom configurations for EMR cluster</description>
+          <defaultValue>[]</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -148,9 +180,28 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_prepare.json  | sed &apos;s/SPI/&apos;${slave_spot_instance}&apos;/g&apos; | sed &apos;s/SISPP/&apos;${slave_instance_spot_pct_price}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ESR/&apos;${Service_role}&apos;/g&apos; | sed &apos;s/EE2R/&apos;${EMR_EC2_role}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/EMIT/&apos;${Master_node_size}&apos;/g&apos; | sed &apos;s/ESMT/&apos;${Slave_node_size}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Timeout}&apos;/g&apos;  | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=CTUN&quot; -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action create;
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_prepare.json | \
+sed &apos;s/SPI/&apos;${slave_spot_instance}&apos;/g&apos; | \
+sed &apos;s/SISPP/&apos;${slave_instance_spot_pct_price}&apos;/g&apos; | \
+sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ESR/&apos;${Service_role}&apos;/g&apos; | \
+sed &apos;s/EE2R/&apos;${EMR_EC2_role}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | \
+sed &apos;s/EMIT/&apos;${Master_node_size}&apos;/g&apos; | sed &apos;s/ESMT/&apos;${Slave_node_size}&apos;/g&apos; | \
+sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Timeout}&apos;/g&apos; | \
+sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/NVPCID/&apos;${aws_notebook_vpc_id}&apos;/g&apos; | \
+sed &apos;s/EXN/&apos;${exploratory_name}&apos;/g&apos; | sed &apos;s/CON/&apos;${computational_name}&apos;/g&apos; | \
+sudo docker run -i -e &quot;conf_tag_resource_id=user:tag&quot; -e &quot;configurations=$configurations&quot; \
+-v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response \
+-v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service \
+docker.dlab-dataengine-service --action create;
+
 rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_configure.json  | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=CTUN&quot; -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-${notebook_app} --action configure;
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_configure.json | \
+sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | \
+sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | \
+sudo docker run -i -e &quot;conf_tag_resource_id=user:tag&quot; \
+-v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response \
+-v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service \
+docker.dlab-${notebook_app} --action configure;
         </command>
     </hudson.tasks.Shell>
   </builders>

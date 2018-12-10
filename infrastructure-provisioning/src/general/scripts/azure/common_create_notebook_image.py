@@ -43,7 +43,8 @@ if __name__ == "__main__":
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
                               "Image": image_conf['image_name'],
-                              "FIN": image_conf['full_image_name']}
+                              "FIN": image_conf['full_image_name'],
+                              os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])
@@ -86,6 +87,7 @@ if __name__ == "__main__":
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
                 print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
             except Exception as err:
+                print('Error: {0}'.format(err))
                 AzureActions().remove_instance(image_conf['resource_group_name'], image_conf['instance_name'])
                 append_result("Failed to create instance from image.", str(err))
                 sys.exit(1)
@@ -100,5 +102,6 @@ if __name__ == "__main__":
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create image from notebook", str(err))
         sys.exit(1)

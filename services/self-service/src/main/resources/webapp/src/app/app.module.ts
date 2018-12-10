@@ -28,8 +28,10 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
+import { NavbarModule } from './shared/navbar';
 import { GuidesModule } from './help';
 import { NotFoundModule } from './not-found/not-found.module';
+import { AccessDeniedModule } from './access-denied/access-denied.module';
 import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
@@ -46,9 +48,11 @@ import { CoreModule } from './core/core.module';
     ReactiveFormsModule,
     HttpModule,
     LoginModule,
+    NavbarModule,
     ResourcesModule,
     GuidesModule,
     NotFoundModule,
+    AccessDeniedModule,
     HealthStatusModule,
     ReportingModule,
     ManagenementModule,

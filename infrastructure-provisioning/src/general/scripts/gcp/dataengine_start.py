@@ -35,7 +35,8 @@ def start_data_engine(zone, cluster_name):
         if 'items' in instances:
             for i in instances['items']:
                 GCPActions().start_instance(i['name'], zone)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 

@@ -44,6 +44,7 @@ def get_from_stdin():
     else:
         return "{}"
 
+
 if __name__ == "__main__":
     # Get request ID as if it will need everywhere
     request_id = 'ssn'
@@ -103,7 +104,8 @@ if __name__ == "__main__":
         pass
 
     with hide('running'):
-        local('chmod 600 /root/keys/*.pem')
+        if args.action != 'terminate':
+            local('chmod 600 /root/keys/*.pem')
 
     if dry_run:
         with open("/response/{}.json".format(request_id), 'w') as response_file:
@@ -169,3 +171,7 @@ if __name__ == "__main__":
     elif args.action == 'terminate_image':
         with hide('running'):
             local("/bin/terminate_image.py")
+
+    elif args.action == 'reconfigure_spark':
+        with hide('running'):
+            local("/bin/reconfigure_spark.py")

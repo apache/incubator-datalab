@@ -35,24 +35,25 @@ def stop_notebook(resource_group_name, notebook_name):
     cluster_list = []
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            try:
+            if "notebook_name" in vm.tags:
                 if notebook_name == vm.tags['notebook_name']:
                     if 'master' == vm.tags["Type"]:
                         cluster_list.append(vm.tags["Name"])
                     AzureActions().stop_instance(resource_group_name, vm.name)
                     print("Instance {} has been stopped".format(vm.name))
-            except:
-                pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Stopping notebook")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if notebook_name == vm.tags["Name"]:
-                AzureActions().stop_instance(resource_group_name, vm.name)
-                print("Instance {} has been stopped".format(vm.name))
-    except:
+            if "Name" in vm.tags:
+                if notebook_name == vm.tags["Name"]:
+                    AzureActions().stop_instance(resource_group_name, vm.name)
+                    print("Instance {} has been stopped".format(vm.name))
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -83,6 +84,7 @@ if __name__ == "__main__":
     try:
         stop_notebook(notebook_config['resource_group_name'], notebook_config['notebook_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 

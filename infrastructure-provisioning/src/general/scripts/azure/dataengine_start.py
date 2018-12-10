@@ -32,10 +32,12 @@ def start_data_engine(resource_group_name, cluster_name):
     print("Starting data engine cluster")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if cluster_name == vm.tags["Name"]:
-                AzureActions().start_instance(resource_group_name, vm.name)
-                print("Instance {} has been started".format(vm.name))
-    except:
+            if "Name" in vm.tags:
+                if cluster_name == vm.tags["Name"]:
+                    AzureActions().start_instance(resource_group_name, vm.name)
+                    print("Instance {} has been started".format(vm.name))
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 

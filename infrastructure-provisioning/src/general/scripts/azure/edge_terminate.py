@@ -35,7 +35,8 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
                     print("Instance {} has been terminated".format(vm.name))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing network interfaces")
@@ -47,7 +48,8 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
                     print("Network interface {} has been removed".format(network_interface.name))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing static public IPs")
@@ -59,7 +61,8 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
                     print("Static public IP {} has been removed".format(static_public_ip.name))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing disks")
@@ -71,7 +74,8 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
                     print("Disk {} has been removed".format(disk.name))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing storage account")
@@ -83,7 +87,8 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
                     print("Storage account {} has been terminated".format(storage_account.name))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Deleting Data Lake Store directory")
@@ -95,7 +100,8 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
                     print("Data Lake Store directory {} has been deleted".format(user_name + '-folder'))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing security groups")
@@ -107,14 +113,16 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
                     print("Security group {} has been terminated".format(sg.name))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing private subnet")
     try:
         AzureActions().remove_subnet(resource_group_name, vpc_name, subnet_name)
         print("Private subnet {} has been terminated".format(subnet_name))
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 

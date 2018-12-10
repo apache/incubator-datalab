@@ -18,6 +18,7 @@
 
 FROM ubuntu:16.04
 ARG OS
+ARG SRC_PATH
 
 # Install any .deb dependecies
 RUN	apt-get update && \
@@ -56,15 +57,16 @@ RUN mkdir -p /root/conf && \
     mkdir -p /usr/lib/python2.7/dlab && \
     mkdir -p /root/keys/.ssh
 
-COPY base/ /root
-COPY general/conf/* /root/conf/
-COPY general/api/*.py /bin/
-COPY general/scripts/aws/common_* /root/scripts/
-COPY general/lib/aws/* /usr/lib/python2.7/dlab/
-COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
-COPY general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
-COPY general/files/os/${OS}/sources.list /root/files/
-COPY edge/templates/locations/ /root/locations/
+COPY ${SRC_PATH}base/ /root
+COPY ${SRC_PATH}general/conf/* /root/conf/
+COPY ${SRC_PATH}general/api/*.py /bin/
+COPY ${SRC_PATH}general/scripts/aws/common_* /root/scripts/
+COPY ${SRC_PATH}general/lib/aws/* /usr/lib/python2.7/dlab/
+COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
+COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
+COPY ${SRC_PATH}general/files/os/${OS}/sources.list /root/files/
+COPY ${SRC_PATH}general/files/os/ivysettings.xml /root/templates/
+COPY ${SRC_PATH}edge/templates/locations/ /root/locations/
 
 RUN chmod a+x /root/*.py && \
     chmod a+x /root/scripts/* && \

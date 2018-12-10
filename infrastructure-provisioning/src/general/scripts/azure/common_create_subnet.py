@@ -37,34 +37,39 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    empty_vpc = False
-    private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
-    first_vpc_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
-    subnets_cidr = []
-    subnets = AzureMeta().list_subnets(args.resource_group_name, args.vpc_name)
-    for subnet in subnets:
-        subnets_cidr.append(subnet.address_prefix)
-    sorted_subnets_cidr = sorted(subnets_cidr)
-    if not subnets_cidr:
-        empty_vpc = True
+    try:
+        empty_vpc = False
+        private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
+        first_vpc_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
+        subnets_cidr = []
+        subnets = AzureMeta().list_subnets(args.resource_group_name, args.vpc_name)
+        for subnet in subnets:
+            subnets_cidr.append(subnet.address_prefix)
+        sorted_subnets_cidr = sorted(subnets_cidr)
+        if not subnets_cidr:
+            empty_vpc = True
 
-    last_ip = first_vpc_ip
-    for cidr in sorted_subnets_cidr:
-        first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
-        if first_ip - last_ip < private_subnet_size:
-            subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
-            last_ip = first_ip + subnet_size - 1
+        last_ip = first_vpc_ip
+        for cidr in sorted_subnets_cidr:
+            first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
+            if first_ip - last_ip < private_subnet_size:
+                subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
+                last_ip = first_ip + subnet_size - 1
+            else:
+                break
+        if empty_vpc:
+            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
         else:
-            break
-    if empty_vpc:
-        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
-    else:
-        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
-    if args.subnet_name != '':
-        if AzureMeta().get_subnet(args.resource_group_name, args.vpc_name, args.subnet_name):
-            print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
+            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+        if args.subnet_name != '':
+            if AzureMeta().get_subnet(args.resource_group_name, args.vpc_name, args.subnet_name):
+                print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
+            else:
+                print("Creating Subnet {}".format(args.subnet_name))
+                AzureActions().create_subnet(args.resource_group_name, args.vpc_name, args.subnet_name, dlab_subnet_cidr)
         else:
-            print("Creating Subnet {}".format(args.subnet_name))
-            AzureActions().create_subnet(args.resource_group_name, args.vpc_name, args.subnet_name, dlab_subnet_cidr)
-    else:
+            print("Subnet name can't be empty")
+            sys.exit(1)
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

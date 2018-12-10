@@ -74,11 +74,41 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py --bucket " + args.bucket +
-         " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
-         spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
-         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
-         " --edge_hostname " + args.edge_hostname + " --proxy_port " + args.proxy_port + " --scala_version " +
-         args.scala_version + " --livy_version " + livy_version + " --multiple_clusters " +
-         os.environ['notebook_multiple_clusters'] + " --pip_mirror " + args.pip_mirror + " --numpy_version " + numpy_version + " --application " +
-         args.application + " --r_enabled " + r_enabled)
+    command = "/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
+             "--bucket {0} " \
+             "--cluster_name {1} " \
+             "--emr_version {2} " \
+             "--spark_version {3} " \
+             "--hadoop_version {4} " \
+             "--region {5} " \
+             "--excluded_lines '{6}' " \
+             "--user_name {7} " \
+             "--os_user {8} " \
+             "--edge_hostname {9} " \
+             "--proxy_port {10} " \
+             "--scala_version {11} " \
+             "--livy_version {12} " \
+             "--multiple_clusters {13} " \
+             "--pip_mirror {14} " \
+             "--numpy_version {15} " \
+             "--application {16} " \
+             "--r_enabled {17}" \
+        .format(args.bucket,
+                args.cluster_name,
+                args.emr_version,
+                spark_version,
+                hadoop_version,
+                args.region,
+                args.emr_excluded_spark_properties,
+                args.edge_user_name,
+                args.os_user,
+                args.edge_hostname,
+                args.proxy_port,
+                args.scala_version,
+                livy_version,
+                os.environ['notebook_multiple_clusters'],
+                args.pip_mirror,
+                numpy_version,
+                args.application,
+                r_enabled)
+    sudo(command)

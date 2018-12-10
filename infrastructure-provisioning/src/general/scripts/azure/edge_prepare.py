@@ -47,7 +47,10 @@ if __name__ == "__main__":
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
         edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-subnet'
         edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-nif'
-        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-ip'
+        if os.environ['conf_network_type'] == 'private':
+            edge_conf['static_public_ip_name'] = 'None'
+        else:
+            edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-ip'
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
@@ -74,10 +77,12 @@ if __name__ == "__main__":
         edge_conf['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         edge_conf['instance_tags'] = {"Name": edge_conf['instance_name'],
                                       "SBN": edge_conf['service_base_name'],
-                                      "User": edge_conf['user_name']}
+                                      "User": edge_conf['user_name'],
+                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         edge_conf['storage_account_tags'] = {"Name": edge_conf['edge_storage_account_name'],
                                              "SBN": edge_conf['service_base_name'],
-                                             "User": edge_conf['user_name']}
+                                             "User": edge_conf['user_name'],
+                                             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         edge_conf['primary_disk_size'] = '32'
 
         # FUSE in case of absence of user's key
@@ -105,6 +110,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                          edge_conf['private_subnet_name'])
@@ -145,6 +151,17 @@ if __name__ == "__main__":
             },
             {
                 "name": "in-3",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "3128",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-4",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
@@ -308,7 +325,7 @@ if __name__ == "__main__":
                 "priority": 230,
                 "direction": "Outbound"
             },
-             {
+            {
                 "name": "out-15",
                 "protocol": "Tcp",
                 "source_port_range": "*",
@@ -321,6 +338,17 @@ if __name__ == "__main__":
             },
             {
                 "name": "out-16",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "389",
+                "source_address_prefix": '*',
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 250,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-17",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
@@ -443,6 +471,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
@@ -548,6 +577,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
@@ -573,6 +603,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
@@ -601,6 +632,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create storage account.", str(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
@@ -629,6 +661,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to create Data Lake Store directory.", str(err))
             AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                          edge_conf['private_subnet_name'])
@@ -645,7 +678,8 @@ if __name__ == "__main__":
                 for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
                     if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                         AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
-            except:
+            except Exception as err:
+                print('Error: {0}'.format(err))
                 print("Data Lake Store directory hasn't been created.")
             sys.exit(1)
 
@@ -675,6 +709,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         except:

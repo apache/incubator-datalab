@@ -18,14 +18,16 @@ package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -50,20 +52,19 @@ public class UserComputationalResource {
 	@JsonProperty("computational_url")
 	private List<ResourceURL> resourceUrl;
 	@JsonProperty("last_activity")
-	private Date lastActivity;
-	@JsonProperty("check_inactivity_required")
-	private boolean checkInactivityRequired;
-	@JsonProperty("config")
-	private Map<String, Object> config;
+	private LocalDateTime lastActivity;
 	@JsonProperty("master_node_shape")
 	private String masterNodeShape;
 	@JsonProperty("dataengine_instance_shape")
 	private String dataengineShape;
+	@JsonProperty("instance_id")
+	private String instanceId;
+	protected List<ClusterConfig> config;
 
 	public UserComputationalResource(String computationalName, String computationalId, String imageName,
 									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
-									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl, Date lastActivity,
-									 boolean checkInactivityRequired, Map<String, Object> config) {
+									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl,
+									 LocalDateTime lastActivity) {
 		this.computationalName = computationalName;
 		this.computationalId = computationalId;
 		this.imageName = imageName;
@@ -74,7 +75,9 @@ public class UserComputationalResource {
 		this.reuploadKeyRequired = reuploadKeyRequired;
 		this.resourceUrl = resourceUrl;
 		this.lastActivity = lastActivity;
-		this.checkInactivityRequired = checkInactivityRequired;
-		this.config = config;
+	}
+
+	public DataEngineType getDataEngineType() {
+		return DataEngineType.fromDockerImageName(imageName);
 	}
 }

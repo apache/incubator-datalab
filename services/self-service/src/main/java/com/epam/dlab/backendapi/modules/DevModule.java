@@ -77,6 +77,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(BackupService.class).to(BackupServiceImpl.class);
 		bind(BackupDao.class).to(BackupDaoImpl.class);
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
+		bind(InactivityService.class).to(InactivityServiceImpl.class);
 		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
 		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
 		bind(AccessKeyService.class).to(AccessKeyServiceImpl.class);
@@ -97,6 +98,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(UserRoleService.class).to(UserRoleServiceImpl.class);
 		bind(UserRoleDao.class).to(UserRoleDaoImpl.class);
 		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
+		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
+		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
 	}
 
 	/**

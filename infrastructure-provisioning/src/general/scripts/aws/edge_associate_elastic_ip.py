@@ -41,10 +41,12 @@ if __name__ == "__main__":
         if args.elastic_ip == 'None':
             print("Allocating Elastic IP")
             allocation_id = allocate_elastic_ip()
+            create_product_tag(allocation_id)
         else:
             allocation_id = get_allocation_id_by_elastic_ip(args.elastic_ip)
 
         print("Associating Elastic IP to Edge")
         associate_elastic_ip(args.edge_id, allocation_id)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

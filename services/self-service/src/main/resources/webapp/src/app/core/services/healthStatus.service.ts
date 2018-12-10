@@ -18,6 +18,7 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 import { ApplicationServiceFacade, AppRoutingService } from '.';
@@ -25,12 +26,27 @@ import { HTTP_STATUS_CODES, ErrorUtils } from '../util';
 
 @Injectable()
 export class HealthStatusService {
+  private _statusData = new BehaviorSubject(<GeneralEnvironmentStatus>{});
+
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
-    ) { }
+  ) {}
 
-   public isHealthStatusOk(): Observable<boolean> {
+  get statusData() {
+    return this._statusData.asObservable();
+  }
+
+  reloadInitialStatusData() {
+    this.getEnvironmentHealthStatus().subscribe(
+      (res: GeneralEnvironmentStatus) => {
+        this._statusData.next(res);
+        console.log('reload Initial Status Data');
+      },
+      err => console.error('Error retrieving status'));
+  }
+
+  public isHealthStatusOk(): Observable<boolean> {
       return this.applicationServiceFacade
         .buildGetEnvironmentHealthStatus()
         .map(response => {
@@ -45,7 +61,10 @@ export class HealthStatusService {
   public getEnvironmentHealthStatus(): Observable<GeneralEnvironmentStatus> {
     return this.applicationServiceFacade
     .buildGetEnvironmentHealthStatus()
-    .map(response => response.json())
+    .map(response => {
+      this._statusData.next(response.json());
+      return response.json();
+    })
     .catch(ErrorUtils.handleServiceError);
   }
 
@@ -53,7 +72,10 @@ export class HealthStatusService {
     const body = '?full=1';
     return this.applicationServiceFacade
     .buildGetEnvironmentStatuses(body)
-    .map(response => response.json())
+    .map(response => {
+      this._statusData.next(response.json());
+      return response.json();
+    })
     .catch(ErrorUtils.handleServiceError);
   }
 
@@ -77,7 +99,7 @@ export class HealthStatusService {
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
-  
+
   public isBillingEnabled(): Observable<boolean> {
     return this.applicationServiceFacade
     .buildGetEnvironmentHealthStatus()
@@ -108,10 +130,34 @@ export class HealthStatusService {
       .catch(ErrorUtils.handleServiceError);
   }
 
+  public updateUsersBudget(data): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildUpdateUsersBudget(data)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
+
   public getSsnMonitorData(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetSsnMonitorData()
       .map(response => response.json())
+      .catch(error => error);
+  }
+
+  public getTotalBudgetData(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetTotalBudgetData()
+      .map(response => response.json())
+      .catch(error => error);
+  }
+
+  public updateTotalBudgetData(data): Observable<{}> {
+    const url = (data && data > 0) ? `/budget/${data}` : '/budget';
+    const method = (data && data > 0) ? 2 : 3;
+
+    return this.applicationServiceFacade
+      .buildUpdateTotalBudgetData(url, method)
+      .map(response => response)
       .catch(error => error);
   }
 }

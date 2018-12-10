@@ -103,6 +103,7 @@ if __name__ == "__main__":
         stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['tag_name'],
                       os.environ['conf_os_user'], notebook_config['key_path'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 

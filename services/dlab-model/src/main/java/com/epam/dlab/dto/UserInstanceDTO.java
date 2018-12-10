@@ -16,6 +16,7 @@
 
 package com.epam.dlab.dto;
 
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -23,7 +24,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Stores info about the user notebook.
@@ -63,6 +68,10 @@ public class UserInstanceDTO {
 	private boolean reuploadKeyRequired = false;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<LibInstallDTO> libs = Collections.emptyList();
+	@JsonProperty("last_activity")
+	private LocalDateTime lastActivity;
+	@JsonProperty("cluster_config")
+	private List<ClusterConfig> clusterConfig;
 
 	/**
 	 * Sets the user login name.
@@ -93,6 +102,11 @@ public class UserInstanceDTO {
 	 */
 	public UserInstanceDTO withImageName(String imageName) {
 		setImageName(imageName);
+		return this;
+	}
+
+	public UserInstanceDTO withClusterConfig(List<ClusterConfig> config) {
+		setClusterConfig(config);
 		return this;
 	}
 
@@ -129,50 +143,10 @@ public class UserInstanceDTO {
 	}
 
 	/**
-	 * Sets the URL of exploratory.
-	 */
-	public UserInstanceDTO withExploratoryUrl(List<ResourceURL> resourceUrl) {
-		setResourceUrl(resourceUrl);
-		return this;
-	}
-
-	/**
-	 * Sets the date and time when the notebook has created.
-	 */
-	public UserInstanceDTO withUptime(Date uptime) {
-		setUptime(uptime);
-		return this;
-	}
-
-	/**
-	 * Sets private IP address.
-	 */
-	public UserInstanceDTO withPrivateIp(String privateIp) {
-		setPrivateIp(privateIp);
-		return this;
-	}
-
-	/**
 	 * Sets a list of user's computational resources for notebook.
 	 */
 	public UserInstanceDTO withResources(List<UserComputationalResource> resources) {
 		setResources(resources);
-		return this;
-	}
-
-	/**
-	 * Sets scheduler data.
-	 */
-	public UserInstanceDTO withSchedulerData(SchedulerJobDTO schedulerData) {
-		setSchedulerData(schedulerData);
-		return this;
-	}
-
-	/**
-	 * Sets value of requirement key reuploading.
-	 */
-	public UserInstanceDTO withReuploadKeyRequirement(boolean reuploadKeyRequired) {
-		setReuploadKeyRequired(reuploadKeyRequired);
 		return this;
 	}
 

@@ -25,35 +25,35 @@ from dlab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc', type=str, default='')
+parser.add_argument('--secondary', dest='secondary', action='store_true')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
+parser.set_defaults(secondary=False)
 args = parser.parse_args()
+
+sec_str = ''
+if args.secondary:
+    sec_str = 'SECONDARY '
 
 
 if __name__ == "__main__":
-    success = False
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     if args.vpc != '':
         try:
             vpc_id = get_vpc_by_tag(args.infra_tag_name, args.infra_tag_value)
             if vpc_id == '':
-                print("Creating vpc {0} in region {1} with tag {2}".format(args.vpc, args.region, json.dumps(tag)))
+                print("Creating {3}vpc {0} in region {1} with tag {2}".format(args.vpc, args.region, json.dumps(tag), sec_str))
                 vpc_id = create_vpc(args.vpc, tag)
                 enable_vpc_dns(vpc_id)
-                rt_id = create_rt(vpc_id, args.infra_tag_name, args.infra_tag_value)
+                rt_id = create_rt(vpc_id, args.infra_tag_name, args.infra_tag_value, args.secondary)
             else:
-                print("REQUESTED VPC ALREADY EXISTS")
-            print("VPC_ID: {}".format(vpc_id))
+                print("REQUESTED {}VPC ALREADY EXISTS".format(sec_str))
+            print("{0}VPC_ID: {1}".format(sec_str, vpc_id))
             args.vpc_id = vpc_id
-            success = True
-        except:
-            success = False
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(2)
-
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)

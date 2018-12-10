@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
@@ -168,14 +169,39 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	@Override
-	public String executeCheckClusterInactivityJob(UserInfo userInfo) {
-		List<EnvResource> runningClusters = envDAO.findRunningClustersForCheckInactivity();
-		if (!runningClusters.isEmpty()) {
+	public void updateRunningResourcesLastActivity(UserInfo userInfo) {
+		List<EnvResource> resources = envDAO.findRunningResourcesForCheckInactivity();
+		if (!resources.isEmpty()) {
 			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-					userInfo.getAccessToken(), runningClusters, String.class);
+					userInfo.getAccessToken(), resources, String.class);
 			requestId.put(userInfo.getName(), uuid);
-			return uuid;
-		} else return StringUtils.EMPTY;
+		}
+	}
+
+	@Override
+	public void removeScheduler(String user, String exploratoryName) {
+		schedulerJobDAO.removeScheduler(user, exploratoryName);
+	}
+
+	@Override
+	public void removeScheduler(String user, String exploratoryName, String computationalName) {
+		schedulerJobDAO.removeScheduler(user, exploratoryName, computationalName);
+	}
+
+	@Override
+	public List<SchedulerJobData> getActiveSchedulers(String user, long minutesOffset) {
+		final OffsetDateTime desiredDateTime = OffsetDateTime.now().plusMinutes(minutesOffset);
+		final Predicate<SchedulerJobData> userPredicate = s -> user.equals(s.getUser());
+		final Stream<SchedulerJobData> computationalSchedulersStream =
+				getComputationalSchedulersForStopping(desiredDateTime)
+						.stream()
+						.filter(userPredicate);
+		final Stream<SchedulerJobData> exploratorySchedulersStream =
+				getExploratorySchedulersForStopping(desiredDateTime)
+						.stream()
+						.filter(userPredicate);
+		return Stream.concat(computationalSchedulersStream, exploratorySchedulersStream)
+				.collect(Collectors.toList());
 	}
 
 	private void stopComputational(SchedulerJobData job) {
@@ -192,7 +218,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String compName = job.getComputationalName();
 		final UserInfo userInfo = systemUserService.create(user);
 		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.terminateComputationalEnvironment(userInfo, expName, compName);
+		computationalService.terminateComputational(userInfo, expName, compName);
 	}
 
 	private void stopExploratory(SchedulerJobData job) {
@@ -255,8 +281,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	/**
 	 * Performs bulk updating operation with scheduler data for corresponding to exploratory Spark clusters.
-	 * All these clusters will obtain data which is equal to exploratory's except 'stopping' operation (it will be
-	 * performed automatically with notebook stopping since Spark clusters have such feature).
+	 * All these resources will obtain data which is equal to exploratory's except 'stopping' operation (it will be
+	 * performed automatically with notebook stopping since Spark resources have such feature).
 	 *
 	 * @param user            user's name
 	 * @param exploratoryName name of exploratory resource

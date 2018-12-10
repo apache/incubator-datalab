@@ -18,6 +18,9 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.model.scheduler.SchedulerJobData;
+
+import java.util.List;
 
 public interface SchedulerJobService {
 	/**
@@ -75,7 +78,13 @@ public interface SchedulerJobService {
 	void terminateComputationalByScheduler();
 
 	/**
-	 * Executes check cluster inactivity job for all running clusters.
+	 * Executes check cluster inactivity job for all running resources.
 	 */
-	String executeCheckClusterInactivityJob(UserInfo userInfo);
+	void updateRunningResourcesLastActivity(UserInfo userInfo);
+
+	void removeScheduler(String user, String exploratoryName);
+
+	void removeScheduler(String user, String exploratoryName, String computationalName);
+
+	List<SchedulerJobData> getActiveSchedulers(String user, long timeOffset);
 }

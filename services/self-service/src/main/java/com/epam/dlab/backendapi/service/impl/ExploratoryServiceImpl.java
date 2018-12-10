@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
@@ -28,6 +29,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
@@ -41,8 +43,6 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -70,7 +70,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Inject
 	private RequestId requestId;
 
-
+	@BudgetLimited
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
 		return action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
@@ -86,6 +86,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		return action(userInfo, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
 	}
 
+	@BudgetLimited
 	@Override
 	public String create(UserInfo userInfo, Exploratory exploratory) {
 		boolean isAdded = false;
@@ -141,8 +142,26 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	public List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
 														  UserInstanceStatus computationalStatus) {
 		return getExploratoriesWithStatus(user, exploratoryStatus).stream()
-						.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
-						.collect(Collectors.toList());
+				.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config) {
+		final String userName = userInfo.getName();
+		final String token = userInfo.getAccessToken();
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName,
+				exploratoryName);
+		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
+				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
+		final String uuid = provisioningService.post(EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
+				String.class);
+		requestId.put(userName, uuid);
+		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
+				.withUser(userName)
+				.withExploratoryName(exploratoryName)
+				.withConfig(config)
+				.withStatus(UserInstanceStatus.RECONFIGURING.toString()));
 	}
 
 	/**
@@ -162,49 +181,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		return Optional.empty();
 	}
 
-	/**
-	 * Finds and returns the info about exploratories by IDs of its' clusters in database. List will contain
-	 * instances with unique computational resource corresponding to every ID.
-	 *
-	 * @param computationalIds list of computational IDs.
-	 **/
 	@Override
-	public List<UserInstanceDTO> getInstancesByComputationalIds(List<String> computationalIds) {
-		List<UserInstanceDTO> instances = exploratoryDAO.getInstances();
-		List<UserInstanceDTO> result = new ArrayList<>();
-		List<UserInstanceDTO> filterred = instances.stream().filter(instance -> !instance.getResources().isEmpty())
-				.collect(Collectors.toList());
-		filterred.forEach(ui -> matchInstanceWithComputationalIdsAndPopulateData(ui, computationalIds, result));
-		return result;
+	public List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName) {
+		return exploratoryDAO.getClusterConfig(user.getName(), exploratoryName);
 	}
 
-	private void matchInstanceWithComputationalIdsAndPopulateData(UserInstanceDTO ui, List<String> ids,
-																  List<UserInstanceDTO> dataList) {
-		ids.forEach(id -> checkConditionAndPopulateList(id, ui, dataList));
-	}
-
-	private void checkConditionAndPopulateList(String id, UserInstanceDTO ui, List<UserInstanceDTO> dataList) {
-		if (containsCompResourceWithId(ui, id)) {
-			getComputationalById(ui.getResources(), id)
-					.ifPresent(cr -> dataList.add(getPopulatedInstance(ui, cr)));
-		}
-	}
-
-	private UserInstanceDTO getPopulatedInstance(UserInstanceDTO oldInstance, UserComputationalResource cr) {
-		return new UserInstanceDTO().withExploratoryName(oldInstance.getExploratoryName())
-				.withExploratoryId(oldInstance.getExploratoryId())
-				.withUser(oldInstance.getUser())
-				.withResources(Collections.singletonList(cr));
-	}
-
-	private boolean containsCompResourceWithId(UserInstanceDTO ui, String id) {
-		return ui.getResources().stream().anyMatch(cr -> cr.getComputationalId().equals(id));
-	}
-
-	private Optional<UserComputationalResource> getComputationalById(List<UserComputationalResource> compResources,
-																	 String id) {
-		return compResources.stream().filter(cr -> cr.getComputationalId().equals(id)).findAny();
-	}
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
 																			 UserInstanceStatus computationalStatus) {
@@ -333,6 +314,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withImageName(exploratory.getDockerImage())
 				.withImageVersion(exploratory.getVersion())
 				.withTemplateName(exploratory.getTemplateName())
+				.withClusterConfig(exploratory.getClusterConfig())
 				.withShape(exploratory.getShape());
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {
 			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory

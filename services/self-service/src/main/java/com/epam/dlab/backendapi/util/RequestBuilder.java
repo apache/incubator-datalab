@@ -29,6 +29,7 @@ import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.AwsComputationalTerminateDTO;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
@@ -46,10 +47,7 @@ import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.keyload.UploadFile;
-import com.epam.dlab.dto.computational.ComputationalStartDTO;
-import com.epam.dlab.dto.computational.ComputationalStopDTO;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
-import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.computational.*;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.gcp.computational.ComputationalCreateGcp;
@@ -90,6 +88,8 @@ public class RequestBuilder {
 						.awsSubnetId(settingsDAO.getAwsSubnetId())
 						.awsVpcId(settingsDAO.getAwsVpcId())
 						.confTagResourceId(settingsDAO.getConfTagResourceId())
+						.awsNotebookSubnetId(settingsDAO.getAwsNotebookSubnetId())
+						.awsNotebookVpcId(settingsDAO.getAwsNotebookVpcId())
 						.awsIamUser(userInfo.getName()).build();
 			case AZURE:
 				return AzureCloudSettings.builder()
@@ -227,7 +227,8 @@ public class RequestBuilder {
 				.withNotebookImage(exploratory.getDockerImage())
 				.withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
-				.withImageName(exploratory.getImageName());
+				.withImageName(exploratory.getImageName())
+				.withClusterConfig(exploratory.getClusterConfig());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -361,8 +362,9 @@ public class RequestBuilder {
 		T computationalCreate;
 
 		switch (cloudProvider()) {
-			case AWS:
 			case AZURE:
+				throw new UnsupportedOperationException("Creating dataengine service is not supported yet");
+			case AWS:
 				AwsComputationalCreateForm awsForm = (AwsComputationalCreateForm) form;
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAws.class)
 						.withInstanceCount(awsForm.getInstanceCount())
@@ -370,8 +372,8 @@ public class RequestBuilder {
 						.withSlaveInstanceType(awsForm.getSlaveInstanceType())
 						.withSlaveInstanceSpot(awsForm.getSlaveInstanceSpot())
 						.withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
-						.withConfig(awsForm.getConfig())
-						.withVersion(awsForm.getVersion());
+						.withVersion(awsForm.getVersion())
+						.withConfig((awsForm.getConfig()));
 				break;
 			case GCP:
 				GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
@@ -381,7 +383,6 @@ public class RequestBuilder {
 						.withPreemptibleCount(gcpForm.getPreemptibleCount())
 						.withMasterInstanceType(gcpForm.getMasterInstanceType())
 						.withSlaveInstanceType(gcpForm.getSlaveInstanceType())
-						.withConfig(gcpForm.getConfig())
 						.withVersion(gcpForm.getVersion());
 				break;
 
@@ -416,8 +417,7 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
@@ -433,8 +433,7 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateGcp.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
@@ -534,6 +533,32 @@ public class RequestBuilder {
 				.logsBackup(backupFormDTO.isLogsBackup())
 				.id(id)
 				.build();
+	}
+
+	public ComputationalClusterConfigDTO newClusterConfigUpdate(UserInfo userInfo, UserInstanceDTO userInstanceDTO,
+																UserComputationalResource compRes,
+																List<ClusterConfig> config) {
+		final ComputationalClusterConfigDTO clusterConfigDTO = newResourceSysBaseDTO(userInfo,
+				ComputationalClusterConfigDTO.class)
+				.withExploratoryName(userInstanceDTO.getExploratoryName())
+				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
+				.withComputationalName(compRes.getComputationalName())
+				.withApplicationName(compRes.getImageName());
+		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
+		clusterConfigDTO.setConfig(config);
+		return clusterConfigDTO;
+	}
+
+	public ExploratoryReconfigureSparkClusterActionDTO newClusterConfigUpdate(UserInfo userInfo,
+																			  UserInstanceDTO userInstance,
+																			  List<ClusterConfig> config) {
+
+		return newResourceSysBaseDTO(userInfo, ExploratoryReconfigureSparkClusterActionDTO.class)
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+				.withNotebookImage(userInstance.getImageName())
+				.withConfig(config);
 	}
 
 	private CloudProvider cloudProvider() {

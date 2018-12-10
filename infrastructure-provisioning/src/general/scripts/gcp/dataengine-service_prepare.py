@@ -72,7 +72,8 @@ if __name__ == "__main__":
         "name": dataproc_conf['cluster_name'],
         "sbn": dataproc_conf['service_base_name'],
         "user": dataproc_conf['edge_user_name'],
-        "notebook_name": os.environ['notebook_instance_name']
+        "notebook_name": os.environ['notebook_instance_name'],
+        "product": "dlab"
     }
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['edge_user_name'])
@@ -133,8 +134,7 @@ if __name__ == "__main__":
         keyfile_name = "/root/keys/{}.pem".format(dataproc_conf['key_name'])
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create Dataproc Cluster.", str(err))
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
         sys.exit(1)
-
-    sys.exit(0)

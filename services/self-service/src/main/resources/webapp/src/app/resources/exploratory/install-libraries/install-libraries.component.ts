@@ -122,6 +122,15 @@ export class InstallLibrariesComponent implements OnInit {
     (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
+  public filterGroups(groupsList) {
+    const PREVENT_TEMPLATES = ['rstudio', 'rstudio with tensorflow'];
+    const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
+    const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
+
+    const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
+    return SortUtil.libGroupsSort(filteredGroups);
+  }
+
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
@@ -146,9 +155,11 @@ export class InstallLibrariesComponent implements OnInit {
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
     if (this.destination && this.destination.libs)
-      this.isInstalled = this.destination.libs.findIndex(libr =>
-        select.name === libr.name && select.group === libr.group && select.version === libr.version
-      ) >= 0;
+      this.isInstalled = this.destination.libs.findIndex(libr => {
+        return select.group !== 'java'
+          ? select.name === libr.name && select.group === libr.group && select.version === libr.version
+          : select.name === libr.name && select.group === libr.group
+      }) >= 0;
 
     return this.isInSelectedList || this.isInstalled;
   }
@@ -238,7 +249,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
-      this.groupsList = SortUtil.libGroupsSort(groupsList);
+      this.groupsList = this.filterGroups(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
     } else {

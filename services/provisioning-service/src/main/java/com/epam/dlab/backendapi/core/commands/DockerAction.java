@@ -30,6 +30,7 @@ public enum DockerAction {
     CREATE_IMAGE,
     STATUS,
 	REUPLOAD_KEY,
+    RECONFIGURE_SPARK,
 	CHECK_INACTIVITY;
 
     public static DockerAction of(String action) {

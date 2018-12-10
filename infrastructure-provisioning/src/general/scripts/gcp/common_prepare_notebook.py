@@ -92,7 +92,8 @@ if __name__ == "__main__":
                                                          notebook_config['edge_user_name'])
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
-                                 "user": notebook_config['edge_user_name']}
+                                 "user": notebook_config['edge_user_name'],
+                                 "product": "dlab"}
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
@@ -110,6 +111,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create instance.", str(err))
         GCPActions().remove_disk(notebook_config['instance_name'], notebook_config['zone'])
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])

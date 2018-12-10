@@ -24,6 +24,7 @@ import { ResourcesComponent } from './resources/resources.component';
 import { HealthStatusComponent } from './health-status/health-status.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { AccessDeniedComponent } from './access-denied/access-denied.component';
 import { ReportingComponent } from './reporting/reporting.component';
 import { ManagementComponent } from './management/management.component';
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard } from './core/services';
@@ -54,6 +55,10 @@ const routes: Routes = [{
   }, {
     path: 'help/accessnotebookguide',
     component: AccessNotebookGuideComponent,
+    canActivate: [AuthorizationGuard]
+  }, {
+    path: '403',
+    component: AccessDeniedComponent,
     canActivate: [AuthorizationGuard]
   }, {
     path: '',

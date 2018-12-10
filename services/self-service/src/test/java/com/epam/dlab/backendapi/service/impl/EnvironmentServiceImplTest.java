@@ -21,6 +21,8 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
@@ -39,10 +41,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -73,6 +72,8 @@ public class EnvironmentServiceImplTest {
 	private EdgeService edgeService;
 	@Mock
 	private KeyDAO keyDAO;
+	@Mock
+	private UserSettingsDAO userSettingsDAO;
 
 	@InjectMocks
 	private EnvironmentServiceImpl environmentService;
@@ -82,24 +83,26 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void getActiveUsers() {
-		doReturn(Collections.singleton(USER)).when(envDAO).fetchActiveEnvUsers();
-		final Set<String> activeUsers = environmentService.getActiveUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
+		when(userSettingsDAO.getAllowedBudget(anyString())).thenReturn(Optional.empty());
+		final List<UserDTO> activeUsers = environmentService.getUsers();
 
 		assertEquals(1, activeUsers.size());
-		assertTrue(activeUsers.contains(USER));
+		assertEquals(USER, activeUsers.get(0).getName());
 
-		verify(envDAO).fetchActiveEnvUsers();
+		verify(userSettingsDAO).getAllowedBudget(USER);
+		verify(envDAO).fetchAllUsers();
 		verifyNoMoreInteractions(envDAO);
 	}
 
 	@Test
 	public void getActiveUsersWithException() {
-		doThrow(new DlabException("Users not found")).when(envDAO).fetchActiveEnvUsers();
+		doThrow(new DlabException("Users not found")).when(envDAO).fetchAllUsers();
 
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Users not found");
 
-		environmentService.getActiveUsers();
+		environmentService.getUsers();
 	}
 
 	@Test
@@ -515,13 +518,13 @@ public class EnvironmentServiceImplTest {
 		final UserInfo userInfo = getUserInfo();
 		when(systemUserInfoService.create(anyString())).thenReturn(userInfo);
 		doNothing().when(computationalService)
-				.terminateComputationalEnvironment(any(UserInfo.class), anyString(), anyString());
+				.terminateComputational(any(UserInfo.class), anyString(), anyString());
 
 		environmentService.terminateComputational(USER, EXPLORATORY_NAME_1, "compName");
 
 		verify(systemUserInfoService).create(USER);
 		verify(computationalService)
-				.terminateComputationalEnvironment(refEq(userInfo), eq(EXPLORATORY_NAME_1), eq("compName"));
+				.terminateComputational(refEq(userInfo), eq(EXPLORATORY_NAME_1), eq("compName"));
 		verifyNoMoreInteractions(systemUserInfoService, computationalService);
 	}
 

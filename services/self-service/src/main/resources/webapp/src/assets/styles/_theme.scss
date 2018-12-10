@@ -193,6 +193,16 @@ font-weight: 400;
   }
 }
 
+.dashboard_table {
+  &.reporting {
+    .dropdown-multiselect {
+      button {
+        font-size: 13px;
+        padding-left: 10px;
+      }
+    }
+  }
+}
 
 .mat-primary {
   .mat-pseudo-checkbox-checked {

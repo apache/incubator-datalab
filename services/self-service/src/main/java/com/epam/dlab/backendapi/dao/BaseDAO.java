@@ -20,8 +20,11 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.mongo.MongoService;
-import com.epam.dlab.util.mongo.IsoDateModule;
+import com.epam.dlab.util.mongo.modules.IsoDateModule;
+import com.epam.dlab.util.mongo.modules.JavaPrimitiveModule;
+import com.epam.dlab.util.mongo.modules.MongoModule;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
@@ -42,6 +45,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.mongodb.client.model.Filters.*;
+
 /**
  * Implements the base API for Mongo database.
  */
@@ -50,7 +55,9 @@ public class BaseDAO {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-			.registerModule(new IsoDateModule());
+			.registerModule(new IsoDateModule())
+			.registerModule(new JavaPrimitiveModule())
+			.registerModule(new MongoModule());
 
 	static final String FIELD_SET_DELIMETER = ".$.";
 	public static final String ID = "_id";
@@ -62,7 +69,6 @@ public class BaseDAO {
 	public static final String ERROR_MESSAGE = "error_message";
 	static final String TIMESTAMP = "timestamp";
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
-	static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 	protected static final String ADD_TO_SET = "$addToSet";
 	protected static final String UNSET_OPERATOR = "$unset";
 	private static final String PULL = "$pull";
@@ -338,7 +344,7 @@ public class BaseDAO {
 										 Bson condition,
 										 Bson projection) {
 		FindIterable<Document> found = find(collection, condition, projection);
-		return limitOne(found);
+			return limitOne(found);
 	}
 
 	/**
@@ -393,6 +399,17 @@ public class BaseDAO {
 		}
 	}
 
+	<T> T convertFromDocument(List<Document> documents, TypeReference<T> valueTypeRef) {
+		final String jsonArray = documents.stream()
+				.map(Document::toJson)
+				.collect(Collectors.joining(",", "[", "]"));
+		try {
+			return MAPPER.readValue(jsonArray, valueTypeRef);
+		} catch (IOException e) {
+			throw new DlabException("error converting array " + jsonArray, e);
+		}
+	}
+
 	protected Document getGroupingFields(String... fieldNames) {
 		Document d = new Document();
 		for (String name : fieldNames) {
@@ -442,5 +459,9 @@ public class BaseDAO {
 
 	protected Document elementAt(Bson bson, int index) {
 		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList(bson, index));
+	}
+
+	protected Bson notNull(String fieldName) {
+		return and(exists(fieldName), ne(fieldName, null));
 	}
 }

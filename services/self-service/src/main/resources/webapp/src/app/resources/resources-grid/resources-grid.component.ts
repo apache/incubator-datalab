@@ -20,6 +20,7 @@ limitations under the License.
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { UserResourceService } from '../../core/services';
 import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from '.';
+import { GeneralEnvironmentStatus } from '../../health-status/health-status.module';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 
@@ -44,8 +45,8 @@ export class ResourcesGridComponent implements OnInit {
   collapseFilterRow: boolean = false;
   filtering: boolean = false;
   activeFiltering: boolean = false;
-  healthStatus: string = '';
-  billingEnabled: boolean = false;
+  healthStatus: GeneralEnvironmentStatus;
+  // billingEnabled: boolean = false;
 
   delimitersRegex = /[-_]?/g;
 
@@ -138,11 +139,11 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   isResourcesInProgress(notebook) {
-    let filteredEnv: any = this.environments.find(env => env.name === notebook.name);
+    const filteredEnv: any = this.environments.find(env => env.name === notebook.name);
 
-    if(filteredEnv && filteredEnv.resources.length) {
+    if (filteredEnv && filteredEnv.resources.length) {
       return filteredEnv.resources.filter(resource => (
-        resource.status !== 'failed' 
+        resource.status !== 'failed'
         && resource.status !== 'terminated'
         && resource.status !== 'running'
         && resource.status !== 'stopped')).length > 0;
@@ -249,7 +250,7 @@ export class ResourcesGridComponent implements OnInit {
 
   getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
-      .subscribe((result : any) => {
+      .subscribe((result: any) => {
         this.isActiveFilter(result);
         this.filterForm = this.loadUserPreferences( result.type ? this.filterActiveInstances() : this.aliveStatuses(result) );
         this.applyFilter_btnClick(this.filterForm);

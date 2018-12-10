@@ -36,4 +36,5 @@ if __name__ == "__main__":
             print("Creating Resource Group {}".format(args.resource_group_name))
             AzureActions().create_resource_group(args.resource_group_name, args.region)
     else:
+        print("Resource group name can't be empty.")
         sys.exit(1)

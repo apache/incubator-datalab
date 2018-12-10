@@ -21,6 +21,8 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
@@ -39,8 +41,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Singleton
 @Slf4j
@@ -62,11 +65,15 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private KeyDAO keyDAO;
 	@Inject
 	private EdgeService edgeService;
+	@Inject
+	private UserSettingsDAO settingsDAO;
 
 	@Override
-	public Set<String> getActiveUsers() {
-		log.debug("Getting users that have at least 1 running instance");
-		return envDAO.fetchActiveEnvUsers();
+	public List<UserDTO> getUsers() {
+		return getAllUsers()
+				.stream()
+				.map(u -> new UserDTO(u, settingsDAO.getAllowedBudget(u).orElse(null)))
+				.collect(toList());
 	}
 
 	@Override
@@ -80,7 +87,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
 		return getAllUsers().stream().map(user -> getUserEnv(user, expList)).flatMap(Collection::stream)
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	@Override
@@ -181,7 +188,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private void terminateCluster(String user, String exploratoryName, String computationalName) {
 		final UserInfo userInfo = systemUserInfoService.create(user);
-		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 	}
 
 	private List<UserResourceInfo> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
@@ -191,7 +198,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.withUser(user);
 		return Stream.concat(Stream.of(edgeResource), allInstances.stream()
 				.filter(instance -> instance.getUser().equals(user)).map(this::toUserResourceInfo))
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {
