@@ -18,10 +18,17 @@ limitations under the License.
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
+import { Router, Event, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { interval } from 'rxjs/Observable/interval';
 import { ToastsManager } from 'ng2-toastr';
 
-import { ApplicationSecurityService, HealthStatusService, AppRoutingService, UserAccessKeyService } from '../../core/services';
+import { ApplicationSecurityService,
+  HealthStatusService,
+  AppRoutingService,
+  UserAccessKeyService,
+  SchedulerService } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
@@ -48,13 +55,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef,
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
+    private schedulerService: SchedulerService,
     private dialog: MatDialog,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    private router: Router
   ) {
     this.toastr.setRootViewContainerRef(vcr);
   }
@@ -62,6 +71,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.isLoggedIn = response;
+      this.subscriptions = new Subscription();
 
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
@@ -71,6 +81,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
           result && this.processAccessKeyStatus(result.status);
         }));
+        this.subscriptions.add(interval(5000).subscribe(() => this.refreshSchedulerData()));
         this.currentUserName = this.getUserName();
       }
     });
@@ -94,7 +105,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   public emitQuotes(): void {
     const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
-      data: `NOTE: Currently used billing quote is ${ this.healthStatus.billingQuoteUsed }%`,
+      data: { template: `NOTE: Currently used billing quote is ${ this.healthStatus.billingQuoteUsed }%`, type: 'message' },
       width: '550px'
     });
     dialogRef.afterClosed().subscribe(() => {
@@ -132,5 +143,25 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.preloaderDialog.close();
       this.keyUploadDialog.close();
     }
+  }
+
+  private refreshSchedulerData(): void {
+      this.schedulerService.getActiveSchcedulersData(15).subscribe((list: Array<any>) => {
+        if (list.length) {
+          if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
+          const filteredData = this.groupSchedulerData(list);
+          const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
+            data: { template: filteredData, type: 'list' },
+            width: '550px'
+          });
+        }
+    });
+  }
+
+  private groupSchedulerData(sheduler_data) {
+    const memo = { notebook: [], cluster: [] };
+    sheduler_data.map(item =>  !item.computational_name ? memo.notebook.push(item) : memo.cluster.push(item));
+    memo.cluster = memo.cluster.filter(el => !memo.notebook.some(elm => el.exploratory_name === elm.exploratory_name));
+    return memo;
   }
 }
