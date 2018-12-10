@@ -385,6 +385,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public BuildGetActiveSchcedulersData(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildGetActiveUsers(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),

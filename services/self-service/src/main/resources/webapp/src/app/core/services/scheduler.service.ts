@@ -49,4 +49,12 @@ export class SchedulerService {
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
+
+  public getActiveSchcedulersData(offset: number): Observable<{}> {
+    const param = `/active?minuteOffset=${offset}`;
+    return this.applicationServiceFacade
+      .BuildGetActiveSchcedulersData(param)
+      .map(response => response.json())
+      .catch(ErrorUtils.handleServiceError);
+  }
 }
