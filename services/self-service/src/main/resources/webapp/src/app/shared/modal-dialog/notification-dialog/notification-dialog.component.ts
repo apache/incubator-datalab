@@ -24,33 +24,38 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
   template: `
   <header>
     <h4><i class="material-icons">priority_high</i>Warning</h4>
-    <button (click)="dialogRef.close()><i class="material-icons">close</i></button>
-  <header>
+    <a class="ani" (click)="dialogRef.close()"><i class="material-icons">close</i></a>
+  </header>
   <div mat-dialog-content class="content info message">
     <div *ngIf="data.type === 'list'; else info">
-      <div  *ngIf="data.template.notebook.length > 0">
-        Following notebook server<span *ngIf="data.template.notebook.length > 1">s </span>
+      <div *ngIf="data.template.notebook.length > 0">
+        Following notebook server
+        <span *ngIf="data.template.notebook.length > 1">s </span>
         <span *ngFor="let item of data.template.notebook">
-          <b>{{ item.exploratory_name }}</b><span *ngIf="data.template.notebook.length > 1">, </span>
-        </span>
-        will be stopped and all computational resources will be stopped/terminated 
+          <b>{{ item.exploratory_name }}</b>
+          <span *ngIf="data.template.notebook.length > 1">, </span>
+        </span> will be stopped and all computational resources will be stopped/terminated 
       </div>
 
       <div *ngIf="data.template.cluster.length > 0">
-        <p  *ngFor="let item of data.template.cluster">
-          Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
+        <p *ngFor="let item of data.template.cluster">
+            Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
             <b>{{ item.computational_name }}</b> on <b>{{ item.exploratory_name }}</b> 
             will be stopped
         </p>
       </div>
+      <strong>by a schedule in 15 minutes.</strong>
     </div>
-    <strong>by a schedule in 15 minutes.<strong>
     <ng-template #info>{{ data.template }}</ng-template>
   </div>
   `,
   styles: [`
-  .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-  .info { color: #35afd5; }
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+    .info { color: #35afd5; }
+    header { display: flex; justify-content: space-between; color: #607D8B; }
+    header h4 i { vertical-align: bottom; }
+    header a i { font-size: 20px; }
+    header a:hover i { color: #35afd5; cursor: pointer; }
   `]
 })
 export class NotificationDialogComponent {

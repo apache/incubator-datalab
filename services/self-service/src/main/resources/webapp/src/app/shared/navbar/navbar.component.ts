@@ -43,6 +43,8 @@ import { NotificationDialogComponent } from '../modal-dialog/notification-dialog
 export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
   private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
+  private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
+  private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
   currentUserName: string;
   quotesLimit: number;
@@ -76,12 +78,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
           this.healthStatus = result;
-          this.checkQuoteUsed(this.healthStatus);
+          result.status && this.checkQuoteUsed(this.healthStatus);
         }));
         this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
           result && this.processAccessKeyStatus(result.status);
         }));
-        this.subscriptions.add(interval(5000).subscribe(() => this.refreshSchedulerData()));
+        this.subscriptions.add(interval(this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
         this.currentUserName = this.getUserName();
       }
     });
@@ -103,9 +105,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
       error => console.error(error));
   }
 
-  public emitQuotes(): void {
+  public emitQuotes(alert, user_quota?, total_quota?): void {
     const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
-      data: { template: `NOTE: Currently used billing quote is ${ this.healthStatus.billingQuoteUsed }%`, type: 'message' },
+      data: { template: this.selectQuotesAlert(alert, user_quota, total_quota), type: 'message' },
       width: '550px'
     });
     dialogRef.afterClosed().subscribe(() => {
@@ -126,9 +128,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private checkQuoteUsed(params): void {
-    if (params.billingQuoteUsed >= this.quotesLimit && !this.applicationSecurityService.getBillingQuoteUsed()) {
+    if (!this.applicationSecurityService.getBillingQuoteUsed()) {
+      let checkQuotaAlert = '';
+
+      if (params.billingUserQuoteUsed >= this.quotesLimit && params.billingUserQuoteUsed < 100) checkQuotaAlert = 'user_quota';
+      if (params.billingQuoteUsed >= this.quotesLimit && params.billingQuoteUsed < 100) checkQuotaAlert = 'total_quota';
+      if (Number(params.billingUserQuoteUsed) === 100) checkQuotaAlert = 'user_exceed';
+      if (Number(params.billingQuoteUsed) === 100) checkQuotaAlert = 'total_exceed';
+
       if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
-      this.emitQuotes();
+      checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.billingUserQuoteUsed, params.billingQuoteUsed);
     }
   }
 
@@ -146,7 +155,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private refreshSchedulerData(): void {
-      this.schedulerService.getActiveSchcedulersData(15).subscribe((list: Array<any>) => {
+      this.schedulerService.getActiveSchcedulersData(this.CHECK_ACTIVE_SCHEDULE_PERIOD).subscribe((list: Array<any>) => {
         if (list.length) {
           if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
           const filteredData = this.groupSchedulerData(list);
@@ -163,5 +172,25 @@ export class NavbarComponent implements OnInit, OnDestroy {
     sheduler_data.map(item =>  !item.computational_name ? memo.notebook.push(item) : memo.cluster.push(item));
     memo.cluster = memo.cluster.filter(el => !memo.notebook.some(elm => el.exploratory_name === elm.exploratory_name));
     return memo;
+  }
+
+  private selectQuotesAlert(type: string, user_quota?: number, total_quota?: number): string {
+    const alerts = {
+      user_exceed: `Dear ${ this.currentUserName }, DLab cloud infrastructure usage quota associated with your user has been exceeded.
+          All your analytical environment will be stopped. To proceed working with environment, 
+          request increase of user quota from DLab administrator.`,
+      total_exceed: `Dear ${ this.currentUserName }, DLab cloud infrastructure usage quota has been exceeded.
+          All your analytical environment will be stopped. To proceed working with environment, 
+          request increase application quota from DLab administrator.`,
+      user_quota: `Dear ${ this.currentUserName },
+          Cloud infrastructure usage quota associated with your user has been used for ${user_quota}%.
+          Once quota is depleted all your analytical environment will be stopped. 
+          To proceed working with environment you'll have to request increase of user quota from DLab administrator.`,
+      total_quota: `Dear ${ this.currentUserName }, DLab cloud infrastructure usage quota has been used for ${total_quota}%.
+          Once quota is depleted all your analytical environment will be stopped. 
+          To proceed working with environment you'll have to request increase of user quota from DLab administrator. `
+    };
+
+    return alerts[type];
   }
 }
