@@ -17,6 +17,7 @@
 # ******************************************************************************
 
 from fabric.api import *
+from fabric.contrib.files import exists
 import argparse
 import boto3
 import traceback
@@ -38,6 +39,7 @@ parser.add_argument('--tag_resource_id', type=str, default='dlab', help='The nam
 parser.add_argument('--allowed_ip_cidr', type=str, default='', help='Comma-separated CIDR of IPs which will have '
                                                                     'access to the instance')
 parser.add_argument('--key_name', type=str, default='', help='Key name (WITHOUT ".pem")')
+parser.add_argument('--key_path', type=str, default='', help='Key path')
 parser.add_argument('--instance_type', type=str, default='t2.medium', help='Instance shape')
 parser.add_argument('--region', required=True, type=str, default='', help='AWS region name')
 parser.add_argument('--elastic_ip', type=str, default='', help='Elastic IP address')
@@ -692,6 +694,122 @@ def get_instance_ip_address_by_id(instance_id, ip_address_type):
         raise Exception
 
 
+def ensure_ssh_user(initial_user, os_user):
+    try:
+        if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
+            sudo('useradd -m -G sudo -s /bin/bash {0}'.format(os_user))
+            sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
+            sudo('mkdir /home/{}/.ssh'.format(os_user))
+            sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
+            sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
+            sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
+            sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
+            sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+            sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
+            sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with creating dlab-user: {}'.format(str(err)))
+        raise Exception
+
+
+def install_java():
+    try:
+        if not exists('/home/{}/.ensure_dir/java_ensured'.format(os_user)):
+            sudo('apt-get update')
+            sudo('apt-get install -y default-jdk ')
+            sudo('touch /home/{}/.ensure_dir/java_ensured'.format(os_user))
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with installing Java: {}'.format(str(err)))
+        raise Exception
+
+
+def install_groovy():
+    try:
+        if not exists('/home/{}/.ensure_dir/groovy_ensured'.format(os_user)):
+            sudo('apt-get install -y unzip')
+            sudo('mkdir /usr/local/groovy')
+            sudo('wget https://bintray.com/artifact/download/groovy/maven/apache-groovy-binary-{0}.zip -O \
+                  /tmp/apache-groovy-binary-{0}.zip'.format(groovy_version))
+            sudo('unzip /tmp/apache-groovy-binary-{}.zip -d \
+                  /usr/local/groovy'.format(groovy_version))
+            sudo('ln -s /usr/local/groovy/groovy-{} \
+                  /usr/local/groovy/latest'.format(groovy_version))
+            sudo('touch /home/{}/.ensure_dir/groovy_ensured'.format(os_user))
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with installing Groovy: {}'.format(str(err)))
+        raise Exception
+    
+    
+def install_nexus():
+    try:
+        if not exists('/home/{}/.ensure_dir/nexus_ensured'.format(os_user)):
+            sudo('mkdir -p /opt/nexus')
+            sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
+                  /opt/nexus-{1}-unix.tar.gz'.format(
+                  nexus_version.split('.')[0], nexus_version))
+            sudo('tar -zhxvf /opt/nexus-{}-unix.tar.gz -C /opt/'.format(
+                  nexus_version))
+            sudo('mv /opt/nexus-{}/* /opt/nexus/'.format(nexus_version))
+            sudo('mv /opt/nexus-{}/.[!.]* /opt/nexus/'.format(
+                  nexus_version))
+            sudo('rm -rf /opt/nexus-{}'.format(nexus_version))
+            sudo('useradd nexus')
+            sudo('echo \"run_as_user="nexus"\" > /opt/nexus/bin/nexus.rc')
+            sudo('chown -R nexus:nexus /opt/nexus /opt/sonatype-work')
+            put('files/nexus.service', '/tmp/nexus.service')
+            sudo('cp /tmp/nexus.service /etc/systemd/system/')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl start nexus')
+            sudo('systemctl enable nexus')
+            time.sleep(60)
+            put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
+            sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
+            put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
+            script_executed = False
+            while not script_executed:
+                try:
+                    sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "admin123" \
+                          -n "configureNexus" -f "/tmp/configureNexus.groovy" -h "http://localhost:8081"')
+                    script_executed = True
+                except:
+                    time.sleep(10)
+                    pass
+            sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' \
+                   http://localhost:8081/service/rest/v1/script/configureNexus/run')
+            # if args.artifacts_efs_id != 'NONE' and args.packages_efs_id != 'NONE' and args.docker_efs_id != 'NONE':
+            #    mount_efs()
+            #    sudo('chown -R nexus:nexus /opt/sonatype-work')
+            sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(os_user))
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with installing Nexus: {}'.format(str(err)))
+        raise Exception
+
+
+def install_nginx():
+    try:
+        if not exists('/home/{}/.ensure_dir/nginx_ensured'.format(os_user)):
+            sudo('apt-get install -y nginx')
+            sudo('rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/default')
+            put('templates/nexus.conf', '/tmp/nexus.conf')
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                sudo('sed -i "s|SUBDOMAIN|{}|g" /tmp/nexus.conf'.format(args.subdomain))
+                sudo('sed -i "s|HOSTZONE|{}|g" /tmp/nexus.conf'.format(args.hosted_zone_name))
+            else:
+                sudo('sed -i "s|SUBDOMAIN.HOSTZONE|{}|g" /tmp/nexus.conf'.format(ec2_ip_address))
+            sudo('cp /tmp/nexus.conf /etc/nginx/conf.d/nexus.conf'.format(args.subdomain, args.hosted_zone_name))
+            sudo('systemctl restart nginx')
+            sudo('systemctl enable nginx')
+            sudo('touch /home/{}/.ensure_dir/nginx_ensured'.format(os_user))
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with installing Nginx: {}'.format(str(err)))
+        raise Exception
+
+
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
@@ -700,6 +818,9 @@ if __name__ == "__main__":
     pre_defined_vpc = False
     pre_defined_subnet = False
     pre_defined_sg = False
+    os_user = 'dlab-user'
+    groovy_version = '2.5.1'
+    nexus_version = '3.14.0-04'
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
             remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
@@ -875,6 +996,117 @@ if __name__ == "__main__":
                     remove_route_tables()
                     remove_vpc(args.vpc_id)
                 sys.exit(1)
+
+        print("CONFIGURE CONNECTIONS")
+        env['connection_attempts'] = 100
+        env.key_filename = [args.key_path + args.key_name + '.pem']
+        env.host_string = 'ubuntu@' + ec2_ip_address
+
+        try:
+            print('CREATING DLAB-USER')
+            ensure_ssh_user('ubuntu', os_user)
+            env.host_string = os_user + '@' + ec2_ip_address
+        except:
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
+            if args.network_type == 'public':
+                association_id = elastic_ip_exist(True, 'AssociationId')
+                disassociate_elastic_ip(association_id)
+                release_elastic_ip()
+            remove_ec2()
+            if pre_defined_sg:
+                remove_sgroups()
+            if pre_defined_subnet:
+                remove_subnet()
+            if pre_defined_vpc:
+                remove_internet_gateways(args.vpc_id, args.service_base_name)
+                remove_route_tables()
+                remove_vpc(args.vpc_id)
+            sys.exit(1)
+
+        try:
+            print('INSTALLING JAVA')
+            install_java()
+        except:
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
+            if args.network_type == 'public':
+                association_id = elastic_ip_exist(True, 'AssociationId')
+                disassociate_elastic_ip(association_id)
+                release_elastic_ip()
+            remove_ec2()
+            if pre_defined_sg:
+                remove_sgroups()
+            if pre_defined_subnet:
+                remove_subnet()
+            if pre_defined_vpc:
+                remove_internet_gateways(args.vpc_id, args.service_base_name)
+                remove_route_tables()
+                remove_vpc(args.vpc_id)
+            sys.exit(1)
+
+        try:
+            print('INSTALLING GROOVY')
+            install_groovy()
+        except:
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
+            if args.network_type == 'public':
+                association_id = elastic_ip_exist(True, 'AssociationId')
+                disassociate_elastic_ip(association_id)
+                release_elastic_ip()
+            remove_ec2()
+            if pre_defined_sg:
+                remove_sgroups()
+            if pre_defined_subnet:
+                remove_subnet()
+            if pre_defined_vpc:
+                remove_internet_gateways(args.vpc_id, args.service_base_name)
+                remove_route_tables()
+                remove_vpc(args.vpc_id)
+            sys.exit(1)
+            
+        try:
+            print('INSTALLING NEXUS')
+            install_nexus()
+        except:
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
+            if args.network_type == 'public':
+                association_id = elastic_ip_exist(True, 'AssociationId')
+                disassociate_elastic_ip(association_id)
+                release_elastic_ip()
+            remove_ec2()
+            if pre_defined_sg:
+                remove_sgroups()
+            if pre_defined_subnet:
+                remove_subnet()
+            if pre_defined_vpc:
+                remove_internet_gateways(args.vpc_id, args.service_base_name)
+                remove_route_tables()
+                remove_vpc(args.vpc_id)
+            sys.exit(1)
+
+        try:
+            print('INSTALLING NGINX')
+            install_nginx()
+        except:
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
+            if args.network_type == 'public':
+                association_id = elastic_ip_exist(True, 'AssociationId')
+                disassociate_elastic_ip(association_id)
+                release_elastic_ip()
+            remove_ec2()
+            if pre_defined_sg:
+                remove_sgroups()
+            if pre_defined_subnet:
+                remove_subnet()
+            if pre_defined_vpc:
+                remove_internet_gateways(args.vpc_id, args.service_base_name)
+                remove_route_tables()
+                remove_vpc(args.vpc_id)
+            sys.exit(1)
 
         print('[SUMMARY]')
         print("AWS VPC ID: {0}".format(args.vpc_id))
