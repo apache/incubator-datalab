@@ -72,8 +72,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
+      this.subscriptions.unsubscribe();
+      this.subscriptions.closed = false;
       this.isLoggedIn = response;
-      this.subscriptions = new Subscription();
 
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
@@ -87,7 +88,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.currentUserName = this.getUserName();
       }
     });
-
     this.quotesLimit = 70;
   }
 
@@ -101,7 +101,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   logout_btnClick(): void {
     this.applicationSecurityService.logout().subscribe(
-      () => this.appRoutingService.redirectToLoginPage(),
+      () => {
+        this.appRoutingService.redirectToLoginPage();
+        this.subscriptions.unsubscribe();
+      },
       error => console.error(error));
   }
 
