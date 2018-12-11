@@ -21,7 +21,7 @@ import { MatDialog, MatDialogRef } from '@angular/material';
 import { Router, Event, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
-import { interval } from 'rxjs/Observable/interval';
+import { timer } from 'rxjs/observable/timer';
 import { ToastsManager } from 'ng2-toastr';
 
 import { ApplicationSecurityService,
@@ -84,7 +84,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
           result && this.processAccessKeyStatus(result.status);
         }));
-        this.subscriptions.add(interval(this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
+        this.subscriptions.add(timer(0, this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
         this.currentUserName = this.getUserName();
       }
     });
