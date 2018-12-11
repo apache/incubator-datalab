@@ -176,17 +176,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private selectQuotesAlert(type: string, user_quota?: number, total_quota?: number): string {
     const alerts = {
-      user_exceed: `Dear ${ this.currentUserName }, DLab cloud infrastructure usage quota associated with your user has been exceeded.
+      user_exceed: `Dear <b>${ this.currentUserName }</b>,<br />
+          DLab cloud infrastructure usage quota associated with your user has been exceeded.
           All your analytical environment will be stopped. To proceed working with environment, 
           request increase of user quota from DLab administrator.`,
-      total_exceed: `Dear ${ this.currentUserName }, DLab cloud infrastructure usage quota has been exceeded.
+      total_exceed: `Dear <b>${ this.currentUserName }</b>,<br />
+          DLab cloud infrastructure usage quota has been exceeded.
           All your analytical environment will be stopped. To proceed working with environment, 
           request increase application quota from DLab administrator.`,
-      user_quota: `Dear ${ this.currentUserName },
-          Cloud infrastructure usage quota associated with your user has been used for ${user_quota}%.
+      user_quota: `Dear <b>${ this.currentUserName }</b>,<br />
+          Cloud infrastructure usage quota associated with your user has been used for <b>${user_quota}%</b>.
           Once quota is depleted all your analytical environment will be stopped. 
           To proceed working with environment you'll have to request increase of user quota from DLab administrator.`,
-      total_quota: `Dear ${ this.currentUserName }, DLab cloud infrastructure usage quota has been used for ${total_quota}%.
+      total_quota: `Dear <b>${ this.currentUserName }</b>,<br />
+          DLab cloud infrastructure usage quota has been used for <b>${total_quota}%</b>.
           Once quota is depleted all your analytical environment will be stopped. 
           To proceed working with environment you'll have to request increase of user quota from DLab administrator. `
     };

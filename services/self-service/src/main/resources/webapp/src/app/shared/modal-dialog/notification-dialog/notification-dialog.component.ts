@@ -46,7 +46,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
       </div>
       <strong>by a schedule in 15 minutes.</strong>
     </div>
-    <ng-template #info>{{ data.template }}</ng-template>
+    <ng-template #info><span [innerHTML]="data.template"></span></ng-template>
   </div>
   `,
   styles: [`
