@@ -20,6 +20,8 @@ package com.epam.dlab.backendapi;
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.backendapi.domain.SchedulerConfigurationData;
 import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequenceProvider;
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.rest.client.RESTServiceFactory;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
 import com.epam.dlab.validation.GcpValidation;
@@ -111,6 +113,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@Valid
 	@NotNull
 	private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+
+	@Valid
+	@NotNull
+	@JsonProperty(ServiceConsts.MAVEN_SEARCH_API)
+	private RESTServiceFactory mavenApiFactory;
 
 	@JsonProperty("jerseyClient")
 	public JerseyClientConfiguration getJerseyClientConfiguration() {
@@ -226,5 +233,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isMongoMigrationEnabled() {
 		return mongoMigrationEnabled;
+	}
+
+	@NotNull
+	public RESTServiceFactory getMavenApiFactory() {
+		return mavenApiFactory;
 	}
 }

@@ -122,6 +122,14 @@ swaggerConfiguration:
   license: Apache 2.0
   licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
 
+mavenSearchService:
+  protocol: http
+  host: search.maven.org
+  port: 80
+  jerseyClient:
+    timeout: 5s
+    connectionTimeout: 5s
+
 schedulers:
   inactivity:
     enabled: false

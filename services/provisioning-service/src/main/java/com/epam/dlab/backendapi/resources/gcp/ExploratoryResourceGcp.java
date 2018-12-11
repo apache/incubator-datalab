@@ -21,6 +21,7 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.resources.base.ExploratoryService;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
@@ -63,5 +64,11 @@ public class ExploratoryResourceGcp {
     @POST
     public String stop(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
         return exploratoryService.action(ui.getName(), dto, DockerAction.STOP);
+    }
+
+    @Path("/reconfigure_spark")
+    @POST
+    public String reconfigureSpark(@Auth UserInfo ui, ExploratoryReconfigureSparkClusterActionDTO dto) throws JsonProcessingException {
+        return exploratoryService.action(ui.getName(), dto, DockerAction.RECONFIGURE_SPARK);
     }
 }

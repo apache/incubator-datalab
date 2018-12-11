@@ -29,10 +29,7 @@ import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
-import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
-
-import javax.ws.rs.client.Client;
 
 /**
  * Production class for an application configuration of SelfService.
@@ -75,8 +72,8 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(EdgeService.class).to(EdgeServiceImpl.class);
 		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
 		bind(UserResourceService.class).to(UserResourceServiceImpl.class);
-		bind(Client.class).toInstance(new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration())
-				.build(""));
+		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.MAVEN_SEARCH_API))
+				.toInstance(configuration.getMavenApiFactory().build(environment, ServiceConsts.MAVEN_SEARCH_API));
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
 		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);
 		bind(UserGroupService.class).to(UserGroupServiceImpl.class);
