@@ -746,6 +746,7 @@ def install_groovy():
 def install_nexus():
     try:
         if not exists('/home/{}/.ensure_dir/nexus_ensured'.format(os_user)):
+            sudo('apt-get install -y maven')
             sudo('mkdir -p /opt/nexus')
             sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
                   /opt/nexus-{1}-unix.tar.gz'.format(
@@ -758,6 +759,50 @@ def install_nexus():
             sudo('rm -rf /opt/nexus-{}'.format(nexus_version))
             sudo('useradd nexus')
             sudo('echo \"run_as_user="nexus"\" > /opt/nexus/bin/nexus.rc')
+            sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
+            with cd('nexus-repository-apt'):
+                sudo('mvn')
+            apt_plugin_version = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
+                                      '-printf "%f\n" | grep -v "sources"').replace('nexus-repository-apt-',
+                                                                                    '').replace('.jar', '')
+            compress_plugin_version = sudo('find /opt/nexus/ -name "commons-compress-*.jar" '
+                                           '-printf "%f\n" ').replace('commons-compress-', '').replace('.jar', '')
+            xz_plugin_version = sudo('find /opt/nexus/ -name "xz-*.jar" '
+                                     '-printf "%f\n" ').replace('xz-', '').replace('.jar', '')
+            sudo('mkdir -p /opt/nexus/system/net/staticsnow/nexus-repository-apt/{0}/'.format(apt_plugin_version))
+            plugin_jar_path = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
+                apt_plugin_version))
+            sudo('cp -f {0} /opt/nexus/system/net/staticsnow/nexus-repository-apt/{1}/'.format(
+                plugin_jar_path, apt_plugin_version
+            ))
+            sudo('sed -i "$ d" /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
+            sudo('echo "<feature name=\"nexus-repository-apt\" description=\"net.staticsnow:nexus-repository-apt\" '
+                 'version=\"{1}\">" >> /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version, apt_plugin_version))
+            sudo('echo "<details>net.staticsnow:nexus-repository-apt</details>" >> '
+                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
+            sudo('echo "<bundle>mvn:net.staticsnow/nexus-repository-apt/{0}</bundle>" >> '
+                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
+            sudo('echo "<bundle>mvn:org.apache.commons/commons-compress/{1}</bundle>" >> '
+                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version, compress_plugin_version))
+            sudo('echo "<bundle>mvn:org.tukaani/xz/{1}</bundle>" >> '
+                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version, xz_plugin_version))
+            sudo('echo "</feature>" >> '
+                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
+            sudo('echo "</feature>" >> '
+                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
+            sudo('sed -i "s|<details>org.sonatype.nexus.assemblies:nexus-core-feature</details>|'
+                 '<details>org.sonatype.nexus.assemblies:nexus-core-feature</details>\\n'
+                 '<feature prerequisite="false" dependency="false">nexus-repository-apt</feature>|g " '
+                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'
+                 '{0}-features.xml'.format(nexus_version))
             sudo('chown -R nexus:nexus /opt/nexus /opt/sonatype-work')
             put('files/nexus.service', '/tmp/nexus.service')
             sudo('cp /tmp/nexus.service /etc/systemd/system/')
