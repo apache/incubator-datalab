@@ -417,8 +417,8 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
-
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
+						.withConfig(form.getConfig());
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
 							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
@@ -433,7 +433,8 @@ public class RequestBuilder {
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateGcp.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
-						.withDataEngineSlaveSize(form.getDataEngineInstanceShape());
+						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
+						.withConfig(form.getConfig());
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
