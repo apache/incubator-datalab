@@ -18,11 +18,13 @@ limitations under the License.
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { Router, Event, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
-import { timer } from 'rxjs/observable/timer';
 import { ToastsManager } from 'ng2-toastr';
+
+import { TimerObservable } from 'rxjs/observable/TimerObservable';
+import { timer } from 'rxjs/observable/timer';
+import { interval } from 'rxjs/observable/interval';
+import 'rxjs/add/operator/takeWhile';
 
 import { ApplicationSecurityService,
   HealthStatusService,
@@ -42,7 +44,9 @@ import { NotificationDialogComponent } from '../modal-dialog/notification-dialog
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
+
+  private alive: boolean = false;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 30000;
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
@@ -64,8 +68,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
     private schedulerService: SchedulerService,
-    private dialog: MatDialog,
-    private router: Router
+    private dialog: MatDialog
   ) {
     this.toastr.setRootViewContainerRef(vcr);
   }
@@ -74,6 +77,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;
+      this.alive = false;
+
       this.isLoggedIn = response;
 
       if (this.isLoggedIn) {
@@ -93,6 +98,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.alive = false;
   }
 
   getUserName(): string {
@@ -147,10 +153,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private processAccessKeyStatus(status: number): void {
     if (status === HTTP_STATUS_CODES.NOT_FOUND) {
       this.keyUploadDialog.open({ isFooter: false });
+      this.alive = false;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
       !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
-      setTimeout(() => this.userAccessKeyService.initialUserAccessKeyCheck(), this.CHECK_ACCESS_KEY_TIMEOUT);
+
+      if (!this.alive) {
+        this.alive = true;
+        this.subscriptions.add(interval(this.CHECK_ACCESS_KEY_TIMEOUT)
+        .takeWhile(() => this.alive)
+        .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
+      }
+
     } else if (status === HTTP_STATUS_CODES.OK) {
+      this.alive = false;
       this.userAccessKeyService.emitActionOnKeyUploadComplete();
       this.preloaderDialog.close();
       this.keyUploadDialog.close();
