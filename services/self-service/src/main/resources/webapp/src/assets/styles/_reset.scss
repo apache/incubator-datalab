@@ -79,3 +79,10 @@ table {
   box-sizing: border-box;
   padding: 0;
 }
+
+input {
+  &::-ms-clear,
+  &::-ms-reveal {
+    display: none;
+  }
+}

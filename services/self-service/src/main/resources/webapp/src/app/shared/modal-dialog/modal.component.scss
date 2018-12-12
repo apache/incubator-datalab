@@ -206,8 +206,10 @@ limitations under the License.
     height: 54px;
     line-height: 54px;
     .modal-title {
+      width: 90%;
       margin: 0;
       overflow: hidden;
+      white-space: nowrap;
       text-overflow: ellipsis;
       font-weight: 600;
       color: #455c74;
