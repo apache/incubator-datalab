@@ -49,7 +49,7 @@ public class CheckUserQuoteSchedulerTest {
 	@Test
 	public void testWhenUserQuoteReached() {
 		when(billingDAO.isUserQuoteReached(anyString())).thenReturn(true);
-		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO(USER, 1)));
+		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO(USER, 1, UserDTO.Status.ACTIVE)));
 
 		checkUserQuoteScheduler.execute(jobExecutionContext);
 
@@ -63,7 +63,7 @@ public class CheckUserQuoteSchedulerTest {
 	@Test
 	public void testWhenUserQuoteNotReached() {
 		when(billingDAO.isUserQuoteReached(anyString())).thenReturn(false);
-		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO(USER, 1)));
+		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO(USER, 1, UserDTO.Status.ACTIVE)));
 
 		checkUserQuoteScheduler.execute(jobExecutionContext);
 

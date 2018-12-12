@@ -15,15 +15,22 @@
  */
 package com.epam.dlab.backendapi.resources.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
+@AllArgsConstructor
 public class UserDTO {
 	@NotNull
 	private final String name;
 	@Min(1)
 	private final Integer budget;
+	private Status status;
+
+	public enum Status {
+		ACTIVE, NOT_ACTIVE
+	}
 }

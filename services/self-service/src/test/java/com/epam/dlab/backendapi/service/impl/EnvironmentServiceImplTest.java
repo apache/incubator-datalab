@@ -83,21 +83,25 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void getActiveUsers() {
-		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
+		doReturn(Collections.singleton(USER)).when(envDAO).fetchActiveEnvUsers();
+		doReturn(Collections.singleton(USER + "2")).when(envDAO).fetchUsersNotIn(anySet());
 		when(userSettingsDAO.getAllowedBudget(anyString())).thenReturn(Optional.empty());
 		final List<UserDTO> activeUsers = environmentService.getUsers();
 
-		assertEquals(1, activeUsers.size());
+		assertEquals(2, activeUsers.size());
 		assertEquals(USER, activeUsers.get(0).getName());
+		assertEquals(USER + "2", activeUsers.get(1).getName());
 
 		verify(userSettingsDAO).getAllowedBudget(USER);
-		verify(envDAO).fetchAllUsers();
+		verify(userSettingsDAO).getAllowedBudget(USER + "2");
+		verify(envDAO).fetchActiveEnvUsers();
+		verify(envDAO).fetchUsersNotIn(Collections.singleton(USER));
 		verifyNoMoreInteractions(envDAO);
 	}
 
 	@Test
 	public void getActiveUsersWithException() {
-		doThrow(new DlabException("Users not found")).when(envDAO).fetchAllUsers();
+		doThrow(new DlabException("Users not found")).when(envDAO).fetchActiveEnvUsers();
 
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Users not found");
@@ -108,7 +112,7 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void getAllUsers() {
 		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
-		final Set<String> users = environmentService.getAllUsers();
+		final Set<String> users = environmentService.getUserNames();
 
 		assertEquals(1, users.size());
 		assertTrue(users.contains(USER));
@@ -124,7 +128,7 @@ public class EnvironmentServiceImplTest {
 		expectedException.expect(DlabException.class);
 		expectedException.expectMessage("Users not found");
 
-		environmentService.getAllUsers();
+		environmentService.getUserNames();
 	}
 
 	@Test

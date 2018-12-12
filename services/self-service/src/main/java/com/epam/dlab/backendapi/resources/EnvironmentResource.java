@@ -44,11 +44,11 @@ public class EnvironmentResource {
 	}
 
 	@GET
-	@Path("user/active")
+	@Path("user")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation("Fetches active users")
-	@ApiResponses({@ApiResponse(code = 404, message = "Active users not found"),
-			@ApiResponse(code = 200, message = "Active users were fetched successfully")})
+	@ApiOperation("Fetches environment users")
+	@ApiResponses({@ApiResponse(code = 404, message = "Users not found"),
+			@ApiResponse(code = 200, message = "Users were fetched successfully")})
 	public Response getUsersWithActiveEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		log.debug("User {} requested information about active environments", userInfo.getName());
 		return Response.ok(environmentService.getUsers()).build();

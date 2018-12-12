@@ -54,15 +54,15 @@ public class EnvironmentResourceTest extends TestBase {
 	@Test
 	public void getUsersWithActiveEnv() {
 		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
-				null)));
+				null, UserDTO.Status.ACTIVE)));
 		final Response response = resources.getJerseyTest()
-				.target("/environment/user/active")
+				.target("/environment/user")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(Collections.singletonList(new UserDTO("activeUser", null)),
+		assertEquals(Collections.singletonList(new UserDTO("activeUser", null, UserDTO.Status.ACTIVE)),
 				response.readEntity(new GenericType<List<UserDTO>>() {
 				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
@@ -75,9 +75,9 @@ public class EnvironmentResourceTest extends TestBase {
 	public void getUsersWithActiveEnvWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
 		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
-				null)));
+				null, UserDTO.Status.ACTIVE)));
 		final Response response = resources.getJerseyTest()
-				.target("/environment/user/active")
+				.target("/environment/user")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
