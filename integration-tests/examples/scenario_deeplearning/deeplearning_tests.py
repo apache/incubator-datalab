@@ -50,7 +50,7 @@ def prepare_templates():
 def get_storage():
     storages = {"aws": args.storage,
                 "azure": "{0}@{1}.blob.core.windows.net".format(args.storage, args.azure_storage_account),
-                "gcp": args.storage}
+                "gcp": args.storage}`
     protocols = {"aws": "s3a", "azure": "wasbs", "gcp": "gs"}
     if args.azure_datalake_account:
         storages['azure'] = "{0}.azuredatalakestore.net/{1}".format(args.azure_datalake_account, args.storage)

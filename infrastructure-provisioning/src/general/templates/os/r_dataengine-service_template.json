@@ -5,7 +5,7 @@
   "env": {
     "HADOOP_CONF_DIR" : "/opt/DATAENGINE-SERVICE_VERSION/CLUSTER_NAME/conf/",
     "YARN_CONF_DIR": "/opt/DATAENGINE-SERVICE_VERSION/CLUSTER_NAME/conf/",
-    "SPARKR_SUBMIT_ARGS" : "--master YARN_CLI_TYPE sparkr-shell",
+    "SPARKR_SUBMIT_ARGS" : "--deploy-mode client --master YARN_CLI_TYPE sparkr-shell",
     "SPARK_HOME": "SPARK_PATH"
   }
 }
