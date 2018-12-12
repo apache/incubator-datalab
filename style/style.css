@@ -22,7 +22,7 @@
     }
 */
 * {
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
@@ -1160,7 +1160,7 @@ footer {
       -ms-flex: 1;
       flex: 1;
       color: #fff;
-      background-image: url("../images/sources/background_people.png");
+      background-image: url("../images/sources/background_people.jpg");
       background-repeat: no-repeat;
       background-size: cover;
       height: 100vh; }

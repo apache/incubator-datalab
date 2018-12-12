@@ -473,7 +473,7 @@ h2.heading {
                 }
             }
             mark {
-                box-shadow: 0 10px 16px 0px rgba(208,212,224,.6);
+                box-shadow: 0 10px 16px 0 rgba(208,212,224,.6);
                 @include transition(all, .1s);
                 left: calc(50% - 39px/2);
                 background-color: $light;
@@ -509,7 +509,6 @@ h2.heading {
         }
         > div {
             padding: 65px 0 0;
-            font-size: 22px;
             display: none;
             font-size: 16px;
             line-height: 24px;
@@ -884,7 +883,7 @@ footer {
         .contact-us {
             @include flex(1);
             color: $light;
-            background-image: url('../images/sources/background_people.png');
+            background-image: url('../images/sources/background_people.jpg');
             background-repeat: no-repeat;
             background-size: cover;
             height: 100vh;
@@ -916,7 +915,7 @@ footer {
                         height: 30px;
                         background-size: 60px;
                         z-index: 20;
-                        background-image: url(../images/login-icons.png);  
+                        background-image: url(../images/login-icons.png);
                         &.user-icon {
                             background-position: 0 0;
                         }
@@ -1149,7 +1148,7 @@ footer {
                         border: none;
                     }
                     a::before, a::after {
-                        display: none; 
+                        display: none;
                     }
                 }
                 .sub-menu {
@@ -1199,7 +1198,7 @@ footer {
                 background: $primary-green;
                 border-radius: 3px;
                 z-index: 1;
-                transform-origin: 4px 0px;
+                transform-origin: 4px 0;
                 transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
                 background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
                 opacity 0.55s ease;
@@ -1273,7 +1272,7 @@ footer {
         }
     }
     .overlay {
-        background-image: url(../images/sources/background_people.png);
+        background-image: url(../images/sources/background_people.jpg);
         background-repeat: no-repeat;
         background-size: cover;
         .overlay-wrap {
