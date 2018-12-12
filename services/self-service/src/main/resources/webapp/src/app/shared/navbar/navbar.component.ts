@@ -18,11 +18,9 @@ limitations under the License.
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { Router, Event, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { ToastsManager } from 'ng2-toastr';
 
-import { Observable } from 'rxjs/Observable';
 import { TimerObservable } from 'rxjs/observable/TimerObservable';
 import { timer } from 'rxjs/observable/timer';
 import { interval } from 'rxjs/observable/interval';
@@ -48,8 +46,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
 
   private alive: boolean = false;
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 10000;
-  // private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 30000;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 30000;
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
@@ -71,8 +68,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
     private schedulerService: SchedulerService,
-    private dialog: MatDialog,
-    private router: Router
+    private dialog: MatDialog
   ) {
     this.toastr.setRootViewContainerRef(vcr);
   }
@@ -163,7 +159,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (!this.alive) {
         this.alive = true;
-
         this.subscriptions.add(interval(this.CHECK_ACCESS_KEY_TIMEOUT)
         .takeWhile(() => this.alive)
         .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
