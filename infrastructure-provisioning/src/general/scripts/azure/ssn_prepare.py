@@ -43,7 +43,7 @@ if __name__ == "__main__":
         # Verify vpc deployment
         if os.environ['conf_network_type'] == 'private' and os.environ.get('azure_vpc_name') == None and os.environ.get('azure_source_vpc_name') == None:
             raise Exception('Not possible to deploy private environment without predefined vpc or without source vpc')
-        if os.environ.get('azure_resource_group_name') == None and os.environ.get('source_resource_group_name') == None:
+        if os.environ.get('azure_resource_group_name') == None and os.environ.get('azure_source_resource_group_name') == None:
             raise Exception('Not possible to deploy private environment without predefined resource_group_name or source_group_name')
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
