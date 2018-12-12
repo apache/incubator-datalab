@@ -67,3 +67,4 @@ securityProxyConfiguration = new Configuration(
 )
 
 repository.createRepository(ubuntuProxyConfiguration)
+repository.createRepository(securityProxyConfiguration)
