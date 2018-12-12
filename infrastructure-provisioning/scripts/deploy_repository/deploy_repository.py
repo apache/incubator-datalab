@@ -759,57 +759,13 @@ def install_nexus():
             sudo('rm -rf /opt/nexus-{}'.format(nexus_version))
             sudo('useradd nexus')
             sudo('echo \"run_as_user="nexus"\" > /opt/nexus/bin/nexus.rc')
-            sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
-            with cd('nexus-repository-apt'):
-                sudo('mvn')
-            apt_plugin_version = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
-                                      '-printf "%f\n" | grep -v "sources"').replace('nexus-repository-apt-',
-                                                                                    '').replace('.jar', '')
-            compress_plugin_version = sudo('find /opt/nexus/ -name "commons-compress-*.jar" '
-                                           '-printf "%f\n" ').replace('commons-compress-', '').replace('.jar', '')
-            xz_plugin_version = sudo('find /opt/nexus/ -name "xz-*.jar" '
-                                     '-printf "%f\n" ').replace('xz-', '').replace('.jar', '')
-            sudo('mkdir -p /opt/nexus/system/net/staticsnow/nexus-repository-apt/{0}/'.format(apt_plugin_version))
-            plugin_jar_path = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
-                apt_plugin_version))
-            sudo('cp -f {0} /opt/nexus/system/net/staticsnow/nexus-repository-apt/{1}/'.format(
-                plugin_jar_path, apt_plugin_version
-            ))
-            sudo('sed -i "$ d" /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
-            sudo('echo "<feature name=\"nexus-repository-apt\" description=\"net.staticsnow:nexus-repository-apt\" '
-                 'version=\"{1}\">" >> /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version, apt_plugin_version))
-            sudo('echo "<details>net.staticsnow:nexus-repository-apt</details>" >> '
-                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
-            sudo('echo "<bundle>mvn:net.staticsnow/nexus-repository-apt/{0}</bundle>" >> '
-                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
-            sudo('echo "<bundle>mvn:org.apache.commons/commons-compress/{1}</bundle>" >> '
-                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version, compress_plugin_version))
-            sudo('echo "<bundle>mvn:org.tukaani/xz/{1}</bundle>" >> '
-                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version, xz_plugin_version))
-            sudo('echo "</feature>" >> '
-                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
-            sudo('echo "</feature>" >> '
-                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
-                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
-            sudo('sed -i "s|<details>org.sonatype.nexus.assemblies:nexus-core-feature</details>|'
-                 '<details>org.sonatype.nexus.assemblies:nexus-core-feature</details>\\n'
-                 '<feature prerequisite="false" dependency="false">nexus-repository-apt</feature>|g " '
-                 '/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'
-                 '{0}-features.xml'.format(nexus_version))
             sudo('chown -R nexus:nexus /opt/nexus /opt/sonatype-work')
             put('files/nexus.service', '/tmp/nexus.service')
             sudo('cp /tmp/nexus.service /etc/systemd/system/')
             sudo('systemctl daemon-reload')
             sudo('systemctl start nexus')
             sudo('systemctl enable nexus')
-            time.sleep(60)
+            time.sleep(120)
             put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
             sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
             put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
@@ -824,6 +780,67 @@ def install_nexus():
                     pass
             sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' \
                    http://localhost:8081/service/rest/v1/script/configureNexus/run')
+            sudo('systemctl stop nexus')
+            sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
+            with cd('nexus-repository-apt'):
+                sudo('mvn')
+            apt_plugin_version = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
+                                      '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-apt-',
+                                                                                     '').replace('.jar', '')
+            compress_plugin_version = sudo('find /opt/nexus/ -name "commons-compress-*.jar" '
+                                           '-printf "%f\\n" ').replace('commons-compress-', '').replace('.jar', '')
+            xz_plugin_version = sudo('find /opt/nexus/ -name "xz-*.jar" '
+                                     '-printf "%f\\n" ').replace('xz-', '').replace('.jar', '')
+            sudo('mkdir -p /opt/nexus/system/net/staticsnow/nexus-repository-apt/{0}/'.format(apt_plugin_version))
+            plugin_jar_path = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
+                apt_plugin_version))
+            sudo('cp -f {0} /opt/nexus/system/net/staticsnow/nexus-repository-apt/{1}/'.format(
+                plugin_jar_path, apt_plugin_version
+            ))
+            sudo('sed -i "$ d" /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+                 'nexus-core-feature-{0}-features.xml'.format(nexus_version))
+            sudo('''echo '<feature name="nexus-repository-apt" description="net.staticsnow:nexus-repository-apt" '''
+                 '''version="{1}">' >> /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
+                 '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, apt_plugin_version))
+            sudo('''echo '<details>net.staticsnow:nexus-repository-apt</details>' >> '''
+                 '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
+                 '''nexus-core-feature-{0}-features.xml'''.format(nexus_version))
+            sudo('''echo '<bundle>mvn:net.staticsnow/nexus-repository-apt/{1}</bundle>' >> '''
+                 '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
+                 '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, apt_plugin_version))
+            sudo('''echo '<bundle>mvn:org.apache.commons/commons-compress/{1}</bundle>' >> '''
+                 '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
+                 '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, compress_plugin_version))
+            sudo('''echo '<bundle>mvn:org.tukaani/xz/{1}</bundle>' >> '''
+                 '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
+                 '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, xz_plugin_version))
+            sudo('''echo '</feature>' >> '''
+                 '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
+                 '''nexus-core-feature-{0}-features.xml'''.format(nexus_version))
+            sudo('''echo '</features>' >> '''
+                 '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
+                 '''nexus-core-feature-{0}-features.xml'''.format(nexus_version))
+            sudo('''sed -i 's|<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>|'''
+                 '''<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>\\n'''
+                 '''<feature prerequisite=\"false\" dependency=\"false\">nexus-repository-apt</feature>|g' '''
+                 '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'''
+                 '''{0}-features.xml'''.format(nexus_version))
+            sudo('chown -R nexus:nexus /opt/nexus')
+            sudo('systemctl start nexus')
+            time.sleep(60)
+            put('templates/addAptRepository.groovy', '/tmp/addAptRepository.groovy')
+            sudo('sed -i "s|REGION|{0}|g" /tmp/addAptRepository.groovy'.format(args.region))
+            script_executed = False
+            while not script_executed:
+                try:
+                    sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "admin123" '
+                         '-n "addAptRepository" -f "/tmp/addAptRepository.groovy" -h "http://localhost:8081"')
+                    script_executed = True
+                except:
+                    time.sleep(10)
+                    pass
+            sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' '
+                 'http://localhost:8081/service/rest/v1/script/addAptRepository/run')
             # if args.artifacts_efs_id != 'NONE' and args.packages_efs_id != 'NONE' and args.docker_efs_id != 'NONE':
             #    mount_efs()
             #    sudo('chown -R nexus:nexus /opt/sonatype-work')
@@ -995,6 +1012,7 @@ if __name__ == "__main__":
                 print('[ASSOCIATING AWS ELASTIC IP ADDRESS TO EC2 INSTANCE]')
                 allocation_id = elastic_ip_exist(True)
                 associate_elastic_ip(ec2_id, allocation_id)
+                time.sleep(30)
             except:
                 try:
                     association_id = elastic_ip_exist(True, 'AssociationId')

@@ -4,6 +4,7 @@
 @Grab('org.sonatype.nexus:nexus-rest-client:3.9.0-01')
 @Grab('org.sonatype.nexus:nexus-rest-jackson2:3.9.0-01')
 @Grab('org.sonatype.nexus:nexus-script:3.9.0-01')
+@Grab('org.codehaus.groovy:groovy-backports-compat23:2.4.5')
 @Grab('org.jboss.spec.javax.servlet:jboss-servlet-api_3.1_spec:1.0.0.Final')
 @Grab('com.fasterxml.jackson.core:jackson-core:2.8.6')
 @Grab('com.fasterxml.jackson.core:jackson-databind:2.8.6')
