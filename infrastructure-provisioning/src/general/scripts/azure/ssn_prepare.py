@@ -50,7 +50,7 @@ if __name__ == "__main__":
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
         # Check azure predefined resources
         ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name', ssn_conf['service_base_name'])
-        ssn_conf['source_resource_group_name'] = os.environ.get('azure_source_resource_group_name', os.environ['azure_resource_group_name'])
+        ssn_conf['source_resource_group_name'] = os.environ.get('azure_source_resource_group_name', ssn_conf['resource_group_name'])
         ssn_conf['vpc_name'] = os.environ.get('azure_vpc_name', '{}-vpc'.format(ssn_conf['service_base_name']))
         ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-ssn-subnet'.format(ssn_conf['service_base_name']))
         ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(ssn_conf['service_base_name']))
