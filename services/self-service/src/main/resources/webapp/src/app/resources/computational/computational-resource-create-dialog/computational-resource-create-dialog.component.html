@@ -46,7 +46,7 @@ limitations under the License.
                 </div>
               </div>
 
-              <div class="control-group" *ngIf="model.selectedImage?.image">
+              <div class="control-group alias-name" *ngIf="model.selectedImage?.image">
                 <label class="label">Cluster alias</label>
                 <div class="control">
                     <input [class.danger_field]="computationalResourceExist || !resourceForm?.controls['cluster_alias_name'].valid
@@ -90,7 +90,7 @@ limitations under the License.
           </div>
         </div>
 
-        <div class="checkbox-group" *ngIf="PROVIDER === 'gcp' && model.selectedImage?.image === 'docker.dlab-dataengine-service'">
+        <div class="checkbox-group m-top-30" *ngIf="PROVIDER === 'gcp' && model.selectedImage?.image === 'docker.dlab-dataengine-service'">
           <label>
             <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)" /> Preemptible nodes
           </label>
@@ -127,7 +127,7 @@ limitations under the License.
         </div>
 
 
-        <div class="checkbox-group">
+        <div class="checkbox-group" [hidden]="PROVIDER === 'gcp' && model.selectedImage?.image === 'docker.dlab-dataengine-service'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
           </label>
