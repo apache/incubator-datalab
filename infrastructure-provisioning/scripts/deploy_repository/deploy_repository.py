@@ -242,6 +242,12 @@ def create_security_group(security_group_name, vpc_id):
             },
             {
                 "PrefixListIds": [],
+                "FromPort": 8082,
+                "IpRanges": allowed_ip_cidr,
+                "ToPort": 8082, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
                 "FromPort": 80,
                 "IpRanges": allowed_vpc_cidr_ip_ranges,
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
@@ -251,6 +257,12 @@ def create_security_group(security_group_name, vpc_id):
                 "FromPort": 443,
                 "IpRanges": allowed_vpc_cidr_ip_ranges,
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8082,
+                "IpRanges": allowed_vpc_cidr_ip_ranges,
+                "ToPort": 8082, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ])
         egress = format_sg([

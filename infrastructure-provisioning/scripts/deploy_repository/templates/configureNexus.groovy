@@ -26,5 +26,6 @@ blobStore.createFileBlobStore('docker_store', 'docker_store')
 repository.createPyPiProxy('pypi','https://pypi.org/', 'packages_store', true)
 repository.createMavenProxy('maven-central','https://repo1.maven.org/maven2/', 'artifacts_store', true, VersionPolicy.RELEASE, LayoutPolicy.PERMISSIVE)
 repository.createDockerProxy('docker-hub', 'https://registry-1.docker.io', 'HUB', null, null, null, 'docker_store', true, true)
+repository.createDockerGroup('docker-group', null, 8082, ['docker-hub'], true, 'docker_store')
 
 log.info('Script rawRepositories completed successfully')
