@@ -51,6 +51,11 @@ limitations under the License.
     width: 8%;
   }
 }
+.dashboard_table_body {
+  td:first-child {
+    cursor: default;
+  }
+}
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {

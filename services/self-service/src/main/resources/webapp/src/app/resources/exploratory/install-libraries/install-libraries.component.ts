@@ -267,7 +267,9 @@ export class InstallLibrariesComponent implements OnInit {
         .subscribe(
           lib => this.filteredList = [lib],
           error => {
-          if (error.status === HTTP_STATUS_CODES.NOT_FOUND || error.status === HTTP_STATUS_CODES.BAD_REQUEST) {
+          if (error.status === HTTP_STATUS_CODES.NOT_FOUND
+            || error.status === HTTP_STATUS_CODES.BAD_REQUEST
+            || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
             this.validity_format = error.message;
             this.filteredList = null;
           }
