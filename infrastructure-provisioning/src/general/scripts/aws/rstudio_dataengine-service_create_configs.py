@@ -46,9 +46,9 @@ parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-emr_dir = '/opt/' + args.emr_version + '/jars/'
-spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
-yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
+emr_dir = '/opt/{}/jars/'.format(args.emr_version)
+spark_dir = '/opt/{0}/{1}/spark/'.format(args.emr_version, args.cluster_name)
+yarn_dir = '/opt/{0}/{1}/conf/'.format(args.emr_version, args.cluster_name)
 
 
 def configure_rstudio():
@@ -61,6 +61,9 @@ def configure_rstudio():
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
+            #fix emr 5.19 problem with warnings in rstudio because of AWS configuration bug in configuration
+            if args.emr_version == "emr-5.19.0":
+                local("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties")
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
         except Exception as err:
             print('Error: {0}'.format(err))
@@ -76,6 +79,9 @@ def configure_rstudio():
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
+            #fix emr 5.19 problem with warnings in rstudio because of AWS configuration bug in configuration
+            if args.emr_version == "emr-5.19.0":
+                local("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties")
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)
