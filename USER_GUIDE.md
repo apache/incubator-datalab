@@ -160,10 +160,10 @@ In the body of the dialog:
 -   Shared bucket for all users
 -   Bucket that has been provisioned for your needs
 
-To access analytical tool Web UI you can use two ways:
+To access analytical tool Web UI you proceed with one of the options:
 
--   direct urls to access (via reverse proxy)
--   indirect urls to access (via tunnel)
+-   use direct URL's to access notebooks (your access will be established via reverse proxy, so you don't need to have Edge node tunnel up and running)
+-   SOCKS proxy based URL's to access notebooks (via tunnel to Edge node)
 
 If you use direct urls you don't need to open tunnel for Edge node and set SOCKS proxy.
 If you use indirect urls you need to configure SOCKS proxy and open tunnel for Edge node. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines. “Read instruction how to create the tunnel” is available on DLab notebook popup.
