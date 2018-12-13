@@ -34,8 +34,12 @@ limitations under the License.
       &.danger_color {
         position: absolute;
         padding-left: 5px;
-        bottom: 0;
         right: 0;
+      }
+    }
+    .alias-name {
+      .danger-color {
+        right: auto;
       }
     }
   }
@@ -67,10 +71,10 @@ limitations under the License.
       visibility: visible;
       opacity: 1;
     }
-    .preemptible-details {
-      .control {
-        position: relative;
-      }
+  }
+  .preemptible-details {
+    .control {
+      position: relative;
     }
   }
   .spot-details {
