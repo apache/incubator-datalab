@@ -127,7 +127,7 @@ limitations under the License.
         </div>
 
 
-        <div class="checkbox-group">
+        <div class="checkbox-group" [hidden]="PROVIDER === 'gcp' && model.selectedImage?.image === 'docker.dlab-dataengine-service'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
           </label>

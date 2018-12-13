@@ -67,6 +67,11 @@ limitations under the License.
       visibility: visible;
       opacity: 1;
     }
+    .preemptible-details {
+      .control {
+        position: relative;
+      }
+    }
   }
   .spot-details {
     &.show {
