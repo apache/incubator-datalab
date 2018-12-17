@@ -24,6 +24,8 @@ import traceback
 import sys
 import json
 import time
+import string
+import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_base_name', required=True, type=str, default='',
@@ -47,8 +49,20 @@ parser.add_argument('--network_type', type=str, default='public', help='Network 
 parser.add_argument('--hosted_zone_name', type=str, default='', help='Name of hosted zone')
 parser.add_argument('--hosted_zone_id', type=str, default='', help='ID of hosted zone')
 parser.add_argument('--subdomain', type=str, default='', help='Subdomain name')
+parser.add_argument('--efs_enabled', type=str, default='False', help="True - use AWS EFS, False - don't use AWS EFS")
+parser.add_argument('--efs_id', type=str, default='', help="ID of AWS EFS")
+parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk size of primary volume")
+parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
+
+
+def id_generator(size=10, with_digits=True):
+    if with_digits:
+        chars = string.digits + string.ascii_letters
+    else:
+        chars = string.ascii_letters
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 def vpc_exist(return_id=False):
@@ -169,6 +183,23 @@ def create_tag(resource, tag, with_tag_res_id=True):
         raise Exception
 
 
+def create_efs_tag():
+    try:
+        tag = {"Key": tag_name, "Value": args.service_base_name}
+        name_tag = {"Key": "Name", "Value": args.service_base_name + '-efs'}
+        efs_client.create_tags(
+            FileSystemId=args.efs_id,
+            Tags=[
+                tag,
+                name_tag
+            ]
+        )
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with setting EFS tag: {}'.format(str(err)))
+        raise Exception
+
+
 def create_subnet(vpc_id, subnet_cidr):
     try:
         tag = {"Key": tag_name, "Value": "{}".format(args.service_base_name)}
@@ -213,63 +244,8 @@ def get_route_table_by_tag(tag_value):
         raise Exception
 
 
-def create_security_group(security_group_name, vpc_id):
+def create_security_group(security_group_name, vpc_id, ingress, egress, tag, name_tag):
     try:
-        allowed_ip_cidr = list()
-        for cidr in args.allowed_ip_cidr.split(','):
-            allowed_ip_cidr.append({"CidrIp": cidr.replace(' ', '')})
-        allowed_vpc_cidr_ip_ranges = list()
-        for cidr in get_vpc_cidr_by_id(vpc_id):
-            allowed_vpc_cidr_ip_ranges.append({"CidrIp": cidr})
-        ingress = format_sg([
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": allowed_ip_cidr,
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": allowed_ip_cidr,
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": allowed_ip_cidr,
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8082,
-                "IpRanges": allowed_ip_cidr,
-                "ToPort": 8082, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": allowed_vpc_cidr_ip_ranges,
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": allowed_vpc_cidr_ip_ranges,
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8082,
-                "IpRanges": allowed_vpc_cidr_ip_ranges,
-                "ToPort": 8082, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            }
-        ])
-        egress = format_sg([
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": '0.0.0.0/0'}], "UserIdGroupPairs": [], "PrefixListIds": []}
-        ])
-        tag = {"Key": tag_name, "Value": args.service_base_name}
-        name_tag = {"Key": "Name", "Value": args.service_base_name + "-sg"}
         group = ec2_resource.create_security_group(GroupName=security_group_name, Description='security_group_name',
                                                    VpcId=vpc_id)
         time.sleep(10)
@@ -349,6 +325,21 @@ def create_instance():
         user_data = ''
         ami_id = get_ami_id('ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20160907.1')
         instances = ec2_resource.create_instances(ImageId=ami_id, MinCount=1, MaxCount=1,
+                                                  BlockDeviceMappings=[
+                                                      {
+                                                          "DeviceName": "/dev/sda1",
+                                                          "Ebs":
+                                                              {
+                                                                  "VolumeSize": int(args.primary_disk_size)
+                                                              }
+                                                      },
+                                                      {
+                                                          "DeviceName": "/dev/sdb",
+                                                          "Ebs":
+                                                              {
+                                                                  "VolumeSize": int(args.additional_disk_size)
+                                                              }
+                                                      }],
                                                   KeyName=args.key_name,
                                                   SecurityGroupIds=[args.sg_id],
                                                   InstanceType=args.instance_type,
@@ -706,6 +697,57 @@ def get_instance_ip_address_by_id(instance_id, ip_address_type):
         raise Exception
 
 
+def create_efs():
+    try:
+        token = id_generator(10, False)
+        efs = efs_client.create_file_system(
+            CreationToken=token,
+            PerformanceMode='generalPurpose',
+            Encrypted=True
+        )
+        while efs_client.describe_file_systems(
+                FileSystemId=efs.get('FileSystemId')).get('FileSystems')[0].get('LifeCycleState') != 'available':
+            time.sleep(5)
+        return efs.get('FileSystemId')
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with creating AWS EFS: {}'.format(str(err)))
+        raise Exception
+
+
+def create_mount_target(efs_sg_id):
+    try:
+        mount_target_id = efs_client.create_mount_target(
+            FileSystemId=args.efs_id,
+            SubnetId=args.subnet_id,
+            SecurityGroups=[
+                efs_sg_id
+            ]
+        ).get('MountTargetId')
+        while efs_client.describe_mount_targets(
+                MountTargetId=mount_target_id).get('MountTargets')[0].get('LifeCycleState') != 'available':
+            time.sleep(10)
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with creating AWS mount target: {}'.format(str(err)))
+        raise Exception
+
+
+def efs_exist(return_id=False):
+    try:
+        efs_created = False
+        for efs in efs_client.describe_file_systems().get('FileSystems'):
+            if efs.get('Name') == args.service_base_name + '-efs':
+                if return_id:
+                    return efs.get('FileSystemId')
+                efs_created = True
+        return efs_created
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with getting AWS EFS: {}'.format(str(err)))
+        raise Exception
+
+
 def ensure_ssh_user(initial_user, os_user):
     try:
         if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
@@ -758,6 +800,8 @@ def install_groovy():
 def install_nexus():
     try:
         if not exists('/home/{}/.ensure_dir/nexus_ensured'.format(os_user)):
+            if args.efs_enabled == 'False':
+                mounting_disks()
             sudo('apt-get install -y maven')
             sudo('mkdir -p /opt/nexus')
             sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
@@ -884,14 +928,36 @@ def install_nginx():
         raise Exception
 
 
+def mounting_disks():
+    try:
+        if not exists('/home/{}/.ensure_dir/additional_disk_mounted'.format(os_user)):
+            sudo('mkdir -p /opt/sonatype-work')
+            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1 | tr '\\n' ',' | sed 's|.$||g'")
+            sudo('bash -c \'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}\' '.format(disk_name))
+            sudo('sleep 10')
+            partition_name = sudo("lsblk -r | grep part | grep {} | awk {} | sort | tail -n 1 | "
+                                  "tr '\\n' ',' | sed 's|.$||g'".format(disk_name, "'{print $1}'"))
+            sudo('mkfs.ext4 -F -q /dev/{}'.format(partition_name))
+            sudo('mount /dev/{0} /opt/sonatype-work'.format(partition_name))
+            sudo('bash -c "echo \'/dev/{} /opt/sonatype-work ext4 errors=remount-ro 0 1\' >> /etc/fstab"'.format(
+                partition_name))
+            sudo('touch /home/{}/.ensure_dir/additional_disk_mounted'.format(os_user))
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Failed to mount additional volume: {}'.format(str(err)))
+        raise Exception
+
+
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
+    efs_client = boto3.client('efs', region_name=args.region)
     route53_client = boto3.client('route53')
     tag_name = args.service_base_name + '-Tag'
-    pre_defined_vpc = False
-    pre_defined_subnet = False
-    pre_defined_sg = False
+    pre_defined_vpc = True
+    pre_defined_subnet = True
+    pre_defined_sg = True
+    pre_defined_efs = True
     os_user = 'dlab-user'
     groovy_version = '2.5.1'
     nexus_version = '3.14.0-04'
@@ -924,7 +990,7 @@ if __name__ == "__main__":
                 args.vpc_id = create_vpc(args.vpc_cidr)
                 enable_vpc_dns(args.vpc_id)
                 rt_id = create_rt(args.vpc_id)
-                pre_defined_vpc = True
+                pre_defined_vpc = False
             except:
                 remove_internet_gateways(args.vpc_id, args.service_base_name)
                 remove_route_tables()
@@ -932,6 +998,7 @@ if __name__ == "__main__":
                 sys.exit(1)
         elif not args.vpc_id and vpc_exist():
             args.vpc_id = vpc_exist(True)
+            pre_defined_vpc = False
         print('AWS VPC ID: {}'.format(args.vpc_id))
         if not args.subnet_id and not subnet_exist():
             try:
@@ -943,41 +1010,155 @@ if __name__ == "__main__":
                 rt = get_route_table_by_tag(args.service_base_name)
                 route_table = ec2_resource.RouteTable(rt)
                 route_table.associate_with_subnet(SubnetId=args.subnet_id)
-                pre_defined_subnet = True
+                pre_defined_subnet = False
             except:
                 try:
                     remove_subnet()
                 except:
                     print("AWS Subnet hasn't been created or there is an error with removing it")
-                if pre_defined_vpc:
+                if not pre_defined_vpc:
                     remove_internet_gateways(args.vpc_id, args.service_base_name)
                     remove_route_tables()
                     remove_vpc(args.vpc_id)
                 sys.exit(1)
         if not args.subnet_id and subnet_exist():
             args.subnet_id = subnet_exist(True)
+            pre_defined_subnet = False
         print('AWS Subnet ID: {}'.format(args.subnet_id))
         if not args.sg_id and not sg_exist():
             try:
                 print('[CREATING AWS SECURITY GROUP]')
-                args.sg_id = create_security_group(args.service_base_name + '-sg', args.vpc_id)
-                pre_defined_sg = True
+                allowed_ip_cidr = list()
+                for cidr in args.allowed_ip_cidr.split(','):
+                    allowed_ip_cidr.append({"CidrIp": cidr.replace(' ', '')})
+                allowed_vpc_cidr_ip_ranges = list()
+                for cidr in get_vpc_cidr_by_id(args.vpc_id):
+                    allowed_vpc_cidr_ip_ranges.append({"CidrIp": cidr})
+                ingress = format_sg([
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 80,
+                        "IpRanges": allowed_ip_cidr,
+                        "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 22,
+                        "IpRanges": allowed_ip_cidr,
+                        "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 443,
+                        "IpRanges": allowed_ip_cidr,
+                        "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 8082,
+                        "IpRanges": allowed_ip_cidr,
+                        "ToPort": 8082, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 80,
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
+                        "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 443,
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
+                        "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 8082,
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
+                        "ToPort": 8082, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    }
+                ])
+                egress = format_sg([
+                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": '0.0.0.0/0'}], "UserIdGroupPairs": [],
+                     "PrefixListIds": []}
+                ])
+                tag = {"Key": tag_name, "Value": args.service_base_name}
+                name_tag = {"Key": "Name", "Value": args.service_base_name + "-sg"}
+                args.sg_id = create_security_group(args.service_base_name + '-sg', args.vpc_id, ingress, egress, tag,
+                                                   name_tag)
+                pre_defined_sg = False
             except:
                 try:
                     remove_sgroups()
                 except:
                     print("AWS Security Group hasn't been created or there is an error with removing it")
                     pass
-                if pre_defined_subnet:
+                if not pre_defined_subnet:
                     remove_subnet()
-                if pre_defined_vpc:
+                if not pre_defined_vpc:
                     remove_internet_gateways(args.vpc_id, args.service_base_name)
                     remove_route_tables()
                     remove_vpc(args.vpc_id)
                 sys.exit(1)
         if not args.sg_id and sg_exist():
             args.sg_id = sg_exist(True)
+            pre_defined_sg = False
         print('AWS Security Group ID: {}'.format(args.sg_id))
+
+        if args.efs_enabled == 'True':
+            if not args.efs_id and not efs_exist():
+                try:
+                    print('[CREATING AWS EFS]')
+                    allowed_ip_cidr = list()
+                    for cidr in args.allowed_ip_cidr.split(','):
+                        allowed_ip_cidr.append({"CidrIp": cidr.replace(' ', '')})
+                    allowed_vpc_cidr_ip_ranges = list()
+                    for cidr in get_vpc_cidr_by_id(args.vpc_id):
+                        allowed_vpc_cidr_ip_ranges.append({"CidrIp": cidr})
+                    ingress = format_sg([
+                        {
+                            "PrefixListIds": [],
+                            "FromPort": 2049,
+                            "IpRanges": allowed_ip_cidr,
+                            "ToPort": 2049, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                        },
+                        {
+                            "PrefixListIds": [],
+                            "FromPort": 2049,
+                            "IpRanges": allowed_vpc_cidr_ip_ranges,
+                            "ToPort": 2049, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                        }
+                    ])
+                    egress = format_sg([
+                        {"IpProtocol": "-1", "IpRanges": [{"CidrIp": '0.0.0.0/0'}], "UserIdGroupPairs": [],
+                         "PrefixListIds": []}
+                    ])
+                    tag = {"Key": tag_name, "Value": args.service_base_name}
+                    name_tag = {"Key": "Name", "Value": args.service_base_name + "-efs-sg"}
+                    efs_sg_id = create_security_group(args.service_base_name + '-efs-sg', args.vpc_id, ingress, egress,
+                                                      tag, name_tag)
+                    args.efs_id = create_efs()
+                    mount_target_id = create_mount_target(efs_sg_id)
+                    pre_defined_efs = False
+                    create_efs_tag()
+                except:
+                    try:
+                        remove_efs()
+                    except:
+                        print("AWS EFS hasn't been created or there is an error with removing it")
+                    if not pre_defined_sg:
+                        remove_sgroups()
+                    if not pre_defined_subnet:
+                        remove_subnet()
+                    if not pre_defined_vpc:
+                        remove_internet_gateways(args.vpc_id, args.service_base_name)
+                        remove_route_tables()
+                        remove_vpc(args.vpc_id)
+                    sys.exit(1)
+            if not args.efs_id and efs_exist():
+                args.efs_id = efs_exist(True)
+                pre_defined_efs = False
+            print('AWS EFS ID: {}'.format(args.efs_id))
 
         if not ec2_exist():
             try:
@@ -988,11 +1169,13 @@ if __name__ == "__main__":
                     remove_ec2()
                 except:
                     print("AWS EC2 instance hasn't been created or there is an error with removing it")
-                if pre_defined_sg:
+                if not pre_defined_efs:
+                    remove_efs()
+                if not pre_defined_sg:
                     remove_sgroups()
-                if pre_defined_subnet:
+                if not pre_defined_subnet:
                     remove_subnet()
-                if pre_defined_vpc:
+                if not pre_defined_vpc:
                     remove_internet_gateways(args.vpc_id, args.service_base_name)
                     remove_route_tables()
                     remove_vpc(args.vpc_id)
@@ -1011,11 +1194,13 @@ if __name__ == "__main__":
                     except:
                         print("AWS Elastic IP address hasn't been created or there is an error with removing it")
                     remove_ec2()
-                    if pre_defined_sg:
+                    if not pre_defined_efs:
+                        remove_efs()
+                    if not pre_defined_sg:
                         remove_sgroups()
-                    if pre_defined_subnet:
+                    if not pre_defined_subnet:
                         remove_subnet()
-                    if pre_defined_vpc:
+                    if not pre_defined_vpc:
                         remove_internet_gateways(args.vpc_id, args.service_base_name)
                         remove_route_tables()
                         remove_vpc(args.vpc_id)
@@ -1033,11 +1218,13 @@ if __name__ == "__main__":
                     print("AWS Elastic IP address hasn't been associated or there is an error with disassociating it")
                 release_elastic_ip()
                 remove_ec2()
-                if pre_defined_sg:
+                if not pre_defined_efs:
+                    remove_efs()
+                if not pre_defined_sg:
                     remove_sgroups()
-                if pre_defined_subnet:
+                if not pre_defined_subnet:
                     remove_subnet()
-                if pre_defined_vpc:
+                if not pre_defined_vpc:
                     remove_internet_gateways(args.vpc_id, args.service_base_name)
                     remove_route_tables()
                     remove_vpc(args.vpc_id)
@@ -1062,11 +1249,13 @@ if __name__ == "__main__":
                     disassociate_elastic_ip(association_id)
                     release_elastic_ip()
                 remove_ec2()
-                if pre_defined_sg:
+                if not pre_defined_efs:
+                    remove_efs()
+                if not pre_defined_sg:
                     remove_sgroups()
-                if pre_defined_subnet:
+                if not pre_defined_subnet:
                     remove_subnet()
-                if pre_defined_vpc:
+                if not pre_defined_vpc:
                     remove_internet_gateways(args.vpc_id, args.service_base_name)
                     remove_route_tables()
                     remove_vpc(args.vpc_id)
@@ -1089,11 +1278,13 @@ if __name__ == "__main__":
                 disassociate_elastic_ip(association_id)
                 release_elastic_ip()
             remove_ec2()
-            if pre_defined_sg:
+            if not pre_defined_efs:
+                remove_efs()
+            if not pre_defined_sg:
                 remove_sgroups()
-            if pre_defined_subnet:
+            if not pre_defined_subnet:
                 remove_subnet()
-            if pre_defined_vpc:
+            if not pre_defined_vpc:
                 remove_internet_gateways(args.vpc_id, args.service_base_name)
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
@@ -1110,11 +1301,13 @@ if __name__ == "__main__":
                 disassociate_elastic_ip(association_id)
                 release_elastic_ip()
             remove_ec2()
-            if pre_defined_sg:
+            if not pre_defined_efs:
+                remove_efs()
+            if not pre_defined_sg:
                 remove_sgroups()
-            if pre_defined_subnet:
+            if not pre_defined_subnet:
                 remove_subnet()
-            if pre_defined_vpc:
+            if not pre_defined_vpc:
                 remove_internet_gateways(args.vpc_id, args.service_base_name)
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
@@ -1131,11 +1324,13 @@ if __name__ == "__main__":
                 disassociate_elastic_ip(association_id)
                 release_elastic_ip()
             remove_ec2()
-            if pre_defined_sg:
+            if not pre_defined_efs:
+                remove_efs()
+            if not pre_defined_sg:
                 remove_sgroups()
-            if pre_defined_subnet:
+            if not pre_defined_subnet:
                 remove_subnet()
-            if pre_defined_vpc:
+            if not pre_defined_vpc:
                 remove_internet_gateways(args.vpc_id, args.service_base_name)
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
@@ -1152,11 +1347,13 @@ if __name__ == "__main__":
                 disassociate_elastic_ip(association_id)
                 release_elastic_ip()
             remove_ec2()
-            if pre_defined_sg:
+            if not pre_defined_efs:
+                remove_efs()
+            if not pre_defined_sg:
                 remove_sgroups()
-            if pre_defined_subnet:
+            if not pre_defined_subnet:
                 remove_subnet()
-            if pre_defined_vpc:
+            if not pre_defined_vpc:
                 remove_internet_gateways(args.vpc_id, args.service_base_name)
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
@@ -1173,11 +1370,13 @@ if __name__ == "__main__":
                 disassociate_elastic_ip(association_id)
                 release_elastic_ip()
             remove_ec2()
-            if pre_defined_sg:
+            if not pre_defined_efs:
+                remove_efs()
+            if not pre_defined_sg:
                 remove_sgroups()
-            if pre_defined_subnet:
+            if not pre_defined_subnet:
                 remove_subnet()
-            if pre_defined_vpc:
+            if not pre_defined_vpc:
                 remove_internet_gateways(args.vpc_id, args.service_base_name)
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
@@ -1189,6 +1388,8 @@ if __name__ == "__main__":
         print("AWS Security Group ID: {0}".format(args.sg_id))
         print("AWS EC2 ID: {0}".format(ec2_id))
         print("AWS EC2 IP address: {0}".format(ec2_ip_address))
+        if args.efs_id:
+            print('AWS EFS ID: {}'.format(args.efs_id))
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
             print("DNS name: {0}".format(args.subdomain + '.' + args.hosted_zone_name))
 
