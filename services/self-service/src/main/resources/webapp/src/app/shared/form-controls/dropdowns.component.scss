@@ -102,6 +102,13 @@ limitations under the License.
       text-transform: capitalize;
     }
   }
+  &.user {
+    .list-menu {
+      .list-item {
+        text-transform: lowercase;
+      }
+    }
+  }
 }
 
 .dropdown-list .list-menu a,
