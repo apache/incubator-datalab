@@ -179,16 +179,16 @@ limitations under the License.
   outline: 0;
   -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
   box-shadow: 0 3px 9px rgba(0,0,0,.5);
+  .danger_color {
+    padding-left: 5px;
+    font-size: 12px;
+    display: inline-block;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    border-color: #d9534f !important;
+  }
 }
-
-.dialog-content .danger_color {
-  padding-left: 5px;
-  font-size: 12px;
-  display: inline-block;
-}
-.dialog-content .danger_field {
-  border-color: #d9534f !important;
-}
+ 
 .modal-footer .btn {
   margin-top: 0;
 }
