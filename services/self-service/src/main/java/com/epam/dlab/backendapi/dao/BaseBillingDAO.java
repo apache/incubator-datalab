@@ -126,7 +126,8 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 
 	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
 		return allowedBudget.get()
-				.map(userBudget -> (totalCost.intValue() * ONE_HUNDRED) / userBudget)
+				.map(userBudget -> (totalCost * ONE_HUNDRED) / userBudget)
+				.map(Double::intValue)
 				.orElse(BigDecimal.ZERO.intValue());
 	}
 
@@ -197,8 +198,7 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 		return shapeNames == null || shapeNames.isEmpty() || Arrays.stream(shapes).anyMatch(shapeNames::contains);
 	}
 
-	protected abstract void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo>
-			shapes);
+	protected abstract void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes);
 
 	protected String generateShapeName(ShapeInfo shape) {
 		return Optional.ofNullable(shape).map(ShapeInfo::getName).orElse(StringUtils.EMPTY);
