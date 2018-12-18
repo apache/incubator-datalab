@@ -142,8 +142,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (params.billingUserQuoteUsed >= this.quotesLimit && params.billingUserQuoteUsed < 100) checkQuotaAlert = 'user_quota';
       if (params.billingQuoteUsed >= this.quotesLimit && params.billingQuoteUsed < 100) checkQuotaAlert = 'total_quota';
-      if (Number(params.billingUserQuoteUsed) === 100) checkQuotaAlert = 'user_exceed';
-      if (Number(params.billingQuoteUsed) === 100) checkQuotaAlert = 'total_exceed';
+      if (Number(params.billingUserQuoteUsed) >= 100) checkQuotaAlert = 'user_exceed';
+      if (Number(params.billingQuoteUsed) >= 100) checkQuotaAlert = 'total_exceed';
 
       if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
       checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.billingUserQuoteUsed, params.billingQuoteUsed);
