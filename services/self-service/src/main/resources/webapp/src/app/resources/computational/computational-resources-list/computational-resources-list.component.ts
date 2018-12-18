@@ -16,7 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, Inject, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
+
 import { UserResourceService } from '../../../core/services';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
@@ -39,12 +41,17 @@ export class ComputationalResourcesListComponent {
 
   constructor(
     private userResourceService: UserResourceService,
-    public dialog: MatDialog
-  ) { }
+    public dialog: MatDialog,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   toggleResourceAction(resource, action) {
     if (action === 'stop' || action === 'terminate') {
-      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, { data: {action, resource}, width: '550px' });
+      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog,
+        { data: {action, resource}, width: '550px' });
       dialogRef.afterClosed().subscribe(result => {
         if (result && action === 'stop') {
           this.userResourceService
@@ -63,9 +70,9 @@ export class ComputationalResourcesListComponent {
     } else if (action === 'start') {
       this.userResourceService
         .toggleStopStartAction(this.environment['name'], resource.computational_name, 'start')
-        .subscribe(res => {
-          this.rebuildGrid();
-        });
+        .subscribe(
+          () => this.rebuildGrid(),
+          error => this.toastr.error(error.message || 'Computational resource starting failed!', 'Oops!', { toastLife: 5000 }));
     }
   }
 
