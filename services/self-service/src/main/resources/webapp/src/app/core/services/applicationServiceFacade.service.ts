@@ -532,7 +532,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
-    this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user/active');
+    this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 

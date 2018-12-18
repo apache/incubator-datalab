@@ -146,6 +146,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
         result.status === HTTP_STATUS_CODES.OK
         && res.status === HTTP_STATUS_CODES.NO_CONTENT
         && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
+        this.buildGrid();
       });
     }, error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }

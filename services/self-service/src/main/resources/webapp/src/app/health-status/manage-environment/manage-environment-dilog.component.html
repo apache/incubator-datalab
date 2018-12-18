@@ -39,9 +39,16 @@ limitations under the License.
                     <span class="danger_color" *ngIf="manageUsersForm?.controls['users'].controls[i].controls['budget'].hasError('overrun')">Per-user quotes cannot be greater than total budget</span>
                 </div>
                 <div class="action">
-                  <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i class="material-icons">pause_circle_outline</i></span>
+                  <span *ngIf=" manageUsersForm.controls['users'].controls[i].value['status'] === 'ACTIVE'; else not_active" matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i class="material-icons">pause_circle_outline</i></span>
+
+                  <ng-template #not_active>
+                    <span class="disabled" matTooltip="User's environment is not active" matTooltipPosition="above">
+                      <i class="material-icons">pause_circle_outline</i>
+                    </span>
+                  </ng-template>
+
                   <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)"><i class="material-icons">phonelink_off</i></span>
-                </div> 
+                </div>
               </mat-list-item>
             </div>
             <div class="control-group total-budget" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
