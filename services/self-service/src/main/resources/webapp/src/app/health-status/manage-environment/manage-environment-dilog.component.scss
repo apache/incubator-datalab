@@ -56,6 +56,14 @@ limitations under the License.
         font-size: 20px;
       }
     }
+    .disabled {
+      cursor: not-allowed !important;
+      pointer-events: all;
+      opacity: .6;
+      &:hover {
+        color: #6b8299;
+      }
+    }
   }
   .total-budget {
     border-top: 1px solid #edf1f5;
