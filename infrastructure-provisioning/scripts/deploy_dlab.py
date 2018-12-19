@@ -94,6 +94,8 @@ parser.add_argument('--azure_validate_permission_scope', type=str, default='true
                                                                                         'validation(true|false).')
 parser.add_argument('--azure_oauth2_enabled', type=str, default='false', help='Using OAuth2 for logging in DLab')
 parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
+parser.add_argument('--azure_source_vpc_name', type=str, default='', help='Azure VPC source Name')
+parser.add_argument('--azure_source_resource_group_name', type=str, default='', help='Azure source resource group')
 parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--dlab_id', type=str, default="'user:user:tag'", help='Column name in report file that contains '
