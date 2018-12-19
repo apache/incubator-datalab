@@ -5,22 +5,90 @@
       "name": "local_interpreter",
       "group": "livy",
       "properties": {
-        "zeppelin.livy.concurrentSQL": "false",
-        "livy.spark.master": "local[*]",
-        "livy.spark.home":"/opt/spark/",
-        "livy.spark.hadoop.fs.s3a.endpoint": "ENDPOINTURL",
-        "zeppelin.interpreter.localRepo": "/opt/zeppelin/local-repo/2CAC665T6",
-        "zeppelin.livy.url": "http://localhost:LIVY_PORT",
-        "livy.spark.hadoop.fs.s3a.buffer.dir": "/tmp",
-        "zeppelin.spark.useHiveContext": "true",
-        "livy.spark.app.name": "Zeppelin",
-        "zeppelin.spark.printREPLOutput": "true",
-        "zeppelin.spark.maxResult": "1000",
-        "zeppelin.spark.concurrentSQL": "false",
-        "zeppelin.spark.importImplicit": "true",
-        "zeppelin.dep.localrepo": "local-repo",
-        "zeppelin.dep.additionalRemoteRepository": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
-        "livy.spark.hadoop.fs.s3a.fast.upload": "true"
+        "zeppelin.livy.concurrentSQL": {
+            "propertyName": "zeppelin.livy.concurrentSQL",
+            "value": "false",
+            "type": "checkbox"
+          },
+        "livy.spark.master":{
+            "envName": "Master",
+            "propertyName": "master",
+            "value": "local[*]",
+            "description": "Spark master uri. ex) spark://masterhost:7077",
+            "type": "string"
+          },
+        "livy.spark.home": {
+            "propertyName": "livy.spark.home",
+            "value": "/opt/spark/",
+            "type": "string"
+          },
+        "livy.spark.hadoop.fs.s3a.endpoint": {
+            "envName": "SPARK_HADOOP_FS_S3A_ENDPOINT",
+            "propertyName": "livy.spark.hadoop.fs.s3a.endpoint",
+            "value": "ENDPOINTURL",
+            "description": "",
+            "type": "string"
+          },
+        "zeppelin.interpreter.localRepo": {
+            "propertyName": "livy.spark.home",
+            "value": "/opt/zeppelin/local-repo/2CAC665T6",
+            "type": "string"
+          },
+        "zeppelin.livy.url": {
+            "propertyName": "zeppelin.livy.url",
+            "value": "http://localhost:LIVY_PORT",
+            "type": "string"
+          },
+	    "livy.spark.hadoop.fs.s3a.buffer.dir": {
+            "propertyName": "livy.spark.hadoop.fs.s3a.buffer.dir",
+            "value": "/tmp",
+            "type": "string"
+          },
+        "zeppelin.spark.useHiveContext": {
+            "propertyName": "zeppelin.spark.useHiveContext",
+            "value": "true",
+            "type": "checkbox"
+          },
+        "livy.spark.app.name": {
+            "propertyName": "livy.spark.app.name",
+            "value": "Zeppelin",
+            "type": "string"
+          },
+        "zeppelin.spark.printREPLOutput": {
+            "propertyName": "zeppelin.spark.printREPLOutput",
+            "value": "true",
+            "type": "checkbox"
+          },
+        "zeppelin.spark.maxResult": {
+            "propertyName": "zeppelin.spark.maxResult",
+            "value": "1000",
+            "type": "number"
+          },
+        "zeppelin.spark.concurrentSQL": {
+            "propertyName": "zeppelin.spark.concurrentSQL",
+            "value": "false",
+            "type": "checkbox"
+          },
+        "zeppelin.spark.importImplicit": {
+            "propertyName": "zeppelin.spark.importImplicit",
+            "value": "true",
+            "type": "checkbox"
+          },
+        "zeppelin.dep.localrepo": {
+            "propertyName": "zeppelin.dep.localrepo",
+            "value": "local-repo",
+            "type": "string"
+          },
+        "zeppelin.dep.additionalRemoteRepository": {
+            "propertyName": "zeppelin.dep.additionalRemoteRepository",
+            "value": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
+            "type": "string"
+          },
+        "livy.spark.hadoop.fs.s3a.fast.upload": {
+            "propertyName": "livy.spark.hadoop.fs.s3a.fast.upload",
+            "value": "true",
+            "type": "checkbox"
+          }
       },
       "interpreterGroup": [
         {

@@ -334,6 +334,7 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
+        sudo('curl -sL https://rpm.nodesource.com/setup_6.x | sudo -E bash -')
         sudo('yum install -y npm nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
