@@ -748,6 +748,25 @@ def efs_exist(return_id=False):
         raise Exception
 
 
+def remove_efs():
+    try:
+        efs_id = efs_exist(True)
+        mount_targets = efs_client.describe_mount_targets(FileSystemId=efs_id).get('MountTargets')
+        for mount_target in mount_targets:
+            efs_client.delete_mount_target(MountTargetId=mount_target.get('MountTargetId'))
+        while efs_client.describe_file_systems(
+                FileSystemId=efs_id).get('FileSystems')[0].get('NumberOfMountTargets') != 0:
+            time.sleep(5)
+        efs_client.delete_file_system(FileSystemId=efs_id)
+        while efs_exist():
+            time.sleep(5)
+        print('AWS EFS has been deleted')
+    except Exception as err:
+        traceback.print_exc(file=sys.stdout)
+        print('Error with removing AWS EFS: {}'.format(str(err)))
+        raise Exception
+
+
 def ensure_ssh_user(initial_user, os_user):
     try:
         if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
@@ -802,6 +821,8 @@ def install_nexus():
         if not exists('/home/{}/.ensure_dir/nexus_ensured'.format(os_user)):
             if args.efs_enabled == 'False':
                 mounting_disks()
+            else:
+                mount_efs()
             sudo('apt-get install -y maven')
             sudo('mkdir -p /opt/nexus')
             sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
@@ -816,12 +837,19 @@ def install_nexus():
             sudo('useradd nexus')
             sudo('echo \"run_as_user="nexus"\" > /opt/nexus/bin/nexus.rc')
             sudo('chown -R nexus:nexus /opt/nexus /opt/sonatype-work')
+            create_keystore()
+            put('templates/jetty-https.xml', '/tmp/jetty-https.xml')
+            sudo('sed -i "s/KEYSTORE_PASSWORD/{}/g" /tmp/jetty-https.xml'.format(keystore_pass))
+            sudo('cp -f /tmp/jetty-https.xml /opt/nexus/etc/jetty/')
             put('files/nexus.service', '/tmp/nexus.service')
             sudo('cp /tmp/nexus.service /etc/systemd/system/')
             sudo('systemctl daemon-reload')
             sudo('systemctl start nexus')
-            sudo('systemctl enable nexus')
             time.sleep(120)
+            put('files/nexus.properties', '/tmp/nexus.properties')
+            sudo('cp -f /tmp/nexus.properties /opt/sonatype-work/nexus3/etc/nexus.properties')
+            sudo('systemctl restart nexus')
+            sudo('systemctl enable nexus')
             put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
             sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
             put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
@@ -910,6 +938,7 @@ def install_nexus():
 def install_nginx():
     try:
         if not exists('/home/{}/.ensure_dir/nginx_ensured'.format(os_user)):
+            hostname = sudo('hostname')
             sudo('apt-get install -y nginx')
             sudo('rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/default')
             put('templates/nexus.conf', '/tmp/nexus.conf')
@@ -917,7 +946,7 @@ def install_nginx():
                 sudo('sed -i "s|SUBDOMAIN|{}|g" /tmp/nexus.conf'.format(args.subdomain))
                 sudo('sed -i "s|HOSTZONE|{}|g" /tmp/nexus.conf'.format(args.hosted_zone_name))
             else:
-                sudo('sed -i "s|SUBDOMAIN.HOSTZONE|{}|g" /tmp/nexus.conf'.format(ec2_ip_address))
+                sudo('sed -i "s|SUBDOMAIN.HOSTZONE|{}|g" /tmp/nexus.conf'.format(hostname))
             sudo('cp /tmp/nexus.conf /etc/nginx/conf.d/nexus.conf'.format(args.subdomain, args.hosted_zone_name))
             sudo('systemctl restart nginx')
             sudo('systemctl enable nginx')
@@ -948,6 +977,79 @@ def mounting_disks():
         raise Exception
 
 
+def mount_efs():
+    try:
+        if not exists('/home/{}/.ensure_dir/efs_mounted'.format(os_user)):
+            sudo('mkdir -p /opt/sonatype-work')
+            sudo('apt-get -y install binutils')
+            with cd('/tmp/'):
+                sudo('git clone https://github.com/aws/efs-utils')
+            with cd('/tmp/efs-utils'):
+                sudo('./build-deb.sh')
+                sudo('apt-get -y install ./build/amazon-efs-utils*deb')
+            sudo('sed -i "s/stunnel_check_cert_hostname.*/stunnel_check_cert_hostname = false/g" '
+                 '/etc/amazon/efs/efs-utils.conf')
+            sudo('sed -i "s/stunnel_check_cert_validity.*/stunnel_check_cert_validity = false/g" '
+                 '/etc/amazon/efs/efs-utils.conf')
+            sudo('mount -t efs -o tls {}:/ /opt/sonatype-work'.format(
+                args.efs_id))
+            sudo('bash -c "echo \'{}:/ /opt/sonatype-work efs tls,_netdev 0 0\' >> '
+                 '/etc/fstab"'.format(args.efs_id))
+            put('files/mount-efs-sequentially.service', '/tmp/mount-efs-sequentially.service')
+            sudo('cp /tmp/mount-efs-sequentially.service /etc/systemd/system/')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable mount-efs-sequentially.service')
+            sudo('touch /home/{}/.ensure_dir/efs_mounted'.format(os_user))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to mount additional volume: ', str(err))
+        sys.exit(1)
+
+
+def configure_ssl():
+    try:
+        if not exists('/home/{}/.ensure_dir/ssl_ensured'.format(os_user)):
+            hostname = sudo('hostname')
+            sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/repository.key \
+                             -out /etc/ssl/certs/repository.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+            sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
+            sudo('touch /home/{}/.ensure_dir/ssl_ensured'.format(os_user))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to mount additional volume: ', str(err))
+        sys.exit(1)
+
+
+def set_hostname():
+    try:
+        if not exists('/home/{}/.ensure_dir/hostname_set'.format(os_user)):
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                hostname = '{0}.{1}'.format(args.subdomain, args.hosted_zone_name)
+            else:
+                if args.network_type == 'public':
+                    hostname = sudo('curl http://169.254.169.254/latest/meta-data/public-hostname')
+                else:
+                    hostname = sudo('curl http://169.254.169.254/latest/meta-data/hostname')
+            sudo('hostnamectl set-hostname {0}'.format(hostname))
+            sudo('touch /home/{}/.ensure_dir/hostname_set'.format(os_user))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to mount additional volume: ', str(err))
+        sys.exit(1)
+
+
+def create_keystore():
+    try:
+        sudo('openssl pkcs12 -export -chain -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
+             '-out wildcard.p12 -passout pass:{}'.format(keystore_pass))
+        sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
+             'PKCS12 -srcstorepass {0} -destkeystore /opt/nexus/etc/ssl/keystore.jks'.format(keystore_pass))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to create keystore: ', str(err))
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
@@ -961,6 +1063,7 @@ if __name__ == "__main__":
     os_user = 'dlab-user'
     groovy_version = '2.5.1'
     nexus_version = '3.14.0-04'
+    keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
             remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
@@ -974,6 +1077,8 @@ if __name__ == "__main__":
             release_elastic_ip()
         if ec2_exist():
             remove_ec2()
+        if efs_exist():
+            remove_efs()
         if sg_exist():
             remove_sgroups()
         if subnet_exist():
@@ -1265,103 +1370,40 @@ if __name__ == "__main__":
         env['connection_attempts'] = 100
         env.key_filename = [args.key_path + args.key_name + '.pem']
         env.host_string = 'ubuntu@' + ec2_ip_address
-
+        print("CONFIGURE LOCAL REPOSITORY")
         try:
             print('CREATING DLAB-USER')
             ensure_ssh_user('ubuntu', os_user)
             env.host_string = os_user + '@' + ec2_ip_address
-        except:
-            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
-                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
-            if args.network_type == 'public':
-                association_id = elastic_ip_exist(True, 'AssociationId')
-                disassociate_elastic_ip(association_id)
-                release_elastic_ip()
-            remove_ec2()
-            if not pre_defined_efs:
-                remove_efs()
-            if not pre_defined_sg:
-                remove_sgroups()
-            if not pre_defined_subnet:
-                remove_subnet()
-            if not pre_defined_vpc:
-                remove_internet_gateways(args.vpc_id, args.service_base_name)
-                remove_route_tables()
-                remove_vpc(args.vpc_id)
-            sys.exit(1)
 
-        try:
+            print('SETTING HOSTNAME')
+            set_hostname()
+
             print('INSTALLING JAVA')
             install_java()
-        except:
-            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
-                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
-            if args.network_type == 'public':
-                association_id = elastic_ip_exist(True, 'AssociationId')
-                disassociate_elastic_ip(association_id)
-                release_elastic_ip()
-            remove_ec2()
-            if not pre_defined_efs:
-                remove_efs()
-            if not pre_defined_sg:
-                remove_sgroups()
-            if not pre_defined_subnet:
-                remove_subnet()
-            if not pre_defined_vpc:
-                remove_internet_gateways(args.vpc_id, args.service_base_name)
-                remove_route_tables()
-                remove_vpc(args.vpc_id)
-            sys.exit(1)
 
-        try:
             print('INSTALLING GROOVY')
             install_groovy()
-        except:
-            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
-                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
-            if args.network_type == 'public':
-                association_id = elastic_ip_exist(True, 'AssociationId')
-                disassociate_elastic_ip(association_id)
-                release_elastic_ip()
-            remove_ec2()
-            if not pre_defined_efs:
-                remove_efs()
-            if not pre_defined_sg:
-                remove_sgroups()
-            if not pre_defined_subnet:
-                remove_subnet()
-            if not pre_defined_vpc:
-                remove_internet_gateways(args.vpc_id, args.service_base_name)
-                remove_route_tables()
-                remove_vpc(args.vpc_id)
-            sys.exit(1)
-            
-        try:
+
+            print('CONFIGURING SSL CERTS')
+            configure_ssl()
+
             print('INSTALLING NEXUS')
             install_nexus()
-        except:
-            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
-                remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
-            if args.network_type == 'public':
-                association_id = elastic_ip_exist(True, 'AssociationId')
-                disassociate_elastic_ip(association_id)
-                release_elastic_ip()
-            remove_ec2()
-            if not pre_defined_efs:
-                remove_efs()
-            if not pre_defined_sg:
-                remove_sgroups()
-            if not pre_defined_subnet:
-                remove_subnet()
-            if not pre_defined_vpc:
-                remove_internet_gateways(args.vpc_id, args.service_base_name)
-                remove_route_tables()
-                remove_vpc(args.vpc_id)
-            sys.exit(1)
 
-        try:
             print('INSTALLING NGINX')
             install_nginx()
+
+            print('[SUMMARY]')
+            print("AWS VPC ID: {0}".format(args.vpc_id))
+            print("AWS Subnet ID: {0}".format(args.subnet_id))
+            print("AWS Security Group ID: {0}".format(args.sg_id))
+            print("AWS EC2 ID: {0}".format(ec2_id))
+            print("AWS EC2 IP address: {0}".format(ec2_ip_address))
+            if args.efs_id:
+                print('AWS EFS ID: {}'.format(args.efs_id))
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                print("DNS name: {0}".format(args.subdomain + '.' + args.hosted_zone_name))
         except:
             if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
                 remove_route_53_record(args.hosted_zone_id, args.hosted_zone_name, args.subdomain)
@@ -1381,17 +1423,6 @@ if __name__ == "__main__":
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
             sys.exit(1)
-
-        print('[SUMMARY]')
-        print("AWS VPC ID: {0}".format(args.vpc_id))
-        print("AWS Subnet ID: {0}".format(args.subnet_id))
-        print("AWS Security Group ID: {0}".format(args.sg_id))
-        print("AWS EC2 ID: {0}".format(ec2_id))
-        print("AWS EC2 IP address: {0}".format(ec2_ip_address))
-        if args.efs_id:
-            print('AWS EFS ID: {}'.format(args.efs_id))
-        if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
-            print("DNS name: {0}".format(args.subdomain + '.' + args.hosted_zone_name))
 
     else:
         print('Invalid action: {}'.format(args.action))

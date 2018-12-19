@@ -1,0 +1,11 @@
+[Unit]
+Description=Mounting EFS file systems sequentially at boot time
+After=remote-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/mount -avt efs
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
