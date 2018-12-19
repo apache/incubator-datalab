@@ -1424,7 +1424,7 @@ def spark_defaults(args):
         endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """ " >> """ + spark_def_path + """'""")
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
@@ -1485,15 +1485,15 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         spark_libs = "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/{0}/jars/usr/lib/hadoop/hadoop-aws*.jar /opt/" + \
                      "{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/{0}" + \
                      "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar".format(emr_version)
-        #fix due to Multiple py4j files found under ..../spark/python/lib
+        #fix due to: Multiple py4j files found under ..../spark/python/lib
         #py4j-0.10.7-src.zip still in folder. Versions may varies.
         local('rm /opt/{0}/{1}/spark/python/lib/py4j-src.zip'.format(emr_version, cluster_name))
 
         local('echo \"Configuring emr path for Zeppelin\"')
         local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/{0}\/{1}\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh'.
               format(emr_version, cluster_name))
-        local('sed -i \"s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=\/opt\/{0}\/' +
-              '{1}\/conf/\" /opt/{0}/{1}/spark/conf/spark-env.sh'.format(emr_version, cluster_name))
+        local('sed -i "s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=' + \
+              '\/opt\/{0}\/{1}\/conf/" /opt/{0}/{1}/spark/conf/spark-env.sh'.format(emr_version, cluster_name))
         local('echo \"spark.jars $(ls {0} | tr \'\\n\' \',\')\" >> /opt/{1}/{2}/spark/conf/spark-defaults.conf'
               .format(spark_libs, emr_version, cluster_name))
         local('sed -i "/spark.executorEnv.PYTHONPATH/d" /opt/{0}/{1}/spark/conf/spark-defaults.conf'
