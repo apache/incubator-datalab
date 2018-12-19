@@ -1040,7 +1040,7 @@ def set_hostname():
 
 def create_keystore():
     try:
-        sudo('openssl pkcs12 -export -chain -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
+        sudo('openssl pkcs12 -export -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
              '-out wildcard.p12 -passout pass:{}'.format(keystore_pass))
         sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
              'PKCS12 -srcstorepass {0} -destkeystore /opt/nexus/etc/ssl/keystore.jks'.format(keystore_pass))
