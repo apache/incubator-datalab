@@ -61,7 +61,7 @@ def configure_rstudio():
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-            #fix emr 5.19 problem with warnings in rstudio because of AWS configuration bug in configuration
+            #fix emr 5.19 problem with warnings in rstudio because of bug in AWS configuration
             if args.emr_version == "emr-5.19.0":
                 local("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties")
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
@@ -79,7 +79,7 @@ def configure_rstudio():
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-            #fix emr 5.19 problem with warnings in rstudio because of AWS configuration bug in configuration
+            #fix emr 5.19 problem with warnings in rstudio because of bug in AWS configuration
             if args.emr_version == "emr-5.19.0":
                 local("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties")
         except Exception as err:
