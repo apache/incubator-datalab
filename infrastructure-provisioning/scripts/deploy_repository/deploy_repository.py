@@ -925,9 +925,6 @@ def install_nexus():
                     pass
             sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' '
                  'http://localhost:8081/service/rest/v1/script/addAptRepository/run')
-            # if args.artifacts_efs_id != 'NONE' and args.packages_efs_id != 'NONE' and args.docker_efs_id != 'NONE':
-            #    mount_efs()
-            #    sudo('chown -R nexus:nexus /opt/sonatype-work')
             sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(os_user))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
