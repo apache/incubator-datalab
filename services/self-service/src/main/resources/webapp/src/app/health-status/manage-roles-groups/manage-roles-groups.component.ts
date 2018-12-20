@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
 import { ValidatorFn, FormControl, AbstractControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
@@ -24,10 +24,9 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 @Component({
   selector: 'dlab-manage-roles-groups',
   templateUrl: './manage-roles-groups.component.html',
-  styleUrls: ['./manage-roles-groups.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['../../resources/resources-grid/resources-grid.component.css', './manage-roles-groups.component.scss']
 })
-export class ManageRolesGroupsComponent {
+export class ManageRolesGroupsComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   public groupsData: Array<any> = [];
@@ -63,7 +62,7 @@ export class ManageRolesGroupsComponent {
 
   public onUpdate($event) {
     if ($event.type === 'role') {
-      this.setupRoles = $event.model
+      this.setupRoles = $event.model;
     } else {
       this.updatedRoles = $event.model;
     }
@@ -75,26 +74,31 @@ export class ManageRolesGroupsComponent {
       this.manageRolesGroupAction.emit(
         { action, type, value: {
           name: this.setupGroup,
-          users: this.setupUser ? this.setupUser.split(',').map(item => item.trim()) : [],
+          users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()) : [],
           roleIds: this.extractIds(this.roles, this.setupRoles)
         }
       });
       this.stepperView = false;
     } else if (action === 'delete') {
-      let data = (type === 'users') ? {group: item.group, user: value} : {group: item.group, id: item};
-      const dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialog> = this.dialog.open(ConfirmDeleteUserAccountDialog, { data: data, width: '550px' });
+      const data = (type === 'users') ? {group: item.group, user: value} : {group: item.group, id: item};
+      const dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialogComponent> = this.dialog.open(
+        ConfirmDeleteUserAccountDialogComponent,
+        { data: data, width: '550px' }
+      );
 
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          let emitValue = (type === 'users') ? {action, type, id: item.name, value: { user: value, group: item.group }} : {action, type, id: item.name, value: item.group} ;
+          const emitValue = (type === 'users')
+            ? {action, type, id: item.name, value: { user: value, group: item.group }}
+            : {action, type, id: item.name, value: item.group} ;
           this.manageRolesGroupAction.emit(emitValue);
         }
       });
     } else if (action === 'update') {
-      let source = (type === 'roles')
+      const source = (type === 'roles')
           ? { group: item.group, roleIds: this.extractIds(this.roles, item.selected_roles) }
-          : { group: item.group, users: value.split(',').map(item => item.trim())
-      }
+          : { group: item.group, users: value.split(',').map(elem => elem.trim())
+      };
       this.manageRolesGroupAction.emit({action, type, value: source});
     }
     this.resetDialog();
@@ -117,8 +121,8 @@ export class ManageRolesGroupsComponent {
 
   public groupValidarion(): ValidatorFn {
 
-    let duplicateList = this.groupsData.map(item => item.group)
-    return <ValidatorFn>((control:FormControl) => {
+    const duplicateList = this.groupsData.map(item => item.group);
+    return <ValidatorFn>((control: FormControl) => {
       if (control.value && duplicateList.includes(this.delimitersFiltering(control.value)))
         return { duplicate: true };
 
@@ -165,9 +169,9 @@ export class ManageRolesGroupsComponent {
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
   `]
 })
-export class ConfirmDeleteUserAccountDialog {
+export class ConfirmDeleteUserAccountDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialog>,
+    public dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }
