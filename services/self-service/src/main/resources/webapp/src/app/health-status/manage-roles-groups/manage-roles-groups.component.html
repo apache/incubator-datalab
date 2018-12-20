@@ -74,8 +74,55 @@ limitations under the License.
           </div>
         </mat-step>
       </mat-horizontal-stepper>
+      <mat-divider></mat-divider>
       <div *ngIf="groupsData.length" class="ani">
-        <mat-list>
+        <table class="dashboard_table">
+          <tr>
+            <th class="th_name groups">Name</th>
+            <th class="roles">Roles</th>
+            <th class="users">Users</th>
+            <th class="th_actions">Action</th>
+          </tr>
+          <tr *ngFor="let item of groupsData" class="dashboard_table_body filter-row">
+            <td>{{ item.group }}</td>
+            <td class="roles">
+              <!-- <multi-select-dropdown (selectionChange)="onUpdate($event, item)"
+                [type]="'update_roles'"
+                [items]="rolesList"
+                [model]="item.selected_roles"></multi-select-dropdown> -->
+              <div class="selector-wrapper-edit">
+                <mat-form-field>
+                  <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
+                    <mat-option *ngFor="let role of rolesList" [value]="role">
+                      {{ role }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <!-- <button class="caret ani" (click)="manageAction('update', 'roles', item, item.selected_roles)" [ngClass]="{'not-allowed': !item.selected_roles.length}">
+                  <i class="material-icons">done</i>
+                </button> -->
+              </div>
+            </td>
+            <td class="status">Users ...</td>
+            <td class="actions">
+              <button mat-icon-button class="reset" (click)="manageAction('delete', 'group', item)">
+                <i class="material-icons">close</i>
+              </button>
+
+              <button mat-icon-button class="apply"> 
+                <i class="material-icons">done</i>
+              </button>
+            </td>
+          </tr>
+        </table>
+
+
+
+
+
+
+        <!-- <mat-list>
           <mat-list-item class="list-header">
             <div class="groups">Groups</div>
             <div class="roles">Role</div>
@@ -118,7 +165,6 @@ limitations under the License.
                 </div>
                 <div class="roles">
                   <div class="selector-wrapper-edit">
-                    <!-- <multi-select-dropdown (selectionChange)="onUpdate($event, item)" [type]="'update_roles'" [items]="rolesList" [model]="item.selected_roles"></multi-select-dropdown> -->
 
                     <mat-form-field>
                       <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
@@ -147,8 +193,10 @@ limitations under the License.
               </div>
             </mat-expansion-panel>
           </mat-accordion>
-        </mat-list>
+        </mat-list> -->
+
       </div>
     </div>
   </modal-content>
 </modal-dialog>
+
