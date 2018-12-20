@@ -21,6 +21,7 @@
 from fabric.api import *
 from fabric.contrib.files import exists
 import sys
+import os
 
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
@@ -49,12 +50,20 @@ def renew_gpg_key():
         sys.exit(1)
 
 
-def change_pkg_repos():
-    if not exists('/tmp/pkg_china_ensured'):
+def update_apt_repository_configuration(repository_host):
+    if not exists('/tmp/apt_conf_update_ensured'):
         put('/root/files/sources.list', '/tmp/sources.list')
         sudo('mv /tmp/sources.list /etc/apt/sources.list')
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('sed -i "s|REPOSITORY_UBUNTU|{}repository/apt-ubuntu/|g" /etc/apt/sources.list'.format(
+                repository_host))
+            sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}repository/apt-security/|g" /etc/apt/sources.list'.format(
+                repository_host))
+        else:
+            sudo('sed -i "s|REPOSITORY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
+            sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
         sudo('apt-get update')
-        sudo('touch /tmp/pkg_china_ensured')
+        sudo('touch /tmp/apt_conf_update_ensured')
 
 
 def find_java_path_remote():

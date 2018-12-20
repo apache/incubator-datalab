@@ -114,6 +114,8 @@ parser.add_argument('--ldap_dn', type=str, default='', help='Ldap distinguished 
 parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organisation unit (ou=People)')
 parser.add_argument('--ldap_service_username', type=str, default='', help='Ldap admin user name')
 parser.add_argument('--ldap_service_password', type=str, default='', help='Ldap password for admin user')
+parser.add_argument('--conf_dlab_repository_host', type=str, default='', help='URL to DLab repository. '
+                                                                              'For example: 10.10.10.10')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
                                                                                   'contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],

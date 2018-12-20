@@ -52,12 +52,24 @@ def modify_conf_file(args):
         args.dlab_path, json.dumps(variables_list)))
 
 
-def add_china_repository(dlab_path):
-    with cd('{}sources/infrastructure-provisioning/src/base/'.format(dlab_path)):
+def update_repository(dlab_path, repository_host, region):
+    with cd('{}sources/infrastructure-provisioning/src/general/files/aws/'.format(dlab_path)):
         sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" '
-             'Dockerfile'.format(os.environ['conf_pypi_mirror']))
-        sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
-        sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
+             'base_Dockerfile'.format(repository_host))
+        if region == 'cn-north-1':
+            sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" base_Dockerfile')
+        sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" base_Dockerfile')
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('sed -i "s|^FROM ubuntu|FROM {}:8082/ubuntu|g" base_Dockerfile')
+            sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}repository/apt-ubuntu/|g' /etc/apt/sources.list" '''
+                 '''base_Dockerfile'''.format(repository_host))
+            sudo('''sed -i "24i RUN sed -i 's|REPOSITORY_SECURITY_UBUNTU|{}repository/apt-security/|g' '''
+                 '''/etc/apt/sources.list" base_Dockerfile'''.format(repository_host))
+        else:
+            sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}|g' /etc/apt/sources.list" base_Dockerfile'''.format(
+                repository_host))
+            sudo('''sed -i "24i RUN sed -i 's|REPOSITORY_SECURITY_UBUNTU|{}|g' /etc/apt/sources.list" '''
+                 '''base_Dockerfile'''.format(repository_host))
 
 
 def build_docker_images(image_list, region, dlab_path):
@@ -68,7 +80,9 @@ def build_docker_images(image_list, region, dlab_path):
             sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
                  '/home/{1}/keys/azure_auth.json'.format(args.dlab_path, args.os_user))
         if region == 'cn-north-1':
-            add_china_repository(dlab_path)
+            update_repository(dlab_path, os.environ['conf_pypi_mirror'], region)
+        if 'conf_dlab_repository_host' in os.environ:
+            update_repository(dlab_path, os.environ['conf_dlab_repository_host'], region)
         for image in image_list:
             name = image['name']
             tag = image['tag']

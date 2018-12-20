@@ -32,9 +32,15 @@ def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
-            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
-            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
-                  stable"')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('curl -fsSL https://{}repository/docker-repo/gpg | apt-key add -'.format(
+                    os.environ['conf_dlab_repository_host']))
+                sudo('add-apt-repository "deb [arch=amd64] https://{}repository/docker-repo/ $(lsb_release -cs) \
+                                  stable"'.format(os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+                sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+                      stable"')
             sudo('apt-get update')
             sudo('apt-cache policy docker-ce')
             sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
@@ -64,8 +70,14 @@ def ensure_nginx(dlab_path):
 def ensure_jenkins(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
-            sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
-            sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('wget -q -O - https://{}repository/jenkins-repo/jenkins-ci.org.key | apt-key add -'.format(
+                    os.environ['conf_dlab_repository_host']))
+                sudo('echo deb https://{}repository/jenkins-repo/ binary/ > /etc/apt/sources.list.d/jenkins.list'.format(
+                    os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
+                sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
             sudo('apt-get -y update')
             sudo('apt-get -y install openjdk-8-jdk')
             sudo('apt-get -y install jenkins')
@@ -153,8 +165,14 @@ def ensure_supervisor():
 def ensure_mongo():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
-            sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
-            sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('ver=`lsb_release -cs`; echo "deb https://{}/repository/mongo-repo/ '
+                     '$ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; '
+                     'apt-get update'.format(os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
+                sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 '
+                     'multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
             sudo('apt-get -y --allow-unauthenticated install mongodb-org')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')

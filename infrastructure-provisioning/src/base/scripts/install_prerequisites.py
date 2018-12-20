@@ -23,7 +23,7 @@ import argparse
 import json
 from dlab.fab import *
 from dlab.common_lib import ensure_pkg
-from dlab.common_lib import change_pkg_repos
+from dlab.common_lib import update_apt_repository_configuration
 from fabric.contrib.files import exists
 import sys
 import os
@@ -39,14 +39,14 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
-def create_china_pip_conf_file():
-    if not exists('/home/{}/pip_china_ensured'.format(args.user)):
+def update_pip_repository_configuration(repository_host):
+    if not exists('/home/{}/pip_conf_update_ensured'.format(args.user)):
         sudo('touch /etc/pip.conf')
         sudo('echo "[global]" >> /etc/pip.conf')
         sudo('echo "timeout = 600" >> /etc/pip.conf')
-        sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        sudo('touch /home/{}/pip_china_ensured'.format(args.user))
+        sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(repository_host))
+        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(repository_host))
+        sudo('touch /home/{}/pip_conf_update_ensured'.format(args.user))
 
 
 if __name__ == "__main__":
@@ -57,8 +57,12 @@ if __name__ == "__main__":
     deeper_config = json.loads(args.additional_config)
 
     if args.region == 'cn-north-1':
-        change_pkg_repos()
-        create_china_pip_conf_file()
+        update_apt_repository_configuration()
+        update_pip_repository_configuration('http://mirrors.aliyun.com/ubuntu/')
+
+    if 'conf_dlab_repository_host' in os.environ:
+        update_apt_repository_configuration(os.environ['conf_dlab_repository_host'])
+        update_pip_repository_configuration('{}repository/pypi-repo/'.format(os.environ['conf_dlab_repository_host']))
 
     print("Updating repositories and installing requested tools.")
     if not ensure_pkg(args.user):

@@ -55,7 +55,7 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
         return False
 
 
-def change_pkg_repos():
+def update_apt_repository_configuration(repository_host):
     if not exists('/tmp/pkg_china_ensured'):
         put('/root/files/sources.list', '/tmp/sources.list')
         sudo('mv /tmp/sources.list  /etc/yum.repos.d/CentOS-Base-aliyun.repo')

@@ -29,5 +29,6 @@ repository.createDockerProxy('docker-hub', 'https://registry-1.docker.io', 'HUB'
 repository.createDockerGroup('docker-group', null, 8082, ['docker-hub'], true, 'docker_store')
 repository.createRawProxy('docker-repo','https://download.docker.com/linux/ubuntu', 'packages_store')
 repository.createRawProxy('jenkins-repo','http://pkg.jenkins.io/debian-stable', 'packages_store')
+repository.createRawProxy('mongo-repo','http://repo.mongodb.org/apt/ubuntu', 'packages_store')
 
 log.info('Script rawRepositories completed successfully')
