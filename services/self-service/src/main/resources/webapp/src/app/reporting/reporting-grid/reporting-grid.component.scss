@@ -55,6 +55,13 @@ limitations under the License.
   td:first-child {
     cursor: default;
   }
+ .dropdown-multiselect {
+  button {
+    font-size: 14px;
+    height: 34px;
+    padding: 7px 20px;
+  }
+ }
 }
 
 @media screen and (max-width: 1280px) {
