@@ -16,13 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Input, Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Input, Output, Component, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'multi-select-dropdown',
   templateUrl: 'multi-select-dropdown.component.html',
-  styleUrls: ['../dropdowns.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['../dropdowns.component.scss']
 })
 
 export class MultiSelectDropdownComponent {

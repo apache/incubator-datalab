@@ -27,7 +27,8 @@ limitations under the License.
   min-width: 100%;
   background: #fff;
   padding-left: 20px;
-  font-size: 16px;
+  font-size: 14px;
+  height: 34px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -84,7 +85,7 @@ limitations under the License.
     -moz-appearance: none;
     border-left: 1px solid #ececec;
     background: #fff;
-    color: #36afd5;
+    color: #36afd5 !important;
   }
   .list-menu {
     width: 100%;
