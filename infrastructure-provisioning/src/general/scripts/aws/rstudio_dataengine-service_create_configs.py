@@ -64,7 +64,10 @@ def configure_rstudio():
             #fix emr 5.19 problem with warnings in rstudio because of bug in AWS configuration
             if args.emr_version == "emr-5.19.0":
                 local("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties")
+            local("sed -i '/^spark.executor.extraJavaOptions/ s/$/ -Dmark.running.job=dlab/' " + spark_dir + "conf/spark-defaults.conf")
+            local("sed -i '/^spark.driver.extraJavaOptions/ s/$/ -Dmark.running.job=dlab/' " + spark_dir + "conf/spark-defaults.conf")
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
+
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)

@@ -158,6 +158,12 @@ def add_breeze_library_emr(args):
           """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
 
 
+def add_emr_idle_marker():
+    local("sed -i '/^spark.executor.extraJavaOptions/ s/$/ -Dmark.running.job=dlab/' " + spark_dir + "conf/spark-defaults.conf")
+    local("sed -i '/^spark.driver.extraJavaOptions/ s/$/ -Dmark.running.job=dlab/' " + spark_dir + "conf/spark-defaults.conf")
+
+
+
 if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
@@ -174,4 +180,5 @@ if __name__ == "__main__":
             r_kernel(args)
         spark_defaults(args)
         configuring_notebook(args.emr_version)
+        add_emr_idle_marker()
         add_breeze_library_emr(args)
