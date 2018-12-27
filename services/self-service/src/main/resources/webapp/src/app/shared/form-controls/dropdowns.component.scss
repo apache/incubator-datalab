@@ -28,7 +28,7 @@ limitations under the License.
   background: #fff;
   padding-left: 20px;
   font-size: 14px;
-  height: 34px;
+  // height: 34px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -43,6 +43,12 @@ limitations under the License.
     line-height: 38px;
     span {
       color: #4a5c89;
+      em {
+        font-size: 13px;
+        color: #35afd5;
+        margin-right: 0px;
+        font-style: normal;
+      }
     }
   }
 }
@@ -150,25 +156,17 @@ limitations under the License.
   text-align: center;
 }
 
-
-.dropdown-list .list-menu span,
-.dropdown-list .title span {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 300;
+.dropdown-list {
+  .list-menu, .title {
+    span {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 300;
+    }
+  }
 }
 
-.dropdown-list .title em,
-.dropdown-list .list-menu li em {
-  font-size: 13px;
-  color: #35afd5;
-  margin-right: 0px;
-  font-style: normal;
-}
-.dropdown-list .title em {
-  margin-right: 50px;
-}
 .dropdown-list .list-menu li span.caption {
   display: block;
   padding: 10px 15px;
@@ -194,6 +192,12 @@ limitations under the License.
   position: relative;
   font-weight: 300;
   cursor: pointer;
+  em {
+    font-size: 13px;
+    color: #35afd5;
+    margin-right: 0px;
+    font-style: normal;
+  }
 }
 .dropdown-list .list-menu a.empty {
   height: 36px;

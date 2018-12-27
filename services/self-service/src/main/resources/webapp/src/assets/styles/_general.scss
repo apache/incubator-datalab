@@ -121,3 +121,19 @@ button {
   font-size: 15px !important;
   font-weight: 600 !important;
 }
+
+.dropdown-list {
+  .title {
+    span {
+      .capt {
+        margin-right: 50px;
+      }
+    }
+  }
+  .capt {
+    font-size: 13px;
+    color: #35afd5;
+    margin-right: 0px;
+    font-style: normal;
+  }
+}
