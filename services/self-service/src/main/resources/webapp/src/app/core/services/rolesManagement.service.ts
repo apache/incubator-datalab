@@ -47,12 +47,20 @@ export class RolesGroupsService {
       .catch(ErrorUtils.handleServiceError);
   }
 
+  public updateGroup(data): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildUpdateGroupData(data)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
+
   public setupRolesForGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupRolesForGroup(data)
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
+
   public setupUsersForGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupUsersForGroup(data)

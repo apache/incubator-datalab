@@ -469,6 +469,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildUpdateGroupData(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
   public buildSetupRolesForGroup(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_ROLE),
