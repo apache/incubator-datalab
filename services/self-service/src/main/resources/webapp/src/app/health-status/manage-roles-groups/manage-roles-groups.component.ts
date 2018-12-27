@@ -17,8 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
-import { ValidatorFn, FormControl, AbstractControl } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ValidatorFn, FormControl } from '@angular/forms';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatChipInputEvent } from '@angular/material';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
@@ -28,6 +29,7 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 })
 export class ManageRolesGroupsComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   public groupsData: Array<any> = [];
 
@@ -42,6 +44,7 @@ export class ManageRolesGroupsComponent implements OnInit {
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
 
   @ViewChild('bindDialog') bindDialog;
+  @ViewChild('user') user_enter;
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
   stepperView: boolean = false;
 
@@ -95,11 +98,14 @@ export class ManageRolesGroupsComponent implements OnInit {
         }
       });
     } else if (action === 'update') {
-      const source = (type === 'roles')
-          ? { group: item.group, roleIds: this.extractIds(this.roles, item.selected_roles) }
-          : { group: item.group, users: value.split(',').map(elem => elem.trim())
-      };
-      this.manageRolesGroupAction.emit({action, type, value: source});
+      // const source = (type === 'roles')
+      //     ? { group: item.group, roleIds: this.extractIds(this.roles, item.selected_roles) }
+      //     : { group: item.group, users: value.split(',').map(elem => elem.trim())
+      // };
+      this.manageRolesGroupAction.emit({action, type, value: {
+        name: item.group,
+        roleIds: this.extractIds(this.roles, item.selected_roles),
+        users: item.users }});
     }
     this.resetDialog();
   }
@@ -133,7 +139,7 @@ export class ManageRolesGroupsComponent implements OnInit {
     });
   }
 
-  compareObjects(o1: any, o2: any): boolean {
+  public compareObjects(o1: any, o2: any): boolean {
     return o1.toLowerCase() === o2.toLowerCase();
   }
 
@@ -148,6 +154,21 @@ export class ManageRolesGroupsComponent implements OnInit {
     this.manageUser = '';
     this.setupRoles = [];
     this.updatedRoles = [];
+  }
+
+  public removeUser(list, item): void {
+    list.splice(list.indexOf(item), 1);
+    console.log("Removing", list)
+  }
+
+  public addUser(value: string, item): void {
+    if (value && value.trim()) {
+      item.users instanceof Array ? item.users.push(value.trim()) : item.users = [value.trim()];
+      console.log("Adding");
+
+      debugger;
+      this.user_enter.nativeElement.value = '';
+    }
   }
 }
 

@@ -16,7 +16,7 @@ limitations under the License.
 
 -->
 
-<modal-dialog #bindDialog modalClass="manage-roles-dialog modal-xl">
+<modal-dialog #bindDialog modalClass="manage-roles-dialog modal-xxl">
   <modal-header>
     <h4 class="modal-title">Manage roles</h4>
   </modal-header>
@@ -28,7 +28,7 @@ limitations under the License.
       <mat-horizontal-stepper #stepper *ngIf="stepperView" class="stepper ani">
         <mat-step>
           <ng-template matStepLabel>Groups</ng-template>
-          <div class="inner-step">
+          <div class="inner-step mat-reset">
             <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup" #setupGroupName="ngModel">
             <div class="danger_color" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only contain letters, numbers, hyphens and '_'</div>
             <div class="danger_color" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already exists</div>
@@ -40,7 +40,7 @@ limitations under the License.
         </mat-step>
         <mat-step>
           <ng-template matStepLabel>Roles</ng-template>
-          <div class="inner-step">
+          <div class="inner-step mat-reset">
             <div class="selector-wrapper">
               <!-- <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'role'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown> -->
               <mat-form-field>
@@ -49,10 +49,10 @@ limitations under the License.
                       {{ role }}
                     </mat-option>
                   </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
                 </mat-form-field>
-                <button class="caret">
-                  <i class="material-icons">keyboard_arrow_down</i>
-                </button>
             </div>
           </div>
           <div class="text-center m-bott-10">
@@ -63,7 +63,7 @@ limitations under the License.
         </mat-step>
         <mat-step>
           <ng-template matStepLabel>Users</ng-template>
-          <div class="inner-step">
+          <div class="inner-step mat-reset">
             <input type="text" placeholder="Enter user login" [(ngModel)]="setupUser">
           </div>
           <div class="text-center m-bott-10">
@@ -85,11 +85,7 @@ limitations under the License.
           </tr>
           <tr *ngFor="let item of groupsData" class="dashboard_table_body filter-row">
             <td>{{ item.group }}</td>
-            <td class="roles">
-              <!-- <multi-select-dropdown (selectionChange)="onUpdate($event, item)"
-                [type]="'update_roles'"
-                [items]="rolesList"
-                [model]="item.selected_roles"></multi-select-dropdown> -->
+            <td class="roles mat-reset">
               <div class="selector-wrapper-edit">
                 <mat-form-field>
                   <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
@@ -97,6 +93,9 @@ limitations under the License.
                       {{ role }}
                     </mat-option>
                   </mat-select>
+                  <button class="caret ani">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
                 </mat-form-field>
 
                 <!-- <button class="caret ani" (click)="manageAction('update', 'roles', item, item.selected_roles)" [ngClass]="{'not-allowed': !item.selected_roles.length}">
@@ -104,13 +103,44 @@ limitations under the License.
                 </button> -->
               </div>
             </td>
-            <td class="status">Users ...</td>
+            <td class="users-list">
+              <!-- <mat-form-field class="example-chip-list">
+                <mat-chip-list #usersList>
+                  <mat-chip *ngFor="let user of item.users" class="list-selected">
+                    {{ user }}
+                    <a class="material-icons" (click)="removeUser(item.users, user)">clear</a>
+                  </mat-chip>
+                  <input #user placeholder="Enter user login"
+                        [matChipInputFor]="usersList"
+                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                        [matChipInputAddOnBlur]="true"
+                        (matChipInputTokenEnd)="addUser($event, item)">
+                  <mat-icon (click)="addUser($event)" matSuffix>person_add</mat-icon>
+                  <button mat-button *ngIf="value" matSuffix mat-icon-button (click)="addUser($event)">
+                    <mat-icon>person_add</mat-icon>
+                  </button>
+                </mat-chip-list>
+              </mat-form-field> -->
+
+              <mat-form-field class="chip-list">
+                <input #user matInput placeholder="Enter user login" (keydown.enter)="addUser(user.value, item)">
+                <mat-icon matSuffix>person_add</mat-icon>
+              </mat-form-field>
+              <div class="list-selected list-container">
+                <mat-chip-list>
+                  <mat-chip *ngFor="let user of item.users">
+                    {{ user }}
+                    <a class="material-icons" (click)="removeUser(item.users, user)">clear</a>
+                  </mat-chip>
+                </mat-chip-list>
+              </div>
+            </td>
             <td class="actions">
-              <button mat-icon-button class="reset" (click)="manageAction('delete', 'group', item)">
+              <button mat-icon-button class="reset ani" (click)="manageAction('delete', 'group', item)">
                 <i class="material-icons">close</i>
               </button>
 
-              <button mat-icon-button class="apply"> 
+              <button mat-icon-button class="apply ani" (click)="manageAction('update', 'group', item)"> 
                 <i class="material-icons">done</i>
               </button>
             </td>
