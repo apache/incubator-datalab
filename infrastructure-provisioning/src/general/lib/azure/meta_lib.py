@@ -411,6 +411,21 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_network_peering_status(self, resource_group_name,
+                                   virtual_network_name,
+                                   virtual_network_peering_name):
+        try:
+            result = self.network_client.virtual_network_peerings.get(resource_group_name,
+                                                                        virtual_network_name,
+                                                                        virtual_network_peering_name)
+            return result.peering_state
+        except Exception as err:
+            logging.info(
+                "Unable to get peering status: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get peering status", "error_message": str(
+                err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_disk(self, resource_group_name, disk_name):
         try:
             result = self.compute_client.disks.get(resource_group_name, disk_name)
@@ -587,8 +602,9 @@ def node_count(cluster_name):
         node_list = []
         resource_group_name = os.environ['azure_resource_group_name']
         for node in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if cluster_name == node.tags["Name"]:
-                node_list.append(node.name)
+            if "Name" in node.tags:
+                if cluster_name == node.tags["Name"]:
+                    node_list.append(node.name)
         result = len(node_list)
         return result
     except Exception as err:

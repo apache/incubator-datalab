@@ -2324,10 +2324,10 @@ Example of this file for Jupyter node for AWS cloud:
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 5.2.0",
+      "template_name": "Jupyter notebook 5.7.4",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-5.2.0",
+      "version": "jupyter_notebook-5.7.4",
       "vendor": "Azure"
     }
   ]

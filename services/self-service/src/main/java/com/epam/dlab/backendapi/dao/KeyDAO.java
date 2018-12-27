@@ -163,6 +163,10 @@ public abstract class KeyDAO extends BaseDAO {
 		return (d == null ? "" : d.getString(EDGE_STATUS));
 	}
 
+	public void removeEdge(String user) {
+		deleteOne(USER_EDGE, eq(ID, user));
+	}
+
 	public boolean edgeNodeExist(String user) {
 		return findOne(USER_EDGE, and(eq(ID, user), not(in(EDGE_STATUS, UserInstanceStatus.TERMINATING.toString(),
 				UserInstanceStatus.TERMINATED.toString()))))

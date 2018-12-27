@@ -148,17 +148,17 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip3.5 install jupyter --no-cache-dir')
-            sudo('rm -rf ' + jupyter_conf_file)
-            run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
+            sudo('rm -rf {}'.format(jupyter_conf_file))
+            run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             with cd('/home/{}'.format(os_user)):
                 run('mkdir -p ~/.jupyter/custom/')
                 run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
-            sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
+            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
             sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
-            sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
-            sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
-            sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
-            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
+            sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
+            sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
+            sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
+            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
             put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
             sudo("chmod 644 /tmp/jupyter-notebook.service")
             if os.environ['application'] == 'tensor':
@@ -278,9 +278,9 @@ def ensure_ciphers():
         sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
         sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
         try:
-            sudo('service ssh restart')
+            sudo('service ssh reload')
         except:
-            sudo('service sshd restart')
+            sudo('service sshd reload')
     except Exception as err:
         traceback.print_exc()
         print('Failed to ensure ciphers: ', str(err))

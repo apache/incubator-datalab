@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.google.inject.Singleton;
+import org.bson.Document;
 
 import java.util.Set;
 
@@ -15,6 +16,11 @@ public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
 	@Override
 	public void addUsers(String group, Set<String> users) {
 		updateOne(USER_GROUPS, eq(ID, group), addToSet(USERS_FIELD, users), true);
+	}
+
+	@Override
+	public boolean updateUsers(String group, Set<String> users) {
+		return updateOne(USER_GROUPS, eq(ID, group), new Document(SET, new Document(USERS_FIELD, users))).getMatchedCount() > 0;
 	}
 
 	@Override
