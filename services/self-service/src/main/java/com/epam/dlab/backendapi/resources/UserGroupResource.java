@@ -18,7 +18,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.CreateGroupDto;
+import com.epam.dlab.backendapi.resources.dto.GroupDTO;
 import com.epam.dlab.backendapi.resources.dto.UpdateRoleGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UpdateUserGroupDto;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
@@ -59,9 +59,22 @@ public class UserGroupResource {
 			@ApiResponse(code = 404, message = "User role not found")
 	})
 	public Response createGroup(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-								@Valid @ApiParam CreateGroupDto dto) {
+								@Valid @ApiParam GroupDTO dto) {
 		log.debug("Creating new group {}", dto.getName());
 		userGroupService.createGroup(dto.getName(), dto.getRoleIds(), dto.getUsers());
+		return Response.ok().build();
+	}
+
+	@PUT
+	@ApiOperation("Updates user group")
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "Group successfully updated"),
+			@ApiResponse(code = 404, message = "User role not found")
+	})
+	public Response updateGroup(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+								@Valid @ApiParam GroupDTO dto) {
+		log.debug("Updating group {}", dto.getName());
+		userGroupService.updateGroup(dto.getName(), dto.getRoleIds(), dto.getUsers());
 		return Response.ok().build();
 	}
 

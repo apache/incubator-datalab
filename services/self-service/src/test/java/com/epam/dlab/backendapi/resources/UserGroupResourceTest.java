@@ -20,7 +20,7 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.backendapi.resources.dto.CreateGroupDto;
+import com.epam.dlab.backendapi.resources.dto.GroupDTO;
 import com.epam.dlab.backendapi.resources.dto.UpdateRoleGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UpdateUserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
@@ -52,7 +52,7 @@ public class UserGroupResourceTest extends TestBase {
 	private static final String USER = "user";
 	private static final String ROLE_ID = "id";
 	private static final String GROUP = "group";
-	private UserGroupService rolesService = mock(UserGroupService.class);
+	private UserGroupService userGroupService = mock(UserGroupService.class);
 
 	@Before
 	public void setup() throws AuthenticationException {
@@ -61,7 +61,7 @@ public class UserGroupResourceTest extends TestBase {
 
 	@Rule
 	public final ResourceTestRule resources =
-			getResourceTestRuleInstance(new UserGroupResource(rolesService));
+			getResourceTestRuleInstance(new UserGroupResource(userGroupService));
 
 	@Test
 	public void createGroup() {
@@ -74,8 +74,8 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-		verify(rolesService).createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
-		verifyNoMoreInteractions(rolesService);
+		verify(userGroupService).createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
-		verifyZeroInteractions(rolesService);
+		verifyZeroInteractions(userGroupService);
 	}
 
 	@Test
@@ -103,12 +103,27 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
-		verifyZeroInteractions(rolesService);
+		verifyZeroInteractions(userGroupService);
+	}
+
+	@Test
+	public void updateGroup() {
+
+		final Response response = resources.getJerseyTest()
+				.target("/group")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.put(Entity.json(getCreateGroupDto(GROUP, Collections.singleton(ROLE_ID))));
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+
+		verify(userGroupService).updateGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
 	public void getGroups() {
-		when(rolesService.getAggregatedRolesByGroup()).thenReturn(Collections.singletonList(getUserGroup()));
+		when(userGroupService.getAggregatedRolesByGroup()).thenReturn(Collections.singletonList(getUserGroup()));
 
 		final Response response = resources.getJerseyTest()
 				.target("/group")
@@ -124,8 +139,8 @@ public class UserGroupResourceTest extends TestBase {
 		assertTrue(actualRoles.get(0).getRoles().isEmpty());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(rolesService).getAggregatedRolesByGroup();
-		verifyNoMoreInteractions(rolesService);
+		verify(userGroupService).getAggregatedRolesByGroup();
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -139,8 +154,8 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-		verify(rolesService).updateRolesForGroup(GROUP, singleton(ROLE_ID));
-		verifyNoMoreInteractions(rolesService);
+		verify(userGroupService).updateRolesForGroup(GROUP, singleton(ROLE_ID));
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -154,7 +169,7 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
-		verifyZeroInteractions(rolesService);
+		verifyZeroInteractions(userGroupService);
 	}
 
 	@Test
@@ -170,8 +185,8 @@ public class UserGroupResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
 
-		verify(rolesService).removeGroupFromRole(singleton(GROUP), singleton(ROLE_ID));
-		verifyNoMoreInteractions(rolesService);
+		verify(userGroupService).removeGroupFromRole(singleton(GROUP), singleton(ROLE_ID));
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -185,8 +200,8 @@ public class UserGroupResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
 
-		verify(rolesService).removeGroup(GROUP);
-		verifyNoMoreInteractions(rolesService);
+		verify(userGroupService).removeGroup(GROUP);
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -200,7 +215,7 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
 
-		verifyZeroInteractions(rolesService);
+		verifyZeroInteractions(userGroupService);
 	}
 
 	@Test
@@ -213,8 +228,8 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-		verify(rolesService).addUsersToGroup(GROUP, singleton(USER));
-		verifyNoMoreInteractions(rolesService);
+		verify(userGroupService).addUsersToGroup(GROUP, singleton(USER));
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -227,7 +242,7 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
-		verifyZeroInteractions(rolesService);
+		verifyZeroInteractions(userGroupService);
 	}
 
 	@Test
@@ -243,8 +258,8 @@ public class UserGroupResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
 
-		verify(rolesService).removeUserFromGroup(GROUP, USER);
-		verifyNoMoreInteractions(rolesService);
+		verify(userGroupService).removeUserFromGroup(GROUP, USER);
+		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -258,15 +273,15 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
 
-		verifyZeroInteractions(rolesService);
+		verifyZeroInteractions(userGroupService);
 	}
 
 	private UserGroupDto getUserGroup() {
 		return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
 	}
 
-	private CreateGroupDto getCreateGroupDto(String group, Set<String> roleIds) {
-		final CreateGroupDto dto = new CreateGroupDto();
+	private GroupDTO getCreateGroupDto(String group, Set<String> roleIds) {
+		final GroupDTO dto = new GroupDTO();
 		dto.setName(group);
 		dto.setRoleIds(roleIds);
 		dto.setUsers(Collections.singleton(USER));
