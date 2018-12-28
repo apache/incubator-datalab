@@ -39,7 +39,7 @@ export class RolesGroupsService {
       .map(response => response.json())
       .catch(ErrorUtils.handleServiceError);
   }
-  
+
   public setupNewGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupNewGroup(data)
