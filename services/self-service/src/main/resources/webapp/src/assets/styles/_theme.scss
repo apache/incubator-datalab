@@ -239,11 +239,7 @@ font-weight: 400;
   }
 }
 
-.mat-icon-button {
-  .mat-icon, .mat-icon-button {
-    i {
-      line-height: 1;
-      font-size: 18px;
-    }
-  }
+.mat-icon-button .mat-icon, .mat-icon-button i {
+  line-height: 1 !important;
+  font-size: 18px;
 }

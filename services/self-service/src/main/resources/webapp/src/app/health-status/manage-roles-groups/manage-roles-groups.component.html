@@ -101,7 +101,7 @@ limitations under the License.
             </td>
             <td class="users-list ani">
               <mat-form-field class="chip-list">
-                <input #user matInput placeholder="Enter user login" (keydown.enter)="addUser(user.value, item); user.value = ''">
+                <input #user matInput placeholder="Enter user login" pattern="[@.-_0-9a-zA-Z]" (keydown.enter)="addUser(user.value, item); user.value = ''">
                 <button mat-icon-button matSuffix (click)="addUser(user.value, item); user.value = ''">
                   <mat-icon>person_add</mat-icon>
                 </button>

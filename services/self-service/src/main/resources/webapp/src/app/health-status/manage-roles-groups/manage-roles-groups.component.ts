@@ -100,7 +100,7 @@ export class ManageRolesGroupsComponent implements OnInit {
       this.manageRolesGroupAction.emit({action, type, value: {
         name: item.group,
         roleIds: this.extractIds(this.roles, item.selected_roles),
-        users: item.users }});
+        users: item.users || [] }});
     }
     this.resetDialog();
   }
