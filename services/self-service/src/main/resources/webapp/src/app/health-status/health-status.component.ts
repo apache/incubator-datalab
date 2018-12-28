@@ -160,17 +160,10 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
         }, () => this.toastr.error('Group creation failed!', 'Oops!', { toastLife: 5000 }));
         break;
       case 'update':
-        if ($event.type === 'roles') {
-          this.rolesService.setupRolesForGroup($event.value).subscribe(res => {
-            this.toastr.success('Roles list successfully updated!', 'Success!', { toastLife: 5000 });
-            this.getGroupsData();
-          }, () => this.toastr.error('Failed roles list updating!', 'Oops!', { toastLife: 5000 }));
-        } else if ($event.type === 'users') {
-          this.rolesService.setupUsersForGroup($event.value).subscribe(res => {
-            this.toastr.success('Users list successfully updated!', 'Success!', { toastLife: 5000 });
-            this.getGroupsData();
-          }, () => this.toastr.error('Failed users list updating!', 'Oops!', { toastLife: 5000 }));
-        }
+        this.rolesService.updateGroup($event.value).subscribe(res => {
+          this.toastr.success('Group data successfully updated!', 'Success!', { toastLife: 5000 });
+          this.getGroupsData();
+        }, () => this.toastr.error('Failed group data updating!', 'Oops!', { toastLife: 5000 }));
         break;
       case 'delete':
         if ($event.type === 'users') {
