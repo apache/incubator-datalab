@@ -33,6 +33,7 @@ import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureTemplateService;
 import com.epam.dlab.cloud.CloudModule;
+import com.epam.dlab.mongo.MongoServiceFactory;
 import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
@@ -44,6 +45,10 @@ import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 
 public class GcpSelfServiceModule extends CloudModule {
+
+	private static final String MONGO_URI_FORMAT = "mongodb://%s:%s@%s:%d/%s";
+	private static final String QUARTZ_MONGO_URI_PROPERTY = "org.quartz.jobStore.mongoUri";
+	private static final String QUARTZ_DB_NAME = "org.quartz.jobStore.dbName";
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -72,7 +77,13 @@ public class GcpSelfServiceModule extends CloudModule {
 
 	@Provides
 	@Singleton
-	Scheduler provideScheduler() throws SchedulerException {
+	Scheduler provideScheduler(SelfServiceApplicationConfiguration configuration) throws SchedulerException {
+		final MongoServiceFactory mongoFactory = configuration.getMongoFactory();
+		final String database = mongoFactory.getDatabase();
+		final String mongoUri = String.format(MONGO_URI_FORMAT, mongoFactory.getUsername(), mongoFactory.getPassword(),
+				mongoFactory.getHost(), mongoFactory.getPort(), database);
+		System.setProperty(QUARTZ_MONGO_URI_PROPERTY, mongoUri);
+		System.setProperty(QUARTZ_DB_NAME, database);
 		return StdSchedulerFactory.getDefaultScheduler();
 	}
 }
