@@ -16,7 +16,7 @@ limitations under the License.
 
 -->
 
-<modal-dialog #bindDialog modalClass="manage-roles-dialog modal-xl">
+<modal-dialog #bindDialog modalClass="manage-roles-dialog modal-xxl">
   <modal-header>
     <h4 class="modal-title">Manage roles</h4>
   </modal-header>
@@ -28,7 +28,7 @@ limitations under the License.
       <mat-horizontal-stepper #stepper *ngIf="stepperView" class="stepper ani">
         <mat-step>
           <ng-template matStepLabel>Groups</ng-template>
-          <div class="inner-step">
+          <div class="inner-step mat-reset">
             <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup" #setupGroupName="ngModel">
             <div class="danger_color" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only contain letters, numbers, hyphens and '_'</div>
             <div class="danger_color" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already exists</div>
@@ -40,7 +40,7 @@ limitations under the License.
         </mat-step>
         <mat-step>
           <ng-template matStepLabel>Roles</ng-template>
-          <div class="inner-step">
+          <div class="inner-step mat-reset">
             <div class="selector-wrapper">
               <!-- <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'role'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown> -->
               <mat-form-field>
@@ -49,10 +49,10 @@ limitations under the License.
                       {{ role }}
                     </mat-option>
                   </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
                 </mat-form-field>
-                <button class="caret">
-                  <i class="material-icons">keyboard_arrow_down</i>
-                </button>
             </div>
           </div>
           <div class="text-center m-bott-10">
@@ -63,7 +63,7 @@ limitations under the License.
         </mat-step>
         <mat-step>
           <ng-template matStepLabel>Users</ng-template>
-          <div class="inner-step">
+          <div class="inner-step mat-reset">
             <input type="text" placeholder="Enter user login" [(ngModel)]="setupUser">
           </div>
           <div class="text-center m-bott-10">
@@ -74,81 +74,60 @@ limitations under the License.
           </div>
         </mat-step>
       </mat-horizontal-stepper>
+      <mat-divider></mat-divider>
       <div *ngIf="groupsData.length" class="ani">
-        <mat-list>
-          <mat-list-item class="list-header">
-            <div class="groups">Groups</div>
-            <div class="roles">Role</div>
-            <div class="users">Users</div>
-          </mat-list-item>
-          <mat-accordion class="scrolling-content" id="scrolling" [ngClass]="{'stepper-opened': stepperView }">
-            <mat-expansion-panel *ngFor="let item of groupsData">
-              <mat-expansion-panel-header>
-                <div class="groups" matTooltip="{{item.group}}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">
-                  <div class="ellipsis">{{ item.group }}</div>
-                </div>
-
-                <div class="roles">
-                  <div *ngIf="item.roles; then roles_list else no_roles"></div>
-                  <ng-template #roles_list>
-                    <div class="ellipsis" matTooltip="{{ item.selected_roles }}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">
-                      <span *ngFor="let role of item.roles"><b> &#9642; </b>{{ role.description }}</span>
-                    </div>
-                  </ng-template> 
-                  <ng-template #no_roles><span class="no-details">no details</span></ng-template>
-                </div>
-
-                <div class="users ellipsis">
-                  <div *ngIf="item.users; then users_list else no_users"></div>
-
-                  <ng-template #users_list>
-                    <div class="ellipsis" matTooltip="{{item.users}}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">
-                      <span *ngFor="let user of item.users"><b> &#9642; </b>{{ user }}</span>
-                    </div>
-                  </ng-template>
-                  <ng-template #no_users><span class="no-details">no details</span></ng-template>
-                </div>
-              </mat-expansion-panel-header>
-
-              <div class="expanded-panel">
-                <div class="groups">
-                  <button mat-raised-button (click)="manageAction('delete', 'group', item)" class="butt">
-                    <i class="material-icons">clear</i>Delete group
+        <table class="dashboard_table">
+          <tr>
+            <th class="th_name groups">Name</th>
+            <th class="roles">Roles</th>
+            <th class="users">Users</th>
+            <th class="th_actions">Action</th>
+          </tr>
+          <tr *ngFor="let item of groupsData" class="dashboard_table_body filter-row">
+            <td>{{ item.group }}</td>
+            <td class="roles mat-reset">
+              <div class="selector-wrapper-edit">
+                <mat-form-field>
+                  <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
+                    <mat-option *ngFor="let role of rolesList" [value]="role">
+                      {{ role }}
+                    </mat-option>
+                  </mat-select>
+                  <button class="caret ani">
+                    <i class="material-icons">keyboard_arrow_down</i>
                   </button>
-                </div>
-                <div class="roles">
-                  <div class="selector-wrapper-edit">
-                    <!-- <multi-select-dropdown (selectionChange)="onUpdate($event, item)" [type]="'update_roles'" [items]="rolesList" [model]="item.selected_roles"></multi-select-dropdown> -->
-
-                    <mat-form-field>
-                      <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
-                        <mat-option *ngFor="let role of rolesList" [value]="role">
-                          {{ role }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <button class="caret ani" (click)="manageAction('update', 'roles', item, item.selected_roles)" [ngClass]="{'not-allowed': !item.selected_roles.length}">
-                      <i class="material-icons">done</i>
-                    </button>
-                  </div>
-                </div>
-                <div class="users">
-                  <div *ngFor="let user of item.users" class="users-list">
-                    <span class="ellipsis" matTooltip="{{ user }}" matTooltipPosition="above" [matTooltipClass]="'break-tooltip'">{{ user }}</span>
-                    <i class="material-icons" (click)="manageAction('delete', 'users', item, user)">highlight_off</i>
-                  </div>
-                  <div class="add-input-block">
-                    <input type="text" placeholder="Enter user login" [(ngModel)]="manageUser">
-                    <button class="caret" (click)="manageAction('update', 'users', item, manageUser)" [ngClass]="{'not-allowed': !manageUser}">
-                      <i class="material-icons">done</i>
-                    </button>
-                  </div>
-                </div>
+                </mat-form-field>
               </div>
-            </mat-expansion-panel>
-          </mat-accordion>
-        </mat-list>
+            </td>
+            <td class="users-list ani">
+              <mat-form-field class="chip-list">
+                <input #user matInput placeholder="Enter user login" pattern="[@.-_0-9a-zA-Z]" (keydown.enter)="addUser(user.value, item); user.value = ''">
+                <button mat-icon-button matSuffix (click)="addUser(user.value, item); user.value = ''">
+                  <mat-icon>person_add</mat-icon>
+                </button>
+              </mat-form-field>
+              <div class="list-selected list-container ani">
+                <mat-chip-list>
+                  <mat-chip *ngFor="let user of item.users">
+                    {{ user }}
+                    <a class="material-icons" (click)="removeUser(item.users, user)">clear</a>
+                  </mat-chip>
+                </mat-chip-list>
+              </div>
+            </td>
+            <td class="actions">
+              <button mat-icon-button class="reset ani" (click)="manageAction('delete', 'group', item)">
+                <i class="material-icons">close</i>
+              </button>
+
+              <button mat-icon-button class="apply ani" (click)="manageAction('update', 'group', item)"> 
+                <i class="material-icons">done</i>
+              </button>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   </modal-content>
 </modal-dialog>
+

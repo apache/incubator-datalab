@@ -16,7 +16,15 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject, ViewContainerRef } from '@angular/core';
+import { Component,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+  ViewEncapsulation,
+  ChangeDetectorRef,
+  Inject,
+  ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { ToastsManager } from 'ng2-toastr';
@@ -54,7 +62,14 @@ export class InstallLibrariesComponent implements OnInit {
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
-  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others', 'java': 'Java'};
+  public groupsListMap = {
+    'r_pkg': 'R packages',
+    'pip2': 'Python 2',
+    'pip3': 'Python 3',
+    'os_pkg': 'Apt/Yum',
+    'others': 'Others',
+    'java': 'Java'
+  };
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
@@ -69,7 +84,7 @@ export class InstallLibrariesComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private librariesInstallationService: LibrariesInstallationService,
-    private changeDetector : ChangeDetectorRef,
+    private changeDetector: ChangeDetectorRef,
     public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
@@ -98,20 +113,24 @@ export class InstallLibrariesComponent implements OnInit {
           this.libsUploadingStatus(response);
           this.changeDetector.detectChanges();
 
-          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.title, 'destination', 'title', 'array');
-          this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
+          this.resource_select && this.resource_select.setDefaultOptions(
+            this.getResourcesList(),
+            this.destination.title, 'destination', 'title', 'array');
+
+          this.group_select && this.group_select.setDefaultOptions(
+            this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
         error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   private getResourcesList() {
     this.notebook.type = 'EXPLORATORY';
-    this.notebook.title = `${ this.notebook.name } <em>notebook</em>`;
+    this.notebook.title = `${ this.notebook.name } <em class="capt">notebook</em>`;
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
-        item['title'] = `${ item.computational_name } <em>cluster</em>`;
+        item['title'] = `${ item.computational_name } <em class="capt">cluster</em>`;
         item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
@@ -158,7 +177,7 @@ export class InstallLibrariesComponent implements OnInit {
       this.isInstalled = this.destination.libs.findIndex(libr => {
         return select.group !== 'java'
           ? select.name === libr.name && select.group === libr.group && select.version === libr.version
-          : select.name === libr.name && select.group === libr.group
+          : select.name === libr.name && select.group === libr.group;
       }) >= 0;
 
     return this.isInSelectedList || this.isInstalled;
@@ -207,7 +226,8 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public showErrorMessage(item): void {
-    const dialogRef: MatDialogRef<ErrorMessageDialog> = this.dialog.open(ErrorMessageDialog, { data: item.error, width: '550px' });
+    const dialogRef: MatDialogRef<ErrorMessageDialogComponent> = this.dialog.open(
+      ErrorMessageDialogComponent, { data: item.error, width: '550px' });
   }
 
   public isInstallingInProgress(data): void {
@@ -226,7 +246,7 @@ export class InstallLibrariesComponent implements OnInit {
   public reinstallLibrary(item, lib) {
     const retry = [{group: lib.group, name: lib.name, version: lib.version}];
 
-    if (this.getResourcesList().find(el => el.name == item.resource).type === 'СOMPUTATIONAL') {
+    if (this.getResourcesList().find(el => el.name === item.resource).type === 'СOMPUTATIONAL') {
       this.model.confirmAction(retry, item.resource);
     } else {
       this.model.confirmAction(retry);
@@ -280,8 +300,9 @@ export class InstallLibrariesComponent implements OnInit {
     }
   }
 
-  private selectorsReset():void {
-    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'title', 'array');
+  private selectorsReset(): void {
+    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(),
+      'Select resource', 'destination', 'title', 'array');
     this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
   }
 
@@ -310,9 +331,9 @@ export class InstallLibrariesComponent implements OnInit {
   template: `<div class="content">{{ data }}</div>`,
   styles: [`.content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }`]
 })
-export class ErrorMessageDialog {
+export class ErrorMessageDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ErrorMessageDialog>,
+    public dialogRef: MatDialogRef<ErrorMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

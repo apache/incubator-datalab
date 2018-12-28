@@ -47,7 +47,7 @@ export class LibrariesInstallationService {
   }
 
   public getAvailableDependencies(data): Observable<{}> {
-    let body = `/maven?artifact=${data}`;
+    const body = `/maven?artifact=${data}`;
 
     return this.applicationServiceFacade
       .buildGetAvailableDependenciest(body)

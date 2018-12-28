@@ -39,10 +39,17 @@ export class RolesGroupsService {
       .map(response => response.json())
       .catch(ErrorUtils.handleServiceError);
   }
-  
+
   public setupNewGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupNewGroup(data)
+      .map(response => response)
+      .catch(ErrorUtils.handleServiceError);
+  }
+
+  public updateGroup(data): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildUpdateGroupData(data)
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
@@ -53,6 +60,7 @@ export class RolesGroupsService {
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
   }
+
   public setupUsersForGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupUsersForGroup(data)
