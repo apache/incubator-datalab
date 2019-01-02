@@ -186,28 +186,12 @@ public class UserGroupServiceImplTest {
 
 	@Test
 	public void updateGroup() {
-		when(userGroupDao.updateUsers(anyString(), anySetOf(String.class))).thenReturn(true);
-
 		userGroupService.updateGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
 
 		verify(userGroupDao).updateUsers(GROUP, Collections.singleton(USER));
 		verify(userRoleDao).removeGroupWhenRoleNotIn(GROUP, Collections.singleton(ROLE_ID));
 		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 		verifyNoMoreInteractions(userRoleDao, userGroupDao);
-	}
-
-	@Test
-	public void updateGroupWhenGroupNotFound() {
-		when(userGroupDao.updateUsers(anyString(), anySetOf(String.class))).thenReturn(false);
-
-		try {
-			userGroupService.updateGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Group " + GROUP + " not found", e.getMessage());
-		}
-
-		verify(userGroupDao).updateUsers(GROUP, Collections.singleton(USER));
-		verifyNoMoreInteractions(userGroupDao, userRoleDao);
 	}
 
 	private UserGroupDto getUserGroup() {
