@@ -120,7 +120,7 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 	public boolean isUserQuoteReached(String user) {
 		final Double userCost = getUserCost(user);
 		return userSettingsDAO.getAllowedBudget(user)
-				.filter(allowedBudget -> userCost != 0D && allowedBudget <= userCost)
+				.filter(allowedBudget -> userCost.intValue() != 0 && allowedBudget <= userCost)
 				.isPresent();
 	}
 
