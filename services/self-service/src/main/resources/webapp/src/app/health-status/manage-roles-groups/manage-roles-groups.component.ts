@@ -19,7 +19,6 @@ limitations under the License.
 import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
 import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
@@ -29,10 +28,8 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 })
 export class ManageRolesGroupsComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   public groupsData: Array<any> = [];
-
   public roles: Array<any> = [];
   public rolesList: Array<string> = [];
   public setupGroup: string = '';
