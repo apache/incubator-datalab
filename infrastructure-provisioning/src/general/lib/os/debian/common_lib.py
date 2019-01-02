@@ -55,9 +55,9 @@ def update_apt_repository_configuration(repository_host):
         put('/root/files/sources.list', '/tmp/sources.list')
         sudo('mv /tmp/sources.list /etc/apt/sources.list')
         if 'conf_dlab_repository_host' in os.environ:
-            sudo('sed -i "s|REPOSITORY_UBUNTU|{}repository/apt-ubuntu/|g" /etc/apt/sources.list'.format(
+            sudo('sed -i "s|REPOSITORY_UBUNTU|{}/repository/apt-ubuntu/|g" /etc/apt/sources.list'.format(
                 repository_host))
-            sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}repository/apt-security/|g" /etc/apt/sources.list'.format(
+            sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}/repository/apt-security/|g" /etc/apt/sources.list'.format(
                 repository_host))
         else:
             sudo('sed -i "s|REPOSITORY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
