@@ -87,6 +87,13 @@
             "value": "ENDPOINTURL",
             "description": "",
             "type": "string"
+          },
+        "spark.executor.memory": {
+              "envName": "MEMORY_PER_EXECUTOR",
+              "propertyName": "spark.executor.memory",
+              "value": "EXECUTOR_MEMORY",
+              "description": "",
+              "type": "string"
           }
       },
       "interpreterGroup": [
