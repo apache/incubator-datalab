@@ -1011,7 +1011,7 @@ class GCPActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(dataproc_name, ssh_user)
+                dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], ssh_user)
             sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
@@ -1316,7 +1316,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
