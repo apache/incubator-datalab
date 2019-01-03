@@ -22,6 +22,7 @@ limitations under the License.
       <b>{{ notebook?.name }}</b> Libraries</h4>
   </modal-header>
   <modal-content>
+   <div class="aligner">
     <div class="info" *ngIf="notebook?.status !== 'running'">
       <p class=" message">Cannot install libraries: Exploratory
         <strong>{{ notebook?.name }}</strong> is not running</p>
@@ -32,8 +33,8 @@ limitations under the License.
         <img src="assets/img/gif-spinner.gif" alt="loading">
       </div>
     </div>
-    <div *ngIf="notebook?.status === 'running'" class="lib-view-wrap">
-      <div class="search-box" *ngIf="!uploading">
+    <div *ngIf="notebook?.status === 'running' && !uploading" class="lib-view-wrap">
+      <div class="search-box">
         <div class="search-form">
           <div>
             <div class="control-group constol-select">
@@ -148,9 +149,10 @@ limitations under the License.
         </div>
       </mat-list>
     </div>
-    <div class="text-center m-top-15 m-bott-10 actions" *ngIf="!uploading && notebook?.status === 'running'">
+    <div class="m-top-15 actions" *ngIf="!uploading && notebook?.status === 'running'">
       <button mat-raised-button type="button" class="butt action" (click)="close()">Close</button>
       <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
     </div>
+   </div>
   </modal-content>
 </modal-dialog>
