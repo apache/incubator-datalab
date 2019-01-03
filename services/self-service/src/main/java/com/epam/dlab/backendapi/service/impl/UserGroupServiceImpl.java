@@ -52,9 +52,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 	@Override
 	public void updateGroup(String group, Set<String> roleIds, Set<String> users) {
 		log.debug("Updating users for group {}: {}", group, users);
-		if (!userGroupDao.updateUsers(group, users)) {
-			throw new ResourceNotFoundException("Group " + group + " not found");
-		}
+		userGroupDao.updateUsers(group, users);
 		log.debug("Removing group {} from existing roles", group);
 		userRoleDao.removeGroupWhenRoleNotIn(group, roleIds);
 		log.debug("Adding group {} to roles {}", group, roleIds);

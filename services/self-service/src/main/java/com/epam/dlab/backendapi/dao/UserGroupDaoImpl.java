@@ -19,8 +19,8 @@ public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
 	}
 
 	@Override
-	public boolean updateUsers(String group, Set<String> users) {
-		return updateOne(USER_GROUPS, eq(ID, group), new Document(SET, new Document(USERS_FIELD, users))).getMatchedCount() > 0;
+	public void updateUsers(String group, Set<String> users) {
+		updateOne(USER_GROUPS, eq(ID, group), new Document(SET, new Document(USERS_FIELD, users)), true);
 	}
 
 	@Override
