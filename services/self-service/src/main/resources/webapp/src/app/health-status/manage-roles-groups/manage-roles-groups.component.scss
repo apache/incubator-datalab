@@ -55,7 +55,7 @@ limitations under the License.
     flex-direction: column;
     text-align: center;
     input {
-      width: 510px;
+      width: 490px;
       align-self: center;
     }
     .caret {
@@ -240,5 +240,13 @@ mat-form-field.chip-list {
     width: 94%;
     font-size: 16px;
     font-weight: 300;
+  }
+}
+
+.mat-raised-button {
+  &.butt {
+    &.butt-success {
+      margin-left: 0;
+    }
   }
 }

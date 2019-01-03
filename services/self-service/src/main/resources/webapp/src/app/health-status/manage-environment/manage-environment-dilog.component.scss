@@ -30,7 +30,7 @@ limitations under the License.
   }
   .scrolling-content {
     max-height: 300px;
-    min-height: 60px;
+    min-height: 65px;
     overflow-y: auto;
   }
   .username {
@@ -39,9 +39,11 @@ limitations under the License.
   .quotes {
     width: 40%;
     margin-right: 10px;
+    position: relative;
     .danger_color {
       position: absolute;
-      padding-top: 2px;
+      left: 0;
+      bottom: -16px;
     }
   }
   .action {
@@ -73,7 +75,8 @@ limitations under the License.
       width: 56%;
       .danger_color {
         position: absolute;
-        padding-top: 2px;
+        left: 0;
+        bottom: -20px;
       }
     }
     .label {
