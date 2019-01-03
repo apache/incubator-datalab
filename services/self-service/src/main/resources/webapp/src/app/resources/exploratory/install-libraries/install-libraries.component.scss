@@ -56,39 +56,38 @@ limitations under the License.
 }
 
 
+.install-libraries {
+  .dialog-header {
+    padding-left: 25px;
+  }
 
-.dialog-header {
-  padding-left: 25px;
-}
-
-.info {
-  height: 40%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-}
-.mat-list-item {
-  height: auto !important;
-
-  .mat-list-item-content {
+  .info {
+    height: 40%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+  .mat-list-item {
     height: auto !important;
-    min-height: 54px !important;
-    border-bottom: 1px solid #edf1f5;
+    .mat-list-item-content {
+      height: auto !important;
+      min-height: 54px !important;
+      border-bottom: 1px solid #edf1f5;
+    }
+  }
+  .lib-view-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .error {
+    padding: 15px 20px;
+  }
+  .uploading {
+    margin: 0 auto;
   }
 }
-.lib-view-wrap {
-  display: flex;
-  flex-direction: column;
-}
-
-.error {
-  padding: 15px 20px;
-}
-.uploading {
-  margin: 0 auto;
-}
-
 
 .search-box {
   display: flex;

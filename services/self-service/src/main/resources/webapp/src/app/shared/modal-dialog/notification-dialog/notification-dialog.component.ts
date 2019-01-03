@@ -29,8 +29,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
   <div mat-dialog-content class="content info message">
     <div *ngIf="data.type === 'list'; else info">
       <div *ngIf="data.template.notebook.length > 0">
-        Following notebook server
-        <span *ngIf="data.template.notebook.length > 1">s </span>
+        Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
         <span *ngFor="let item of data.template.notebook">
           <b>{{ item.exploratory_name }}</b>
           <span *ngIf="data.template.notebook.length > 1">, </span>
@@ -56,6 +55,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
     header h4 i { vertical-align: bottom; }
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
+    .plur { font-style: normal; }
   `]
 })
 export class NotificationDialogComponent {
