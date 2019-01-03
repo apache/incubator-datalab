@@ -71,6 +71,13 @@
         "propertyName": "livy.spark.hadoop.fs.s3a.fast.upload",
         "value": "true",
         "type": "checkbox"
+      },
+    "livy.spark.executor.memory": {
+        "envName": "MEMORY_PER_EXECUTOR",
+        "propertyName": "livy.spark.executor.memory",
+        "value": "EXECUTOR_MEMORY",
+        "description": "",
+        "type": "string"
       }
   },
   "interpreterGroup": [

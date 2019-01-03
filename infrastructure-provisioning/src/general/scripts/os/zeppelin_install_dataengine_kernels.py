@@ -49,6 +49,7 @@ def configure_notebook(keyfile, hoststring):
     put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
+    run('sed -i "s|EXECUTOR_MEMORY|{}m|g " /tmp/{}/dataengine_interpreter.json'.format(spark_memory, args.cluster_name))
     run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
     if not exists('/usr/local/bin/zeppelin_dataengine_create_configs.py'):
         put(scripts_dir + 'zeppelin_dataengine_create_configs.py', '/usr/local/bin/zeppelin_dataengine_create_configs.py', use_sudo=True)
