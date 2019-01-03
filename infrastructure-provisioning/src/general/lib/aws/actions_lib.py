@@ -1150,7 +1150,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                     sudo('sleep 5')
                     sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
                 if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                    dlab.fab.remove_rstudio_dataengines_kernel(os.environ['exploratory_name'], ssh_user)
+                    dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], ssh_user)
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print("Notebook's {} kernels were removed".format(env.hosts))
         else:
@@ -1729,7 +1729,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['exploratory_name'], os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:

@@ -993,7 +993,7 @@ class AzureActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(os.environ['exploratory_name'], os_user)
+                dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
             sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
