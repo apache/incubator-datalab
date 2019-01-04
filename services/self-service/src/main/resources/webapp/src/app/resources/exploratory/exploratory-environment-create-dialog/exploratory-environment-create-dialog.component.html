@@ -67,7 +67,7 @@ limitations under the License.
           </div>
         </div>
 
-        <div class="checkbox-group">
+        <div class="checkbox-group" *ngIf="model.selectedItem.image !== 'docker.dlab-zeppelin'; else not_support">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Spark configurations
           </label>
@@ -76,6 +76,9 @@ limitations under the License.
             <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm?.controls.configuration_parameters.valid && createExploratoryEnvironmentForm?.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
           </div>
         </div>
+        <ng-template #not_support>
+          <span>Not supported for zeppelin</span>
+        </ng-template>
         
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>

@@ -75,7 +75,7 @@ limitations under the License.
           </p>
         </div>
 
-        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running'">
+        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running' && environment.image !== 'docker.dlab-zeppelin'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
           </label>
@@ -87,6 +87,9 @@ limitations under the License.
               </div>
             </form>
           </div>
+        </div>
+        <div *ngIf="environment.image === 'docker.dlab-zeppelin'">
+          <span>Not supported for zeppelin</span>
         </div>
         <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked']">
           <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
