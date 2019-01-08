@@ -120,8 +120,13 @@ limitations under the License.
                 <i class="material-icons">close</i>
               </button>
 
-              <button mat-icon-button class="apply ani" (click)="manageAction('update', 'group', item)"> 
-                <i class="material-icons">done</i>
+              <button mat-icon-button class="apply ani" matTooltip="Group cannot be updated without any selected role"
+                      matTooltipPosition="above"
+                      [matTooltipDisabled]="item.selected_roles.length > 0"> 
+                <span class="mid" [ngClass]="{ 'not-allowed' : !item.selected_roles.length }"
+                      (click)="manageAction('update', 'group', item)">
+                  <i class="material-icons">done</i>
+                </span>
               </button>
             </td>
           </tr>

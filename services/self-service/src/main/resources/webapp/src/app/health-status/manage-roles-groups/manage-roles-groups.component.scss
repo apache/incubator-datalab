@@ -205,7 +205,10 @@ mat-expansion-panel-header {
     &.filter-row {
       .actions {
         button {
-            background: none;
+          background: none;
+          .mid {
+            vertical-align: sub;
+          }
         }
       }
     }
