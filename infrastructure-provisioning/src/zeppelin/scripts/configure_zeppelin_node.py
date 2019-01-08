@@ -119,7 +119,7 @@ def configure_local_livy_kernels(args):
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
         spark_memory = get_spark_memory()
-        sudo('sed -i "s|EXECUTOR_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
+        sudo('sed -i "s|DRIVER_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
         while not port_number_found:
             port_free = sudo('nmap -p ' + str(default_port) + ' localhost | grep "closed" > /dev/null; echo $?')
             port_free = port_free[:1]
@@ -148,7 +148,7 @@ def configure_local_spark_kernels(args):
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
         spark_memory = get_spark_memory()
-        sudo('sed -i "s|EXECUTOR_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
+        sudo('sed -i "s|DRIVER_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
         update_zeppelin_interpreters(args.multiple_clusters, r_enabled, 'local')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
