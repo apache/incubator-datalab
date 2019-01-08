@@ -89,10 +89,10 @@
             "value": "true",
             "type": "checkbox"
           },
-        "livy.spark.executor.memory": {
-              "envName": "MEMORY_PER_EXECUTOR",
-              "propertyName": "livy.spark.executor.memory",
-              "value": "EXECUTOR_MEMORY",
+        "livy.spark.driver.memory": {
+              "envName": "MEMORY_DRIVER",
+              "propertyName": "livy.spark.driver.memory",
+              "value": "DRIVER_MEMORY",
               "description": "",
               "type": "string"
           }
