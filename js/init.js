@@ -18,10 +18,6 @@ function stopMacVideos(){
 
 $(document).ready(function () {
     'use strict';
-    macNavigation.on('click', 'mark', function(){
-        macSwiper.slideTo( $(this).data('slide') );
-        return false;
-    });
 
     screenThumbsNavigation.on('click', 'div', function(){
         screenSliderTop.slideTo( $(this).data('slide') );
@@ -73,6 +69,12 @@ $(window).on('load', function() {
             $('mark', macNavigation).removeClass('is-current-slide');
             $('[data-slide="'+swiper.activeIndex+'"]', macNavigation).addClass('is-current-slide');
             stopMacVideos();
+        },
+        onInit: function(swiper) {
+            macNavigation.on('click', 'mark', function(){
+                swiper.slideTo( $(this).data('slide') );
+                return false;
+            });
         }
     });
 
@@ -97,7 +99,7 @@ $(window).on('load', function() {
     .on('scroll', function(){
         var el      = $('#wrap > section'),
             curr    = el.filter(function(i, e) {
-                var tscroll = $(e).offset().top; 
+                var tscroll = $(e).offset().top;
                 return ( (screen() >= tscroll) && (screen() <= tscroll + $(e).outerHeight(true) ) );
             });
 
