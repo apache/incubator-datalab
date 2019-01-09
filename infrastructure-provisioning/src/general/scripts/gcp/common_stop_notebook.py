@@ -39,12 +39,15 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
+                computational_name = meta_lib.GCPMeta().get_cluster(cluster_name).get('labels').get(
+                    'computational_name')
                 cluster = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
                 actions_lib.GCPActions().bucket_cleanup(bucket_name, user_name, cluster_name)
                 print('The bucket {} has been cleaned successfully'.format(bucket_name))
                 actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, region)
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
-                actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user, key_path)
+                actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user,
+                                                        key_path, computational_name)
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:

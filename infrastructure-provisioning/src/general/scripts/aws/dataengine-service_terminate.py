@@ -32,18 +32,22 @@ def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_use
         clusters_list = get_emr_list(emr_name, 'Value')
         if clusters_list:
             for cluster_id in clusters_list:
+                computational_name = ''
                 client = boto3.client('emr')
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
                 emr_version = cluster.get('ReleaseLabel')
+                for tag in cluster.get('Tags'):
+                    if tag.get('Key') == 'ComputationalName':
+                        computational_name = tag.get('Value')
                 s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
                 print("The bucket {} has been cleaned successfully".format(bucket_name))
                 terminate_emr(cluster_id)
                 print("The EMR cluster {} has been terminated successfully".format(emr_name))
                 print("Removing EMR kernels from notebook")
                 remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path,
-                               emr_version)
+                               emr_version, computational_name)
         else:
             print("There are no EMR clusters to terminate.")
     except:

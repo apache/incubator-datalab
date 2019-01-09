@@ -90,7 +90,8 @@ if __name__ == "__main__":
     emr_conf['tags'] = 'Name={0}-{1}-des-{2}-{3},' \
                        '{0}-Tag={0}-{1}-des-{2}-{3},' \
                        'Notebook={4},' \
-                       'State=not-configured'\
+                       'State=not-configured,' \
+                       'ComputationalName={3}' \
         .format(emr_conf['service_base_name'],
                 os.environ['edge_user_name'],
                 emr_conf['exploratory_name'],
