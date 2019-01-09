@@ -964,7 +964,7 @@ class GCPActions:
         local(""" sudo bash -c " sed -i 's/STANDALONE_SPARK_MASTER_HOST.*/STANDALONE_SPARK_MASTER_HOST={0}-m/g' {1}" """.format(args.cluster_name, spark_def_path))
         local(""" sudo bash -c " sed -i 's|/hadoop_gcs_connector_metadata_cache|/tmp/hadoop_gcs_connector_metadata_cache|g' /opt/{0}/{1}/conf/core-site.xml" """.format(args.dataproc_version, args.cluster_name))
 
-    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path):
+    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path, computational_name):
         try:
             notebook_ip = meta_lib.GCPMeta().get_private_ip_address(notebook_name)
             env.hosts = "{}".format(notebook_ip)
@@ -1011,7 +1011,7 @@ class GCPActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], ssh_user)
+                dlab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
             sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:

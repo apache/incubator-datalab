@@ -502,6 +502,23 @@ class GCPMeta:
                 data.append(host)
         return data
 
+    def get_cluster(self, cluster_name):
+        try:
+            request = self.dataproc.projects().regions().clusters().get(projectId=self.project,
+                                                                        region=os.environ['gcp_region'],
+                                                                        clusterName=cluster_name)
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to get Dataproc: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to get Dataproc",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
     def get_dataproc_job_status(self, job_id):
         request = self.dataproc.projects().regions().jobs().get(projectId=self.project,
                                                                 region=os.environ['gcp_region'],
