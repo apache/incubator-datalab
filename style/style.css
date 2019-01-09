@@ -740,7 +740,7 @@ h2.heading {
         .we-solve article div span:before {
           content: 'show details'; }
       .we-solve article div mark {
-        box-shadow: 0 10px 16px 0px rgba(208, 212, 224, 0.6);
+        box-shadow: 0 10px 16px 0 rgba(208, 212, 224, 0.6);
         -webkit-transition: all 0.1s ease;
         -moz-transition: all 0.1s ease;
         -ms-transition: all 0.1s ease;
@@ -773,7 +773,6 @@ h2.heading {
       display: none; }
     .we-solve .problems-slider > div {
       padding: 65px 0 0;
-      font-size: 22px;
       display: none;
       font-size: 16px;
       line-height: 24px;
@@ -1160,7 +1159,7 @@ footer {
       -ms-flex: 1;
       flex: 1;
       color: #fff;
-      background-image: url("../images/sources/background_people.jpg");
+      background-image: url("../images/sources/background_people.png");
       background-repeat: no-repeat;
       background-size: cover;
       height: 100vh; }
@@ -1387,7 +1386,7 @@ footer {
       background: #1CBC79;
       border-radius: 3px;
       z-index: 1;
-      transform-origin: 4px 0px;
+      transform-origin: 4px 0;
       transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), opacity 0.55s ease; }
   .content-desc {
     padding-top: .5rem; }

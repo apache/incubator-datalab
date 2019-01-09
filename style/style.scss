@@ -883,7 +883,7 @@ footer {
         .contact-us {
             @include flex(1);
             color: $light;
-            background-image: url('../images/sources/background_people.jpg');
+            background-image: url('../images/sources/background_people.png');
             background-repeat: no-repeat;
             background-size: cover;
             height: 100vh;
@@ -1272,7 +1272,7 @@ footer {
         }
     }
     .overlay {
-        background-image: url(../images/sources/background_people.jpg);
+        background-image: url(../images/sources/background_people.png);
         background-repeat: no-repeat;
         background-size: cover;
         .overlay-wrap {
