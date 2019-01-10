@@ -26,6 +26,7 @@ parser.add_argument('--conf_service_base_name', type=str, help='unique name for 
 parser.add_argument('--conf_network_type', type=str, default='', help='Define in which network DLab will be deployed. '
                                                                       'Possible options: public|private')
 parser.add_argument('--conf_vpc_cidr', type=str, default='', help='CIDR of VPC')
+parser.add_argument('--conf_vpc2_cidr', type=str, default='', help='CIDR of secondary VPC')
 parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='Comma-separated CIDR of IPs which will have '
                                                                          'access to SSN')
 parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Range of subnets which will be using for '
