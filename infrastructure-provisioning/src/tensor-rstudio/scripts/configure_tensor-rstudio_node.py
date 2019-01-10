@@ -124,6 +124,10 @@ if __name__ == "__main__":
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
+    # INSTALL INACTIVITY CHECKER
+    print("Install inactivity checker")
+    install_inactivity_checker(args.os_user)
+
     # POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)

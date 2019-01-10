@@ -29,6 +29,9 @@ COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additio
 COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_available_pkgs.py
 COPY general/templates/gcp/dataengine-service_cluster.json /root/templates/dataengine-service_cluster.json
 COPY general/templates/gcp/dataengine-service_job.json /root/templates/dataengine-service_job.json
+COPY general/templates/os/inactive.sh /root/templates/
+COPY general/templates/os/inactive.service /root/templates/
+COPY general/templates/os/inactive.timer /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

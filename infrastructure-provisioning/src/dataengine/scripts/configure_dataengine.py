@@ -181,6 +181,10 @@ if __name__ == "__main__":
         print("Starting Spark slave")
         start_spark(args.os_user, args.master_ip, node='slave')
 
+    # INSTALL INACTIVITY CHECKER
+    print("Install inactivity checker")
+    install_inactivity_checker(args.os_user)
+
     # INSTALL OPTIONAL PACKAGES
     if os.environ['application'] in ('jupyter', 'zeppelin', 'tensor', 'deeplearning'):
         print("Install additional Python packages")

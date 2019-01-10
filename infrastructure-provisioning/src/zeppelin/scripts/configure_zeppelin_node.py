@@ -241,6 +241,10 @@ if __name__ == "__main__":
     # COPY PRE-COMMIT SCRIPT TO ZEPPELIN
     sudo('cp /home/{}/.git/templates/hooks/pre-commit /opt/zeppelin/notebook/.git/hooks/'.format(args.os_user))
 
+    # INSTALL INACTIVITY CHECKER
+    print("Install inactivity checker")
+    install_inactivity_checker(args.os_user)
+
     # INSTALL OPTIONAL PACKAGES
     if os.environ['notebook_r_enabled'] == 'true':
         print("Install additional R packages")
