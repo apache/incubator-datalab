@@ -32,7 +32,7 @@ limitations under the License.
       <p class="info text-center">{{ model.title }}</p>
 
       <mat-list class="resources" [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'
-                                  ||!model.notebook.resources || model.notebook.resources.length === 0 || (!isAliveResources && !confirmationType)">
+                                  || !model.notebook.resources || model.notebook.resources.length === 0 || (!isAliveResources && !confirmationType) || onlyKilled">
         <mat-list-item class="list-header">
           <div class="cluster">Cluster</div>
           <div class="status">Further status</div>
