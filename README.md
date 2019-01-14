@@ -295,12 +295,6 @@ Prerequisites:
 }
 ```
 
-Make sure that all follow [pre-requisites](#Pre-requisites) are installed on machine from which SSN will be deployed:
-- Git 1.7 or higher
-- Python 2.7 with library Fabric v1.14.0
-- Docker 1.12 - Infrastructure provisioning
-
-
 To build SSN node, following steps should be executed:
 
 1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
