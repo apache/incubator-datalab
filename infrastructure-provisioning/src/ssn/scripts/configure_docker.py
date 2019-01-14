@@ -71,7 +71,6 @@ def update_repository(dlab_path, repository_host, region):
                 repository_host))
             sudo('''sed -i "24i RUN sed -i 's|REPOSITORY_SECURITY_UBUNTU|{}|g' /etc/apt/sources.list" '''
                  '''base_Dockerfile'''.format(repository_host))
-        time.sleep(600)
 
 
 def build_docker_images(image_list, region, dlab_path):
