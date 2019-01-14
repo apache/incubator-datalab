@@ -10,6 +10,10 @@ import org.sonatype.nexus.scheduling.TaskScheduler
 import org.sonatype.nexus.scheduling.schedule.Daily
 import org.sonatype.nexus.scheduling.schedule.Hourly
 
+def securitySystem = container.lookup(SecuritySystem.class.name)
+def authorizationManager = securitySystem.getAuthorizationManager('default')
+def manager = container.lookup(LdapConfigurationManager.class.name)
+
 //Removing default repositories
 repository.getRepositoryManager().delete('maven-central');
 repository.getRepositoryManager().delete('maven-public');
@@ -32,4 +36,22 @@ repository.createRawProxy('jenkins-repo','http://pkg.jenkins.io/debian-stable', 
 repository.createRawProxy('mongo-repo','http://repo.mongodb.org/apt/ubuntu', 'packages_store')
 repository.createRawHosted('jenkins-hosted', 'packages_store')
 
-log.info('Script rawRepositories completed successfully')
+// create a role for service users
+def role = new org.sonatype.nexus.security.role.Role(
+    roleId: "nx-docker",
+    source: "Nexus",
+    name: "nx-docker",
+    description: null,
+    readOnly: false,
+    privileges: [ 'nx-repository-view-*-*-*' ],
+    roles: []
+)
+authorizationManager.addRole(role)
+
+// add a docker user account
+security.addUser("docker-nexus",
+      "Docker", "Nexus",
+      "docker-nexus@example.org", true,
+      "docker-nexus", [ role.roleId ])
+
+log.info('Script completed successfully')
