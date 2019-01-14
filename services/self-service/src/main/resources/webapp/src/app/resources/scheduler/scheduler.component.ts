@@ -57,6 +57,9 @@ export class SchedulerComponent implements OnInit {
 
   public inactivityLimits = { min: 10, max: 10080 };
 
+
+  public idleImplemented: boolean = false;
+
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
@@ -64,7 +67,7 @@ export class SchedulerComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private schedulerService: SchedulerService,
-    private changeDetector : ChangeDetectorRef,
+    private changeDetector: ChangeDetectorRef,
     public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
@@ -75,7 +78,7 @@ export class SchedulerComponent implements OnInit {
     this.bindDialog.onClosing = () => {
       this.resetDialog();
       this.buildGrid.emit();
-    }
+    };
   }
 
   public open(param, notebook, type, resource?): void {
@@ -90,7 +93,6 @@ export class SchedulerComponent implements OnInit {
         response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
             // this.toastr.success('Schedule data were successfully saved', 'Success!', { toastLife: 5000 });
-            this.buildGrid.emit();
             this.close();
           }
         },
@@ -160,7 +162,7 @@ export class SchedulerComponent implements OnInit {
       this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
     }
   }
-  
+
   public setInactivity(...params) {
     this.model.setInactivityTime(params).subscribe(
       () => {
@@ -172,7 +174,7 @@ export class SchedulerComponent implements OnInit {
   public scheduleInstance_btnClick() {
 
     if (!this.enableIdleTime) {
-      let data = {
+      const data = {
         startDate: this.schedulerForm.controls.startDate.value,
         finishDate: this.schedulerForm.controls.finishDate.value
       };
@@ -182,7 +184,7 @@ export class SchedulerComponent implements OnInit {
         return false;
       }
       const selectedDays = Object.keys(this.selectedStartWeekDays);
-      let parameters: any = {
+      const parameters: any = {
         begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
         finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
         start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
@@ -198,7 +200,7 @@ export class SchedulerComponent implements OnInit {
         ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
         : this.model.confirmAction(this.notebook.name, parameters);
     } else {
-      let data = { check_inactivity_required: true, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
+      const data = { check_inactivity_required: true, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
 
       (this.destination.type === 'СOMPUTATIONAL')
         ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
