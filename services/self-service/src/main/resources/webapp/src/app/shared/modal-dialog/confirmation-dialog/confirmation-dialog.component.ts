@@ -36,6 +36,7 @@ export class ConfirmationDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   model: ConfirmationDialogModel;
   isAliveResources: boolean;
+  onlyKilled: boolean = false;
   dataengines: Array<any> = [];
   dataengineServices: Array<any> = [];
   confirmationType: number = 0;
@@ -79,6 +80,7 @@ export class ConfirmationDialogComponent implements OnInit {
     this.bindDialog.open(param);
     if (!this.confirmationType) this.filterResourcesByType(notebook.resources);
     this.isAliveResources = this.model.isAliveResources(notebook.resources);
+    this.onlyKilled = !notebook.resources.some(el => el.status !== 'terminated')
   }
 
   public close() {
