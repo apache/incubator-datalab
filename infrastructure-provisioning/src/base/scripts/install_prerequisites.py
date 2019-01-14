@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     if 'conf_dlab_repository_host' in os.environ:
         update_apt_repository_configuration(os.environ['conf_dlab_repository_host'])
-        update_pip_repository_configuration('{}repository/pypi-repo/'.format(os.environ['conf_dlab_repository_host']))
+        update_pip_repository_configuration('{}/repository/pypi-repo/'.format(os.environ['conf_dlab_repository_host']))
 
     print("Updating repositories and installing requested tools.")
     if not ensure_pkg(args.user):
