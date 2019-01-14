@@ -68,7 +68,7 @@ def update_repository(dlab_path, repository_host, region):
                  '''base_Dockerfile'''.format(repository_host))
             sudo('''sed -i "24i RUN sed -i 's|REPOSITORY_SECURITY_UBUNTU|{}/repository/apt-security/|g' '''
                  '''/etc/apt/sources.list" base_Dockerfile'''.format(repository_host))
-            sudo("""echo '{"insecure-registries" : [" """ + repository_host + """:8082"]}' > /etc/docker/daemon.json""")
+            sudo('''echo '{"insecure-registries" : ["''' + repository_host + ''':8082"]}' > /etc/docker/daemon.json''')
             sudo('systemctl restart docker')
             sudo('docker login -u docker-nexus -p docker-nexus {}:8082'.format(repository_host))
         else:
