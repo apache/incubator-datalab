@@ -61,9 +61,9 @@ def update_repository(dlab_path, repository_host, region):
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" base_Dockerfile')
         if 'conf_dlab_repository_host' in os.environ:
             sudo('sed -i "s|^FROM ubuntu|FROM {}:8082/ubuntu|g" base_Dockerfile')
-            sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}repository/apt-ubuntu/|g' /etc/apt/sources.list" '''
+            sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}/repository/apt-ubuntu/|g' /etc/apt/sources.list" '''
                  '''base_Dockerfile'''.format(repository_host))
-            sudo('''sed -i "24i RUN sed -i 's|REPOSITORY_SECURITY_UBUNTU|{}repository/apt-security/|g' '''
+            sudo('''sed -i "24i RUN sed -i 's|REPOSITORY_SECURITY_UBUNTU|{}/repository/apt-security/|g' '''
                  '''/etc/apt/sources.list" base_Dockerfile'''.format(repository_host))
         else:
             sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}|g' /etc/apt/sources.list" base_Dockerfile'''.format(

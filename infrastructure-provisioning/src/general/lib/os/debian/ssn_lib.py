@@ -33,9 +33,9 @@ def ensure_docker_daemon(dlab_path, os_user, region):
         if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('curl -fsSL https://{}repository/docker-repo/gpg | apt-key add -'.format(
+                sudo('curl -fsSL https://{}/repository/docker-repo/gpg | apt-key add -'.format(
                     os.environ['conf_dlab_repository_host']))
-                sudo('add-apt-repository "deb [arch=amd64] https://{}repository/docker-repo/ $(lsb_release -cs) \
+                sudo('add-apt-repository "deb [arch=amd64] https://{}/repository/docker-repo/ $(lsb_release -cs) \
                                   stable"'.format(os.environ['conf_dlab_repository_host']))
             else:
                 sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
@@ -71,9 +71,9 @@ def ensure_jenkins(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget -q -O - https://{}repository/jenkins-repo/jenkins-ci.org.key | apt-key add -'.format(
+                sudo('wget -q -O - https://{}/repository/jenkins-repo/jenkins-ci.org.key | apt-key add -'.format(
                     os.environ['conf_dlab_repository_host']))
-                sudo('echo deb https://{}repository/jenkins-repo/ binary/ > /etc/apt/sources.list.d/jenkins.list'.format(
+                sudo('echo deb https://{}/repository/jenkins-repo/ binary/ > /etc/apt/sources.list.d/jenkins.list'.format(
                     os.environ['conf_dlab_repository_host']))
             else:
                 sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
