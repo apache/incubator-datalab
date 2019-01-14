@@ -1047,6 +1047,20 @@ def create_keystore():
         sys.exit(1)
 
 
+def download_packages():
+    try:
+        run('mkdir packages')
+        with cd('packages'):
+            run('wget https://pkg.jenkins.io/debian/jenkins-ci.org.key')
+            run('curl -v -u admin:admin123 -F "raw.directory=/" -F "raw.asset1=@/home/{}/packages/jenkins-ci.org.key" '
+                '-F "raw.asset1.filename=jenkins-ci.org.key"  '
+                '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to download packages: ', str(err))
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
@@ -1390,6 +1404,9 @@ if __name__ == "__main__":
 
             print('INSTALLING NGINX')
             install_nginx()
+
+            print('DOWNLOADING REQUIRED PACKAGES')
+            download_packages()
 
             print('[SUMMARY]')
             print("AWS VPC ID: {0}".format(args.vpc_id))

@@ -71,7 +71,7 @@ def ensure_jenkins(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget -q -O - https://{}/repository/jenkins-repo/jenkins-ci.org.key | apt-key add -'.format(
+                sudo('wget -q -O - https://{}/repository/jenkins-hosted/jenkins-ci.org.key | apt-key add -'.format(
                     os.environ['conf_dlab_repository_host']))
                 sudo('echo deb https://{}/repository/jenkins-repo/ binary/ > /etc/apt/sources.list.d/jenkins.list'.format(
                     os.environ['conf_dlab_repository_host']))
