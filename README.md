@@ -297,7 +297,7 @@ Prerequisites:
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
@@ -364,7 +364,7 @@ Prerequisites:
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed
 2.  Go to *dlab* directory
 3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
 4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
@@ -447,7 +447,7 @@ Prerequisites:
   
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
