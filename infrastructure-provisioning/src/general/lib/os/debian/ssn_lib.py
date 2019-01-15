@@ -324,8 +324,6 @@ def install_build_dep():
             sudo('apt-get install -y openjdk-8-jdk git wget unzip')
             with cd('/opt/'):
                 if 'conf_dlab_repository_host' in os.environ:
-                    sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
-                         '{1}-bin.zip'.format(maven_version.split('.')[0], maven_version))
                     sudo('wget https://{0}/repository/jenkins-hosted/apache-maven-{1}-bin.zip '
                          '--no-check-certificate'.format(os.environ['conf_dlab_repository_host'], maven_version))
                 else:
