@@ -154,7 +154,8 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
 					.append(FIELD_DLAB_ID, resourceId)
 					.append(DLAB_RESOURCE_TYPE, resourceTypeId)
 					.append(SHAPE, shapeName)
-					.append(STATUS, status)
+					.append(STATUS,
+							Optional.ofNullable(status).map(UserInstanceStatus::toString).orElse(StringUtils.EMPTY))
 					.append(FIELD_PRODUCT, id.getString(FIELD_PRODUCT))
 					.append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
 					.append(FIELD_COST, BillingCalculationUtils.formatDouble(cost))
