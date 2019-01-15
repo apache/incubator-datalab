@@ -297,7 +297,7 @@ Prerequisites:
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
@@ -364,7 +364,7 @@ Prerequisites:
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed
 2.  Go to *dlab* directory
 3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
 4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
@@ -447,7 +447,7 @@ Prerequisites:
   
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
@@ -1769,16 +1769,8 @@ DLab services could be ran in development mode. This mode emulates real work an 
 In order to start development of Front-end Web UI part of DLab - Git repository should be cloned and the following packages should be installed:
 
 -   Git 1.7 or higher
--   Maven 3.3 or higher
 -   Python 2.7 with library Fabric v1.14.0
--   Mongo DB 3.0 or higher
 -   Docker 1.12 - Infrastructure provisioning
--   Java Development Kit 8 – Back-end
--   Node.js 6.x or 7.x - WebUI
--   Angular CLI v1.0.0-rc.1 or higher - WebUI
--   TypeScript v2.0 or higher - WebUI
--   Angular2 v2.4 – WebUI
--   Development IDE (Eclipse or Intellij IDEA)
 
 ## Java back-end services <a name="Java_back_end_services"></a>
 
