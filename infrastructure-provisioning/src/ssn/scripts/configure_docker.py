@@ -61,7 +61,7 @@ def update_repository(dlab_path, repository_host, region):
             sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" base_Dockerfile')
             sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" base_Dockerfile')
         if 'conf_dlab_repository_host' in os.environ:
-            sudo('sed -i "s|^FROM ubuntu|FROM {}:8083/dlab-pre-base|g" base_Dockerfile'.format(repository_host))
+            sudo('sed -i "s|^FROM ubuntu.*|FROM {}:8083/dlab-pre-base|g" base_Dockerfile'.format(repository_host))
             sudo('sed -i "/pip install/d;/apt-get/d" base_Dockerfile')
             sudo('''echo '{"insecure-registries" : ["''' + repository_host + ''':8083"]}' > /etc/docker/daemon.json''')
             sudo('systemctl restart docker')
