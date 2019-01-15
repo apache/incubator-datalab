@@ -323,11 +323,22 @@ def install_build_dep():
             maven_version = '3.5.4'
             sudo('apt-get install -y openjdk-8-jdk git wget unzip')
             with cd('/opt/'):
-                sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
-                    maven_version.split('.')[0], maven_version))
+                if 'conf_dlab_repository_host' in os.environ:
+                    sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
+                         '{1}-bin.zip'.format(maven_version.split('.')[0], maven_version))
+                    sudo('wget https://{0}/repository/jenkins-hosted/apache-maven-{1}-bin.zip '
+                         '--no-check-certificate'.format(os.environ['conf_dlab_repository_host'], maven_version))
+                else:
+                    sudo(
+                        'wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
+                        '{1}-bin.zip'.format(maven_version.split('.')[0], maven_version))
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
-            sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('bash -c "curl --silent --location https://{0}/repository/jenkins-hosted/setup_8.x | '
+                     'bash -"'.format(os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
             sudo('apt-get install -y nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))

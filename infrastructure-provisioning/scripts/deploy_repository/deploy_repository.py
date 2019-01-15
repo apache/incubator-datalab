@@ -1059,6 +1059,18 @@ def download_packages():
                     '"raw.asset1=@/home/{}/packages/jenkins-ci.org.key" '
                     '-F "raw.asset1.filename=jenkins-ci.org.key"  '
                     '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
+                run('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
+                    '{1}-bin.zip'.format(maven_version.split('.')[0], maven_version))
+                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
+                    '"raw.asset1=@/home/{0}/packages/apache-maven-{1}-bin.zip" '
+                    '-F "raw.asset1.filename=apache-maven-{1}-bin.zip"  '
+                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(
+                    os_user, maven_version))
+                run('wget https://deb.nodesource.com/setup_8.x')
+                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
+                    '"raw.asset1=@/home/{0}/packages/setup_8.x" '
+                    '-F "raw.asset1.filename=setup_8.x"  '
+                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
             sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(os_user))
     except Exception as err:
         traceback.print_exc()
@@ -1114,6 +1126,7 @@ if __name__ == "__main__":
     groovy_version = '2.5.1'
     nexus_version = '3.14.0-04'
     docker_version = '17.06.2'
+    maven_version = '3.5.4'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
