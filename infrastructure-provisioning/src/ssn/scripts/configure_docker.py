@@ -59,18 +59,13 @@ def update_repository(dlab_path, repository_host, region):
             sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" '
                  'base_Dockerfile'.format(repository_host))
             sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" base_Dockerfile')
-        sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" base_Dockerfile')
+            sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" base_Dockerfile')
         if 'conf_dlab_repository_host' in os.environ:
-            sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/repository\/pypi-repo\/\/simple --trusted-host {0} --timeout 60000/g" '
-                 'base_Dockerfile'.format(repository_host))
-            sudo('sed -i "s|^FROM ubuntu|FROM {}:8082/ubuntu|g" base_Dockerfile'.format(repository_host))
-            sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}/repository/apt-ubuntu/|g' /etc/apt/sources.list" '''
-                 '''base_Dockerfile'''.format(repository_host))
-            sudo('''sed -i "24i RUN sed -i 's|REPOSITORY_SECURITY_UBUNTU|{}/repository/apt-security/|g' '''
-                 '''/etc/apt/sources.list" base_Dockerfile'''.format(repository_host))
-            sudo('''echo '{"insecure-registries" : ["''' + repository_host + ''':8082"]}' > /etc/docker/daemon.json''')
+            sudo('sed -i "s|^FROM ubuntu|FROM {}:8083/dlab-pre-base|g" base_Dockerfile'.format(repository_host))
+            sudo('sed -i "/pip install/d;/apt-get/d" base_Dockerfile')
+            sudo('''echo '{"insecure-registries" : ["''' + repository_host + ''':8083"]}' > /etc/docker/daemon.json''')
             sudo('systemctl restart docker')
-            sudo('docker login -u docker-nexus -p docker-nexus {}:8082'.format(repository_host))
+            sudo('docker login -u docker-nexus -p docker-nexus {}:8083'.format(repository_host))
         else:
             sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}|g' /etc/apt/sources.list" base_Dockerfile'''.format(
                 repository_host))

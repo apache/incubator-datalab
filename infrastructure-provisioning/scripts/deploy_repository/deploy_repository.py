@@ -1037,10 +1037,12 @@ def set_hostname():
 
 def create_keystore():
     try:
-        sudo('openssl pkcs12 -export -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
-             '-out wildcard.p12 -passout pass:{}'.format(keystore_pass))
-        sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
-             'PKCS12 -srcstorepass {0} -destkeystore /opt/nexus/etc/ssl/keystore.jks'.format(keystore_pass))
+        if not exists('/home/{}/.ensure_dir/keystore_created'.format(os_user)):
+            sudo('openssl pkcs12 -export -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
+                 '-out wildcard.p12 -passout pass:{}'.format(keystore_pass))
+            sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
+                 'PKCS12 -srcstorepass {0} -destkeystore /opt/nexus/etc/ssl/keystore.jks'.format(keystore_pass))
+            sudo('touch /home/{}/.ensure_dir/keystore_created'.format(os_user))
     except Exception as err:
         traceback.print_exc()
         print('Failed to create keystore: ', str(err))
@@ -1049,12 +1051,49 @@ def create_keystore():
 
 def download_packages():
     try:
-        run('mkdir packages')
-        with cd('packages'):
-            run('wget https://pkg.jenkins.io/debian/jenkins-ci.org.key')
-            run('curl -v -u admin:admin123 -F "raw.directory=/" -F "raw.asset1=@/home/{}/packages/jenkins-ci.org.key" '
-                '-F "raw.asset1.filename=jenkins-ci.org.key"  '
-                '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
+        if not exists('/home/{}/.ensure_dir/packages_downloaded'.format(os_user)):
+            run('mkdir packages')
+            with cd('packages'):
+                run('wget https://pkg.jenkins.io/debian/jenkins-ci.org.key')
+                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
+                    '"raw.asset1=@/home/{}/packages/jenkins-ci.org.key" '
+                    '-F "raw.asset1.filename=jenkins-ci.org.key"  '
+                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(os_user))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to download packages: ', str(err))
+        sys.exit(1)
+
+
+def install_docker():
+    try:
+        if not exists('/home/{}/.ensure_dir/docker_installed'.format(os_user)):
+            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) '
+                 'stable"')
+            sudo('apt-get update')
+            sudo('apt-cache policy docker-ce')
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
+            sudo('usermod -a -G docker ' + os_user)
+            sudo('update-rc.d docker defaults')
+            sudo('update-rc.d docker enable')
+            sudo('touch /home/{}/.ensure_dir/docker_installed'.format(os_user))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to install docker: ', str(err))
+        sys.exit(1)
+
+
+def prepare_images():
+    try:
+        if not exists('/home/{}/.ensure_dir/images_prepared'.format(os_user)):
+            put('files/Dockerfile', '/tmp/Dockerfile')
+            sudo('docker build --file /tmp/Dockerfile -t pre-base .')
+            sudo('docker login -u docker-nexus -p docker-nexus localhost:8083')
+            sudo('docker tag pre-base localhost:8083/dlab-pre-base')
+            sudo('docker push localhost:8083/dlab-pre-base')
+            sudo('touch /home/{}/.ensure_dir/images_prepared'.format(os_user))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download packages: ', str(err))
@@ -1074,6 +1113,7 @@ if __name__ == "__main__":
     os_user = 'dlab-user'
     groovy_version = '2.5.1'
     nexus_version = '3.14.0-04'
+    docker_version = '17.06.2'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
@@ -1407,6 +1447,12 @@ if __name__ == "__main__":
 
             print('DOWNLOADING REQUIRED PACKAGES')
             download_packages()
+
+            print('INSTALLING DOCKER')
+            install_docker()
+
+            print('PREPARING_DLAB_DOCKER_IMAGES')
+            prepare_images()
 
             print('[SUMMARY]')
             print("AWS VPC ID: {0}".format(args.vpc_id))
