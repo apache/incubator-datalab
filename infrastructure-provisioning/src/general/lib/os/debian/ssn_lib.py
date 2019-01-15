@@ -321,7 +321,7 @@ def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
             maven_version = '3.5.4'
-            sudo('apt-get install -y openjdk-8-jdk git wget unzip')
+            sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make')
             with cd('/opt/'):
                 if 'conf_dlab_repository_host' in os.environ:
                     sudo('wget https://{0}/repository/jenkins-hosted/apache-maven-{1}-bin.zip '
@@ -333,11 +333,20 @@ def install_build_dep():
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('bash -c "curl --silent --location https://{0}/repository/jenkins-hosted/setup_8.x | '
-                     'bash -"'.format(os.environ['conf_dlab_repository_host']))
+                sudo('wget https://{0}/repository/jenkins-hosted/node-v8.15.0.tar.gz '
+                     '--no-check-certificate'.format(os.environ['conf_dlab_repository_host']))
+                sudo('tar zxvf node-v8.15.0.tar.gz')
+                sudo('mv node-v8.15.0 /opt/node')
+                with cd('/opt/node/'):
+                    sudo('./configure')
+                    sudo('make -j4')
+                    sudo('echo "PATH=$PATH:/opt/node" >> /etc/profile')
+                    sudo('./deps/npm/bin/npm-cli.js install npm')
+                    sudo('cp deps/npm/bin/npm /opt/node/')
+                    sudo('source /etc/profile')
             else:
                 sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
-            sudo('apt-get install -y nodejs')
+                sudo('apt-get install -y nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
     except Exception as err:

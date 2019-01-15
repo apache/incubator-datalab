@@ -1066,10 +1066,10 @@ def download_packages():
                     '-F "raw.asset1.filename=apache-maven-{1}-bin.zip"  '
                     '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(
                     os_user, maven_version))
-                run('wget https://deb.nodesource.com/setup_8.x')
+                run('wget https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz')
                 run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
-                    '"raw.asset1=@/home/{0}/packages/setup_8.x" '
-                    '-F "raw.asset1.filename=setup_8.x"  '
+                    '"raw.asset1=@/home/{}/packages/node-v8.15.0.tar.gz" '
+                    '-F "raw.asset1.filename=node-v8.15.0.tar.gz"  '
                     '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
             sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(os_user))
     except Exception as err:
