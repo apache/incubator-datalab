@@ -36,6 +36,7 @@ repository.createRawProxy('docker-repo','https://download.docker.com/linux/ubunt
 repository.createRawProxy('jenkins-repo','http://pkg.jenkins.io/debian-stable', 'packages_store')
 repository.createRawProxy('mongo-repo','http://repo.mongodb.org/apt/ubuntu', 'packages_store')
 repository.createRawHosted('jenkins-hosted', 'packages_store')
+repository.createNpmProxy('npm', 'https://registry.npmjs.org', 'packages_store')
 
 // create a role for service users
 def role = new org.sonatype.nexus.security.role.Role(

@@ -344,6 +344,9 @@ def install_build_dep():
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
                     sudo('source /etc/profile')
+                    sudo('npm config set strict-ssl false')
+                    sudo('npm config set registry https://{}/repository/npm/'.format(
+                        os.environ['conf_dlab_repository_host']))
             else:
                 sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
                 sudo('apt-get install -y nodejs')
