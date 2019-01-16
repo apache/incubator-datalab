@@ -1071,6 +1071,11 @@ def download_packages():
                     '"raw.asset1=@/home/{}/packages/node-v8.15.0.tar.gz" '
                     '-F "raw.asset1.filename=node-v8.15.0.tar.gz"  '
                     '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
+                run('wget https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node')
+                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
+                    '"raw.asset1=@/home/{}/packages/linux-x64-57_binding.node" '
+                    '-F "raw.asset1.filename=linux-x64-57_binding.node"  '
+                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
             sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(os_user))
     except Exception as err:
         traceback.print_exc()

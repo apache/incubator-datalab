@@ -340,13 +340,16 @@ def install_build_dep():
                 with cd('/opt/node/'):
                     sudo('./configure')
                     sudo('make -j4')
+                    sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node '
+                         '--no-check-certificate'.format(os.environ['conf_dlab_repository_host']))
                     sudo('echo "PATH=$PATH:/opt/node" >> /etc/profile')
+                    sudo('echo "SASS_BINARY_PATH=/opt/node/linux-x64-57_binding.node" >> /etc/profile')
+                    sudo('source /etc/profile')
                     sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
                     sudo('./deps/npm/bin/npm-cli.js config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
-                    sudo('source /etc/profile')
                     sudo('npm config set strict-ssl false')
                     sudo('npm config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
