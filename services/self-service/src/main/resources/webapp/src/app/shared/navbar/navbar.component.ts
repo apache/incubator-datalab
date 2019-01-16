@@ -106,6 +106,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout_btnClick(): void {
+    this.healthStatusService.resetStatusValue();
     this.applicationSecurityService.logout().subscribe(
       () => {
         this.appRoutingService.redirectToLoginPage();
@@ -137,7 +138,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private checkQuoteUsed(params): void {
-    if (!this.applicationSecurityService.getBillingQuoteUsed()) {
+    if (!this.applicationSecurityService.getBillingQuoteUsed() && params) {
       let checkQuotaAlert = '';
 
       if (params.billingUserQuoteUsed >= this.quotesLimit && params.billingUserQuoteUsed < 100) checkQuotaAlert = 'user_quota';
