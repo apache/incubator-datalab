@@ -341,6 +341,9 @@ def install_build_dep():
                     sudo('./configure')
                     sudo('make -j4')
                     sudo('echo "PATH=$PATH:/opt/node" >> /etc/profile')
+                    sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
+                    sudo('./deps/npm/bin/npm-cli.js config set registry https://{}/repository/npm/'.format(
+                        os.environ['conf_dlab_repository_host']))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
                     sudo('source /etc/profile')
