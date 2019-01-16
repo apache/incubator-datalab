@@ -331,6 +331,8 @@ def install_build_dep():
                     sudo('sed -i "s|DLAB_LOCAL_REPOSITORY|{}|g" /tmp/settings.xml'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('cp -f /tmp/settings.xml apache-maven-{}/conf/'.format(maven_version))
+                    sudo('''echo 'export MAVEN_OPTS="-Dmaven.wagon.http.ssl.insecure=true''' 
+                         ''' -Dmaven.wagon.http.ssl.allowall=true"' >> /etc/profile''')
                 else:
                     sudo(
                         'wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
@@ -347,7 +349,7 @@ def install_build_dep():
                     sudo('make -j4')
                     sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node '
                          '--no-check-certificate'.format(os.environ['conf_dlab_repository_host']))
-                    sudo('echo "PATH=$PATH:/opt/node" >> /etc/profile')
+                    sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
                     sudo('source /etc/profile')
                     sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
                     sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
