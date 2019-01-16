@@ -326,11 +326,16 @@ def install_build_dep():
                 if 'conf_dlab_repository_host' in os.environ:
                     sudo('wget https://{0}/repository/jenkins-hosted/apache-maven-{1}-bin.zip '
                          '--no-check-certificate'.format(os.environ['conf_dlab_repository_host'], maven_version))
+                    sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
+                    put('templates/settings.xml', '/tmp/settings.xml')
+                    sudo('sed -i "s|DLAB_LOCAL_REPOSITORY|{}|g" /tmp/settings.xml'.format(
+                        os.environ['conf_dlab_repository_host']))
+                    sudo('cp -f /tmp/settings.xml apache-maven-{}/conf/'.format(maven_version))
                 else:
                     sudo(
                         'wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
                         '{1}-bin.zip'.format(maven_version.split('.')[0], maven_version))
-                sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
+                    sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             if 'conf_dlab_repository_host' in os.environ:
                 sudo('wget https://{0}/repository/jenkins-hosted/node-v8.15.0.tar.gz '
