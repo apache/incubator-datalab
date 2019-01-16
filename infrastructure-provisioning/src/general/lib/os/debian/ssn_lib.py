@@ -343,9 +343,9 @@ def install_build_dep():
                     sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node '
                          '--no-check-certificate'.format(os.environ['conf_dlab_repository_host']))
                     sudo('echo "PATH=$PATH:/opt/node" >> /etc/profile')
-                    sudo('echo "SASS_BINARY_PATH=/opt/node/linux-x64-57_binding.node" >> /etc/profile')
                     sudo('source /etc/profile')
                     sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
+                    sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
                     sudo('./deps/npm/bin/npm-cli.js config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
@@ -353,6 +353,7 @@ def install_build_dep():
                     sudo('npm config set strict-ssl false')
                     sudo('npm config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
+                    sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
             else:
                 sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
                 sudo('apt-get install -y nodejs')
