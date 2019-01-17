@@ -1,56 +1,73 @@
 # DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## New features in v2.0
+## New features in v2.1
 **All Cloud platforms:**
-- added possibility to go to links (Notebook UI, ungit, Tensorboard) without opening tunnel to Edge on AWS
-- implemented environment management page
-- added possibility to generate a key during key reuploading
+- implemented tuning Apache Spark standalone cluster and local spark  configurations from WEB UI (except for Apache Zeppelin)
+- added a reminder after user logged in notifying that corresponding resources are about to be stopped/terminated
+- implemented SSN load monitor: CPU, Memory, HDD
+- updated versions of installed software:
+    * Jupyter 5.7.4
+    * RStudio 1.1.463
+    * Apache Zeppelin 0.8.0
+    * Apache Spark 2.3.2 for standalone cluster 
+    * Scala 2.12.8
+    * CNTK 2.3.1
+    * Keras 2.1.6 (except for DeepLearning - 2.0.8)
+    * MXNET 1.3.1
+    * Theano 1.0.3
+    * ungit 1.4.36
 
 **AWS:**
-- added new "RStudio with TensorFlow" template on AWS
-- Data Engine/Data Engine Service job tracker URL is displayed on Web UI on AWS
-- added possibility to use AWS default reporting as a source for DLAB billing
+- implemented tuning Data Engine Service from WEB UI (except for Apache Zeppelin)
+- added support of new version of Data Engine Service (AWS EMR) 5.19.0
 
+**MS azure and AWS:**
+- implemented ability to manage total billing quota for DLab as well as billing quota per user
 
-## Improvements in v2.0
+## Improvements in v2.1
 
 **All Cloud platforms:**
-- it is now possible to separately configure start and stop schedules for analytical resources
-- added shell interpreter for Zeppelin
+- added ability to configure instance size/shape (CPU, RAM) from DLab UI for different user groups
+- added possibility to install Java dependencies from DLab UI
+- added alternative way to access analytical notebooks just by clicking on notebook's direct URL.
+    * added LDAP authorization in Squid (user should provide his LDAP credentials when accessing notebooks/Data Engine/Data Engine Service via browser)
+- improved error handling for various scenarios on UI side 
+- added support of installing DLab into two VPCs
 
+**MS Azure:**
+- it is now possible to install DLab only with private IP’s 
+
+## Bug fixes in v2.1
 **AWS:**
-- optimized starting/stopping duration of Data Engine service
+- fixed pricing retrieval logic to optimize RAM usage on SSN for small instances
 
-**MS Azure and AWS:**
-- DLab's billing report, now indicates costs associated with any mounted storage of analytical tool
-
-
-## Bug fixes in v2.0
-**AWS:**
-- when computational resource name is part of a name of any other computational resource - it will correspondingly affected during stop/terminate actions (e.g. stopping EMR1 will stop EMR11, terminating EMR1 will terminate EMR11)
-
-**GCP:**
-- fixed occasionally reproducible problem: failure in Notebook stopping/starting and failure in creation of computational resources (it was not possible to automatically determine credentials)
-
-
-## Known issues in v2.0
+## Known issues in v2.1
 **All Cloud platforms:**
-- remote kernel list for Data Engine is not updated after stop/start Data Engine
+- remote kernel list for Data Engine is not updated after stop/start Data Engine 
 - following links can be opened via tunnel for Data Engine/Data Engine: service: worker/application ID, application detail UI, event timeline, logs for Data Engine
+- if Apache Zeppelin is created from AMI with different instance shape, spark memory size is the same as in created AMI.
+- sparklyr library (r package) can not be installed on RStudio, RStudio with TensorFlow notebooks
+- Spark default configuration for Apache Zeppelin can not be changed from DLab UI.  Currently it can be done directly through Apache Zeppelin interpreter menu.
+For more details please refer for Apache Zeppelin official documentation: https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html
+- shell interpreter for Apache Zeppelin is missed for some instance shapes 
+- executor memory is not allocated depending on notebook instance shape for local spark
+
 
 **AWS**
 - can not open master application URL on resource manager page, issue known for Data Engine Service v.5.12.0
+- java library installation fails on DLab UI on Data Engine Service in case when it is installed together with libraries from other groups.
 
 **GCP:**
 - storage permissions aren't differentiated by users via Dataproc permissions (all users have R/W access to other users buckets)
 - Data Engine Service creation is failing after environment has been recreated
 - It is temporarily not possible to run playbooks using remote kernel of Data Engine (dependencies issue)
+- DeepLearning creation fails 
 
 **Microsoft Azure:**
 - creation of Zeppelin from custom image fails on the step when cluster kernels are removing
 - start Notebook by scheduler does not work when Data Lake is enabled 
 
-## Known issues caused by cloud provider limitations in v2.0
+## Known issues caused by cloud provider limitations in v2.1
 
 **Microsoft Azure:**
 - resource name length should not exceed 80 chars
