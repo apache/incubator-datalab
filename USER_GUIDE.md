@@ -288,7 +288,7 @@ Also, if you would like to save some costs for your Computational resource you c
 
 This picture shows menu for creating Computational resource for AWS:
 <p align="center"> 
-    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="480">
+    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
 </p>
 
 You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster ). The configuration object is referenced as a JSON file.
@@ -300,7 +300,7 @@ To tune computational resource configuration check off "Configurations" check bo
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
-    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="480">
+    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
 
 If you click on "Create" button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
@@ -312,7 +312,7 @@ Once Computational resources are provisioned, their status will be changed to **
 Clicking on Computational resource name in DLab dashboard will open Computational resource details popup:
 
 <p align="center"> 
-    <img src="doc/emr_info.png" alt="Computational resource info" width="400">
+    <img src="doc/emr_info.png" alt="Computational resource info" width="480">
 </p>
 
 Also you can go to computational resource master UI via link "Apache Spark Master' or "EMR Master" (this functionality is only available for AWS cloud).
@@ -376,7 +376,7 @@ To work with Git (pull, push) via UI tool (ungit) you could add multiple credent
 When you click on the button "Git credentials" – following popup will show up:
 
 <p align="center"> 
-    <img src="doc/git_creds_window.png" alt="Git_creds_window" width="600">
+    <img src="doc/git_creds_window.png" alt="Git_creds_window" width="760">
 </p>
 
 In this window you need to add:
@@ -391,7 +391,7 @@ Once all fields are filled in and you click on "Assign" button, you will see the
 Clicking on "Apply changes" button, your credentials will be sent to all running instances with analytical tools. It takes a few seconds for changes to be applied.
 
 <p align="center"> 
-    <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="600">
+    <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="760">
 </p>
 
 On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
@@ -472,7 +472,7 @@ In case you Edge node is Stopped or Terminated – you will have to Start or Rec
 Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
 
 <p align="center"> 
-    <img src="doc/backup_options.png" alt="Backup options" width="480">
+    <img src="doc/backup_options.png" alt="Backup options" width="400">
 </p>
 
 Confirm you want to do backup by clicking "Apply".
