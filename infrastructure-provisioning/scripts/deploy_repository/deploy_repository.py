@@ -1052,30 +1052,26 @@ def create_keystore():
 def download_packages():
     try:
         if not exists('/home/{}/.ensure_dir/packages_downloaded'.format(os_user)):
+            packages_urls = [
+                'https://pkg.jenkins.io/debian/jenkins-ci.org.key',
+                'http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
+                    maven_version.split('.')[0], maven_version),
+                'https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz',
+                'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node'
+            ]
+            packages_list = list()
+            for package in packages_urls:
+                package_name = package.split('/')[-1]
+                packages_list.append({'url': package, 'name': package_name})
             run('mkdir packages')
             with cd('packages'):
-                run('wget https://pkg.jenkins.io/debian/jenkins-ci.org.key')
-                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
-                    '"raw.asset1=@/home/{}/packages/jenkins-ci.org.key" '
-                    '-F "raw.asset1.filename=jenkins-ci.org.key"  '
-                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
-                run('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
-                    '{1}-bin.zip'.format(maven_version.split('.')[0], maven_version))
-                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
-                    '"raw.asset1=@/home/{0}/packages/apache-maven-{1}-bin.zip" '
-                    '-F "raw.asset1.filename=apache-maven-{1}-bin.zip"  '
-                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(
-                    os_user, maven_version))
-                run('wget https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz')
-                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
-                    '"raw.asset1=@/home/{}/packages/node-v8.15.0.tar.gz" '
-                    '-F "raw.asset1.filename=node-v8.15.0.tar.gz"  '
-                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
-                run('wget https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node')
-                run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
-                    '"raw.asset1=@/home/{}/packages/linux-x64-57_binding.node" '
-                    '-F "raw.asset1.filename=linux-x64-57_binding.node"  '
-                    '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(os_user))
+                for package in packages_list:
+                    run('wget {0}'.format(package['url']))
+                    run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
+                        '"raw.asset1=@/home/{0}/packages/{1}" '
+                        '-F "raw.asset1.filename={1}"  '
+                        '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(
+                        os_user, package['name']))
             sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(os_user))
     except Exception as err:
         traceback.print_exc()
