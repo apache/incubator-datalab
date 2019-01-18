@@ -65,7 +65,8 @@ For more details please refer for Apache Zeppelin official documentation: https:
 
 **Microsoft Azure:**
 - creation of Zeppelin from custom image fails on the step when cluster kernels are removing
-- start Notebook by scheduler does not work when Data Lake is enabled 
+- start Notebook by scheduler does not work when Data Lake is enabled
+- playbook running on Apache Zeppelin fails due to impossible connection to blob via wasbs protocol 
 
 ## Known issues caused by cloud provider limitations in v2.1
 
