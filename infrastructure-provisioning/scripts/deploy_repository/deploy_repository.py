@@ -1102,7 +1102,8 @@ def prepare_images():
     try:
         if not exists('/home/{}/.ensure_dir/images_prepared'.format(os_user)):
             put('files/Dockerfile', '/tmp/Dockerfile')
-            sudo('docker build --file /tmp/Dockerfile -t pre-base .')
+            with cd('/tmp/'):
+                sudo('docker build --file Dockerfile -t pre-base .')
             sudo('docker login -u docker-nexus -p docker-nexus localhost:8083')
             sudo('docker tag pre-base localhost:8083/dlab-pre-base')
             sudo('docker push localhost:8083/dlab-pre-base')
