@@ -41,7 +41,6 @@ import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialogComponent } f
 export * from './environment-status.model';
 
 @NgModule({
-
   imports: [
     CommonModule,
     FormsModule,

@@ -16,6 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
+::ng-deep .mat-option:first-child .mat-pseudo-checkbox { display: none; }
+
 .caret {
   width: 40px;
   color: #4ab8dc;
@@ -250,6 +252,31 @@ mat-form-field.chip-list {
   &.butt {
     &.butt-success {
       margin-left: 0;
+    }
+  }
+}
+.multiple-select {
+  border-bottom: 1px solid #dedbdb;
+  padding: 0;
+  a {
+    display: inline-block;
+    width: 50%;
+    padding: 0 15px;
+    vertical-align: middle;
+    color: #575757;
+    cursor: pointer;
+    i {
+      vertical-align: sub;
+      font-size: 20px;
+    }
+    &:hover {
+      color: #4eaf3e;
+      background: #f9fafb;
+    }
+    &.deselect {
+      &:hover {
+        color: #f1696e;
+      }
     }
   }
 }

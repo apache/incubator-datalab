@@ -45,6 +45,14 @@ limitations under the License.
               <!-- <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'role'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown> -->
               <mat-form-field>
                   <mat-select multiple [compareWith]="compareObjects" name="roles" [(value)]="setupRoles" placeholder="Select roles">
+                    <mat-option class="multiple-select" disabled>
+                      <a class="select ani" (click)="selectAllOptions(setupRoles, rolesList)">
+                        <i class="material-icons">playlist_add_check</i>&nbsp;All
+                      </a>
+                      <a class="deselect ani" (click)="selectAllOptions(setupRoles)">
+                        <i class="material-icons">clear</i>&nbsp;None
+                      </a>
+                    </mat-option>
                     <mat-option *ngFor="let role of rolesList" [value]="role">
                       {{ role }}
                     </mat-option>
@@ -89,6 +97,14 @@ limitations under the License.
               <div class="selector-wrapper-edit">
                 <mat-form-field>
                   <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
+                    <mat-option class="multiple-select" disabled>
+                      <a class="select ani" (click)="selectAllOptions(item, rolesList, 'selected_roles')">
+                        <i class="material-icons">playlist_add_check</i>&nbsp;All
+                      </a>
+                      <a class="deselect ani" (click)="selectAllOptions(item, null, 'selected_roles')">
+                        <i class="material-icons">clear</i>&nbsp;None
+                      </a>
+                    </mat-option>
                     <mat-option *ngFor="let role of rolesList" [value]="role">
                       {{ role }}
                     </mat-option>

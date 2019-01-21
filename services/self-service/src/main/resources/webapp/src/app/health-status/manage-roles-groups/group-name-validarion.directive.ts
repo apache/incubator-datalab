@@ -25,7 +25,7 @@ import { AbstractControl, NG_VALIDATORS, Validator } from '@angular/forms';
   providers: [{
     multi: true,
     provide: NG_VALIDATORS, 
-    useExisting: forwardRef(() => GroupNameValidationDirective)      
+    useExisting: forwardRef(() => GroupNameValidationDirective)
   }]
 })
 export class GroupNameValidationDirective implements Validator {
