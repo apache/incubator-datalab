@@ -397,34 +397,6 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
-	public void executeCheckClusterInactivityJob() {
-		EnvResource resource = new EnvResource();
-		when(envDAO.findRunningResourcesForCheckInactivity()).thenReturn(singletonList(resource));
-		when(provisioningService.post(anyString(), anyString(), anyListOf(EnvResource.class), any()))
-				.thenReturn("someUuid");
-		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
-
-		schedulerJobService.updateRunningResourcesLastActivity(userInfo);
-
-		verify(envDAO).findRunningResourcesForCheckInactivity();
-		verify(provisioningService).post("/infrastructure/check_inactivity", "token",
-				singletonList(resource), String.class);
-		verify(requestId).put(USER, "someUuid");
-		verifyNoMoreInteractions(envDAO, provisioningService, requestId);
-	}
-
-	@Test
-	public void executeCheckClusterInactivityJobWithoutRunningClusters() {
-		when(envDAO.findRunningResourcesForCheckInactivity()).thenReturn(Collections.emptyList());
-
-		schedulerJobService.updateRunningResourcesLastActivity(userInfo);
-
-		verify(envDAO).findRunningResourcesForCheckInactivity();
-		verifyNoMoreInteractions(envDAO);
-		verifyZeroInteractions(provisioningService, requestId);
-	}
-
-	@Test
 	public void testStartComputationalByScheduler() {
 		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
 				any(DataEngineType.class), anyVararg())).thenReturn(singletonList(getSchedulerJobData(LocalDate.now(),

@@ -19,10 +19,8 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
-import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
@@ -31,15 +29,11 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
-import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,7 +45,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
-import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.dto.base.DataEngineType.getDockerImageName;
 import static java.util.Collections.singletonList;
@@ -80,16 +73,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Inject
 	private SystemUserInfoService systemUserService;
-
-	@Inject
-	private EnvDAO envDAO;
-
-	@Inject
-	private RequestId requestId;
-
-	@Inject
-	@Named(PROVISIONING_SERVICE_NAME)
-	private RESTService provisioningService;
 
 	@Override
 	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
@@ -169,16 +152,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	@Override
-	public void updateRunningResourcesLastActivity(UserInfo userInfo) {
-		List<EnvResource> resources = envDAO.findRunningResourcesForCheckInactivity();
-		if (!resources.isEmpty()) {
-			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-					userInfo.getAccessToken(), resources, String.class);
-			requestId.put(userInfo.getName(), uuid);
-		}
-	}
-
-	@Override
 	public void removeScheduler(String user, String exploratoryName) {
 		schedulerJobDAO.removeScheduler(user, exploratoryName);
 	}
@@ -225,8 +198,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String expName = job.getExploratoryName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.stop(systemUserService.create(job.getUser()),
-				job.getExploratoryName());
+		exploratoryService.stop(systemUserService.create(user), expName);
 	}
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
@@ -304,7 +276,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private List<SchedulerJobData> getExploratorySchedulersForStopping(OffsetDateTime currentDateTime) {
 		return schedulerJobDAO.getExploratorySchedulerDataWithStatus(RUNNING)
 				.stream()
-				.filter(canSchedulerForStoppingBeApplied(currentDateTime))
+				.filter(schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
+						currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
+						schedulerJobData.getJobDTO().getEndTime()) || exploratoryInactivityCondition(schedulerJobData))
 				.collect(Collectors.toList());
 	}
 
@@ -323,11 +297,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				.collect(Collectors.toList());
 	}
 
-	private Predicate<SchedulerJobData> canSchedulerForStoppingBeApplied(OffsetDateTime currentDateTime) {
-		return schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
-				currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
-				schedulerJobData.getJobDTO().getEndTime());
-	}
 
 	private Predicate<SchedulerJobData> canSchedulerForStartingBeApplied(OffsetDateTime currentDateTime) {
 		return schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
@@ -350,8 +319,42 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		return schedulerJobDAO
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING)
 				.stream()
-				.filter(canSchedulerForStoppingBeApplied(currentDateTime))
+				.filter(schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
+						currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
+						schedulerJobData.getJobDTO().getEndTime()) || computationalInactivityCondition(schedulerJobData))
 				.collect(Collectors.toList());
+	}
+
+	private boolean computationalInactivityCondition(SchedulerJobData jobData) {
+		final SchedulerJobDTO schedulerData = jobData.getJobDTO();
+		return schedulerData.isCheckInactivityRequired() && computationalInactivityExceed(jobData, schedulerData);
+	}
+
+	private boolean computationalInactivityExceed(SchedulerJobData schedulerJobData, SchedulerJobDTO schedulerData) {
+		final String explName = schedulerJobData.getExploratoryName();
+		final String compName = schedulerJobData.getComputationalName();
+		final String user = schedulerJobData.getUser();
+		final UserComputationalResource c = computationalDAO.fetchComputationalFields(user, explName, compName);
+		final Long maxInactivity = schedulerData.getMaxInactivity();
+		return inactivityCondition(maxInactivity, c.getStatus(), c.getLastActivity());
+	}
+
+	private boolean exploratoryInactivityCondition(SchedulerJobData jobData) {
+		final SchedulerJobDTO schedulerData = jobData.getJobDTO();
+		return schedulerData.isCheckInactivityRequired() && exploratoryInactivityExceed(jobData, schedulerData);
+	}
+
+	private boolean exploratoryInactivityExceed(SchedulerJobData schedulerJobData, SchedulerJobDTO schedulerData) {
+		final String explName = schedulerJobData.getExploratoryName();
+		final String user = schedulerJobData.getUser();
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(user, explName);
+		final Long maxInactivity = schedulerData.getMaxInactivity();
+		return inactivityCondition(maxInactivity, userInstanceDTO.getStatus(), userInstanceDTO.getLastActivity());
+	}
+
+	private boolean inactivityCondition(Long maxInactivity, String status, LocalDateTime lastActivity) {
+		return UserInstanceStatus.RUNNING.toString().equals(status) &&
+				lastActivity.plusMinutes(maxInactivity).isBefore(LocalDateTime.now());
 	}
 
 	private void populateDefaultSchedulerValues(SchedulerJobDTO dto) {

@@ -521,6 +521,20 @@ public class RequestBuilder {
 				.withImageName(imageName);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends ComputationalBase<T>> T newComputationalCheckInactivity(UserInfo userInfo,
+																			  UserInstanceDTO exploratory,
+																			  UserComputationalResource cr) {
+		return (T) newResourceSysBaseDTO(userInfo, ComputationalCheckInactivityDTO.class)
+				.withExploratoryName(exploratory.getExploratoryName())
+				.withComputationalName(cr.getComputationalName())
+				.withNotebookInstanceName(exploratory.getExploratoryId())
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+				.withNotebookImageName(exploratory.getImageName())
+				.withImage(cr.getImageName())
+				.withComputationalId(cr.getComputationalId());
+	}
+
 
 	@SuppressWarnings("unchecked")
 	public <T extends EnvBackupDTO> T newBackupCreate(BackupFormDTO backupFormDTO, String id) {
@@ -560,6 +574,17 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookImage(userInstance.getImageName())
 				.withConfig(config);
+	}
+
+	public ExploratoryCheckInactivityAction newExploratoryCheckInactivityAction(UserInfo userInfo,
+																				UserInstanceDTO userInstance) {
+		final ExploratoryCheckInactivityAction dto = newResourceSysBaseDTO(userInfo,
+				ExploratoryCheckInactivityAction.class);
+		dto.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withNotebookImage(userInstance.getImageName())
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+		return dto;
 	}
 
 	private CloudProvider cloudProvider() {

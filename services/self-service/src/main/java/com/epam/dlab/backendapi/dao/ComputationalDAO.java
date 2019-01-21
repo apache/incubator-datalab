@@ -424,9 +424,11 @@ public class ComputationalDAO extends BaseDAO {
 				Objects.isNull(dto) ? null : convertToBson(dto));
 	}
 
-
-	public void updateLastActivityDateForInstanceId(String instanceId, LocalDateTime lastActivity) {
-		updateOne(USER_INSTANCES, eq(computationalFieldFilter(COMPUTATIONAL_ID), instanceId),
+	public void updateLastActivity(String user, String exploratoryName,
+								   String computationalName, LocalDateTime lastActivity) {
+		updateOne(USER_INSTANCES,
+				and(eq(EXPLORATORY_NAME, exploratoryName), eq(computationalFieldFilter(COMPUTATIONAL_NAME),
+						computationalName), eq(USER, user)),
 				set(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY),
 						Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
 	}

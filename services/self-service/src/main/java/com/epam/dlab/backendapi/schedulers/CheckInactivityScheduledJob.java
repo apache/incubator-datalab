@@ -20,7 +20,7 @@ package com.epam.dlab.backendapi.schedulers;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
-import com.epam.dlab.backendapi.service.SchedulerJobService;
+import com.epam.dlab.backendapi.service.InactivityService;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -39,7 +39,7 @@ public class CheckInactivityScheduledJob implements Job {
 	private static final String SCHEDULER_USER = "scheduler_user";
 
 	@Inject
-	private SchedulerJobService schedulerJobService;
+	private InactivityService inactivityService;
 
 	@Inject
 	private SystemUserInfoService systemUserInfoService;
@@ -47,7 +47,7 @@ public class CheckInactivityScheduledJob implements Job {
 	@Override
 	public void execute(JobExecutionContext context) {
 		UserInfo userInfo = systemUserInfoService.create(SCHEDULER_USER);
-		log.info("Starting check inactivity cluster job on behalf of {}...", SCHEDULER_USER);
-		schedulerJobService.updateRunningResourcesLastActivity(userInfo);
+		log.trace("Starting check inactivity cluster job on behalf of {}...", SCHEDULER_USER);
+		inactivityService.updateRunningResourcesLastActivity(userInfo);
 	}
 }

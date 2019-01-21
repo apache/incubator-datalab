@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.backendapi.modules;
@@ -29,6 +28,8 @@ import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
 import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
+import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
@@ -71,5 +72,6 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
 		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
+		bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
 	}
 }

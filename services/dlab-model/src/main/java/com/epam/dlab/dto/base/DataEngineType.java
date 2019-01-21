@@ -22,38 +22,42 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum DataEngineType {
-    CLOUD_SERVICE("dataengine-service"), SPARK_STANDALONE("dataengine");
+	CLOUD_SERVICE("dataengine-service"), SPARK_STANDALONE("dataengine");
 
-    private static final String DOCKER_IMAGE_PREFIX = "docker.dlab-";
+	private static final String DOCKER_IMAGE_PREFIX = "docker.dlab-";
 
-    private static final Map<String, DataEngineType> INTERNAL_MAP = new HashMap<>();
+	private static final Map<String, DataEngineType> INTERNAL_MAP = new HashMap<>();
 
-    static {
-        for (DataEngineType dataEngineType : DataEngineType.values()) {
-            INTERNAL_MAP.put(dataEngineType.getName(), dataEngineType);
-        }
-    }
+	static {
+		for (DataEngineType dataEngineType : DataEngineType.values()) {
+			INTERNAL_MAP.put(dataEngineType.getName(), dataEngineType);
+		}
+	}
 
-    private String name;
+	private String name;
 
-    DataEngineType(String name) {
-        this.name = name;
-    }
+	DataEngineType(String name) {
+		this.name = name;
+	}
 
-    public static DataEngineType fromString(String name) {
-        return INTERNAL_MAP.get(name);
-    }
+	public String getImage() {
+		return DOCKER_IMAGE_PREFIX + this.name;
+	}
 
-    public static DataEngineType fromDockerImageName(String name) {
-        return INTERNAL_MAP.get(name.replace(DOCKER_IMAGE_PREFIX, ""));
-    }
+	public static DataEngineType fromString(String name) {
+		return INTERNAL_MAP.get(name);
+	}
 
-    public static String getDockerImageName(DataEngineType dataEngineType) {
-        return DOCKER_IMAGE_PREFIX + dataEngineType.getName();
-    }
+	public static DataEngineType fromDockerImageName(String name) {
+		return INTERNAL_MAP.get(name.replace(DOCKER_IMAGE_PREFIX, ""));
+	}
 
-    @JsonValue
-    public String getName() {
-        return name;
-    }
+	public static String getDockerImageName(DataEngineType dataEngineType) {
+		return DOCKER_IMAGE_PREFIX + dataEngineType.getName();
+	}
+
+	@JsonValue
+	public String getName() {
+		return name;
+	}
 }

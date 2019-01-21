@@ -118,7 +118,8 @@ public class SchedulerJobDAO extends BaseDAO {
 	public List<SchedulerJobData> getExploratorySchedulerDataWithStatus(UserInstanceStatus status) {
 		FindIterable<Document> userInstances = userInstancesWithScheduler(eq(STATUS, status.toString()));
 
-		return stream(userInstances).map(d -> convertFromDocument(d, SchedulerJobData.class))
+		return stream(userInstances).map(d -> convertFromDocument(d,
+				SchedulerJobData.class))
 				.collect(toList());
 	}
 
@@ -134,7 +135,7 @@ public class SchedulerJobDAO extends BaseDAO {
 																			   DataEngineType dataEngineType,
 																			   UserInstanceStatus... statuses) {
 		final Bson computationalSchedulerCondition = Filters.elemMatch(COMPUTATIONAL_RESOURCES,
-				and(schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)));
+				schedulerNotNullCondition());
 		FindIterable<Document> userInstances = find(USER_INSTANCES,
 				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + ".$")));
@@ -160,7 +161,7 @@ public class SchedulerJobDAO extends BaseDAO {
 		return find(USER_INSTANCES,
 				and(
 						statusCondition,
-						schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)
+						schedulerNotNullCondition()
 				),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
 	}

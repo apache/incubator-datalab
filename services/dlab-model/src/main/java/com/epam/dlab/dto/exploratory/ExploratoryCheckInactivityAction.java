@@ -15,21 +15,8 @@
  *  * limitations under the License.
  *
  */
-package com.epam.dlab.dto.computational;
 
-import com.epam.dlab.dto.StatusBaseDTO;
-import com.epam.dlab.dto.status.EnvResource;
-import com.google.common.base.MoreObjects;
-import lombok.Data;
-import lombok.Getter;
+package com.epam.dlab.dto.exploratory;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-@Data
-public class CheckInactivityStatusDTO extends StatusBaseDTO<CheckInactivityStatusDTO> {
-
-	private String exploratoryName;
-	private String computationalName;
-	private LocalDateTime lastActivity;
+public class ExploratoryCheckInactivityAction extends ExploratoryActionDTO<ExploratoryCheckInactivityAction> {
 }

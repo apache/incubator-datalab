@@ -1,20 +1,15 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.status.EnvResource;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 public interface InactivityService {
 
 	void updateRunningResourcesLastActivity(UserInfo userInfo);
 
-	void stopClustersByInactivity(List<String> computationalIds);
+	void updateLastActivityForExploratory(UserInfo userInfo, String exploratoryName, LocalDateTime lastActivity);
 
-	void updateLastActivityForClusters(List<EnvResource> clusters);
-
-
-	void stopByInactivity(List<EnvResource> exploratories);
-
-	void updateLastActivity(List<EnvResource> exploratories);
+	void updateLastActivityForComputational(UserInfo userInfo, String exploratoryName,
+											String computationalName, LocalDateTime lastActivity);
 }

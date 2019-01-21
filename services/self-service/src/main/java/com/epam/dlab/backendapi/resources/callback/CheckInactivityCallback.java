@@ -17,12 +17,12 @@
  */
 package com.epam.dlab.backendapi.resources.callback;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.InactivityService;
 import com.epam.dlab.dto.computational.CheckInactivityStatusDTO;
-import com.epam.dlab.dto.status.EnvResource;
-import com.epam.dlab.model.ResourceType;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -30,8 +30,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/infrastructure/inactivity/callback")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -44,28 +42,19 @@ public class CheckInactivityCallback {
 	private InactivityService inactivityService;
 
 	@POST
-	public Response checkInactiveClusterResponse(CheckInactivityStatusDTO dto) {
+	@Path("exploratory")
+	public Response updateExploratoryLastActivity(@Auth UserInfo userInfo, CheckInactivityStatusDTO dto) {
 		requestId.checkAndRemove(dto.getRequestId());
-		stopClustersByInactivity(dto);
-		stopExploratoryByInactivity(dto);
+		inactivityService.updateLastActivityForExploratory(userInfo, dto.getExploratoryName(), dto.getLastActivity());
 		return Response.ok().build();
 	}
 
-	private void stopClustersByInactivity(CheckInactivityStatusDTO dto) {
-		final List<EnvResource> clusters = getResources(dto, ResourceType.COMPUTATIONAL);
-		inactivityService.stopClustersByInactivity(clusters.stream().map(EnvResource::getId).collect(Collectors.toList()));
-		inactivityService.updateLastActivityForClusters(clusters);
-	}
-
-	private void stopExploratoryByInactivity(CheckInactivityStatusDTO dto) {
-		final List<EnvResource> exploratories = getResources(dto, ResourceType.EXPLORATORY);
-		inactivityService.stopByInactivity(exploratories);
-		inactivityService.updateLastActivity(exploratories);
-	}
-
-	private List<EnvResource> getResources(CheckInactivityStatusDTO dto, ResourceType resourceType) {
-		return dto.getResources().stream()
-				.filter(r -> r.getResourceType() == resourceType)
-				.collect(Collectors.toList());
+	@POST
+	@Path("computational")
+	public Response updateComputationalLastActivity(@Auth UserInfo userInfo, CheckInactivityStatusDTO dto) {
+		requestId.checkAndRemove(dto.getRequestId());
+		inactivityService.updateLastActivityForComputational(userInfo, dto.getExploratoryName(),
+				dto.getComputationalName(), dto.getLastActivity());
+		return Response.ok().build();
 	}
 }
