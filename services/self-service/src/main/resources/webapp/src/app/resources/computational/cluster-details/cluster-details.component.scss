@@ -36,7 +36,6 @@ limitations under the License.
   opacity: 0;
   visibility: hidden;
   text-align: left;
-  transition: all .35s linear .2s;
   position: relative;
   &.show {
     height: 200px;
@@ -45,6 +44,9 @@ limitations under the License.
     textarea {
       height: 100%;
       resize: none;
+      font-size: 14px;
+      line-height: 1.5;
+      font-family: Consolas, monospace;
     }
     span {
       .danger_color {
