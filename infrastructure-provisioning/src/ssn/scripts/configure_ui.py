@@ -162,12 +162,10 @@ def build_ui():
             os.environ['ldap_hostname'], args.dlab_path))
         sudo('sed -i "s/LDAP_USER/{0}/g" {1}/sources/services/security-service/security.yml'.format(
             os.environ['ldap_service_username'], args.dlab_path))
-
         sudo('sed -i "s/LDAP_DN/{0}/g" {1}/sources/services/security-service/security.yml'.format(os.environ['ldap_dn'],
                                                                                                   args.dlab_path))
         sudo('sed -i "s/LDAP_OU/{0}/g" {1}/sources/services/security-service/security.yml'.format(os.environ['ldap_ou'],
                                                                                                   args.dlab_path))
-
         sudo("sed -i 's/LDAP_PASS/{0}/g' {1}/sources/services/security-service/security.yml".format(
             os.environ['ldap_service_password'], args.dlab_path))
         sudo('cp {0}/sources/services/security-service/security.yml {0}/webapp/security-service/conf/'.format(
