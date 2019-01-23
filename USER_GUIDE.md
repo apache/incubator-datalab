@@ -79,11 +79,11 @@ To stop working with DLab - click on Log Out link at the top right corner of DLa
 After login user will see warning in case of exceeding quota or close to this limit.
 
 <p align="center" class="facebox-popup"> 
-    <img src="doc/exceeded quota.png" alt="Exceeded quota" width="986">
+    <img src="doc/exceeded quota.png" alt="Exceeded quota" width="400">
 </p>
 
 <p align="center" class="facebox-popup"> 
-    <img src="doc/close to limit.png" alt="Close to limit" width="986">
+    <img src="doc/close to limit.png" alt="Close to limit" width="400">
 </p>
 
 ----------------------------------
@@ -159,7 +159,7 @@ As soon as notebook server is created, its status will change to Running:
 When you click on the name of your Analytical tool in the dashboard – analytical tool popup will show up:
 
 <p align="center"> 
-    <img src="doc/notebook_info.png" alt="Notebook info" width="1038">
+    <img src="doc/notebook_info.png" alt="Notebook info" width="574">
 </p>
 
 In the header you will see version of analytical tool, its status and shape.
@@ -670,7 +670,7 @@ Please also note that if notebook is configured to be stopped, all running data 
 Also user will be notified after logged  that corresponding resources are about to be stopped/terminated in some time.
 
 <p align="center"> 
-    <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="984">
+    <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="400">
 </p>
 
 # Key reupload <a name="key_reupload"></a>
