@@ -667,7 +667,7 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 Once any scheduler is set up, notebook/spark cluster will be started/stopped automatically.
 Please also note that if notebook is configured to be stopped, all running data engines assosiated with it will be stopped (for spark cluster) or terminated (for data engine serice) with notebook.
 
-Also user will be notified after logged  that corresponding resources are about to be stopped/terminated in some time.
+After login user will be notified  that corresponding resources are about to be stopped/terminated in some time.
 
 <p align="center"> 
     <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="400">
