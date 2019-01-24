@@ -25,6 +25,7 @@ import traceback
 import sys
 import backoff
 import random
+import os
 import string
 from dlab.fab import *
 import actions_lib
@@ -635,7 +636,10 @@ def get_ami_id(ami_name):
 
 
 def get_iam_profile(profile_name, count=0):
-    client = boto3.client('iam')
+    if 'conf_dlab_repository_host' in os.environ:
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        client = boto3.client('iam')
     iam_profile = ''
     try:
         if count < 10:

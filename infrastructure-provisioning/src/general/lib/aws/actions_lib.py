@@ -483,7 +483,10 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
         traceback.print_exc(file=sys.stdout)
 
 def create_iam_role(role_name, role_profile, region, service='ec2'):
-    conn = boto3.client('iam')
+    if 'conf_dlab_repository_host' in os.environ:
+        conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        conn = boto3.client('iam')
     try:
         if region == 'cn-north-1':
             conn.create_role(RoleName=role_name,
@@ -522,7 +525,10 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
 
 def attach_policy(role_name, policy_arn):
     try:
-        conn = boto3.client('iam')
+        if 'conf_dlab_repository_host' in os.environ:
+            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            conn = boto3.client('iam')
         conn.attach_role_policy(PolicyArn=policy_arn, RoleName=role_name)
         time.sleep(30)
     except botocore.exceptions.ClientError as err:
@@ -533,7 +539,10 @@ def attach_policy(role_name, policy_arn):
 
 def create_attach_policy(policy_name, role_name, file_path):
     try:
-        conn = boto3.client('iam')
+        if 'conf_dlab_repository_host' in os.environ:
+            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            conn = boto3.client('iam')
         with open(file_path, 'r') as myfile:
             json_file = myfile.read()
         conn.put_role_policy(RoleName=role_name, PolicyName=policy_name, PolicyDocument=json_file)
@@ -775,7 +784,10 @@ def start_ec2(tag_name, tag_value):
 
 
 def remove_detach_iam_policies(role_name, action=''):
-    client = boto3.client('iam')
+    if 'conf_dlab_repository_host' in os.environ:
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        client = boto3.client('iam')
     service_base_name = os.environ['conf_service_base_name']
     try:
         policy_list = client.list_attached_role_policies(RoleName=role_name).get('AttachedPolicies')
@@ -794,7 +806,10 @@ def remove_detach_iam_policies(role_name, action=''):
 
 
 def remove_roles_and_profiles(role_name, role_profile_name):
-    client = boto3.client('iam')
+    if 'conf_dlab_repository_host' in os.environ:
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        client = boto3.client('iam')
     try:
         client.remove_role_from_instance_profile(InstanceProfileName=role_profile_name, RoleName=role_name)
         client.delete_instance_profile(InstanceProfileName=role_profile_name)
@@ -809,7 +824,10 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
-        client = boto3.client('iam')
+        if 'conf_dlab_repository_host' in os.environ:
+            client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            client = boto3.client('iam')
         service_base_name = os.environ['conf_service_base_name']
         roles_list = []
         for item in client.list_roles(MaxItems=250).get("Roles"):
