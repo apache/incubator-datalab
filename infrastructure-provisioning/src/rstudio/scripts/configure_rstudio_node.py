@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
-    install_inactivity_checker(args.os_user)
+    install_inactivity_checker(args.os_user, args.ip_adress)
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")

@@ -454,7 +454,7 @@ def install_inactivity_checker(os_user, ip_adress):
                 sudo('mkdir /opt/inactivity')
             put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
             put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
-            put('/root/templates/inactive.sh', '/opt/iactivity/inactive.sh', use_sudo=True)
+            put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
             sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_adress))
             sudo("chmod 755 /opt/inactivity/inactive.sh")
             sudo('systemctl daemon-reload')
