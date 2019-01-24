@@ -179,17 +179,16 @@ limitations under the License.
   outline: 0;
   -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
   box-shadow: 0 3px 9px rgba(0,0,0,.5);
+  .danger_color {
+    padding-left: 5px;
+    font-size: 12px;
+    display: inline-block;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    border-color: #d9534f !important;
+  }
 }
-
-.dialog-content .danger_color {
-  padding-top: 5px;
-  padding-left: 5px;
-  font-size: 12px;
-  display: inline-block;
-}
-.dialog-content .danger_field {
-  border-color: #d9534f !important;
-}
+ 
 .modal-footer .btn {
   margin-top: 0;
 }
@@ -206,8 +205,10 @@ limitations under the License.
     height: 54px;
     line-height: 54px;
     .modal-title {
+      width: 90%;
       margin: 0;
       overflow: hidden;
+      white-space: nowrap;
       text-overflow: ellipsis;
       font-weight: 600;
       color: #455c74;
@@ -327,7 +328,7 @@ limitations under the License.
   }
 }
 .content-box {
-  padding: 25px 35px 35px;
+  padding: 25px 30px 35px;
 }
 .detail-header {
   border-bottom: 0;

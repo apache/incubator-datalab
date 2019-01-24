@@ -37,7 +37,7 @@ export class HealthStatusService {
     return this._statusData.asObservable();
   }
 
-  reloadInitialStatusData() {
+  public reloadInitialStatusData() {
     this.getEnvironmentHealthStatus().subscribe(
       (res: GeneralEnvironmentStatus) => {
         this._statusData.next(res);
@@ -159,5 +159,9 @@ export class HealthStatusService {
       .buildUpdateTotalBudgetData(url, method)
       .map(response => response)
       .catch(error => error);
+  }
+
+  public resetStatusValue() {
+    this._statusData.next(<GeneralEnvironmentStatus>{});
   }
 }

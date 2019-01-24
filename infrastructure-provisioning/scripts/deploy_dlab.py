@@ -26,6 +26,7 @@ parser.add_argument('--conf_service_base_name', type=str, help='unique name for 
 parser.add_argument('--conf_network_type', type=str, default='', help='Define in which network DLab will be deployed. '
                                                                       'Possible options: public|private')
 parser.add_argument('--conf_vpc_cidr', type=str, default='', help='CIDR of VPC')
+parser.add_argument('--conf_vpc2_cidr', type=str, default='', help='CIDR of secondary VPC')
 parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='Comma-separated CIDR of IPs which will have '
                                                                          'access to SSN')
 parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Range of subnets which will be using for '
@@ -94,6 +95,8 @@ parser.add_argument('--azure_validate_permission_scope', type=str, default='true
                                                                                         'validation(true|false).')
 parser.add_argument('--azure_oauth2_enabled', type=str, default='false', help='Using OAuth2 for logging in DLab')
 parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
+parser.add_argument('--azure_source_vpc_name', type=str, default='', help='Azure VPC source Name')
+parser.add_argument('--azure_source_resource_group_name', type=str, default='', help='Azure source resource group')
 parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--dlab_id', type=str, default="'user:user:tag'", help='Column name in report file that contains '
@@ -109,11 +112,13 @@ parser.add_argument('--usage', type=str, default='UsageQuantity', help='Column n
 parser.add_argument('--cost', type=str, default='BlendedCost', help='Column name in report file that contains cost tag')
 parser.add_argument('--resource_id', type=str, default='ResourceId', help='Column name in report file that contains '
                                                                           'dlab resource id tag')
-parser.add_argument('--ldap_hostname', type=str, default='', help='Ldap instance hostname')
-parser.add_argument('--ldap_dn', type=str, default='', help='Ldap distinguished name (dc=example,dc=com)')
-parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organisation unit (ou=People)')
-parser.add_argument('--ldap_service_username', type=str, default='', help='Ldap admin user name')
-parser.add_argument('--ldap_service_password', type=str, default='', help='Ldap password for admin user')
+parser.add_argument('--ldap_hostname', type=str, default='localhost', help='Ldap instance hostname')
+parser.add_argument('--ldap_dn', type=str, default='dc=example,dc=com',
+                    help='Ldap distinguished name')
+parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organisation unit')
+parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
+parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
+                    help='Ldap password for admin user')
 parser.add_argument('--conf_dlab_repository_host', type=str, default='', help='URL to DLab repository. '
                                                                               'For example: 10.10.10.10')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '

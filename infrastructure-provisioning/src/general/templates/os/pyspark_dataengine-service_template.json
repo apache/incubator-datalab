@@ -15,6 +15,6 @@
   "SPARK_HOME": "SPARK_PATH",
   "PYTHONPATH": "PY4J:SPARK_PATHpython/:",
   "PYTHONSTARTUP": "SPARK_PATHpython/pyspark/shell.py",
-  "PYSPARK_SUBMIT_ARGS": "--master yarn pyspark-shell"
+  "PYSPARK_SUBMIT_ARGS": "--deploy-mode client --master yarn pyspark-shell"
  }
 }

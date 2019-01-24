@@ -37,7 +37,6 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
 
   model: ExploratoryEnvironmentCreateModel;
   templateDescription: string;
-  // namePattern = '[a-zA-Z0-9-_]+';
   namePattern = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   resourceGrid: any;
   userImages: Array<any>;
@@ -194,6 +193,6 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
     this.initFormModel();
     this.model.resetModel();
 
-    this.configuration.nativeElement['checked'] = false;
+    if (this.configuration) this.configuration.nativeElement['checked'] = false;
   }
 }

@@ -36,12 +36,11 @@ import { DirectivesModule } from '../core/directives';
 
 import { HealthStatusGridComponent } from './health-status-grid/health-status-grid.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
-import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialog } from './manage-roles-groups/manage-roles-groups.component';
+import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialogComponent } from './manage-roles-groups/manage-roles-groups.component';
 
 export * from './environment-status.model';
 
 @NgModule({
-
   imports: [
     CommonModule,
     FormsModule,
@@ -62,12 +61,12 @@ export * from './environment-status.model';
     BackupDilogComponent,
     ManageEnvironmentComponent,
     ConfirmActionDialogComponent,
-    ConfirmDeleteUserAccountDialog,
+    ConfirmDeleteUserAccountDialogComponent,
     SsnMonitorComponent,
     ManageRolesGroupsComponent,
     HealthStatusGridComponent
   ],
-  entryComponents: [ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialog],
+  entryComponents: [ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialogComponent],
   exports: [HealthStatusComponent, HealthStatusGridComponent, GroupNameValidationDirective]
 })
 export class HealthStatusModule {}

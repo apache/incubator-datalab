@@ -206,6 +206,12 @@ public class EnvDAO extends BaseDAO {
 		).collect(Collectors.toSet());
 	}
 
+	public Set<String> fetchUsersNotIn(Set<String> users) {
+		return stream(find(USER_EDGE, not(in(ID, users)),
+				fields(include(ID)))).map(d -> d.getString(ID))
+				.collect(Collectors.toSet());
+	}
+
 	public Set<String> fetchAllUsers() {
 		return stream(find(USER_EDGE)).map(d -> d.getString(ID))
 				.collect(Collectors.toSet());

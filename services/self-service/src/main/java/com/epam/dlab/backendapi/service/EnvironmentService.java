@@ -24,7 +24,7 @@ import java.util.Set;
 
 public interface EnvironmentService {
 
-	Set<String> getAllUsers();
+	Set<String> getUserNames();
 
 	List<UserDTO> getUsers();
 

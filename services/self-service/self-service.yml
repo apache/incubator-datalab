@@ -101,6 +101,7 @@ logging:
   level: INFO
   loggers:
     com.epam: TRACE
+    com.novemberain: ERROR
   appenders:
 <#if DEV_MODE == "true">
   - type: console
@@ -122,33 +123,34 @@ swaggerConfiguration:
   license: Apache 2.0
   licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
 
+mavenSearchService:
+  protocol: http
+  host: search.maven.org
+  port: 80
+  jerseyClient:
+    timeout: 5s
+    connectionTimeout: 5s
+
 schedulers:
   inactivity:
     enabled: false
-    interval: 120
-    timeUnit: MINUTES
+    cron: "0 0 0/2 ? * * *"
   startComputationalScheduler:
     enabled: true
-    interval: 10
-    timeUnit: SECONDS
+    cron: "*/20 * * ? * * *"
   stopComputationalScheduler:
     enabled: true
-    interval: 10
-    timeUnit: SECONDS
+    cron: "*/20 * * ? * * *"
   startExploratoryScheduler:
     enabled: true
-    interval: 10
-    timeUnit: SECONDS
+    cron: "*/20 * * ? * * *"
   stopExploratoryScheduler:
     enabled: true
-    interval: 10
-    timeUnit: SECONDS
+    cron: "*/20 * * ? * * *"
   checkQuoteScheduler:
     enabled: true
-    interval: 1
-    timeUnit: HOURS
+    cron: "0 0 * ? * * *"
   checkUserQuoteScheduler:
     enabled: true
-    interval: 1
-    timeUnit: HOURS
+    cron: "0 0 * ? * * *"
 

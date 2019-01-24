@@ -198,6 +198,7 @@ def remove_user_key(args):
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
+
 def get_instance_by_ip(ip):
     try:
         ec2 = boto3.resource('ec2')

@@ -23,13 +23,10 @@ package com.epam.dlab.backendapi.domain;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.util.concurrent.TimeUnit;
 
 @Data
 public class SchedulerConfigurationData {
 	private final boolean enabled;
 	@NotNull
-	private final Integer interval;
-	@NotNull
-	private final TimeUnit timeUnit;
+	private final String cron;
 }

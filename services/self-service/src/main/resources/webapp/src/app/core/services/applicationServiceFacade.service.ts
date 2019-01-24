@@ -385,6 +385,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public BuildGetActiveSchcedulersData(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildGetActiveUsers(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
@@ -462,6 +469,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildUpdateGroupData(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
   public buildSetupRolesForGroup(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_ROLE),
@@ -525,7 +539,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
-    this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user/active');
+    this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 

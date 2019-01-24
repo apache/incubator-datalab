@@ -76,6 +76,16 @@ DLab Web Application authenticates users against:
 
 To stop working with DLab - click on Log Out link at the top right corner of DLab.
 
+After login user will see warning in case of exceeding quota or close to this limit.
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/exceeded quota.png" alt="Exceeded quota" width="400">
+</p>
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/close to limit.png" alt="Close to limit" width="400">
+</p>
+
 ----------------------------------
 # Setup a Gateway/Edge node <a name="setup_edge_node"></a>
 
@@ -136,6 +146,8 @@ These groups have T-Shirt based shapes (configurable), that can help Data Scient
 
 \* Please refer to official documentation from Amazon that will help you understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) would be most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
 
+You can override the default configurations for local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in text box.
+
 After you Select the template, fill in the Name and choose needed instance shape - you need to click on "Create" button for your instance to start creating. Corresponding record will show up in your dashboard:
 
 ![Dashboard](doc/main_page2.png)
@@ -147,7 +159,7 @@ As soon as notebook server is created, its status will change to Running:
 When you click on the name of your Analytical tool in the dashboard – analytical tool popup will show up:
 
 <p align="center"> 
-    <img src="doc/notebook_info.png" alt="Notebook info" width="520">
+    <img src="doc/notebook_info.png" alt="Notebook info" width="574">
 </p>
 
 In the header you will see version of analytical tool, its status and shape.
@@ -160,9 +172,13 @@ In the body of the dialog:
 -   Shared bucket for all users
 -   Bucket that has been provisioned for your needs
 
-To access analytical tool Web UI – you can use the first two links. In this case you don't need to open tunnel for Edge node and set SOCKS proxy. 
+To access analytical tool Web UI you proceed with one of the options:
 
-Also you can use links via tunnel in order to access analytical tool Web UI. In this case you need to configure SOCKS proxy and open tunnel for Edge node. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
+-   use direct URL's to access notebooks (your access will be established via reverse proxy, so you don't need to have Edge node tunnel up and running)
+-   SOCKS proxy based URL's to access notebooks (via tunnel to Edge node)
+
+If you use direct urls you don't need to open tunnel for Edge node and set SOCKS proxy.
+If you use indirect urls you need to configure SOCKS proxy and open tunnel for Edge node. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines. “Read instruction how to create the tunnel” is available on DLab notebook popup.
 
 ### Manage libraries <a name="manage_libraries"></a>
 
@@ -226,6 +242,7 @@ To create new analytical environment from custom image click "Create new" button
 </p>
 
 Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
+
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
@@ -284,11 +301,11 @@ Also, if you would like to save some costs for your Computational resource you c
 
 This picture shows menu for creating Computational resource for AWS:
 <p align="center"> 
-    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="480">
+    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
 </p>
 
 You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster ). The configuration object is referenced as a JSON file.
-To tune computational resource configuration check off "Configurations" check box and insert JSON format in text box:
+To tune computational resource configuration check off "Cluster configurations" check box and insert JSON format in text box:
 
 <p align="center"> 
     <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
@@ -296,7 +313,7 @@ To tune computational resource configuration check off "Configurations" check bo
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
-    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="480">
+    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
 
 If you click on "Create" button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
@@ -308,7 +325,7 @@ Once Computational resources are provisioned, their status will be changed to **
 Clicking on Computational resource name in DLab dashboard will open Computational resource details popup:
 
 <p align="center"> 
-    <img src="doc/emr_info.png" alt="Computational resource info" width="400">
+    <img src="doc/emr_info.png" alt="Computational resource info" width="480">
 </p>
 
 Also you can go to computational resource master UI via link "Apache Spark Master' or "EMR Master" (this functionality is only available for AWS cloud).
@@ -372,7 +389,7 @@ To work with Git (pull, push) via UI tool (ungit) you could add multiple credent
 When you click on the button "Git credentials" – following popup will show up:
 
 <p align="center"> 
-    <img src="doc/git_creds_window.png" alt="Git_creds_window" width="600">
+    <img src="doc/git_creds_window.png" alt="Git_creds_window" width="760">
 </p>
 
 In this window you need to add:
@@ -387,7 +404,7 @@ Once all fields are filled in and you click on "Assign" button, you will see the
 Clicking on "Apply changes" button, your credentials will be sent to all running instances with analytical tools. It takes a few seconds for changes to be applied.
 
 <p align="center"> 
-    <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="600">
+    <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="760">
 </p>
 
 On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
@@ -449,13 +466,13 @@ corner of the DLab:
 
 ![Health_status](doc/health_status.png)
 
-To Stop Edge Node please click on actions icon on Health Status page and hit Stop.
+To Stop Edge Node please click on actions icon on Health Status page and hit "Stop".
 
 <p align="center"> 
     <img src="doc/edge_stop.png" alt="EDGE stop" width="150">
 </p>
 
-Confirm you want to stop Edge node by clicking Yes:
+Confirm you want to stop Edge node by clicking "Yes":
 
 <p align="center"> 
     <img src="doc/edge_stop_confirm.png" alt="EDGE stop confirm" width="400">
@@ -468,7 +485,7 @@ In case you Edge node is Stopped or Terminated – you will have to Start or Rec
 Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
 
 <p align="center"> 
-    <img src="doc/backup_options.png" alt="Backup options" width="480">
+    <img src="doc/backup_options.png" alt="Backup options" width="400">
 </p>
 
 Confirm you want to do backup by clicking "Apply".
@@ -490,6 +507,8 @@ Administrator should confirm user environment stopping or termination by clickin
 <p align="center"> 
     <img src="doc/manage_env_confirm.png" alt="Manage environment confirm" width="550">
 </p>
+
+Administrator can manage total billing quota for DLab as well as billing quota per user(s).To do this enter appropriate number in text box(es) per user(s) or/and total budget. Hit "Apply" button.
 
 ### Manage roles <a name="manage_roles"></a>
 
@@ -647,6 +666,12 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 
 Once any scheduler is set up, notebook/spark cluster will be started/stopped automatically.
 Please also note that if notebook is configured to be stopped, all running data engines assosiated with it will be stopped (for spark cluster) or terminated (for data engine serice) with notebook.
+
+After login user will be notified  that corresponding resources are about to be stopped/terminated in some time.
+
+<p align="center"> 
+    <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="400">
+</p>
 
 # Key reupload <a name="key_reupload"></a>
 In case when user private key was corrupted, lost etc. DLAB provide a possibility to reupload user public key.

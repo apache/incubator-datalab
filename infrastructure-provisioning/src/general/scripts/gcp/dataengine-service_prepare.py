@@ -73,7 +73,8 @@ if __name__ == "__main__":
         "sbn": dataproc_conf['service_base_name'],
         "user": dataproc_conf['edge_user_name'],
         "notebook_name": os.environ['notebook_instance_name'],
-        "product": "dlab"
+        "product": "dlab",
+        "computational_name": dataproc_conf['computational_name']
     }
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['edge_user_name'])

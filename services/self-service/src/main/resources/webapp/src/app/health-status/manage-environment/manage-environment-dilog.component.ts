@@ -52,7 +52,7 @@ export class ManageEnvironmentComponent {
 
     this.manageUsersForm.setControl('users',
     this._fb.array((this.usersList || []).map((x: any) => this._fb.group({
-      name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]]
+      name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
     }))));
     this.manageUsersForm.controls['total'].setValue(settings.conf_max_budget || null);
     this.bindDialog.open(param);
@@ -74,7 +74,7 @@ export class ManageEnvironmentComponent {
   private initForm(): void {
     this.manageUsersForm = this._fb.group({
       total: [null, [Validators.min(0), this.totalValidityCheck.bind(this)]],
-      users: this._fb.array([this._fb.group({ name: '', budget: null })])
+      users: this._fb.array([this._fb.group({ name: '', budget: null, status: ''})])
     });
   }
 

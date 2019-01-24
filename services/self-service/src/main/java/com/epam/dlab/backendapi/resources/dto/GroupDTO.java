@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class CreateGroupDto {
+public class GroupDTO {
 	@NotEmpty
 	private String name;
 	@NotEmpty

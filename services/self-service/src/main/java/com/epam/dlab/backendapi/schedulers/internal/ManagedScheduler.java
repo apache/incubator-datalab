@@ -33,10 +33,8 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.quartz.JobBuilder.newJob;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 @Slf4j
@@ -62,6 +60,7 @@ public class ManagedScheduler implements Managed {
 				.getSubTypesOf(Job.class)
 				.forEach(scheduledClass ->
 						Optional.ofNullable(scheduledClass.getAnnotation(Scheduled.class))
+								.filter(this::triggerNotExist)
 								.ifPresent(scheduleAnn -> schedule(scheduledClass, scheduleAnn)));
 
 	}
@@ -71,12 +70,10 @@ public class ManagedScheduler implements Managed {
 		scheduler.shutdown();
 	}
 
-	private Trigger getTrigger(SchedulerConfigurationData schedulerConfig) {
-		return newTrigger().withSchedule(simpleSchedule()
-				.withIntervalInMilliseconds(
-						TimeUnit.MILLISECONDS.convert(schedulerConfig.getInterval(),
-								schedulerConfig.getTimeUnit()))
-				.repeatForever())
+	private Trigger getTrigger(SchedulerConfigurationData schedulerConfig, String schedulerName) {
+		return newTrigger()
+				.withIdentity(schedulerName)
+				.withSchedule(CronScheduleBuilder.cronSchedule(schedulerConfig.getCron()))
 				.startNow()
 				.build();
 	}
@@ -87,18 +84,27 @@ public class ManagedScheduler implements Managed {
 				Optional.ofNullable(config.getSchedulers().get(schedulerName)).orElseThrow(() -> new IllegalStateException(
 						"There is no configuration provided for scheduler with name " + schedulerName));
 		if (schedulerConfig.isEnabled()) {
-			scheduleJob(newJob(scheduledClass).build(), schedulerConfig);
+			scheduleJob(newJob(scheduledClass).build(), schedulerConfig, scheduleAnn.value());
 		}
 	}
 
-	private void scheduleJob(JobDetail job, SchedulerConfigurationData schedulerConfig) {
+	private void scheduleJob(JobDetail job, SchedulerConfigurationData schedulerConfig, String schedulerName) {
 		try {
-			final Trigger trigger = getTrigger(schedulerConfig);
+			final Trigger trigger = getTrigger(schedulerConfig, schedulerName);
 			scheduler.scheduleJob(job, trigger);
 			log.info("Scheduled job {} with trigger {}", job, trigger);
 		} catch (SchedulerException e) {
 			log.error("Can't schedule job due to: {}", e.getMessage());
 			throw new DlabException("Can't schedule job due to: " + e.getMessage(), e);
+		}
+	}
+
+	private boolean triggerNotExist(Scheduled scheduled) {
+		try {
+			return !scheduler.checkExists(new TriggerKey(scheduled.value()));
+		} catch (SchedulerException e) {
+			log.error("Can not check if trigger exist due to: {}", e.getMessage());
+			throw new DlabException("Can not check if trigger exist due to: {}" + e.getMessage(), e);
 		}
 	}
 }

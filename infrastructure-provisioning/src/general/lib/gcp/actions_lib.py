@@ -964,7 +964,7 @@ class GCPActions:
         local(""" sudo bash -c " sed -i 's/STANDALONE_SPARK_MASTER_HOST.*/STANDALONE_SPARK_MASTER_HOST={0}-m/g' {1}" """.format(args.cluster_name, spark_def_path))
         local(""" sudo bash -c " sed -i 's|/hadoop_gcs_connector_metadata_cache|/tmp/hadoop_gcs_connector_metadata_cache|g' /opt/{0}/{1}/conf/core-site.xml" """.format(args.dataproc_version, args.cluster_name))
 
-    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path):
+    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path, computational_name):
         try:
             notebook_ip = meta_lib.GCPMeta().get_private_ip_address(notebook_name)
             env.hosts = "{}".format(notebook_ip)
@@ -1011,7 +1011,7 @@ class GCPActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(dataproc_name, ssh_user)
+                dlab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
             sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
@@ -1223,6 +1223,13 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
 
 def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        # Checking if spark.jars parameter was generated previously
+        spark_jars_paths = None
+        if exists('/opt/spark/conf/spark-defaults.conf'):
+            try:
+                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+            except:
+                spark_jars_paths = None
         put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         if os.environ['application'] == 'zeppelin':
             sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
@@ -1252,6 +1259,8 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
             sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+            if spark_jars_paths:
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1307,7 +1316,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
@@ -1328,7 +1337,7 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
-    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
+    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
     local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     if spark_configs:
         spark_configurations = ast.literal_eval(spark_configs)

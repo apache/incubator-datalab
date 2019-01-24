@@ -50,12 +50,14 @@ limitations under the License.
 }
 .config-details {
   text-align: left;
-  transition: all .35s linear .2s;
   position: relative;
-  height: 320px;
+  height: 280px;
   textarea {
     height: 100%;
     resize: none;
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: Consolas, monospace;
   }
   span {
     .danger_color {

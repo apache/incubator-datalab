@@ -74,7 +74,7 @@ public class UserSettingServiceImplTest {
 	}
 
 	private UserDTO getBudgetDTO() {
-		return new UserDTO(USER, BUDGET);
+		return new UserDTO(USER, BUDGET, UserDTO.Status.ACTIVE);
 	}
 
 

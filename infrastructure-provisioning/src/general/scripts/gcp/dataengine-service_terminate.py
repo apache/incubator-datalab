@@ -32,11 +32,13 @@ def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_us
     try:
         cluster = meta_lib.GCPMeta().get_list_cluster_statuses([dataproc_name])
         if cluster[0]['status'] == 'running':
+            computational_name = meta_lib.GCPMeta().get_cluster(dataproc_name).get('labels').get('computational_name')
             actions_lib.GCPActions().bucket_cleanup(bucket_name, os.environ['edge_user_name'], dataproc_name)
             print('The bucket {} has been cleaned successfully'.format(bucket_name))
             actions_lib.GCPActions().delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
             print('The Dataproc cluster {} has been terminated successfully'.format(dataproc_name))
-            actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user, key_path)
+            actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user,
+                                                    key_path, computational_name)
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
