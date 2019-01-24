@@ -237,7 +237,11 @@ def get_instance_by_name(tag_name, instance_name):
 
 def get_role_by_name(role_name):
     try:
-        iam = boto3.resource('iam')
+        if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            iam = boto3.resource('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                                 region_name='us-east-1')
+        else:
+            iam = boto3.resource('iam')
         for role in iam.roles.all():
             if role.name == role_name:
                 return role.name

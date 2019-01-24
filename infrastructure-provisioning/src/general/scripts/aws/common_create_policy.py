@@ -23,6 +23,7 @@ from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
 import boto3, botocore
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
@@ -56,7 +57,12 @@ if __name__ == "__main__":
             list_predefined_policies = args.user_predefined_s3_policies.split(',')
 
         try:
-            iam = boto3.client('iam')
+            if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+                iam = boto3.client('iam',
+                                   endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                                   region_name='us-east-1')
+            else:
+                iam = boto3.client('iam')
             try:
                 if args.user_predefined_s3_policies != 'None':
                     list = iam.list_policies().get('Policies')
