@@ -220,3 +220,19 @@ def reconfigure_spark():
         traceback.print_exc()
         append_result("Failed to reconfigure Spark for Notebook node.", str(err))
         sys.exit(1)
+
+# Main function for checking inactivity status
+def check_inactivity():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("~/scripts/{}.py".format('notebook_inactivity_check'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed to check inactivity status.", str(err))
+        sys.exit(1)

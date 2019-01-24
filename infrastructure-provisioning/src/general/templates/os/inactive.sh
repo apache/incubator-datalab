@@ -1,18 +1,27 @@
 #!/bin/bash
-jps -lm | grep spark > /dev/null && spark_status='running' || spark_status='idle'
-if [ ${spark_status} = 'running' ]
-then
-port=4040
-while [ ${port} -le 4045 ]
+ip="IP_ADRESS"
+jps -m | grep spark | \
+while read i
 do
-	if "nc -z IP_ADRESS ${port}"
+  if [[ $i == *"--master"* ]]
+  then
+	master="$(echo $i | sed -n 's/.*spark\:\/\/\([0-9.]*\):7077 .*/\1/p' | sed -n 's/\./\-/gp')"
+	pid="$(echo $i | sed -n 's/\(^[0-9]*\) .*/\1/p')"
+	port="$(ss -tlpn | cat | grep ${pid} | grep ':40.. ' | sed -n 's/.*:\(40..\) .*/\1/p')"
+	app="$(curl http://${ip}:${port}/api/v1/applications/ 2>&1 | sed -n 's/\.*  "id" : "\(.*\)",/\1/p')"
+	check="$(curl http://${ip}:${port}/api/v1/applications/${app}/jobs 2>&1 | grep RUNNING > /dev/null && echo 1 || echo 0)"
+	if [[ $check == "1" ]]
 	then
-		curl http://IP_ADRESS:${port}/jobs/ 2>&1 | grep 'Active Jobs' > /dev/null && result='running' || result='idle'
-		if [ ${result} = 'running' ]
-		then
-		date +%s > /opt/inactivity/inactivity_check
-		fi
+		date +%s > /opt/inactivity/${master}_inactivity
 	fi
-((port++))
+  else
+	pid="$(echo $i | sed -n 's/\(^[0-9]*\) .*/\1/p')"
+	port="$(ss -tlpn | cat | grep ${pid} | grep ':40.. ' | sed -n 's/.*:\(40..\) .*/\1/p')"
+	app="$(curl http://${ip}:${port}/api/v1/applications/ 2>&1 | sed -n 's/\.*  "id" : "\(.*\)",/\1/p')"
+	check="$(curl http://${ip}:${port}/api/v1/applications/${app}/jobs 2>&1 | grep RUNNING > /dev/null && echo 1 || echo 0)"
+	if [[ $check == "1" ]]
+	then
+		date +%s > /opt/inactivity/local_inactivity
+	fi
+  fi
 done
-fi

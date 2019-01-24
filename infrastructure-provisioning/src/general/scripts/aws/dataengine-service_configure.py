@@ -93,23 +93,6 @@ def configure_dataengine_service(instance, emr_conf):
         sys.exit(1)
 
 
-    # try:
-    #     logging.info('[CONFIGURE DATAENGINE SERVICE INACTIVITY CHECK]')
-    #     print('[CONFIGURE DATAENGINE SERVICE INACTIVITY CHECK]')
-    #     try:
-    #         install_inactivity_checker_dataengine(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
-    #         env['connection_attempts'] = 100
-    #         env.key_filename = emr_conf['key_path']
-    #         env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     print('Error: {0}'.format(err))
-    #     append_result("Failed to configure dataengine service inactivity check.", str(err))
-    #     terminate_emr(emr_conf['cluster_id'])
-    #     sys.exit(1)
-
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')

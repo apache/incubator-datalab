@@ -465,20 +465,6 @@ def install_inactivity_checker(os_user, ip_adress):
             print('Failed to setup inactivity check service!', str(err))
             sys.exit(1)
 
-def install_inactivity_checker_dataengine(os_user, ip_adress):
-    if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
-        try:
-            if not exists('/opt/inactivity'):
-                sudo('mkdir /opt/inactivity')
-            put('/root/templates/inactive.sh', '/opt/iactivity/inactive.sh', use_sudo=True)
-            put('/root/templates/inactive.sh', '/opt/iactivity/inactive_cron.sh', use_sudo=True)
-            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_adress))
-            sudo("chmod 755 /opt/inactivity/inactive.sh")
-            sudo("chmod 755 /opt/inactivity/inactive_cron.sh")
-            sudo('touch /home/{}/.ensure_dir/inactive_ensured'.format(os_user))
-        except Exception as err:
-            print('Failed to setup inactivity check service!', str(err))
-            sys.exit(1)
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):
     env['connection_attempts'] = 100
