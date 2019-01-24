@@ -636,8 +636,9 @@ def get_ami_id(ami_name):
 
 
 def get_iam_profile(profile_name, count=0):
-    if 'conf_dlab_repository_host' in os.environ:
-        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                              region_name='us-east-1')
     else:
         client = boto3.client('iam')
     iam_profile = ''

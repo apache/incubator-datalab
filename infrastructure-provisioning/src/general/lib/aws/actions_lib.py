@@ -483,8 +483,9 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
         traceback.print_exc(file=sys.stdout)
 
 def create_iam_role(role_name, role_profile, region, service='ec2'):
-    if 'conf_dlab_repository_host' in os.environ:
-        conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+        conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                            region_name='us-east-1')
     else:
         conn = boto3.client('iam')
     try:
@@ -525,8 +526,9 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
 
 def attach_policy(role_name, policy_arn):
     try:
-        if 'conf_dlab_repository_host' in os.environ:
-            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+        if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                                region_name='us-east-1')
         else:
             conn = boto3.client('iam')
         conn.attach_role_policy(PolicyArn=policy_arn, RoleName=role_name)
@@ -539,8 +541,9 @@ def attach_policy(role_name, policy_arn):
 
 def create_attach_policy(policy_name, role_name, file_path):
     try:
-        if 'conf_dlab_repository_host' in os.environ:
-            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+        if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                                region_name='us-east-1')
         else:
             conn = boto3.client('iam')
         with open(file_path, 'r') as myfile:
@@ -784,8 +787,9 @@ def start_ec2(tag_name, tag_value):
 
 
 def remove_detach_iam_policies(role_name, action=''):
-    if 'conf_dlab_repository_host' in os.environ:
-        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                              region_name='us-east-1')
     else:
         client = boto3.client('iam')
     service_base_name = os.environ['conf_service_base_name']
@@ -806,8 +810,9 @@ def remove_detach_iam_policies(role_name, action=''):
 
 
 def remove_roles_and_profiles(role_name, role_profile_name):
-    if 'conf_dlab_repository_host' in os.environ:
-        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+    if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                              region_name='us-east-1')
     else:
         client = boto3.client('iam')
     try:
@@ -824,8 +829,9 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
-        if 'conf_dlab_repository_host' in os.environ:
-            client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']))
+        if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                                  region_name='us-east-1')
         else:
             client = boto3.client('iam')
         service_base_name = os.environ['conf_service_base_name']
