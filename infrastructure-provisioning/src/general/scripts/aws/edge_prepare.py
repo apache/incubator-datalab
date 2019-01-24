@@ -297,6 +297,15 @@ if __name__ == "__main__":
                 "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ])
+        if 'conf_dlab_repository_host' in os.environ:
+            edge_sg_egress.append(
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 3128,
+                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['conf_dlab_repository_host'])}],
+                    "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                }
+            )
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
             --egress '{}' --force {} --nb_sg_name {} --resource {}".\
             format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(edge_sg_ingress),

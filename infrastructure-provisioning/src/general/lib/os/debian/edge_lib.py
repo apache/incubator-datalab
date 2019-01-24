@@ -63,10 +63,17 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
             sudo('apt-get -y install gcc build-essential make zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev')
             sudo('mkdir -p /tmp/nginx_auth_ldap')
             with cd('/tmp/nginx_auth_ldap'):
+                if 'conf_dlab_repository_host' in os.environ:
+                    sudo('git config --global http.proxy http://{}:3128'.format(
+                        os.environ['conf_dlab_repository_host']))
                 sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
-                sudo('wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
+                if 'conf_dlab_repository_host' in os.environ:
+                    sudo('wget https://{0}/repository/jenkins-hosted/nginx-{1}.tar.gz '
+                         '--no-check-certificate'.format(os.environ['conf_dlab_repository_host'], nginx_version))
+                else:
+                    sudo('wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
                 sudo('tar -xzf nginx-{}.tar.gz'.format(nginx_version))
                 sudo('ln -sf nginx-{} nginx'.format(nginx_version))
             with cd('/tmp/src/nginx/'):

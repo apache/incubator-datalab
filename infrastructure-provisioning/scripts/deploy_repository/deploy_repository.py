@@ -1057,7 +1057,8 @@ def download_packages():
                 'http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                     maven_version.split('.')[0], maven_version),
                 'https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz',
-                'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node'
+                'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node',
+                'http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version)
             ]
             packages_list = list()
             for package in packages_urls:
@@ -1114,6 +1115,29 @@ def prepare_images():
         sys.exit(1)
 
 
+def install_squid():
+    try:
+        if not exists('/home/{}/.ensure_dir/squid_installed'.format(os_user)):
+            sudo('apt-get -y install squid')
+            put('templates/squid.conf', '/etc/squid/', use_sudo=True)
+            replace_string = ''
+            for cidr in get_vpc_cidr_by_id(args.vpc_id):
+                replace_string += 'acl AWS_VPC_CIDR src {}\\n'.format(cidr)
+            sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            replace_string = ''
+            for cidr in args.allowed_ip_cidr.split(','):
+                replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
+            sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            sudo('systemctl enable squid')
+            sudo('systemctl enable start')
+            sudo('touch /home/{}/.ensure_dir/squid_installed'.format(os_user))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to download packages: ', str(err))
+        sys.exit(1)
+
+
+
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
@@ -1129,6 +1153,7 @@ if __name__ == "__main__":
     nexus_version = '3.14.0-04'
     docker_version = '17.06.2'
     maven_version = '3.5.4'
+    nginx_version = '1.15.1'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
@@ -1241,6 +1266,18 @@ if __name__ == "__main__":
                         "FromPort": 8083,
                         "IpRanges": allowed_vpc_cidr_ip_ranges,
                         "ToPort": 8083, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 3128,
+                        "IpRanges": allowed_ip_cidr,
+                        "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 3128,
+                        "IpRanges": allowed_vpc_cidr_ip_ranges,
+                        "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
@@ -1478,8 +1515,11 @@ if __name__ == "__main__":
             print('INSTALLING DOCKER')
             install_docker()
 
-            print('PREPARING_DLAB_DOCKER_IMAGES')
+            print('PREPARING DLAB DOCKER IMAGES')
             prepare_images()
+
+            print('INSTALLING SQUID')
+            install_squid()
 
             print('[SUMMARY]')
             print("AWS VPC ID: {0}".format(args.vpc_id))
