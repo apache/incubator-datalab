@@ -64,6 +64,8 @@ if __name__ == "__main__":
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+        notebook_config['ip_address'] = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                        notebook_config['instance_name'])
 
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
@@ -141,12 +143,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} " \
-                 "--region {} --os_user {} " \
-                 "--exploratory_name {}" \
+        params = "--hostname {0} --keyfile {1} " \
+                 "--region {2} --os_user {3} " \
+                 "--ip_adress {4} --exploratory_name {5}" \
                  .format(instance_hostname, keyfile_name,
                          os.environ['azure_region'], notebook_config['dlab_ssh_user'],
-                         notebook_config['exploratory_name'])
+                         notebook_config['ip_address'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,

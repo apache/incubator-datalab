@@ -47,6 +47,7 @@ parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--endpoint_url', type=str, default='')
+parser.add_argument('--ip_adress', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 

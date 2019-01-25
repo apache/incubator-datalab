@@ -56,7 +56,7 @@ if __name__ == "__main__":
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
-
+    notebook_config['ip_address'] = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -122,10 +122,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --region {} --os_user {} --exploratory_name {}" \
+        params = "--hostname {0} --keyfile {1} --region {2} " \
+                 "--os_user {3} --ip_adress {4} --exploratory_name {5}" \
                  .format(instance_hostname, notebook_config['ssh_key_path'],
                          os.environ['gcp_region'], notebook_config['dlab_ssh_user'],
-                         notebook_config['exploratory_name'])
+                         notebook_config['ip_address'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
         except:

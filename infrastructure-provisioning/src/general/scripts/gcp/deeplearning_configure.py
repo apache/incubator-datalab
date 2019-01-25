@@ -53,7 +53,7 @@ if __name__ == "__main__":
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
-
+    notebook_config['ip_address'] = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -118,16 +118,16 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} " \
-                 "--os_user {} --jupyter_version {} " \
-                 "--scala_version {} --spark_version {} " \
-                 "--hadoop_version {} --region {} " \
-                 "--r_mirror {} --exploratory_name {}" \
+        params = "--hostname {0} --keyfile {1} " \
+                 "--os_user {2} --jupyter_version {3} " \
+                 "--scala_version {4} --spark_version {5} " \
+                 "--hadoop_version {6} --region {7} " \
+                 "--r_mirror {8} --ip_adress {9} --exploratory_name {10}" \
                  .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
                          os.environ['gcp_region'], os.environ['notebook_r_mirror'],
-                         notebook_config['exploratory_name'])
+                         notebook_config['ip_address'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:

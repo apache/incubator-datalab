@@ -63,6 +63,8 @@ if __name__ == "__main__":
                                    "Exploratory": notebook_config['exploratory_name'],
                                    "product": "dlab"}
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+        notebook_config['ip_address'] = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                        notebook_config['instance_name'])
 
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
@@ -146,22 +148,22 @@ if __name__ == "__main__":
                              "backend_hostname": instance_hostname,
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} " \
-                 "--keyfile {} --region {} " \
-                 "--additional_config '{}' --os_user {} " \
-                 "--spark_version {} --hadoop_version {} " \
-                 "--edge_hostname {} --proxy_port {} " \
-                 "--zeppelin_version {} --scala_version {} " \
-                 "--livy_version {} --multiple_clusters {} " \
-                 "--r_mirror {} --endpoint_url {} " \
-                 "--exploratory_name {}" \
+        params = "--hostname {0} --instance_name {1} " \
+                 "--keyfile {2} --region {3} " \
+                 "--additional_config '{4}' --os_user {5} " \
+                 "--spark_version {6} --hadoop_version {7} " \
+                 "--edge_hostname {8} --proxy_port {9} " \
+                 "--zeppelin_version {10} --scala_version {11} " \
+                 "--livy_version {12} --multiple_clusters {13} " \
+                 "--r_mirror {14} --endpoint_url {15} " \
+                 "--ip_adress {16} --exploratory_name {17}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['azure_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
                     os.environ['notebook_r_mirror'], 'null',
-                    notebook_config['exploratory_name'])
+                    notebook_config['ip_address'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
