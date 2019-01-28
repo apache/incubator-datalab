@@ -87,6 +87,7 @@ if __name__ == "__main__":
 
             if 'conf_dlab_repository_host' in os.environ and args.duo_vpc_enable == 'false':
                 # Creating Security Group and EC2 endpoint
+                sg_tag = {"Key": args.infra_tag_value, "Value": args.infra_tag_name}
                 allowed_vpc_cidr_ip_ranges = list()
                 for cidr in get_vpc_cidr_by_id(args.vpc_id):
                     allowed_vpc_cidr_ip_ranges.append({"CidrIp": cidr})
@@ -106,9 +107,9 @@ if __name__ == "__main__":
                 security_group_id = get_security_group_by_name(sg_name)
                 if security_group_id == '':
                     print("Creating security group {0} for vpc {1} with tag {2}.".format(sg_name, args.vpc_id,
-                                                                                         json.dumps(tag)))
+                                                                                         json.dumps(sg_tag)))
                     security_group_id = create_security_group(sg_name, args.vpc_id, ingress_sg_rules, egress_sg_rules,
-                                                              tag)
+                                                              sg_tag)
                 else:
                     print("REQUESTED SECURITY GROUP WITH NAME {} ALREADY EXISTS".format(sg_name))
                 print("SECURITY_GROUP_ID: {}".format(security_group_id))
