@@ -94,10 +94,9 @@ if __name__ == "__main__":
                 sg_name = '{}-ec2-endpoint-SG'.format(args.infra_tag_value)
                 ingress_sg_rules = [
                     {
-                        "PrefixListIds": [],
-                        "FromPort": -1,
+                        "IpProtocol": "-1",
                         "IpRanges": allowed_vpc_cidr_ip_ranges,
-                        "ToPort": -1, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                        "UserIdGroupPairs": [], "PrefixListIds": []
                     }
                 ]
                 egress_sg_rules = [
