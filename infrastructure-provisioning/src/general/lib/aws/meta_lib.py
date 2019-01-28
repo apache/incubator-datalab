@@ -54,15 +54,23 @@ def get_instance_hostname(tag_name, instance_name):
         traceback.print_exc(file=sys.stdout)
 
 
-def get_vpc_endpoints(vpc_id):
+def get_vpc_endpoints(vpc_id, region, service):
     try:
         # Returns LIST of Endpoint DICTIONARIES
-        ec2 = boto3.client('ec2')
+        ec2 = boto3.client('ec2', region_name=region)
         endpoints = ec2.describe_vpc_endpoints(
-            Filters=[{
-                'Name': 'vpc-id',
-                'Values': [vpc_id]
-            }]
+            Filters=[
+                {
+                    'Name': 'vpc-id',
+                    'Values': [vpc_id]
+                },
+                {
+                    'Name': 'service-name',
+                    'Values': [
+                        'com.amazonaws.{0}.{1}'.format(region, service)
+                    ]
+                }
+            ]
         ).get('VpcEndpoints')
         return endpoints
     except Exception as err:

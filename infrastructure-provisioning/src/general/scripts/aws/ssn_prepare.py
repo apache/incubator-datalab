@@ -316,8 +316,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE ENDPOINT AND ROUTE-TABLE]')
         print('[CREATE ENDPOINT AND ROUTE-TABLE]')
-        params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
-            os.environ['aws_vpc_id'], os.environ['aws_region'], tag_name, service_base_name)
+        params = "--vpc_id {} --subnet_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
+            os.environ['aws_vpc_id'], os.environ['aws_subnet_id'], os.environ['aws_region'], tag_name,
+            service_base_name)
         try:
             local("~/scripts/{}.py {}".format('ssn_create_endpoint', params))
         except:
@@ -340,14 +341,13 @@ if __name__ == "__main__":
             remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
-
-
     if os.environ['conf_duo_vpc_enable'] == 'true':
         try:
             logging.info('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
             print('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
-            params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
-                os.environ['aws_vpc2_id'], os.environ['aws_region'], tag2_name, service_base_name)
+            params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {} --duo_vpc_enable {}".format(
+                os.environ['aws_vpc2_id'], os.environ['aws_region'], tag2_name, service_base_name,
+                os.environ['conf_duo_vpc_enable'])
             try:
                 local("~/scripts/{}.py {}".format('ssn_create_endpoint', params))
             except:
