@@ -1559,8 +1559,6 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
               .format(emr_version, cluster_name))
         local('sed -i "/spark.yarn.dist.files/d" /opt/{0}/{1}/spark/conf/spark-defaults.conf'
               .format(emr_version, cluster_name))
-        local("sed -i '/^spark.executor.extraJavaOptions/ s/$/ -Dmark.running.job=dlab/' " + spark_dir + "conf/spark-defaults.conf")
-        local("sed -i '/^spark.driver.extraJavaOptions/ s/$/ -Dmark.running.job=dlab/' " + spark_dir + "conf/spark-defaults.conf")
         local('sudo chown {0}:{0} -R /opt/zeppelin/'.format(os_user))
         local('sudo systemctl daemon-reload')
         local('sudo service zeppelin-notebook stop')

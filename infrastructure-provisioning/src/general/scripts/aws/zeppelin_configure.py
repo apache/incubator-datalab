@@ -162,7 +162,7 @@ if __name__ == "__main__":
                  "--zeppelin_version {10} --scala_version {11} " \
                  "--livy_version {12} --multiple_clusters {13} " \
                  "--r_mirror {14} --endpoint_url {15} " \
-                 "--ip_adress {16}--exploratory_name {17}" \
+                 "--ip_adress {16} --exploratory_name {17}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
