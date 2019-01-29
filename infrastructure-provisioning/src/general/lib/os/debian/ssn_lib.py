@@ -351,13 +351,13 @@ def install_build_dep():
                         os.environ['conf_dlab_repository_host']))
                     sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
                     sudo('source /etc/profile')
-                    # sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
+                    sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
                     sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
                     sudo('./deps/npm/bin/npm-cli.js config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
-                    # sudo('npm config set strict-ssl false')
+                    sudo('npm config set strict-ssl false')
                     sudo('npm config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
