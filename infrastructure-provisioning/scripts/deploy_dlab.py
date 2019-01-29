@@ -145,7 +145,7 @@ def generate_docker_command():
         command.append('-v {}:/root/certs/dlab.crt -v {}:/root/certs/dlab.key '.format(args.ssl_cert_path,
                                                                                        args.ssl_key_path))
     if args.conf_dlab_repository_cert_path != '':
-        command.append('-v {}:/root/certs/repository.crt'.format(args.conf_dlab_repository_cert_path))
+        command.append('-v {}:/root/certs/repository.crt '.format(args.conf_dlab_repository_cert_path))
     attrs = vars(args)
     skipped_parameters = ['action', 'key_path', 'workspace_path', 'gcp_service_account_path', 'ssl_cert_path',
                           'ssl_key_path']

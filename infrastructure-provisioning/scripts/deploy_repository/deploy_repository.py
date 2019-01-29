@@ -1537,6 +1537,7 @@ if __name__ == "__main__":
             print("AWS Security Group ID: {0}".format(args.sg_id))
             print("AWS EC2 ID: {0}".format(ec2_id))
             print("AWS EC2 IP address: {0}".format(ec2_ip_address))
+            print("SSL certificate path: /etc/ssl/certs/repository.crt")
             if args.efs_id:
                 print('AWS EFS ID: {}'.format(args.efs_id))
             if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
