@@ -1007,8 +1007,17 @@ def configure_ssl():
     try:
         if not exists('/home/{}/.ensure_dir/ssl_ensured'.format(os_user)):
             hostname = sudo('hostname')
-            sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/repository.key \
-                             -out /etc/ssl/certs/repository.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+            private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
+            subject_alt_name = 'subjectAltName = DNS:{}'.format(private_ip)
+            if args.network_type == 'public':
+                public_ip = sudo('curl http://169.254.169.254/latest/meta-data/public-ipv4')
+                subject_alt_name += ',DNS:{}'.format(public_ip)
+            sudo('cp /etc/ssl/openssl.cnf /tmp/openssl.cnf')
+            sudo('echo "[ subject_alt_name ]" >> /tmp/openssl.cnf')
+            sudo('echo "{}" >> /tmp/openssl.cnf'.format(subject_alt_name))
+            sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/repository.key '
+                 '-out /etc/ssl/certs/repository.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}" -config '
+                 '/tmp/openssl.cnf -extensions subject_alt_name'.format(hostname))
             sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
             sudo('touch /home/{}/.ensure_dir/ssl_ensured'.format(os_user))
     except Exception as err:
@@ -1058,7 +1067,8 @@ def download_packages():
                     maven_version.split('.')[0], maven_version),
                 'https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz',
                 'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node',
-                'http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version)
+                'http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version),
+                'http://www.scala-lang.org/files/archive/scala-{}.deb'.format(scala_version)
             ]
             packages_list = list()
             for package in packages_urls:
@@ -1137,7 +1147,6 @@ def install_squid():
         sys.exit(1)
 
 
-
 if __name__ == "__main__":
     ec2_resource = boto3.resource('ec2', region_name=args.region)
     ec2_client = boto3.client('ec2', region_name=args.region)
@@ -1154,6 +1163,7 @@ if __name__ == "__main__":
     docker_version = '17.06.2'
     maven_version = '3.5.4'
     nginx_version = '1.15.1'
+    scala_version = '2.12.8'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
