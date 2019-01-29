@@ -13,17 +13,18 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.auth;
 
+import java.util.Optional;
+
 public interface UserInfoDAO {
-    UserInfo getUserInfoByAccessToken(String accessToken);
+	Optional<UserInfo> getUserInfoByAccessToken(String accessToken);
 
-    void updateUserInfoTTL(String accessToken, UserInfo ui);
+	void updateUserInfoTTL(String accessToken, UserInfo ui);
 
-    void deleteUserInfo(String accessToken);
+	void deleteUserInfo(String accessToken);
 
-    void saveUserInfo(UserInfo ui);
+	void saveUserInfo(UserInfo ui);
 }

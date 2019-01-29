@@ -23,5 +23,5 @@ package com.epam.dlab.auth;
 @FunctionalInterface
 public interface UserVerificationService {
 
-	void verify(String username, UserInfo userInfo);
+	void verify(UserInfo userInfo);
 }

@@ -21,7 +21,7 @@ import com.epam.dlab.auth.UserVerificationService;
 import com.epam.dlab.auth.gcp.resources.GcpOauth2SecurityResource;
 import com.epam.dlab.auth.gcp.service.GcpAuthenticationService;
 import com.epam.dlab.auth.oauth2.Oauth2AuthenticationService;
-import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
+import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationResource;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -60,7 +60,7 @@ public class GcpSecurityServiceModule extends CloudModule {
 
 	@Override
 	public void init(Environment environment, Injector injector) {
-		environment.jersey().register(injector.getInstance(SynchronousLdapAuthenticationService.class));
+		environment.jersey().register(injector.getInstance(SynchronousLdapAuthenticationResource.class));
 		if (conf.isOauth2authenticationEnabled()) {
 			environment.jersey().register(injector.getInstance(GcpOauth2SecurityResource.class));
 		}

@@ -16,14 +16,18 @@
  *
  */
 
-package com.epam.dlab.auth.dao;
+package com.epam.dlab.auth.service;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
 
-import java.util.Set;
+import java.util.Optional;
 
-public interface LdapUserDAO {
-	UserInfo getUserInfo(String username, String password);
+public interface AuthenticationService {
 
-	Set<String> getUserGroups(UserInfo userInfo);
+	Optional<UserInfo> getUserInfo(String token);
+
+	Optional<UserInfo> login(UserCredentialDTO credentialDTO);
+
+	void logout(String token);
 }

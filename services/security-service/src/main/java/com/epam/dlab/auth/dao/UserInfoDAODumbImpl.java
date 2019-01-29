@@ -23,14 +23,16 @@ import com.epam.dlab.auth.UserInfoDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 public class UserInfoDAODumbImpl implements UserInfoDAO {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(UserInfoDAODumbImpl.class);
 
 	@Override
-	public UserInfo getUserInfoByAccessToken(String accessToken) {
+	public Optional<UserInfo> getUserInfoByAccessToken(String accessToken) {
 		LOG.debug("UserInfo persistence find unavailable: {}",accessToken);
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
