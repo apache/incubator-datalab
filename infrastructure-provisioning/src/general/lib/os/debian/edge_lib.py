@@ -70,8 +70,8 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
                 if 'conf_dlab_repository_host' in os.environ:
-                    sudo('wget https://{0}/repository/jenkins-hosted/nginx-{1}.tar.gz '
-                         '--no-check-certificate'.format(os.environ['conf_dlab_repository_host'], nginx_version))
+                    sudo('wget https://{0}/repository/jenkins-hosted/nginx-{1}.tar.gz'.format(
+                        os.environ['conf_dlab_repository_host'], nginx_version))
                 else:
                     sudo('wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
                 sudo('tar -xzf nginx-{}.tar.gz'.format(nginx_version))

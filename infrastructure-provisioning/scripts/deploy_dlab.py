@@ -121,6 +121,7 @@ parser.add_argument('--ldap_service_password', type=str, default='service-user-p
                     help='Ldap password for admin user')
 parser.add_argument('--conf_dlab_repository_host', type=str, default='', help='URL to DLab repository. '
                                                                               'For example: 10.10.10.10')
+parser.add_argument('--conf_dlab_repository_cert_path', type=str, default='', help='Full path to cert')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
                                                                                   'contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
@@ -143,6 +144,8 @@ def generate_docker_command():
     if args.ssl_cert_path != '' and args.ssl_key_path != '':
         command.append('-v {}:/root/certs/dlab.crt -v {}:/root/certs/dlab.key '.format(args.ssl_cert_path,
                                                                                        args.ssl_key_path))
+    if args.conf_dlab_repository_cert_path != '':
+        command.append('-v {}:/root/certs/repository.crt'.format(args.conf_dlab_repository_cert_path))
     attrs = vars(args)
     skipped_parameters = ['action', 'key_path', 'workspace_path', 'gcp_service_account_path', 'ssl_cert_path',
                           'ssl_key_path']

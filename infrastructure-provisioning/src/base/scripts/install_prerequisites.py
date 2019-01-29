@@ -24,6 +24,7 @@ import json
 from dlab.fab import *
 from dlab.common_lib import ensure_pkg
 from dlab.common_lib import update_apt_repository_configuration
+from dlab.common_lib import add_repository_cert
 from fabric.contrib.files import exists
 import sys
 import os
@@ -60,6 +61,8 @@ if __name__ == "__main__":
         update_apt_repository_configuration()
         update_pip_repository_configuration('http://mirrors.aliyun.com/ubuntu/')
 
+    if 'conf_dlab_repository_cert_path' in os.environ:
+        add_repository_cert()
     if 'conf_dlab_repository_host' in os.environ:
         update_apt_repository_configuration(os.environ['conf_dlab_repository_host'])
         update_pip_repository_configuration('{}/repository/pypi-repo/'.format(os.environ['conf_dlab_repository_host']))

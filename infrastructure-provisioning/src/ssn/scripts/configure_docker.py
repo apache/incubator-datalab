@@ -63,8 +63,8 @@ def update_repository(dlab_path, repository_host, region):
         if 'conf_dlab_repository_host' in os.environ:
             sudo('sed -i "s|^FROM ubuntu.*|FROM {}:8083/dlab-pre-base|g" base_Dockerfile'.format(repository_host))
             sudo('sed -i "/pip install/d;/apt-get/d" base_Dockerfile')
-            sudo('''echo '{"insecure-registries" : ["''' + repository_host + ''':8083"]}' > /etc/docker/daemon.json''')
-            sudo('systemctl restart docker')
+            # sudo('''echo '{"insecure-registries" : ["''' + repository_host + ''':8083"]}' > /etc/docker/daemon.json''')
+            # sudo('systemctl restart docker')
             sudo('docker login -u docker-nexus -p docker-nexus {}:8083'.format(repository_host))
         else:
             sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}|g' /etc/apt/sources.list" base_Dockerfile'''.format(
@@ -84,6 +84,10 @@ def build_docker_images(image_list, region, dlab_path):
             update_repository(dlab_path, os.environ['conf_pypi_mirror'], region)
         if 'conf_dlab_repository_host' in os.environ:
             update_repository(dlab_path, os.environ['conf_dlab_repository_host'], region)
+        if 'conf_dlab_repository_cert_path' in os.environ:
+            sudo('mkdir -p {}sources/infrastructure-provisioning/src/base/certs'.format(args.dlab_path))
+            put('/root/certs/repository.crt', '{}sources/infrastructure-provisioning/src/base/certs/'
+                                              'repository.crt'.format(args.dlab_path), use_sudo=True)
         for image in image_list:
             name = image['name']
             tag = image['tag']

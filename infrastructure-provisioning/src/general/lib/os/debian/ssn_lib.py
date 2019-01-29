@@ -33,7 +33,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
         if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('curl -fsSLk https://{}/repository/docker-repo/gpg | apt-key add -'.format(
+                sudo('curl -fsSL https://{}/repository/docker-repo/gpg | apt-key add -'.format(
                     os.environ['conf_dlab_repository_host']))
                 sudo('add-apt-repository "deb [arch=amd64] https://{}/repository/docker-repo/ $(lsb_release -cs) \
                                   stable"'.format(os.environ['conf_dlab_repository_host']))
@@ -71,7 +71,7 @@ def ensure_jenkins(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget -q -O - https://{}/repository/jenkins-hosted/jenkins-ci.org.key --no-check-certificate'
+                sudo('wget -q -O - https://{}/repository/jenkins-hosted/jenkins-ci.org.key' # --no-check-certificate'
                      ' | apt-key add -'.format(os.environ['conf_dlab_repository_host']))
                 sudo('echo deb https://{}/repository/jenkins-repo/ binary/ > '
                      '/etc/apt/sources.list.d/jenkins.list'.format(os.environ['conf_dlab_repository_host']))
@@ -324,15 +324,15 @@ def install_build_dep():
             sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make')
             with cd('/opt/'):
                 if 'conf_dlab_repository_host' in os.environ:
-                    sudo('wget https://{0}/repository/jenkins-hosted/apache-maven-{1}-bin.zip '
-                         '--no-check-certificate'.format(os.environ['conf_dlab_repository_host'], maven_version))
+                    sudo('wget https://{0}/repository/jenkins-hosted/apache-maven-{1}-bin.zip'.format(
+                        os.environ['conf_dlab_repository_host'], maven_version))
                     sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                     put('templates/settings.xml', '/tmp/settings.xml')
                     sudo('sed -i "s|DLAB_LOCAL_REPOSITORY|{}|g" /tmp/settings.xml'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('cp -f /tmp/settings.xml apache-maven-{}/conf/'.format(maven_version))
-                    sudo('''echo 'export MAVEN_OPTS="-Dmaven.wagon.http.ssl.insecure=true''' 
-                         ''' -Dmaven.wagon.http.ssl.allowall=true"' >> /etc/profile''')
+                    # sudo('''echo 'export MAVEN_OPTS="-Dmaven.wagon.http.ssl.insecure=true'''
+                    #      ''' -Dmaven.wagon.http.ssl.allowall=true"' >> /etc/profile''')
                 else:
                     sudo(
                         'wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-'
@@ -340,24 +340,24 @@ def install_build_dep():
                     sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{0}/repository/jenkins-hosted/node-v8.15.0.tar.gz '
-                     '--no-check-certificate'.format(os.environ['conf_dlab_repository_host']))
+                sudo('wget https://{0}/repository/jenkins-hosted/node-v8.15.0.tar.gz'.format(
+                    os.environ['conf_dlab_repository_host']))
                 sudo('tar zxvf node-v8.15.0.tar.gz')
                 sudo('mv node-v8.15.0 /opt/node')
                 with cd('/opt/node/'):
                     sudo('./configure')
                     sudo('make -j4')
-                    sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node '
-                         '--no-check-certificate'.format(os.environ['conf_dlab_repository_host']))
+                    sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node'.format(
+                        os.environ['conf_dlab_repository_host']))
                     sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
                     sudo('source /etc/profile')
-                    sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
+                    # sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
                     sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
                     sudo('./deps/npm/bin/npm-cli.js config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
-                    sudo('npm config set strict-ssl false')
+                    # sudo('npm config set strict-ssl false')
                     sudo('npm config set registry https://{}/repository/npm/'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')

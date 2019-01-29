@@ -1008,10 +1008,10 @@ def configure_ssl():
         if not exists('/home/{}/.ensure_dir/ssl_ensured'.format(os_user)):
             hostname = sudo('hostname')
             private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
-            subject_alt_name = 'subjectAltName = DNS:{}'.format(private_ip)
+            subject_alt_name = 'subjectAltName = IP:{}'.format(private_ip)
             if args.network_type == 'public':
                 public_ip = sudo('curl http://169.254.169.254/latest/meta-data/public-ipv4')
-                subject_alt_name += ',DNS:{}'.format(public_ip)
+                subject_alt_name += ',IP:{}'.format(public_ip)
             sudo('cp /etc/ssl/openssl.cnf /tmp/openssl.cnf')
             sudo('echo "[ subject_alt_name ]" >> /tmp/openssl.cnf')
             sudo('echo "{}" >> /tmp/openssl.cnf'.format(subject_alt_name))
