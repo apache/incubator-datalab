@@ -86,7 +86,7 @@ def upload_azure_blob():
 def upload_gcp():
     try:
         for f in dataset_file:
-            local('gsutil -m cp /tmp/{0} gs://{1}/{2}_dataset/'.format(f, args.storage, args.notebook))
+            local('sudo gsutil -m cp /tmp/{0} gs://{1}/{2}_dataset/'.format(f, args.storage, args.notebook))
     except Exception as err:
         print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)
