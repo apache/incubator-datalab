@@ -142,6 +142,13 @@ def build_ui():
             sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
 
         # Building Back-end
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('sed -i "s|BINTRAY-REPO|https://{0}/repository/maven-bintray/|g" '
+                 '{1}/sources/services/self-service/pom.xml'.format(os.environ['conf_dlab_repository_host'],
+                                                                    args.dlab_path))
+        else:
+            sudo('sed -i "s|BINTRAY-REPO|https://dl.bintray.com/michaelklishin/maven/|g" '
+                 '{}/sources/services/self-service/pom.xml'.format(args.dlab_path))
         with cd(args.dlab_path + '/sources/'):
             sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 

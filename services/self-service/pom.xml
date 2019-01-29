@@ -25,14 +25,14 @@ limitations under the License.
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-<!--
+
     <repositories>
         <repository>
             <id>michaelklishin</id>
-            <url>https://dl.bintray.com/michaelklishin/maven/</url>
+            <url>BINTRAY-REPO</url>
         </repository>
     </repositories>
--->
+
     <artifactId>self-service</artifactId>
 
     <properties>
