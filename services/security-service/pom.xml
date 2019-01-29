@@ -66,6 +66,7 @@ limitations under the License.
         <jython-standalone.version>2.7.0</jython-standalone.version>
     </properties>
 
+    <!--dsadasdsa-->
     <dependencies>
         <dependency>
             <groupId>com.epam.dlab</groupId>
