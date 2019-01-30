@@ -1192,7 +1192,7 @@ def install_squid():
                 replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
             sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
             sudo('systemctl enable squid')
-            sudo('systemctl start squid')
+            sudo('systemctl restart squid')
             sudo('touch /home/{}/.ensure_dir/squid_installed'.format(os_user))
     except Exception as err:
         traceback.print_exc()
