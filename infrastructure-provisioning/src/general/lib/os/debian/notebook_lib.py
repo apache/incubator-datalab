@@ -61,7 +61,12 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
             sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'http://cran.us.r-project.org\')" R -e "devtools::check(\'.\')"')
+                if 'conf_dlab_repository_host' in os.environ:
+                    sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\')" '
+                         'R -e "devtools::check(\'.\')"')
+                else:
+                    sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\','
+                         'repos=\'http://cran.us.r-project.org\')" R -e "devtools::check(\'.\')"')
             except:
                 pass
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
@@ -87,21 +92,32 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             else:
                 r_repository = 'http://cran.us.r-project.org'
             if 'conf_dlab_repository_host' in os.environ:
-                r_repository = 'https://{}/'
+                r_repository = 'https://{}/repository/r-repo/'.format(os.environ['conf_dlab_repository_host'])
+                put('/root/templates/Rprofile.site', '/tmp/Rprofile.site')
+                sudo('git config --global http.proxy http://{}:3128'.format(os.environ['conf_dlab_repository_host']))
             add_marruter_key()
             sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
             sudo('apt-get install -y r-base r-base-dev')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('sed -i "s/REPOSITORY_HOST/{0}/g" /tmp/Rprofile.site'.format(
+                    os.environ['conf_dlab_repository_host']))
+                sudo('cp -f /tmp/Rprofile.site /etc/R/')
             sudo('R CMD javareconf')
-            sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
+            sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; '
+                 'cmake ..; make install; ldconfig')
             for i in r_libs:
                 sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
-            sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
+            sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\','
+                 '\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
             try:
-                sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+                sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');'
+                     'install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             except:
-                sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+                sudo('R -e "options(download.file.method = "wget");library(\'devtools\');'
+                     'install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');'
+                     'install_github(\'IRkernel/IRkernel\');"')
             if os.environ['application'] == 'tensor-rstudio':
                 sudo('R -e "library(\'devtools\');install_github(\'rstudio/keras\');"')
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
@@ -170,7 +186,11 @@ def ensure_sbt(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             sudo('apt-get install -y apt-transport-https')
-            sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('echo "deb https://{}/repository/apt-bintray /" | '
+                     'sudo tee -a /etc/apt/sources.list.d/sbt.list'.format(os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
             add_sbt_key()
             sudo('apt-get update')
             sudo('apt-get install -y sbt')
@@ -351,8 +371,31 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
-        sudo('apt-get install -y nodejs')
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('wget https://{0}/repository/jenkins-hosted/node-v8.15.0.tar.gz'.format(
+                os.environ['conf_dlab_repository_host']))
+            sudo('tar zxvf node-v8.15.0.tar.gz')
+            sudo('mv node-v8.15.0 /opt/node')
+            with cd('/opt/node/'):
+                sudo('./configure')
+                sudo('make -j4')
+                sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node'.format(
+                    os.environ['conf_dlab_repository_host']))
+                sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
+                sudo('source /etc/profile')
+                sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
+                sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
+                sudo('./deps/npm/bin/npm-cli.js config set registry https://{}/repository/npm/'.format(
+                    os.environ['conf_dlab_repository_host']))
+                sudo('./deps/npm/bin/npm-cli.js install npm')
+                sudo('cp deps/npm/bin/npm /opt/node/')
+                sudo('npm config set strict-ssl false')
+                sudo('npm config set registry https://{}/repository/npm/'.format(
+                    os.environ['conf_dlab_repository_host']))
+                sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
+        else:
+            sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
+            sudo('apt-get install -y nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 

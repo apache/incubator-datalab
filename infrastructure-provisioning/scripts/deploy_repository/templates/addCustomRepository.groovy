@@ -65,6 +65,37 @@ securityProxyConfiguration = new Configuration(
                 ] as Map,
         ] as Map
 )
+BintrayDebianProxyConfiguration = new Configuration(
+        repositoryName: "apt-bintray",
+        recipeName: "apt-proxy",
+        online: true,
+        attributes: [
+                storage: [
+                        blobStoreName              : 'packages_store',
+                        writePolicy                : WritePolicy.ALLOW,
+                        strictContentTypeValidation: true
+                ] as Map,
+                apt: [
+                        distribution : 'xenial',
+                        flat : false
+                ] as Map,
+                httpclient   : [
+                        connection: [
+                                blocked  : false,
+                                autoBlock: true
+                        ] as Map
+                ] as Map,
+                proxy: [
+                        remoteUrl: 'https://dl.bintray.com/sbt/debian',
+                        contentMaxAge: 0,
+                        metaDataMaxAge: 0
+                ] as Map,
+                negativeCache: [
+                        enabled   : true,
+                        timeToLive: 1440
+                ] as Map,
+        ] as Map
+)
 RProxyConfiguration = new Configuration(
         repositoryName: "r-repo",
         recipeName: "r-proxy",
@@ -95,3 +126,4 @@ RProxyConfiguration = new Configuration(
 repository.createRepository(RProxyConfiguration)
 repository.createRepository(ubuntuProxyConfiguration)
 repository.createRepository(securityProxyConfiguration)
+repository.createRepository(BintrayDebianProxyConfiguration)

@@ -1104,7 +1104,24 @@ def download_packages():
                 'https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz',
                 'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node',
                 'http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version),
-                'http://www.scala-lang.org/files/archive/scala-{}.deb'.format(scala_version)
+                'http://www.scala-lang.org/files/archive/scala-{}.deb'.format(scala_version),
+                'https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz'.format(
+                    spark_version, hadoop_version),
+                'https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar'.format('2.7.4'),
+                'https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar'.format('1.7.4'),
+                'https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar'.format('0.4.20'),
+                'http://central.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar'.format('2.11', '0.12'),
+                'http://central.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar'.format(
+                    '2.11', '0.12'),
+                'http://central.maven.org/maven2/org/scalanlp/breeze-viz_{0}/{1}/breeze-viz_{0}-{1}.jar'.format(
+                    '2.11', '0.12'),
+                'http://central.maven.org/maven2/org/scalanlp/breeze-macros_{0}/{1}/breeze-macros_{0}-{1}.jar'.format(
+                    '2.11', '0.12'),
+                'http://central.maven.org/maven2/org/scalanlp/breeze-parent_{0}/{1}/breeze-parent_{0}-{1}.jar'.format(
+                    '2.11', '0.12'),
+                'http://central.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar'.format('1.0.19'),
+                'http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar'.format('1.0.24'),
+                '--no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar'.format('2.3')
             ]
             packages_list = list()
             for package in packages_urls:
@@ -1200,6 +1217,8 @@ if __name__ == "__main__":
     maven_version = '3.5.4'
     nginx_version = '1.15.1'
     scala_version = '2.12.8'
+    spark_version = '2.3.2'
+    hadoop_version = '2.7'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:

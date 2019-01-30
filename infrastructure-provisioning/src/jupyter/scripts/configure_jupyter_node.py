@@ -51,6 +51,9 @@ if args.region == 'cn-north-1':
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
+if 'conf_dlab_repository_host' in os.environ:
+    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+        os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
 
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
@@ -139,7 +142,7 @@ if __name__ == "__main__":
     print("Install Breeze")
     add_breeze_library_local(args.os_user)
 
-    #POST INSTALLATION PROCESS
+    # POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
 
