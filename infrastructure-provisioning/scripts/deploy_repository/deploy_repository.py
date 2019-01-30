@@ -876,10 +876,10 @@ def install_nexus():
             xz_plugin_version = sudo('find /opt/nexus/ -name "xz-*.jar" '
                                      '-printf "%f\\n" ').replace('xz-', '').replace('.jar', '')
             sudo('mkdir -p /opt/nexus/system/net/staticsnow/nexus-repository-apt/{0}/'.format(apt_plugin_version))
-            plugin_jar_path = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
+            apt_plugin_jar_path = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
                 apt_plugin_version))
             sudo('cp -f {0} /opt/nexus/system/net/staticsnow/nexus-repository-apt/{1}/'.format(
-                plugin_jar_path, apt_plugin_version
+                apt_plugin_jar_path, apt_plugin_version
             ))
             sudo('sed -i "$ d" /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
                  'nexus-core-feature-{0}-features.xml'.format(nexus_version))
@@ -909,22 +909,53 @@ def install_nexus():
                  '''<feature prerequisite=\"false\" dependency=\"false\">nexus-repository-apt</feature>|g' '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'''
                  '''{0}-features.xml'''.format(nexus_version))
+            sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-r.git')
+            with cd('nexus-repository-r'):
+                sudo('mvn clean install')
+            r_plugin_version = sudo('find nexus-repository-r/ -name "nexus-repository-r-*.jar" '
+                                    '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-r-', '').replace(
+                '.jar', '')
+            sudo('mkdir -p /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{}/'.format(
+                r_plugin_version))
+            r_plugin_jar_path = sudo('find nexus-repository-r/ -name "nexus-repository-r-{0}.jar"'.format(
+                r_plugin_version))
+            sudo('cp -f {0} /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{1}/'.format(
+                r_plugin_jar_path, r_plugin_version
+            ))
+            sudo('sed -i "$ d" /opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'
+                 'nexus-oss-feature-{0}-features.xml'.format(nexus_version))
+
+            sudo('''echo '<feature name="nexus-repository-r" description="org.sonatype.nexus.plugins:'''
+                 '''nexus-repository-r" version="{1}"> >> /opt/nexus/system/com/sonatype/nexus/assemblies/'''
+                 '''nexus-oss-feature/{0}/nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
+            sudo('''echo '<details>org.sonatype.nexus.plugins:nexus-repository-r</details>' >> '''
+                 '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
+                 '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version))
+            sudo('''echo '<bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-r/{1}</bundle>' >> '''
+                 '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
+                 '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
+            sudo('''echo '</feature>' >> '''
+                 '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
+                 '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version))
+            sudo('''echo '</features>' >> '''
+                 '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
+                 '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version))
             sudo('chown -R nexus:nexus /opt/nexus')
             sudo('systemctl start nexus')
             time.sleep(60)
-            put('templates/addAptRepository.groovy', '/tmp/addAptRepository.groovy')
-            sudo('sed -i "s|REGION|{0}|g" /tmp/addAptRepository.groovy'.format(args.region))
+            put('templates/addCustomRepository.groovy', '/tmp/addCustomRepository.groovy')
+            sudo('sed -i "s|REGION|{0}|g" /tmp/addCustomRepository.groovy'.format(args.region))
             script_executed = False
             while not script_executed:
                 try:
                     sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "admin123" '
-                         '-n "addAptRepository" -f "/tmp/addAptRepository.groovy" -h "http://localhost:8081"')
+                         '-n "addCustomRepository" -f "/tmp/addCustomRepository.groovy" -h "http://localhost:8081"')
                     script_executed = True
                 except:
                     time.sleep(10)
                     pass
             sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' '
-                 'http://localhost:8081/service/rest/v1/script/addAptRepository/run')
+                 'http://localhost:8081/service/rest/v1/script/addCustomRepository/run')
             sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(os_user))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)

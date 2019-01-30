@@ -65,6 +65,33 @@ securityProxyConfiguration = new Configuration(
                 ] as Map,
         ] as Map
 )
-
+RProxyConfiguration = new Configuration(
+        repositoryName: "r-repo",
+        recipeName: "r-proxy",
+        online: true,
+        attributes: [
+                storage: [
+                        blobStoreName              : 'packages_store',
+                        writePolicy                : WritePolicy.ALLOW,
+                        strictContentTypeValidation: true
+                ] as Map,
+                httpclient   : [
+                        connection: [
+                                blocked  : false,
+                                autoBlock: true
+                        ] as Map
+                ] as Map,
+                proxy: [
+                        remoteUrl: 'http://cran.us.r-project.org',
+                        contentMaxAge: 0,
+                        metaDataMaxAge: 0
+                ] as Map,
+                negativeCache: [
+                        enabled   : true,
+                        timeToLive: 1440
+                ] as Map,
+        ] as Map
+)
+repository.createRepository(RProxyConfiguration)
 repository.createRepository(ubuntuProxyConfiguration)
 repository.createRepository(securityProxyConfiguration)
