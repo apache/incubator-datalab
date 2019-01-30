@@ -924,9 +924,8 @@ def install_nexus():
             ))
             sudo('sed -i "$ d" /opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'
                  'nexus-oss-feature-{0}-features.xml'.format(nexus_version))
-
             sudo('''echo '<feature name="nexus-repository-r" description="org.sonatype.nexus.plugins:'''
-                 '''nexus-repository-r" version="{1}"> >> /opt/nexus/system/com/sonatype/nexus/assemblies/'''
+                 '''nexus-repository-r" version="{1}">' >> /opt/nexus/system/com/sonatype/nexus/assemblies/'''
                  '''nexus-oss-feature/{0}/nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
             sudo('''echo '<details>org.sonatype.nexus.plugins:nexus-repository-r</details>' >> '''
                  '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
@@ -940,6 +939,12 @@ def install_nexus():
             sudo('''echo '</features>' >> '''
                  '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
                  '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version))
+            sudo('''sed -i 's|<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>|'''
+                 '''<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>\\n'''
+                 '''<feature version=\"{1}\" prerequisite=\"false\" dependency=\"false\">'''
+                 '''nexus-repository-r</feature>|g' '''
+                 '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
+                 '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
             sudo('chown -R nexus:nexus /opt/nexus')
             sudo('systemctl start nexus')
             time.sleep(60)
