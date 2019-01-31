@@ -110,7 +110,7 @@ limitations under the License.
           </div>
         </div>
 
-        <div class="checkbox-group control-group" *ngIf="PROVIDER === 'aws'"
+        <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'"
             [hidden]="!model.templates.length || !isAvailableSpots()">
           <label class="spot-label label">
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />

@@ -29,7 +29,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   templateUrl: './ami-create-dialog.component.html',
   styleUrls: ['./ami-create-dialog.component.scss']
 })
-export class AmiCreateDialogComponent {
+export class AmiCreateDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public notebook: any;
   public createAMIForm: FormGroup;
@@ -75,7 +75,8 @@ export class AmiCreateDialogComponent {
           this.buildGrid.emit();
         }
       },
-      error => this.toastr.error(error.message || `${ DICTIONARY.image.toLocaleUpperCase() } creation failed!`, 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message
+        || `${ DICTIONARY.image.toLocaleUpperCase() } creation failed!`, 'Oops!', { toastLife: 5000 }));
   }
 
   private initFormModel(): void {
@@ -88,7 +89,7 @@ export class AmiCreateDialogComponent {
 
   private providerMaxLength(control) {
     if (DICTIONARY.cloud_provider !== 'aws')
-      return control.value.length <=10 ? null : { valid: false };
+      return control.value.length <= 10 ? null : { valid: false };
   }
 
   private delimitersFiltering(resource): string {
