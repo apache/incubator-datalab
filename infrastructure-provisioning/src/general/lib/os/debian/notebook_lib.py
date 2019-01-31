@@ -79,7 +79,11 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=20)
 def add_marruter_key():
     try:
-        sudo('add-apt-repository -y ppa:marutter/rrutter')
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('echo "deb [trusted=yes] https://{}/repository/rrutter-proxy xenial main" >> /etc/apt/sources.list'.format(
+                os.environ['conf_dlab_repository_host']))
+        else:
+            sudo('add-apt-repository -y ppa:marutter/rrutter')
     except:
         sys.exit(1)
 
@@ -191,7 +195,7 @@ def ensure_sbt(os_user):
                      'sudo tee -a /etc/apt/sources.list.d/sbt.list'.format(os.environ['conf_dlab_repository_host']))
             else:
                 sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
-            add_sbt_key()
+                add_sbt_key()
             sudo('apt-get update')
             sudo('apt-get install -y sbt')
             sudo('touch /home/' + os_user + '/.ensure_dir/sbt_ensured')
@@ -255,11 +259,11 @@ def ensure_python2_libraries(os_user):
                 sudo('pip2 install virtualenv --no-cache-dir')
                 sudo('apt-get install -y libssl-dev')
             try:
-                sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
+                sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir'.format(
+                     os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('pip2 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
+                sudo('pip2 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir'.format(
+                    os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('pip2 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip2 install boto3 backoff --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')

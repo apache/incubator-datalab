@@ -46,7 +46,7 @@ def update_pip_repository_configuration(repository_host):
         sudo('echo "[global]" >> /etc/pip.conf')
         sudo('echo "timeout = 600" >> /etc/pip.conf')
         sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(repository_host))
-        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(repository_host))
+        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(repository_host.split('/')[0]))
         sudo('touch /home/{}/pip_conf_update_ensured'.format(args.user))
 
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         add_repository_cert()
     if 'conf_dlab_repository_host' in os.environ:
         update_apt_repository_configuration(os.environ['conf_dlab_repository_host'])
-        update_pip_repository_configuration('{}/repository/pypi-repo/'.format(os.environ['conf_dlab_repository_host']))
+        update_pip_repository_configuration('{}/repository/pypi-repo'.format(os.environ['conf_dlab_repository_host']))
 
     print("Updating repositories and installing requested tools.")
     if not ensure_pkg(args.user):
