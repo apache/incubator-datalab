@@ -145,6 +145,9 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
             sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('pip2 install jupyter-console=={} --no-cache-dir'.format(
+                     os.environ['notebook_jupyter_console_version']))
             sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip3.5 install jupyter --no-cache-dir')
@@ -410,7 +413,10 @@ def install_ungit(os_user, notebook_name):
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            http_proxy = run('echo $http_proxy')
+            if 'conf_dlab_repository_host' in os.environ:
+                http_proxy = 'http://{}:3128'.format(os.environ['conf_dlab_repository_host'])
+            else:
+                http_proxy = run('echo $http_proxy')
             sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
             sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
                 notebook_name))
@@ -436,15 +442,19 @@ def install_ungit(os_user, notebook_name):
         try:
             sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
-            http_proxy = run('echo $http_proxy')
+            if 'conf_dlab_repository_host' in os.environ:
+                http_proxy = 'http://{}:3128'.format(os.environ['conf_dlab_repository_host'])
+            else:
+                http_proxy = run('echo $http_proxy')
             sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             sudo('systemctl daemon-reload')
             sudo('systemctl restart ungit.service')
         except:
             sys.exit(1)
-    run('git config --global http.proxy $http_proxy')
-    run('git config --global https.proxy $https_proxy')
+    if 'conf_dlab_repository_host' not in os.environ:
+        run('git config --global http.proxy $http_proxy')
+        run('git config --global https.proxy $https_proxy')
 
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):

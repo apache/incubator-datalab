@@ -75,5 +75,10 @@ if __name__ == "__main__":
     if not ensure_pip(args.pip_packages):
         sys.exit(1)
 
+    if 'conf_dlab_repository_host' in os.environ:
+        if not set_git_proxy(args.user, args.hostname, args.keyfile, 'http://{}:3128'.format(
+                os.environ['conf_dlab_repository_host'])):
+            sys.exit(1)
+
     sys.exit(0)
 

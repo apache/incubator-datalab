@@ -63,9 +63,6 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
             sudo('apt-get -y install gcc build-essential make zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev')
             sudo('mkdir -p /tmp/nginx_auth_ldap')
             with cd('/tmp/nginx_auth_ldap'):
-                if 'conf_dlab_repository_host' in os.environ:
-                    sudo('git config --global http.proxy http://{}:3128'.format(
-                        os.environ['conf_dlab_repository_host']))
                 sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):

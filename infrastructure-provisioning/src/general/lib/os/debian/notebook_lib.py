@@ -98,7 +98,6 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             if 'conf_dlab_repository_host' in os.environ:
                 r_repository = 'https://{}/repository/r-repo/'.format(os.environ['conf_dlab_repository_host'])
                 put('/root/templates/Rprofile.site', '/tmp/Rprofile.site')
-                sudo('git config --global http.proxy http://{}:3128'.format(os.environ['conf_dlab_repository_host']))
             add_marruter_key()
             sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
