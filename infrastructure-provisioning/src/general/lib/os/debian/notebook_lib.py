@@ -107,6 +107,10 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 sudo('sed -i "s/REPOSITORY_HOST/{0}/g" /tmp/Rprofile.site'.format(
                     os.environ['conf_dlab_repository_host']))
                 sudo('cp -f /tmp/Rprofile.site /etc/R/')
+                sudo('echo "http_proxy=http://{}:3128" >> /etc/R/Renviron'.format(
+                    os.environ['conf_dlab_repository_host']))
+                sudo('echo "https_proxy=http://{}:3128" >> /etc/R/Renviron'.format(
+                    os.environ['conf_dlab_repository_host']))
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; '
                  'cmake ..; make install; ldconfig')
