@@ -190,7 +190,7 @@ def ensure_sbt(os_user):
         try:
             sudo('apt-get install -y apt-transport-https')
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('echo "deb https://{}/repository/apt-bintray /" | '
+                sudo('echo "deb [trusted=yes] https://{}/repository/apt-bintray /" | '
                      'sudo tee -a /etc/apt/sources.list.d/sbt.list'.format(os.environ['conf_dlab_repository_host']))
             else:
                 sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')

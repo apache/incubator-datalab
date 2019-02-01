@@ -20,6 +20,7 @@
 
 from fabric.api import *
 from fabric.contrib.files import exists
+import sys
 
 
 def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip'):
@@ -50,9 +51,8 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
             sudo('export LC_ALL=C')
             sudo('yum -y install ' + requisites)
             sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
-        return True
     except:
-        return False
+        sys.exit(1)
 
 
 def update_apt_repository_configuration(repository_host):

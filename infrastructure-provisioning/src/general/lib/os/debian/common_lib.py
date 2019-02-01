@@ -37,9 +37,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
             sudo('unattended-upgrades -v')
             sudo('export LC_ALL=C')
             sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
-        return True
     except:
-        return False
+        sys.exit(1)
 
 
 def renew_gpg_key():

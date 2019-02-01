@@ -68,17 +68,12 @@ if __name__ == "__main__":
         update_pip_repository_configuration('{}/repository/pypi-repo'.format(os.environ['conf_dlab_repository_host']))
 
     print("Updating repositories and installing requested tools.")
-    if not ensure_pkg(args.user):
-        sys.exit(1)
+    ensure_pkg(args.user)
 
     print("Installing python packages: {}".format(args.pip_packages))
-    if not ensure_pip(args.pip_packages):
-        sys.exit(1)
+    ensure_pip(args.pip_packages)
 
     if 'conf_dlab_repository_host' in os.environ:
-        if not set_git_proxy(args.user, args.hostname, args.keyfile, 'http://{}:3128'.format(
-                os.environ['conf_dlab_repository_host'])):
-            sys.exit(1)
-
-    sys.exit(0)
+        set_git_proxy(args.user, args.hostname, args.keyfile, 'http://{}:3128'.format(
+            os.environ['conf_dlab_repository_host']))
 
