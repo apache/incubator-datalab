@@ -60,13 +60,13 @@ if __name__ == "__main__":
         change_pkg_repos()
         create_china_pip_conf_file()
 
+    print("Updating hosts file")
+    update_hosts_file()
+
     print("Updating repositories and installing requested tools.")
-    if not ensure_pkg(args.user):
-        sys.exit(1)
+    ensure_pkg(args.user)
 
     print("Installing python packages: {}".format(args.pip_packages))
-    if not ensure_pip(args.pip_packages):
-        sys.exit(1)
+    ensure_pip(args.pip_packages)
 
-    sys.exit(0)
 
