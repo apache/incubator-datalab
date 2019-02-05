@@ -3,7 +3,7 @@ ip="IP_ADRESS"
 jps -m | grep spark | \
 while read i
 do
-  if [[ $i == *"--master"* ]]
+  if [[ $i == *"--master spark"* ]]
   then
 	master="$(echo $i | sed -n 's/.*spark\:\/\/\([0-9.]*\):7077 .*/\1/p' | sed -n 's/\./\-/gp')"
 	pid="$(echo $i | sed -n 's/\(^[0-9]*\) .*/\1/p')"
