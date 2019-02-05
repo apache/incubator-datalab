@@ -48,6 +48,9 @@ if args.region == 'cn-north-1':
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
+if 'conf_dlab_repository_host' in os.environ:
+    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+        os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'

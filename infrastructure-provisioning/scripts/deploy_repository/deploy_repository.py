@@ -1122,7 +1122,8 @@ def download_packages():
                 'http://central.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar'.format('1.0.19'),
                 'http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar'.format('1.0.24'),
                 '--no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar'.format('2.3'),
-                'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz'
+                'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz',
+                'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version)
             ]
             packages_list = list()
             for package in packages_urls:
@@ -1220,6 +1221,7 @@ if __name__ == "__main__":
     scala_version = '2.12.8'
     spark_version = '2.3.2'
     hadoop_version = '2.7'
+    rstudio_version = '1.1.463'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
