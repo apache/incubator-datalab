@@ -34,6 +34,7 @@ parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='false')
+parser.add_argument('--spark_master_ip', type=str, default='')
 args = parser.parse_args()
 
 
@@ -55,6 +56,9 @@ def configure_notebook(keyfile, hoststring):
         if exists('/usr/lib64'):
             sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
 
+def create_inactivity_log(master_ip, hoststring):
+    reworked_ip = master_ip.replace('.', '-')
+    sudo("date +%s > /opt/inactivity/{}_inactivity".format(reworked_ip))
 
 if __name__ == "__main__":
     env.hosts = "{}".format(args.notebook_ip)
@@ -68,6 +72,7 @@ if __name__ == "__main__":
     if 'spark_configurations' not in os.environ:
         os.environ['spark_configurations'] = '[]'
     configure_notebook(args.keyfile, env.host_string)
+    create_inactivity_log(args.spark_master_ip, env.host_string)
     sudo('/usr/bin/python /usr/local/bin/rstudio_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
          '--datalake_enabled {} --spark_configurations "{}"'.
