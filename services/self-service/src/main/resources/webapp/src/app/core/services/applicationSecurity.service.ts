@@ -16,14 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/throw';
+import { Injectable } from '@angular/core';
+import { of as observableOf, Observable, BehaviorSubject } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { LoginModel } from '../../login/login.model';
 import { ApplicationServiceFacade, AppRoutingService } from '.';
@@ -54,21 +50,22 @@ export class ApplicationSecurityService {
   public login(loginModel: LoginModel): Observable<boolean | {}> {
     return this.serviceFacade
       .buildLoginRequest(loginModel.toJsonString())
-      .map(response => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          if (!DICTIONARY.use_ldap) {
-            this.setAuthToken(response.json().access_token);
-            this.setUserName(response.json().username);
-          } else {
-            this.setAuthToken(response.text());
-            this.setUserName(loginModel.username);
+      .pipe(
+        map(response => {
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            if (!DICTIONARY.use_ldap) {
+              this.setAuthToken(response.json().access_token);
+              this.setUserName(response.json().username);
+            } else {
+              this.setAuthToken(response.text());
+              this.setUserName(loginModel.username);
+            }
+            this._loggedInStatus.next(true);
+            return true;
           }
-          this._loggedInStatus.next(true);
-          return true;
-        }
-        this._loggedInStatus.next(false);
-        return false;
-      }, this);
+          this._loggedInStatus.next(false);
+          return false;
+        }, this));
   }
 
   public logout(): Observable<boolean> {
@@ -77,16 +74,17 @@ export class ApplicationSecurityService {
     if (!!authToken) {
       return this.serviceFacade
         .buildLogoutRequest()
-        .map(response => {
-          this.clearAuthToken();
-          this.setBillingQuoteUsed('');
-          this._loggedInStatus.next(false);
+        .pipe(
+          map(response => {
+            this.clearAuthToken();
+            this.setBillingQuoteUsed('');
+            this._loggedInStatus.next(false);
 
-          return response.status === HTTP_STATUS_CODES.OK;
-        }, this);
+            return response.status === HTTP_STATUS_CODES.OK;
+          }, this));
     }
 
-    return Observable.of(false);
+    return observableOf(false);
   }
 
   public getCurrentUserName(): string {
@@ -112,62 +110,62 @@ export class ApplicationSecurityService {
     if (authToken && currentUser) {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
-        .map(response => {
-          if (response.status === HTTP_STATUS_CODES.OK) {
-            this._loggedInStatus.next(true);
-            return true;
-          }
+        .pipe(
+          map(response => {
+            if (response.status === HTTP_STATUS_CODES.OK) {
+              this._loggedInStatus.next(true);
+              return true;
+            }
 
-          this.clearAuthToken();
-          this.appRoutingService.redirectToLoginPage();
-          return false;
-        })
-        .catch(error => {
-          // this.handleError(error);
-          let errObj = error.json();
-          this.emmitMessage(errObj.message);
-          this.clearAuthToken();
+            this.clearAuthToken();
+            this.appRoutingService.redirectToLoginPage();
+            return false;
+          }),
+          catchError(error => {
+            // this.handleError(error);
+            let errObj = error.json();
+            this.emmitMessage(errObj.message);
+            this.clearAuthToken();
 
-          return Observable.of(false);
-        });
+            return observableOf(false);
+          }));
     }
-
     this.appRoutingService.redirectToLoginPage();
     this._loggedInStatus.next(false);
-    return Observable.of(false);
+    return observableOf(false);
   }
 
   public redirectParams(params): Observable<boolean> {
-
     return this.serviceFacade
       .buildGetAuthToken(params)
-      .map((response: any) => {
-        const data = response.json();
-        if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
-          this.setAuthToken(data.access_token);
-          this.setUserName(data.username);
+      .pipe(
+        map((response: any) => {
+          const data = response.json();
+          if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
+            this.setAuthToken(data.access_token);
+            this.setUserName(data.username);
 
-          this.appRoutingService.redirectToHomePage();
-          return true;
-        }
+            this.appRoutingService.redirectToHomePage();
+            return true;
+          }
 
-        if (response.status !== 200) {
-          // this.handleError(response);
-          const errObj = response.json();
-          this.emmitMessage(errObj.message);
-        }
-        return false;
+          if (response.status !== 200) {
+            // this.handleError(response);
+            const errObj = response.json();
+            this.emmitMessage(errObj.message);
+          }
+          return false;
 
-      }).catch((error: any) => {
-        if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
-          window.location.href = error.headers.get('Location');
-        } else {
-          // this.handleError(error);
-          const errObj = error.json();
-          this.emmitMessage(errObj.message);
-          return Observable.of(false);
-        }
-      });
+        }), catchError((error: any) => {
+          if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+            window.location.href = error.headers.get('Location');
+          } else {
+            // this.handleError(error);
+            const errObj = error.json();
+            this.emmitMessage(errObj.message);
+            return observableOf(false);
+          }
+        }));
   }
 
   // private handleError(error: any) {

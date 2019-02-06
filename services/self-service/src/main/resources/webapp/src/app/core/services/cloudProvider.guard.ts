@@ -20,7 +20,7 @@ import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { HealthStatusService } from '.';
 
-import 'rxjs/add/operator/toPromise';
+
 
 @Injectable()
 export class CloudProviderGuard implements CanActivate {

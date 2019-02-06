@@ -17,7 +17,8 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from '.';
 import { ErrorUtils } from '../util';
@@ -29,15 +30,17 @@ export class ManageEnvironmentsService {
   getAllEnvironmentData(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetAllEnvironmentData()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response.json()),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   environmentManagement(data, action: string, resource: string, computational?: string): Observable<{}> {
     const params = computational ? `/${action}/${resource}/${computational}` : `/${action}/${resource}`;
     return this.applicationServiceFacade
       .buildEnvironmentManagement(params, data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }

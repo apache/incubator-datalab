@@ -17,7 +17,8 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from '.';
 import { ErrorUtils } from '../util';
@@ -29,14 +30,16 @@ export class BillingReportService {
   public getGeneralBillingData(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetGeneralBillingData(data)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response.json()),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public downloadReport(data): Observable<string | {}> {
     return this.applicationServiceFacade
       .buildDownloadReportData(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }

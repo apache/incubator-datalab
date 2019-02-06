@@ -16,6 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
+
+import {throwError as observableThrowError, of as observableOf,  Observable } from 'rxjs';
+
+import {catchError} from 'rxjs/operators';
 import {
   ConnectionBackend,
   RequestOptions,
@@ -28,9 +32,8 @@ import {
   Headers
 } from '@angular/http';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/throw';
+
+
 
 import { HTTP_STATUS_CODES } from '../util';
 
@@ -73,7 +76,7 @@ export class HttpInterceptor extends Http {
   }
 
   intercept(observable: Observable<Response>): Observable<Response> {
-    return observable.catch((err, source) => {
+    return observable.pipe(catchError((err, source) => {
       let url = err.url;
 
       if (url.indexOf('?') > -1) {
@@ -84,11 +87,11 @@ export class HttpInterceptor extends Http {
         && !url.endsWith('login')) {
         localStorage.removeItem('access_token');
         this.router.navigate(['/login']);
-        return Observable.of(err);
+        return observableOf(err);
       } else {
-        return Observable.throw(err);
+        return observableThrowError(err);
       }
-    });
+    }));
   }
 
   private addNoCacheToUrl(url: string) {

@@ -16,8 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
+
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import {catchError, map } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from '.';
 import { ErrorUtils } from '../util';
@@ -30,31 +32,35 @@ export class DataengineConfigurationService {
     const url = `/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildGetClusterConfiguration(url)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response.json()),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public editClusterConfiguration(data, exploratory, cluster): Observable<{}> {
     const url = `/dataengine/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildEditClusterConfiguration(url, data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getExploratorySparkConfiguration(exploratory): Observable<{}> {
     const url = `/${exploratory}/cluster/config`;
     return this.applicationServiceFacade
       .buildGetExploratorySparkConfiguration(url)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response.json()),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public editExploratorySparkConfiguration(data, exploratory): Observable<{}> {
     const url = `/${exploratory}/reconfigure`;
     return this.applicationServiceFacade
       .buildEditExploratorySparkConfiguration(url, data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }
