@@ -318,30 +318,60 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             if kernel_version == 'azure':
                 sudo('apt-get -y install linux-modules-extra-`uname -r`')
             else:
-                #legacy support for old kernels
-                sudo('if [[ $(apt-cache search linux-image-extra-`uname -r`) ]]; then apt-get -y install linux-image-extra-`uname -r`; else apt-get -y install linux-modules-extra-`uname -r`; fi;')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
+                # legacy support for old kernels
+                sudo('if [[ $(apt-cache search linux-image-extra-`uname -r`) ]]; then apt-get -y '
+                     'install linux-image-extra-`uname -r`; else apt-get -y install '
+                     'linux-modules-extra-`uname -r`; fi;')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('wget https://{2}/repository/jenkins-hosted/NVIDIA-Linux-x86_64-{0}.run -O '
+                     '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user,
+                                                                    os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
+                     '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
+            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(
+                os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('wget -P /opt https://{1}/repository/jenkins-hosted/{0}'.format(
+                    cuda_file_name, os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
+                    cuda_version, cuda_file_name))
             sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
             sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
+            if 'conf_dlab_repository_host' in os.environ:
+                run('wget https://{0}/repository/jenkins-hosted/{1} -O /tmp/{1}'.format(
+                    os.environ['conf_dlab_repository_host'], cudnn_file_name))
+            else:
+                run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
+                    cudnn_version, cudnn_file_name))
             run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             sudo('mkdir -p /opt/cudnn/include')
             sudo('mkdir -p /opt/cudnn/lib64')
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
+            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> '
+                '~/.bashrc')
             # install TensorFlow and run TensorBoard
-            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
-            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('python2.7 -m pip install --upgrade https://{0}/repository/jenkins-hosted/tensorflow_gpu-{1}-'
+                     'cp27-none-linux_x86_64.whl --no-cache-dir'.format(os.environ['conf_dlab_repository_host'],
+                                                                        tensorflow_version))
+                sudo('python3 -m pip install --upgrade https://{0}/repository/jenkins-hosted/tensorflow_gpu-{1}-'
+                     'cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(os.environ['conf_dlab_repository_host'],
+                                                                         tensorflow_version))
+            else:
+                sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/'
+                     'tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+                sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/'
+                     'tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
             sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
@@ -351,7 +381,6 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
             sudo('touch /home/{}/.ensure_dir/tensor_ensured'.format(os_user))
-
         except:
             sys.exit(1)
 
@@ -467,7 +496,8 @@ def install_caffe(os_user, region, caffe_version):
         env.shell = "/bin/bash -l -c -i"
         sudo('apt-get install -y python-dev')
         sudo('apt-get install -y python3-dev')
-        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler')
+        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
+             'protobuf-compiler')
         sudo('apt-get install -y --no-install-recommends libboost-all-dev')
         sudo('apt-get install -y libatlas-base-dev libopenblas-dev')
         sudo('apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev')
@@ -480,15 +510,21 @@ def install_caffe(os_user, region, caffe_version):
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
             sudo('pip3 install -r python/requirements.txt --no-cache-dir')
             sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
-            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
-            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(cuda_arch.replace('.', '')))
-            sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" >> Makefile.config')
+            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | "
+                             "cut -f2 -d ':'")
+            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(
+                cuda_arch.replace('.', '')))
+            sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/'
+                 'core/include" >> Makefile.config')
             sudo('echo "BLAS := open" >> Makefile.config')
             sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
             #sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
-            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" >> Makefile.config')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
+                 '>> Makefile.config')
             sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
-            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ /usr /usr/lib /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" >> Makefile.config')
+            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ '
+                 '/usr /usr/lib /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" '
+                 '>> Makefile.config')
             sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib" >> Makefile.config')
             sudo('echo "BUILD_DIR := build" >> Makefile.config')
             sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
@@ -512,14 +548,18 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         sudo('apt-get install -y --no-install-recommends libgflags-dev')
         sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
              'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy setuptools tornado --no-cache-dir')
-        sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy setuptools tornado --no-cache-dir')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests '
+             'scikit-image scipy setuptools tornado --no-cache-dir')
+        sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests '
+             'scikit-image scipy setuptools tornado --no-cache-dir')
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
-            os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('wget https://{2}/repository/jenkins-hosted/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+                os_user, cmake_version, os.environ['conf_dlab_repository_host']))
+        else:
+            sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+                os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
         with cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
             sudo('./bootstrap --prefix=/usr/local && make && make install')

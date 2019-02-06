@@ -1123,7 +1123,19 @@ def download_packages():
                 'http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar'.format('1.0.24'),
                 '--no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar'.format('2.3'),
                 'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz',
-                'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version)
+                'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version),
+                'http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run'.format(
+                    nvidia_version),
+                'https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version,
+                                                                                                 cuda_file_name),
+                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(cudnn_version,
+                                                                                            cudnn_file_name),
+                'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-'
+                'linux_x86_64.whl'.format(tensorflow_version),
+                'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-'
+                'linux_x86_64.whl'.format(tensorflow_version),
+                'https://cmake.org/files/v{1}/cmake-{0}.tar.gz'.format(cmake_version, cmake_version.split('.')[0] +
+                                                                       "." + cmake_version.split('.')[1])
             ]
             packages_list = list()
             for package in packages_urls:
@@ -1222,6 +1234,13 @@ if __name__ == "__main__":
     spark_version = '2.3.2'
     hadoop_version = '2.7'
     rstudio_version = '1.1.463'
+    nvidia_version = '390.48'
+    cuda_version = '8.0'
+    cuda_file_name = 'cuda_8.0.44_linux-run'
+    cudnn_version = '6.0'
+    cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
+    tensorflow_version = '1.4.0'
+    cmake_version = '3.11.3'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
