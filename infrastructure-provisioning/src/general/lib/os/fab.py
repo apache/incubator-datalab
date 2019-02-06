@@ -718,3 +718,13 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
     except Exception as err:
         print('Failed to update Zeppelin interpreters', str(err))
         sys.exit(1)
+
+
+def update_hosts_file(os_user):
+    try:
+        if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
+            sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
+            sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
+    except Exception as err:
+        print('Failed to update hosts file', str(err))
+        sys.exit(1)

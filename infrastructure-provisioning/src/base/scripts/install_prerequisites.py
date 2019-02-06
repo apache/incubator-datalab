@@ -67,6 +67,9 @@ if __name__ == "__main__":
         update_apt_repository_configuration(os.environ['conf_dlab_repository_host'])
         update_pip_repository_configuration('{}/repository/pypi-repo'.format(os.environ['conf_dlab_repository_host']))
 
+    print("Updating hosts file")
+    update_hosts_file(args.user)
+
     print("Updating repositories and installing requested tools.")
     ensure_pkg(args.user)
 
