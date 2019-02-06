@@ -1135,7 +1135,9 @@ def download_packages():
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-'
                 'linux_x86_64.whl'.format(tensorflow_version),
                 'https://cmake.org/files/v{1}/cmake-{0}.tar.gz'.format(cmake_version, cmake_version.split('.')[0] +
-                                                                       "." + cmake_version.split('.')[1])
+                                                                       "." + cmake_version.split('.')[1]),
+                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl'.format(cntk_version),
+                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl'.format(cntk_version)
             ]
             packages_list = list()
             for package in packages_urls:
@@ -1241,6 +1243,7 @@ if __name__ == "__main__":
     cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
     tensorflow_version = '1.4.0'
     cmake_version = '3.11.3'
+    cntk_version = '2.3.1'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
