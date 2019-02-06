@@ -471,11 +471,15 @@ def set_mongo_parameters(client, mongo_parameters):
 
 def install_r_packages(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
-        sudo('R -e "install.packages(\'devtools\', repos = \'http://cran.us.r-project.org\')"')
-        sudo('R -e "install.packages(\'knitr\', repos = \'http://cran.us.r-project.org\')"')
-        sudo('R -e "install.packages(\'ggplot2\', repos = \'http://cran.us.r-project.org\')"')
+        if 'conf_dlab_repository_host' in os.environ:
+            r_repository = 'https://{}/repository/r-repo/'.format(os.environ['conf_dlab_repository_host'])
+        else:
+            r_repository = 'http://cran.us.r-project.org'
+        sudo('R -e "install.packages(\'devtools\', repos = \'{0}\')"'.format(r_repository))
+        sudo('R -e "install.packages(\'knitr\', repos = \'{0}\')"'.format(r_repository))
+        sudo('R -e "install.packages(\'ggplot2\', repos = \'{0}\')"'.format(r_repository))
         sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
-             'repos = \'http://cran.us.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
+             'repos = \'{0}\'); require(devtools); install_github(\'ramnathv/rCharts\')"'.format(r_repository))
         sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
 
 
@@ -686,7 +690,8 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
             if r_enabled:
                 groups.append({"class": "org.apache.zeppelin.spark.SparkRInterpreter", "name": "r"})
         r_conf = {"zeppelin.R.knitr": "true", "zeppelin.R.image.width": "100%", "zeppelin.R.cmd": "R",
-                  "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', message = F, warning = F"}
+                  "zeppelin.R.render.options": "out.format = 'html', comment = NA, echo = FALSE, results = 'asis', "
+                                               "message = F, warning = F"}
         if interpreter_mode != 'remote':
             data = json.loads(open(local_interpreters_config).read())
         else:

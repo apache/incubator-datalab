@@ -254,7 +254,11 @@ def ensure_python3_specific_version(python3_version, os_user):
         try:
             if len(python3_version) < 4:
                 python3_version = python3_version + ".0"
-            sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version))
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('wget https://{1}/repository/jenkins-hosted/Python-{0}.tgz'.format(
+                    python3_version, os.environ['conf_dlab_repository_host']))
+            else:
+                sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version))
             sudo('tar xzf Python-{0}.tgz; cd Python-{0}; ./configure --prefix=/usr/local; make altinstall'.format(python3_version))
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_specific_version_ensured')
         except:
@@ -507,6 +511,9 @@ def install_caffe(os_user, region, caffe_version):
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
             sudo('git checkout {}'.format(caffe_version))
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
+                sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
             sudo('pip3 install -r python/requirements.txt --no-cache-dir')
             sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
@@ -548,6 +555,9 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         sudo('apt-get install -y --no-install-recommends libgflags-dev')
         sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
              'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('pip2 install jupyter-console=={} --no-cache-dir'.format(
+                os.environ['notebook_jupyter_console_version']))
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests '
              'scikit-image scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests '

@@ -61,11 +61,6 @@ def update_apt_repository_configuration(repository_host):
         else:
             sudo('sed -i "s|REPOSITORY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
             sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
-        # sudo('touch /etc/apt/apt.conf.d/98ssl-exceptions')
-        # sudo("""echo 'Acquire::https::{}::Verify-Peer "false";' > /etc/apt/apt.conf.d/98ssl-exceptions""".format(
-        #     repository_host))
-        # sudo("""echo 'Acquire::https::{}::Verify-Host "false";' >> /etc/apt/apt.conf.d/98ssl-exceptions""".format(
-        #     repository_host))
         sudo('apt-get update')
         sudo('touch /tmp/apt_conf_update_ensured')
 

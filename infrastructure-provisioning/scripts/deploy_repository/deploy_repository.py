@@ -1137,7 +1137,11 @@ def download_packages():
                 'https://cmake.org/files/v{1}/cmake-{0}.tar.gz'.format(cmake_version, cmake_version.split('.')[0] +
                                                                        "." + cmake_version.split('.')[1]),
                 'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl'.format(cntk_version),
-                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl'.format(cntk_version)
+                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl'.format(cntk_version),
+                'https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version),
+                'http://archive.apache.org/dist/zeppelin/zeppelin-{0}/zeppelin-{0}-bin-netinst.tgz'.format(
+                    zeppelin_version),
+                'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(livy_version)
             ]
             packages_list = list()
             for package in packages_urls:
@@ -1244,6 +1248,9 @@ if __name__ == "__main__":
     tensorflow_version = '1.4.0'
     cmake_version = '3.11.3'
     cntk_version = '2.3.1'
+    python3_version = '3.4.0'
+    zeppelin_version = '0.8.0'
+    livy_version = '0.3.0'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:

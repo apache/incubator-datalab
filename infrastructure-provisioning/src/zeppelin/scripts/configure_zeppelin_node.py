@@ -52,10 +52,17 @@ args = parser.parse_args()
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-scala_link = "http://www.scala-lang.org/files/archive/"
+if 'conf_dlab_repository_host' in os.environ:
+    scala_link = 'https://{0}/repository/jenkins-hosted/'.format(os.environ['conf_dlab_repository_host'])
+else:
+    scala_link = "http://www.scala-lang.org/files/archive/"
 zeppelin_version = args.zeppelin_version
-zeppelin_link = "http://archive.apache.org/dist/zeppelin/zeppelin-" + zeppelin_version + "/zeppelin-" + \
-                zeppelin_version + "-bin-netinst.tgz"
+if 'conf_dlab_repository_host' in os.environ:
+    zeppelin_link = "https://{1}/repository/jenkins-hosted/zeppelin-{0}-bin-netinst.tgz".format(
+        zeppelin_version, os.environ['conf_dlab_repository_host'])
+else:
+    zeppelin_link = "http://archive.apache.org/dist/zeppelin/zeppelin-{0}/zeppelin-{0}-bin-netinst.tgz".format(
+        zeppelin_version)
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -159,8 +166,12 @@ def configure_local_spark_kernels(args):
 
 def install_local_livy(args):
     if not exists('/home/' + args.os_user + '/.ensure_dir/local_livy_ensured'):
-        sudo('wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/livy-server-'
-             + args.livy_version + '.zip')
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('wget https://{1}/repository/jenkins-hosted/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(
+                args.livy_version, os.environ['conf_dlab_repository_host']))
+        else:
+            sudo('wget http://archive.cloudera.com/beta/livy/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(
+                args.livy_version))
         sudo('unzip /opt/livy-server-' + args.livy_version + '.zip -d /opt/')
         sudo('mv /opt/livy-server-' + args.livy_version + '/ /opt/livy/')
         sudo('mkdir -p /var/run/livy')
