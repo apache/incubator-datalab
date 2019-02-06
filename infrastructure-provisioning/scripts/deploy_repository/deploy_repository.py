@@ -1126,14 +1126,22 @@ def download_packages():
                 'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version),
                 'http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run'.format(
                     nvidia_version),
-                'https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version,
-                                                                                                 cuda_file_name),
-                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(cudnn_version,
-                                                                                            cudnn_file_name),
+                'https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
+                    cuda_version_deeplearning, cuda_deeplearingn_file_name),
+                'https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
+                    cuda_version_tensor, cuda_tensor_file_name),
+                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(
+                    cudnn_version_deeplearning, cudnn_file_name_deeplearning),
+                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(cudnn_version_tensor,
+                                                                                            cudnn_file_name_tensor),
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-'
-                'linux_x86_64.whl'.format(tensorflow_version),
+                'linux_x86_64.whl'.format(tensorflow_version_deeplearning),
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-'
-                'linux_x86_64.whl'.format(tensorflow_version),
+                'linux_x86_64.whl'.format(tensorflow_version_deeplearning),
+                'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-'
+                'linux_x86_64.whl'.format(tensorflow_version_tensor),
+                'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-'
+                'linux_x86_64.whl'.format(tensorflow_version_tensor),
                 'https://cmake.org/files/v{1}/cmake-{0}.tar.gz'.format(cmake_version, cmake_version.split('.')[0] +
                                                                        "." + cmake_version.split('.')[1]),
                 'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl'.format(cntk_version),
@@ -1241,11 +1249,16 @@ if __name__ == "__main__":
     hadoop_version = '2.7'
     rstudio_version = '1.1.463'
     nvidia_version = '390.48'
-    cuda_version = '8.0'
-    cuda_file_name = 'cuda_8.0.44_linux-run'
-    cudnn_version = '6.0'
-    cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
-    tensorflow_version = '1.4.0'
+    cuda_version_deeplearning = '8.0'
+    cuda_deeplearingn_file_name = 'cuda_8.0.44_linux-run'
+    cuda_version_tensor = '9.0'
+    cuda_tensor_file_name = 'cuda_9.0.176_384.81_linux-run'
+    cudnn_version_tensor = '7.1.4'
+    cudnn_file_name_tensor = 'cudnn-9.0-linux-x64-v7.1.tgz'
+    cudnn_version_deeplearning = '6.0'
+    cudnn_file_name_deeplearning = 'cudnn-8.0-linux-x64-v6.0.tgz'
+    tensorflow_version_deeplearning = '1.4.0'
+    tensorflow_version_tensor = '1.8.0'
     cmake_version = '3.11.3'
     cntk_version = '2.3.1'
     python3_version = '3.4.0'
