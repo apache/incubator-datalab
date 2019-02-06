@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES } from '../../../core/util';
@@ -44,10 +44,10 @@ export class AmiCreateDialogComponent implements OnInit {
   constructor(
     private _userResource: UserResourceService,
     private _fb: FormBuilder,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -75,8 +75,10 @@ export class AmiCreateDialogComponent implements OnInit {
           this.buildGrid.emit();
         }
       },
-      error => this.toastr.error(error.message
-        || `${ DICTIONARY.image.toLocaleUpperCase() } creation failed!`, 'Oops!', { toastLife: 5000 }));
+      error => {
+        // this.toastr.error(error.message
+          // || `${ DICTIONARY.image.toLocaleUpperCase() } creation failed!`, 'Oops!', { toastLife: 5000 })
+      });
   }
 
   private initFormModel(): void {

@@ -16,6 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
+
+import {debounceTime} from 'rxjs/operators';
 import { Component,
   OnInit,
   ViewChild,
@@ -27,14 +29,14 @@ import { Component,
   ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { InstallLibrariesModel } from '.';
 import { LibrariesInstallationService} from '../../../core/services';
 import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
+
+
 
 @Component({
   selector: 'install-libraries',
@@ -85,17 +87,17 @@ export class InstallLibrariesComponent implements OnInit {
     public dialog: MatDialog,
     private librariesInstallationService: LibrariesInstallationService,
     private changeDetector: ChangeDetectorRef,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
     this.libSearch.disable();
-    this.libSearch.valueChanges
-      .debounceTime(1000)
+    this.libSearch.valueChanges.pipe(
+      debounceTime(1000))
       .subscribe(newValue => {
         this.query = newValue || '';
         this.filterList();
@@ -120,7 +122,9 @@ export class InstallLibrariesComponent implements OnInit {
           this.group_select && this.group_select.setDefaultOptions(
             this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
-        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!', { toastLife: 5000 }));
+        error => {
+          // this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!', { toastLife: 5000 })
+        });
   }
 
   private getResourcesList() {
@@ -206,7 +210,9 @@ export class InstallLibrariesComponent implements OnInit {
             this.resetDialog();
           }
         },
-        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!', { toastLife: 5000 }),
+        error => {
+          // this.toastr.error(error.message || 'Library installation failed!', 'Oops!', { toastLife: 5000 })
+        },
         () => {
           this.bindDialog.open(param);
 

@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { ComputationalResourceCreateModel } from '.';
 import { UserResourceService } from '../../../core/services';
@@ -72,11 +72,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
     private ref: ChangeDetectorRef,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -218,7 +218,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           }
         },
         error => {
-          this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!', { toastLife: 5000 });
+          // this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!', { toastLife: 5000 });
         },
         () => {
           this.template_description = this.model.selectedItem.description;

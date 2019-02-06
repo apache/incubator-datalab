@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { HealthStatusService, ManageEnvironmentsService, UserAccessKeyService, AppRoutingService } from '../core/services';
 import { EnvironmentModel } from './management.model';
@@ -41,10 +41,10 @@ export class ManagementComponent implements OnInit {
     private manageEnvironmentsService: ManageEnvironmentsService,
     private userAccessKeyService: UserAccessKeyService,
     private appRoutingService: AppRoutingService,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -65,7 +65,9 @@ export class ManagementComponent implements OnInit {
       )
       .subscribe(
         () => this.buildGrid(),
-        error =>  this.toastr.error('Environment management failed!', 'Oops!', { toastLife: 5000 }));
+        error => {
+          // this.toastr.error('Environment management failed!', 'Oops!', { toastLife: 5000 })
+        });
   }
 
   private getAllEnvironmentData() {

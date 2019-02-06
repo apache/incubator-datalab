@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, EventEmitter, Input, Output, ViewChild, Inject, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { UserResourceService } from '../../../core/services';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
@@ -42,10 +42,10 @@ export class ComputationalResourcesListComponent {
   constructor(
     private userResourceService: UserResourceService,
     public dialog: MatDialog,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   toggleResourceAction(resource, action: string) {
@@ -72,7 +72,9 @@ export class ComputationalResourcesListComponent {
         .toggleStopStartAction(this.environment['name'], resource.computational_name, 'start')
         .subscribe(
           () => this.rebuildGrid(),
-          error => this.toastr.error(error.message || 'Computational resource starting failed!', 'Oops!', { toastLife: 5000 }));
+          error => {
+            // this.toastr.error(error.message || 'Computational resource starting failed!', 'Oops!', { toastLife: 5000 })
+          });
     }
   }
 

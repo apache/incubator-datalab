@@ -18,8 +18,8 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgDateRangePickerModule } from 'ng-daterangepicker';
-import { ToastModule } from 'ng2-toastr';
+// import { NgDateRangePickerModule } from 'ng-daterangepicker';
+// import { ToastModule } from 'ng2-toastr';
 
 import { MaterialModule } from '../shared/material.module';
 import { FormControlsModule } from '../shared/form-controls';
@@ -36,10 +36,10 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     FormControlsModule,
     KeysPipeModule,
     LineBreaksPipeModule,
-    NgDateRangePickerModule,
+    // NgDateRangePickerModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
-    ToastModule.forRoot(),
+    // ToastModule.forRoot(),
     MaterialModule
   ],
   declarations: [

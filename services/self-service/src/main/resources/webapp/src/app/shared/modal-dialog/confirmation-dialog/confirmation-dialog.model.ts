@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';

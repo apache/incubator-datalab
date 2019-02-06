@@ -18,7 +18,7 @@ limitations under the License.
 
 
 import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
@@ -72,9 +72,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef) {
-      this.toastr.setRootViewContainerRef(vcr);
+      // this.toastr.setRootViewContainerRef(vcr);
     }
 
   ngOnInit() {
@@ -123,7 +123,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),
-        error => this.toastr.error('Billing report export failed!', 'Oops!', { toastLife: 5000 }));
+        error => {
+          // this.toastr.error('Billing report export failed!', 'Oops!', { toastLife: 5000 })
+        });
   }
 
   getDefaultFilterConfiguration(data): void {

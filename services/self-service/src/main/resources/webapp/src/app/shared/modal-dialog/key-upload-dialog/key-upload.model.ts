@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { UserAccessKeyService } from '../../../core/services';
 
 export class KeyUploadDialogModel {

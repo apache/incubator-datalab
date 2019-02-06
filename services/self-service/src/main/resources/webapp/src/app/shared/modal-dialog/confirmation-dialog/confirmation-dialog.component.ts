@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
@@ -50,11 +50,11 @@ export class ConfirmationDialogComponent implements OnInit {
     private userResourceService: UserResourceService,
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
     this.model = ConfirmationDialogModel.getDefault();
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -71,7 +71,9 @@ export class ConfirmationDialogComponent implements OnInit {
           this.buildGrid.emit();
         }
       },
-      error => this.toastr.error(error.message || 'Action failed!', 'Oops!', { toastLife: 5000 }),
+      error => {
+        // this.toastr.error(error.message || 'Action failed!', 'Oops!', { toastLife: 5000 })
+      },
       this.manageAction,
       this.userResourceService,
       this.healthStatusService,

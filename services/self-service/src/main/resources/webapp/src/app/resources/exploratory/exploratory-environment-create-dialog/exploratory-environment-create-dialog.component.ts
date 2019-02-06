@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { ExploratoryEnvironmentCreateModel } from '.';
 import { UserResourceService } from '../../../core/services';
@@ -57,11 +57,11 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
     private changeDetector: ChangeDetectorRef,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
     this.model = ExploratoryEnvironmentCreateModel.getDefault(userResourceService);
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -149,7 +149,9 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
           this.buildGrid.emit();
         }
       },
-      error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!', { toastLife: 5000 }),
+      error => {
+        // this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!', { toastLife: 5000 })
+      },
       () => {
         this.templateDescription = this.model.selectedItem.description;
       },
@@ -172,7 +174,9 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
         this.changeDetector.detectChanges();
         this.setDefaultParams();
       },
-      error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!', { toastLife: 5000 }));
+      error => {
+        // this.toastr.error(error.message || 'Images list loading failed!', 'Oops!', { toastLife: 5000 })
+      });
   }
 
   public selectConfiguration() {

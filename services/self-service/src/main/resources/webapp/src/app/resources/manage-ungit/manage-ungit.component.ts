@@ -19,7 +19,7 @@ limitations under the License.
 import { Component, OnInit, ViewChild, Inject, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from '../../core/services';
@@ -50,11 +50,11 @@ export class ManageUngitComponent implements OnInit {
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
     public dialog: MatDialog,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -67,7 +67,9 @@ export class ManageUngitComponent implements OnInit {
   public open(param): void {
     if (!this.bindDialog.isOpened)
       this.model = new MangeUngitModel(response => { },
-      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!', { toastLife: 5000 }),
+      error => {
+        // this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!', { toastLife: 5000 })
+      },
       () => {
         this.bindDialog.open(param);
 
@@ -153,7 +155,9 @@ export class ManageUngitComponent implements OnInit {
     this.model.getGitCredentials()
       .subscribe(
         (response: any) => this.gitCredentials = response.git_creds || [],
-        error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!', { toastLife: 5000 }));
+        error => {
+          // this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!', { toastLife: 5000 })
+        });
   }
 
   private validConfirmField(control) {

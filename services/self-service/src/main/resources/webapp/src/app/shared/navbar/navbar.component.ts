@@ -18,13 +18,9 @@ limitations under the License.
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { Subscription } from 'rxjs/Subscription';
-import { ToastsManager } from 'ng2-toastr';
+import { Subscription, timer, interval } from 'rxjs';
+// import { ToastsManager } from 'ng2-toastr';
 
-import { TimerObservable } from 'rxjs/observable/TimerObservable';
-import { timer } from 'rxjs/observable/timer';
-import { interval } from 'rxjs/observable/interval';
-import 'rxjs/add/operator/takeWhile';
 
 import { ApplicationSecurityService,
   HealthStatusService,
@@ -61,7 +57,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef,
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
@@ -70,7 +66,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private schedulerService: SchedulerService,
     private dialog: MatDialog
   ) {
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -131,7 +127,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userAccessKeyService.generateAccessKey().subscribe(
       data => {
         FileUtils.downloadFile(data);
-      }, error => this.toastr.error(error.message || 'Access key generation failed!', 'Oops!', { toastLife: 5000 }));
+      }, error => {
+        // this.toastr.error(error.message || 'Access key generation failed!', 'Oops!', { toastLife: 5000 })
+      });
   }
 
   public checkCreationProgress($event): void {
@@ -161,9 +159,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (!this.alive) {
         this.alive = true;
-        this.subscriptions.add(interval(this.CHECK_ACCESS_KEY_TIMEOUT)
-        .takeWhile(() => this.alive)
-        .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
+        this.subscriptions.add(
+          interval(this.CHECK_ACCESS_KEY_TIMEOUT)
+          // .takeWhile(() => this.alive)
+          .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
       }
 
     } else if (status === HTTP_STATUS_CODES.OK) {

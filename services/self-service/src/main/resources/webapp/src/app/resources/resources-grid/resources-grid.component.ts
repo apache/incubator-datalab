@@ -18,7 +18,7 @@ limitations under the License.
 /* tslint:disable:no-empty */
 
 import { Component, ViewChild, ViewContainerRef, OnInit } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import { UserResourceService } from '../../core/services';
 import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from '.';
@@ -72,10 +72,10 @@ export class ResourcesGridComponent implements OnInit {
 
   constructor(
     private userResourceService: UserResourceService,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit(): void {
@@ -294,7 +294,9 @@ export class ResourcesGridComponent implements OnInit {
         .runExploratoryEnvironment({ notebook_instance_name: data.name })
         .subscribe(
           () => this.buildGrid(),
-          error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!', { toastLife: 5000 }));
+          error => {
+            // this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!', { toastLife: 5000 })
+          });
     } else if (action === 'stop') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
     } else if (action === 'terminate') {

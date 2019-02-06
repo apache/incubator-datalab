@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+// import { ToastsManager } from 'ng2-toastr';
 
 import * as _moment from 'moment';
 import 'moment-timezone';
@@ -68,10 +68,10 @@ export class SchedulerComponent implements OnInit {
     private formBuilder: FormBuilder,
     private schedulerService: SchedulerService,
     private changeDetector: ChangeDetectorRef,
-    public toastr: ToastsManager,
+    // public toastr: ToastsManager,
     public vcr: ViewContainerRef
   ) {
-    this.toastr.setRootViewContainerRef(vcr);
+    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -96,7 +96,9 @@ export class SchedulerComponent implements OnInit {
             this.close();
           }
         },
-        error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }),
+        error => {
+          // this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 })
+        },
         () => {
           this.formInit();
           this.changeDetector.detectChanges();
@@ -166,9 +168,11 @@ export class SchedulerComponent implements OnInit {
   public setInactivity(...params) {
     this.model.setInactivityTime(params).subscribe(
       () => {
-        this.toastr.success('Inactivity settings were successfully saved', 'Success!', { toastLife: 5000 });
+        // this.toastr.success('Inactivity settings were successfully saved', 'Success!', { toastLife: 5000 });
       },
-      error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }));
+      error => {
+        // this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 })
+      });
   }
 
   public scheduleInstance_btnClick() {
@@ -242,7 +246,7 @@ export class SchedulerComponent implements OnInit {
         }
       },
       error => {
-        this.toastr.info(error.message || 'Scheduler job data not found!', null, { toastLife: 5000 });
+        // this.toastr.info(error.message || 'Scheduler job data not found!', null, { toastLife: 5000 });
         this.resetDialog();
       }
     );
