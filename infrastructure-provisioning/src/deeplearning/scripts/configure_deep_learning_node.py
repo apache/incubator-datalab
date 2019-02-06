@@ -82,9 +82,9 @@ def install_itorch(os_user):
         run('git clone https://github.com/facebook/iTorch.git')
         with cd('/home/{}/iTorch/'.format(os_user)):
             if 'conf_dlab_repository_host' in os.environ:
-                run('export http_proxy=http://{}:3128; export https_proxy=http://{}:3128; '
+                run('export http_proxy=http://{0}:3128; export https_proxy=http://{0}:3128; '
                     'luarocks make; '
-                    'unset http_proxy; unset https_proxy')
+                    'unset http_proxy; unset https_proxy'.format(os.environ['conf_dlab_repository_host']))
             else:
                 run('luarocks make')
         sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
