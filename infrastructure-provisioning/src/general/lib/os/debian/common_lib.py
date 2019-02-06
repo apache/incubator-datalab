@@ -71,11 +71,16 @@ def update_apt_repository_configuration(repository_host):
 
 
 def add_repository_cert():
-    if not exists('/tmp/repository_cert_added'):
-        sudo('mkdir -p /usr/local/share/ca-certificates/repository')
-        put('/root/certs/repository.crt', '/usr/local/share/ca-certificates/repository/repository.crt', use_sudo=True)
-        sudo('update-ca-certificates')
-        sudo('touch /tmp/repository_cert_added')
+    try:
+        if not exists('/tmp/repository_cert_added'):
+            sudo('mkdir -p /usr/local/share/ca-certificates/repository')
+            local('ls -l /root/certs')
+            put('/root/certs/repository.crt', '/usr/local/share/ca-certificates/repository/repository.crt', use_sudo=True)
+            sudo('update-ca-certificates')
+            sudo('touch /tmp/repository_cert_added')
+    except Exception as err:
+        print('Error ---->')
+        print(str(err))
 
 
 def find_java_path_remote():
