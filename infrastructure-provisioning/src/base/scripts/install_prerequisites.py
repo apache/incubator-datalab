@@ -43,7 +43,7 @@ args = parser.parse_args()
 def update_pip_repository_configuration(repository_host):
     if not exists('/home/{}/pip_conf_update_ensured'.format(args.user)):
         sudo('touch /etc/pip.conf')
-        sudo('echo "[global]" >> /etc/pip.conf')
+        sudo('echo "[global]" > /etc/pip.conf')
         sudo('echo "timeout = 600" >> /etc/pip.conf')
         sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(repository_host))
         sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(repository_host.split('/')[0]))

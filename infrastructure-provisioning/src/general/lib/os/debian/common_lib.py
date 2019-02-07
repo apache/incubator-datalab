@@ -22,6 +22,7 @@ from fabric.api import *
 from fabric.contrib.files import exists
 import sys
 import os
+import time
 
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
@@ -32,6 +33,10 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories "
                   "and installing requested tools: {}".format(requisites))
+            apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
+            while apt_proccess == '1':
+                time.sleep(10)
+                apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
             sudo('apt-get update')
             sudo('apt-get -y install ' + requisites)
             sudo('unattended-upgrades -v')
