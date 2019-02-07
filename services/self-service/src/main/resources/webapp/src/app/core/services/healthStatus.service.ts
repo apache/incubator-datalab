@@ -22,7 +22,8 @@ import { Injectable } from '@angular/core';
 import { Observable ,  BehaviorSubject } from 'rxjs';
 
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
-import { ApplicationServiceFacade, AppRoutingService } from '.';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { AppRoutingService } from './appRouting.service';
 import { HTTP_STATUS_CODES, ErrorUtils } from '../util';
 
 @Injectable()

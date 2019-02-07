@@ -22,7 +22,7 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { ErrorUtils } from '../util';
-import { ApplicationServiceFacade } from '.';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 
 @Injectable()
 export class LibrariesInstallationService {

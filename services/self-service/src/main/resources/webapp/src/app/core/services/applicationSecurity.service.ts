@@ -21,8 +21,9 @@ import { Injectable } from '@angular/core';
 import { of as observableOf, Observable, BehaviorSubject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { AppRoutingService } from './appRouting.service';
 import { LoginModel } from '../../login/login.model';
-import { ApplicationServiceFacade, AppRoutingService } from '.';
 import { ErrorUtils, HTTP_STATUS_CODES } from '../util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -123,8 +124,8 @@ export class ApplicationSecurityService {
           }),
           catchError(error => {
             // this.handleError(error);
-            let errObj = error.json();
-            this.emmitMessage(errObj.message);
+            // let errObj = error.json();
+            this.emmitMessage(error.message);
             this.clearAuthToken();
 
             return observableOf(false);
