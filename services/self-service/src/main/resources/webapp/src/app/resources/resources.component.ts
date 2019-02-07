@@ -20,7 +20,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angu
 import { Subscription } from 'rxjs';
 // import { ToastsManager } from 'ng2-toastr';
 
-import { ResourcesGridComponent } from './resources-grid';
+import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { UserAccessKeyService, HealthStatusService } from '../core/services';
 import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
 import { HTTP_STATUS_CODES, FileUtils } from '../core/util';

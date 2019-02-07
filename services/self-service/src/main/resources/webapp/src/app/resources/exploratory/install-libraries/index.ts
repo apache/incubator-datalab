@@ -27,9 +27,6 @@ import { FormControlsModule } from '../../../shared/form-controls';
 import { KeysPipeModule, LibSortPipeModule, HighLightPipeModule } from '../../../core/pipes';
 import { InstallLibrariesComponent, ErrorMessageDialogComponent } from './install-libraries.component';
 
-export * from './install-libraries.component';
-export * from './install-libraries.model';
-
 @NgModule({
   imports: [
     CommonModule,

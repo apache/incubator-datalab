@@ -20,7 +20,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angu
 // import { ToastsManager } from 'ng2-toastr';
 import { SubscriptionLike as ISubscription } from 'rxjs';
 
-import { EnvironmentStatusModel } from './environment-status.model';
+import { EnvironmentStatusModel, GeneralEnvironmentStatus } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
 import { HTTP_STATUS_CODES } from '../core/util';
 
@@ -34,7 +34,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
   private subscription: ISubscription;
 
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
-  healthStatus: string;
+  healthStatus: GeneralEnvironmentStatus;
   anyEnvInProgress: boolean = false;
   notebookInProgress: boolean = false;
   usersList: Array<string> = [];

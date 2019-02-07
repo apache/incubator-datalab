@@ -84,6 +84,9 @@ export class ConfirmationDialogComponent implements OnInit {
     this.isAliveResources = this.model.isAliveResources(notebook.resources);
     this.onlyKilled = !notebook.resources.some(el => el.status !== 'terminated')
   }
+  public confirm() {
+    this.model.confirmAction();
+  }
 
   public close() {
     this.bindDialog.close();

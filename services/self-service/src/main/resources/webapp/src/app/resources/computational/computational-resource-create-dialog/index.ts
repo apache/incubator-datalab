@@ -25,9 +25,6 @@ import { MaterialModule } from '../../../shared/material.module';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ComputationalResourceCreateDialogComponent } from './computational-resource-create-dialog.component';
 
-export * from './computational-resource-create-dialog.component';
-export * from './computational-resource-create.model';
-
 @NgModule({
   imports: [
     CommonModule,

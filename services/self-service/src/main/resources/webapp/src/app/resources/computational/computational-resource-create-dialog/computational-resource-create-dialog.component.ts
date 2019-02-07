@@ -20,7 +20,7 @@ import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, 
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 // import { ToastsManager } from 'ng2-toastr';
 
-import { ComputationalResourceCreateModel } from '.';
+import { ComputationalResourceCreateModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
 

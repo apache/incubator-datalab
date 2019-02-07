@@ -24,8 +24,8 @@ import { UserResourceService, HealthStatusService, ManageEnvironmentsService } f
 
 export class ConfirmationDialogModel {
   public title: string;
-  private notebook: any;
-  private confirmAction: Function;
+  public notebook: any;
+  public confirmAction: Function;
   private manageAction: Function;
   private userResourceService: UserResourceService;
   private healthStatusService: HealthStatusService;

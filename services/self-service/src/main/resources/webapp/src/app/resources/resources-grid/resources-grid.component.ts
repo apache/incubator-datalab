@@ -21,7 +21,9 @@ import { Component, ViewChild, ViewContainerRef, OnInit } from '@angular/core';
 // import { ToastsManager } from 'ng2-toastr';
 
 import { UserResourceService } from '../../core/services';
-import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from '.';
+import { CreateResourceModel } from './create-resource.model';
+import { ResourcesGridRowModel } from './resources-grid.model';
+import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../health-status/health-status.module';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';

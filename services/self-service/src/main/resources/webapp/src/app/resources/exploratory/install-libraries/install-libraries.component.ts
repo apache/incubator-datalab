@@ -31,7 +31,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
 // import { ToastsManager } from 'ng2-toastr';
 
-import { InstallLibrariesModel } from '.';
+import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService} from '../../../core/services';
 import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 

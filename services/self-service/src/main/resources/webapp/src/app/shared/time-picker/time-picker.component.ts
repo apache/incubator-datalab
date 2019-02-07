@@ -43,7 +43,7 @@ export class TimePickerComponent implements OnInit {
 
   ngOnInit() { }
 
-  private get selectedTime(): string {
+  public get selectedTime(): string {
     return !this.pickTime ? '' : `${this.pickTime.hour}:${this.getFullMinutes()} ${this.pickTime.meridiem}`;
   }
 

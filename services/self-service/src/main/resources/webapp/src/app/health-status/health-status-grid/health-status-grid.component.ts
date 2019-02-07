@@ -84,7 +84,7 @@ export class HealthStatusGridComponent implements OnInit {
       this.keyReuploadDialog.open({ isFooter: false });
     }
 
-    public generateUserKey($event) {
+    public generateUserKey() {
       this.userAccessKeyService.regenerateAccessKey().subscribe(data => {
         FileUtils.downloadFile(data);
         this.buildGrid();

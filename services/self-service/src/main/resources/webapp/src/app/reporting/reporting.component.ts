@@ -30,11 +30,11 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)"
+  <dlab-toolbar (rebuildReport)="rebuildBillingReport()"
                 (exportReport)="exportBillingReport()"
                 (setRangeOption)="setRangeOption($event)">
   </dlab-toolbar>
-  <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
+  <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
   <footer *ngIf="data">
     Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
@@ -119,7 +119,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
-  exportBillingReport($event): void {
+  exportBillingReport(): void {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),

@@ -20,7 +20,7 @@ import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, 
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 // import { ToastsManager } from 'ng2-toastr';
 
-import { ExploratoryEnvironmentCreateModel } from '.';
+import { ExploratoryEnvironmentCreateModel } from './exploratory-environment-create.model';
 import { UserResourceService } from '../../../core/services';
 import { CheckUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
