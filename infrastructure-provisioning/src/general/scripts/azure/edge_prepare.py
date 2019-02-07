@@ -285,7 +285,7 @@ if __name__ == "__main__":
                 "name": "out-12",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "4040",
+                "destination_port_range": "4040-4140",
                 "source_address_prefix": "*",
                 "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",
