@@ -40,6 +40,8 @@ def configure_http_proxy_server(config):
             sudo('sed -i "s|LDAP_SERVICE_PASSWORD|{}|g" /etc/squid/squid.conf'.format(config['ldap_password']))
             sudo('sed -i "s|LDAP_AUTH_PATH|{}|g" /etc/squid/squid.conf'.format('/usr/lib/squid/basic_ldap_auth'))
             replace_string = ''
+            if 'conf_dlab_repository_host' in os.environ:
+                config['vpc_cidrs'].append('{}/32'.format(os.environ['conf_dlab_repository_host']))
             for cidr in config['vpc_cidrs']:
                 replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
             sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
@@ -47,6 +49,13 @@ def configure_http_proxy_server(config):
             for cidr in config['allowed_ip_cidr']:
                 replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
             sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            if 'conf_dlab_repository_host' in os.environ:
+                replace_string = 'acl META dst 169.254.169.254/32\\nalways_direct allow META\\ncache_peer {0} ' \
+                                 'parent 3128 0 no-query default\\nnever_direct allow all'.format(
+                                  os.environ['conf_dlab_repository_host'])
+            else:
+                replace_string = ''
+            sudo('sed -i "s|CHILD_PROXY|{}|g" /etc/squid/squid.conf'.format(replace_string))
             sudo('service squid reload')
             sudo('sysv-rc-conf squid on')
             sudo('touch /tmp/http_proxy_ensured')
@@ -62,6 +71,9 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
             sudo('apt-get install -y wget')
             sudo('apt-get -y install gcc build-essential make zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev')
             sudo('mkdir -p /tmp/nginx_auth_ldap')
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('git config --global http.proxy http://{}:3128'.format(os.environ['conf_dlab_repository_host']))
+                sudo('git config --global https.proxy http://{}:3128'.format(os.environ['conf_dlab_repository_host']))
             with cd('/tmp/nginx_auth_ldap'):
                 sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')
             sudo('mkdir -p /tmp/src')

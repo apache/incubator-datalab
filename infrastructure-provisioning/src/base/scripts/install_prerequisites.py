@@ -76,7 +76,4 @@ if __name__ == "__main__":
     print("Installing python packages: {}".format(args.pip_packages))
     ensure_pip(args.pip_packages)
 
-    if 'conf_dlab_repository_host' in os.environ:
-        set_git_proxy(args.user, args.hostname, args.keyfile, 'http://{}:3128'.format(
-            os.environ['conf_dlab_repository_host']))
 

@@ -101,25 +101,24 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if 'conf_dlab_repository_host' not in os.environ:
-        # configuring proxy on Notebook instance
+    # configuring proxy on Notebook instance
+    try:
+        logging.info('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
+        print('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
+        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
+            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
+                    notebook_config['dlab_ssh_user'])
         try:
-            logging.info('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
-            print('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
-            additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
-            params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
-                .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
-                        notebook_config['dlab_ssh_user'])
-            try:
-                local("~/scripts/{}.py {}".format('common_configure_proxy', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-        except Exception as err:
-            print('Error: {0}'.format(err))
-            append_result("Failed to configure proxy.", str(err))
-            remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-            sys.exit(1)
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to configure proxy.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     # updating repositories & installing python packages
     try:

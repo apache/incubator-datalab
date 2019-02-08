@@ -412,10 +412,7 @@ def install_ungit(os_user, notebook_name):
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            if 'conf_dlab_repository_host' in os.environ:
-                http_proxy = 'http://{}:3128'.format(os.environ['conf_dlab_repository_host'])
-            else:
-                http_proxy = run('echo $http_proxy')
+            http_proxy = run('echo $http_proxy')
             sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
             sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
                 notebook_name))
@@ -441,10 +438,7 @@ def install_ungit(os_user, notebook_name):
         try:
             sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
-            if 'conf_dlab_repository_host' in os.environ:
-                http_proxy = 'http://{}:3128'.format(os.environ['conf_dlab_repository_host'])
-            else:
-                http_proxy = run('echo $http_proxy')
+            http_proxy = run('echo $http_proxy')
             sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             sudo('systemctl daemon-reload')

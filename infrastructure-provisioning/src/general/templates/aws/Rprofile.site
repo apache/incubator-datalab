@@ -3,5 +3,3 @@ local({
   r["CRAN"] <- "https://REPOSITORY_HOST/repository/r-repo/"
   options(repos = r)
 })
-Sys.setenv(http_proxy="http://REPOSITORY_HOST:3128")
-Sys.setenv(https_proxy="http://REPOSITORY_HOST:3128")
