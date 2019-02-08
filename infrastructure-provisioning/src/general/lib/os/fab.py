@@ -447,14 +447,17 @@ def install_ungit(os_user, notebook_name):
     run('git config --global https.proxy $https_proxy')
 
 
-def install_inactivity_checker(os_user, ip_adress):
+def install_inactivity_checker(os_user, ip_adress, rstudio=False):
     if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
         try:
             if not exists('/opt/inactivity'):
                 sudo('mkdir /opt/inactivity')
             put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
             put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
-            put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+            if rstudio:
+                put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+            else:
+                put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
             sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_adress))
             sudo("chmod 755 /opt/inactivity/inactive.sh")
             sudo("chown root:root /etc/systemd/system/inactive.service")
