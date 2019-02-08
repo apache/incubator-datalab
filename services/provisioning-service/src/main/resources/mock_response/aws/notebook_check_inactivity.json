@@ -1,8 +1,8 @@
 {
   "status": "ok",
   "response": {
-    "result": 1548253841
+    "result": "1549464798",
+    "log": "/var/log/dlab/notebook/notebook_bohdan_hliva_eb30e2bb-28db-4b07-bf16-e634d448952f.log"
   },
-  "request_id" : "${REQUEST_ID}"
+  "request_id": "${REQUEST_ID}"
 }
-

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public interface InactivityService {
 
-	void updateRunningResourcesLastActivity(UserInfo userInfo);
+	void updateRunningResourcesLastActivity();
 
 	void updateLastActivityForExploratory(UserInfo userInfo, String exploratoryName, LocalDateTime lastActivity);
 

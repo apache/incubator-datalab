@@ -30,6 +30,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+
+import static java.time.Instant.ofEpochSecond;
+import static java.time.ZoneId.systemDefault;
 
 @Path("/infrastructure/inactivity/callback")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -45,7 +49,8 @@ public class CheckInactivityCallback {
 	@Path("exploratory")
 	public Response updateExploratoryLastActivity(@Auth UserInfo userInfo, CheckInactivityStatusDTO dto) {
 		requestId.checkAndRemove(dto.getRequestId());
-		inactivityService.updateLastActivityForExploratory(userInfo, dto.getExploratoryName(), dto.getLastActivity());
+		inactivityService.updateLastActivityForExploratory(userInfo, dto.getExploratoryName(),
+				toLocalDateTime(dto.getLastActivityUnixTime()));
 		return Response.ok().build();
 	}
 
@@ -54,7 +59,11 @@ public class CheckInactivityCallback {
 	public Response updateComputationalLastActivity(@Auth UserInfo userInfo, CheckInactivityStatusDTO dto) {
 		requestId.checkAndRemove(dto.getRequestId());
 		inactivityService.updateLastActivityForComputational(userInfo, dto.getExploratoryName(),
-				dto.getComputationalName(), dto.getLastActivity());
+				dto.getComputationalName(), toLocalDateTime(dto.getLastActivityUnixTime()));
 		return Response.ok().build();
+	}
+
+	private LocalDateTime toLocalDateTime(long unixTime) {
+		return ofEpochSecond(unixTime).atZone(systemDefault()).toLocalDateTime();
 	}
 }

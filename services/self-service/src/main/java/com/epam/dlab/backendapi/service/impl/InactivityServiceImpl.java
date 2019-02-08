@@ -47,9 +47,9 @@ public class InactivityServiceImpl implements InactivityService {
 	private SystemUserInfoService systemUserInfoService;
 
 	@Override
-	public void updateRunningResourcesLastActivity(UserInfo userInfo) {
+	public void updateRunningResourcesLastActivity() {
 		envDAO.findRunningResourcesForCheckInactivity()
-				.forEach(ui -> updateLastActivity(userInfo, ui));
+				.forEach(this::updateLastActivity);
 	}
 
 	@Override
@@ -64,14 +64,14 @@ public class InactivityServiceImpl implements InactivityService {
 		computationalDAO.updateLastActivity(userInfo.getName(), exploratoryName, computationalName, lastActivity);
 	}
 
-	private void updateLastActivity(UserInfo userInfo, UserInstanceDTO ui) {
+	private void updateLastActivity(UserInstanceDTO ui) {
 		if (UserInstanceStatus.RUNNING.toString().equals(ui.getStatus())) {
-			updateExploratoryLastActivity(userInfo, ui);
+			updateExploratoryLastActivity(systemUserInfoService.create(ui.getUser()), ui);
 		}
 		ui.getResources()
 				.stream()
 				.filter(comp -> UserInstanceStatus.RUNNING.toString().equals(comp.getStatus()))
-				.forEach(cr -> updateComputationalLastActivity(userInfo, ui, cr));
+				.forEach(cr -> updateComputationalLastActivity(systemUserInfoService.create(ui.getUser()), ui, cr));
 	}
 
 	private void updateComputationalLastActivity(UserInfo userInfo, UserInstanceDTO ui, UserComputationalResource cr) {

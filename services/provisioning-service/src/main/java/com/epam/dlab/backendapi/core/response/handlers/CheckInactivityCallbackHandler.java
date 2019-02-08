@@ -33,9 +33,6 @@ import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.core.Response;
-import java.time.Instant;
-
-import static java.time.ZoneId.systemDefault;
 
 @Slf4j
 @Singleton
@@ -44,6 +41,9 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 	private static final String STATUS_FIELD = "status";
 	private static final String ERROR_MESSAGE_FIELD = "error_message";
+	private static final String RESPONSE = "response";
+	private static final String OK_STATUS_STRING = "ok";
+	private static final String RESULT_NODE = "result";
 	@JsonProperty
 	private final String uuid;
 	private final RESTService selfService;
@@ -96,10 +96,10 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 
 		final JsonNode treeNode = MAPPER.readTree(fileContent);
 		final String status = treeNode.get(STATUS_FIELD).textValue();
-		CheckInactivityStatusDTO checkInactivityStatusDTO = "ok".equals(status) ?
+		CheckInactivityStatusDTO checkInactivityStatusDTO = OK_STATUS_STRING.equals(status) ?
 				getOkStatusDto(treeNode) : getFailedStatusDto(treeNode.get(ERROR_MESSAGE_FIELD).textValue());
 		selfServicePost(checkInactivityStatusDTO);
-		return "ok".equals(status);
+		return OK_STATUS_STRING.equals(status);
 	}
 
 	@Override
@@ -114,12 +114,12 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 	}
 
 	private CheckInactivityStatusDTO getOkStatusDto(JsonNode jsonNode) {
-		final CheckInactivityStatusDTO statusDTO = new CheckInactivityStatusDTO().withStatus("ok")
+		final CheckInactivityStatusDTO statusDTO = new CheckInactivityStatusDTO().withStatus(OK_STATUS_STRING)
 				.withRequestId(uuid);
 		statusDTO.setComputationalName(computationalName);
 		statusDTO.setExploratoryName(exploratoryName);
-		final long lastActivity = jsonNode.get("response").get("result").longValue();
-		statusDTO.setLastActivity(Instant.ofEpochSecond(lastActivity).atZone(systemDefault()).toLocalDateTime());
+		final long lastActivity = Long.parseLong(jsonNode.get(RESPONSE).get(RESULT_NODE).textValue());
+		statusDTO.setLastActivityUnixTime(lastActivity);
 		return statusDTO;
 	}
 

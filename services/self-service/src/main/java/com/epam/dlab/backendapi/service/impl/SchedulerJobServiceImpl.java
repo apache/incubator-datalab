@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -354,7 +355,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private boolean inactivityCondition(Long maxInactivity, String status, LocalDateTime lastActivity) {
 		return UserInstanceStatus.RUNNING.toString().equals(status) &&
-				lastActivity.plusMinutes(maxInactivity).isBefore(LocalDateTime.now());
+				Optional.ofNullable(lastActivity)
+						.map(la -> la.plusMinutes(maxInactivity).isBefore(LocalDateTime.now()))
+						.orElse(Boolean.FALSE);
 	}
 
 	private void populateDefaultSchedulerValues(SchedulerJobDTO dto) {
