@@ -814,7 +814,25 @@ def install_groovy():
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Groovy: {}'.format(str(err)))
         raise Exception
-    
+
+
+def nexus_service_waiter():
+    nexus_started = False
+    checks_count = 0
+    with hide('running'):
+        while not nexus_started and checks_count < 200:
+            print('Waiting nexus to be started...')
+            time.sleep(5)
+            result = sudo('nmap -p 8443 localhost | grep closed > /dev/null ; echo $?')
+            result = result[:1]
+            if result == '1':
+                nexus_started = True
+            else:
+                checks_count += 1
+    if not nexus_started and checks_count >= 200:
+        print('Error: Unable to start Nexus. Aborting...')
+        sys.exit(1)
+
     
 def install_nexus():
     try:
@@ -849,6 +867,7 @@ def install_nexus():
             put('files/nexus.properties', '/tmp/nexus.properties')
             sudo('cp -f /tmp/nexus.properties /opt/sonatype-work/nexus3/etc/nexus.properties')
             sudo('systemctl restart nexus')
+            nexus_service_waiter()
             sudo('systemctl enable nexus')
             put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
             sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
@@ -947,7 +966,7 @@ def install_nexus():
                  '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
             sudo('chown -R nexus:nexus /opt/nexus')
             sudo('systemctl start nexus')
-            time.sleep(60)
+            nexus_service_waiter()
             put('templates/addCustomRepository.groovy', '/tmp/addCustomRepository.groovy')
             sudo('sed -i "s|REGION|{0}|g" /tmp/addCustomRepository.groovy'.format(args.region))
             script_executed = False
