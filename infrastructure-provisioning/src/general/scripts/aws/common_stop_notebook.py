@@ -40,7 +40,11 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
         if clusters_list:
             for cluster_id in clusters_list:
                 computational_name = ''
-                client = boto3.client('emr')
+                if 'conf_dlab_repository_host' in os.environ:
+                    client = boto3.client('emr', endpoint_url='http://{}/emr'.format(
+                        os.environ['conf_dlab_repository_host']))
+                else:
+                    client = boto3.client('emr')
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')

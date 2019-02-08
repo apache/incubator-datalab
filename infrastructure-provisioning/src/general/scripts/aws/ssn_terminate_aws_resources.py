@@ -46,7 +46,11 @@ if __name__ == "__main__":
         clusters_list = get_emr_list(args.tag_name)
         if clusters_list:
             for cluster_id in clusters_list:
-                client = boto3.client('emr')
+                if 'conf_dlab_repository_host' in os.environ:
+                    client = boto3.client('emr', endpoint_url='http://{}/emr'.format(
+                        os.environ['conf_dlab_repository_host']))
+                else:
+                    client = boto3.client('emr')
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')

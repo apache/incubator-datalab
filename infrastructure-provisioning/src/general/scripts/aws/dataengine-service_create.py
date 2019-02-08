@@ -31,6 +31,7 @@ import json
 import traceback
 import logging
 import ast
+import os
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')
@@ -221,7 +222,11 @@ def get_instance_by_ip(ip):
 
 
 def emr_sg(id):
-    client = boto3.client('emr')
+    if 'conf_dlab_repository_host' in os.environ:
+        client = boto3.client('emr',
+                              endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        client = boto3.client('emr')
     emr = client.describe_cluster(ClusterId=id)
     master = emr['Cluster']['Ec2InstanceAttributes']['EmrManagedMasterSecurityGroup']
     slave = emr['Cluster']['Ec2InstanceAttributes']['EmrManagedSlaveSecurityGroup']
@@ -333,7 +338,11 @@ def build_emr_cluster(args):
             print(steps)
     
         if not args.dry_run:
-            socket = boto3.client('emr')
+            if 'conf_dlab_repository_host' in os.environ:
+                socket = boto3.client('emr', endpoint_url='http://{}/emr'.format(
+                    os.environ['conf_dlab_repository_host']))
+            else:
+                socket = boto3.client('emr')
             if args.slave_instance_spot == 'True':
                 result = socket.run_job_flow(
                     Name=args.name,

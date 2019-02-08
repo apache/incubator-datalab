@@ -176,6 +176,7 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
+
 def create_product_tag(resource):
     print('Tag product for the resource {} will be created'.format(resource))
     tags_list = list()
@@ -193,9 +194,13 @@ def create_product_tag(resource):
         Tags=tags_list
     )
 
+
 def remove_emr_tag(emr_id, tag):
     try:
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         emr.remove_tags(ResourceId=emr_id, TagKeys=tag)
     except Exception as err:
         logging.info("Unable to remove Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -436,6 +441,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         append_result(str({"error": "Unable to create EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_intance_volume(instance_id, node_name, instance_tag):
     try:
         print('volume tagging')
@@ -464,9 +470,13 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_emr_volume(cluster_id, node_name, billing_tag):
     try:
-        client = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            client = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            client = boto3.client('emr')
         cluster = client.list_instances(ClusterId=cluster_id)
         instances = cluster['Instances']
         for instance in instances:
@@ -481,6 +491,7 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 
 def create_iam_role(role_name, role_profile, region, service='ec2'):
     if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
@@ -1106,7 +1117,10 @@ def deregister_image(image_name='*'):
 
 def terminate_emr(id):
     try:
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         emr.terminate_job_flows(
             JobFlowIds=[id]
         )

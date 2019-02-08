@@ -980,6 +980,7 @@ def install_nginx():
                 sudo('sed -i "s|HOSTZONE|{}|g" /tmp/nexus.conf'.format(args.hosted_zone_name))
             else:
                 sudo('sed -i "s|SUBDOMAIN.HOSTZONE|{}|g" /tmp/nexus.conf'.format(hostname))
+            sudo('sed -i "s|REGION|{}|g" /tmp/nexus.conf'.format(args.region))
             sudo('cp /tmp/nexus.conf /etc/nginx/conf.d/nexus.conf'.format(args.subdomain, args.hosted_zone_name))
             sudo('systemctl restart nginx')
             sudo('systemctl enable nginx')

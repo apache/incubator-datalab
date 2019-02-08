@@ -386,7 +386,10 @@ def get_vpc_cidr_by_id(vpc_id):
 
 def get_emr_info(id, key=''):
     try:
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         info = emr.describe_cluster(ClusterId=id)['Cluster']
         if key:
             try:
@@ -407,7 +410,10 @@ def get_emr_info(id, key=''):
 
 def get_emr_list(tag_name, type='Key', emr_count=False, emr_active=False):
     try:
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         if emr_count:
             clusters = emr.list_clusters(
                 ClusterStates=['RUNNING', 'WAITING', 'STARTING', 'BOOTSTRAPPING', 'TERMINATING']
@@ -440,7 +446,10 @@ def get_emr_list(tag_name, type='Key', emr_count=False, emr_active=False):
 
 def get_not_configured_emr_list(tag_name, instance_name):
     try:
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         clusters = emr.list_clusters(ClusterStates=['WAITING'])
         clusters = clusters.get('Clusters')
         clusters_list = []
@@ -467,7 +476,10 @@ def get_not_configured_emr_list(tag_name, instance_name):
 
 def get_not_configured_emr(tag_name, instance_name, return_name=False):
     try:
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         clusters_list = get_not_configured_emr_list(tag_name, instance_name)
         if clusters_list:
             for cluster_id in clusters_list:
@@ -494,7 +506,10 @@ def get_not_configured_emr(tag_name, instance_name, return_name=False):
 def get_emr_id_by_name(name):
     try:
         cluster_id = ''
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         clusters = emr.list_clusters(
             ClusterStates=['RUNNING', 'WAITING', 'STARTING', 'BOOTSTRAPPING']
         )
@@ -516,9 +531,12 @@ def get_emr_id_by_name(name):
 
 
 def get_emr_instances_list(cluster_id, instance_type=''):
-    #instance_type 'MASTER' or 'CORE'
+    # instance_type 'MASTER' or 'CORE'
     try:
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         if instance_type != '':
             instances = emr.list_instances(ClusterId=cluster_id, InstanceGroupTypes=[instance_type])
         else:
@@ -560,7 +578,10 @@ def provide_index(resource_type, tag_name, tag_value=''):
                 list = get_emr_list(tag_value, 'Value', True)
             else:
                 list = get_emr_list(tag_name, 'Key', True)
-            emr = boto3.client('emr')
+            if 'conf_dlab_repository_host' in os.environ:
+                emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+            else:
+                emr = boto3.client('emr')
             for i in list:
                 response = emr.describe_cluster(ClusterId=i)
                 time.sleep(5)
@@ -703,7 +724,10 @@ def emr_waiter(tag_name):
 
 def get_spark_version(cluster_name):
     spark_version = ''
-    emr = boto3.client('emr')
+    if 'conf_dlab_repository_host' in os.environ:
+        emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        emr = boto3.client('emr')
     clusters = emr.list_clusters(ClusterStates=['WAITING'])
     clusters = clusters.get('Clusters')
     for i in clusters:
@@ -719,7 +743,10 @@ def get_spark_version(cluster_name):
 
 def get_hadoop_version(cluster_name):
     hadoop_version = ''
-    emr = boto3.client('emr')
+    if 'conf_dlab_repository_host' in os.environ:
+        emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        emr = boto3.client('emr')
     clusters = emr.list_clusters(ClusterStates=['WAITING'])
     clusters = clusters.get('Clusters')
     for i in clusters:
@@ -771,7 +798,10 @@ def get_list_instance_statuses(instance_ids):
 
 
 def get_list_cluster_statuses(cluster_ids, data=[]):
-    client = boto3.client('emr')
+    if 'conf_dlab_repository_host' in os.environ:
+        client = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+    else:
+        client = boto3.client('emr')
     for i in cluster_ids:
         host = {}
         try:
@@ -872,7 +902,10 @@ def get_ec2_price(instance_shape, region):
 def get_spot_instances_status(cluster_id):
     try:
         ec2 = boto3.client('ec2')
-        emr = boto3.client('emr')
+        if 'conf_dlab_repository_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        else:
+            emr = boto3.client('emr')
         ec2_ids = emr.list_instances(ClusterId=cluster_id).get('Instances')
         ids_list = []
         for ins in ec2_ids:
