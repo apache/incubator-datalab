@@ -55,10 +55,10 @@ export class ApplicationSecurityService {
         map(response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
             if (!DICTIONARY.use_ldap) {
-              this.setAuthToken(response.json().access_token);
-              this.setUserName(response.json().username);
+              this.setAuthToken(response.body.access_token);
+              this.setUserName(response.body.username);
             } else {
-              this.setAuthToken(response.text());
+              this.setAuthToken(response.body);
               this.setUserName(loginModel.username);
             }
             this._loggedInStatus.next(true);
@@ -66,7 +66,7 @@ export class ApplicationSecurityService {
           }
           this._loggedInStatus.next(false);
           return false;
-        }, this));
+        }));
   }
 
   public logout(): Observable<boolean> {
@@ -107,7 +107,6 @@ export class ApplicationSecurityService {
   public isLoggedIn(): Observable<boolean> {
     const authToken = this.getAuthToken();
     const currentUser = this.getCurrentUserName();
-
     if (authToken && currentUser) {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
@@ -124,8 +123,8 @@ export class ApplicationSecurityService {
           }),
           catchError(error => {
             // this.handleError(error);
-            // let errObj = error.json();
-            this.emmitMessage(error.message);
+            let errObj = error.json();
+            this.emmitMessage(errObj.message);
             this.clearAuthToken();
 
             return observableOf(false);
@@ -137,11 +136,13 @@ export class ApplicationSecurityService {
   }
 
   public redirectParams(params): Observable<boolean> {
+    console.log('redirect patams');
+
     return this.serviceFacade
       .buildGetAuthToken(params)
       .pipe(
         map((response: any) => {
-          const data = response.json();
+          const data = response.body;
           if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
             this.setAuthToken(data.access_token);
             this.setUserName(data.username);
@@ -152,7 +153,7 @@ export class ApplicationSecurityService {
 
           if (response.status !== 200) {
             // this.handleError(response);
-            const errObj = response.json();
+            const errObj = response.body;
             this.emmitMessage(errObj.message);
           }
           return false;

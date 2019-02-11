@@ -35,6 +35,7 @@ import { SchedulerService } from './services/scheduler.service';
 import { ManageEnvironmentsService } from './services/managementEnvironments.service';
 import { RolesGroupsService } from './services/rolesManagement.service';
 import { DataengineConfigurationService } from './services/dataengineConfiguration.service';
+import { JwtService } from './services/jwt.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -65,7 +66,8 @@ export class CoreModule {
         ManageEnvironmentsService,
         RolesGroupsService,
         ApplicationServiceFacade,
-        DataengineConfigurationService
+        DataengineConfigurationService,
+        JwtService
       ]
     };
   }
