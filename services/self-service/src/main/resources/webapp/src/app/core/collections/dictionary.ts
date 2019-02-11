@@ -16,7 +16,15 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { IDictionary } from './idictionary';
+export interface IDictionary <T> {
+  Add(key: string, value: T);
+  ContainsKey(key: string): boolean;
+  Count(): number;
+  Item(key: string): T;
+  Keys(): string[];
+  Remove(key: string): T;
+  Values(): T[];
+}
 
 export class Dictionary<T> implements IDictionary<T> {
   private items: { [index: string]: T } = {};
