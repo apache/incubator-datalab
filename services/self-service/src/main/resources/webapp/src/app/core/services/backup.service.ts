@@ -46,7 +46,7 @@ export class BackupService {
     return this.applicationServiceFacade
       .buildGetBackupStatusRequest(body)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         map(data => (this.creatingBackup = data)),
         catchError(ErrorUtils.handleServiceError));
   }

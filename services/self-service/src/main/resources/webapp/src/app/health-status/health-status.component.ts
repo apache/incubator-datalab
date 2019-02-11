@@ -208,6 +208,9 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
       this.getBackupStatus(result);
       // this.toastr.success('Backup configuration is processing!', 'Processing!', { toastLife: 5000 });
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
+    },
+    error => {
+      // this.toastr.error(error.message, 'Oops!', { toastLife: 5000 })
     });
   }
 
@@ -231,7 +234,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
   }
 
   private getBackupStatus(result) {
-    const uuid = result.text();
+    const uuid = result.body;
     this.backupService.getBackupStatus(uuid)
         .subscribe((backupStatus: any) => {
         if (!this.creatingBackup) {
