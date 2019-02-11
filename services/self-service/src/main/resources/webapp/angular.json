@@ -77,7 +77,8 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/ng2-toastr/bundles/ng2-toastr.min.css"
+              "node_modules/ng2-toastr/bundles/ng2-toastr.min.css",
+              "src/assets/fonts/iconfont/material-icons.css"
             ],
             "assets": [
               "src/assets",

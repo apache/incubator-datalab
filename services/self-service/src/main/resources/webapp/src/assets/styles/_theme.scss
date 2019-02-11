@@ -22,7 +22,13 @@ limitations under the License.
   height: 35px;
   padding: 0 20px;
   border-radius: 0;
-  font: 600 16px/1.45 'Open Sans';
+  // font: 600 16px/1.45 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.45px;
+  font-family:'Open Sans', sans-serif;
+  
   color: #577289;
 }
 .mat-raised-button.butt.mini {
@@ -102,7 +108,12 @@ font-weight: 400;
 
 .backup-dialog span.mat-slide-toggle-content,
 .scheduler-dialog span.mat-slide-toggle-content {
-  font: 100 16px/24px 'Open Sans', sans-serif;
+  // font: 100 16px/24px 'Open Sans', sans-serif;
+  font-style: normal;
+  font-weight: 100;
+  font-size: 16px;
+  line-height: 24px;
+  font-family:'Open Sans', sans-serif;
 }
 .backup-dialog .mat-slide-toggle,
 .scheduler-dialog .mat-slide-toggle {
