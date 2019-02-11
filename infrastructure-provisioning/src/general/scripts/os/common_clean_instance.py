@@ -38,11 +38,15 @@ def general_clean():
         sudo('npm -g uninstall ungit')
         sudo('rm -f /etc/systemd/system/ungit.service')
         sudo('systemctl daemon-reload')
-        remove_os_pkg(['nodejs', 'npm'])
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('rm -rf /opt/node/')
+        else:
+            remove_os_pkg(['nodejs', 'npm'])
         sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
+
 
 def clean_jupyter():
     try:
@@ -60,6 +64,7 @@ def clean_jupyter():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def clean_zeppelin():
     try:
         sudo('systemctl stop zeppelin-notebook')
@@ -74,6 +79,7 @@ def clean_zeppelin():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def clean_rstudio():
     try:
         remove_os_pkg(['rstudio-server'])
@@ -82,6 +88,7 @@ def clean_rstudio():
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
+
 
 def clean_tensor():
     try:
@@ -93,6 +100,7 @@ def clean_tensor():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def clean_tensor_rstudio():
     try:
         clean_rstudio()
@@ -102,6 +110,7 @@ def clean_tensor_rstudio():
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
+
 
 if __name__ == "__main__":
     print('Configure connections')
