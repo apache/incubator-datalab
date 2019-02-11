@@ -1406,7 +1406,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
     python_version = python_version[0:5]
     if not os.path.exists('/opt/python/python' + python_version):
         local('wget https://www.python.org/ftp/python/' + python_version +
-              '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
+              '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz')
         local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
         with lcd('/tmp/Python-' + python_version):
             local('./configure --prefix=/opt/python/python' + python_version +

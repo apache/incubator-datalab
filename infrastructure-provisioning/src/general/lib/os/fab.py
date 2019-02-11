@@ -95,8 +95,14 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 
 
 def ensure_dataengine_tensorflow_jars(jars_dir):
-    local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
-         -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
+    if 'conf_dlab_repository_host' in os.environ:
+        local('wget https://{0}/repository/jenkins-hosted/spark-tensorflow-connector-1.0.0-s_2.11.jar -O '
+              '{1}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(os.environ['conf_dlab_repository_host'],
+                                                                      jars_dir))
+    else:
+        local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
+              '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar -O '
+              '{}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
 
 
 def prepare(dataengine_service_dir, yarn_dir):

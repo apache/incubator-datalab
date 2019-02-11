@@ -52,8 +52,12 @@ cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
-             "-bin-hadoop" + hadoop_version + ".tgz"
+if 'conf_dlab_repository_host' in os.environ:
+    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+        os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
+else:
+    spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
+                                                                                                      hadoop_version)
 
 
 def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user, multiple_clusters, spark_master):
@@ -154,8 +158,13 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
 def install_remote_livy(args):
     local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
     local('sudo service zeppelin-notebook stop')
-    local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/' +
-          args.cluster_name + '/livy-server-' + args.livy_version + '.zip')
+    if 'conf_dlab_repository_host' in os.environ:
+        local('sudo wget -i https://{1}/repository/jenkins-hosted/livy-server-{0}.zip -O '
+              '/opt/{2}/livy-server-{0}.zip'.format(args.livy_version, os.environ['conf_dlab_repository_host'],
+                                                    args.cluster_name))
+    else:
+        local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/' +
+              args.cluster_name + '/livy-server-' + args.livy_version + '.zip')
     local('sudo unzip /opt/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip -d /opt/' +
           args.cluster_name + '/')
     local('sudo mv /opt/' + args.cluster_name + '/livy-server-' + args.livy_version + '/ /opt/' + args.cluster_name +

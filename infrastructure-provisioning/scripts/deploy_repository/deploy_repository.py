@@ -841,7 +841,7 @@ def install_nexus():
                 mounting_disks()
             else:
                 mount_efs()
-            sudo('apt-get install -y maven')
+            sudo('apt-get install -y maven nmap')
             sudo('mkdir -p /opt/nexus')
             sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
                   /opt/nexus-{1}-unix.tar.gz'.format(
@@ -1169,7 +1169,9 @@ def download_packages():
                 'https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version),
                 'http://archive.apache.org/dist/zeppelin/zeppelin-{0}/zeppelin-{0}-bin-netinst.tgz'.format(
                     zeppelin_version),
-                'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(livy_version)
+                'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(livy_version),
+                'https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
+                '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar'
             ]
             packages_list = list()
             for package in packages_urls:

@@ -50,9 +50,16 @@ local_jars_dir = '/opt/jars/'
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-scala_link = "http://www.scala-lang.org/files/archive/"
-spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
-             "-bin-hadoop" + hadoop_version + ".tgz"
+if 'conf_dlab_repository_host' in os.environ:
+    scala_link = 'https://{0}/repository/jenkins-hosted/'.format(os.environ['conf_dlab_repository_host'])
+else:
+    scala_link = "http://www.scala-lang.org/files/archive/"
+if 'conf_dlab_repository_host' in os.environ:
+    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+        os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
+else:
+    spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
+                                                                                                      hadoop_version)
 
 
 def r_kernel(args):
