@@ -242,13 +242,18 @@ limitations under the License.
                         <exclude>.git/**</exclude>
                         <exclude>.idea/**</exclude>
                         <exclude>**/.gitignore</exclude>
+                        <exclude>**/.idea/**</exclude>
                         <exclude>**/*.ini</exclude>
+                        <exclude>**/*.ipynb</exclude>
+                        <exclude>**/*.iml</exclude>
                         <exclude>**/*.json</exclude>
+                        <exclude>**/*.r</exclude>
                         <exclude>**/__init__.py</exclude>
                         <exclude>**/*.conf</exclude>
                         <exclude>**/.gitkeep</exclude>
                         <exclude>**/*.lst</exclude>
                         <exclude>**/*template</exclude>
+                        <exclude>**/*.pub</exclude>
                     </excludes>
                 </configuration>
                 <executions>
