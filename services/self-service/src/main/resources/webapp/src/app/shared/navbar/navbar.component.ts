@@ -26,7 +26,8 @@ import { ApplicationSecurityService,
   HealthStatusService,
   AppRoutingService,
   UserAccessKeyService,
-  SchedulerService } from '../../core/services';
+  SchedulerService,
+  StorageService} from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
@@ -64,6 +65,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
     private schedulerService: SchedulerService,
+    private storage: StorageService,
     private dialog: MatDialog
   ) {
     // this.toastr.setRootViewContainerRef(vcr);
@@ -98,7 +100,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   getUserName(): string {
-    return this.applicationSecurityService.getCurrentUserName() || '';
+    return this.storage.getUserName() || '';
   }
 
   logout_btnClick(): void {
@@ -118,7 +120,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       width: '550px'
     });
     dialogRef.afterClosed().subscribe(() => {
-      this.applicationSecurityService.setBillingQuoteUsed('informed');
+      this.storage.setBillingQuoteUsed('informed');
     });
   }
 
@@ -137,7 +139,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private checkQuoteUsed(params): void {
-    if (!this.applicationSecurityService.getBillingQuoteUsed() && params) {
+    if (!this.storage.getBillingQuoteUsed() && params) {
       let checkQuotaAlert = '';
 
       if (params.billingUserQuoteUsed >= this.quotesLimit && params.billingUserQuoteUsed < 100) checkQuotaAlert = 'user_quota';

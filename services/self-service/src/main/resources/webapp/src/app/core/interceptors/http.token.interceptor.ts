@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { JwtService } from '../services/jwt.service';
+import { StorageService } from '../services/storage.service';
 import {
     HttpInterceptor,
     HttpRequest,
@@ -28,7 +28,7 @@ import {
 import { Observable } from 'rxjs';
 
 @Injectable() export class HttpTokenInterceptor implements HttpInterceptor {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: StorageService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.jwtService.getToken();

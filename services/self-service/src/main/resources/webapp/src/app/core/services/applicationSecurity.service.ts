@@ -23,17 +23,14 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { AppRoutingService } from './appRouting.service';
+import { StorageService } from './storage.service';
 import { LoginModel } from '../../login/login.model';
-import { ErrorUtils, HTTP_STATUS_CODES } from '../util';
+import { HTTP_STATUS_CODES } from '../util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
 export class ApplicationSecurityService {
-  private accessTokenKey: string = 'access_token';
-  private userNameKey: string = 'user_name';
-  private quoteUsedKey: string = 'billing_quote';
   private _loggedInStatus = new BehaviorSubject<boolean>(null);
-
   readonly DICTIONARY = DICTIONARY;
 
   emitter: BehaviorSubject<any> = new BehaviorSubject<any>('');
@@ -41,7 +38,8 @@ export class ApplicationSecurityService {
 
   constructor(
     private serviceFacade: ApplicationServiceFacade,
-    private appRoutingService: AppRoutingService
+    private appRoutingService: AppRoutingService,
+    private storage: StorageService,
   ) {}
 
   get loggedInStatus() {
@@ -55,11 +53,11 @@ export class ApplicationSecurityService {
         map(response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
             if (!DICTIONARY.use_ldap) {
-              this.setAuthToken(response.body.access_token);
-              this.setUserName(response.body.username);
+              this.storage.setAuthToken(response.body.access_token);
+              this.storage.setUserName(response.body.username);
             } else {
-              this.setAuthToken(response.body);
-              this.setUserName(loginModel.username);
+              this.storage.setAuthToken(response.body);
+              this.storage.setUserName(loginModel.username);
             }
             this._loggedInStatus.next(true);
             return true;
@@ -70,15 +68,15 @@ export class ApplicationSecurityService {
   }
 
   public logout(): Observable<boolean> {
-    const authToken = this.getAuthToken();
+    const authToken = this.storage.getToken();
 
     if (!!authToken) {
       return this.serviceFacade
         .buildLogoutRequest()
         .pipe(
           map(response => {
-            this.clearAuthToken();
-            this.setBillingQuoteUsed('');
+            this.storage.destroyToken();
+            this.storage.setBillingQuoteUsed('');
             this._loggedInStatus.next(false);
 
             return response.status === HTTP_STATUS_CODES.OK;
@@ -88,25 +86,9 @@ export class ApplicationSecurityService {
     return observableOf(false);
   }
 
-  public getCurrentUserName(): string {
-    return localStorage.getItem(this.userNameKey);
-  }
-
-  public getAuthToken(): string {
-    return localStorage.getItem(this.accessTokenKey);
-  }
-
-  public getBillingQuoteUsed(): string {
-    return localStorage.getItem(this.quoteUsedKey);
-  }
-
-  public setBillingQuoteUsed(quoteUsedKey): void {
-    localStorage.setItem(this.quoteUsedKey, quoteUsedKey);
-  }
-
   public isLoggedIn(): Observable<boolean> {
-    const authToken = this.getAuthToken();
-    const currentUser = this.getCurrentUserName();
+    const authToken = this.storage.getToken();
+    const currentUser = this.storage.getUserName();
     if (authToken && currentUser) {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
@@ -117,7 +99,7 @@ export class ApplicationSecurityService {
               return true;
             }
 
-            this.clearAuthToken();
+            this.storage.destroyToken();
             this.appRoutingService.redirectToLoginPage();
             return false;
           }),
@@ -125,7 +107,7 @@ export class ApplicationSecurityService {
             // this.handleError(error);
             let errObj = error.json();
             this.emmitMessage(errObj.message);
-            this.clearAuthToken();
+            this.storage.destroyToken();
 
             return observableOf(false);
           }));
@@ -144,15 +126,14 @@ export class ApplicationSecurityService {
         map((response: any) => {
           const data = response.body;
           if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
-            this.setAuthToken(data.access_token);
-            this.setUserName(data.username);
+            this.storage.setAuthToken(data.access_token);
+            this.storage.setUserName(data.username);
 
             this.appRoutingService.redirectToHomePage();
             return true;
           }
 
           if (response.status !== 200) {
-            // this.handleError(response);
             const errObj = response.body;
             this.emmitMessage(errObj.message);
           }
@@ -162,7 +143,6 @@ export class ApplicationSecurityService {
           if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
             window.location.href = error.headers.get('Location');
           } else {
-            // this.handleError(error);
             const errObj = error.json();
             this.emmitMessage(errObj.message);
             return observableOf(false);
@@ -170,26 +150,8 @@ export class ApplicationSecurityService {
         }));
   }
 
-  // private handleError(error: any) {
-  //   // this.emmitMessage(ErrorUtils.handleError(error));
-  //   this.emmitMessage(error.message);
-  // }
-
   private emmitMessage(message): void {
     this.appRoutingService.redirectToLoginPage();
     this.emitter.next(message);
-  }
-
-  private setUserName(userName): void {
-    localStorage.setItem(this.userNameKey, userName);
-  }
-
-  private setAuthToken(accessToken): void {
-    const encodedToken = accessToken;
-    localStorage.setItem(this.accessTokenKey, encodedToken);
-  }
-
-  private clearAuthToken(): void {
-    localStorage.removeItem(this.accessTokenKey);
   }
 }
