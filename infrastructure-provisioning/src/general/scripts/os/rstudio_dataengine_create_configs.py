@@ -41,15 +41,16 @@ parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--spark_configurations', type=str, default='')
+parser.add_argument('--conf_dlab_repository_host', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-if 'conf_dlab_repository_host' in os.environ:
+if args.conf_dlab_repository_host != '':
     spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
-        os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
+        args.conf_dlab_repository_host, spark_version, hadoop_version)
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
                                                                                                       hadoop_version)

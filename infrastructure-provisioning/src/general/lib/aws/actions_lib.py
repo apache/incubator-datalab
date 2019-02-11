@@ -1453,7 +1453,11 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         else:
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
-            local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
+            try:
+                local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
+            except:
+                local(venv_command + ' && sudo -i ' + pip_command + ' install ipython==5.0.0 --no-cache-dir')
+                local(venv_command + ' && sudo -i ' + pip_command + ' install ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
                   ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(numpy_version))
             # Need to refactor when we add GPU cluster

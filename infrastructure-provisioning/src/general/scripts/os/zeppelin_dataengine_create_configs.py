@@ -46,15 +46,16 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
 parser.add_argument('--spark_configurations', type=str, default='')
+parser.add_argument('--conf_dlab_repository_host', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-if 'conf_dlab_repository_host' in os.environ:
+if args.conf_dlab_repository_host != '':
     spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
-        os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
+        args.conf_dlab_repository_host, spark_version, hadoop_version)
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
                                                                                                       hadoop_version)
@@ -158,9 +159,9 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
 def install_remote_livy(args):
     local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
     local('sudo service zeppelin-notebook stop')
-    if 'conf_dlab_repository_host' in os.environ:
+    if args.conf_dlab_repository_host != '':
         local('sudo wget -i https://{1}/repository/jenkins-hosted/livy-server-{0}.zip -O '
-              '/opt/{2}/livy-server-{0}.zip'.format(args.livy_version, os.environ['conf_dlab_repository_host'],
+              '/opt/{2}/livy-server-{0}.zip'.format(args.livy_version, args.conf_dlab_repository_host,
                                                     args.cluster_name))
     else:
         local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/' +

@@ -74,6 +74,10 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
+    if 'conf_dlab_repository_host' in os.environ:
+        repository_host = os.environ['conf_dlab_repository_host']
+    else:
+        repository_host = ''
     command = "/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
              "--bucket {0} " \
              "--cluster_name {1} " \
@@ -93,6 +97,7 @@ if __name__ == "__main__":
              "--numpy_version {15} " \
              "--application {16} " \
              "--r_enabled {17}" \
+             "--conf_dlab_repository_host {18}" \
         .format(args.bucket,
                 args.cluster_name,
                 args.emr_version,
@@ -110,5 +115,6 @@ if __name__ == "__main__":
                 args.pip_mirror,
                 numpy_version,
                 args.application,
-                r_enabled)
+                r_enabled,
+                repository_host)
     sudo(command)
