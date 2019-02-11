@@ -298,12 +298,21 @@ def install_r_pkg(requisites):
     status = list()
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires"
     try:
+        if 'conf_dlab_repository_host' in os.environ:
+            r_repo = 'https://{}/repository/r-repo'.format(os.environ['conf_dlab_repository_host'])
+        else:
+            r_repo = 'http://cran.us.r-project.org'
         for r_pkg in requisites:
             if r_pkg == 'sparklyr':
-                run('sudo -i R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
-            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+                run('sudo -i R -e \'install.packages("{0}", repos="{2}", dep=TRUE)\' 2>&1 | '
+                    'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > '
+                    '/tmp/install_{0}.log;fi'.format(r_pkg, error_parser, r_repo))
+            sudo('R -e \'install.packages("{0}", repos="{2}", dep=TRUE)\' 2>&1 | '
+                 'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > '
+                 '/tmp/install_{0}.log;fi'.format(r_pkg, error_parser, r_repo))
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
-            sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
+            sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > '
+                 '/tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
@@ -383,7 +392,11 @@ def install_java_pkg(requisites):
 def get_available_r_pkgs():
     try:
         r_pkgs = dict()
-        sudo('R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('R -e \'write.table(available.packages(contriburl="https://{}/repository/r-repo/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\''.format(os.environ['conf_dlab_repository_host']))
+        else:
+            sudo(
+                'R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
         get("/tmp/r.csv", "r.csv")
         with open('r.csv', 'rb') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')

@@ -25,6 +25,8 @@ from dlab.fab import *
 from fabric.api import *
 import json
 import xmlrpclib
+import httplib
+import os
 
 
 parser = argparse.ArgumentParser()
@@ -34,11 +36,29 @@ parser.add_argument('--keyfile', type=str, default='')
 args = parser.parse_args()
 
 
+class ProxiedTransport(xmlrpclib.Transport):
+
+    def set_proxy(self, host, port=None, headers=None):
+        self.proxy = host, port
+        self.proxy_headers = headers
+
+    def make_connection(self, host):
+        connection = httplib.HTTPSConnection(*self.proxy)
+        connection.set_tunnel(host, headers=self.proxy_headers)
+        self._connection = host, connection
+        return connection
+
+
 def get_available_pip_pkgs(version):
     try:
         for _ in range(100):
             pip_pkgs = dict()
-            client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+            if 'conf_dlab_repository_host' in os.environ:
+                transport = ProxiedTransport()
+                transport.set_proxy('{}'.format(os.environ['conf_dlab_repository_host']), 3128)
+                client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi', transport=transport)
+            else:
+                client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
             raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
             all_pkgs = [i[0] for i in raw_pkgs]
             if len(all_pkgs) != 0:
@@ -56,7 +76,12 @@ def get_available_pip_pkgs(version):
 def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
     try:
         pip_pkgs = dict()
-        client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+        if 'conf_dlab_repository_host' in os.environ:
+            transport = ProxiedTransport()
+            transport.set_proxy('{}'.format(os.environ['conf_dlab_repository_host']), 3128)
+            client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi', transport=transport)
+        else:
+            client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
         raw_pkgs = client.list_packages()
         all_pkgs_other = []
         for pkg in raw_pkgs:
