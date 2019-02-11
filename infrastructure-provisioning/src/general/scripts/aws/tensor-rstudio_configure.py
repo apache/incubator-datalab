@@ -65,6 +65,8 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'],
+                                                            notebook_config['instance_name']).get('Private')
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
@@ -144,14 +146,15 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE TENSORFLOW-RSTUDIO NOTEBOOK INSTANCE]')
         print('[CONFIGURE TENSORFLOW-RSTUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {}  --keyfile {} " \
-                 "--region {} --rstudio_pass {} " \
-                 "--rstudio_version {} --os_user {} " \
-                 "--r_mirror {} --exploratory_name {}" \
+        params = "--hostname {0}  --keyfile {1} " \
+                 "--region {2} --rstudio_pass {3} " \
+                 "--rstudio_version {4} --os_user {5} " \
+                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8}" \
             .format(instance_hostname, keyfile_name,
                     os.environ['aws_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
-                    os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
+                    os.environ['notebook_r_mirror'], notebook_config['ip_address'],
+                    notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor-rstudio_node', params))
         except:

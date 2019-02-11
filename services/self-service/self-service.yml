@@ -16,18 +16,18 @@
 #
 # ******************************************************************************
 
-  <#include "ssn.yml">
+<#include "ssn.yml">
 
-  <#if CLOUD_TYPE == "aws">
+<#if CLOUD_TYPE == "aws">
 # Minimum and maximum number of slave EMR instances than could be created
 minEmrInstanceCount: 2
 maxEmrInstanceCount: 14
 # Minimum and maximum percentage cost for slave EMR spot instances biding
 minEmrSpotInstanceBidPct: 20
 maxEmrSpotInstanceBidPct: 90
-  </#if>
+</#if>
 
-  <#if CLOUD_TYPE == "gcp">
+<#if CLOUD_TYPE == "gcp">
 # Maximum length for gcp user name (due to gcp restrictions)
 maxUserNameLength: 10
 # Minimum and maximum number of slave Dataproc instances that could be created
@@ -35,7 +35,7 @@ minInstanceCount: 3
 maxInstanceCount: 15
 minDataprocPreemptibleCount: 0
 gcpOuauth2AuthenticationEnabled: false
-  </#if>
+</#if>
 
 # Boundaries for Spark cluster creation
 minSparkInstanceCount: 2
@@ -52,16 +52,16 @@ roleDefaultAccess: true
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
 # Name of configuration file for billing report.
-  <#if DEV_MODE == "true">
+<#if DEV_MODE == "true">
 billingConfFile: ${sys['user.dir']}/../billing/billing.yml
-  <#else>
+<#else>
 billingConfFile: ${DLAB_CONF_DIR}/billing.yml
-  </#if>
+</#if>
 
-  <#if CLOUD_TYPE == "azure">
+<#if CLOUD_TYPE == "azure">
 azureUseLdap: <LOGIN_USE_LDAP>
 maxSessionDurabilityMilliseconds: 288000000
-  </#if>
+</#if>
 
 server:
   requestLog:
@@ -73,8 +73,8 @@ server:
       archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-  #    - type: http
-  #      port: 8080
+#    - type: http
+#      port: 8080
   - type: https
     port: 8443
     certAlias: dlab
@@ -84,8 +84,8 @@ server:
     trustStorePath: ${TRUST_STORE_PATH}
     trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-  #    - type: http
-  #      port: 8081
+#    - type: http
+#      port: 8081
   - type: https
     port: 8444
     certAlias: dlab
@@ -103,9 +103,9 @@ logging:
     com.epam: TRACE
     com.novemberain: ERROR
   appenders:
-  <#if DEV_MODE == "true">
+<#if DEV_MODE == "true">
   - type: console
-    </#if>
+</#if>
   - type: file
     currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
     archive: true

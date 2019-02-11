@@ -92,6 +92,7 @@ def configure_dataengine_service(instance, emr_conf):
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
+
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')

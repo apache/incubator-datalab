@@ -1,0 +1,8 @@
+[Unit]
+Description=inactivity check
+
+[Service]
+User=root
+Type=oneshot
+ExecStart=/bin/bash /opt/inactivity/inactive.sh
+

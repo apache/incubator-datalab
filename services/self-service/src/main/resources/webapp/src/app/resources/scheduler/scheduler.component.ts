@@ -58,7 +58,7 @@ export class SchedulerComponent implements OnInit {
   public inactivityLimits = { min: 10, max: 10080 };
 
 
-  public idleImplemented: boolean = false;
+  public idleImplemented: boolean = true;
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;

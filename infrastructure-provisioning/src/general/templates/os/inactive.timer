@@ -1,0 +1,10 @@
+[Unit]
+Description=inactive service
+
+[Timer]
+OnUnitActiveSec=3s
+OnBootSec=120s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

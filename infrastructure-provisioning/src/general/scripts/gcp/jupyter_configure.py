@@ -52,6 +52,7 @@ if __name__ == "__main__":
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
+    notebook_config['ip_address'] = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -117,16 +118,16 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} " \
-                 "--region {} --spark_version {} " \
-                 "--hadoop_version {} --os_user {} " \
-                 "--scala_version {} --r_mirror {} " \
-                 "--exploratory_name {}".\
+        params = "--hostname {0} --keyfile {1} " \
+                 "--region {2} --spark_version {3} " \
+                 "--hadoop_version {4} --os_user {5} " \
+                 "--scala_version {6} --r_mirror {7} " \
+                 "--ip_adress {8} --exploratory_name {9}".\
             format(instance_hostname, notebook_config['ssh_key_path'],
                    os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
-                   notebook_config['exploratory_name'])
+                   notebook_config['ip_address'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
         except:
