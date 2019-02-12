@@ -201,6 +201,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
             if 'conf_dlab_repository_host' in os.environ:
                 local('sed -i "s|LOCAL_REPO_ENABLED|true|g" /root/templates/ssn.yml')
+            else:
+                local('sed -i "s|LOCAL_REPO_ENABLED|false|g" /root/templates/ssn.yml')
             sudo('sed -i "s|KEYNAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
                  format(os.environ['conf_key_name'], dlab_path))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
