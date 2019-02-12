@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     print("Removing peering connection")
     try:
-        remove_peering('*')
+        remove_peering('args.service_base_name')
     except:
         sys.exit(1)
 
