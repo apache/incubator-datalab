@@ -39,7 +39,7 @@ export class ErrorUtils {
   // }
 
   public static handleServiceError(errorMessage) {
-    const error = errorMessage.json();
+    const error = JSON.parse(errorMessage.error);
 
     return observableThrowError({
       status: error.code,
