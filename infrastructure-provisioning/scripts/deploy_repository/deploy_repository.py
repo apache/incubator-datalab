@@ -55,6 +55,7 @@ parser.add_argument('--efs_id', type=str, default='', help="ID of AWS EFS")
 parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk size of primary volume")
 parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
 parser.add_argument('--dlab_conf_file_path', required=True, type=str, default='', help="Full path to DLab conf file")
+parser.add_argument('--nexus_admin_password', type=str, default='', help="Password for Nexus admin user")
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
 
@@ -874,6 +875,7 @@ def install_nexus():
             sudo('systemctl enable nexus')
             put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
             sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
+            sudo('sed -i "s/ADMIN_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_admin_password))
             put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
             script_executed = False
             while not script_executed:
@@ -975,14 +977,16 @@ def install_nexus():
             script_executed = False
             while not script_executed:
                 try:
-                    sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "admin123" '
-                         '-n "addCustomRepository" -f "/tmp/addCustomRepository.groovy" -h "http://localhost:8081"')
+                    sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "{}" '
+                         '-n "addCustomRepository" -f "/tmp/addCustomRepository.groovy" -h '
+                         '"http://localhost:8081"'.format(args.nexus_admin_password))
                     script_executed = True
                 except:
                     time.sleep(10)
                     pass
-            sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' '
-                 'http://localhost:8081/service/rest/v1/script/addCustomRepository/run')
+            sudo('curl -u admin:{} -X POST --header \'Content-Type: text/plain\' '
+                 'http://localhost:8081/service/rest/v1/script/addCustomRepository/run'.format(
+                  args.nexus_admin_password))
             sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
@@ -1190,11 +1194,11 @@ def download_packages():
             with cd('packages'):
                 for package in packages_list:
                     run('wget {0}'.format(package['url']))
-                    run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
+                    run('curl -v -u admin:{2} -F "raw.directory=/" -F '
                         '"raw.asset1=@/home/{0}/packages/{1}" '
                         '-F "raw.asset1.filename={1}"  '
                         '"http://localhost:8081/service/rest/v1/components?repository=packages"'.format(
-                         configuration['conf_os_user'], package['name']))
+                         configuration['conf_os_user'], package['name'], args.nexus_admin_password))
             sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
@@ -1285,6 +1289,8 @@ if __name__ == "__main__":
     cudnn_file_name_deeplearning = 'cudnn-8.0-linux-x64-v6.0.tgz'
     tensorflow_version_deeplearning = '1.4.0'
     python3_version = '3.4.0'
+    if args.nexus_admin_password == '':
+        args.nexus_admin_password = id_generator()
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:

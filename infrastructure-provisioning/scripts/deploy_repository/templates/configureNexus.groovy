@@ -57,4 +57,5 @@ security.addUser("docker-nexus",
       "docker-nexus@example.org", true,
       "docker-nexus", [ role.roleId ])
 
+security.securitySystem.changePassword('admin','ADMIN_PASSWORD')
 log.info('Script completed successfully')

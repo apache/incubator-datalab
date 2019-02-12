@@ -31,6 +31,8 @@ cloudProvider: ${CLOUD_TYPE}
 <#assign DEV_MODE="false">
 devMode: ${DEV_MODE}
 
+<#assign DLAB_LOCAL_REPO="LOCAL_REPO_ENABLED">
+
 mongo:
   host: localhost
   port: 27017

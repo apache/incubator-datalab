@@ -165,6 +165,10 @@ def build_ui():
         sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
              '{0}/webapp/provisioning-service/lib/'.format(args.dlab_path))
 
+        if 'conf_dlab_repository_host' in os.environ:
+            sudo('sed -i "s/DLAB_LOCAL_REPO_HOST/{0}/g" {1}/sources/services/self-service/self-service.yml'.format(
+                os.environ['conf_dlab_repository_host'], args.dlab_path))
+
         sudo('sed -i "s/LDAP_HOST/{0}/g" {1}/sources/services/security-service/security.yml'.format(
             os.environ['ldap_hostname'], args.dlab_path))
         sudo('sed -i "s/LDAP_USER/{0}/g" {1}/sources/services/security-service/security.yml'.format(

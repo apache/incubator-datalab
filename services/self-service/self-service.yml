@@ -130,6 +130,12 @@ mavenSearchService:
   jerseyClient:
     timeout: 5s
     connectionTimeout: 5s
+<#if DLAB_LOCAL_REPO == "true">
+    proxy:
+      host: DLAB_LOCAL_REPO_HOST
+      port: 3128
+      scheme: http
+</#if>
 
 schedulers:
   inactivity:
