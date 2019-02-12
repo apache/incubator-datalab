@@ -168,6 +168,7 @@ if __name__ == "__main__":
                 print('[CREATE PEERING CONNECTION]')
                 os.environ['aws_peering_id'] = create_peering_connection(os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], service_base_name)
                 print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
+                create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc2_id']))
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create peering connection.", str(err))
