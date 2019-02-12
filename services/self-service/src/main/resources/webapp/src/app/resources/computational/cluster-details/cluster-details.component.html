@@ -81,7 +81,7 @@ limitations under the License.
           </label>
           <div class="checkbox-group">
             <form [formGroup]="configurationForm" novalidate>
-              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
+              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
                 <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
                 <span class="danger_color" *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
               </div>
