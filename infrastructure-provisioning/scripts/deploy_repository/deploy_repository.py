@@ -987,6 +987,7 @@ def install_nexus():
             sudo('curl -u admin:{} -X POST --header \'Content-Type: text/plain\' '
                  'http://localhost:8081/service/rest/v1/script/addCustomRepository/run'.format(
                   args.nexus_admin_password))
+            sudo('echo "admin:{}" > /opt/nexus/admin_credentials'.format(args.nexus_admin_password))
             sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
