@@ -31,7 +31,7 @@ export class BillingReportService {
     return this.applicationServiceFacade
       .buildGetGeneralBillingData(data)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 

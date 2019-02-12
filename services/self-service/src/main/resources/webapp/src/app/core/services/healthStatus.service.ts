@@ -17,9 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 
-import {catchError, map} from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { Observable ,  BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { catchError, map, tap} from 'rxjs/operators';
 
 import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
@@ -54,11 +54,11 @@ export class HealthStatusService {
         .pipe(
           map(response => {
             if (response.status === HTTP_STATUS_CODES.OK)
-              if (response.json().status === 'ok')
+              if (response.body.status === 'ok')
                 return true;
 
             return false;
-          }, this));
+          }));
   }
 
   public getEnvironmentHealthStatus(): Observable<GeneralEnvironmentStatus> {
@@ -66,8 +66,8 @@ export class HealthStatusService {
     .buildGetEnvironmentHealthStatus()
     .pipe(
       map(response => {
-        this._statusData.next(response.json());
-        return response.json();
+        this._statusData.next(response.body);
+        return response.body;
       }),
       catchError(ErrorUtils.handleServiceError));
   }
@@ -78,8 +78,8 @@ export class HealthStatusService {
     .buildGetEnvironmentStatuses(body)
     .pipe(
       map(response => {
-        this._statusData.next(response.json());
-        return response.json();
+        this._statusData.next(response);
+        return response;
       }),
       catchError(ErrorUtils.handleServiceError));
   }
@@ -110,24 +110,25 @@ export class HealthStatusService {
 
   public isBillingEnabled(): Observable<boolean> {
     return this.applicationServiceFacade
-    .buildGetEnvironmentHealthStatus().pipe(
-    map(response => {
-      if (response.status === HTTP_STATUS_CODES.OK) {
-        const data = response.json();
-        if (!data.billingEnabled) {
-          this.appRoutingService.redirectToHomePage();
-          return false;
-        }
-      }
-      return true;
-    }));
+      .buildGetEnvironmentHealthStatus()
+      .pipe(
+        map(response => {
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            const data = response.body;
+            if (!data.billingEnabled) {
+              this.appRoutingService.redirectToHomePage();
+              return false;
+            }
+          }
+          return true;
+        }));
   }
 
   public getActiveUsers(): Observable<Array<string>> {
     return this.applicationServiceFacade
       .buildGetActiveUsers()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -152,7 +153,7 @@ export class HealthStatusService {
     return this.applicationServiceFacade
       .buildGetSsnMonitorData()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(error => error));
   }
 
@@ -160,7 +161,7 @@ export class HealthStatusService {
     return this.applicationServiceFacade
       .buildGetTotalBudgetData()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(error => error));
   }
 

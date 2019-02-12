@@ -31,7 +31,7 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildGetGroupsData()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -39,7 +39,7 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildGetRolesData()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
