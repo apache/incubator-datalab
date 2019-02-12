@@ -52,11 +52,11 @@ local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 if args.conf_dlab_repository_host != '':
-    scala_link = 'https://{0}/repository/jenkins-hosted/'.format(args.conf_dlab_repository_host)
+    scala_link = 'https://{0}/repository/packages/'.format(args.conf_dlab_repository_host)
 else:
     scala_link = "http://www.scala-lang.org/files/archive/"
 if args.conf_dlab_repository_host != '':
-    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
         args.conf_dlab_repository_host, spark_version, hadoop_version)
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,

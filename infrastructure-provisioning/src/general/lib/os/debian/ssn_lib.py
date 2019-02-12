@@ -71,7 +71,7 @@ def ensure_jenkins(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget -q -O - https://{}/repository/jenkins-hosted/jenkins-ci.org.key'
+                sudo('wget -q -O - https://{}/repository/packages/jenkins-ci.org.key'
                      ' | apt-key add -'.format(os.environ['conf_dlab_repository_host']))
                 sudo('echo deb https://{}/repository/jenkins-repo/ binary/ > '
                      '/etc/apt/sources.list.d/jenkins.list'.format(os.environ['conf_dlab_repository_host']))
@@ -324,7 +324,7 @@ def install_build_dep():
             sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make')
             with cd('/opt/'):
                 if 'conf_dlab_repository_host' in os.environ:
-                    sudo('wget https://{0}/repository/jenkins-hosted/apache-maven-{1}-bin.zip'.format(
+                    sudo('wget https://{0}/repository/packages/apache-maven-{1}-bin.zip'.format(
                         os.environ['conf_dlab_repository_host'], maven_version))
                     sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                     put('templates/settings.xml', '/tmp/settings.xml')
@@ -340,14 +340,14 @@ def install_build_dep():
                     sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{0}/repository/jenkins-hosted/node-v8.15.0.tar.gz'.format(
+                sudo('wget https://{0}/repository/packages/node-v8.15.0.tar.gz'.format(
                     os.environ['conf_dlab_repository_host']))
                 sudo('tar zxvf node-v8.15.0.tar.gz')
                 sudo('mv node-v8.15.0 /opt/node')
                 with cd('/opt/node/'):
                     sudo('./configure')
                     sudo('make -j4')
-                    sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node'.format(
+                    sudo('wget https://{}/repository/packages/linux-x64-57_binding.node'.format(
                         os.environ['conf_dlab_repository_host']))
                     sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
                     sudo('source /etc/profile')

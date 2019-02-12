@@ -26,6 +26,7 @@ import json
 import time
 import string
 import random
+from ConfigParser import SafeConfigParser
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_base_name', required=True, type=str, default='',
@@ -53,6 +54,7 @@ parser.add_argument('--efs_enabled', type=str, default='False', help="True - use
 parser.add_argument('--efs_id', type=str, default='', help="ID of AWS EFS")
 parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk size of primary volume")
 parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
+parser.add_argument('--dlab_conf_file_path', required=True, type=str, default='', help="Full path to DLab conf file")
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
 
@@ -767,18 +769,19 @@ def remove_efs():
         raise Exception
 
 
-def ensure_ssh_user(initial_user, os_user):
+def ensure_ssh_user(initial_user):
     try:
         if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
-            sudo('useradd -m -G sudo -s /bin/bash {0}'.format(os_user))
-            sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
-            sudo('mkdir /home/{}/.ssh'.format(os_user))
-            sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
-            sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
-            sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
-            sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
-            sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
-            sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
+            sudo('useradd -m -G sudo -s /bin/bash {0}'.format(configuration['conf_os_user']))
+            sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(configuration['conf_os_user']))
+            sudo('mkdir /home/{}/.ssh'.format(configuration['conf_os_user']))
+            sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, configuration['conf_os_user']))
+            sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(
+                initial_user, configuration['conf_os_user']))
+            sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(configuration['conf_os_user']))
+            sudo('chmod 700 /home/{0}/.ssh'.format(configuration['conf_os_user']))
+            sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(configuration['conf_os_user']))
+            sudo('mkdir /home/{}/.ensure_dir'.format(configuration['conf_os_user']))
             sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
@@ -788,10 +791,10 @@ def ensure_ssh_user(initial_user, os_user):
 
 def install_java():
     try:
-        if not exists('/home/{}/.ensure_dir/java_ensured'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user'])):
             sudo('apt-get update')
             sudo('apt-get install -y default-jdk ')
-            sudo('touch /home/{}/.ensure_dir/java_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Java: {}'.format(str(err)))
@@ -800,7 +803,7 @@ def install_java():
 
 def install_groovy():
     try:
-        if not exists('/home/{}/.ensure_dir/groovy_ensured'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/groovy_ensured'.format(configuration['conf_os_user'])):
             sudo('apt-get install -y unzip')
             sudo('mkdir /usr/local/groovy')
             sudo('wget https://bintray.com/artifact/download/groovy/maven/apache-groovy-binary-{0}.zip -O \
@@ -809,7 +812,7 @@ def install_groovy():
                   /usr/local/groovy'.format(groovy_version))
             sudo('ln -s /usr/local/groovy/groovy-{} \
                   /usr/local/groovy/latest'.format(groovy_version))
-            sudo('touch /home/{}/.ensure_dir/groovy_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/groovy_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Groovy: {}'.format(str(err)))
@@ -836,7 +839,7 @@ def nexus_service_waiter():
     
 def install_nexus():
     try:
-        if not exists('/home/{}/.ensure_dir/nexus_ensured'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user'])):
             if args.efs_enabled == 'False':
                 mounting_disks()
             else:
@@ -980,7 +983,7 @@ def install_nexus():
                     pass
             sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' '
                  'http://localhost:8081/service/rest/v1/script/addCustomRepository/run')
-            sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Nexus: {}'.format(str(err)))
@@ -989,7 +992,7 @@ def install_nexus():
 
 def install_nginx():
     try:
-        if not exists('/home/{}/.ensure_dir/nginx_ensured'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user'])):
             hostname = sudo('hostname')
             sudo('apt-get install -y nginx')
             sudo('rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/default')
@@ -1003,7 +1006,7 @@ def install_nginx():
             sudo('cp /tmp/nexus.conf /etc/nginx/conf.d/nexus.conf'.format(args.subdomain, args.hosted_zone_name))
             sudo('systemctl restart nginx')
             sudo('systemctl enable nginx')
-            sudo('touch /home/{}/.ensure_dir/nginx_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Nginx: {}'.format(str(err)))
@@ -1012,7 +1015,7 @@ def install_nginx():
 
 def mounting_disks():
     try:
-        if not exists('/home/{}/.ensure_dir/additional_disk_mounted'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user'])):
             sudo('mkdir -p /opt/sonatype-work')
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1 | tr '\\n' ',' | sed 's|.$||g'")
             sudo('bash -c \'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}\' '.format(disk_name))
@@ -1023,7 +1026,7 @@ def mounting_disks():
             sudo('mount /dev/{0} /opt/sonatype-work'.format(partition_name))
             sudo('bash -c "echo \'/dev/{} /opt/sonatype-work ext4 errors=remount-ro 0 1\' >> /etc/fstab"'.format(
                 partition_name))
-            sudo('touch /home/{}/.ensure_dir/additional_disk_mounted'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Failed to mount additional volume: {}'.format(str(err)))
@@ -1032,7 +1035,7 @@ def mounting_disks():
 
 def mount_efs():
     try:
-        if not exists('/home/{}/.ensure_dir/efs_mounted'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user'])):
             sudo('mkdir -p /opt/sonatype-work')
             sudo('apt-get -y install binutils')
             with cd('/tmp/'):
@@ -1052,7 +1055,7 @@ def mount_efs():
             sudo('cp /tmp/mount-efs-sequentially.service /etc/systemd/system/')
             sudo('systemctl daemon-reload')
             sudo('systemctl enable mount-efs-sequentially.service')
-            sudo('touch /home/{}/.ensure_dir/efs_mounted'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to mount additional volume: ', str(err))
@@ -1061,7 +1064,7 @@ def mount_efs():
 
 def configure_ssl():
     try:
-        if not exists('/home/{}/.ensure_dir/ssl_ensured'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user'])):
             hostname = sudo('hostname')
             private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
             subject_alt_name = 'subjectAltName = IP:{}'.format(private_ip)
@@ -1075,7 +1078,7 @@ def configure_ssl():
                  '-out /etc/ssl/certs/repository.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}" -config '
                  '/tmp/openssl.cnf -extensions subject_alt_name'.format(hostname))
             sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
-            sudo('touch /home/{}/.ensure_dir/ssl_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to mount additional volume: ', str(err))
@@ -1084,7 +1087,7 @@ def configure_ssl():
 
 def set_hostname():
     try:
-        if not exists('/home/{}/.ensure_dir/hostname_set'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/hostname_set'.format(configuration['conf_os_user'])):
             if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
                 hostname = '{0}.{1}'.format(args.subdomain, args.hosted_zone_name)
             else:
@@ -1093,7 +1096,7 @@ def set_hostname():
                 else:
                     hostname = sudo('curl http://169.254.169.254/latest/meta-data/hostname')
             sudo('hostnamectl set-hostname {0}'.format(hostname))
-            sudo('touch /home/{}/.ensure_dir/hostname_set'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/hostname_set'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to mount additional volume: ', str(err))
@@ -1102,12 +1105,12 @@ def set_hostname():
 
 def create_keystore():
     try:
-        if not exists('/home/{}/.ensure_dir/keystore_created'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/keystore_created'.format(configuration['conf_os_user'])):
             sudo('openssl pkcs12 -export -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
                  '-out wildcard.p12 -passout pass:{}'.format(keystore_pass))
             sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
                  'PKCS12 -srcstorepass {0} -destkeystore /opt/nexus/etc/ssl/keystore.jks'.format(keystore_pass))
-            sudo('touch /home/{}/.ensure_dir/keystore_created'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/keystore_created'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to create keystore: ', str(err))
@@ -1116,17 +1119,17 @@ def create_keystore():
 
 def download_packages():
     try:
-        if not exists('/home/{}/.ensure_dir/packages_downloaded'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/packages_downloaded'.format(configuration['conf_os_user'])):
             packages_urls = [
                 'https://pkg.jenkins.io/debian/jenkins-ci.org.key',
                 'http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                     maven_version.split('.')[0], maven_version),
                 'https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz',
                 'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node',
-                'http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version),
-                'http://www.scala-lang.org/files/archive/scala-{}.deb'.format(scala_version),
+                'http://nginx.org/download/nginx-{}.tar.gz'.format(configuration['reverse_proxy_nginx_version']),
+                'http://www.scala-lang.org/files/archive/scala-{}.deb'.format(configuration['notebook_scala_version']),
                 'https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz'.format(
-                    spark_version, hadoop_version),
+                    configuration['notebook_spark_version'], configuration['notebook_hadoop_version']),
                 'https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar'.format('2.7.4'),
                 'https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar'.format('1.7.4'),
                 'https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar'.format('0.4.20'),
@@ -1143,33 +1146,39 @@ def download_packages():
                 'http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar'.format('1.0.24'),
                 '--no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar'.format('2.3'),
                 'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz',
-                'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version),
+                'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(
+                    configuration['notebook_rstudio_version']),
                 'http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run'.format(
-                    nvidia_version),
+                    configuration['notebook_nvidia_version']),
                 'https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
                     cuda_version_deeplearning, cuda_deeplearingn_file_name),
                 'https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
-                    cuda_version_tensor, cuda_tensor_file_name),
+                    configuration['notebook_cuda_version'], configuration['notebook_cuda_file_name']),
                 'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(
                     cudnn_version_deeplearning, cudnn_file_name_deeplearning),
-                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(cudnn_version_tensor,
-                                                                                            cudnn_file_name_tensor),
+                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(
+                    configuration['notebook_cudnn_version'], configuration['notebook_cudnn_file_name']),
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-'
                 'linux_x86_64.whl'.format(tensorflow_version_deeplearning),
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-'
                 'linux_x86_64.whl'.format(tensorflow_version_deeplearning),
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-'
-                'linux_x86_64.whl'.format(tensorflow_version_tensor),
+                'linux_x86_64.whl'.format(configuration['notebook_tensorflow_version']),
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-'
-                'linux_x86_64.whl'.format(tensorflow_version_tensor),
-                'https://cmake.org/files/v{1}/cmake-{0}.tar.gz'.format(cmake_version, cmake_version.split('.')[0] +
-                                                                       "." + cmake_version.split('.')[1]),
-                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl'.format(cntk_version),
-                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl'.format(cntk_version),
+                'linux_x86_64.whl'.format(configuration['notebook_tensorflow_version']),
+                'https://cmake.org/files/v{1}/cmake-{0}.tar.gz'.format(
+                    configuration['notebook_cmake_version'],
+                    configuration['notebook_cmake_version'].split('.')[0] +
+                    "." + configuration['notebook_cmake_version'].split('.')[1]),
+                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl'.format(
+                    configuration['notebook_cntk_version']),
+                'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl'.format(
+                    configuration['notebook_cntk_version']),
                 'https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version),
                 'http://archive.apache.org/dist/zeppelin/zeppelin-{0}/zeppelin-{0}-bin-netinst.tgz'.format(
-                    zeppelin_version),
-                'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(livy_version),
+                    configuration['notebook_zeppelin_version']),
+                'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(
+                    configuration['notebook_livy_version']),
                 'https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
                 '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar'
             ]
@@ -1184,9 +1193,9 @@ def download_packages():
                     run('curl -v -u admin:admin123 -F "raw.directory=/" -F '
                         '"raw.asset1=@/home/{0}/packages/{1}" '
                         '-F "raw.asset1.filename={1}"  '
-                        '"http://localhost:8081/service/rest/v1/components?repository=jenkins-hosted"'.format(
-                        os_user, package['name']))
-            sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(os_user))
+                        '"http://localhost:8081/service/rest/v1/components?repository=packages"'.format(
+                         configuration['conf_os_user'], package['name']))
+            sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download packages: ', str(err))
@@ -1195,17 +1204,17 @@ def download_packages():
 
 def install_docker():
     try:
-        if not exists('/home/{}/.ensure_dir/docker_installed'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user'])):
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) '
                  'stable"')
             sudo('apt-get update')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
-            sudo('usermod -a -G docker ' + os_user)
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(configuration['ssn_docker_version']))
+            sudo('usermod -a -G docker ' + configuration['conf_os_user'])
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
-            sudo('touch /home/{}/.ensure_dir/docker_installed'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to install docker: ', str(err))
@@ -1214,14 +1223,14 @@ def install_docker():
 
 def prepare_images():
     try:
-        if not exists('/home/{}/.ensure_dir/images_prepared'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user'])):
             put('files/Dockerfile', '/tmp/Dockerfile')
             with cd('/tmp/'):
                 sudo('docker build --file Dockerfile -t pre-base .')
             sudo('docker login -u docker-nexus -p docker-nexus localhost:8083')
             sudo('docker tag pre-base localhost:8083/dlab-pre-base')
             sudo('docker push localhost:8083/dlab-pre-base')
-            sudo('touch /home/{}/.ensure_dir/images_prepared'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download packages: ', str(err))
@@ -1230,7 +1239,7 @@ def prepare_images():
 
 def install_squid():
     try:
-        if not exists('/home/{}/.ensure_dir/squid_installed'.format(os_user)):
+        if not exists('/home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user'])):
             sudo('apt-get -y install squid')
             put('templates/squid.conf', '/etc/squid/', use_sudo=True)
             replace_string = ''
@@ -1243,7 +1252,7 @@ def install_squid():
             sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
             sudo('systemctl enable squid')
             sudo('systemctl restart squid')
-            sudo('touch /home/{}/.ensure_dir/squid_installed'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download packages: ', str(err))
@@ -1260,32 +1269,22 @@ if __name__ == "__main__":
     pre_defined_subnet = True
     pre_defined_sg = True
     pre_defined_efs = True
-    os_user = 'dlab-user'
+    configuration = dict()
+    config = SafeConfigParser()
+    config.read(args.dlab_conf_file_path)
+    for section in config.sections():
+        for option in config.options(section):
+            varname = "{0}_{1}".format(section, option)
+            configuration[varname] = config.get(section, option)
     groovy_version = '2.5.1'
     nexus_version = '3.14.0-04'
-    docker_version = '17.06.2'
     maven_version = '3.5.4'
-    nginx_version = '1.15.1'
-    scala_version = '2.12.8'
-    spark_version = '2.3.2'
-    hadoop_version = '2.7'
-    rstudio_version = '1.1.463'
-    nvidia_version = '390.48'
     cuda_version_deeplearning = '8.0'
     cuda_deeplearingn_file_name = 'cuda_8.0.44_linux-run'
-    cuda_version_tensor = '9.0'
-    cuda_tensor_file_name = 'cuda_9.0.176_384.81_linux-run'
-    cudnn_version_tensor = '7.1.4'
-    cudnn_file_name_tensor = 'cudnn-9.0-linux-x64-v7.1.tgz'
     cudnn_version_deeplearning = '6.0'
     cudnn_file_name_deeplearning = 'cudnn-8.0-linux-x64-v6.0.tgz'
     tensorflow_version_deeplearning = '1.4.0'
-    tensorflow_version_tensor = '1.8.0'
-    cmake_version = '3.11.3'
-    cntk_version = '2.3.1'
     python3_version = '3.4.0'
-    zeppelin_version = '0.8.0'
-    livy_version = '0.3.0'
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
@@ -1620,8 +1619,8 @@ if __name__ == "__main__":
         print("CONFIGURE LOCAL REPOSITORY")
         try:
             print('CREATING DLAB-USER')
-            ensure_ssh_user('ubuntu', os_user)
-            env.host_string = os_user + '@' + ec2_ip_address
+            ensure_ssh_user('ubuntu')
+            env.host_string = configuration['conf_os_user'] + '@' + ec2_ip_address
 
             print('SETTING HOSTNAME')
             set_hostname()

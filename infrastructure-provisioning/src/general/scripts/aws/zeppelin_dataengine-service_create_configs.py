@@ -72,7 +72,7 @@ def install_remote_livy(args):
     local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
     local('sudo service zeppelin-notebook stop')
     if args.conf_dlab_repository_host != '':
-        local('sudo wget -i https://{1}/repository/jenkins-hosted/livy-server-{0}.zip -O '
+        local('sudo wget -i https://{1}/repository/packages/livy-server-{0}.zip -O '
               '/opt/{2}/{3}/livy-server-{0}.zip'.format(args.livy_version, args.conf_dlab_repository_host,
                                                         args.emr_version, args.cluster_name))
     else:

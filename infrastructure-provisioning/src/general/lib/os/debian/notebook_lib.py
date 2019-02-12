@@ -102,7 +102,10 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
-            sudo('apt-get install -y r-base r-base-dev')
+            try:
+                sudo('apt-get install -y r-base r-base-dev')
+            except:
+                sudo('apt-get install -y r-base r-base-dev')
             if 'conf_dlab_repository_host' in os.environ:
                 sudo('sed -i "s/REPOSITORY_HOST/{0}/g" /tmp/Rprofile.site'.format(
                     os.environ['conf_dlab_repository_host']))
@@ -135,7 +138,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('apt-get install -y r-base')
             sudo('apt-get install -y gdebi-core')
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{}/repository/jenkins-hosted/rstudio-server-{}-amd64.deb'.format(
+                sudo('wget https://{}/repository/packages/rstudio-server-{}-amd64.deb'.format(
                     os.environ['conf_dlab_repository_host'], rstudio_version))
             else:
                 sudo('wget https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version))
@@ -251,7 +254,7 @@ def ensure_python3_specific_version(python3_version, os_user):
             if len(python3_version) < 4:
                 python3_version = python3_version + ".0"
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{1}/repository/jenkins-hosted/Python-{0}.tgz'.format(
+                sudo('wget https://{1}/repository/packages/Python-{0}.tgz'.format(
                     python3_version, os.environ['conf_dlab_repository_host']))
             else:
                 sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version))
@@ -323,7 +326,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
                      'install linux-image-extra-`uname -r`; else apt-get -y install '
                      'linux-modules-extra-`uname -r`; fi;')
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{2}/repository/jenkins-hosted/NVIDIA-Linux-x86_64-{0}.run -O '
+                sudo('wget https://{2}/repository/packages/NVIDIA-Linux-x86_64-{0}.run -O '
                      '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user,
                                                                     os.environ['conf_dlab_repository_host']))
             else:
@@ -335,7 +338,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(
                 os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget -P /opt https://{1}/repository/jenkins-hosted/{0}'.format(
+                sudo('wget -P /opt https://{1}/repository/packages/{0}'.format(
                     cuda_file_name, os.environ['conf_dlab_repository_host']))
             else:
                 sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
@@ -346,7 +349,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
             if 'conf_dlab_repository_host' in os.environ:
-                run('wget https://{0}/repository/jenkins-hosted/{1} -O /tmp/{1}'.format(
+                run('wget https://{0}/repository/packages/{1} -O /tmp/{1}'.format(
                     os.environ['conf_dlab_repository_host'], cudnn_file_name))
             else:
                 run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
@@ -361,10 +364,10 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
                 '~/.bashrc')
             # install TensorFlow and run TensorBoard
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('python2.7 -m pip install --upgrade https://{0}/repository/jenkins-hosted/tensorflow_gpu-{1}-'
+                sudo('python2.7 -m pip install --upgrade https://{0}/repository/packages/tensorflow_gpu-{1}-'
                      'cp27-none-linux_x86_64.whl --no-cache-dir'.format(os.environ['conf_dlab_repository_host'],
                                                                         tensorflow_version))
-                sudo('python3 -m pip install --upgrade https://{0}/repository/jenkins-hosted/tensorflow_gpu-{1}-'
+                sudo('python3 -m pip install --upgrade https://{0}/repository/packages/tensorflow_gpu-{1}-'
                      'cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(os.environ['conf_dlab_repository_host'],
                                                                          tensorflow_version))
             else:
@@ -416,14 +419,14 @@ def install_livy_dependencies_emr(os_user):
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         if 'conf_dlab_repository_host' in os.environ:
-            sudo('wget https://{0}/repository/jenkins-hosted/node-v8.15.0.tar.gz'.format(
+            sudo('wget https://{0}/repository/packages/node-v8.15.0.tar.gz'.format(
                 os.environ['conf_dlab_repository_host']))
             sudo('tar zxvf node-v8.15.0.tar.gz')
             sudo('mv node-v8.15.0 /opt/node')
             with cd('/opt/node/'):
                 sudo('./configure')
                 sudo('make -j4')
-                sudo('wget https://{}/repository/jenkins-hosted/linux-x64-57_binding.node'.format(
+                sudo('wget https://{}/repository/packages/linux-x64-57_binding.node'.format(
                     os.environ['conf_dlab_repository_host']))
                 sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
                 sudo('source /etc/profile')
@@ -561,7 +564,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         if 'conf_dlab_repository_host' in os.environ:
-            sudo('wget https://{2}/repository/jenkins-hosted/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+            sudo('wget https://{2}/repository/packages/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
                 os_user, cmake_version, os.environ['conf_dlab_repository_host']))
         else:
             sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
@@ -583,9 +586,9 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
 def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
         if 'conf_dlab_repository_host' in os.environ:
-            sudo('pip2 install https://{1}/repository/jenkins-hosted/cntk-{0}-cp27-cp27mu-linux_x86_64.whl '
+            sudo('pip2 install https://{1}/repository/packages/cntk-{0}-cp27-cp27mu-linux_x86_64.whl '
                  '--no-cache-dir'.format(cntk_version, os.environ['conf_dlab_repository_host']))
-            sudo('pip3 install https://{1}/repository/jenkins-hosted/cntk-{0}-cp35-cp35m-linux_x86_64.whl '
+            sudo('pip3 install https://{1}/repository/packages/cntk-{0}-cp35-cp35m-linux_x86_64.whl '
                  '--no-cache-dir'.format(cntk_version, os.environ['conf_dlab_repository_host']))
         else:
             sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl '

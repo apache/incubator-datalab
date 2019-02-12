@@ -96,7 +96,7 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 
 def ensure_dataengine_tensorflow_jars(jars_dir, repository_host=''):
     if repository_host != '':
-        local('wget https://{0}/repository/jenkins-hosted/spark-tensorflow-connector-1.0.0-s_2.11.jar -O '
+        local('wget https://{0}/repository/packages/spark-tensorflow-connector-1.0.0-s_2.11.jar -O '
               '{1}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(repository_host, jars_dir))
     else:
         local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
@@ -502,25 +502,25 @@ def add_breeze_library_local(os_user):
             jars_dir = '/opt/jars/'
             sudo('mkdir -p {}'.format(breeze_tmp_dir))
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{3}/repository/jenkins-hosted/breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
+                sudo('wget https://{3}/repository/packages/breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
                      '2.11', '0.12', breeze_tmp_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/jenkins-hosted/breeze-natives_{0}-{1}.jar -O '
+                sudo('wget https://{3}/repository/packages/breeze-natives_{0}-{1}.jar -O '
                      '{2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
                                                             os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/jenkins-hosted/breeze-viz_{0}-{1}.jar -O '
+                sudo('wget https://{3}/repository/packages/breeze-viz_{0}-{1}.jar -O '
                      '{2}breeze-viz_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
                                                         os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/jenkins-hosted/breeze-macros_{0}-{1}.jar -O '
+                sudo('wget https://{3}/repository/packages/breeze-macros_{0}-{1}.jar -O '
                      '{2}breeze-macros_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
                                                            os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/jenkins-hosted/breeze-parent_{0}-{1}.jar -O '
+                sudo('wget https://{3}/repository/packages/breeze-parent_{0}-{1}.jar -O '
                      '{2}breeze-parent_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
                                                            os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/jenkins-hosted/jfreechart-{0}.jar -O {1}jfreechart-{0}.jar'.format(
+                sudo('wget https://{2}/repository/packages/jfreechart-{0}.jar -O {1}jfreechart-{0}.jar'.format(
                      '1.0.19', breeze_tmp_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/jenkins-hosted/jcommon-{0}.jar -O {1}jcommon-{0}.jar'.format(
+                sudo('wget https://{2}/repository/packages/jcommon-{0}.jar -O {1}jcommon-{0}.jar'.format(
                      '1.0.24', breeze_tmp_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/jenkins-hosted/spark-kernel-brunel-all-{0}.jar -O '
+                sudo('wget https://{2}/repository/packages/spark-kernel-brunel-all-{0}.jar -O '
                      '{1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir,
                                                                  os.environ['conf_dlab_repository_host']))
             else:

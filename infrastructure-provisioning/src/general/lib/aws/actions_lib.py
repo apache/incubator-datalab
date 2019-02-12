@@ -1504,11 +1504,11 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             sudo('mkdir -p {0}'.format(jars_dir))
             if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{2}/repository/jenkins-hosted/hadoop-aws-{0}.jar -O {1}hadoop-aws-{0}.jar'.format(
+                sudo('wget https://{2}/repository/packages/hadoop-aws-{0}.jar -O {1}hadoop-aws-{0}.jar'.format(
                     '2.7.4', jars_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/jenkins-hosted/aws-java-sdk-{0}.jar -O '
+                sudo('wget https://{2}/repository/packages/aws-java-sdk-{0}.jar -O '
                      '{1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/jenkins-hosted/hadoop-lzo-{0}.jar -O '
+                sudo('wget https://{2}/repository/packages/hadoop-lzo-{0}.jar -O '
                      '{1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir, os.environ['conf_dlab_repository_host']))
             else:
                 sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \

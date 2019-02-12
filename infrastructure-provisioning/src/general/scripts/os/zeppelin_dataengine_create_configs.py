@@ -54,7 +54,7 @@ local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 if args.conf_dlab_repository_host != '':
-    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
         args.conf_dlab_repository_host, spark_version, hadoop_version)
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
@@ -160,7 +160,7 @@ def install_remote_livy(args):
     local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
     local('sudo service zeppelin-notebook stop')
     if args.conf_dlab_repository_host != '':
-        local('sudo wget -i https://{1}/repository/jenkins-hosted/livy-server-{0}.zip -O '
+        local('sudo wget -i https://{1}/repository/packages/livy-server-{0}.zip -O '
               '/opt/{2}/livy-server-{0}.zip'.format(args.livy_version, args.conf_dlab_repository_host,
                                                     args.cluster_name))
     else:

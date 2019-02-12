@@ -53,12 +53,12 @@ args = parser.parse_args()
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 if 'conf_dlab_repository_host' in os.environ:
-    scala_link = 'https://{0}/repository/jenkins-hosted/'.format(os.environ['conf_dlab_repository_host'])
+    scala_link = 'https://{0}/repository/packages/'.format(os.environ['conf_dlab_repository_host'])
 else:
     scala_link = "http://www.scala-lang.org/files/archive/"
 zeppelin_version = args.zeppelin_version
 if 'conf_dlab_repository_host' in os.environ:
-    zeppelin_link = "https://{1}/repository/jenkins-hosted/zeppelin-{0}-bin-netinst.tgz".format(
+    zeppelin_link = "https://{1}/repository/packages/zeppelin-{0}-bin-netinst.tgz".format(
         zeppelin_version, os.environ['conf_dlab_repository_host'])
 else:
     zeppelin_link = "http://archive.apache.org/dist/zeppelin/zeppelin-{0}/zeppelin-{0}-bin-netinst.tgz".format(
@@ -70,7 +70,7 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 if 'conf_dlab_repository_host' in os.environ:
-    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
         os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
 zeppelin_interpreters = "md,python,livy,shell"
 python3_version = "3.4"
@@ -170,7 +170,7 @@ def configure_local_spark_kernels(args):
 def install_local_livy(args):
     if not exists('/home/' + args.os_user + '/.ensure_dir/local_livy_ensured'):
         if 'conf_dlab_repository_host' in os.environ:
-            sudo('wget https://{1}/repository/jenkins-hosted/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(
+            sudo('wget https://{1}/repository/packages/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(
                 args.livy_version, os.environ['conf_dlab_repository_host']))
         else:
             sudo('wget http://archive.cloudera.com/beta/livy/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(

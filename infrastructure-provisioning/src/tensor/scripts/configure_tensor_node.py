@@ -51,7 +51,7 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 if 'conf_dlab_repository_host' in os.environ:
-    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
         os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'

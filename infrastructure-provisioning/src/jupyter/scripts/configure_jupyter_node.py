@@ -42,7 +42,7 @@ spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 jupyter_version = os.environ['notebook_jupyter_version']
 if 'conf_dlab_repository_host' in os.environ:
-    scala_link = 'https://{0}/repository/jenkins-hosted/'.format(os.environ['conf_dlab_repository_host'])
+    scala_link = 'https://{0}/repository/packages/'.format(os.environ['conf_dlab_repository_host'])
 else:
     scala_link = "http://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
@@ -52,7 +52,7 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 if 'conf_dlab_repository_host' in os.environ:
-    spark_link = "https://{0}/repository/jenkins-hosted/spark-{1}-bin-hadoop{2}.tgz".format(
+    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
         os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
 
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
@@ -65,7 +65,7 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
 if 'conf_dlab_repository_host' in os.environ:
-    toree_link = "https://{0}/repository/jenkins-hosted/toree-0.2.0.tar.gz".format(
+    toree_link = "https://{0}/repository/packages/toree-0.2.0.tar.gz".format(
         os.environ['conf_dlab_repository_host'])
 else:
     toree_link = 'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz'
