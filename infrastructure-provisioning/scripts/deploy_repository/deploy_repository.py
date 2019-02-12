@@ -54,7 +54,7 @@ parser.add_argument('--efs_enabled', type=str, default='False', help="True - use
 parser.add_argument('--efs_id', type=str, default='', help="ID of AWS EFS")
 parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk size of primary volume")
 parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
-parser.add_argument('--dlab_conf_file_path', required=True, type=str, default='', help="Full path to DLab conf file")
+parser.add_argument('--dlab_conf_file_path', type=str, default='', help="Full path to DLab conf file")
 parser.add_argument('--nexus_admin_password', type=str, default='', help="Password for Nexus admin user")
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
@@ -1273,6 +1273,9 @@ if __name__ == "__main__":
     pre_defined_subnet = True
     pre_defined_sg = True
     pre_defined_efs = True
+    if args.action != 'terminate' and args.dlab_conf_file_path == '':
+        print('Please provide argument --dlab_conf_file_path ! Aborting... ')
+        sys.exit(1)
     configuration = dict()
     config = SafeConfigParser()
     config.read(args.dlab_conf_file_path)
