@@ -227,6 +227,9 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     jar = sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service))
                     sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(dlab_path, service))
+                if 'conf_dlab_repository_host' in os.environ:
+                    sudo('sed -i "s/DLAB_LOCAL_REPO_HOST/{0}/g" /tmp/yml_tmp/self-service.yml'.format(
+                        os.environ['conf_dlab_repository_host']))
                 if cloud_provider == 'azure':
                     for config in ['self-service', 'security']:
                         sudo('sed -i "s|<LOGIN_USE_LDAP>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, ldap_login))
