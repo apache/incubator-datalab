@@ -61,6 +61,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Azure OAuth2 Authentication](#Azure_OAuth2_Authentication)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [DEX Authentication](#DEX_Authentication)
+
 ---------------
 # What is DLAB? <a name="What_is_DLAB"></a>
 
@@ -2527,3 +2529,34 @@ where:
 - **permissionScope** - describes Azure resource where user should have any role to pass authentication. If user has no role in resource IAM he/she will not be logged in  
 - **managementApiAuthFile** - authentication file that is used to query Microsoft Graph API to check user roles in resource described in permissionScope  
 
+## DEX Authentication <a name="DEX_Authentication"></a>
+DLab supports DEX authentication that is configured automatically in Security Service and Self Service after DLab is deployed.
+Dex is an identity service that uses OpenID Connect to drive authentication for other apps.
+Please see explanation details about configuration parameters for Self Service and Security Service below.
+To enable dex authentication in DLab: 
+1. Update *self-service.yml* configuration property **dexIdentityProviderEnabled**:
+
+       dexIdentityProviderEnabled: true
+2. Update *security.yml* configuration for dex:
+
+       dexConfiguration:
+         url: <DEX_URL>
+         clientId: <DEX_CLIENT_ID>
+         clientSecret: <DEX_CLIENT_SECRET>
+         redirectUri: <DEX_REDIRECT_URI>
+         authorizationPath: <DEX_AUTH_PATH>
+         scope: <DEX_SCOPES>
+where: 
+- **url** - url where dex is up and running (e.g. **http://34.221.245.73:5556/dex**)
+- **clientId** - application client id (should be taken from dex config)
+- **clientSecret** - client secret (should be taken from dex config)
+- **redirectUri** - callback entry point of the app
+- **authorizationPath** - dex authorization path. By default is **/auth**
+- **scope** - [open id connect scopes](https://github.com/dexidp/dex/blob/master/Documentation/custom-scopes-claims-clients.md). E.g. **openid+email+groups**
+
+__NOTE: dex configuration itself is out of scope of that documentation__
+
+
+        
+        
+    
