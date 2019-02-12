@@ -96,7 +96,7 @@ if __name__ == "__main__":
              "--pip_mirror {14} " \
              "--numpy_version {15} " \
              "--application {16} " \
-             "--r_enabled {17}" \
+             "--r_enabled {17} " \
              "--conf_dlab_repository_host {18}" \
         .format(args.bucket,
                 args.cluster_name,
