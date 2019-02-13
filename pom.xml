@@ -260,7 +260,7 @@ limitations under the License.
                         <exclude>**/*.svg</exclude>
                         <exclude>**/*.MockMaker</exclude>
                         <exclude>**/*.BillingToolConfigurationFactory</exclude>
-                        <exclude>**/assets/Users/bohdan.hliva/IdeaProjects/DLAB/DLab/services/self-service/src/main/resources/webapp//**</exclude>
+                        <exclude>**/assets/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
