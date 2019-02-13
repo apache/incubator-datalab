@@ -32,7 +32,7 @@ export class SchedulerService {
     return this.applicationServiceFacade
       .buildGetExploratorySchedule(param)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -59,7 +59,7 @@ export class SchedulerService {
     return this.applicationServiceFacade
       .BuildGetActiveSchcedulersData(param)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 }
