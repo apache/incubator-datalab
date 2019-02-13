@@ -31,7 +31,7 @@ export class UserResourceService {
     return this.applicationServiceFacade
       .buildGetExploratoryEnvironmentTemplatesRequest()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -39,7 +39,7 @@ export class UserResourceService {
     return this.applicationServiceFacade
       .buildGetComputationalResourcesTemplatesRequest()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -47,7 +47,7 @@ export class UserResourceService {
     return this.applicationServiceFacade
       .buildGetUserProvisionedResourcesRequest()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -127,7 +127,7 @@ export class UserResourceService {
     return this.applicationServiceFacade
       .buildGetUserPreferences()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -145,7 +145,7 @@ export class UserResourceService {
     return this.applicationServiceFacade
       .buildGetUserImages(body)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -153,7 +153,7 @@ export class UserResourceService {
     return this.applicationServiceFacade
       .buildGetImagesList()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
