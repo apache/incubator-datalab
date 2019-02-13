@@ -86,8 +86,8 @@ def prepare_note(interpreter_name, template_path, note_name):
         f.write(text)
 
 def run_note(note_id, notebook_ip):
-    headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Expires': '0'}
-    response = requests.post('http://{0}:8080/api/notebook/import'.format(notebook_ip), data=open(note_path, 'rb'), headers=headers)
+    response = requests.post('http://{0}:8080/api/notebook/job/{1}'.format(notebook_ip, note_id))
+    status = json.loads(response.content)
     if status.get('status') == 'OK':
         get_note_status(note_id, notebook_ip)
     else:
