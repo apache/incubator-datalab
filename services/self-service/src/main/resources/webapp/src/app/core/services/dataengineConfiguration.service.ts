@@ -33,7 +33,7 @@ export class DataengineConfigurationService {
     return this.applicationServiceFacade
       .buildGetClusterConfiguration(url)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -51,7 +51,7 @@ export class DataengineConfigurationService {
     return this.applicationServiceFacade
       .buildGetExploratorySparkConfiguration(url)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 

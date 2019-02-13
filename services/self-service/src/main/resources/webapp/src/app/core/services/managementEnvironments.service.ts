@@ -31,7 +31,7 @@ export class ManageEnvironmentsService {
     return this.applicationServiceFacade
       .buildGetAllEnvironmentData()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
