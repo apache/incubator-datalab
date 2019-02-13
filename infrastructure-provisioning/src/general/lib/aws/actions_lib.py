@@ -1037,7 +1037,7 @@ def remove_peering(tag_value):
             else:
                 print("There are no peering connections to delete")
         else:
-            print("There are no peering connections to delete")
+            print("There are no peering connections to delete because duo vpc option is disabled")
     except Exception as err:
         logging.info("Unable to remove peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))

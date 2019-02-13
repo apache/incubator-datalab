@@ -36,7 +36,6 @@ if __name__ == "__main__":
     pre_defined_subnet = False
     pre_defined_sg = False
     pre_defined_vpc2 = False
-    pre_defined_subnet2 = False
     try:
         logging.info('[CREATE AWS CONFIG FILE]')
         print('[CREATE AWS CONFIG FILE]')
@@ -161,48 +160,15 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         try:
-            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
-                raise KeyError
-        except KeyError:
-            try:
-                pre_defined_subnet2 = True
-                logging.info('[CREATE SECONDARY SUBNET]')
-                print('[CREATE SECONDARY SUBNET]')
-                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc2_id'], 'ssn', tag2_name, service_base_name, '20', True)
-                try:
-                    local("~/scripts/{}.py {}".format('common_create_subnet', params))
-                except:
-                    traceback.print_exc()
-                    raise Exception
-                with open('/tmp/ssn_subnet_id', 'r') as f:
-                    os.environ['aws_subnet2_id'] = f.read()
-                create_product_tag(os.environ['aws_subnet2_id'])
-            except Exception as err:
-                print('Error: {0}'.format(err))
-                append_result("Failed to create Subnet.", str(err))
-                if pre_defined_vpc:
-                    remove_route_tables(tag_name, True)
-                    try:
-                        remove_subnets(service_base_name + "-subnet")
-                    except:
-                        print("Subnet hasn't been created.")
-                    remove_vpc(os.environ['aws_vpc_id'])
-                if pre_defined_vpc2:
-                    remove_route_tables(tag2_name, True)
-                    remove_vpc(os.environ['aws_vpc2_id'])
-                sys.exit(1)
-
-        try:
-            if os.environ['conf_duo_vpc_enable'] == 'true' and os.environ['aws_subnet2_id'] and os.environ['aws_subnet_id']:
+            if os.environ['conf_duo_vpc_enable'] == 'true' and os.environ['aws_vpc_id'] and os.environ['aws_vpc2_id']:
                 raise KeyError
         except KeyError:
             try:
                 logging.info('[CREATE PEERING CONNECTION]')
                 print('[CREATE PEERING CONNECTION]')
                 os.environ['aws_peering_id'] = create_peering_connection(os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], service_base_name)
-                create_route_by_id(os.environ['aws_subnet2_id'], os.environ['aws_vpc2_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc_id']))
-                create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc2_id']))
                 print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
+                create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc2_id']))
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create peering connection.", str(err))
