@@ -227,7 +227,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   public showErrorMessage(item): void {
     const dialogRef: MatDialogRef<ErrorMessageDialogComponent> = this.dialog.open(
-      ErrorMessageDialogComponent, { data: item.error, width: '550px' });
+      ErrorMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
   }
 
   public isInstallingInProgress(data): void {
@@ -328,8 +328,51 @@ export class InstallLibrariesComponent implements OnInit {
 
 @Component({
   selector: 'error-message-dialog',
-  template: `<div class="content">{{ data }}</div>`,
-  styles: [`.content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }`]
+  template: `
+  <div class="dialog-header">
+    <h4 class="modal-title">Library installation error</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
+  <div class="content">{{ data }}</div>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+  </div>
+  `,
+  styles: [`
+  .content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }
+  .dialog-header {
+    position: relative;
+    top: 0;
+    padding-left: 30px;
+    background: #f6fafe;
+    height: 54px;
+    line-height: 54px;
+  }
+  .dialog-header h4 {
+    color: #455c74;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 50px;
+    width: 50px;
+    font-size: 24px;
+    border: 0;
+    background: none;
+    color: #577289;
+    outline: none;
+    cursor: pointer;
+    transition: all .45s ease-in-out;
+    }
+    .close:hover {
+      color: #36afd5;
+    }
+    .text-center button {
+      margin-bottom: 25px;
+    }`]
 })
 export class ErrorMessageDialogComponent {
   constructor(
