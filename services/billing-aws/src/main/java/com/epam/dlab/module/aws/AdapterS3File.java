@@ -13,7 +13,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.module.aws;
@@ -22,6 +21,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.s3.model.S3Object;
 import com.epam.dlab.core.AdapterBase;
 import com.epam.dlab.exceptions.AdapterException;
@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -112,6 +114,9 @@ public class AdapterS3File extends AdapterBase {
 
 	@JsonProperty
 	private boolean awsJobEnabled;
+
+	@JsonProperty
+	private String region;
 
 	/**
 	 * Return the name of bucket.
@@ -238,7 +243,7 @@ public class AdapterS3File extends AdapterBase {
 		if (getMode() == Mode.READ) {
 			setLastModificationDate();
 			clientS3 = getAmazonClient();
-			S3FileList s3files = new S3FileList(awsJobEnabled,bucket, getModuleData());
+			S3FileList s3files = new S3FileList(awsJobEnabled, bucket, getModuleData());
 			filelist = s3files.getFiles(clientS3);
 			currentFileIndex = (filelist.isEmpty() ? -1 : 0);
 			fileInputStream = null;
@@ -349,6 +354,9 @@ public class AdapterS3File extends AdapterBase {
 				new AmazonS3Client() :
 				new AmazonS3Client(new BasicAWSCredentials(accessKeyId, secretAccessKey)));
 
+		Optional.ofNullable(region)
+				.filter(StringUtils::isNoneBlank)
+				.ifPresent(r -> s3.setRegion(Region.valueOf(r).toAWSRegion()));
 		if (!s3.doesBucketExist(bucket)) {
 			throw new AdapterException("Bucket \"" + bucket + "\" does not exist.");
 		}
