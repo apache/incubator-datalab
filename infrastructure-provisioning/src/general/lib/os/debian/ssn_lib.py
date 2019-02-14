@@ -230,7 +230,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 if 'conf_dlab_repository_host' in os.environ:
                     sudo('sed -i "s/DLAB_LOCAL_REPO_HOST/{0}/g" /tmp/yml_tmp/self-service.yml'.format(
                         os.environ['conf_dlab_repository_host']))
-                    sudo('sed -i "s|region:|region: {0}|g" /tmp/yml_tmp/billing.yml'.format(os.environ['aws_region']))
                 if cloud_provider == 'azure':
                     for config in ['self-service', 'security']:
                         sudo('sed -i "s|<LOGIN_USE_LDAP>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, ldap_login))
