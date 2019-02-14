@@ -356,7 +356,7 @@ public class AdapterS3File extends AdapterBase {
 
 		Optional.ofNullable(region)
 				.filter(StringUtils::isNoneBlank)
-				.ifPresent(r -> s3.setRegion(Region.valueOf(r).toAWSRegion()));
+				.ifPresent(r -> s3.setRegion(Region.fromValue(r).toAWSRegion()));
 		if (!s3.doesBucketExist(bucket)) {
 			throw new AdapterException("Bucket \"" + bucket + "\" does not exist.");
 		}
