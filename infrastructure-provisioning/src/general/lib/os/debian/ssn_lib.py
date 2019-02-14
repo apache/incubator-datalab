@@ -230,6 +230,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 if 'conf_dlab_repository_host' in os.environ:
                     sudo('sed -i "s/DLAB_LOCAL_REPO_HOST/{0}/g" /tmp/yml_tmp/self-service.yml'.format(
                         os.environ['conf_dlab_repository_host']))
+                    sudo('sed -i "s|region:|region: {0}|g" /tmp/yml_tmp/billing.yml'.format(os.environ['aws_region']))
                 if cloud_provider == 'azure':
                     for config in ['self-service', 'security']:
                         sudo('sed -i "s|<LOGIN_USE_LDAP>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, ldap_login))
@@ -238,18 +239,20 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                                                                                                    application_id))
                         sudo('sed -i "s|<DLAB_SUBSCRIPTION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                    subscription_id))
-                        sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, authentication_file))
+                        sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(
+                            config, authentication_file))
                         sudo('sed -i "s|<VALIDATE_PERMISSION_SCOPE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(
                             config, validate_permission_scope))
                         sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                              hostname))
                         sudo('sed -i "s|<LOGIN_PAGE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, hostname))
                     if os.environ['azure_datalake_enable'] == 'true':
-                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/accounts/{}/providers/Microsoft.Authorization/'.format(
+                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/' \
+                                           'accounts/{}/providers/Microsoft.Authorization/'.format(
                             subscription_id, service_base_name, data_lake_name)
                     else:
-                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Authorization/'.format(
-                            subscription_id, service_base_name
+                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/' \
+                                           'Microsoft.Authorization/'.format(subscription_id, service_base_name
                         )
                     sudo('sed -i "s|<PERMISSION_SCOPE>|{}|g" /tmp/yml_tmp/security.yml'.format(permission_scope))
                 sudo('mv /tmp/yml_tmp/* ' + dlab_conf_dir)
@@ -258,7 +261,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile, host_string))
+                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                                                                                                         host_string))
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \
                          '--tag_resource_id {} ' \
@@ -306,7 +310,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
-                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
+                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
+                    os_user, keystore_passwd))
                 sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
                      -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
                 sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \

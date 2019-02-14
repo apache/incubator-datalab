@@ -42,6 +42,7 @@ adapterIn:
     accountId: <ACCOUNT_ID>
     accessKeyId: <ACCESS_KEY_ID>
     secretAccessKey: <SECRET_ACCESS_KEY>
+    region: 
 
 # Adapter for writing converted data. Known types: console, file, s3file, mongodb
 adapterOut:

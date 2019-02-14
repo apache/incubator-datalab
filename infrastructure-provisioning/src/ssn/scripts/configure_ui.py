@@ -189,6 +189,9 @@ def build_ui():
             sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/webapp/billing/lib/'.format(
                 args.dlab_path))
         elif args.cloud_provider == 'aws':
+            if 'conf_dlab_repository_host' in os.environ:
+                sudo('sed -i "s|region:|region: {1}|g" {0}/sources/services/billing-aws/billing.yml'.format(
+                    args.dlab_path, os.environ['aws_region']))
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
             sudo(
                 'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
