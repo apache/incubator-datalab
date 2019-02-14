@@ -17,12 +17,21 @@ limitations under the License.
 ****************************************************************************/
 
 .ssn-monitor-dialog {
+  .content-box {
+    padding-top: 10px !important;
+  }
   .ssn-info {
     min-height: 400px;
     max-height: 500px;
     .scrolling-content {
-      max-height: 400px;
+      max-height: 310px;
       overflow-y: auto;
+    }
+    .text-center {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
     }
   }
   .mat-list-item-content {

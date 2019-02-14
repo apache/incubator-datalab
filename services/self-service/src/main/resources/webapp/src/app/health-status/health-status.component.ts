@@ -111,7 +111,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
 
   openSsnMonitorDialog() {
     this.healthStatusService.getSsnMonitorData()
-      .subscribe(data => this.ssnMonitorDialog.open({ isHeader: false, isFooter: false }, data));
+      .subscribe(data => this.ssnMonitorDialog.open({ isFooter: false }, data));
   }
 
   openManageRolesDialog() {

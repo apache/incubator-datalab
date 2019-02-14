@@ -254,3 +254,9 @@ font-weight: 400;
   line-height: 1 !important;
   font-size: 18px;
 }
+
+.error-modalbox {
+  .mat-dialog-container {
+    padding: 0;
+  }
+}

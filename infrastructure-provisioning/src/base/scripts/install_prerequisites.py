@@ -61,7 +61,7 @@ if __name__ == "__main__":
         create_china_pip_conf_file()
 
     print("Updating hosts file")
-    update_hosts_file()
+    update_hosts_file(args.user)
 
     print("Updating repositories and installing requested tools.")
     ensure_pkg(args.user)
