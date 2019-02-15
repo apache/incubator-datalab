@@ -17,46 +17,49 @@ limitations under the License.
 ****************************************************************************/
 
 /* material buttons */
-.mat-raised-button.butt {
-  width: 160px;
-  height: 35px;
-  padding: 0 20px;
-  border-radius: 0;
-  // font: 600 16px/1.45 'Open Sans';
-  font-style: normal;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 1.45px;
-  font-family:'Open Sans', sans-serif;
-  
-  color: #577289;
-}
-.mat-raised-button.butt.mini {
-  width: 80px;
-}
-.mat-raised-button.butt.action {
-  width: 140px;
-}
-
-.mat-raised-button.butt i,
-.mat-raised-button.butt span i {
-  margin: 0 5px 0 0;
-  font-size: 20px;
-  vertical-align: sub;
-}
-.mat-raised-button.butt.butt-success {
-  background-color: #49af38;
-  margin-left: 25px;
-  color: #fff;
-}
-.mat-raised-button.butt.butt-success.mini {
-  margin-left: 5px;
-  width: 80px;
-}
-
-.mat-raised-button.butt:disabled {
-  cursor: not-allowed;
-  opacity: .6;
+.mat-raised-button {
+  &.butt {
+    width: 160px;
+    height: 35px;
+    padding: 0 20px;
+    border-radius: 0;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    font-family:'Open Sans', sans-serif;
+    color: #577289;
+    i {
+      margin: 0 5px 0 0;
+      font-size: 20px;
+      vertical-align: sub;
+    }
+    span {
+      i {
+        margin: 0 5px 0 0;
+        font-size: 20px;
+        vertical-align: sub;
+      }
+    }
+    &.mini {
+      width: 80px;
+    }
+    &.action {
+      width: 140px;
+    }
+    &.butt-success {
+      background-color: #49af38;
+      margin-left: 25px;
+      color: #fff;
+      &.mini {
+        margin-left: 5px;
+        width: 80px;
+      }
+    }
+    &:disabled {
+      cursor: not-allowed;
+      opacity: .6;
+    }
+  }
 }
 
 .mat-button-focus-overlay {
