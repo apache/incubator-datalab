@@ -17,8 +17,8 @@ limitations under the License.
 ****************************************************************************/
 
 
-import {throwError as observableThrowError,  Observable } from 'rxjs';
-import { CheckUtils } from '.';
+import { throwError as observableThrowError } from 'rxjs';
+import { CheckUtils } from './checkUtils';
 
 export class ErrorUtils {
 
@@ -39,7 +39,7 @@ export class ErrorUtils {
   // }
 
   public static handleServiceError(errorMessage) {
-    const error = JSON.parse(errorMessage.error);
+    const error = CheckUtils.isJSON(errorMessage.error) ? JSON.parse(errorMessage.error) : errorMessage.error;
 
     return observableThrowError({
       status: error.code,
