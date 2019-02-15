@@ -130,14 +130,14 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
       body,
-      this.getRequestOptions(false, true));
+      { observe: 'response' });
   }
 
   public buildReuploadUserAccessKeyRequest(body: any, option: string): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY) + option,
       body,
-      this.getRequestOptions(false, true));
+      { observe: 'response' });
   }
 
   public buildGetUserProvisionedResourcesRequest(): Observable<any> {
@@ -150,18 +150,14 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES),
       null,
-      { observe: 'response',
-        headers: { 'text-content': 'text/plain'}
-      });
+      { observe: 'response' });
   }
 
   public buildGetComputationalResourcesTemplatesRequest(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES),
       null,
-      { observe: 'response',
-        headers: { 'text-content': 'text/plain'}
-      });
+      { observe: 'response' });
   }
 
   public buildCreateExploratoryEnvironmentRequest(data): Observable<any> {
@@ -232,7 +228,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS),
       null,
-      { observe: 'response'});
+      { observe: 'response' });
   }
 
   public buildGetEnvironmentStatuses(data): Observable<any> {
@@ -244,19 +240,22 @@ export class ApplicationServiceFacade {
   public buildRunEdgeNodeRequest(): Observable<any>  {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_START),
-      null);
+      null,
+      { responseType: 'text' });
   }
 
   public buildSuspendEdgeNodeRequest(): Observable<any>  {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_STOP),
-      null);
+      null,
+      { responseType: 'text', observe: 'response' });
   }
 
   public buildRecreateEdgeNodeRequest(): Observable<any>  {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_RECREATE),
-      null);
+      null,
+      { responseType: 'text' });
   }
 
   public buildGetGroupsList(data): Observable<any> {
@@ -324,9 +323,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),
       data,
-      // this.getRequestOptions(true, true)
-      {  observe: 'response' }
-      );
+      {  observe: 'response' });
   }
   public buildGetBackupStatusRequest(uuid): Observable<any> {
     return this.buildRequest(RequestMethod.Get,

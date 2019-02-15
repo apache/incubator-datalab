@@ -32,7 +32,7 @@ export class ManageUngitService {
     return this.applicationServiceFacade
       .buildGetGitCreds()
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
