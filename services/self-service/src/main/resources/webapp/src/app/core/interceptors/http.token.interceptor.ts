@@ -32,15 +32,13 @@ import { Observable } from 'rxjs';
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.jwtService.getToken();
-    const headersConfig = {
-      'Content-Type': 'application/json; charset=UTF-8'
-    };
+    const headersConfig = {};
 
     if (token)
       headersConfig['Authorization'] = `Bearer ${token}`;
 
-    if (request.headers.has('text-content'))
-      headersConfig['Content-Type'] = 'text/plain';
+    if (!request.headers.has('Content-Type') && !request.headers.has('Upload'))
+      headersConfig['Content-Type'] = 'application/json; charset=UTF-8';
 
     const header = request.clone({ setHeaders: headersConfig });
     return next.handle(header);

@@ -93,7 +93,7 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
       body,
       { responseType: 'text',
-        headers: { 'text-content': 'text/plain'},
+        headers: { 'Content-Type': 'text/plain'},
         observe: 'response'
       });
   }
@@ -130,14 +130,18 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
       body,
-      { observe: 'response' });
+      { observe: 'response',
+        headers: { 'Upload': 'true'}
+      });
   }
 
   public buildReuploadUserAccessKeyRequest(body: any, option: string): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY) + option,
       body,
-      { observe: 'response' });
+      { observe: 'response',
+        headers: { 'Upload': 'true'}
+      });
   }
 
   public buildGetUserProvisionedResourcesRequest(): Observable<any> {
@@ -149,35 +153,33 @@ export class ApplicationServiceFacade {
   public buildGetExploratoryEnvironmentTemplatesRequest(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES),
-      null,
-      { observe: 'response' });
+      null);
   }
 
   public buildGetComputationalResourcesTemplatesRequest(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES),
-      null,
-      { observe: 'response' });
+      null);
   }
 
   public buildCreateExploratoryEnvironmentRequest(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
       data,
-      { observe: 'response'});
+      { responseType: 'text', observe: 'response' });
   }
 
   public buildRunExploratoryEnvironmentRequest(data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
       data,
-      { observe: 'response'});
+      { responseType: 'text', observe: 'response' });
   }
 
   public buildSuspendExploratoryEnvironmentRequest(data): Observable<any> {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
-      data);
+      data, { responseType: 'text', observe: 'response' });
   }
 
   public buildCreateComputationalResources_DataengineServiceRequest(data): Observable<any> {
@@ -386,7 +388,7 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
       data,
       { observe: 'response',
-        headers: { 'text-content': 'text/plain'}
+        headers: { 'Content-Type': 'text/plain'}
       });
     }
 
@@ -401,7 +403,7 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + param,
       data,
       { observe: 'response',
-        headers: { 'text-content': 'text/plain'}
+        headers: { 'Content-Type': 'text/plain'}
       });
   }
 
