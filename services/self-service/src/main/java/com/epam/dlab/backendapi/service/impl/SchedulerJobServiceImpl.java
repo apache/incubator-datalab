@@ -346,11 +346,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private boolean exploratoryInactivityExceed(SchedulerJobData schedulerJobData, SchedulerJobDTO schedulerData) {
-		final String explName = schedulerJobData.getExploratoryName();
+		final String expName = schedulerJobData.getExploratoryName();
 		final String user = schedulerJobData.getUser();
-		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(user, explName);
-		final Long maxInactivity = schedulerData.getMaxInactivity();
-		return inactivityCondition(maxInactivity, userInstanceDTO.getStatus(), userInstanceDTO.getLastActivity());
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(user, expName, true);
+		final boolean canBeStopped = userInstanceDTO.getResources()
+				.stream()
+				.map(UserComputationalResource::getStatus)
+				.map(UserInstanceStatus::of)
+				.noneMatch(status -> status.in(TERMINATING, CONFIGURING, CREATING));
+		return canBeStopped && inactivityCondition(schedulerData.getMaxInactivity(), userInstanceDTO.getStatus(),
+				userInstanceDTO.getLastActivity());
 	}
 
 	private boolean inactivityCondition(Long maxInactivity, String status, LocalDateTime lastActivity) {
@@ -383,7 +388,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private void validateResourceStatus(String resourceStatus) {
 		final UserInstanceStatus status = UserInstanceStatus.of(resourceStatus);
-		if (Objects.isNull(status) || status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
+		if (Objects.isNull(status) || status.in(UserInstanceStatus.TERMINATED, TERMINATING,
 				UserInstanceStatus.FAILED)) {
 			throw new ResourceInappropriateStateException(String.format("Can not create/update scheduler for user " +
 					"instance with status: %s", status));
