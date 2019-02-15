@@ -116,14 +116,14 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE),
       null,
-      { observe: 'response'});
+      { observe: 'response', responseType: 'text' });
   }
 
   public buildRegenerateAccessKey(option): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE) + option,
       null,
-      { observe: 'response'});
+      { observe: 'response', responseType: 'text' });
   }
 
   public buildUploadUserAccessKeyRequest(body: any): Observable<any> {
@@ -318,14 +318,15 @@ export class ApplicationServiceFacade {
   public buildDownloadReportData(data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.DOWNLOAD_REPORT),
-      data);
+      data,
+      { observe: 'response', responseType: 'text' });
   }
 
   public buildCreateBackupRequest(data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),
       data,
-      {  observe: 'response' });
+      { observe: 'response' });
   }
   public buildGetBackupStatusRequest(uuid): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
