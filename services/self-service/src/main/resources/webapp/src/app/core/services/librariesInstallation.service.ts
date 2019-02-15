@@ -35,7 +35,7 @@ export class LibrariesInstallationService {
     return this.applicationServiceFacade
       .buildGetGroupsList(body)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -43,7 +43,7 @@ export class LibrariesInstallationService {
     return this.applicationServiceFacade
       .buildGetAvailableLibrariesList(data)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -53,7 +53,7 @@ export class LibrariesInstallationService {
     return this.applicationServiceFacade
       .buildGetAvailableDependenciest(body)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -71,7 +71,7 @@ export class LibrariesInstallationService {
     return this.applicationServiceFacade
       .buildGetInstalledLibrariesList(body)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -82,7 +82,7 @@ export class LibrariesInstallationService {
     return this.applicationServiceFacade
       .buildGetInstalledLibsByResource(body)
       .pipe(
-        map(response => response.json()),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 }

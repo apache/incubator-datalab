@@ -282,7 +282,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
       data,
-      { observe: 'response'});
+      { observe: 'response', responseType: 'text'});
   }
 
   public buildGetInstalledLibrariesList(data): Observable<any> {
@@ -349,7 +349,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
       data,
-      { observe: 'response'});
+      { observe: 'response', responseType: 'text' });
   }
 
   public buildGetExploratorySchedule(data): Observable<any> {
@@ -411,7 +411,6 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.BUDGET),
       data,
-      // this.getRequestOptions(false, true)
       { observe: 'response'});
   }
 
