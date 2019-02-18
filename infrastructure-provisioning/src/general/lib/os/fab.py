@@ -94,10 +94,11 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-def ensure_dataengine_tensorflow_jars(jars_dir, repository_host=''):
+def ensure_dataengine_tensorflow_jars(jars_dir, repository_host='', repository_prefix='', repository_packages_repo=''):
     if repository_host != '':
-        local('wget https://{0}/repository/packages/spark-tensorflow-connector-1.0.0-s_2.11.jar -O '
-              '{1}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(repository_host, jars_dir))
+        local('wget https://{0}/{2}/{3}/spark-tensorflow-connector-1.0.0-s_2.11.jar -O '
+              '{1}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(repository_host, jars_dir, repository_prefix,
+                                                                      repository_packages_repo))
     else:
         local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
               '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar -O '
@@ -149,7 +150,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
             sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
-            if 'conf_dlab_repository_host' in os.environ:
+            if 'local_repository_host' in os.environ:
                 sudo('pip2 install jupyter-console=={} --no-cache-dir'.format(
                      os.environ['notebook_jupyter_console_version']))
             sudo('pip2 install jupyter --no-cache-dir')
@@ -298,8 +299,10 @@ def install_r_pkg(requisites):
     status = list()
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires"
     try:
-        if 'conf_dlab_repository_host' in os.environ:
-            r_repo = 'https://{}/repository/r-repo'.format(os.environ['conf_dlab_repository_host'])
+        if 'local_repository_host' in os.environ:
+            r_repo = 'https://{}/{}/{}'.format(os.environ['local_repository_host'],
+                                                   os.environ['local_repository_prefix'],
+                                                   os.environ['local_repository_r_repo'])
         else:
             r_repo = 'http://cran.us.r-project.org'
         for r_pkg in requisites:
@@ -392,11 +395,15 @@ def install_java_pkg(requisites):
 def get_available_r_pkgs():
     try:
         r_pkgs = dict()
-        if 'conf_dlab_repository_host' in os.environ:
-            sudo('R -e \'write.table(available.packages(contriburl="https://{}/repository/r-repo/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\''.format(os.environ['conf_dlab_repository_host']))
+        if 'local_repository_host' in os.environ:
+            sudo('R -e \'write.table(available.packages(contriburl="https://{0}/{1}/{2}/src/contrib"), '
+                 'file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\''.format(
+                os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                os.environ['local_repository_r_repo']))
         else:
             sudo(
-                'R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+                'R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), '
+                'file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
         get("/tmp/r.csv", "r.csv")
         with open('r.csv', 'rb') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
@@ -463,7 +470,7 @@ def install_ungit(os_user, notebook_name):
             sudo('systemctl restart ungit.service')
         except:
             sys.exit(1)
-    if 'conf_dlab_repository_host' not in os.environ:
+    if 'local_repository_host' not in os.environ:
         run('git config --global http.proxy $http_proxy')
         run('git config --global https.proxy $https_proxy')
 
@@ -483,8 +490,10 @@ def set_mongo_parameters(client, mongo_parameters):
 
 def install_r_packages(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
-        if 'conf_dlab_repository_host' in os.environ:
-            r_repository = 'https://{}/repository/r-repo/'.format(os.environ['conf_dlab_repository_host'])
+        if 'local_repository_host' in os.environ:
+            r_repository = 'https://{0}/{1}/{2}/'.format(os.environ['local_repository_host'],
+                                                         os.environ['local_repository_prefix'],
+                                                         os.environ['local_repository_r_repo'])
         else:
             r_repository = 'http://cran.us.r-project.org'
         sudo('R -e "install.packages(\'devtools\', repos = \'{0}\')"'.format(r_repository))
@@ -501,28 +510,41 @@ def add_breeze_library_local(os_user):
             breeze_tmp_dir = '/tmp/breeze_tmp_local/'
             jars_dir = '/opt/jars/'
             sudo('mkdir -p {}'.format(breeze_tmp_dir))
-            if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{3}/repository/packages/breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
-                     '2.11', '0.12', breeze_tmp_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/packages/breeze-natives_{0}-{1}.jar -O '
+            if 'local_repository_host' in os.environ:
+                sudo('wget https://{3}/{4}/{5}/breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
+                     '2.11', '0.12', breeze_tmp_dir, os.environ['local_repository_host'],
+                     os.environ['local_repository_prefix'], os.environ['local_repository_packages_repo']))
+                sudo('wget https://{3}/{4}/{5}/breeze-natives_{0}-{1}.jar -O '
                      '{2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                            os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/packages/breeze-viz_{0}-{1}.jar -O '
+                                                            os.environ['local_repository_host'],
+                                                            os.environ['local_repository_prefix'],
+                                                            os.environ['local_repository_packages_repo']))
+                sudo('wget https://{3}/{4}/{5}/breeze-viz_{0}-{1}.jar -O '
                      '{2}breeze-viz_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                        os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/packages/breeze-macros_{0}-{1}.jar -O '
+                                                        os.environ['local_repository_host'],
+                                                        os.environ['local_repository_prefix'],
+                                                        os.environ['local_repository_packages_repo']))
+                sudo('wget https://{3}/{4}/{5}/breeze-macros_{0}-{1}.jar -O '
                      '{2}breeze-macros_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                           os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{3}/repository/packages/breeze-parent_{0}-{1}.jar -O '
+                                                           os.environ['local_repository_host'],
+                                                           os.environ['local_repository_prefix'],
+                                                           os.environ['local_repository_packages_repo']))
+                sudo('wget https://{3}/{4}/{5}/breeze-parent_{0}-{1}.jar -O '
                      '{2}breeze-parent_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                           os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/packages/jfreechart-{0}.jar -O {1}jfreechart-{0}.jar'.format(
-                     '1.0.19', breeze_tmp_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/packages/jcommon-{0}.jar -O {1}jcommon-{0}.jar'.format(
-                     '1.0.24', breeze_tmp_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/packages/spark-kernel-brunel-all-{0}.jar -O '
+                                                           os.environ['local_repository_host'],
+                                                           os.environ['local_repository_prefix'],
+                                                           os.environ['local_repository_packages_repo']))
+                sudo('wget https://{2}/{3}/{4}/jfreechart-{0}.jar -O {1}jfreechart-{0}.jar'.format(
+                     '1.0.19', breeze_tmp_dir, os.environ['local_repository_host'],
+                     os.environ['local_repository_prefix'], os.environ['local_repository_packages_repo']))
+                sudo('wget https://{2}/{3}/{4}/jcommon-{0}.jar -O {1}jcommon-{0}.jar'.format(
+                     '1.0.24', breeze_tmp_dir, os.environ['local_repository_host'],
+                     os.environ['local_repository_prefix'], os.environ['local_repository_packages_repo']))
+                sudo('wget https://{2}/{3}/{4}/spark-kernel-brunel-all-{0}.jar -O '
                      '{1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir,
-                                                                 os.environ['conf_dlab_repository_host']))
+                                                                 os.environ['local_repository_host'],
+                                                                 os.environ['local_repository_prefix'],
+                                                                 os.environ['local_repository_packages_repo']))
             else:
                 sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O '
                      '{2}breeze_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))

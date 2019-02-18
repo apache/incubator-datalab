@@ -58,14 +58,16 @@ if __name__ == "__main__":
     deeper_config = json.loads(args.additional_config)
 
     if args.region == 'cn-north-1':
-        update_apt_repository_configuration()
-        update_pip_repository_configuration('http://mirrors.aliyun.com/ubuntu/')
+        update_apt_repository_configuration('http://mirrors.aliyun.com/ubuntu/')
+        update_pip_repository_configuration(os.environ['conf_pypi_mirror'])
 
-    if 'conf_dlab_repository_cert_path' in os.environ:
+    if 'local_repository_cert_path' in os.environ:
         add_repository_cert()
-    if 'conf_dlab_repository_host' in os.environ:
-        update_apt_repository_configuration(os.environ['conf_dlab_repository_host'])
-        update_pip_repository_configuration('{}/repository/pypi-repo'.format(os.environ['conf_dlab_repository_host']))
+    if 'local_repository_host' in os.environ:
+        update_apt_repository_configuration(os.environ['local_repository_host'])
+        update_pip_repository_configuration('{}/{}/{}'.format(os.environ['local_repository_host'],
+                                                              os.environ['local_repository_prefix'],
+                                                              os.environ['local_repository_pypi_repo']))
 
     print("Updating hosts file")
     update_hosts_file(args.user)

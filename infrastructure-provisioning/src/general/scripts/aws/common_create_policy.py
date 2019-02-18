@@ -57,9 +57,9 @@ if __name__ == "__main__":
             list_predefined_policies = args.user_predefined_s3_policies.split(',')
 
         try:
-            if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            if 'local_repository_nginx_proxy_host' in os.environ and os.environ['conf_resource'] != 'ssn':
                 iam = boto3.client('iam',
-                                   endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+                                   endpoint_url='http://{}/iam'.format(os.environ['local_repository_nginx_proxy_host']),
                                    region_name='us-east-1')
             else:
                 iam = boto3.client('iam')

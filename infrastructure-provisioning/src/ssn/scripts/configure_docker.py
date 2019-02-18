@@ -60,12 +60,12 @@ def update_repository(dlab_path, repository_host, region):
                  'base_Dockerfile'.format(repository_host))
             sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" base_Dockerfile')
             sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" base_Dockerfile')
-        if 'conf_dlab_repository_host' in os.environ:
-            sudo('sed -i "s|^FROM ubuntu.*|FROM {}:8083/dlab-pre-base|g" base_Dockerfile'.format(repository_host))
+        if 'local_repository_host' in os.environ:
+            sudo('sed -i "s|^FROM ubuntu.*|FROM {0}/{1}/{2}/dlab-pre-base|g" base_Dockerfile'.format(
+                repository_host, os.environ['local_repository_prefix'],
+                os.environ['local_repository_docker_internal_repo']))
             sudo('sed -i "/pip install/d;/apt-get/d" base_Dockerfile')
-            # sudo('''echo '{"insecure-registries" : ["''' + repository_host + ''':8083"]}' > /etc/docker/daemon.json''')
-            # sudo('systemctl restart docker')
-            sudo('docker login -u docker-nexus -p docker-nexus {}:8083'.format(repository_host))
+            # sudo('docker login -u docker-nexus -p docker-nexus {}:8083'.format(repository_host))
         else:
             sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}|g' /etc/apt/sources.list" base_Dockerfile'''.format(
                 repository_host))
@@ -82,9 +82,9 @@ def build_docker_images(image_list, region, dlab_path):
                  '/home/{1}/keys/azure_auth.json'.format(args.dlab_path, args.os_user))
         if region == 'cn-north-1':
             update_repository(dlab_path, os.environ['conf_pypi_mirror'], region)
-        if 'conf_dlab_repository_host' in os.environ:
-            update_repository(dlab_path, os.environ['conf_dlab_repository_host'], region)
-        if 'conf_dlab_repository_cert_path' in os.environ:
+        if 'local_repository_host' in os.environ:
+            update_repository(dlab_path, os.environ['local_repository_host'], region)
+        if 'local_repository_host' in os.environ:
             sudo('mkdir -p {}sources/infrastructure-provisioning/src/base/certs'.format(args.dlab_path))
             put('/root/certs/repository.crt', '{}sources/infrastructure-provisioning/src/base/certs/'
                                               'repository.crt'.format(args.dlab_path), use_sudo=True)

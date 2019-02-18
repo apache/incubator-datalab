@@ -876,6 +876,24 @@ def install_nexus():
             put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
             sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
             sudo('sed -i "s/ADMIN_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_admin_password))
+            sudo('sed -i "s/PYPI_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_pypi_repo']))
+            sudo('sed -i "s/MAVEN_CENTRAL_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_maven_central_repo']))
+            sudo('sed -i "s/MAVEN_BINTRAY_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_maven_bintray_repo']))
+            sudo('sed -i "s/DOCKER_INTERNAL_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_docker_internal_repo']))
+            sudo('sed -i "s/DOCKER_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_docker_repo']))
+            sudo('sed -i "s/JENKINS_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_jenkins_repo']))
+            sudo('sed -i "s/MONGO_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_mongo_repo']))
+            sudo('sed -i "s/PACKAGES_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_packages_repo']))
+            sudo('sed -i "s/NPM_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
+                configuration['local_repository_npm_repo']))
             put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
             script_executed = False
             while not script_executed:
@@ -974,6 +992,16 @@ def install_nexus():
             nexus_service_waiter()
             put('templates/addCustomRepository.groovy', '/tmp/addCustomRepository.groovy')
             sudo('sed -i "s|REGION|{0}|g" /tmp/addCustomRepository.groovy'.format(args.region))
+            sudo('sed -i "s|APT_UBUNTU_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+                configuration['local_repository_apt_ubuntu_repo']))
+            sudo('sed -i "s|APT_SECURITY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+                configuration['local_repository_apt_ubuntu_security_repo']))
+            sudo('sed -i "s|APT_BINTRAY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+                configuration['local_repository_apt_bintray_repo']))
+            sudo('sed -i "s|RRUTTER_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+                configuration['local_repository_rrutter_repo']))
+            sudo('sed -i "s|R_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+                configuration['local_repository_r_repo']))
             script_executed = False
             while not script_executed:
                 try:

@@ -74,30 +74,36 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    if 'conf_dlab_repository_host' in os.environ:
-        repository_host = os.environ['conf_dlab_repository_host']
+    if 'local_repository_host' in os.environ:
+        repository_host = os.environ['local_repository_host']
+        packages_repo = os.environ['local_repository_packages_repo']
+        repository_prefix = os.environ['local_repository_prefix']
     else:
         repository_host = ''
+        packages_repo = ''
+        repository_prefix = ''
     command = "/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
-             "--bucket {0} " \
-             "--cluster_name {1} " \
-             "--emr_version {2} " \
-             "--spark_version {3} " \
-             "--hadoop_version {4} " \
-             "--region {5} " \
-             "--excluded_lines '{6}' " \
-             "--user_name {7} " \
-             "--os_user {8} " \
-             "--edge_hostname {9} " \
-             "--proxy_port {10} " \
-             "--scala_version {11} " \
-             "--livy_version {12} " \
-             "--multiple_clusters {13} " \
-             "--pip_mirror {14} " \
-             "--numpy_version {15} " \
-             "--application {16} " \
-             "--r_enabled {17} " \
-             "--conf_dlab_repository_host {18}" \
+              "--bucket {0} " \
+              "--cluster_name {1} " \
+              "--emr_version {2} " \
+              "--spark_version {3} " \
+              "--hadoop_version {4} " \
+              "--region {5} " \
+              "--excluded_lines '{6}' " \
+              "--user_name {7} " \
+              "--os_user {8} " \
+              "--edge_hostname {9} " \
+              "--proxy_port {10} " \
+              "--scala_version {11} " \
+              "--livy_version {12} " \
+              "--multiple_clusters {13} " \
+              "--pip_mirror {14} " \
+              "--numpy_version {15} " \
+              "--application {16} " \
+              "--r_enabled {17} " \
+              "--local_repository_host '{18}' " \
+              "--local_repository_packages_repo '{19}' " \
+              "--local_repository_prefix '{20}' " \
         .format(args.bucket,
                 args.cluster_name,
                 args.emr_version,
@@ -116,5 +122,7 @@ if __name__ == "__main__":
                 numpy_version,
                 args.application,
                 r_enabled,
-                repository_host)
+                repository_host,
+                packages_repo,
+                repository_prefix)
     sudo(command)

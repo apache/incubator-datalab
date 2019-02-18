@@ -222,9 +222,9 @@ def get_instance_by_ip(ip):
 
 
 def emr_sg(id):
-    if 'conf_dlab_repository_host' in os.environ:
+    if 'local_repository_nginx_proxy_host' in os.environ:
         client = boto3.client('emr',
-                              endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+                              endpoint_url='http://{}/emr'.format(os.environ['local_repository_nginx_proxy_host']))
     else:
         client = boto3.client('emr')
     emr = client.describe_cluster(ClusterId=id)
@@ -338,9 +338,9 @@ def build_emr_cluster(args):
             print(steps)
     
         if not args.dry_run:
-            if 'conf_dlab_repository_host' in os.environ:
+            if 'local_repository_nginx_proxy_host' in os.environ:
                 socket = boto3.client('emr', endpoint_url='http://{}/emr'.format(
-                    os.environ['conf_dlab_repository_host']))
+                    os.environ['local_repository_nginx_proxy_host']))
             else:
                 socket = boto3.client('emr')
             if args.slave_instance_spot == 'True':

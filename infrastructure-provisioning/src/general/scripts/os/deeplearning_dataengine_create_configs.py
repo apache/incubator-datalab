@@ -41,7 +41,9 @@ parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--spark_configurations', type=str, default='')
-parser.add_argument('--conf_dlab_repository_host', type=str, default='')
+parser.add_argument('--local_repository_host', type=str, default='')
+parser.add_argument('--local_repository_packages_repo', type=str, default='')
+parser.add_argument('--local_repository_prefix', type=str, default='')
 args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
@@ -50,13 +52,15 @@ local_jars_dir = '/opt/jars/'
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-if args.conf_dlab_repository_host != '':
-    scala_link = 'https://{0}/repository/packages/'.format(args.conf_dlab_repository_host)
+if args.local_repository_host != '':
+    scala_link = 'https://{0}/{1}/{2}/'.format(args.local_repository_host, args.local_repository_prefix,
+                                               args.local_repository_packages_repo)
 else:
     scala_link = "http://www.scala-lang.org/files/archive/"
-if args.conf_dlab_repository_host != '':
-    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
-        args.conf_dlab_repository_host, spark_version, hadoop_version)
+if args.local_repository_host != '':
+    spark_link = "https://{0}/{3}/{4}/spark-{1}-bin-hadoop{2}.tgz".format(
+        args.local_repository_host, spark_version, hadoop_version, args.local_repository_prefix,
+        args.local_repository_packages_repo)
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
                                                                                                       hadoop_version)
@@ -112,7 +116,8 @@ if __name__ == "__main__":
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
         install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                                  args.datalake_enabled)
-        ensure_dataengine_tensorflow_jars(local_jars_dir, args.conf_dlab_repository_host)
+        ensure_dataengine_tensorflow_jars(local_jars_dir, args.local_repository_host, args.local_repository_prefix,
+                                          args.local_repository_packages_repo)
         configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled,
                                    args.spark_configurations)
         pyspark_kernel(args)

@@ -197,8 +197,9 @@ def create_product_tag(resource):
 
 def remove_emr_tag(emr_id, tag):
     try:
-        if 'conf_dlab_repository_host' in os.environ:
-            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        if 'local_repository_nginx_proxy_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(
+                os.environ['local_repository_nginx_proxy_host']))
         else:
             emr = boto3.client('emr')
         emr.remove_tags(ResourceId=emr_id, TagKeys=tag)
@@ -473,8 +474,9 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
 
 def tag_emr_volume(cluster_id, node_name, billing_tag):
     try:
-        if 'conf_dlab_repository_host' in os.environ:
-            client = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        if 'local_repository_nginx_proxy_host' in os.environ:
+            client = boto3.client('emr', endpoint_url='http://{}/emr'.format(
+                os.environ['local_repository_nginx_proxy_host']))
         else:
             client = boto3.client('emr')
         cluster = client.list_instances(ClusterId=cluster_id)
@@ -494,8 +496,8 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
 
 
 def create_iam_role(role_name, role_profile, region, service='ec2'):
-    if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
-        conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
+    if 'local_repository_nginx_proxy_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+        conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['local_repository_nginx_proxy_host']),
                             region_name='us-east-1')
     else:
         conn = boto3.client('iam')
@@ -537,9 +539,9 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
 
 def attach_policy(role_name, policy_arn):
     try:
-        if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
-            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
-                                region_name='us-east-1')
+        if 'local_repository_nginx_proxy_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(
+                os.environ['local_repository_nginx_proxy_host']), region_name='us-east-1')
         else:
             conn = boto3.client('iam')
         conn.attach_role_policy(PolicyArn=policy_arn, RoleName=role_name)
@@ -552,9 +554,9 @@ def attach_policy(role_name, policy_arn):
 
 def create_attach_policy(policy_name, role_name, file_path):
     try:
-        if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
-            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
-                                region_name='us-east-1')
+        if 'local_repository_nginx_proxy_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            conn = boto3.client('iam', endpoint_url='http://{}/iam'.format(
+                os.environ['local_repository_nginx_proxy_host']), region_name='us-east-1')
         else:
             conn = boto3.client('iam')
         with open(file_path, 'r') as myfile:
@@ -798,9 +800,9 @@ def start_ec2(tag_name, tag_value):
 
 
 def remove_detach_iam_policies(role_name, action=''):
-    if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
-        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
-                              region_name='us-east-1')
+    if 'local_repository_nginx_proxy_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(
+            os.environ['local_repository_nginx_proxy_host']), region_name='us-east-1')
     else:
         client = boto3.client('iam')
     service_base_name = os.environ['conf_service_base_name']
@@ -821,9 +823,9 @@ def remove_detach_iam_policies(role_name, action=''):
 
 
 def remove_roles_and_profiles(role_name, role_profile_name):
-    if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
-        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
-                              region_name='us-east-1')
+    if 'local_repository_nginx_proxy_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+        client = boto3.client('iam', endpoint_url='http://{}/iam'.format(
+            os.environ['local_repository_nginx_proxy_host']), region_name='us-east-1')
     else:
         client = boto3.client('iam')
     try:
@@ -840,9 +842,9 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
-        if 'conf_dlab_repository_host' in os.environ and os.environ['conf_resource'] != 'ssn':
-            client = boto3.client('iam', endpoint_url='http://{}/iam'.format(os.environ['conf_dlab_repository_host']),
-                                  region_name='us-east-1')
+        if 'local_repository_nginx_proxy_host' in os.environ and os.environ['conf_resource'] != 'ssn':
+            client = boto3.client('iam', endpoint_url='http://{}/iam'.format(
+                os.environ['local_repository_nginx_proxy_host']), region_name='us-east-1')
         else:
             client = boto3.client('iam')
         service_base_name = os.environ['conf_service_base_name']
@@ -1117,8 +1119,9 @@ def deregister_image(image_name='*'):
 
 def terminate_emr(id):
     try:
-        if 'conf_dlab_repository_host' in os.environ:
-            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(os.environ['conf_dlab_repository_host']))
+        if 'local_repository_nginx_proxy_host' in os.environ:
+            emr = boto3.client('emr', endpoint_url='http://{}/emr'.format(
+                os.environ['local_repository_nginx_proxy_host']))
         else:
             emr = boto3.client('emr')
         emr.terminate_job_flows(
@@ -1508,13 +1511,18 @@ def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             sudo('mkdir -p {0}'.format(jars_dir))
-            if 'conf_dlab_repository_host' in os.environ:
-                sudo('wget https://{2}/repository/packages/hadoop-aws-{0}.jar -O {1}hadoop-aws-{0}.jar'.format(
-                    '2.7.4', jars_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/packages/aws-java-sdk-{0}.jar -O '
-                     '{1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir, os.environ['conf_dlab_repository_host']))
-                sudo('wget https://{2}/repository/packages/hadoop-lzo-{0}.jar -O '
-                     '{1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir, os.environ['conf_dlab_repository_host']))
+            if 'local_repository_host' in os.environ:
+                sudo('wget https://{2}/{3}/{4}/hadoop-aws-{0}.jar -O {1}hadoop-aws-{0}.jar'.format(
+                    '2.7.4', jars_dir, os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                    os.environ['local_repository_packages_repo']))
+                sudo('wget https://{2}/{3}/{4}/aws-java-sdk-{0}.jar -O '
+                     '{1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir, os.environ['local_repository_host'],
+                                                      os.environ['local_repository_prefix'],
+                                                      os.environ['local_repository_packages_repo']))
+                sudo('wget https://{2}/{3}/{4}/hadoop-lzo-{0}.jar -O '
+                     '{1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir, os.environ['local_repository_host'],
+                                                    os.environ['local_repository_prefix'],
+                                                    os.environ['local_repository_packages_repo']))
             else:
                 sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
                                         {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))

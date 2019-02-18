@@ -52,14 +52,17 @@ args = parser.parse_args()
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-if 'conf_dlab_repository_host' in os.environ:
-    scala_link = 'https://{0}/repository/packages/'.format(os.environ['conf_dlab_repository_host'])
+if 'local_repository_host' in os.environ:
+    scala_link = 'https://{0}/{1}/{2}/'.format(os.environ['local_repository_host'],
+                                               os.environ['local_repository_prefix'],
+                                               os.environ['local_repository_packages_repo'])
 else:
     scala_link = "http://www.scala-lang.org/files/archive/"
 zeppelin_version = args.zeppelin_version
-if 'conf_dlab_repository_host' in os.environ:
-    zeppelin_link = "https://{1}/repository/packages/zeppelin-{0}-bin-netinst.tgz".format(
-        zeppelin_version, os.environ['conf_dlab_repository_host'])
+if 'local_repository_host' in os.environ:
+    zeppelin_link = "https://{1}/{2}/{3}/zeppelin-{0}-bin-netinst.tgz".format(
+        zeppelin_version, os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+        os.environ['local_repository_packages_repo'])
 else:
     zeppelin_link = "http://archive.apache.org/dist/zeppelin/zeppelin-{0}/zeppelin-{0}-bin-netinst.tgz".format(
         zeppelin_version)
@@ -69,9 +72,10 @@ if args.region == 'cn-north-1':
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
-if 'conf_dlab_repository_host' in os.environ:
-    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
-        os.environ['conf_dlab_repository_host'], spark_version, hadoop_version)
+if 'local_repository_host' in os.environ:
+    spark_link = "https://{0}/{3}/{4}/spark-{1}-bin-hadoop{2}.tgz".format(
+        os.environ['local_repository_host'], spark_version, hadoop_version, os.environ['local_repository_prefix'],
+        os.environ['local_repository_packages_repo'])
 zeppelin_interpreters = "md,python,livy,shell"
 python3_version = "3.4"
 local_spark_path = '/opt/spark/'
@@ -169,9 +173,10 @@ def configure_local_spark_kernels(args):
 
 def install_local_livy(args):
     if not exists('/home/' + args.os_user + '/.ensure_dir/local_livy_ensured'):
-        if 'conf_dlab_repository_host' in os.environ:
-            sudo('wget https://{1}/repository/packages/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(
-                args.livy_version, os.environ['conf_dlab_repository_host']))
+        if 'local_repository_host' in os.environ:
+            sudo('wget https://{1}/{2}/{3}/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(
+                 args.livy_version, os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                 os.environ['local_repository_packages_repo']))
         else:
             sudo('wget http://archive.cloudera.com/beta/livy/livy-server-{0}.zip -O /opt/livy-server-{0}.zip'.format(
                 args.livy_version))

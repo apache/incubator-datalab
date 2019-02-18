@@ -76,13 +76,19 @@ if __name__ == "__main__":
     hadoop_version = get_hadoop_version(args.cluster_name)
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    if 'conf_dlab_repository_host' in os.environ:
-        repository_host = os.environ['conf_dlab_repository_host']
+    if 'local_repository_host' in os.environ:
+        repository_host = os.environ['local_repository_host']
+        packages_repo = os.environ['local_repository_packages_repo']
+        repository_prefix = os.environ['local_repository_prefix']
     else:
         repository_host = ''
+        packages_repo = ''
+        repository_prefix = ''
     sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket +
          " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
          spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
          " --pip_mirror " + args.pip_mirror + " --numpy_version " + numpy_version + " --application " +
-         args.application + " --r_enabled " + r_enabled + " --conf_dlab_repository_host '" + repository_host + "' ")
+         args.application + " --r_enabled " + r_enabled + " --local_repository_host '" +
+         repository_host + "' --local_repository_packages_repo '" + packages_repo + "' --local_repository_prefix '" +
+         repository_prefix + "' ")

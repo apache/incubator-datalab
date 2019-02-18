@@ -46,16 +46,19 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
 parser.add_argument('--spark_configurations', type=str, default='')
-parser.add_argument('--conf_dlab_repository_host', type=str, default='')
+parser.add_argument('--local_repository_host', type=str, default='')
+parser.add_argument('--local_repository_packages_repo', type=str, default='')
+parser.add_argument('--local_repository_prefix', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-if args.conf_dlab_repository_host != '':
-    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
-        args.conf_dlab_repository_host, spark_version, hadoop_version)
+if args.local_repository_host != '':
+    spark_link = "https://{0}/{3}/{4}/spark-{1}-bin-hadoop{2}.tgz".format(
+        args.local_repository_host, spark_version, hadoop_version, args.local_repository_prefix,
+        args.local_repository_packages_repo)
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
                                                                                                       hadoop_version)
@@ -159,10 +162,11 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
 def install_remote_livy(args):
     local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
     local('sudo service zeppelin-notebook stop')
-    if args.conf_dlab_repository_host != '':
-        local('sudo wget -i https://{1}/repository/packages/livy-server-{0}.zip -O '
-              '/opt/{2}/livy-server-{0}.zip'.format(args.livy_version, args.conf_dlab_repository_host,
-                                                    args.cluster_name))
+    if args.local_repository_host != '':
+        local('sudo wget -i https://{1}/{3}/{4}/livy-server-{0}.zip -O '
+              '/opt/{2}/livy-server-{0}.zip'.format(args.livy_version, args.local_repository_host,
+                                                    args.cluster_name, args.local_repository_prefix,
+                                                    args.local_repository_packages_repo))
     else:
         local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/' +
               args.cluster_name + '/livy-server-' + args.livy_version + '.zip')

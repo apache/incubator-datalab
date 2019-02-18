@@ -41,16 +41,19 @@ parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--spark_configurations', type=str, default='')
-parser.add_argument('--conf_dlab_repository_host', type=str, default='')
+parser.add_argument('--local_repository_host', type=str, default='')
+parser.add_argument('--local_repository_packages_repo', type=str, default='')
+parser.add_argument('--local_repository_prefix', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-if args.conf_dlab_repository_host != '':
-    spark_link = "https://{0}/repository/packages/spark-{1}-bin-hadoop{2}.tgz".format(
-        args.conf_dlab_repository_host, spark_version, hadoop_version)
+if args.local_repository_host != '':
+    spark_link = "https://{0}/{3}/{4}/spark-{1}-bin-hadoop{2}.tgz".format(
+        args.local_repository_host, spark_version, hadoop_version, args.local_repository_prefix,
+        args.local_repository_packages_repo)
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz".format(spark_version,
                                                                                                       hadoop_version)

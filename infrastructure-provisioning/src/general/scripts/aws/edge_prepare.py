@@ -297,26 +297,26 @@ if __name__ == "__main__":
                 "ToPort": 389, "IpProtocol": "-1", "UserIdGroupPairs": []
             }
         ])
-        if 'conf_dlab_repository_host' in os.environ:
+        if 'local_repository_host' in os.environ:
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],
                     "FromPort": 80,
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['conf_dlab_repository_host'])}],
+                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_host'])}],
                     "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],
                     "FromPort": 443,
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['conf_dlab_repository_host'])}],
+                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_host'])}],
                     "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],
                     "FromPort": 3128,
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['conf_dlab_repository_host'])}],
+                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_host'])}],
                     "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \

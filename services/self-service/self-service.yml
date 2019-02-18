@@ -132,8 +132,8 @@ mavenSearchService:
     connectionTimeout: 5s
 <#if DLAB_LOCAL_REPO == "true">
     proxy:
-      host: DLAB_LOCAL_REPO_HOST
-      port: 3128
+      host: DLAB_PARENT_PROXY_HOST
+      port: DLAB_PARENT_PROXY_PORT
       scheme: http
 </#if>
 

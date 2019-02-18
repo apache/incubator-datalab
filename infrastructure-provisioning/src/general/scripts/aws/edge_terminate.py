@@ -31,9 +31,9 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
         clusters_list = get_emr_list(tag_name)
         if clusters_list:
             for cluster_id in clusters_list:
-                if 'conf_dlab_repository_host' in os.environ:
+                if 'local_repository_nginx_proxy_host' in os.environ:
                     client = boto3.client('emr', endpoint_url='http://{}/emr'.format(
-                        os.environ['conf_dlab_repository_host']))
+                        os.environ['local_repository_nginx_proxy_host']))
                 else:
                     client = boto3.client('emr')
                 cluster = client.describe_cluster(ClusterId=cluster_id)

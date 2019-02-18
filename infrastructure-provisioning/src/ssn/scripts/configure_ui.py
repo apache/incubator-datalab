@@ -142,10 +142,12 @@ def build_ui():
             sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
 
         # Building Back-end
-        if 'conf_dlab_repository_host' in os.environ:
-            sudo('sed -i "s|BINTRAY-REPO|https://{0}/repository/maven-bintray/|g" '
-                 '{1}/sources/services/self-service/pom.xml'.format(os.environ['conf_dlab_repository_host'],
-                                                                    args.dlab_path))
+        if 'local_repository_host' in os.environ:
+            sudo('sed -i "s|BINTRAY-REPO|https://{0}/{2}/{3}/|g" '
+                 '{1}/sources/services/self-service/pom.xml'.format(os.environ['local_repository_host'],
+                                                                    args.dlab_path,
+                                                                    os.environ['local_repository_prefix'],
+                                                                    os.environ['local_repository_maven_bintray_repo']))
         else:
             sudo('sed -i "s|BINTRAY-REPO|https://dl.bintray.com/michaelklishin/maven/|g" '
                  '{}/sources/services/self-service/pom.xml'.format(args.dlab_path))
@@ -164,11 +166,11 @@ def build_ui():
             args.dlab_path))
         sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
              '{0}/webapp/provisioning-service/lib/'.format(args.dlab_path))
-
-        if 'conf_dlab_repository_host' in os.environ:
-            sudo('sed -i "s/DLAB_LOCAL_REPO_HOST/{0}/g" {1}/webapp/self-service/conf/self-service.yml'.format(
-                os.environ['conf_dlab_repository_host'], args.dlab_path))
-
+        if 'local_repository_parent_proxy_host' in os.environ:
+            sudo('sed -i "s/DLAB_PARENT_PROXY_HOST/{0}/g" {1}/webapp/self-service/conf/self-service.yml'.format(
+                os.environ['local_repository_parent_proxy_host'], args.dlab_path))
+            sudo('sed -i "s/DLAB_PARENT_PROXY_PORT/{0}/g" {1}/webapp/self-service/conf/self-service.yml'.format(
+                os.environ['local_repository_parent_proxy_port'], args.dlab_path))
         sudo('sed -i "s/LDAP_HOST/{0}/g" {1}/sources/services/security-service/security.yml'.format(
             os.environ['ldap_hostname'], args.dlab_path))
         sudo('sed -i "s/LDAP_USER/{0}/g" {1}/sources/services/security-service/security.yml'.format(
@@ -189,7 +191,7 @@ def build_ui():
             sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/webapp/billing/lib/'.format(
                 args.dlab_path))
         elif args.cloud_provider == 'aws':
-            if 'conf_dlab_repository_host' in os.environ:
+            if 'local_repository_host' in os.environ:
                 sudo('sed -i "s|region:|region: {1}|g" {0}/sources/services/billing-aws/billing.yml'.format(
                     args.dlab_path, os.environ['aws_region']))
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))

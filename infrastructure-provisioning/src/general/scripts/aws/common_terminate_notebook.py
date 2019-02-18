@@ -34,9 +34,9 @@ def terminate_nb(nb_tag_value, bucket_name, tag_name):
         clusters_list = get_emr_list(nb_tag_value, 'Value')
         if clusters_list:
             for cluster_id in clusters_list:
-                if 'conf_dlab_repository_host' in os.environ:
+                if 'local_repository_nginx_proxy_host' in os.environ:
                     client = boto3.client('emr',endpoint_url='http://{}/emr'.format(
-                        os.environ['conf_dlab_repository_host']))
+                        os.environ['local_repository_nginx_proxy_host']))
                 else:
                     client = boto3.client('emr')
                 cluster = client.describe_cluster(ClusterId=cluster_id)

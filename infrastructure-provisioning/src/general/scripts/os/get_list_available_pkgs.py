@@ -53,9 +53,10 @@ def get_available_pip_pkgs(version):
     try:
         for _ in range(100):
             pip_pkgs = dict()
-            if 'conf_dlab_repository_host' in os.environ:
+            if 'local_repository_parent_proxy_host' in os.environ:
                 transport = ProxiedTransport()
-                transport.set_proxy('{}'.format(os.environ['conf_dlab_repository_host']), 3128)
+                transport.set_proxy('{}'.format(os.environ['local_repository_parent_proxy_host']),
+                                    int(os.environ['local_repository_parent_proxy_port']))
                 client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi', transport=transport)
             else:
                 client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
@@ -76,9 +77,10 @@ def get_available_pip_pkgs(version):
 def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
     try:
         pip_pkgs = dict()
-        if 'conf_dlab_repository_host' in os.environ:
+        if 'local_repository_parent_proxy_host' in os.environ:
             transport = ProxiedTransport()
-            transport.set_proxy('{}'.format(os.environ['conf_dlab_repository_host']), 3128)
+            transport.set_proxy('{}'.format(os.environ['local_repository_parent_proxy_host']),
+                                int(os.environ['local_repository_parent_proxy_host']))
             client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi', transport=transport)
         else:
             client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')

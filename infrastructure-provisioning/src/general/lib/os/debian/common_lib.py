@@ -58,11 +58,12 @@ def update_apt_repository_configuration(repository_host):
     if not exists('/tmp/apt_conf_update_ensured'):
         put('/root/files/sources.list', '/tmp/sources.list')
         sudo('mv /tmp/sources.list /etc/apt/sources.list')
-        if 'conf_dlab_repository_host' in os.environ:
-            sudo('sed -i "s|REPOSITORY_UBUNTU|{}/repository/apt-ubuntu/|g" /etc/apt/sources.list'.format(
-                repository_host))
-            sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}/repository/apt-security/|g" /etc/apt/sources.list'.format(
-                repository_host))
+        if 'local_repository_host' in os.environ:
+            sudo('sed -i "s|REPOSITORY_UBUNTU|{0}/{1}/{2}/|g" /etc/apt/sources.list'.format(
+                repository_host, os.environ['local_repository_prefix'], os.environ['local_repository_apt_ubuntu_repo']))
+            sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{0}/{1}/{2}/|g" /etc/apt/sources.list'.format(
+                repository_host, os.environ['local_repository_prefix'],
+                os.environ['local_repository_apt_ubuntu_security_repo']))
         else:
             sudo('sed -i "s|REPOSITORY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
             sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))

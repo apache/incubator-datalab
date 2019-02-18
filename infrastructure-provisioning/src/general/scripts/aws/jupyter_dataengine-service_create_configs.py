@@ -48,7 +48,9 @@ parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
-parser.add_argument('--conf_dlab_repository_host', type=str, default='')
+parser.add_argument('--local_repository_host', type=str, default='')
+parser.add_argument('--local_repository_packages_repo', type=str, default='')
+parser.add_argument('--local_repository_prefix', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -138,28 +140,36 @@ def add_breeze_library_emr(args):
     breeze_tmp_dir = '/tmp/breeze_tmp_emr/'
     local('sudo mkdir -p ' + new_jars_directory_path)
     local('mkdir -p ' + breeze_tmp_dir)
-    if args.conf_dlab_repository_host != '':
-        local('wget https://{3}/repository/packages/breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
-              '2.11', '0.12', breeze_tmp_dir, args.conf_dlab_repository_host))
-        local('wget https://{3}/repository/packages/breeze-natives_{0}-{1}.jar -O '
+    if args.local_repository_host != '':
+        local('wget https://{3}/{5}/{4}/breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
+              '2.11', '0.12', breeze_tmp_dir, args.local_repository_host, args.local_repository_packages_repo,
+              args.local_repository_prefix))
+        local('wget https://{3}/{5}/{4}/breeze-natives_{0}-{1}.jar -O '
               '{2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                     args.conf_dlab_repository_host))
-        local('wget https://{3}/repository/packages/breeze-viz_{0}-{1}.jar -O '
+                                                     args.local_repository_host, args.local_repository_packages_repo,
+                                                     args.local_repository_prefix))
+        local('wget https://{3}/{5}/{4}/breeze-viz_{0}-{1}.jar -O '
               '{2}breeze-viz_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                 args.conf_dlab_repository_host))
-        local('wget https://{3}/repository/packages/breeze-macros_{0}-{1}.jar -O '
+                                                 args.local_repository_host, args.local_repository_packages_repo,
+                                                 args.local_repository_prefix))
+        local('wget https://{3}/{5}/{4}/breeze-macros_{0}-{1}.jar -O '
               '{2}breeze-macros_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                    args.conf_dlab_repository_host))
-        local('wget https://{3}/repository/packages/breeze-parent_{0}-{1}.jar -O '
+                                                    args.local_repository_host, args.local_repository_packages_repo,
+                                                    args.local_repository_prefix))
+        local('wget https://{3}/{5}/{4}/breeze-parent_{0}-{1}.jar -O '
               '{2}breeze-parent_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
-                                                    args.conf_dlab_repository_host))
-        local('wget https://{2}/repository/packages/jfreechart-{0}.jar -O {1}jfreechart-{0}.jar'.format(
-              '1.0.19', breeze_tmp_dir, args.conf_dlab_repository_host))
-        local('wget https://{2}/repository/packages/jcommon-{0}.jar -O {1}jcommon-{0}.jar'.format(
-              '1.0.24', breeze_tmp_dir, args.conf_dlab_repository_host))
-        local('wget https://{2}/repository/packages/spark-kernel-brunel-all-{0}.jar -O '
-              '{1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir,
-                                                          args.conf_dlab_repository_host))
+                                                    args.local_repository_host, args.local_repository_packages_repo,
+                                                    args.local_repository_prefix))
+        local('wget https://{2}/{4}/{3}/jfreechart-{0}.jar -O {1}jfreechart-{0}.jar'.format(
+              '1.0.19', breeze_tmp_dir, args.local_repository_host, args.local_repository_packages_repo,
+              args.local_repository_prefix))
+        local('wget https://{2}/{4}/{3}/jcommon-{0}.jar -O {1}jcommon-{0}.jar'.format(
+              '1.0.24', breeze_tmp_dir, args.local_repository_host, args.local_repository_packages_repo,
+              args.local_repository_prefix))
+        local('wget https://{2}/{4}/{3}/spark-kernel-brunel-all-{0}.jar -O '
+              '{1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir, args.local_repository_host,
+                                                          args.local_repository_packages_repo,
+                                                          args.local_repository_prefix))
     else:
         local('wget http://central.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O '
               '{2}breeze_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))

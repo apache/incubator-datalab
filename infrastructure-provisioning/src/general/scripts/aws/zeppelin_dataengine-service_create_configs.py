@@ -53,7 +53,9 @@ parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
-parser.add_argument('--conf_dlab_repository_host', type=str, default='')
+parser.add_argument('--local_repository_host', type=str, default='')
+parser.add_argument('--local_repository_packages_repo', type=str, default='')
+parser.add_argument('--local_repository_prefix', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -71,10 +73,12 @@ else:
 def install_remote_livy(args):
     local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
     local('sudo service zeppelin-notebook stop')
-    if args.conf_dlab_repository_host != '':
-        local('sudo wget -i https://{1}/repository/packages/livy-server-{0}.zip -O '
-              '/opt/{2}/{3}/livy-server-{0}.zip'.format(args.livy_version, args.conf_dlab_repository_host,
-                                                        args.emr_version, args.cluster_name))
+    if args.local_repository_host != '':
+        local('sudo wget -i https://{1}/{4}/{5}/livy-server-{0}.zip -O '
+              '/opt/{2}/{3}/livy-server-{0}.zip'.format(args.livy_version, args.local_repository_host,
+                                                        args.emr_version, args.cluster_name,
+                                                        args.local_repository_prefix,
+                                                        args.local_repository_packages_repo))
     else:
         local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-{0}.zip -O '
               '/opt/{1}/{2}/livy-server-{0}.zip'.format(args.livy_version, args.emr_version, args.cluster_name))

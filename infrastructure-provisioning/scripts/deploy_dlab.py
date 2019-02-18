@@ -118,9 +118,44 @@ parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organ
 parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
 parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
                     help='Ldap password for admin user')
-parser.add_argument('--conf_dlab_repository_host', type=str, default='', help='URL to DLab repository. '
-                                                                              'For example: 10.10.10.10')
-parser.add_argument('--conf_dlab_repository_cert_path', type=str, default='', help='Full path to cert')
+parser.add_argument('--local_repository_host', type=str, default='', help='IP address or DNS name of DLab repository. '
+                                                                          'For example: 10.10.10.10')
+parser.add_argument('--local_repository_cert_path', type=str, default='', help='Full path to cert')
+parser.add_argument('--local_repository_parent_proxy_host', type=str, default='', help='IP address or DNS name of '
+                                                                                       'parent proxy')
+parser.add_argument('--local_repository_parent_proxy_port', type=str, default='3128', help='Port number of '
+                                                                                           'parent proxy')
+parser.add_argument('--local_repository_nginx_proxy_host', type=str, default='', help='IP address or DNS name of '
+                                                                                      'Nginx proxy')
+parser.add_argument('--local_repository_prefix', type=str, default='', help='Prefix of DLab repository')
+parser.add_argument('--local_repository_apt_bintray_repo', type=str, default='apt-bintray',
+                    help='Repository name for APT Bintray')
+parser.add_argument('--local_repository_apt_ubuntu_security_repo', type=str, default='apt-security',
+                    help='Repository name for APT security')
+parser.add_argument('--local_repository_apt_ubuntu_repo', type=str, default='apt-ubuntu',
+                    help='Repository name for APT')
+parser.add_argument('--local_repository_docker_internal_repo', type=str, default='docker-internal',
+                    help='Internal repository name for Docker')
+parser.add_argument('--local_repository_docker_repo', type=str, default='docker',
+                    help='Repository name for Docker')
+parser.add_argument('--local_repository_jenkins_repo', type=str, default='jenkins',
+                    help='Repository name for Jenkins')
+parser.add_argument('--local_repository_maven_bintray_repo', type=str, default='maven-bintray',
+                    help='Repository_name for Maven bintray')
+parser.add_argument('--local_repository_maven_central_repo', type=str, default='maven-central',
+                    help='Repository name for Maven central')
+parser.add_argument('--local_repository_mongo_repo', type=str, default='mongo',
+                    help='Repository name for Mongo')
+parser.add_argument('--local_repository_npm_repo', type=str, default='npm',
+                    help='Repository for NPM')
+parser.add_argument('--local_repository_packages_repo', type=str, default='packages',
+                    help='Repository name for packages')
+parser.add_argument('--local_repository_pypi_repo', type=str, default='pypi',
+                    help='Repository name for PyPi')
+parser.add_argument('--local_repository_r_repo', type=str, default='r',
+                    help='Repository name for R')
+parser.add_argument('--local_repository_rrutter_repo', type=str, default='rrutter',
+                    help='Repository name for Rrutter')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
                                                                                   'contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
@@ -143,8 +178,8 @@ def generate_docker_command():
     if args.ssl_cert_path != '' and args.ssl_key_path != '':
         command.append('-v {}:/root/certs/dlab.crt -v {}:/root/certs/dlab.key '.format(args.ssl_cert_path,
                                                                                        args.ssl_key_path))
-    if args.conf_dlab_repository_cert_path != '':
-        command.append('-v {}:/root/certs/repository.crt '.format(args.conf_dlab_repository_cert_path))
+    if args.local_repository_cert_path != '':
+        command.append('-v {}:/root/certs/repository.crt '.format(args.local_repository_cert_path))
     attrs = vars(args)
     skipped_parameters = ['action', 'key_path', 'workspace_path', 'gcp_service_account_path', 'ssl_cert_path',
                           'ssl_key_path']

@@ -67,13 +67,19 @@ if __name__ == "__main__":
         region = ''
     if 'spark_configurations' not in os.environ:
         os.environ['spark_configurations'] = '[]'
-    if 'conf_dlab_repository_host' in os.environ:
-        repository_host = os.environ['conf_dlab_repository_host']
+    if 'local_repository_host' in os.environ:
+        repository_host = os.environ['local_repository_host']
+        packages_repo = os.environ['local_repository_packages_repo']
+        repository_prefix = os.environ['local_repository_prefix']
     else:
         repository_host = ''
+        packages_repo = ''
+        repository_prefix = ''
     configure_notebook(args.keyfile, env.host_string)
     sudo('/usr/bin/python /usr/local/bin/rstudio_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
-         '--datalake_enabled {} --spark_configurations "{}" --conf_dlab_repository_host "{}" '.
+         '--datalake_enabled {} --spark_configurations "{}" --local_repository_host "{}" '
+         '--local_repository_packages_repo "{}" --local_repository_prefix "{}" '.
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,
-                args.datalake_enabled, os.environ['spark_configurations'], repository_host))
+                args.datalake_enabled, os.environ['spark_configurations'], repository_host, packages_repo,
+                repository_prefix))
