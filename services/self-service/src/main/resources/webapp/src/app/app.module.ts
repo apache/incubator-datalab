@@ -46,10 +46,10 @@ import { CoreModule } from './core/core.module';
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-
     LoginModule,
     NavbarModule,
     ResourcesModule,
@@ -61,7 +61,6 @@ import { CoreModule } from './core/core.module';
     ManagenementModule,
     RouterModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
     CoreModule.forRoot()
   ],
   providers: [{
