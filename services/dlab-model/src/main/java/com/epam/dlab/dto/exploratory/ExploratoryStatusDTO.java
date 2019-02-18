@@ -23,6 +23,7 @@ import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.util.Date;
 import java.util.List;
 
 public class ExploratoryStatusDTO extends StatusEnvBaseDTO<ExploratoryStatusDTO> {
@@ -34,6 +35,8 @@ public class ExploratoryStatusDTO extends StatusEnvBaseDTO<ExploratoryStatusDTO>
 	private String exploratoryPassword;
 	@JsonProperty("private_ip")
 	private String privateIp;
+	@JsonProperty("last_activity")
+	private Date lastActivity;
 	@JsonProperty
 	private List<ClusterConfig> config;
 
@@ -96,6 +99,15 @@ public class ExploratoryStatusDTO extends StatusEnvBaseDTO<ExploratoryStatusDTO>
 
 	public List<ClusterConfig> getConfig() {
 		return config;
+	}
+
+	public ExploratoryStatusDTO withLastActivity(Date lastActivity) {
+		this.lastActivity = lastActivity;
+		return this;
+	}
+
+	public Date getLastActivity() {
+		return lastActivity;
 	}
 
 	@Override
