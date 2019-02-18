@@ -2554,9 +2554,6 @@ where:
 - **authorizationPath** - dex authorization path. By default is **/auth**
 - **scope** - [open id connect scopes](https://github.com/dexidp/dex/blob/master/Documentation/custom-scopes-claims-clients.md). E.g. **openid+email+groups**
 
-__NOTE: dex configuration itself is out of scope of that documentation__
-
-
-        
-        
+__NOTE: dex configuration itself is out of scope of that documentation. You can read more about DEX itself under the following link:__ 
+https://github.com/dexidp/dex        
     
