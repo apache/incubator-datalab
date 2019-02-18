@@ -19,6 +19,8 @@ limitations under the License.
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { Subscription, timer, interval } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
+
 // import { ToastsManager } from 'ng2-toastr';
 
 
@@ -163,8 +165,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.alive = true;
         this.subscriptions.add(
           interval(this.CHECK_ACCESS_KEY_TIMEOUT)
-          // .takeWhile(() => this.alive)
-          .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
+            .pipe(takeWhile(() => this.alive))
+            .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
       }
 
     } else if (status === HTTP_STATUS_CODES.OK) {
