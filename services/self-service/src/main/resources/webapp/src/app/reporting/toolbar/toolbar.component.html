@@ -28,7 +28,7 @@ limitations under the License.
   </div>
 
   <div id="range-picker">
-    <!-- <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker> -->
+    <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
   </div>
   <div class="action-butt">
     <button mat-raised-button class="butt" (click)="export($event)" [disabled]="!reportData?.lines.length">

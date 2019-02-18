@@ -16,9 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-// import { NgDateRangePickerOptions } from 'ng-daterangepicker';
-
+import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
+import { NgDateRangePickerOptions } from 'ng-daterangepicker';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
@@ -35,7 +34,7 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   availablePeriodTo: string;
 
   rangeOptions = {'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report'};
-  // options: NgDateRangePickerOptions;
+  options: NgDateRangePickerOptions;
   rangeLabels: any;
 
   @Output() rebuildReport: EventEmitter<{}> = new EventEmitter();
@@ -43,15 +42,15 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   @Output() setRangeOption: EventEmitter<{}> = new EventEmitter();
 
   constructor() {
-    // this.options = {
-    //   theme: 'default',
-    //   range: 'tm',
-    //   dayNames: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    //   presetNames: ['This Month', 'Last Month', 'This Week', 'Last Week', 'This Year', 'Last Year', 'From', 'To'],
-    //   dateFormat: 'dd MMM y',
-    //   outputFormat: 'YYYY/MM/DD',
-    //   startOfWeek: 1
-    // };
+    this.options = {
+      theme: 'default',
+      range: 'tm',
+      dayNames: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      presetNames: ['This Month', 'Last Month', 'This Week', 'Last Week', 'This Year', 'Last Year', 'From', 'To'],
+      dateFormat: 'dd MMM y',
+      outputFormat: 'YYYY/MM/DD',
+      startOfWeek: 1
+    };
   }
 
   ngOnInit() {
