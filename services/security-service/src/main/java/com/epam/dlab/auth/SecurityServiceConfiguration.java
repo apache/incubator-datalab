@@ -58,6 +58,11 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	private LdapConnectionConfig ldapConfiguration;
 
+	@JsonProperty
+	private String awsUserIdentificationEndpoint;
+	@JsonProperty
+	private String awsUserIdentificationEndpointRegion;
+
 	public SecurityServiceConfiguration() {
 		super();
 	}
@@ -116,5 +121,13 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	public GcpLoginConfiguration getGcpLoginConfiguration() {
 		return gcpLoginConfiguration;
+	}
+
+	public String getAwsUserIdentificationEndpoint() {
+		return awsUserIdentificationEndpoint;
+	}
+
+	public String getAwsUserIdentificationEndpointRegion() {
+		return awsUserIdentificationEndpointRegion;
 	}
 }

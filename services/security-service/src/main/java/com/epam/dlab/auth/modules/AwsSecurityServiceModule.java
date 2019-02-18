@@ -30,6 +30,7 @@ import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import io.dropwizard.setup.Environment;
 
 public class AwsSecurityServiceModule extends CloudModule {
@@ -65,6 +66,18 @@ public class AwsSecurityServiceModule extends CloudModule {
 		} else {
 			return providerChain.getCredentials();
 		}
+	}
+
+	@Provides
+	@Named("iamEndpoint")
+	private String iamEndpoint() {
+		return conf.getAwsUserIdentificationEndpoint();
+	}
+
+	@Provides
+	@Named("iamRegion")
+	private String iamRegion() {
+		return conf.getAwsUserIdentificationEndpointRegion();
 	}
 
 	private AWSCredentials devAwsCredentials() {

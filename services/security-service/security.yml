@@ -150,6 +150,8 @@ userInfoPersistenceEnabled: true
 
 <#if CLOUD_TYPE == "aws">
 awsUserIdentificationEnabled: true
+awsUserIdentificationEndpoint: http://${REPOSITORY_HOST}/iam
+awsUserIdentificationEndpointRegion: us-east-1
 loginAuthenticationTimeout: 10
 <#elseif CLOUD_TYPE == "azure">
 loginAuthenticationTimeout: 20

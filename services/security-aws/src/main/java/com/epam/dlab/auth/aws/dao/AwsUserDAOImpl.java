@@ -13,30 +13,40 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
  ****************************************************************************/
 
 package com.epam.dlab.auth.aws.dao;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 @Slf4j
 public class AwsUserDAOImpl implements AwsUserDAO {
 
+	private final String endpoint;
+	private final String region;
 	private volatile AmazonIdentityManagement aim;
 
 	@Inject
-	public AwsUserDAOImpl(AWSCredentials credentials) {
-		this.aim = new AmazonIdentityManagementClient(credentials);
+	public AwsUserDAOImpl(AWSCredentials credentials,
+						  @Nullable @Named("iamEndpoint") String endpoint,
+						  @Nullable @Named("iamRegion") String region) {
+		this.endpoint = endpoint;
+		this.region = region;
+		this.aim = getClient(credentials);
 	}
 
 	@Override
@@ -48,7 +58,7 @@ public class AwsUserDAOImpl implements AwsUserDAO {
 
 	@Override
 	public void updateCredentials(AWSCredentials credentials) {
-		this.aim = new AmazonIdentityManagementClient(credentials);
+		this.aim = getClient(credentials);
 	}
 
 	@Override
@@ -74,5 +84,15 @@ public class AwsUserDAOImpl implements AwsUserDAO {
 			log.error("User {} not found: {}", username, e.getMessage());
 		}
 		return user;
+	}
+
+	private AmazonIdentityManagementClient getClient(AWSCredentials credentials) {
+		final AmazonIdentityManagementClient client =
+				new AmazonIdentityManagementClient(credentials);
+		Optional.ofNullable(endpoint)
+				.ifPresent(client::setEndpoint);
+		Optional.ofNullable(region)
+				.ifPresent(r -> client.setRegion(Region.getRegion(Regions.fromName(r))));
+		return client;
 	}
 }
