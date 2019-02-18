@@ -203,7 +203,11 @@ public class ExploratoryDAO extends BaseDAO {
 
 	public void updateLastActivity(String user, String exploratoryName, LocalDateTime lastActivity) {
 		updateOne(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName)),
-				set(EXPLORATORY_LAST_ACTIVITY, Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
+				set(EXPLORATORY_LAST_ACTIVITY, toDate(lastActivity)));
+	}
+
+	private Date toDate(LocalDateTime lastActivity) {
+		return Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 	/**
@@ -380,6 +384,10 @@ public class ExploratoryDAO extends BaseDAO {
 		}
 		if (dto.getExploratoryId() != null) {
 			values.append(EXPLORATORY_ID, dto.getExploratoryId());
+		}
+
+		if (dto.getLastActivity() != null) {
+			values.append(EXPLORATORY_LAST_ACTIVITY, dto.getLastActivity());
 		}
 
 		if (dto.getResourceUrl() != null) {
