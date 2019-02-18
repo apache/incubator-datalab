@@ -1,4 +1,5 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "sourceMap": true,
     "declaration": false,
@@ -15,8 +16,13 @@
     "baseUrl": "",
     "types": []
   },
+  "typeRoots": [
+    "node_modules/@types"
+  ],
+  "types": ["jest"],
   "exclude": [
     "test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "..node_modules",
   ]
 }

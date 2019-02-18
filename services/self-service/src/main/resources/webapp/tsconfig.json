@@ -2,18 +2,15 @@
   "compileOnSave": false,
   "compilerOptions": {
     "importHelpers": true,
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
     "declaration": false,
+    "target": "es5",
+    "module": "commonjs",
     "moduleResolution": "node",
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
-    "lib": [
-      "es2016",
-      "dom"
-    ],
-    "module": "es2015",
-    "baseUrl": "./"
+    "lib": [ "es2015", "dom" ],
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true
   }
 }
