@@ -31,7 +31,6 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
@@ -46,10 +45,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.dto.UserInstanceStatus.*;
@@ -596,26 +592,32 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void testStopExploratoryByScheduler() {
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(getSchedulerJobData(LocalDate.now(), LocalDate.now().plusDays(1), Arrays.asList(DayOfWeek.values()), Arrays.asList(DayOfWeek.values()), LocalDateTime.of(LocalDate.now(),
-				LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
-				LocalTime.now().truncatedTo(ChronoUnit.MINUTES))));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).
+				thenReturn(singletonList(getSchedulerJobData(LocalDate.now(), LocalDate.now().plusDays(1),
+						Arrays.asList(DayOfWeek.values()), Arrays.asList(DayOfWeek.values()),
+						LocalDateTime.of(LocalDate.now(),
+								LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
+						LocalTime.now().truncatedTo(ChronoUnit.MINUTES))));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
 		verify(systemUserService).create(USER);
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verify(exploratoryService).stop(refEq(getUserInfo()), eq(EXPLORATORY_NAME));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
 	@Test
 	public void testStopExploratoryBySchedulerWhenSchedulerIsNotConfigured() {
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(Collections.emptyList());
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class)))
+				.thenReturn(Collections.emptyList());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(schedulerJobDAO);
 		verifyZeroInteractions(systemUserService, exploratoryService);
 	}
@@ -629,12 +631,13 @@ public class SchedulerJobServiceImplTest {
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 				LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 		);
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(schedulerJobData));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).thenReturn(singletonList(schedulerJobData));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
@@ -649,12 +652,14 @@ public class SchedulerJobServiceImplTest {
 		final SchedulerJobData schedulerJobData = getSchedulerJobData(beginDate, finishDate, startDays, stopDays,
 				terminateDateTime, false, USER, LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 		);
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(schedulerJobData));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class)))
+				.thenReturn(singletonList(schedulerJobData));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
@@ -668,12 +673,13 @@ public class SchedulerJobServiceImplTest {
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 				LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 		);
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(schedulerJobData));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).thenReturn(singletonList(schedulerJobData));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
@@ -1049,7 +1055,7 @@ public class SchedulerJobServiceImplTest {
 				LocalDateTime.of(now, currentTime.plusMinutes(minutesOffset).truncatedTo(ChronoUnit.MINUTES)),
 				false, "user123", offsetTime.truncatedTo(ChronoUnit.MINUTES));
 
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(Arrays.asList(schedulerJobData, secondScheduler));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).thenReturn(Arrays.asList(schedulerJobData, secondScheduler));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
 				any(DataEngineType.class), anyVararg())).thenReturn(singletonList(schedulerJobData));

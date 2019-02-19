@@ -68,5 +68,7 @@ public class SchedulerJobDTO {
 	private Long maxInactivity;
 	@JsonProperty("check_inactivity_required")
 	private boolean checkInactivityRequired;
+	@JsonProperty("consider_inactivity")
+	private boolean considerInactivity = true;
 
 }

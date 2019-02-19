@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,7 +49,9 @@ import java.util.stream.Stream;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.dto.base.DataEngineType.getDockerImageName;
+import static java.time.ZoneId.systemDefault;
 import static java.util.Collections.singletonList;
+import static java.util.Date.from;
 
 @Slf4j
 @Singleton
@@ -56,6 +59,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private static final String SCHEDULER_NOT_FOUND_MSG =
 			"Scheduler job data not found for user %s with exploratory %s";
+	private static final long ALLOWED_INACTIVITY_MINUTES = 1L;
 
 	@Inject
 	private SchedulerJobDAO schedulerJobDAO;
@@ -275,7 +279,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private List<SchedulerJobData> getExploratorySchedulersForStopping(OffsetDateTime currentDateTime) {
-		return schedulerJobDAO.getExploratorySchedulerDataWithStatus(RUNNING)
+
+		final Date clusterMaxInactivityAllowedDate =
+				from(LocalDateTime.now().minusMinutes(ALLOWED_INACTIVITY_MINUTES).atZone(systemDefault()).toInstant());
+		return schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(RUNNING,
+				clusterMaxInactivityAllowedDate)
 				.stream()
 				.filter(schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
 						currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
@@ -370,7 +378,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			dto.setBeginDate(LocalDate.now());
 		}
 		if (Objects.isNull(dto.getTimeZoneOffset()) || StringUtils.isBlank(dto.getTimeZoneOffset().toString())) {
-			dto.setTimeZoneOffset(OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
+			dto.setTimeZoneOffset(OffsetDateTime.now(systemDefault()).getOffset());
 		}
 	}
 
