@@ -64,7 +64,8 @@ def update_repository(dlab_path, repository_host, region):
             sudo('sed -i "s|^FROM ubuntu.*|FROM {0}/dlab-pre-base|g" base_Dockerfile'.format(
                 os.environ['local_repository_docker_internal_repo']))
             sudo('sed -i "/pip install/d;/apt-get/d" base_Dockerfile')
-            # sudo('docker login -u docker-nexus -p docker-nexus {}:8083'.format(repository_host))
+            sudo('docker login -u docker-nexus -p docker-nexus {}'.format(
+                os.environ['local_repository_docker_internal_repo']))
         else:
             sudo('''sed -i "23i RUN sed -i 's|REPOSITORY_UBUNTU|{}|g' /etc/apt/sources.list" base_Dockerfile'''.format(
                 repository_host))
