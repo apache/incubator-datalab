@@ -36,6 +36,7 @@ import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { HttpTokenInterceptor } from './core/interceptors/http.token.interceptor';
 import { NoCacheInterceptor } from './core/interceptors/nocache.interceptor';
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
 import { ReportingModule } from './reporting/reporting.module';
 import { ManagenementModule } from './management';
@@ -74,6 +75,10 @@ import { CoreModule } from './core/core.module';
     }, {
       provide: HTTP_INTERCEPTORS,
       useClass: NoCacheInterceptor,
+      multi: true,
+    }, {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
       multi: true,
     }
   ],
