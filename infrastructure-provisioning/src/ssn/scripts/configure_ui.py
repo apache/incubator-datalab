@@ -171,6 +171,9 @@ def build_ui():
                 os.environ['local_repository_parent_proxy_host'], args.dlab_path))
             sudo('sed -i "s/DLAB_PARENT_PROXY_PORT/{0}/g" {1}/webapp/self-service/conf/self-service.yml'.format(
                 os.environ['local_repository_parent_proxy_port'], args.dlab_path))
+        if 'local_repository_nginx_proxy_host' in os.environ:
+            sudo('sed -i "s/LOCAL_REPOSITORY_NGINX_PROXY_HOST/{0}/g" {1}/sources/services/security-service/'
+                 'security.yml'.format(os.environ['local_repository_nginx_proxy_host'], args.dlab_path))
         sudo('sed -i "s/LDAP_HOST/{0}/g" {1}/sources/services/security-service/security.yml'.format(
             os.environ['ldap_hostname'], args.dlab_path))
         sudo('sed -i "s/LDAP_USER/{0}/g" {1}/sources/services/security-service/security.yml'.format(

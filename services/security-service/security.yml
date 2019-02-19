@@ -150,8 +150,10 @@ userInfoPersistenceEnabled: true
 
 <#if CLOUD_TYPE == "aws">
 awsUserIdentificationEnabled: true
-awsUserIdentificationEndpoint: http://${REPOSITORY_HOST}/iam
+<#if DLAB_LOCAL_REPO == "true">
+awsUserIdentificationEndpoint: http://LOCAL_REPOSITORY_NGINX_PROXY_HOST/iam
 awsUserIdentificationEndpointRegion: us-east-1
+</#if>
 loginAuthenticationTimeout: 10
 <#elseif CLOUD_TYPE == "azure">
 loginAuthenticationTimeout: 20
