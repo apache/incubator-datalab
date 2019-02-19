@@ -23,7 +23,7 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/ng2-toastr/bundles/ng2-toastr.min.css"
+              "node_modules/ngx-toastr/toastr.css" 
             ],
             "scripts": [
               "node_modules/hammerjs/hammer.min.js"

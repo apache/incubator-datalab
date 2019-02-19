@@ -42,6 +42,7 @@ import { ReportingModule } from './reporting/reporting.module';
 import { ManagenementModule } from './management';
 
 import { CoreModule } from './core/core.module';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [AppComponent],
@@ -62,7 +63,10 @@ import { CoreModule } from './core/core.module';
     ManagenementModule,
     RouterModule,
     AppRoutingModule,
-    CoreModule.forRoot()
+    CoreModule.forRoot(),
+    ToastrModule.forRoot({
+      timeOut: 10000
+    })
   ],
   providers: [{
       provide: LocationStrategy,
