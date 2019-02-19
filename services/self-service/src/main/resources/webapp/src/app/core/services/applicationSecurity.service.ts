@@ -16,7 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-
 import { Injectable } from '@angular/core';
 import { of as observableOf, Observable, BehaviorSubject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
