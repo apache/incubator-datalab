@@ -74,14 +74,10 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    if 'local_repository_host' in os.environ:
-        repository_host = os.environ['local_repository_host']
+    if os.environ['local_repository_enabled'] == 'True':
         packages_repo = os.environ['local_repository_packages_repo']
-        repository_prefix = os.environ['local_repository_prefix']
     else:
-        repository_host = ''
         packages_repo = ''
-        repository_prefix = ''
     command = "/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
               "--bucket {0} " \
               "--cluster_name {1} " \
@@ -101,9 +97,8 @@ if __name__ == "__main__":
               "--numpy_version {15} " \
               "--application {16} " \
               "--r_enabled {17} " \
-              "--local_repository_host '{18}' " \
+              "--local_repository_enabled '{18}' " \
               "--local_repository_packages_repo '{19}' " \
-              "--local_repository_prefix '{20}' " \
         .format(args.bucket,
                 args.cluster_name,
                 args.emr_version,
@@ -122,7 +117,6 @@ if __name__ == "__main__":
                 numpy_version,
                 args.application,
                 r_enabled,
-                repository_host,
-                packages_repo,
-                repository_prefix)
+                os.environ['local_repository_enabled'],
+                packages_repo)
     sudo(command)

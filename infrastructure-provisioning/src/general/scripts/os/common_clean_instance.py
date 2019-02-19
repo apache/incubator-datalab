@@ -38,7 +38,7 @@ def general_clean():
         sudo('npm -g uninstall ungit')
         sudo('rm -f /etc/systemd/system/ungit.service')
         sudo('systemctl daemon-reload')
-        if 'local_repository_host' in os.environ:
+        if os.environ['local_repository_enabled'] == 'True':
             sudo('rm -rf /opt/node/')
         else:
             remove_os_pkg(['nodejs', 'npm'])

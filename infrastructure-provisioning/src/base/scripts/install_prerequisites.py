@@ -40,13 +40,13 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
-def update_pip_repository_configuration(repository_host):
+def update_pip_repository_configuration(repository, repository_host):
     if not exists('/home/{}/pip_conf_update_ensured'.format(args.user)):
         sudo('touch /etc/pip.conf')
         sudo('echo "[global]" > /etc/pip.conf')
         sudo('echo "timeout = 600" >> /etc/pip.conf')
-        sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(repository_host))
-        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(repository_host.split('/')[0]))
+        sudo('echo "index-url = {}/simple/" >> /etc/pip.conf'.format(repository))
+        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(repository_host))
         sudo('touch /home/{}/pip_conf_update_ensured'.format(args.user))
 
 
@@ -59,15 +59,15 @@ if __name__ == "__main__":
 
     if args.region == 'cn-north-1':
         update_apt_repository_configuration('http://mirrors.aliyun.com/ubuntu/')
-        update_pip_repository_configuration(os.environ['conf_pypi_mirror'])
+        update_pip_repository_configuration('https://{}'.format(os.environ['conf_pypi_mirror']),
+                                            os.environ['conf_pypi_mirror'])
 
     if 'local_repository_cert_path' in os.environ:
         add_repository_cert()
-    if 'local_repository_host' in os.environ:
-        update_apt_repository_configuration(os.environ['local_repository_host'])
-        update_pip_repository_configuration('{}/{}/{}'.format(os.environ['local_repository_host'],
-                                                              os.environ['local_repository_prefix'],
-                                                              os.environ['local_repository_pypi_repo']))
+    if os.environ['local_repository_enabled'] == 'True':
+        update_apt_repository_configuration()
+        update_pip_repository_configuration('{}'.format(os.environ['local_repository_pypi_repo']),
+                                            os.environ['local_repository_host'])
 
     print("Updating hosts file")
     update_hosts_file(args.user)

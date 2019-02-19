@@ -118,8 +118,9 @@ parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organ
 parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
 parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
                     help='Ldap password for admin user')
-parser.add_argument('--local_repository_host', type=str, default='', help='IP address or DNS name of DLab repository. '
-                                                                          'For example: 10.10.10.10')
+parser.add_argument('--local_repository_enabled', type=str, default='False', help='True - to use local repository. '
+                                                                                  'Otherwise - False')
+parser.add_argument('--local_repository_host', type=str, default='', help='IP address or DNS name of repository')
 parser.add_argument('--local_repository_cert_path', type=str, default='', help='Full path to cert')
 parser.add_argument('--local_repository_parent_proxy_host', type=str, default='', help='IP address or DNS name of '
                                                                                        'parent proxy')
@@ -127,34 +128,33 @@ parser.add_argument('--local_repository_parent_proxy_port', type=str, default='3
                                                                                            'parent proxy')
 parser.add_argument('--local_repository_nginx_proxy_host', type=str, default='', help='IP address or DNS name of '
                                                                                       'Nginx proxy')
-parser.add_argument('--local_repository_prefix', type=str, default='', help='Prefix of DLab repository')
-parser.add_argument('--local_repository_apt_bintray_repo', type=str, default='apt-bintray',
+parser.add_argument('--local_repository_apt_bintray_repo', type=str, default='',
                     help='Repository name for APT Bintray')
-parser.add_argument('--local_repository_apt_ubuntu_security_repo', type=str, default='apt-security',
+parser.add_argument('--local_repository_apt_ubuntu_security_repo', type=str, default='',
                     help='Repository name for APT security')
-parser.add_argument('--local_repository_apt_ubuntu_repo', type=str, default='apt-ubuntu',
+parser.add_argument('--local_repository_apt_ubuntu_repo', type=str, default='',
                     help='Repository name for APT')
-parser.add_argument('--local_repository_docker_internal_repo', type=str, default='docker-internal',
+parser.add_argument('--local_repository_docker_internal_repo', type=str, default='',
                     help='Internal repository name for Docker')
-parser.add_argument('--local_repository_docker_repo', type=str, default='docker',
+parser.add_argument('--local_repository_docker_repo', type=str, default='',
                     help='Repository name for Docker')
-parser.add_argument('--local_repository_jenkins_repo', type=str, default='jenkins',
+parser.add_argument('--local_repository_jenkins_repo', type=str, default='',
                     help='Repository name for Jenkins')
-parser.add_argument('--local_repository_maven_bintray_repo', type=str, default='maven-bintray',
+parser.add_argument('--local_repository_maven_bintray_repo', type=str, default='',
                     help='Repository_name for Maven bintray')
-parser.add_argument('--local_repository_maven_central_repo', type=str, default='maven-central',
+parser.add_argument('--local_repository_maven_central_repo', type=str, default='',
                     help='Repository name for Maven central')
-parser.add_argument('--local_repository_mongo_repo', type=str, default='mongo',
+parser.add_argument('--local_repository_mongo_repo', type=str, default='',
                     help='Repository name for Mongo')
-parser.add_argument('--local_repository_npm_repo', type=str, default='npm',
+parser.add_argument('--local_repository_npm_repo', type=str, default='',
                     help='Repository for NPM')
-parser.add_argument('--local_repository_packages_repo', type=str, default='packages',
+parser.add_argument('--local_repository_packages_repo', type=str, default='',
                     help='Repository name for packages')
-parser.add_argument('--local_repository_pypi_repo', type=str, default='pypi',
+parser.add_argument('--local_repository_pypi_repo', type=str, default='',
                     help='Repository name for PyPi')
-parser.add_argument('--local_repository_r_repo', type=str, default='r',
+parser.add_argument('--local_repository_r_repo', type=str, default='',
                     help='Repository name for R')
-parser.add_argument('--local_repository_rrutter_repo', type=str, default='rrutter',
+parser.add_argument('--local_repository_rrutter_repo', type=str, default='',
                     help='Repository name for Rrutter')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
                                                                                   'contains tags')

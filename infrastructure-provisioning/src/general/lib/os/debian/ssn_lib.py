@@ -32,14 +32,11 @@ def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
-            if 'local_repository_host' in os.environ:
-                sudo('curl -fsSL https://{0}/{1}/{2}/gpg | apt-key add -'.format(
-                    os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('curl -fsSL {0}/gpg | apt-key add -'.format(
                     os.environ['local_repository_docker_repo']))
-                sudo('add-apt-repository "deb [arch=amd64] https://{0}/{1}/{2}/ $(lsb_release -cs) \
-                                  stable"'.format(os.environ['local_repository_host'],
-                                                  os.environ['local_repository_prefix'],
-                                                  os.environ['local_repository_docker_repo']))
+                sudo('add-apt-repository "deb [arch=amd64] {0}/ $(lsb_release -cs) \
+                                  stable"'.format(os.environ['local_repository_docker_repo']))
             else:
                 sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
                 sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
@@ -73,15 +70,11 @@ def ensure_nginx(dlab_path):
 def ensure_jenkins(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
-            if 'local_repository_host' in os.environ:
-                sudo('wget -q -O - https://{0}/{1}/{2}/jenkins-ci.org.key'
-                     ' | apt-key add -'.format(os.environ['local_repository_host'],
-                                               os.environ['local_repository_prefix'],
-                                               os.environ['local_repository_packages_repo']))
-                sudo('echo deb https://{0}/{1}/{2}/ binary/ > '
-                     '/etc/apt/sources.list.d/jenkins.list'.format(os.environ['local_repository_host'],
-                                                                   os.environ['local_repository_prefix'],
-                                                                   os.environ['local_repository_jenkins_repo']))
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('wget -q -O - {0}/jenkins-ci.org.key'
+                     ' | apt-key add -'.format(os.environ['local_repository_packages_repo']))
+                sudo('echo deb {0}/ binary/ > '
+                     '/etc/apt/sources.list.d/jenkins.list'.format(os.environ['local_repository_jenkins_repo']))
             else:
                 sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
                 sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
@@ -172,11 +165,10 @@ def ensure_supervisor():
 def ensure_mongo():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
-            if 'local_repository_host' in os.environ:
-                sudo('ver=`lsb_release -cs`; echo "deb https://{0}/{1}/{2}/ '
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('ver=`lsb_release -cs`; echo "deb {0}/ '
                      '$ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; '
-                     'apt-get update'.format(os.environ['local_repository_host'], os.environ['local_repository_prefix'],
-                                             os.environ['local_repository_mongo_repo']))
+                     'apt-get update'.format(os.environ['local_repository_mongo_repo']))
             else:
                 sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
                 sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 '
@@ -207,7 +199,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
             local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
             local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
-            if 'local_repository_host' in os.environ:
+            if os.environ['local_repository_enabled'] == 'True':
                 local('sed -i "s|LOCAL_REPO_ENABLED|true|g" /root/templates/ssn.yml')
             else:
                 local('sed -i "s|LOCAL_REPO_ENABLED|false|g" /root/templates/ssn.yml')
@@ -344,16 +336,11 @@ def install_build_dep():
             maven_version = '3.5.4'
             sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make')
             with cd('/opt/'):
-                if 'local_repository_host' in os.environ:
-                    sudo('wget https://{0}/{2}/{3}/apache-maven-{1}-bin.zip'.format(
-                         os.environ['local_repository_host'], maven_version, os.environ['local_repository_prefix'],
-                         os.environ['local_repository_packages_repo']))
+                if os.environ['local_repository_enabled'] == 'True':
+                    sudo('wget {0}/apache-maven-{1}-bin.zip'.format(
+                         os.environ['local_repository_packages_repo'], maven_version))
                     sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                     put('templates/settings.xml', '/tmp/settings.xml')
-                    sudo('sed -i "s|REPOSITORY_HOST|{}|g" /tmp/settings.xml'.format(
-                        os.environ['local_repository_host']))
-                    sudo('sed -i "s|REPOSITORY_PREFIX|{}|g" /tmp/settings.xml'.format(
-                        os.environ['local_repository_prefix']))
                     sudo('sed -i "s|REPOSITORY_MAVEN_REPO|{}|g" /tmp/settings.xml'.format(
                         os.environ['local_repository_maven_central_repo']))
                     sudo('cp -f /tmp/settings.xml apache-maven-{}/conf/'.format(maven_version))
@@ -363,30 +350,26 @@ def install_build_dep():
                         '{1}-bin.zip'.format(maven_version.split('.')[0], maven_version))
                     sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
-            if 'local_repository_host' in os.environ:
-                sudo('wget https://{0}/{1}/{2}/node-v8.15.0.tar.gz'.format(
-                     os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('wget {0}/node-v8.15.0.tar.gz'.format(
                      os.environ['local_repository_packages_repo']))
                 sudo('tar zxvf node-v8.15.0.tar.gz')
                 sudo('mv node-v8.15.0 /opt/node')
                 with cd('/opt/node/'):
                     sudo('./configure')
                     sudo('make -j4')
-                    sudo('wget https://{0}/{1}/{2}/linux-x64-57_binding.node'.format(
-                         os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                    sudo('wget {0}/linux-x64-57_binding.node'.format(
                          os.environ['local_repository_packages_repo']))
                     sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
                     sudo('source /etc/profile')
                     sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
                     sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
-                    sudo('./deps/npm/bin/npm-cli.js config set registry https://{0}/{1}/{2}/'.format(
-                         os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                    sudo('./deps/npm/bin/npm-cli.js config set registry {0}/'.format(
                          os.environ['local_repository_npm_repo']))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
                     sudo('npm config set strict-ssl false')
-                    sudo('npm config set registry https://{0}/{1}/{2}/'.format(
-                         os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                    sudo('npm config set registry {0}/'.format(
                          os.environ['local_repository_npm_repo']))
                     sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
             else:

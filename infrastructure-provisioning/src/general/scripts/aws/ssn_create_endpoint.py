@@ -85,7 +85,7 @@ if __name__ == "__main__":
                     endpoint = endpoint_id
             print("S3 ENDPOINT: {}".format(endpoint))
 
-            if 'local_repository_host' in os.environ and args.duo_vpc_enable == 'false':
+            if os.environ['local_repository_enabled'] == 'True' and args.duo_vpc_enable == 'false':
                 # Creating Security Group and EC2 endpoint
                 sg_tag = {"Key": args.infra_tag_value, "Value": args.infra_tag_name}
                 allowed_vpc_cidr_ip_ranges = list()

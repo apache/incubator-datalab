@@ -1511,18 +1511,13 @@ def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             sudo('mkdir -p {0}'.format(jars_dir))
-            if 'local_repository_host' in os.environ:
-                sudo('wget https://{2}/{3}/{4}/hadoop-aws-{0}.jar -O {1}hadoop-aws-{0}.jar'.format(
-                    '2.7.4', jars_dir, os.environ['local_repository_host'], os.environ['local_repository_prefix'],
-                    os.environ['local_repository_packages_repo']))
-                sudo('wget https://{2}/{3}/{4}/aws-java-sdk-{0}.jar -O '
-                     '{1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir, os.environ['local_repository_host'],
-                                                      os.environ['local_repository_prefix'],
-                                                      os.environ['local_repository_packages_repo']))
-                sudo('wget https://{2}/{3}/{4}/hadoop-lzo-{0}.jar -O '
-                     '{1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir, os.environ['local_repository_host'],
-                                                    os.environ['local_repository_prefix'],
-                                                    os.environ['local_repository_packages_repo']))
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('wget {2}/hadoop-aws-{0}.jar -O {1}hadoop-aws-{0}.jar'.format(
+                    '2.7.4', jars_dir, os.environ['local_repository_packages_repo']))
+                sudo('wget {2}/aws-java-sdk-{0}.jar -O '
+                     '{1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir, os.environ['local_repository_packages_repo']))
+                sudo('wget {2}/hadoop-lzo-{0}.jar -O '
+                     '{1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir, os.environ['local_repository_packages_repo']))
             else:
                 sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
                                         {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))

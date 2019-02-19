@@ -142,12 +142,10 @@ def build_ui():
             sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
 
         # Building Back-end
-        if 'local_repository_host' in os.environ:
-            sudo('sed -i "s|BINTRAY-REPO|https://{0}/{2}/{3}/|g" '
-                 '{1}/sources/services/self-service/pom.xml'.format(os.environ['local_repository_host'],
-                                                                    args.dlab_path,
-                                                                    os.environ['local_repository_prefix'],
-                                                                    os.environ['local_repository_maven_bintray_repo']))
+        if os.environ['local_repository_enabled'] == 'True':
+            sudo('sed -i "s|BINTRAY-REPO|{0}/|g" '
+                 '{1}/sources/services/self-service/pom.xml'.format(os.environ['local_repository_maven_bintray_repo'],
+                                                                    args.dlab_path))
         else:
             sudo('sed -i "s|BINTRAY-REPO|https://dl.bintray.com/michaelklishin/maven/|g" '
                  '{}/sources/services/self-service/pom.xml'.format(args.dlab_path))
@@ -194,7 +192,7 @@ def build_ui():
             sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/webapp/billing/lib/'.format(
                 args.dlab_path))
         elif args.cloud_provider == 'aws':
-            if 'local_repository_host' in os.environ:
+            if os.environ['local_repository_enabled'] == 'True':
                 sudo('sed -i "s|region:|region: {1}|g" {0}/sources/services/billing-aws/billing.yml'.format(
                     args.dlab_path, os.environ['aws_region']))
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))

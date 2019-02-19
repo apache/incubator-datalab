@@ -41,10 +41,8 @@ args = parser.parse_args()
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 jupyter_version = os.environ['notebook_jupyter_version']
-if 'local_repository_host' in os.environ:
-    scala_link = 'https://{0}/{1}/{2}/'.format(os.environ['local_repository_host'],
-                                               os.environ['local_repository_prefix'],
-                                               os.environ['local_repository_packages_repo'])
+if os.environ['local_repository_enabled'] == 'True':
+    scala_link = '{0}/'.format(os.environ['local_repository_packages_repo'])
 else:
     scala_link = "http://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
@@ -53,10 +51,9 @@ if args.region == 'cn-north-1':
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
-if 'local_repository_host' in os.environ:
-    spark_link = "https://{0}/{3}/{4}/spark-{1}-bin-hadoop{2}.tgz".format(
-        os.environ['local_repository_host'], spark_version, hadoop_version, os.environ['local_repository_prefix'],
-        os.environ['local_repository_packages_repo'])
+if os.environ['local_repository_enabled'] == 'True':
+    spark_link = "{0}/spark-{1}-bin-hadoop{2}.tgz".format(
+        os.environ['local_repository_packages_repo'], spark_version, hadoop_version)
 
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
@@ -67,9 +64,8 @@ jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
-if 'local_repository_host' in os.environ:
-    toree_link = "https://{0}/{1}/{2}/toree-0.2.0.tar.gz".format(
-        os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+if os.environ['local_repository_enabled'] == 'True':
+    toree_link = "{0}/toree-0.2.0.tar.gz".format(
         os.environ['local_repository_packages_repo'])
 else:
     toree_link = 'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz'

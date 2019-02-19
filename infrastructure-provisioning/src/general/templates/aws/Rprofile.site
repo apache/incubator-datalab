@@ -1,5 +1,5 @@
 local({
   r <- getOption("repos")
-  r["CRAN"] <- "https://REPOSITORY_HOST/REPOSITORY_PREFIX/R_REPO/"
+  r["CRAN"] <- "R_REPO/"
   options(repos = r)
 })

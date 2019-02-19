@@ -297,7 +297,7 @@ if __name__ == "__main__":
                 "ToPort": 389, "IpProtocol": "-1", "UserIdGroupPairs": []
             }
         ])
-        if 'local_repository_host' in os.environ:
+        if os.environ['local_repository_enabled'] == 'True':
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],

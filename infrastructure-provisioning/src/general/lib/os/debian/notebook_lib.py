@@ -61,7 +61,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
             sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                if 'local_repository_host' in os.environ:
+                if os.environ['local_repository_enabled'] == 'True':
                     sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\')" '
                          'R -e "devtools::check(\'.\')"')
                 else:
@@ -79,11 +79,9 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=20)
 def add_marruter_key():
     try:
-        if 'local_repository_host' in os.environ:
-            sudo('echo "deb [trusted=yes] https://{0}/{1}/{2} xenial main" >> '
-                 '/etc/apt/sources.list'.format(os.environ['local_repository_host'],
-                                                os.environ['local_repository_prefix'],
-                                                os.environ['local_repository_rrutter_repo']))
+        if os.environ['local_repository_enabled'] == 'True':
+            sudo('echo "deb [trusted=yes] {0} xenial main" >> '
+                 '/etc/apt/sources.list'.format(os.environ['local_repository_rrutter_repo']))
         else:
             sudo('add-apt-repository -y ppa:marutter/rrutter')
     except:
@@ -97,10 +95,8 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = r_mirror
             else:
                 r_repository = 'http://cran.us.r-project.org'
-            if 'local_repository_host' in os.environ:
-                r_repository = 'https://{0}/{1}/{2}/'.format(os.environ['local_repository_host'],
-                                                             os.environ['local_repository_prefix'],
-                                                             os.environ['local_repository_r_repo'])
+            if os.environ['local_repository_enabled'] == 'True':
+                r_repository = os.environ['local_repository_r_repo']
                 put('/root/templates/Rprofile.site', '/tmp/Rprofile.site')
             add_marruter_key()
             sudo('apt update')
@@ -110,11 +106,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 sudo('apt-get install -y r-base r-base-dev')
             except:
                 sudo('apt-get install -y r-base r-base-dev')
-            if 'local_repository_host' in os.environ:
-                sudo('sed -i "s/REPOSITORY_HOST/{0}/g" /tmp/Rprofile.site'.format(
-                    os.environ['local_repository_host']))
-                sudo('sed -i "s/REPOSITORY_PREFIX/{0}/g" /tmp/Rprofile.site'.format(
-                    os.environ['local_repository_prefix']))
+            if os.environ['local_repository_enabled'] == 'True':
                 sudo('sed -i "s/R_REPO/{0}/g" /tmp/Rprofile.site'.format(
                     os.environ['local_repository_r_repo']))
                 sudo('cp -f /tmp/Rprofile.site /etc/R/')
@@ -145,10 +137,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
         try:
             sudo('apt-get install -y r-base')
             sudo('apt-get install -y gdebi-core')
-            if 'local_repository_host' in os.environ:
-                sudo('wget https://{0}/{2}/{3}/rstudio-server-{1}-amd64.deb'.format(
-                    os.environ['local_repository_host'], rstudio_version, os.environ['local_repository_prefix'],
-                    os.environ['local_repository_packages_repo']))
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('wget {0}/rstudio-server-{1}-amd64.deb'.format(
+                    os.environ['local_repository_packages_repo'], rstudio_version))
             else:
                 sudo('wget https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
@@ -166,7 +157,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> '''
                  '''/home/{}/.Rprofile'''.format(os_user))
-            if 'local_repository_host' not in os.environ:
+            if os.environ['local_repository_enabled'] == 'False':
                 http_proxy = run('echo $http_proxy')
                 https_proxy = run('echo $https_proxy')
                 sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
@@ -209,10 +200,9 @@ def ensure_sbt(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             sudo('apt-get install -y apt-transport-https')
-            if 'local_repository_host' in os.environ:
-                sudo('echo "deb [trusted=yes] https://{0}/{1}/{2} /" | '
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('echo "deb [trusted=yes] {0} /" | '
                      'sudo tee -a /etc/apt/sources.list.d/sbt.list'.format(
-                      os.environ['local_repository_host'], os.environ['local_repository_prefix'],
                       os.environ['local_repository_apt_bintray_repo']))
             else:
                 sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
@@ -266,10 +256,9 @@ def ensure_python3_specific_version(python3_version, os_user):
         try:
             if len(python3_version) < 4:
                 python3_version = python3_version + ".0"
-            if 'local_repository_host' in os.environ:
-                sudo('wget https://{1}/{2}/{3}/Python-{0}.tgz'.format(
-                     python3_version, os.environ['local_repository_host'], os.environ['local_repository_prefix'],
-                     os.environ['local_repository_packages_repo']))
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('wget {1}/Python-{0}.tgz'.format(
+                     python3_version, os.environ['local_repository_packages_repo']))
             else:
                 sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version))
             sudo('tar xzf Python-{0}.tgz; cd Python-{0}; ./configure --prefix=/usr/local; make altinstall'.format(
@@ -340,11 +329,9 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
                 sudo('if [[ $(apt-cache search linux-image-extra-`uname -r`) ]]; then apt-get -y '
                      'install linux-image-extra-`uname -r`; else apt-get -y install '
                      'linux-modules-extra-`uname -r`; fi;')
-            if 'local_repository_host' in os.environ:
-                sudo('wget https://{2}/{3}/{4}/NVIDIA-Linux-x86_64-{0}.run -O '
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('wget {2}/NVIDIA-Linux-x86_64-{0}.run -O '
                      '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user,
-                                                                    os.environ['local_repository_host'],
-                                                                    os.environ['local_repository_prefix'],
                                                                     os.environ['local_repository_packages_repo']))
             else:
                 sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
@@ -354,10 +341,9 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             # install cuda
             sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(
                 os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            if 'local_repository_host' in os.environ:
-                sudo('wget -P /opt https://{1}/{2}/{3}/{0}'.format(
-                     cuda_file_name, os.environ['local_repository_host'], os.environ['local_repository_prefix'],
-                     os.environ['local_repository_packages_repo']))
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('wget -P /opt {1}/{0}'.format(
+                     cuda_file_name, os.environ['local_repository_packages_repo']))
             else:
                 sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
                     cuda_version, cuda_file_name))
@@ -366,10 +352,9 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            if 'local_repository_host' in os.environ:
-                run('wget https://{0}/{2}/{3}/{1} -O /tmp/{1}'.format(
-                    os.environ['local_repository_host'], cudnn_file_name, os.environ['local_repository_prefix'],
-                    os.environ['local_repository_packages_repo']))
+            if os.environ['local_repository_enabled'] == 'True':
+                run('wget {0}/{1} -O /tmp/{1}'.format(
+                    os.environ['local_repository_packages_repo'], cudnn_file_name))
             else:
                 run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
                     cudnn_version, cudnn_file_name))
@@ -382,17 +367,13 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> '
                 '~/.bashrc')
             # install TensorFlow and run TensorBoard
-            if 'local_repository_host' in os.environ:
-                sudo('python2.7 -m pip install --upgrade https://{0}/{2}/{3}/tensorflow_gpu-{1}-'
-                     'cp27-none-linux_x86_64.whl --no-cache-dir'.format(os.environ['local_repository_host'],
-                                                                        tensorflow_version,
-                                                                        os.environ['local_repository_prefix'],
-                                                                        os.environ['local_repository_packages_repo']))
-                sudo('python3 -m pip install --upgrade https://{0}/{2}/{3}/tensorflow_gpu-{1}-'
-                     'cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(os.environ['local_repository_host'],
-                                                                         tensorflow_version,
-                                                                         os.environ['local_repository_prefix'],
-                                                                         os.environ['local_repository_packages_repo']))
+            if os.environ['local_repository_enabled'] == 'True':
+                sudo('python2.7 -m pip install --upgrade {0}/tensorflow_gpu-{1}-'
+                     'cp27-none-linux_x86_64.whl --no-cache-dir'.format(os.environ['local_repository_packages_repo'],
+                                                                        tensorflow_version))
+                sudo('python3 -m pip install --upgrade {0}/tensorflow_gpu-{1}-'
+                     'cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(os.environ['local_repository_packages_repo'],
+                                                                         tensorflow_version))
             else:
                 sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/'
                      'tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
@@ -441,30 +422,26 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        if 'local_repository_host' in os.environ:
-            sudo('wget https://{0}/{1}/{2}/node-v8.15.0.tar.gz'.format(
-                os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+        if os.environ['local_repository_enabled'] == 'True':
+            sudo('wget {0}/node-v8.15.0.tar.gz'.format(
                 os.environ['local_repository_packages_repo']))
             sudo('tar zxvf node-v8.15.0.tar.gz')
             sudo('mv node-v8.15.0 /opt/node')
             with cd('/opt/node/'):
                 sudo('./configure')
                 sudo('make -j4')
-                sudo('wget https://{0}/{1}/{2}/linux-x64-57_binding.node'.format(
-                     os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                sudo('wget {0}/linux-x64-57_binding.node'.format(
                      os.environ['local_repository_packages_repo']))
                 sudo('echo "export PATH=$PATH:/opt/node" >> /etc/profile')
                 sudo('source /etc/profile')
                 sudo('./deps/npm/bin/npm-cli.js config set strict-ssl false')
                 sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
-                sudo('./deps/npm/bin/npm-cli.js config set registry https://{0}/{1}/{2}/'.format(
-                     os.environ['local_repository_host'], os.environ['local_repository_prefix'],
+                sudo('./deps/npm/bin/npm-cli.js config set registry {0}/'.format(
                      os.environ['local_repository_npm_repo']))
                 sudo('./deps/npm/bin/npm-cli.js install npm')
                 sudo('cp deps/npm/bin/npm /opt/node/')
                 sudo('npm config set strict-ssl false')
-                sudo('npm config set registry https://{0}/{1}/{2}/'.format(
-                     os.environ['local_repository_prefix'], os.environ['local_repository_prefix'],
+                sudo('npm config set registry {0}/'.format(
                      os.environ['local_repository_npm_repo']))
                 sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
         else:
@@ -537,7 +514,7 @@ def install_caffe(os_user, region, caffe_version):
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
             sudo('git checkout {}'.format(caffe_version))
-            if 'local_repository_host' in os.environ:
+            if os.environ['local_repository_enabled'] == 'True':
                 sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
                 sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
@@ -581,7 +558,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         sudo('apt-get install -y --no-install-recommends libgflags-dev')
         sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
              'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
-        if 'local_repository_host' in os.environ:
+        if os.environ['local_repository_enabled'] == 'True':
             sudo('pip2 install jupyter-console=={} --no-cache-dir'.format(
                 os.environ['notebook_jupyter_console_version']))
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests '
@@ -590,10 +567,9 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
              'scikit-image scipy setuptools tornado --no-cache-dir')
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
-        if 'local_repository_host' in os.environ:
-            sudo('wget https://{2}/{3}/{4}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
-                 os_user, cmake_version, os.environ['local_repository_host'], os.environ['local_repository_prefix'],
-                 os.environ['local_repository_packages_repo']))
+        if os.environ['local_repository_enabled'] == 'True':
+            sudo('wget {2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+                 os_user, cmake_version, os.environ['local_repository_packages_repo']))
         else:
             sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
                 os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
@@ -613,15 +589,11 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
 
 def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        if 'local_repository_host' in os.environ:
-            sudo('pip2 install https://{1}/{2}/{3}/cntk-{0}-cp27-cp27mu-linux_x86_64.whl '
-                 '--no-cache-dir'.format(cntk_version, os.environ['local_repository_host'],
-                                         os.environ['local_repository_prefix'],
-                                         os.environ['local_repository_packages_repo']))
-            sudo('pip3 install https://{1}/{2}/{3}/cntk-{0}-cp35-cp35m-linux_x86_64.whl '
-                 '--no-cache-dir'.format(cntk_version, os.environ['local_repository_host'],
-                                         os.environ['local_repository_prefix'],
-                                         os.environ['local_repository_packages_repo']
+        if os.environ['local_repository_enabled'] == 'True':
+            sudo('pip2 install {1}/cntk-{0}-cp27-cp27mu-linux_x86_64.whl '
+                 '--no-cache-dir'.format(cntk_version, os.environ['local_repository_packages_repo']))
+            sudo('pip3 install {1}/cntk-{0}-cp35-cp35m-linux_x86_64.whl '
+                 '--no-cache-dir'.format(cntk_version, os.environ['local_repository_packages_repo']
                                          ))
         else:
             sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl '

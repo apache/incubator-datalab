@@ -40,7 +40,7 @@ def configure_http_proxy_server(config):
             sudo('sed -i "s|LDAP_SERVICE_PASSWORD|{}|g" /etc/squid/squid.conf'.format(config['ldap_password']))
             sudo('sed -i "s|LDAP_AUTH_PATH|{}|g" /etc/squid/squid.conf'.format('/usr/lib/squid/basic_ldap_auth'))
             replace_string = ''
-            if 'local_repository_host' in os.environ:
+            if os.environ['local_repository_enabled'] == 'True':
                 config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_host']))
                 config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_parent_proxy_host']))
                 config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_nginx_proxy_host']))
@@ -84,10 +84,9 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
                 sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
-                if 'local_repository_host' in os.environ:
-                    sudo('wget https://{0}/{2}/{3}/nginx-{1}.tar.gz'.format(
-                        os.environ['local_repository_host'], nginx_version, os.environ['local_repository_prefix'],
-                        os.environ['local_repository_packages_repo']))
+                if os.environ['local_repository_enabled'] == 'True':
+                    sudo('wget {0}/nginx-{1}.tar.gz'.format(
+                        os.environ['local_repository_packages_repo'], nginx_version))
                 else:
                     sudo('wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
                 sudo('tar -xzf nginx-{}.tar.gz'.format(nginx_version))

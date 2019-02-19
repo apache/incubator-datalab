@@ -60,9 +60,8 @@ def update_repository(dlab_path, repository_host, region):
                  'base_Dockerfile'.format(repository_host))
             sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" base_Dockerfile')
             sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" base_Dockerfile')
-        if 'local_repository_host' in os.environ:
-            sudo('sed -i "s|^FROM ubuntu.*|FROM {0}/{1}/{2}/dlab-pre-base|g" base_Dockerfile'.format(
-                repository_host, os.environ['local_repository_prefix'],
+        if os.environ['local_repository_enabled'] == 'True':
+            sudo('sed -i "s|^FROM ubuntu.*|FROM {0}/dlab-pre-base|g" base_Dockerfile'.format(
                 os.environ['local_repository_docker_internal_repo']))
             sudo('sed -i "/pip install/d;/apt-get/d" base_Dockerfile')
             # sudo('docker login -u docker-nexus -p docker-nexus {}:8083'.format(repository_host))
@@ -82,9 +81,9 @@ def build_docker_images(image_list, region, dlab_path):
                  '/home/{1}/keys/azure_auth.json'.format(args.dlab_path, args.os_user))
         if region == 'cn-north-1':
             update_repository(dlab_path, os.environ['conf_pypi_mirror'], region)
-        if 'local_repository_host' in os.environ:
+        if os.environ['local_repository_enabled'] == 'True':
             update_repository(dlab_path, os.environ['local_repository_host'], region)
-        if 'local_repository_host' in os.environ:
+        if os.environ['local_repository_enabled'] == 'True':
             sudo('mkdir -p {}sources/infrastructure-provisioning/src/base/certs'.format(args.dlab_path))
             put('/root/certs/repository.crt', '{}sources/infrastructure-provisioning/src/base/certs/'
                                               'repository.crt'.format(args.dlab_path), use_sudo=True)
