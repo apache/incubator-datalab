@@ -31,6 +31,8 @@ from ConfigParser import SafeConfigParser
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_base_name', required=True, type=str, default='',
                     help='unique name for repository environment')
+parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
+parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
 parser.add_argument('--vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--vpc_cidr', type=str, default='172.31.0.0/16', help='Cidr of VPC')
 parser.add_argument('--subnet_id', type=str, default='', help='AWS Subnet ID')
@@ -1293,10 +1295,20 @@ def install_squid():
 
 
 if __name__ == "__main__":
-    ec2_resource = boto3.resource('ec2', region_name=args.region)
-    ec2_client = boto3.client('ec2', region_name=args.region)
-    efs_client = boto3.client('efs', region_name=args.region)
-    route53_client = boto3.client('route53')
+    if args.aws_access_key and args.aws_secret_access_key:
+        ec2_resource = boto3.resource('ec2', region_name=args.region, aws_access_key_id=args.aws_access_key,
+                                      aws_secret_access_key=args.aws_secret_access_key)
+        ec2_client = boto3.client('ec2', region_name=args.region, aws_access_key_id=args.aws_access_key,
+                                  aws_secret_access_key=args.aws_secret_access_key)
+        efs_client = boto3.client('efs', region_name=args.region, aws_access_key_id=args.aws_access_key,
+                                  aws_secret_access_key=args.aws_secret_access_key)
+        route53_client = boto3.client('route53', aws_access_key_id=args.aws_access_key,
+                                      aws_secret_access_key=args.aws_secret_access_key)
+    else:
+        ec2_resource = boto3.resource('ec2', region_name=args.region)
+        ec2_client = boto3.client('ec2', region_name=args.region)
+        efs_client = boto3.client('efs', region_name=args.region)
+        route53_client = boto3.client('route53')
     tag_name = args.service_base_name + '-Tag'
     pre_defined_vpc = True
     pre_defined_subnet = True
