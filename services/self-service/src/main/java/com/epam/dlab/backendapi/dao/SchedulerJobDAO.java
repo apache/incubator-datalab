@@ -29,10 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,9 +50,10 @@ import static java.util.stream.Collectors.toList;
 public class SchedulerJobDAO extends BaseDAO {
 
 	static final String SCHEDULER_DATA = "scheduler_data";
+	private static final String CONSIDER_INACTIVITY_FLAG = SCHEDULER_DATA + ".consider_inactivity";
 	public static final String TIMEZONE_PREFIX = "UTC";
-	private static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
-	private static final String CHECK_INACTIVITY_FLAG = SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED;
+	private static final String LAST_ACTIVITY = "last_activity";
+
 
 	public SchedulerJobDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -116,10 +114,22 @@ public class SchedulerJobDAO extends BaseDAO {
 	 * @return list of scheduler jobs.
 	 */
 	public List<SchedulerJobData> getExploratorySchedulerDataWithStatus(UserInstanceStatus status) {
-		FindIterable<Document> userInstances = userInstancesWithScheduler(eq(STATUS, status.toString()));
+		return stream(userInstancesWithScheduler(eq(STATUS, status.toString())))
+				.map(d -> convertFromDocument(d, SchedulerJobData.class))
+				.collect(toList());
+	}
 
-		return stream(userInstances).map(d -> convertFromDocument(d,
-				SchedulerJobData.class))
+	public List<SchedulerJobData> getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(UserInstanceStatus status,
+																								  Date lastActivity) {
+		return stream(find(USER_INSTANCES,
+				and(
+						eq(STATUS, status.toString()),
+						schedulerNotNullCondition(),
+						eq(CONSIDER_INACTIVITY_FLAG, true),
+						Filters.elemMatch(COMPUTATIONAL_RESOURCES, lte(LAST_ACTIVITY, lastActivity))
+				),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA))))
+				.map(d -> convertFromDocument(d, SchedulerJobData.class))
 				.collect(toList());
 	}
 
