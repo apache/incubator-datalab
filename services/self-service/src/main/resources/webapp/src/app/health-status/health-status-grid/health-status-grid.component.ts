@@ -16,8 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewContainerRef } from '@angular/core';
-// import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { EnvironmentStatusModel } from '../environment-status.model';
 import { HealthStatusService, UserAccessKeyService } from '../../core/services';
@@ -44,11 +44,8 @@ export class HealthStatusGridComponent implements OnInit {
     constructor(
       private healthStatusService: HealthStatusService,
       private userAccessKeyService: UserAccessKeyService,
-      // public toastr: ToastsManager,
-      public vcr: ViewContainerRef
-    ) {
-      // this.toastr.setRootViewContainerRef(vcr);
-    }
+      public toastr: ToastrService
+    ) {}
 
     ngOnInit(): void { }
 
@@ -62,10 +59,8 @@ export class HealthStatusGridComponent implements OnInit {
           .runEdgeNode()
           .subscribe(() => {
             this.buildGrid();
-            // this.toastr.success('Edge node is starting!', 'Processing!', { toastLife: 5000 });
-          }, error => {}
-          // this.toastr.error('Edge Node running failed!', 'Oops!', { toastLife: 5000 })
-          );
+            this.toastr.success('Edge node is starting!', 'Processing!');
+          }, error => this.toastr.error('Edge Node running failed!', 'Oops!'));
       } else if (action === 'stop') {
         this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopEdgeNode);
       } else if (action === 'recreate') {
@@ -73,10 +68,8 @@ export class HealthStatusGridComponent implements OnInit {
           .recreateEdgeNode()
           .subscribe(() => {
             this.buildGrid();
-            // this.toastr.success('Edge Node recreation is processing!', 'Processing!', { toastLife: 5000 });
-          }, error => {}
-          // this.toastr.error('Edge Node recreation failed!', 'Oops!', { toastLife: 5000 })
-          );
+            this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+          }, error => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
       }
     }
 

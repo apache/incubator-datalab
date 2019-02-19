@@ -19,7 +19,6 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-// import { ToastModule } from 'ng2-toastr';
 
 import { MaterialModule } from '../shared/material.module';
 import { ModalModule, UploadKeyDialogModule, ProgressDialogModule, BubbleModule, ConfirmationDialogModule } from '../shared';
@@ -52,8 +51,7 @@ export * from './environment-status.model';
     ConfirmationDialogModule,
     FormControlsModule,
     MaterialModule,
-    DirectivesModule,
-    // ToastModule.forRoot()
+    DirectivesModule
   ],
   declarations: [
     GroupNameValidationDirective,

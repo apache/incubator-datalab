@@ -20,7 +20,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgDateRangePickerModule } from 'ng-daterangepicker';
-// import { ToastModule } from 'ng2-toastr';
 
 import { NgxMatDrpModule } from 'ngx-mat-daterange-picker';
 import { MaterialModule } from '../shared/material.module';
@@ -43,7 +42,6 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     NgDateRangePickerModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
-    // ToastModule.forRoot(),
     MaterialModule
   ],
   declarations: [

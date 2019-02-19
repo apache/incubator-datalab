@@ -25,11 +25,10 @@ import { Component,
   EventEmitter,
   ViewEncapsulation,
   ChangeDetectorRef,
-  Inject,
-  ViewContainerRef } from '@angular/core';
+  Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
-// import { ToastsManager } from 'ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService} from '../../../core/services';
@@ -87,11 +86,9 @@ export class InstallLibrariesComponent implements OnInit {
     public dialog: MatDialog,
     private librariesInstallationService: LibrariesInstallationService,
     private changeDetector: ChangeDetectorRef,
-    // public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
-    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -122,9 +119,7 @@ export class InstallLibrariesComponent implements OnInit {
           this.group_select && this.group_select.setDefaultOptions(
             this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
-        error => {
-          // this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!', { toastLife: 5000 })
-        });
+        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!'));
   }
 
   private getResourcesList() {
@@ -210,9 +205,7 @@ export class InstallLibrariesComponent implements OnInit {
             this.resetDialog();
           }
         },
-        error => {
-          // this.toastr.error(error.message || 'Library installation failed!', 'Oops!', { toastLife: 5000 })
-        },
+        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
         () => {
           this.bindDialog.open(param);
 

@@ -19,19 +19,18 @@ limitations under the License.
 import { Directive, forwardRef, Input } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, Validator } from '@angular/forms';
 
-
 @Directive({
   selector: '[validator][ngModel],[group-dir][ngFormControl]',
   providers: [{
     multi: true,
-    provide: NG_VALIDATORS, 
+    provide: NG_VALIDATORS,
     useExisting: forwardRef(() => GroupNameValidationDirective)
   }]
 })
 export class GroupNameValidationDirective implements Validator {
   @Input() validator: Function;
 
-  validate(control: AbstractControl):{ [key: string]: any; } {
+  validate(control: AbstractControl): { [key: string]: any; } {
     return this.validator(control);
   }
 }

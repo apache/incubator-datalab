@@ -16,8 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
-// import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { KeyUploadDialogModel } from './key-upload.model';
 import { UserAccessKeyService } from '../../../core/services';
@@ -39,11 +39,9 @@ export class UploadKeyDialogComponent implements OnInit {
 
   constructor(
     private userAccessKeyService: UserAccessKeyService,
-    // public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = KeyUploadDialogModel.getDefault();
-    // this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -76,9 +74,7 @@ export class UploadKeyDialogComponent implements OnInit {
             this.checkInfrastructureCreationProgress.emit();
           }
         },
-        error => {
-          // this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
-        },
+        error => this.toastr.error(error.message, 'Oops!'),
         this.userAccessKeyService);
       this.bindDialog.open(params);
     }

@@ -16,13 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { Subscription, timer, interval } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
-
-// import { ToastsManager } from 'ng2-toastr';
-
+import { ToastrService } from 'ngx-toastr';
 
 import { ApplicationSecurityService,
   HealthStatusService,
@@ -60,8 +58,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
-    // public toastr: ToastsManager,
-    public vcr: ViewContainerRef,
+    public toastr: ToastrService,
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
     private healthStatusService: HealthStatusService,
@@ -69,9 +66,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private schedulerService: SchedulerService,
     private storage: StorageService,
     private dialog: MatDialog
-  ) {
-    // this.toastr.setRootViewContainerRef(vcr);
-  }
+  ) { }
 
   ngOnInit() {
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
@@ -93,7 +88,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.currentUserName = this.getUserName();
       }
     });
-    this.quotesLimit = 70;
   }
 
   ngOnDestroy(): void {
@@ -132,7 +126,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       data => {
         FileUtils.downloadFile(data);
       }, error => {
-        // this.toastr.error(error.message || 'Access key generation failed!', 'Oops!', { toastLife: 5000 })
+        this.toastr.error(error.message || 'Access key generation failed!', 'Oops!');
       });
   }
 
