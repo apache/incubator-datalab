@@ -104,9 +104,7 @@ export class ApplicationSecurityService {
             return false;
           }),
           catchError(error => {
-            // this.handleError(error);
-            let errObj = error.json();
-            this.emmitMessage(errObj.message);
+            this.emmitMessage(error.message);
             this.storage.destroyToken();
 
             return observableOf(false);
