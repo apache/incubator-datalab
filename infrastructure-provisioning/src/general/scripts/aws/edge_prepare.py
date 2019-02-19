@@ -302,7 +302,7 @@ if __name__ == "__main__":
                 {
                     "PrefixListIds": [],
                     "FromPort": 80,
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_host'])}],
+                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_nginx_proxy_host'])}],
                     "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
             edge_sg_egress.append(
@@ -315,9 +315,10 @@ if __name__ == "__main__":
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],
-                    "FromPort": 3128,
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_host'])}],
-                    "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    "FromPort": int(os.environ['local_repository_parent_proxy_port']),
+                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_parent_proxy_host'])}],
+                    "ToPort": int(os.environ['local_repository_parent_proxy_port']),
+                    "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
             --egress '{}' --force {} --nb_sg_name {} --resource {}".\
