@@ -46,37 +46,61 @@ if __name__ == "__main__":
     # generating variables dictionary
     create_aws_config_files()
     print('Generating infrastructure names and tags')
-    data_engine_config = dict()
+    data_engine = dict()
     
     try:
-        data_engine_config['exploratory_name'] = os.environ['exploratory_name']
+        data_engine['exploratory_name'] = os.environ['exploratory_name']
     except:
-        data_engine_config['exploratory_name'] = ''
+        data_engine['exploratory_name'] = ''
     try:
-        data_engine_config['computational_name'] = os.environ['computational_name']
+        data_engine['computational_name'] = os.environ['computational_name']
     except:
-        data_engine_config['computational_name'] = ''
-    data_engine_config['service_base_name'] = os.environ['conf_service_base_name']
-    data_engine_config['user_name'] = os.environ['edge_user_name']
-    data_engine_config['cluster_name'] = \
-        data_engine_config['service_base_name'] + '-' + \
-        data_engine_config['user_name'] + '-de-' + \
-        data_engine_config['exploratory_name'] + '-' + \
-        data_engine_config['computational_name']
+        data_engine['computational_name'] = ''
+    data_engine['service_base_name'] = os.environ['conf_service_base_name']
+    data_engine['user_name'] = os.environ['edge_user_name']
+    data_engine['cluster_name'] = \
+        data_engine['service_base_name'] + '-' + \
+        data_engine['user_name'] + '-de-' + \
+        data_engine['exploratory_name'] + '-' + \
+        data_engine['computational_name']
+
 
     logging.info('[START DATA ENGINE CLUSTER]')
     print('[START DATA ENGINE CLUSTER]')
     try:
         start_data_engine("{}:{}".format(os.environ['conf_service_base_name'],
-                                         data_engine_config['cluster_name']))
+                                         data_engine['cluster_name']))
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to start Data Engine.", str(err))
         sys.exit(1)
 
     try:
+        logging.info('[UPDATE LAST ACTIVITY TIME]')
+        print('[UPDATE LAST ACTIVITY TIME]')
+        data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+        data_engine['notebook_ip'] = get_instance_ip_address(data_engine['tag_name'],
+                                                                    os.environ['notebook_instance_name']).get('Private')
+        data_engine['computational_ip'] = get_instance_ip_address(data_engine['tag_name'],
+                                                                         data_engine['computational_id']).get(
+            'Private')
+        data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
+            .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
+                    data_engine['computational_ip'])
+        try:
+            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+        except Exception as err:
+            traceback.print_exc()
+            append_result("Failed to update last activity time.", str(err))
+            raise Exception
+    except:
+        sys.exit(1)
+
+    try:
         with open("/root/result.json", 'w') as result:
-            res = {"service_base_name": data_engine_config['service_base_name'],
+            res = {"service_base_name": data_engine['service_base_name'],
                    "Action": "Start Data Engine"}
             print(json.dumps(res))
             result.write(json.dumps(res))

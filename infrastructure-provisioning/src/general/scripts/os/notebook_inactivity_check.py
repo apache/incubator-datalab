@@ -47,7 +47,7 @@ if __name__ == "__main__":
                 notebook_config['tag_name'], notebook_config['notebook_name'])
             notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
             if notebook_config['resource_type'] == 'dataengine':
-                notebook_config['dataengine_name'] = '{}-m'.format(os.environ['conf_computational_id'])
+                notebook_config['dataengine_name'] = '{}-m'.format(os.environ['computational_id'])
                 notebook_config['dataengine_ip'] = get_instance_private_ip_address(
                     notebook_config['tag_name'], notebook_config['dataengine_name'])
             else:
