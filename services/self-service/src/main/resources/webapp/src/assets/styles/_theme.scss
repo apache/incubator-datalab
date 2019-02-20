@@ -82,6 +82,7 @@ limitations under the License.
 }
 /*.mat-input-placeholder.mat-focused, */
 .mat-input-underline .mat-input-ripple,
+.mat-form-field-underline .mat-form-field-ripple,
 .mat-select-underline
 .mat-input-underline {
   background-color: #35afd5 !important;
@@ -100,6 +101,9 @@ limitations under the License.
 }
 .mat-input-placeholder {
 font-weight: 400;
+}
+.mat-datepicker-toggle-active {
+  color: #2dadd7;
 }
 
 /* grid filtering */
@@ -148,7 +152,7 @@ font-weight: 400;
 }
 
 .mat-focused .mat-form-field-label {
-  color: #36afd5;
+  color: #36afd5 !important;
 }
 
 .break-tooltip {
@@ -170,10 +174,10 @@ font-weight: 400;
         line-height: 20px;
       }
     }
-    .mat-input-wrapper {
-      &.mat-form-field-wrapper {
+    .mat-form-field {
+      .mat-form-field-wrapper {
         overflow: hidden;
-        .mat-input-infix.mat-form-field-infix {
+        .mat-form-field-infix {
           width: 275px;
           border: 0;
           font-family: 'Open Sans', sans-serif;
@@ -181,7 +185,6 @@ font-weight: 400;
           font-weight: 300;
           .mat-select-value-text {
             span {
-              // padding: 0 10px;
               color: #607D8B;
             }
           }
@@ -194,6 +197,7 @@ font-weight: 400;
         }
         .mat-form-field-label {
           padding-top: 0;
+          color: #607d8b;
         }
         .mat-select{
           &:focus {
