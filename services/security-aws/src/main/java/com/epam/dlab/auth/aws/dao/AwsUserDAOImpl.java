@@ -38,7 +38,7 @@ public class AwsUserDAOImpl implements AwsUserDAO {
 
 	private final String endpoint;
 	private final String region;
-	private volatile AmazonIdentityManagement aim;
+	private AmazonIdentityManagement aim;
 
 	@Inject
 	public AwsUserDAOImpl(AWSCredentials credentials,
@@ -89,10 +89,10 @@ public class AwsUserDAOImpl implements AwsUserDAO {
 	private AmazonIdentityManagementClient getClient(AWSCredentials credentials) {
 		final AmazonIdentityManagementClient client =
 				new AmazonIdentityManagementClient(credentials);
-		Optional.ofNullable(endpoint)
-				.ifPresent(client::setEndpoint);
 		Optional.ofNullable(region)
 				.ifPresent(r -> client.setRegion(Region.getRegion(Regions.fromName(r))));
+		Optional.ofNullable(endpoint)
+				.ifPresent(client::setEndpoint);
 		return client;
 	}
 }
