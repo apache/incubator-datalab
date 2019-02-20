@@ -28,7 +28,7 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 })
 export class ToolbarComponent implements OnInit, AfterViewInit {
   readonly DICTIONARY = DICTIONARY;
-
+  value: any;
   reportData: any;
   availablePeriodFrom: string;
   availablePeriodTo: string;
