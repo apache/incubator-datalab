@@ -505,7 +505,7 @@ def add_breeze_library_local(os_user):
             jars_dir = '/opt/jars/'
             sudo('mkdir -p {}'.format(breeze_tmp_dir))
             if os.environ['local_repository_enabled'] == 'True':
-                sudo('wget {3}breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
+                sudo('wget {3}/breeze_{0}-{1}.jar -O {2}breeze_{0}-{1}.jar'.format(
                      '2.11', '0.12', breeze_tmp_dir, os.environ['local_repository_packages_repo']))
                 sudo('wget {3}/breeze-natives_{0}-{1}.jar -O '
                      '{2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir,
