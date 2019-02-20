@@ -25,7 +25,7 @@ import { ModalModule, BubbleModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
 
 import { KeysPipeModule, LibSortPipeModule, HighLightPipeModule } from '../../../core/pipes';
-import { InstallLibrariesComponent, ErrorMessageDialog } from './install-libraries.component';
+import { InstallLibrariesComponent, ErrorMessageDialogComponent } from './install-libraries.component';
 
 export * from './install-libraries.component';
 export * from './install-libraries.model';
@@ -43,8 +43,8 @@ export * from './install-libraries.model';
     MaterialModule,
     BubbleModule
   ],
-  declarations: [InstallLibrariesComponent, ErrorMessageDialog],
-  entryComponents: [ErrorMessageDialog],
+  declarations: [InstallLibrariesComponent, ErrorMessageDialogComponent],
+  entryComponents: [ErrorMessageDialogComponent],
   exports: [InstallLibrariesComponent]
 })
 export class InstallLibrariesModule {}

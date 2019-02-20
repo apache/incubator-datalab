@@ -50,13 +50,13 @@ limitations under the License.
   display: none !important;
 }
 
-.install-libraries mat-chip.mat-chip {
+mat-chip.mat-chip {
   outline: none;
   color: #758ea8;
   font-size: 14px;
   padding: 8px 18px;
 }
-.install-libraries mat-chip.mat-chip a {
+mat-chip.mat-chip a {
   display: inline-block;
   width: 12px;
   cursor: pointer;
@@ -66,7 +66,7 @@ limitations under the License.
   vertical-align: middle;
 }
 
-.install-libraries mat-chip.mat-chip strong {
+mat-chip.mat-chip strong {
   font-size: 10px;
   font-weight: 300;
 }

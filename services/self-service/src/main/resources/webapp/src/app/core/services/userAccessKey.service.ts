@@ -37,10 +37,8 @@ export class UserAccessKeyService {
     this.checkUserAccessKey().subscribe(
       response => {
       this._accessKeyEmitter.next(response);
-      console.log('initial User Access Key Check OK');
     }, error => {
       this._accessKeyEmitter.next(error);
-      console.error('initial User Access Key Check', 'Error retrieving access key');
     });
   }
 
@@ -86,5 +84,9 @@ export class UserAccessKeyService {
       .buildReuploadUserAccessKeyRequest(data, param)
       .map(response => response)
       .catch(ErrorUtils.handleServiceError);
+  }
+
+  public resetUserAccessKey() {
+    this._accessKeyEmitter.next(<any>{});
   }
 }

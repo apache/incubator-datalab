@@ -1002,7 +1002,7 @@ def remove_peering(tag_value):
             else:
                 print("There are no peering connections to delete")
         else:
-            print("There are no peering connections to delete")
+            print("There are no peering connections to delete because duo vpc option is disabled")
     except Exception as err:
         logging.info("Unable to remove peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -1094,7 +1094,7 @@ def terminate_emr(id):
         traceback.print_exc(file=sys.stdout)
 
 
-def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version):
+def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version, computational_name=''):
     try:
         ec2 = boto3.resource('ec2')
         inst = ec2.instances.filter(
@@ -1150,7 +1150,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                     sudo('sleep 5')
                     sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
                 if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                    dlab.fab.remove_rstudio_dataengines_kernel(emr_name, ssh_user)
+                    dlab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print("Notebook's {} kernels were removed".format(env.hosts))
         else:
@@ -1453,7 +1453,7 @@ def spark_defaults(args):
         endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """ " >> """ + spark_def_path + """'""")
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
@@ -1540,24 +1540,26 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             python_version = f.read()
         python_version = python_version[0:5]
         livy_port = ''
-        livy_path = '/opt/' + emr_version + '/' + cluster_name + '/livy/'
-        spark_libs = "/opt/" + emr_version + "/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/" + \
-                     emr_version + "/jars/usr/lib/hadoop/hadoop-aws*.jar /opt/" + emr_version + \
-                     "/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/" + emr_version + \
-                     "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar"
+        livy_path = '/opt/{0}/{1}/livy/'.format(emr_version, cluster_name)
+        spark_libs = "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/{0}/jars/usr/lib/hadoop/hadoop-aws*.jar /opt/" + \
+                     "{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/{0}" + \
+                     "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar".format(emr_version)
+        #fix due to: Multiple py4j files found under ..../spark/python/lib
+        #py4j-0.10.7-src.zip still in folder. Versions may varies.
+        local('rm /opt/{0}/{1}/spark/python/lib/py4j-src.zip'.format(emr_version, cluster_name))
+
         local('echo \"Configuring emr path for Zeppelin\"')
-        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/' + emr_version + '\/' +
-              cluster_name + '\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-        local('sed -i \"s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=\/opt\/' + emr_version + '\/' +
-              cluster_name + '\/conf/\" /opt/' + emr_version + '/' + cluster_name +
-              '/spark/conf/spark-env.sh')
-        local('echo \"spark.jars $(ls ' + spark_libs + ' | tr \'\\n\' \',\')\" >> /opt/' + emr_version + '/' +
-              cluster_name + '/spark/conf/spark-defaults.conf')
-        local('sed -i "/spark.executorEnv.PYTHONPATH/d" /opt/' + emr_version + '/' + cluster_name +
-              '/spark/conf/spark-defaults.conf')
-        local('sed -i "/spark.yarn.dist.files/d" /opt/' + emr_version + '/' + cluster_name +
-              '/spark/conf/spark-defaults.conf')
-        local('sudo chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/{0}\/{1}\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh'.
+              format(emr_version, cluster_name))
+        local('sed -i "s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=' + \
+              '\/opt\/{0}\/{1}\/conf/" /opt/{0}/{1}/spark/conf/spark-env.sh'.format(emr_version, cluster_name))
+        local('echo \"spark.jars $(ls {0} | tr \'\\n\' \',\')\" >> /opt/{1}/{2}/spark/conf/spark-defaults.conf'
+              .format(spark_libs, emr_version, cluster_name))
+        local('sed -i "/spark.executorEnv.PYTHONPATH/d" /opt/{0}/{1}/spark/conf/spark-defaults.conf'
+              .format(emr_version, cluster_name))
+        local('sed -i "/spark.yarn.dist.files/d" /opt/{0}/{1}/spark/conf/spark-defaults.conf'
+              .format(emr_version, cluster_name))
+        local('sudo chown {0}:{0} -R /opt/zeppelin/'.format(os_user))
         local('sudo systemctl daemon-reload')
         local('sudo service zeppelin-notebook stop')
         local('sudo service zeppelin-notebook start')
@@ -1579,15 +1581,13 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                     port_number_found = True
                 else:
                     default_port += 1
-            local('sudo echo "livy.server.port = ' + str(livy_port) + '" >> ' + livy_path + 'conf/livy.conf')
-            local('sudo echo "livy.spark.master = yarn" >> ' + livy_path + 'conf/livy.conf')
-            if os.path.exists(livy_path + 'conf/spark-blacklist.conf'):
-                local('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf')
-            local(''' sudo echo "export SPARK_HOME=''' + spark_dir + '''" >> ''' + livy_path + '''conf/livy-env.sh''')
-            local(''' sudo echo "export HADOOP_CONF_DIR=''' + yarn_dir + '''" >> ''' + livy_path +
-                  '''conf/livy-env.sh''')
-            local(''' sudo echo "export PYSPARK3_PYTHON=python''' + python_version[0:3] + '''" >> ''' +
-                  livy_path + '''conf/livy-env.sh''')
+            local('sudo echo "livy.server.port = {0}" >> {1}conf/livy.conf'.format(str(livy_port), livy_path))
+            local('sudo echo "livy.spark.master = yarn" >> {}conf/livy.conf'.format(livy_path))
+            if os.path.exists('{}conf/spark-blacklist.conf'.format(livy_path)):
+                local('sudo sed -i "s/^/#/g" {}conf/spark-blacklist.conf'.format(livy_path))
+            local(''' sudo echo "export SPARK_HOME={0}" >> {1}conf/livy-env.sh'''.format(spark_dir, livy_path))
+            local(''' sudo echo "export HADOOP_CONF_DIR={0}" >> {1}conf/livy-env.sh'''.format(yarn_dir, livy_path))
+            local(''' sudo echo "export PYSPARK3_PYTHON=python{0}" >> {1}conf/livy-env.sh'''.format(python_version[0:3], livy_path))
             template_file = "/tmp/dataengine-service_interpreter.json"
             fr = open(template_file, 'r+')
             text = fr.read()
@@ -1605,16 +1605,16 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                     break
                 except:
                     local('sleep 5')
-            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
-                  '.service')
-            local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
-                  '.service')
-            local("sudo sed -i 's|LIVY_PATH|" + livy_path + "|' /etc/systemd/system/livy-server-" + str(livy_port)
-                  + '.service')
-            local('sudo chmod 644 /etc/systemd/system/livy-server-' + str(livy_port) + '.service')
+            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-{}.service'
+                  .format(str(livy_port)))
+            local("sudo sed -i 's|OS_USER|{0}|' /etc/systemd/system/livy-server-{1}.service"
+                  .format(os_user, str(livy_port)))
+            local("sudo sed -i 's|LIVY_PATH|{0}|' /etc/systemd/system/livy-server-{1}.service"
+                  .format(livy_path, str(livy_port)))
+            local('sudo chmod 644 /etc/systemd/system/livy-server-{}.service'.format(str(livy_port)))
             local("sudo systemctl daemon-reload")
-            local("sudo systemctl enable livy-server-" + str(livy_port))
-            local('sudo systemctl start livy-server-' + str(livy_port))
+            local("sudo systemctl enable livy-server-{}".format(str(livy_port)))
+            local('sudo systemctl start livy-server-{}'.format(str(livy_port)))
         else:
             template_file = "/tmp/dataengine-service_interpreter.json"
             p_versions = ["2", python_version[:3]]
@@ -1627,7 +1627,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                 text = text.replace('PYTHONVER_SHORT', p_version[:1])
                 text = text.replace('ENDPOINTURL', endpoint_url)
                 text = text.replace('DATAENGINE-SERVICE_VERSION', emr_version)
-                tmp_file = "/tmp/emr_spark_py" + p_version + "_interpreter.json"
+                tmp_file = "/tmp/emr_spark_py{}_interpreter.json".format(p_version)
                 fw = open(tmp_file, 'w')
                 fw.write(text)
                 fw.close()
@@ -1729,7 +1729,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:

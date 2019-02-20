@@ -92,13 +92,6 @@ if __name__ == "__main__":
             os.environ['aws_peering_id'] = get_peering_by_tag(tag_name, service_base_name)
             pre_defined_peering = True
         try:
-            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
-                raise KeyError
-        except KeyError:
-            tag = {"Key": tag2_name, "Value": "{}-subnet".format(service_base_name)}
-            os.environ['aws_subnet2_id'] = get_subnet_by_tag(tag, True)
-            pre_defined_subnet2 = True
-        try:
             if os.environ['aws_security_groups_ids'] == '':
                 raise KeyError
         except KeyError:
@@ -296,7 +289,7 @@ if __name__ == "__main__":
         if os.environ['conf_duo_vpc_enable'] == 'true':
             secondary_parameters = {
                 "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
-                "aws_notebook_subnet_id": os.environ['aws_subnet2_id'],
+                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
                 "aws_peering_id": os.environ['aws_peering_id']
             }
         else:

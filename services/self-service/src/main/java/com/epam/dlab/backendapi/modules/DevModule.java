@@ -34,10 +34,8 @@ import com.epam.dlab.rest.contracts.DockerAPI;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
-import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Map;
@@ -89,8 +87,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(EdgeService.class).to(EdgeServiceImpl.class);
 		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
 		bind(UserResourceService.class).to(UserResourceServiceImpl.class);
-		bind(Client.class).toInstance(new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration())
-				.build(""));
+		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.MAVEN_SEARCH_API))
+				.toInstance(configuration.getMavenApiFactory().build(environment, ServiceConsts.MAVEN_SEARCH_API));
 
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
 		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);

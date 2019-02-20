@@ -109,7 +109,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
 
   openSsnMonitorDialog() {
     this.healthStatusService.getSsnMonitorData()
-      .subscribe(data => this.ssnMonitorDialog.open({ isHeader: false, isFooter: false }, data));
+      .subscribe(data => this.ssnMonitorDialog.open({ isFooter: false }, data));
   }
 
   openManageRolesDialog() {
@@ -146,6 +146,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
         result.status === HTTP_STATUS_CODES.OK
         && res.status === HTTP_STATUS_CODES.NO_CONTENT
         && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
+        this.buildGrid();
       });
     }, error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
@@ -159,17 +160,10 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
         }, () => this.toastr.error('Group creation failed!', 'Oops!', { toastLife: 5000 }));
         break;
       case 'update':
-        if ($event.type === 'roles') {
-          this.rolesService.setupRolesForGroup($event.value).subscribe(res => {
-            this.toastr.success('Roles list successfully updated!', 'Success!', { toastLife: 5000 });
-            this.getGroupsData();
-          }, () => this.toastr.error('Failed roles list updating!', 'Oops!', { toastLife: 5000 }));
-        } else if ($event.type === 'users') {
-          this.rolesService.setupUsersForGroup($event.value).subscribe(res => {
-            this.toastr.success('Users list successfully updated!', 'Success!', { toastLife: 5000 });
-            this.getGroupsData();
-          }, () => this.toastr.error('Failed users list updating!', 'Oops!', { toastLife: 5000 }));
-        }
+        this.rolesService.updateGroup($event.value).subscribe(res => {
+          this.toastr.success('Group data successfully updated!', 'Success!', { toastLife: 5000 });
+          this.getGroupsData();
+        }, () => this.toastr.error('Failed group data updating!', 'Oops!', { toastLife: 5000 }));
         break;
       case 'delete':
         if ($event.type === 'users') {

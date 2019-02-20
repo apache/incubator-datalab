@@ -111,10 +111,11 @@ public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
 			costTotal += d.getDouble(MongoKeyWords.COST);
 
 			Document item = new Document()
-					.append(MongoKeyWords.DLAB_USER, id.getString(USER))
+					.append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
 					.append(MongoKeyWords.DLAB_ID, resourceId)
 					.append(SIZE, generateShapeName(shape))
-					.append(STATUS, status)
+					.append(STATUS,
+							Optional.ofNullable(status).map(UserInstanceStatus::toString).orElse(StringUtils.EMPTY))
 					.append(MongoKeyWords.METER_CATEGORY, id.getString(MongoKeyWords.METER_CATEGORY))
 					.append(MongoKeyWords.RESOURCE_TYPE,
 							DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE)))

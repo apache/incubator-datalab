@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.SelfServiceApplication;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.BillingDAO;
@@ -37,6 +38,7 @@ import com.epam.dlab.backendapi.service.aws.AwsBillingService;
 import com.epam.dlab.backendapi.service.aws.AwsInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.aws.AwsInfrastructureTemplateService;
 import com.epam.dlab.cloud.CloudModule;
+import com.epam.dlab.mongo.MongoServiceFactory;
 import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
@@ -51,6 +53,10 @@ import static com.google.inject.matcher.Matchers.annotatedWith;
 import static com.google.inject.matcher.Matchers.any;
 
 public class AwsSelfServiceModule extends CloudModule {
+
+	private static final String MONGO_URI_FORMAT = "mongodb://%s:%s@%s:%d/%s";
+	private static final String QUARTZ_MONGO_URI_PROPERTY = "org.quartz.jobStore.mongoUri";
+	private static final String QUARTZ_DB_NAME = "org.quartz.jobStore.dbName";
 
 	private final boolean useDex;
 
@@ -89,7 +95,13 @@ public class AwsSelfServiceModule extends CloudModule {
 
 	@Provides
 	@Singleton
-	Scheduler provideScheduler() throws SchedulerException {
+	Scheduler provideScheduler(SelfServiceApplicationConfiguration configuration) throws SchedulerException {
+		final MongoServiceFactory mongoFactory = configuration.getMongoFactory();
+		final String database = mongoFactory.getDatabase();
+		final String mongoUri = String.format(MONGO_URI_FORMAT, mongoFactory.getUsername(), mongoFactory.getPassword(),
+				mongoFactory.getHost(), mongoFactory.getPort(), database);
+		System.setProperty(QUARTZ_MONGO_URI_PROPERTY, mongoUri);
+		System.setProperty(QUARTZ_DB_NAME, database);
 		return StdSchedulerFactory.getDefaultScheduler();
 	}
 }

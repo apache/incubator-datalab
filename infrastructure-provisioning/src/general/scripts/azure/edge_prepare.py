@@ -161,17 +161,6 @@ if __name__ == "__main__":
                 "direction": "Inbound"
             },
             {
-                "name": "in-4",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Deny",
-                "priority": 200,
-                "direction": "Inbound"
-            },
-            {
                 "name": "out-1",
                 "protocol": "Tcp",
                 "source_port_range": "*",
@@ -296,7 +285,7 @@ if __name__ == "__main__":
                 "name": "out-12",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "4040",
+                "destination_port_range": "4040-4045",
                 "source_address_prefix": "*",
                 "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",

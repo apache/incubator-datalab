@@ -66,10 +66,10 @@ def get_note_status(note_id, notebook_ip):
         return "OK"
 
 def import_note(note_path, notebook_ip):
-    files = {'file': (note_path, open(note_path, 'rb'), 'application/json', {'Expires': '0'})}
-    response = requests.post('http://{0}:8080/api/notebook/import'.format(notebook_ip), files=files)
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Expires': '0'}
+    response = requests.post('http://{0}:8080/api/notebook/import'.format(notebook_ip), data=open(note_path, 'rb'), headers=headers)
     status = json.loads(response.content)
-    if status.get('status') == 'CREATED':
+    if status.get('status') == 'OK':
         print('Imported notebook: {}'.format(note_path))
         return status.get('body')
     else:

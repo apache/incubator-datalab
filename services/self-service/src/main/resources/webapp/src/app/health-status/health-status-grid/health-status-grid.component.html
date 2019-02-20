@@ -23,7 +23,7 @@ limitations under the License.
     <th class="th_status">Status</th>
     <th class="th_actions">Action</th>
   </tr>
-  <tr *ngFor="let env of environmentsHealthStatuses">
+  <tr *ngFor="let env of environmentsHealthStatuses" class="dashboard_table_body">
     <td>{{env.type}}</td>
     <td>{{env.resource_id}}</td>
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>

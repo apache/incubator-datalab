@@ -51,7 +51,7 @@ public class UserGroupServiceImplTest {
 	@Mock
 	private UserGroupDao userGroupDao;
 	@InjectMocks
-	private UserGroupServiceImpl userRolesService;
+	private UserGroupServiceImpl userGroupService;
 
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
@@ -60,7 +60,7 @@ public class UserGroupServiceImplTest {
 	public void createGroup() {
 		when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(true);
 
-		userRolesService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
 
 		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 		verify(userGroupDao).addUsers(GROUP, Collections.singleton(USER));
@@ -70,7 +70,7 @@ public class UserGroupServiceImplTest {
 	public void createGroupWithNoUsers() {
 		when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(true);
 
-		userRolesService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.emptySet());
+		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.emptySet());
 
 		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 		verify(userGroupDao, never()).addUsers(anyString(), anySet());
@@ -81,14 +81,14 @@ public class UserGroupServiceImplTest {
 		when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(false);
 
 		expectedException.expect(ResourceNotFoundException.class);
-		userRolesService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
 	}
 
 	@Test
 	public void getAggregatedRoles() {
 		when(userRoleDao.aggregateRolesByGroup()).thenReturn(Collections.singletonList(getUserGroup()));
 
-		final List<UserGroupDto> aggregatedRolesByGroup = userRolesService.getAggregatedRolesByGroup();
+		final List<UserGroupDto> aggregatedRolesByGroup = userGroupService.getAggregatedRolesByGroup();
 
 		assertEquals(1, aggregatedRolesByGroup.size());
 		assertEquals(GROUP, aggregatedRolesByGroup.get(0).getGroup());
@@ -100,7 +100,7 @@ public class UserGroupServiceImplTest {
 
 	@Test
 	public void addUserToGroup() {
-		userRolesService.addUsersToGroup(GROUP, Collections.singleton(USER));
+		userGroupService.addUsersToGroup(GROUP, Collections.singleton(USER));
 
 		verify(userGroupDao).addUsers(eq(GROUP), refEq(Collections.singleton(USER)));
 		verifyNoMoreInteractions(userRoleDao, userGroupDao);
@@ -110,7 +110,7 @@ public class UserGroupServiceImplTest {
 	public void addRolesToGroup() {
 		when(userRoleDao.addGroupToRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(true);
 
-		userRolesService.updateRolesForGroup(GROUP, Collections.singleton(ROLE_ID));
+		userGroupService.updateRolesForGroup(GROUP, Collections.singleton(ROLE_ID));
 
 		verify(userRoleDao).addGroupToRole(refEq(Collections.singleton(GROUP)), refEq(Collections.singleton(ROLE_ID)));
 		verify(userRoleDao).removeGroupWhenRoleNotIn(GROUP, Collections.singleton(ROLE_ID));
@@ -120,7 +120,7 @@ public class UserGroupServiceImplTest {
 	@Test
 	public void removeUserFromGroup() {
 
-		userRolesService.removeUserFromGroup(GROUP, USER);
+		userGroupService.removeUserFromGroup(GROUP, USER);
 
 		verify(userGroupDao).removeUser(GROUP, USER);
 		verifyNoMoreInteractions(userGroupDao);
@@ -131,7 +131,7 @@ public class UserGroupServiceImplTest {
 
 		when(userRoleDao.removeGroupFromRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(true);
 
-		userRolesService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
+		userGroupService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 
 		verify(userRoleDao).removeGroupFromRole(refEq(Collections.singleton(GROUP)),
 				refEq(Collections.singleton(ROLE_ID)));
@@ -145,7 +145,7 @@ public class UserGroupServiceImplTest {
 		expectedException.expectMessage("Any of role : [" + ROLE_ID + "] were not found");
 		expectedException.expect(ResourceNotFoundException.class);
 
-		userRolesService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
+		userGroupService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class UserGroupServiceImplTest {
 		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
-		userRolesService.removeGroup(GROUP);
+		userGroupService.removeGroup(GROUP);
 
 		verify(userRoleDao).removeGroup(GROUP);
 		verify(userGroupDao).removeGroup(GROUP);
@@ -167,7 +167,7 @@ public class UserGroupServiceImplTest {
 		when(userRoleDao.removeGroup(anyString())).thenReturn(false);
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
-		userRolesService.removeGroup(GROUP);
+		userGroupService.removeGroup(GROUP);
 
 		verify(userRoleDao).removeGroup(GROUP);
 		verify(userGroupDao, never()).removeGroup(GROUP);
@@ -181,7 +181,17 @@ public class UserGroupServiceImplTest {
 		expectedException.expectMessage("Exception");
 		expectedException.expect(DlabException.class);
 
-		userRolesService.removeGroup(GROUP);
+		userGroupService.removeGroup(GROUP);
+	}
+
+	@Test
+	public void updateGroup() {
+		userGroupService.updateGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+
+		verify(userGroupDao).updateUsers(GROUP, Collections.singleton(USER));
+		verify(userRoleDao).removeGroupWhenRoleNotIn(GROUP, Collections.singleton(ROLE_ID));
+		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
+		verifyNoMoreInteractions(userRoleDao, userGroupDao);
 	}
 
 	private UserGroupDto getUserGroup() {

@@ -150,11 +150,12 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
 			costTotal += cost;
 
 			Document item = new Document()
-					.append(FIELD_USER_ID, id.getString(USER))
+					.append(FIELD_USER_ID, getUserOrDefault(id.getString(USER)))
 					.append(FIELD_DLAB_ID, resourceId)
 					.append(DLAB_RESOURCE_TYPE, resourceTypeId)
 					.append(SHAPE, shapeName)
-					.append(STATUS, status)
+					.append(STATUS,
+							Optional.ofNullable(status).map(UserInstanceStatus::toString).orElse(StringUtils.EMPTY))
 					.append(FIELD_PRODUCT, id.getString(FIELD_PRODUCT))
 					.append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
 					.append(FIELD_COST, BillingCalculationUtils.formatDouble(cost))

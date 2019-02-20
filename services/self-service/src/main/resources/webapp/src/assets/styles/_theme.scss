@@ -142,53 +142,82 @@ font-weight: 400;
   word-break: break-all;
 }
 .manage-roles-dialog {
-  .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
-    .mat-form-field-flex {
-      line-height: 20px;
+  .mat-form-field {
+    width: 100%;
+  }
+  .inner-step {
+    .mat-select-value {
+      width: 96%;
     }
   }
-  .mat-input-wrapper {
-    &.mat-form-field-wrapper {
-      overflow: hidden;
-      .mat-input-infix.mat-form-field-infix {
-        width: 275px;
-        border: 0;
-        font-family: 'Open Sans', sans-serif;
-        font-size: 16px;
-        font-weight: 300;
-        .mat-select-value-text {
-          span {
-            padding: 0 10px;
-            color: #607D8B;
-          }
-        }
-      }
-      .mat-form-field-underline {
-        display: none;
-      }
-      .mat-select-arrow {
-        color: transparent !important;
-      }
-      .mat-form-field-label {
-        padding-top: 0;
-      }
-      .mat-select{
-        &:focus {
-          .mat-input-underline {
-            .mat-input-ripple {
-              background-color: transparent !important;
-            }
-          }
-          &:not(.mat-select-disabled) {
-            .mat-select-arrow {
-              color: transparent;
-            }
-          }
-        } 
+  .mat-reset {
+    .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
+      .mat-form-field-flex {
+        line-height: 20px;
       }
     }
-    .mat-input-wrapper.mat-form-field-wrapper .mat-form-field-underline {
-      display: none;
+    .mat-input-wrapper {
+      &.mat-form-field-wrapper {
+        overflow: hidden;
+        .mat-input-infix.mat-form-field-infix {
+          width: 275px;
+          border: 0;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 16px;
+          font-weight: 300;
+          .mat-select-value-text {
+            span {
+              // padding: 0 10px;
+              color: #607D8B;
+            }
+          }
+        }
+        .mat-form-field-underline {
+          display: none;
+        }
+        .mat-select-arrow {
+          color: transparent !important;
+        }
+        .mat-form-field-label {
+          padding-top: 0;
+        }
+        .mat-select{
+          &:focus {
+            .mat-input-underline {
+              .mat-input-ripple {
+                background-color: transparent !important;
+              }
+            }
+            &:not(.mat-select-disabled) {
+              .mat-select-arrow {
+                color: transparent;
+              }
+            }
+          } 
+        }
+      }
+      .mat-input-wrapper.mat-form-field-wrapper .mat-form-field-underline {
+        display: none;
+      }
+    }
+  }
+  .mat-form-field-type-mat-chip-list {
+      width: 100%;
+  }
+  .mat-step-header {
+    .mat-step-icon {
+      background-color: #36afd5;
+    }
+  }
+  .mat-chip {
+    background-color: rgba(47, 174, 215, 0.2) !important;
+    color: #687e96;
+  }
+  .roles {
+    .selector-wrapper-edit {
+      .mat-select-value {
+        width: 93%;
+      }
     }
   }
 }
@@ -207,5 +236,16 @@ font-weight: 400;
 .mat-primary {
   .mat-pseudo-checkbox-checked {
     background: #00BCD4;
+  }
+}
+
+.mat-icon-button .mat-icon, .mat-icon-button i {
+  line-height: 1 !important;
+  font-size: 18px;
+}
+
+.error-modalbox {
+  .mat-dialog-container {
+    padding: 0;
   }
 }

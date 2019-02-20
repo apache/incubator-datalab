@@ -15,26 +15,52 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+ 
+.aligner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  > div {
+    &.actions {
+      display: flex;
+      flex: initial;
+      justify-content: center;
+      flex-direction: initial;
+      margin-bottom: 25px;
+    }
+  }
+}
+
+.loading-block {
+  height: 45%;
+  display: flex;
+  justify-content: center;
+  .uploading {
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+    list-style: none;
+    display: flex;
+    p {
+      font-size: 16px;;
+    }
+  }
+}
+
+.info {
+  height: 40%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
 
 .install-libraries {
   .dialog-header {
     padding-left: 25px;
   }
-  .loading-block {
-    height: 45%;
-    display: flex;
-    justify-content: center;
-    .uploading {
-      flex-direction: column;
-      align-items: center;
-      align-self: center;
-      list-style: none;
-      display: flex;
-      p {
-        font-size: 16px;;
-      }
-    }
-  }
+
   .info {
     height: 40%;
     display: flex;
@@ -44,7 +70,6 @@ limitations under the License.
   }
   .mat-list-item {
     height: auto !important;
-
     .mat-list-item-content {
       height: auto !important;
       min-height: 54px !important;
@@ -55,14 +80,14 @@ limitations under the License.
     display: flex;
     flex-direction: column;
   }
-}
-.error {
-  padding: 15px 20px;
-}
-.uploading {
-  margin: 0 auto;
-}
 
+  .error {
+    padding: 15px 20px;
+  }
+  .uploading {
+    margin: 0 auto;
+  }
+}
 
 .search-box {
   display: flex;
@@ -105,7 +130,7 @@ limitations under the License.
 .suggestions {
   text-decoration: none;
   list-style: none;
-  .option {
+  mat-option {
     font-size: 13px;
     font-weight: 300;
     font-family: 'Open Sans', sans-serif;
@@ -173,10 +198,12 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 /* Tab info */
 .libs-info {
-  height: 45%;
   padding: 0 20px;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0px;
   .mat-list {
-    height: 100%;
+    width: 100%;
     .scrollingList {
       max-height: 80%;
       height: 80%;

@@ -120,6 +120,33 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_virtual_network_peerings(self, resource_group_name,
+                                        virtual_network_name,
+                                        virtual_network_peering_name,
+                                        vnet_id
+                                        ):
+        try:
+            result = self.network_client.virtual_network_peerings.create_or_update(
+                resource_group_name,
+                virtual_network_name,
+                virtual_network_peering_name,
+                {
+                    "allow_virtual_network_access": True,
+                    "allow_forwarded_traffic": True,
+                    "remote_virtual_network": {
+                        "id": vnet_id
+                    }
+                }
+            ).wait(60)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Virtual Network peering: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Virtual Network peering",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_vpc(self, resource_group_name, vpc_name):
         try:
             result = self.network_client.virtual_networks.delete(
@@ -966,7 +993,7 @@ class AzureActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
+                dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
             sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:

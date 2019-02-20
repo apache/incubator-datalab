@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
+import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.NOT_ACTIVE;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -70,14 +72,22 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	@Override
 	public List<UserDTO> getUsers() {
-		return getAllUsers()
+		final Set<String> activeUsers = envDAO.fetchActiveEnvUsers();
+		log.trace("Active users: {}", activeUsers);
+		final Set<String> notActiveUsers = envDAO.fetchUsersNotIn(activeUsers);
+		log.trace("Not active users: {}", notActiveUsers);
+		final Stream<UserDTO> activeUsersStream = activeUsers
 				.stream()
-				.map(u -> new UserDTO(u, settingsDAO.getAllowedBudget(u).orElse(null)))
+				.map(u -> toUserDTO(u, ACTIVE));
+		final Stream<UserDTO> notActiveUsersStream = notActiveUsers
+				.stream()
+				.map(u -> toUserDTO(u, NOT_ACTIVE));
+		return Stream.concat(activeUsersStream, notActiveUsersStream)
 				.collect(toList());
 	}
 
 	@Override
-	public Set<String> getAllUsers() {
+	public Set<String> getUserNames() {
 		log.debug("Getting all users...");
 		return envDAO.fetchAllUsers();
 	}
@@ -86,14 +96,14 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public List<UserResourceInfo> getAllEnv() {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-		return getAllUsers().stream().map(user -> getUserEnv(user, expList)).flatMap(Collection::stream)
+		return getUserNames().stream().map(user -> getUserEnv(user, expList)).flatMap(Collection::stream)
 				.collect(toList());
 	}
 
 	@Override
 	public void stopAll() {
 		log.debug("Stopping environment for all users...");
-		getAllUsers().forEach(this::stopEnvironment);
+		getUserNames().forEach(this::stopEnvironment);
 	}
 
 	@Override
@@ -125,7 +135,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Override
 	public void terminateAll() {
 		log.debug("Terminating environment for all users...");
-		getAllUsers().forEach(this::terminateEnvironment);
+		getUserNames().forEach(this::terminateEnvironment);
 	}
 
 	@Override
@@ -147,6 +157,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Override
 	public void terminateComputational(String user, String exploratoryName, String computationalName) {
 		terminateCluster(user, exploratoryName, computationalName);
+	}
+
+	private UserDTO toUserDTO(String u, UserDTO.Status status) {
+		return new UserDTO(u, settingsDAO.getAllowedBudget(u).orElse(null), status);
 	}
 
 	private void checkState(String user, String action) {

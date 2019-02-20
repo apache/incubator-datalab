@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Output, Component, EventEmitter } from '@angular/core';
 
 export class DropdownListModel {
   constructor(
@@ -29,8 +29,7 @@ export class DropdownListModel {
 @Component({
   selector: 'dropdown-list',
   templateUrl: 'dropdown-list.component.html',
-  styleUrls: ['../dropdowns.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['../dropdowns.component.scss']
 })
 
 export class DropdownListComponent {
@@ -41,7 +40,7 @@ export class DropdownListComponent {
   listStructure: string;
   items: any;
   map: any;
-  empty: boolean = false;s
+  empty: boolean = false;
 
   @Output() selectedItem: EventEmitter<{}> = new EventEmitter();
 

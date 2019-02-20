@@ -32,14 +32,14 @@ limitations under the License.
           <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)">
             <span *ngIf="toggleSchedule" class="hold-label">Enable scheduler</span>
           </mat-slide-toggle>
-          <div class="idle">
+          <div class="idle" *ngIf="idleImplemented">
             <mat-slide-toggle labelPosition="before" [checked]="enableIdleTime" (change)="toggleIdleTimes($event)">
               <span *ngIf="toggleSchedule" class="hold-label">Inactivity time</span>
             </mat-slide-toggle>
           </div>
         </div>
 
-        <div class="note m-bott-10">NOTE: In case of turning on inactivity time-check, your schedule configuration will be decommissioned.</div>
+        <div *ngIf="idleImplemented" lass="note m-bott-10">NOTE: In case of turning on inactivity time-check, your schedule configuration will be decommissioned.</div>
 
         <div class="control-group idle-control" [ngClass]="{ show: enableIdleTime }">
           <label class="label">Inactivity time</label>
