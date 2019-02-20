@@ -15,6 +15,8 @@ CONTENTS
 
 [DLab Deployment](#DLab_Deployment)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Prerequisites](#Prerequisites)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of main DLab directory](#DLab_directory)
@@ -155,6 +157,91 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
 
+## Prerequisites<a name="Prerequisites"></a>
+#### In Amazon cloud
+Prerequisites:
+ 
+ - SSH key for EC2 instances. This key could be created through Amazon Console.
+ - IAM user
+ - AWS access key ID and secret access key
+ - The following permissions should be assigned for IAM user:
+ <a name="AWS_SSN_policy"></a>
+```
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Action": [
+				"iam:ListRoles",
+				"iam:CreateRole",
+				"iam:CreateInstanceProfile",
+				"iam:PutRolePolicy",
+				"iam:AddRoleToInstanceProfile",
+				"iam:PassRole",
+				"iam:GetInstanceProfile",
+				"iam:ListInstanceProfilesForRole"
+				"iam:RemoveRoleFromInstanceProfile",
+				"iam:DeleteInstanceProfile"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"ec2:DescribeImages",
+				"ec2:CreateTags",
+				"ec2:DescribeRouteTables",
+				"ec2:CreateRouteTable",
+				"ec2:AssociateRouteTable",
+				"ec2:DescribeVpcEndpoints",
+				"ec2:CreateVpcEndpoint",
+				"ec2:ModifyVpcEndpoint",
+				"ec2:DescribeInstances",
+				"ec2:RunInstances",
+				"ec2:DescribeAddresses",
+				"ec2:AllocateAddress",
+				"ec2:DescribeInstances",
+				"ec2:AssociateAddress",
+				"ec2:DisassociateAddress",
+				"ec2:ReleaseAddress",
+				"ec2:TerminateInstances"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"s3:ListAllMyBuckets",
+				"s3:CreateBucket",
+				"s3:PutBucketTagging",
+				"s3:GetBucketTagging"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		}
+	]
+}
+```
+
+#### In Azure cloud
+
+Prerequisites:
+
+- IAM user with Contributor permissions.
+- Service principal and JSON based auth file with clientId, clientSecret and tenantId. 
+
+**Note:** The following permissions should be assigned to the service principal:
+
+- Windows Azure Active Directory
+- Microsoft Graph
+- Windows Azure Service Management API
+
+#### In Google cloud (GCP)
+
+Prerequisites:
+
+- IAM user
+- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
 ## Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
 
 #### In Amazon cloud
@@ -231,70 +318,6 @@ For each cloud provider, prerequisites are different.
 
 #### In Amazon cloud
 
-Prerequisites:
- 
- - SSH key for EC2 instances. This key could be created through Amazon Console.
- - IAM user
- - AWS access key ID and secret access key
- - The following permissions should be assigned for IAM user:
- <a name="AWS_SSN_policy"></a>
-```
-{
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Action": [
-				"iam:ListRoles",
-				"iam:CreateRole",
-				"iam:CreateInstanceProfile",
-				"iam:PutRolePolicy",
-				"iam:AddRoleToInstanceProfile",
-				"iam:PassRole",
-				"iam:GetInstanceProfile",
-				"iam:ListInstanceProfilesForRole"
-				"iam:RemoveRoleFromInstanceProfile",
-				"iam:DeleteInstanceProfile"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"ec2:DescribeImages",
-				"ec2:CreateTags",
-				"ec2:DescribeRouteTables",
-				"ec2:CreateRouteTable",
-				"ec2:AssociateRouteTable",
-				"ec2:DescribeVpcEndpoints",
-				"ec2:CreateVpcEndpoint",
-				"ec2:ModifyVpcEndpoint",
-				"ec2:DescribeInstances",
-				"ec2:RunInstances",
-				"ec2:DescribeAddresses",
-				"ec2:AllocateAddress",
-				"ec2:DescribeInstances",
-				"ec2:AssociateAddress",
-				"ec2:DisassociateAddress",
-				"ec2:ReleaseAddress",
-				"ec2:TerminateInstances"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"s3:ListAllMyBuckets",
-				"s3:CreateBucket",
-				"s3:PutBucketTagging",
-				"s3:GetBucketTagging"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		}
-	]
-}
-```
-
 To build SSN node, following steps should be executed:
 
 1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
@@ -350,17 +373,6 @@ After SSN node deployment following AWS resources will be created:
 -   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
 
 #### In Azure cloud
-
-Prerequisites:
-
-- IAM user with Contributor permissions.
-- Service principal and JSON based auth file with clientId, clientSecret and tenantId. 
-
-**Note:** The following permissions should be assigned to the service principal:
-
-- Windows Azure Active Directory
-- Microsoft Graph
-- Windows Azure Service Management API
 
 To build SSN node, following steps should be executed:
 
@@ -440,11 +452,6 @@ After SSN node deployment following Azure resources will be created:
 
 #### In Google cloud (GCP)
 
-Prerequisites:
-
-- IAM user
-- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
-  
 To build SSN node, following steps should be executed:
 
 1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
