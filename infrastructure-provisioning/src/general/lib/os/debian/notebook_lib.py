@@ -107,7 +107,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             except:
                 sudo('apt-get install -y r-base r-base-dev')
             if os.environ['local_repository_enabled'] == 'True':
-                sudo('sed -i "s/R_REPO/{0}/g" /tmp/Rprofile.site'.format(
+                sudo('sed -i "s|R_REPO|{0}|g" /tmp/Rprofile.site'.format(
                     os.environ['local_repository_r_repo']))
                 sudo('cp -f /tmp/Rprofile.site /etc/R/')
             sudo('R CMD javareconf')
