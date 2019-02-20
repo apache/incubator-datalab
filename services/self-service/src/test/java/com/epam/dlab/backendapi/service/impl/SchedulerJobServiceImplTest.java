@@ -19,10 +19,8 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
-import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.dto.SchedulerJobDTO;
@@ -34,7 +32,6 @@ import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
-import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,8 +57,6 @@ public class SchedulerJobServiceImplTest {
 	private final String USER = "test";
 	private final String EXPLORATORY_NAME = "explName";
 	private final String COMPUTATIONAL_NAME = "compName";
-
-	private UserInfo userInfo;
 	private SchedulerJobDTO schedulerJobDTO;
 	private UserInstanceDTO userInstance;
 
@@ -77,12 +72,6 @@ public class SchedulerJobServiceImplTest {
 	private ExploratoryService exploratoryService;
 	@Mock
 	private ComputationalService computationalService;
-	@Mock
-	private EnvDAO envDAO;
-	@Mock
-	private RESTService provisioningService;
-	@Mock
-	private RequestId requestId;
 
 	@InjectMocks
 	private SchedulerJobServiceImpl schedulerJobService;
@@ -90,7 +79,6 @@ public class SchedulerJobServiceImplTest {
 
 	@Before
 	public void setUp() {
-		userInfo = getUserInfo();
 		schedulerJobDTO = getSchedulerJobDTO(LocalDate.now(), LocalDate.now().plusDays(1),
 				Arrays.asList(DayOfWeek.values()), Arrays.asList(DayOfWeek.values()), false,
 				LocalDateTime.of(LocalDate.now(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES)),
