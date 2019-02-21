@@ -148,7 +148,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				schedulerNotNullCondition());
 		FindIterable<Document> userInstances = find(USER_INSTANCES,
 				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + ".$")));
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES )));
 
 		return stream(userInstances)
 				.map(doc -> computationalSchedulerDataStream(doc, dataEngineType, statuses))
@@ -200,7 +200,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(Collectors.toSet());
 		return ((List<Document>) doc.get(COMPUTATIONAL_RESOURCES))
 				.stream()
-				.filter(compResource ->
+				.filter(compResource -> compResource.get(SCHEDULER_DATA) != null &&
 						DataEngineType.fromDockerImageName(compResource.getString(IMAGE)) ==
 								computationalType && statusSet.contains(compResource.getString(STATUS)))
 				.collect(toList());
