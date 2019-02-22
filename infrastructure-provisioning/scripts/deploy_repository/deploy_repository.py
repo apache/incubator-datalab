@@ -1269,7 +1269,8 @@ def prepare_images():
             put('files/Dockerfile', '/tmp/Dockerfile')
             with cd('/tmp/'):
                 sudo('docker build --file Dockerfile -t pre-base .')
-            sudo('docker login -u docker-nexus -p docker-nexus localhost:8083')
+            sudo('docker login -u {0} -p {1} localhost:8083'.format(args.nexus_service_user_name,
+                                                                    args.nexus_service_user_password))
             sudo('docker tag pre-base localhost:8083/dlab-pre-base')
             sudo('docker push localhost:8083/dlab-pre-base')
             sudo('touch /home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user']))
