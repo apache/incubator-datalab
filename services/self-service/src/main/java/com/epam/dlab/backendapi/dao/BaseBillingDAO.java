@@ -63,6 +63,7 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 	private static final int ONE_HUNDRED = 100;
 	private static final String TOTAL_FIELD_NAME = "total";
 	private static final String COST_FIELD = "$cost";
+	private static final String SHARED_RESOURCE_NAME = "Shared resource";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -122,6 +123,10 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 		return userSettingsDAO.getAllowedBudget(user)
 				.filter(allowedBudget -> userCost.intValue() != 0 && allowedBudget <= userCost)
 				.isPresent();
+	}
+
+	protected String getUserOrDefault(String user) {
+		return StringUtils.isNotBlank(user) ? user : SHARED_RESOURCE_NAME;
 	}
 
 	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
