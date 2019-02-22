@@ -126,7 +126,10 @@ public class SchedulerJobDAO extends BaseDAO {
 						eq(STATUS, status.toString()),
 						schedulerNotNullCondition(),
 						eq(CONSIDER_INACTIVITY_FLAG, true),
-						Filters.elemMatch(COMPUTATIONAL_RESOURCES, lte(LAST_ACTIVITY, lastActivity))
+						or(eq(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+								and(ne(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+										Filters.elemMatch(COMPUTATIONAL_RESOURCES,
+												lte(LAST_ACTIVITY, lastActivity))))
 				),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA))))
 				.map(d -> convertFromDocument(d, SchedulerJobData.class))
@@ -148,7 +151,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				schedulerNotNullCondition());
 		FindIterable<Document> userInstances = find(USER_INSTANCES,
 				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES )));
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
 
 		return stream(userInstances)
 				.map(doc -> computationalSchedulerDataStream(doc, dataEngineType, statuses))
