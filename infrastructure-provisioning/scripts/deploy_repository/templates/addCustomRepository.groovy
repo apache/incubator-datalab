@@ -4,7 +4,7 @@ import org.sonatype.nexus.repository.storage.WritePolicy
 
 
 ubuntuProxyConfiguration = new Configuration(
-        repositoryName: "APT_UBUNTU_REPO_NAME",
+        repositoryName: "ubuntu",
         recipeName: "apt-proxy",
         online: true,
         attributes: [
@@ -35,7 +35,7 @@ ubuntuProxyConfiguration = new Configuration(
         ] as Map
 )
 securityProxyConfiguration = new Configuration(
-        repositoryName: "APT_SECURITY_REPO_NAME",
+        repositoryName: "ubuntu-security",
         recipeName: "apt-proxy",
         online: true,
         attributes: [
@@ -66,7 +66,7 @@ securityProxyConfiguration = new Configuration(
         ] as Map
 )
 BintrayDebianProxyConfiguration = new Configuration(
-        repositoryName: "APT_BINTRAY_REPO_NAME",
+        repositoryName: "ubuntu-bintray",
         recipeName: "apt-proxy",
         online: true,
         attributes: [
@@ -97,7 +97,7 @@ BintrayDebianProxyConfiguration = new Configuration(
         ] as Map
 )
 RrutterDebianProxyConfiguration = new Configuration(
-        repositoryName: "RRUTTER_REPO_NAME",
+        repositoryName: "rrutter",
         recipeName: "apt-proxy",
         online: true,
         attributes: [
@@ -128,7 +128,7 @@ RrutterDebianProxyConfiguration = new Configuration(
         ] as Map
 )
 RProxyConfiguration = new Configuration(
-        repositoryName: "R_REPO_NAME",
+        repositoryName: "r",
         recipeName: "r-proxy",
         online: true,
         attributes: [

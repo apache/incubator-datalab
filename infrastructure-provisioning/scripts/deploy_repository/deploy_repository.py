@@ -999,16 +999,16 @@ def install_nexus():
             nexus_service_waiter()
             put('templates/addCustomRepository.groovy', '/tmp/addCustomRepository.groovy')
             sudo('sed -i "s|REGION|{0}|g" /tmp/addCustomRepository.groovy'.format(args.region))
-            sudo('sed -i "s|APT_UBUNTU_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-                configuration['local_repository_apt_ubuntu_repo']))
-            sudo('sed -i "s|APT_SECURITY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-                configuration['local_repository_apt_ubuntu_security_repo']))
-            sudo('sed -i "s|APT_BINTRAY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-                configuration['local_repository_apt_bintray_repo']))
-            sudo('sed -i "s|RRUTTER_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-                configuration['local_repository_rrutter_repo']))
-            sudo('sed -i "s|R_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-                configuration['local_repository_r_repo']))
+            # sudo('sed -i "s|APT_UBUNTU_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+            #     configuration['local_repository_apt_ubuntu_repo']))
+            # sudo('sed -i "s|APT_SECURITY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+            #     configuration['local_repository_apt_ubuntu_security_repo']))
+            # sudo('sed -i "s|APT_BINTRAY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+            #     configuration['local_repository_apt_bintray_repo']))
+            # sudo('sed -i "s|RRUTTER_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+            #     configuration['local_repository_rrutter_repo']))
+            # sudo('sed -i "s|R_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
+            #     configuration['local_repository_r_repo']))
             script_executed = False
             while not script_executed:
                 try:
