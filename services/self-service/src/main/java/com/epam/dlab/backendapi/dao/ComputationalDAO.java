@@ -66,10 +66,9 @@ public class ComputationalDAO extends BaseDAO {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
 	}
 
-	private static Bson computationalCondition(String user, String exploratoryFieldValue,
-											   String compResourceFieldValue) {
-		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryFieldValue),
-				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, compResourceFieldValue));
+	private static Bson computationalCondition(String user, String exploratoryName, String compName) {
+		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName),
+				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, compName));
 	}
 
 	/**
@@ -427,8 +426,7 @@ public class ComputationalDAO extends BaseDAO {
 	public void updateLastActivity(String user, String exploratoryName,
 								   String computationalName, LocalDateTime lastActivity) {
 		updateOne(USER_INSTANCES,
-				and(eq(EXPLORATORY_NAME, exploratoryName), eq(computationalFieldFilter(COMPUTATIONAL_NAME),
-						computationalName), eq(USER, user)),
+				computationalCondition(user, exploratoryName, computationalName),
 				set(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY),
 						Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
 	}
