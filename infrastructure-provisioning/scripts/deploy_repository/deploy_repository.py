@@ -58,6 +58,8 @@ parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk si
 parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
 parser.add_argument('--dlab_conf_file_path', type=str, default='', help="Full path to DLab conf file")
 parser.add_argument('--nexus_admin_password', type=str, default='', help="Password for Nexus admin user")
+parser.add_argument('--nexus_service_user_name', type=str, default='dlab-nexus', help="Nexus service user name")
+parser.add_argument('--nexus_service_user_password', type=str, default='', help="Nexus service user password")
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()
 
@@ -896,6 +898,9 @@ def install_nexus():
                 configuration['local_repository_packages_repo']))
             sudo('sed -i "s/NPM_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
                 configuration['local_repository_npm_repo']))
+            sudo('sed -i "s/SERVICE_USER_NAME/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_service_user_name))
+            sudo('sed -i "s/SERVICE_USER_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(
+                args.nexus_service_user_password))
             put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
             script_executed = False
             while not script_executed:
@@ -1017,7 +1022,9 @@ def install_nexus():
             sudo('curl -u admin:{} -X POST --header \'Content-Type: text/plain\' '
                  'http://localhost:8081/service/rest/v1/script/addCustomRepository/run'.format(
                   args.nexus_admin_password))
-            sudo('echo "admin:{}" > /opt/nexus/admin_credentials'.format(args.nexus_admin_password))
+            sudo('echo "admin:{}" > /opt/nexus/credentials'.format(args.nexus_admin_password))
+            sudo('echo "{0}:{1}" >> /opt/nexus/credentials'.format(args.nexus_service_user_name,
+                                                                   args.nexus_service_user_password))
             sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
@@ -1335,6 +1342,8 @@ if __name__ == "__main__":
     python3_version = '3.4.0'
     if args.nexus_admin_password == '':
         args.nexus_admin_password = id_generator()
+    if args.nexus_service_user_password == '':
+        args.nexus_service_user_password = id_generator()
     keystore_pass = id_generator()
     if args.action == 'terminate':
         if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:

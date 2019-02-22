@@ -37,11 +37,11 @@ repository.createRawProxy('MONGO_REPO_NAME','http://repo.mongodb.org/apt/ubuntu'
 repository.createRawHosted('PACKAGES_REPO_NAME', 'packages_store')
 repository.createNpmProxy('NPM_REPO_NAME', 'https://registry.npmjs.org', 'packages_store')
 
-// create a role for service users
+// create a role for service user
 def role = new org.sonatype.nexus.security.role.Role(
-    roleId: "nx-docker",
+    roleId: "nx-dlab",
     source: "Nexus",
-    name: "nx-docker",
+    name: "nx-dlab",
     description: null,
     readOnly: false,
     privileges: [ 'nx-repository-view-*-*-*' ],
@@ -49,11 +49,12 @@ def role = new org.sonatype.nexus.security.role.Role(
 )
 authorizationManager.addRole(role)
 
-// add a docker user account
-security.addUser("docker-nexus",
-      "Docker", "Nexus",
-      "docker-nexus@example.org", true,
-      "docker-nexus", [ role.roleId ])
+// add a service user account
+security.addUser("SERVICE_USER_NAME",
+      "DLab", "Nexus",
+      "dlab-nexus@example.org", true,
+      "SERVICE_USER_PASSWORD", [ role.roleId ])
 
 security.securitySystem.changePassword('admin','ADMIN_PASSWORD')
+security.setAnonymousAccess(false)
 log.info('Script completed successfully')
