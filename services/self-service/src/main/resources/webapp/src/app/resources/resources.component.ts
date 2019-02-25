@@ -16,11 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
-import { ResourcesGridComponent } from './resources-grid';
+import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { UserAccessKeyService, HealthStatusService } from '../core/services';
 import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
 import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
@@ -49,11 +49,9 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   constructor(
     private userAccessKeyService: UserAccessKeyService,
     private healthStatusService: HealthStatusService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.userUploadAccessKeyState = HTTP_STATUS_CODES.NOT_FOUND;
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -102,6 +100,6 @@ export class ResourcesComponent implements OnInit, OnDestroy {
           this.resourcesGrid.healthStatus = this.healthStatus;
           this.userAccessKeyService.initialUserAccessKeyCheck();
         },
-      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 }

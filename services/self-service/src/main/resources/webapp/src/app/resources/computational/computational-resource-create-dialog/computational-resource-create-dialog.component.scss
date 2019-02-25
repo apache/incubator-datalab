@@ -35,6 +35,7 @@ limitations under the License.
         position: absolute;
         padding-left: 5px;
         right: 0;
+        top: 40px;
       }
     }
     .alias-name {
@@ -64,7 +65,6 @@ limitations under the License.
     opacity: 0;
     visibility: hidden;
     text-align: left;
-    transition: all .35s linear .2s;
   
     &.show {
       height: 60px;
@@ -93,7 +93,9 @@ limitations under the License.
         background: #f8f8f8 !important;
         height: 100%;
         resize: none;
-        font-size: 14px
+        font-size: 14px;
+        line-height: 1.5;
+        font-family: Consolas, monospace;
       }
     }
   }

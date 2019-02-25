@@ -40,6 +40,9 @@ export class SsnMonitorComponent implements OnInit {
     this.monitorData = data || {};
     this.bindDialog.open(param);
   }
+  public close(param, data): void {
+    this.bindDialog.close();
+  }
 
   public isEmpty(obj) {
     if (obj) return Object.keys(obj).length === 0;

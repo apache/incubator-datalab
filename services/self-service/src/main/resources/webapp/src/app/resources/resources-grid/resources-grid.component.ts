@@ -17,11 +17,13 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Component, ViewChild, ViewContainerRef, OnInit } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, ViewChild, OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../core/services';
-import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from '.';
+import { CreateResourceModel } from './create-resource.model';
+import { ResourcesGridRowModel } from './resources-grid.model';
+import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../health-status/health-status.module';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
@@ -48,8 +50,6 @@ export class ResourcesGridComponent implements OnInit {
   filtering: boolean = false;
   activeFiltering: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
-  // billingEnabled: boolean = false;
-
   delimitersRegex = /[-_]?/g;
 
   @ViewChild('computationalResourceModal') computationalResourceModal;
@@ -72,11 +72,8 @@ export class ResourcesGridComponent implements OnInit {
 
   constructor(
     private userResourceService: UserResourceService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
-  ) {
-    this.toastr.setRootViewContainerRef(vcr);
-  }
+    public toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.buildGrid();
@@ -294,7 +291,7 @@ export class ResourcesGridComponent implements OnInit {
         .runExploratoryEnvironment({ notebook_instance_name: data.name })
         .subscribe(
           () => this.buildGrid(),
-          error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!', { toastLife: 5000 }));
+          error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
     } else if (action === 'terminate') {

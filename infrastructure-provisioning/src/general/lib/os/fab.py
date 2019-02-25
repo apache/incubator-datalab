@@ -39,9 +39,8 @@ def ensure_pip(requisites):
             sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
-        return True
     except:
-        return False
+        sys.exit(1)
 
 
 def dataengine_dir_prepare(cluster_dir):
@@ -704,4 +703,14 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
             local('sudo systemctl restart zeppelin-notebook')
     except Exception as err:
         print('Failed to update Zeppelin interpreters', str(err))
+        sys.exit(1)
+
+
+def update_hosts_file(os_user):
+    try:
+        if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
+            sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
+            sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
+    except Exception as err:
+        print('Failed to update hosts file', str(err))
         sys.exit(1)

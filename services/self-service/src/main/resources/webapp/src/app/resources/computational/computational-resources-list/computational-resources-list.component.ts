@@ -16,8 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, EventEmitter, Input, Output, ViewChild, Inject, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
@@ -42,27 +42,24 @@ export class ComputationalResourcesListComponent {
   constructor(
     private userResourceService: UserResourceService,
     public dialog: MatDialog,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
-  ) {
-    this.toastr.setRootViewContainerRef(vcr);
-  }
+    public toastr: ToastrService
+  ) { }
 
-  toggleResourceAction(resource, action) {
+  toggleResourceAction(resource, action: string) {
     if (action === 'stop' || action === 'terminate') {
-      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog,
+      const dialogRef: MatDialogRef<ConfirmationDialogComponent> = this.dialog.open(ConfirmationDialogComponent,
         { data: {action, resource}, width: '550px' });
       dialogRef.afterClosed().subscribe(result => {
         if (result && action === 'stop') {
           this.userResourceService
             .toggleStopStartAction(this.environment['name'], resource.computational_name, action)
-            .subscribe(response => {
+            .subscribe(() => {
               this.rebuildGrid();
             });
         } else if (result && action === 'terminate') {
           this.userResourceService
             .suspendComputationalResource(this.environment['name'], resource.computational_name)
-            .subscribe(response => {
+            .subscribe(() => {
               this.rebuildGrid();
             });
         }
@@ -72,7 +69,7 @@ export class ComputationalResourcesListComponent {
         .toggleStopStartAction(this.environment['name'], resource.computational_name, 'start')
         .subscribe(
           () => this.rebuildGrid(),
-          error => this.toastr.error(error.message || 'Computational resource starting failed!', 'Oops!', { toastLife: 5000 }));
+          error => this.toastr.error(error.message || 'Computational resource starting failed!', 'Oops!'));
     }
   }
 
@@ -110,9 +107,9 @@ export class ComputationalResourcesListComponent {
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
   `]
 })
-export class ConfirmationDialog {
+export class ConfirmationDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ConfirmationDialog>,
+    public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

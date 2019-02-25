@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
-import { ValidatorFn, FormControl } from '@angular/forms';
+import { ValidatorFn, FormControl, NgModel } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -66,6 +66,10 @@ export class ManageRolesGroupsComponent implements OnInit {
       this.updatedRoles = $event.model;
     }
     $event.$event.preventDefault();
+  }
+
+  public selectAllOptions(item, values, byKey?) {
+    byKey ? (item[byKey] = values ? values : []) : this.setupRoles = values ? values : [];
   }
 
   public manageAction(action: string, type: string, item?: any, value?) {
@@ -119,7 +123,7 @@ export class ManageRolesGroupsComponent implements OnInit {
 
   public groupValidarion(): ValidatorFn {
 
-    const duplicateList = this.groupsData.map(item => item.group);
+    const duplicateList: any = this.groupsData.map(item => item.group);
     return <ValidatorFn>((control: FormControl) => {
       if (control.value && duplicateList.includes(this.delimitersFiltering(control.value)))
         return { duplicate: true };

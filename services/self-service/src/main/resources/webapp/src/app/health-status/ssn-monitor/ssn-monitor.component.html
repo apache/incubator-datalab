@@ -104,6 +104,9 @@ limitations under the License.
             </div>
           </mat-tab>
         </mat-tab-group>
+        <div class="text-center">
+          <button type="button" class="butt" mat-raised-button (click)="close()">Close</button>
+        </div>
       </div>
       <div class="info message" *ngIf="isEmpty(monitorData)">
         No ssn monitor data available

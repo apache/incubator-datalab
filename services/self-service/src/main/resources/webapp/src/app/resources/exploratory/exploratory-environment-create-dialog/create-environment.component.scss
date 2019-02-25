@@ -22,18 +22,20 @@ limitations under the License.
     opacity: 0;
     visibility: hidden;
     text-align: left;
-    transition: all .35s linear .2s;
     &.show {
-      height: 250px;
+      height: 200px;
       visibility: visible;
       opacity: 1;
       position: relative;
+      margin-top: 10px;
     }
     textarea {
       height: 100%;
       background: #f8f8f8 !important;
       resize: none;
-      font-size: 14px
+      font-size: 14px;
+      line-height: 1.5;
+      font-family: Consolas, monospace;
     }
     span {
       &.danger_color {

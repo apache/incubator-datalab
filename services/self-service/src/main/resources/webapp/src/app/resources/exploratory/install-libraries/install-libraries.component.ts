@@ -16,6 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
+
+import {debounceTime} from 'rxjs/operators';
 import { Component,
   OnInit,
   ViewChild,
@@ -23,18 +25,17 @@ import { Component,
   EventEmitter,
   ViewEncapsulation,
   ChangeDetectorRef,
-  Inject,
-  ViewContainerRef } from '@angular/core';
+  Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 
-import { InstallLibrariesModel } from '.';
+import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService} from '../../../core/services';
 import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
+
+
 
 @Component({
   selector: 'install-libraries',
@@ -85,17 +86,15 @@ export class InstallLibrariesComponent implements OnInit {
     public dialog: MatDialog,
     private librariesInstallationService: LibrariesInstallationService,
     private changeDetector: ChangeDetectorRef,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
     this.libSearch.disable();
-    this.libSearch.valueChanges
-      .debounceTime(1000)
+    this.libSearch.valueChanges.pipe(
+      debounceTime(1000))
       .subscribe(newValue => {
         this.query = newValue || '';
         this.filterList();
@@ -120,7 +119,7 @@ export class InstallLibrariesComponent implements OnInit {
           this.group_select && this.group_select.setDefaultOptions(
             this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
-        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!', { toastLife: 5000 }));
+        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!'));
   }
 
   private getResourcesList() {
@@ -206,7 +205,7 @@ export class InstallLibrariesComponent implements OnInit {
             this.resetDialog();
           }
         },
-        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!', { toastLife: 5000 }),
+        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
         () => {
           this.bindDialog.open(param);
 
@@ -227,7 +226,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   public showErrorMessage(item): void {
     const dialogRef: MatDialogRef<ErrorMessageDialogComponent> = this.dialog.open(
-      ErrorMessageDialogComponent, { data: item.error, width: '550px' });
+      ErrorMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
   }
 
   public isInstallingInProgress(data): void {
@@ -328,8 +327,51 @@ export class InstallLibrariesComponent implements OnInit {
 
 @Component({
   selector: 'error-message-dialog',
-  template: `<div class="content">{{ data }}</div>`,
-  styles: [`.content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }`]
+  template: `
+  <div class="dialog-header">
+    <h4 class="modal-title">Library installation error</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
+  <div class="content">{{ data }}</div>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+  </div>
+  `,
+  styles: [`
+  .content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }
+  .dialog-header {
+    position: relative;
+    top: 0;
+    padding-left: 30px;
+    background: #f6fafe;
+    height: 54px;
+    line-height: 54px;
+  }
+  .dialog-header h4 {
+    color: #455c74;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 50px;
+    width: 50px;
+    font-size: 24px;
+    border: 0;
+    background: none;
+    color: #577289;
+    outline: none;
+    cursor: pointer;
+    transition: all .45s ease-in-out;
+    }
+    .close:hover {
+      color: #36afd5;
+    }
+    .text-center button {
+      margin-bottom: 25px;
+    }`]
 })
 export class ErrorMessageDialogComponent {
   constructor(

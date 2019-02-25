@@ -101,7 +101,12 @@ limitations under the License.
   border: 1px solid #35afd5 !important;
   border-left: 1px solid #35afd5;
   transition: all 0.35s ease-in-out;
-  font: 300 14px/24px 'Open Sans', sans-serif !important;
+  /* font: 300 14px/24px 'Open Sans', sans-serif !important; */
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 24px;
+  font-family:'Open Sans', sans-serif !important;
 }
 
 .input-icon {

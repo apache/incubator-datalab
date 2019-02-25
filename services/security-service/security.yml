@@ -24,10 +24,10 @@ ldapConnectionConfig:
   ldapHost: LDAP_HOST
 #  ldapPort: 3890
   ldapPort: 389
-  name: LDAP_USER
+  name: LDAP_USER,LDAP_DN
   credentials: LDAP_PASS
 useLdapBindTemplate: true
-ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com
+ldapBindTemplate: uid=%s,LDAP_OU,LDAP_DN
 ldapBindAttribute: uid
 ldapSearchAttribute: uid
 ldapSearch:
@@ -41,7 +41,7 @@ ldapSearch:
       - uid
       - gidNumber
     timeLimit: 0
-    base: dc=example,dc=com
+    base: LDAP_DN
     filter: "(&(objectClass=inetOrgPerson)(uid=%uid%))"
   - name: userInfo
     cache: true
@@ -51,7 +51,7 @@ ldapSearch:
       - cn
       - gidNumber
     timeLimit: 0
-    base: dc=example,dc=com
+    base: LDAP_DN
     filter: "(&(objectClass=inetOrgPerson)(uid=%uid%))"
     searchResultProcessor:
       language: python
@@ -78,7 +78,7 @@ ldapSearch:
       - gidNumber
       - memberUid
     timeLimit: 0
-    base: dc=example,dc=com
+    base: LDAP_DN
     filter: "(&(objectClass=posixGroup))"
     searchResultProcessor:
       language: javascript

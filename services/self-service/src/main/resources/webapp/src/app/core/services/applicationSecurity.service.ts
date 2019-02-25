@@ -17,26 +17,19 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { of as observableOf, Observable, BehaviorSubject } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/throw';
-
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { AppRoutingService } from './appRouting.service';
+import { StorageService } from './storage.service';
 import { LoginModel } from '../../login/login.model';
-import { ApplicationServiceFacade, AppRoutingService } from '.';
-import { ErrorUtils, HTTP_STATUS_CODES } from '../util';
+import { HTTP_STATUS_CODES } from '../util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
 export class ApplicationSecurityService {
-  private accessTokenKey: string = 'access_token';
-  private userNameKey: string = 'user_name';
-  private quoteUsedKey: string = 'billing_quote';
   private _loggedInStatus = new BehaviorSubject<boolean>(null);
-
   readonly DICTIONARY = DICTIONARY;
 
   emitter: BehaviorSubject<any> = new BehaviorSubject<any>('');
@@ -44,7 +37,8 @@ export class ApplicationSecurityService {
 
   constructor(
     private serviceFacade: ApplicationServiceFacade,
-    private appRoutingService: AppRoutingService
+    private appRoutingService: AppRoutingService,
+    private storage: StorageService,
   ) {}
 
   get loggedInStatus() {
@@ -54,142 +48,107 @@ export class ApplicationSecurityService {
   public login(loginModel: LoginModel): Observable<boolean | {}> {
     return this.serviceFacade
       .buildLoginRequest(loginModel.toJsonString())
-      .map(response => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          if (!DICTIONARY.use_ldap) {
-            this.setAuthToken(response.json().access_token);
-            this.setUserName(response.json().username);
-          } else {
-            this.setAuthToken(response.text());
-            this.setUserName(loginModel.username);
+      .pipe(
+        map(response => {
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            if (!DICTIONARY.use_ldap) {
+              this.storage.setAuthToken(response.body.access_token);
+              this.storage.setUserName(response.body.username);
+            } else {
+              this.storage.setAuthToken(response.body);
+              this.storage.setUserName(loginModel.username);
+            }
+            this._loggedInStatus.next(true);
+            return true;
           }
-          this._loggedInStatus.next(true);
-          return true;
-        }
-        this._loggedInStatus.next(false);
-        return false;
-      }, this);
+          this._loggedInStatus.next(false);
+          return false;
+        }));
   }
 
   public logout(): Observable<boolean> {
-    const authToken = this.getAuthToken();
+    const authToken = this.storage.getToken();
 
     if (!!authToken) {
       return this.serviceFacade
         .buildLogoutRequest()
-        .map(response => {
-          this.clearAuthToken();
-          this.setBillingQuoteUsed('');
-          this._loggedInStatus.next(false);
+        .pipe(
+          map(response => {
+            this.storage.destroyToken();
+            this.storage.setBillingQuoteUsed('');
+            this._loggedInStatus.next(false);
 
-          return response.status === HTTP_STATUS_CODES.OK;
-        }, this);
+            return response.status === HTTP_STATUS_CODES.OK;
+          }, this));
     }
 
-    return Observable.of(false);
-  }
-
-  public getCurrentUserName(): string {
-    return localStorage.getItem(this.userNameKey);
-  }
-
-  public getAuthToken(): string {
-    return localStorage.getItem(this.accessTokenKey);
-  }
-
-  public getBillingQuoteUsed(): string {
-    return localStorage.getItem(this.quoteUsedKey);
-  }
-
-  public setBillingQuoteUsed(quoteUsedKey): void {
-    localStorage.setItem(this.quoteUsedKey, quoteUsedKey);
+    return observableOf(false);
   }
 
   public isLoggedIn(): Observable<boolean> {
-    const authToken = this.getAuthToken();
-    const currentUser = this.getCurrentUserName();
-
+    const authToken = this.storage.getToken();
+    const currentUser = this.storage.getUserName();
     if (authToken && currentUser) {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
-        .map(response => {
-          if (response.status === HTTP_STATUS_CODES.OK) {
-            this._loggedInStatus.next(true);
-            return true;
-          }
+        .pipe(
+          map(response => {
+            if (response.status === HTTP_STATUS_CODES.OK) {
+              this._loggedInStatus.next(true);
+              return true;
+            }
 
-          this.clearAuthToken();
-          this.appRoutingService.redirectToLoginPage();
-          return false;
-        })
-        .catch(error => {
-          // this.handleError(error);
-          let errObj = error.json();
-          this.emmitMessage(errObj.message);
-          this.clearAuthToken();
+            this.storage.destroyToken();
+            this.appRoutingService.redirectToLoginPage();
+            return false;
+          }),
+          catchError(error => {
+            this.emmitMessage(error.message);
+            this.storage.destroyToken();
 
-          return Observable.of(false);
-        });
+            return observableOf(false);
+          }));
     }
-
     this.appRoutingService.redirectToLoginPage();
     this._loggedInStatus.next(false);
-    return Observable.of(false);
+    return observableOf(false);
   }
 
   public redirectParams(params): Observable<boolean> {
+    console.log('redirect patams');
 
     return this.serviceFacade
       .buildGetAuthToken(params)
-      .map((response: any) => {
-        const data = response.json();
-        if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
-          this.setAuthToken(data.access_token);
-          this.setUserName(data.username);
+      .pipe(
+        map((response: any) => {
+          const data = response.body;
+          if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
+            this.storage.setAuthToken(data.access_token);
+            this.storage.setUserName(data.username);
 
-          this.appRoutingService.redirectToHomePage();
-          return true;
-        }
+            this.appRoutingService.redirectToHomePage();
+            return true;
+          }
 
-        if (response.status !== 200) {
-          // this.handleError(response);
-          const errObj = response.json();
-          this.emmitMessage(errObj.message);
-        }
-        return false;
+          if (response.status !== 200) {
+            const errObj = response.body;
+            this.emmitMessage(errObj.message);
+          }
+          return false;
 
-      }).catch((error: any) => {
-        if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
-          window.location.href = error.headers.get('Location');
-        } else {
-          // this.handleError(error);
-          const errObj = error.json();
-          this.emmitMessage(errObj.message);
-          return Observable.of(false);
-        }
-      });
+        }), catchError((error: any) => {
+          if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+            window.location.href = error.headers.get('Location');
+          } else {
+            const errObj = error.json();
+            this.emmitMessage(errObj.message);
+            return observableOf(false);
+          }
+        }));
   }
-
-  // private handleError(error: any) {
-  //   // this.emmitMessage(ErrorUtils.handleError(error));
-  //   this.emmitMessage(error.message);
-  // }
 
   private emmitMessage(message): void {
     this.appRoutingService.redirectToLoginPage();
     this.emitter.next(message);
-  }
-
-  private setUserName(userName): void {
-    localStorage.setItem(this.userNameKey, userName);
-  }
-
-  private setAuthToken(accessToken): void {
-    const encodedToken = accessToken;
-    localStorage.setItem(this.accessTokenKey, encodedToken);
-  }
-
-  private clearAuthToken(): void {
-    localStorage.removeItem(this.accessTokenKey);
   }
 }

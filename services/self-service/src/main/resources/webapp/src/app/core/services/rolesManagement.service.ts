@@ -17,9 +17,10 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-import { ApplicationServiceFacade } from './';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
 
 @Injectable()
@@ -29,43 +30,49 @@ export class RolesGroupsService {
   public getGroupsData(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetGroupsData()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getRolesData(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetRolesData()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public setupNewGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupNewGroup(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public updateGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildUpdateGroupData(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public setupRolesForGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupRolesForGroup(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public setupUsersForGroup(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildSetupUsersForGroup(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public removeUsersForGroup(data): Observable<{}> {
@@ -73,8 +80,9 @@ export class RolesGroupsService {
 
     return this.applicationServiceFacade
       .buildRemoveUsersForGroup(JSON.stringify(url))
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public removeGroupById(data): Observable<{}> {
@@ -82,7 +90,8 @@ export class RolesGroupsService {
 
     return this.applicationServiceFacade
       .buildRemoveGroupById(JSON.stringify(url))
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }
