@@ -109,7 +109,6 @@ limitations under the License.
             </mat-button-toggle>
           </div>
         </div>
-        <span class="note m-bott-10">NOTE: to enable the scheduler at least one weekday should be specified.</span>
         <div class="inherit" *ngIf="destination">
           <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
             <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
