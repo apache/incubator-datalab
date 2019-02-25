@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.service.azure;
 
+import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.dao.BillingDAO;
@@ -24,7 +25,6 @@ import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.MongoKeyWords;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -37,92 +37,86 @@ import java.util.List;
 
 @Slf4j
 @Singleton
-public class AzureBillingService implements BillingService<AzureBillingFilter> {
+public class AzureBillingService extends BillingService<AzureBillingFilter> {
 
-    @Inject
-    private BillingDAO billingDAO;
+	@Inject
+	private BillingDAO billingDAO;
 
-    @Override
-    public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
-        log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
-        try {
-            return billingDAO.getReport(userInfo, filter);
-        } catch (RuntimeException t) {
-            log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
-            throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
-        }
-    }
+	@Override
+	public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
+		log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
+		try {
+			return billingDAO.getReport(userInfo, filter);
+		} catch (RuntimeException t) {
+			log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
+			throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
+		}
+	}
 
-    @Override
-    public byte[] downloadReport(UserInfo userInfo, AzureBillingFilter filter) {
-        log.trace("Download billing report for user {} with filter {}", userInfo.getName(), filter);
-        return BillingService.super.downloadReport(userInfo, filter);
-    }
+	@Override
+	public String getReportFileName(UserInfo userInfo, AzureBillingFilter filter) {
+		return "azure-billing-report.csv";
+	}
 
-    @Override
-    public String getReportFileName(UserInfo userInfo, AzureBillingFilter filter) {
-        return "azure-billing-report.csv";
-    }
+	@Override
+	public String getFirstLine(Document document) throws ParseException {
+		SimpleDateFormat from = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat to = new SimpleDateFormat("MMM dd, yyyy");
 
-    @Override
-    public String getFirstLine(Document document) throws ParseException {
-        SimpleDateFormat from = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat to = new SimpleDateFormat("MMM dd, yyyy");
+		return String.format("Service base name: %s  " +
+						"Available reporting period from: %s to: %s",
+				document.get(BaseBillingDAO.SERVICE_BASE_NAME),
+				to.format(from.parse((String) document.get(MongoKeyWords.USAGE_FROM))),
+				to.format(from.parse((String) document.get(MongoKeyWords.USAGE_TO))));
+	}
 
-        return String.format("Service base name: %s  " +
-                        "Available reporting period from: %s to: %s",
-                document.get(BaseBillingDAO.SERVICE_BASE_NAME),
-                to.format(from.parse((String) document.get(MongoKeyWords.USAGE_FROM))),
-                to.format(from.parse((String) document.get(MongoKeyWords.USAGE_TO))));
-    }
+	public List<String> getHeadersList(boolean full) {
+		List<String> headers = new ArrayList<>();
 
-    public List<String> getHeadersList(boolean full) {
-        List<String> headers = new ArrayList<>();
+		if (full) {
+			headers.add("USER");
+		}
 
-        if (full) {
-            headers.add("USER");
-        }
+		headers.add("ENVIRONMENT NAME");
+		headers.add("RESOURCE TYPE");
+		headers.add("INSTANCE SIZE");
+		headers.add("CATEGORY");
+		headers.add("SERVICE CHARGES");
 
-        headers.add("ENVIRONMENT NAME");
-        headers.add("RESOURCE TYPE");
-        headers.add("INSTANCE SIZE");
-        headers.add("CATEGORY");
-        headers.add("SERVICE CHARGES");
+		return headers;
+	}
 
-        return headers;
-    }
+	@Override
+	public String getLine(boolean full, Document document) {
+		List<String> items = new ArrayList<>();
 
-    @Override
-    public String getLine(boolean full, Document document) {
-        List<String> items = new ArrayList<>();
+		if (full) {
+			items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_USER));
+		}
 
-        if (full) {
-            items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_USER));
-        }
+		items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_ID));
+		items.add(getValueOrEmpty(document, MongoKeyWords.RESOURCE_TYPE));
+		items.add(getValueOrEmpty(document, AzureBillingDAO.SIZE).replace(System.lineSeparator(), " "));
+		items.add(getValueOrEmpty(document, MongoKeyWords.METER_CATEGORY));
 
-        items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_ID));
-        items.add(getValueOrEmpty(document, MongoKeyWords.RESOURCE_TYPE));
-        items.add(getValueOrEmpty(document, AzureBillingDAO.SIZE).replace(System.lineSeparator(), " "));
-        items.add(getValueOrEmpty(document, MongoKeyWords.METER_CATEGORY));
+		items.add(getValueOrEmpty(document, MongoKeyWords.COST_STRING)
+				+ " " + getValueOrEmpty(document, MongoKeyWords.CURRENCY_CODE));
 
-        items.add(getValueOrEmpty(document, MongoKeyWords.COST_STRING)
-                + " " + getValueOrEmpty(document, MongoKeyWords.CURRENCY_CODE));
+		return CSVFormatter.formatLine(items, CSVFormatter.SEPARATOR);
+	}
 
-        return CSVFormatter.formatLine(items, CSVFormatter.SEPARATOR);
-    }
+	@Override
+	public String getTotal(boolean full, Document document) {
+		int padding = getHeadersList(full).size() - 1;
 
-    @Override
-    public String getTotal(boolean full, Document document) {
-        int padding = getHeadersList(full).size() - 1;
+		List<String> items = new ArrayList<>();
+		while (padding-- > 0) {
+			items.add("");
+		}
 
-        List<String> items = new ArrayList<>();
-        while (padding-- > 0) {
-            items.add("");
-        }
+		items.add(String.format("Total: %s %s", getValueOrEmpty(document, MongoKeyWords.COST_STRING),
+				getValueOrEmpty(document, MongoKeyWords.CURRENCY_CODE)));
 
-        items.add(String.format("Total: %s %s", getValueOrEmpty(document, MongoKeyWords.COST_STRING),
-                getValueOrEmpty(document, MongoKeyWords.CURRENCY_CODE)));
-
-        return CSVFormatter.formatLine(items, CSVFormatter.SEPARATOR);
-    }
+		return CSVFormatter.formatLine(items, CSVFormatter.SEPARATOR);
+	}
 }
