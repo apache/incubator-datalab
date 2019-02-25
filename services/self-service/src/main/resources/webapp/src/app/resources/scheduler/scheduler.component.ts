@@ -26,7 +26,7 @@ import 'moment-timezone';
 import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
 import { HTTP_STATUS_CODES } from '../../core/util';
-import { log } from 'util';
+import { ScheduleSchema } from './scheduler.model';
 
 @Component({
   selector: 'dlab-scheduler',
@@ -161,8 +161,12 @@ export class SchedulerComponent implements OnInit {
   }
 
   public setInactivity(...params) {
-    this.model.setInactivityTime(params).subscribe(
-      () => this.toastr.success('Inactivity settings were successfully saved', 'Success!'),
+    this.model.setInactivityTime(params).subscribe((response: any) => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.toastr.success('Schedule data were successfully saved', 'Success!');
+          this.close();
+        }
+      },
       error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'));
   }
 
@@ -179,7 +183,7 @@ export class SchedulerComponent implements OnInit {
         return false;
       }
       const selectedDays = Object.keys(this.selectedStartWeekDays);
-      const parameters: any = {
+      const parameters: ScheduleSchema = {
         begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
         finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
         start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
@@ -221,7 +225,7 @@ export class SchedulerComponent implements OnInit {
 
   private getExploratorySchedule(resource, resource2?) {
     this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
-      (params: any) => {
+      (params: ScheduleSchema) => {
         if (params) {
           params.start_days_repeat.filter(key => (this.selectedStartWeekDays[key.toLowerCase()] = true));
           params.stop_days_repeat.filter(key => (this.selectedStopWeekDays[key.toLowerCase()] = true));
@@ -254,7 +258,7 @@ export class SchedulerComponent implements OnInit {
   private convertTimeFormat(time24: any) {
     let result;
     if (typeof time24 === 'string') {
-      let spl = time24.split(':');
+      const spl = time24.split(':');
 
       result = {
         hour: +spl[0] % 12 || 12,
@@ -263,10 +267,10 @@ export class SchedulerComponent implements OnInit {
       };
     } else {
       let hours = time24.hour;
-      let minutes = (time24.minute < 10) ? '0' + time24.minute : time24.minute;
+      const minutes = (time24.minute < 10) ? '0' + time24.minute : time24.minute;
 
-      if (time24.meridiem == 'PM' && time24.hour < 12) hours = time24.hour + 12;
-      if (time24.meridiem == 'AM' &&  time24.hour == 12) hours = time24.hour - 12;
+      if (time24.meridiem === 'PM' && time24.hour < 12) hours = time24.hour + 12;
+      if (time24.meridiem === 'AM' &&  time24.hour === 12) hours = time24.hour - 12;
       hours = hours < 10 ? '0' + hours : hours;
 
       result = `${hours}:${minutes}`;

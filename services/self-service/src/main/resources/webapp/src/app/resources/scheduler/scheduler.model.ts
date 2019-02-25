@@ -18,14 +18,19 @@ limitations under the License.
 
 import { SchedulerService } from '../../core/services';
 
-export interface SchedulerParameters {
-  begin_date: string;
-  finish_date: string;
-  start_time: string;
-  end_time: string;
-  days_repeat: Array<string>;
+export interface ScheduleSchema {
+  begin_date: string | null;
+  finish_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  start_days_repeat: Array<string>;
+  stop_days_repeat: Array<string>;
   timezone_offset: string;
   sync_start_required: boolean;
+  max_inactivity?: number;
+  terminate_datetime?: string | null;
+  check_inactivity_required?: boolean;
+  consider_inactivity?: boolean;
 }
 
 export class SchedulerModel {
