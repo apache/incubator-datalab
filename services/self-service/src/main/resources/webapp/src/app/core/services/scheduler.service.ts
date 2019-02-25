@@ -17,9 +17,10 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-import { ApplicationServiceFacade } from '.';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util/';
 
 @Injectable()
@@ -30,31 +31,35 @@ export class SchedulerService {
     const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
     return this.applicationServiceFacade
       .buildGetExploratorySchedule(param)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public setExploratorySchedule(notebook, data, resource?): Observable<{}> {
     const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
     return this.applicationServiceFacade
       .buildSetExploratorySchedule(param, data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public resetScheduleSettings(notebook, resource?): Observable<{}> {
     const url = resource ? `/${notebook}/${resource}` : `/${notebook}`;
     return this.applicationServiceFacade
       .buildResetScheduleSettings(JSON.stringify(url))
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getActiveSchcedulersData(offset: number): Observable<{}> {
     const param = `/active?minuteOffset=${offset}`;
     return this.applicationServiceFacade
       .BuildGetActiveSchcedulersData(param)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }

@@ -16,11 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
-import { ISubscription } from 'rxjs/Subscription';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import { SubscriptionLike as ISubscription } from 'rxjs';
 
-import { EnvironmentStatusModel } from './environment-status.model';
+import { EnvironmentStatusModel, GeneralEnvironmentStatus } from './environment-status.model';
 import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
 import { HTTP_STATUS_CODES } from '../core/util';
 
@@ -34,7 +34,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
   private subscription: ISubscription;
 
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
-  healthStatus: string;
+  healthStatus: GeneralEnvironmentStatus;
   anyEnvInProgress: boolean = false;
   notebookInProgress: boolean = false;
   usersList: Array<string> = [];
@@ -53,11 +53,8 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
     private userResourceService: UserResourceService,
     private userAccessKeyService: UserAccessKeyService,
     private rolesService: RolesGroupsService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
-  ) {
-    this.toastr.setRootViewContainerRef(vcr);
-  }
+    public toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.buildGrid();
@@ -104,7 +101,7 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
     this.getActiveUsersList().subscribe(usersList => {
       this.getTotalBudgetData().subscribe(total => this.manageEnvironmentDialog.open({ isFooter: false }, usersList, total));
     },
-    () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
+    () => this.toastr.error('Failed users list loading!', 'Oops!'));
   }
 
   openSsnMonitorDialog() {
@@ -116,15 +113,15 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
     this.rolesService.getGroupsData().subscribe(group => {
         this.rolesService.getRolesData().subscribe(
           roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
-          error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+          error => this.toastr.error(error.message, 'Oops!'));
       },
-      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   getGroupsData() {
     this.rolesService.getGroupsData().subscribe(
       list => this.rolesGroupsDialog.updateGroupData(list),
-      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   manageEnvironment(event: {action: string, user: string}) {
@@ -133,11 +130,11 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
             this.manageEnvironmentDialog.usersList = usersList;
-            this.toastr.success(`Action ${ event.action } is processing!`, 'Processing!', { toastLife: 5000 });
+            this.toastr.success(`Action ${ event.action } is processing!`, 'Processing!');
             this.buildGrid();
           });
         },
-      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   setBudgetLimits($event) {
@@ -145,38 +142,38 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
       this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
         result.status === HTTP_STATUS_CODES.OK
         && res.status === HTTP_STATUS_CODES.NO_CONTENT
-        && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
+        && this.toastr.success('Budget limits updated!', 'Success!');
         this.buildGrid();
       });
-    }, error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+    }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
   manageRolesGroups($event) {
     switch ($event.action) {
       case 'create':
         this.rolesService.setupNewGroup($event.value).subscribe(res => {
-          this.toastr.success('Group creation success!', 'Created!', { toastLife: 5000 });
+          this.toastr.success('Group creation success!', 'Created!');
           this.getGroupsData();
-        }, () => this.toastr.error('Group creation failed!', 'Oops!', { toastLife: 5000 }));
+        }, () => this.toastr.error('Group creation failed!', 'Oops!'));
         break;
       case 'update':
         this.rolesService.updateGroup($event.value).subscribe(res => {
-          this.toastr.success('Group data successfully updated!', 'Success!', { toastLife: 5000 });
+          this.toastr.success('Group data successfully updated!', 'Success!');
           this.getGroupsData();
-        }, () => this.toastr.error('Failed group data updating!', 'Oops!', { toastLife: 5000 }));
+        }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
         break;
       case 'delete':
         if ($event.type === 'users') {
           this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
-            this.toastr.success('Users was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.toastr.success('Users was successfully deleted!', 'Success!');
             this.getGroupsData();
-          }, () => this.toastr.error('Failed users deleting!', 'Oops!', { toastLife: 5000 }));
+          }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
         } else if ($event.type === 'group') {
           console.log('delete group');
           this.rolesService.removeGroupById($event.value).subscribe(res => {
-            this.toastr.success('Group was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.toastr.success('Group was successfully deleted!', 'Success!');
             this.getGroupsData();
-          }, () => this.toastr.error('Failed group deleting!', 'Oops!', { toastLife: 5000 }));
+          }, () => this.toastr.error('Failed group deleting!', 'Oops!'));
         }
         break;
       default:
@@ -186,9 +183,10 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
   createBackup($event) {
     this.backupService.createBackup($event).subscribe(result => {
       this.getBackupStatus(result);
-      this.toastr.success('Backup configuration is processing!', 'Processing!', { toastLife: 5000 });
+      this.toastr.success('Backup configuration is processing!', 'Processing!');
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
-    });
+    },
+    error => this.toastr.error(error.message, 'Oops!'));
   }
 
   getExploratoryList() {
@@ -211,18 +209,18 @@ export class HealthStatusComponent implements OnInit, OnDestroy {
   }
 
   private getBackupStatus(result) {
-    const uuid = result.text();
+    const uuid = result.body;
     this.backupService.getBackupStatus(uuid)
         .subscribe((backupStatus: any) => {
         if (!this.creatingBackup) {
           backupStatus.status === 'FAILED'
-          ? this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 })
-          : this.toastr.success('Backup configuration completed!', 'Success!', { toastLife: 5000 });
+          ? this.toastr.error('Backup configuration failed!', 'Oops!')
+          : this.toastr.success('Backup configuration completed!', 'Success!');
           clearInterval(this.clear);
         }
     }, error => {
       clearInterval(this.clear);
-      this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 });
+      this.toastr.error('Backup configuration failed!', 'Oops!');
     });
   }
 

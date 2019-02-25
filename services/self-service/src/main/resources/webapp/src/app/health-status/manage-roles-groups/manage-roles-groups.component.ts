@@ -123,7 +123,7 @@ export class ManageRolesGroupsComponent implements OnInit {
 
   public groupValidarion(): ValidatorFn {
 
-    const duplicateList = this.groupsData.map(item => item.group);
+    const duplicateList: any = this.groupsData.map(item => item.group);
     return <ValidatorFn>((control: FormControl) => {
       if (control.value && duplicateList.includes(this.delimitersFiltering(control.value)))
         return { duplicate: true };

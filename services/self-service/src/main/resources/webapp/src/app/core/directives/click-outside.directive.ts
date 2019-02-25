@@ -16,11 +16,14 @@ limitations under the License.
 
 ****************************************************************************/
 
+
+import {fromEvent as observableFromEvent,  Observable } from 'rxjs';
+
+import {tap, delay} from 'rxjs/operators';
 import { Directive, OnInit, OnDestroy, Output, EventEmitter, ElementRef } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/delay';
-import 'rxjs/add/operator/do';
+
+
+
 
 @Directive({
   selector: '[clickOutside]'
@@ -39,12 +42,11 @@ export class ClickOutsideDirective implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.globalClick = Observable
-      .fromEvent(document, 'click')
-      .delay(1)
-      .do(() => {
+    this.globalClick = observableFromEvent(document, 'click').pipe(
+      delay(1),
+      tap(() => {
         this.listening = true;
-      }).subscribe(($event: MouseEvent) => {
+      }),).subscribe(($event: MouseEvent) => {
         this.onGlobalClick($event);
       });
   }

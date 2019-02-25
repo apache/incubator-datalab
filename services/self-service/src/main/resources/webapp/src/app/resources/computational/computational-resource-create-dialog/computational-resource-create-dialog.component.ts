@@ -16,11 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 
-import { ComputationalResourceCreateModel } from '.';
+import { ComputationalResourceCreateModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
 
@@ -72,11 +72,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
     private ref: ChangeDetectorRef,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -217,12 +215,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
             this.buildGrid.emit();
           }
         },
-        error => {
-          this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!', { toastLife: 5000 });
-        },
-        () => {
-          this.template_description = this.model.selectedItem.description;
-        },
+        error => this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!'),
+        () => this.template_description = this.model.selectedItem.description,
         () => {
           this.bindDialog.open(params);
           this.ref.detectChanges();
@@ -358,7 +352,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private filterShapes(): void {
     if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
       || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
-      const allowed = ['GPU optimized'];
+      const allowed: any = ['GPU optimized'];
       const filtered = Object.keys(this.model.selectedImage.shapes.resourcesShapeTypes)
         .filter(key => allowed.includes(key))
         .reduce((obj, key) => {

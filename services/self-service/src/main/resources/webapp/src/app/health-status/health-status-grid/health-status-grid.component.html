@@ -60,9 +60,9 @@ limitations under the License.
   </tr>
 </table>
 
-<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
+<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid()"></confirmation-dialog>
 
 <key-upload-dialog #keyReuploadDialog [primaryUploading]="false"
-      (checkInfrastructureCreationProgress)="buildGrid($event)"
-      (generateUserKey)="generateUserKey($event)">
+      (checkInfrastructureCreationProgress)="buildGrid()"
+      (generateUserKey)="generateUserKey()">
 </key-upload-dialog>

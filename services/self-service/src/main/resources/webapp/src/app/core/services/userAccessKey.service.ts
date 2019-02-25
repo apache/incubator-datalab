@@ -17,10 +17,10 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-import { ApplicationServiceFacade } from '.';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
 
 @Injectable()
@@ -46,10 +46,11 @@ export class UserAccessKeyService {
     console.log('checkUserAccessKey');
     return this.applicationServiceFacade
       .buildCheckUserAccessKeyRequest()
-      .map(response => {
-        return response;
-      })
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => {
+          return response;
+        }),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public emitActionOnKeyUploadComplete() {
@@ -59,31 +60,35 @@ export class UserAccessKeyService {
   public generateAccessKey(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGenerateAccessKey()
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public regenerateAccessKey(): Observable<{}> {
     const param = '?is_primary_uploading=false';
     return this.applicationServiceFacade
       .buildRegenerateAccessKey(param)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public uploadUserAccessKey(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildUploadUserAccessKeyRequest(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public reuploadUserAccessKey(data): Observable<{}> {
     const param = '?is_primary_uploading=false';
     return this.applicationServiceFacade
       .buildReuploadUserAccessKeyRequest(data, param)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public resetUserAccessKey() {

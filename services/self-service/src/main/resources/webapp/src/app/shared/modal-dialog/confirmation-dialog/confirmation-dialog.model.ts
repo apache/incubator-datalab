@@ -17,15 +17,15 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 
 export class ConfirmationDialogModel {
   public title: string;
-  private notebook: any;
-  private confirmAction: Function;
+  public notebook: any;
+  public confirmAction: Function;
   private manageAction: Function;
   private userResourceService: UserResourceService;
   private healthStatusService: HealthStatusService;

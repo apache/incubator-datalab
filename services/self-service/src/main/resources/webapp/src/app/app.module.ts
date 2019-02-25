@@ -21,7 +21,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { HttpModule, Http, XHRBackend, RequestOptions } from '@angular/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
@@ -34,19 +34,24 @@ import { NotFoundModule } from './not-found/not-found.module';
 import { AccessDeniedModule } from './access-denied/access-denied.module';
 import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
-import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
+import { HttpTokenInterceptor } from './core/interceptors/http.token.interceptor';
+import { NoCacheInterceptor } from './core/interceptors/nocache.interceptor';
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+
 import { ReportingModule } from './reporting/reporting.module';
 import { ManagenementModule } from './management';
 
 import { CoreModule } from './core/core.module';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpModule,
+    HttpClientModule,
     LoginModule,
     NavbarModule,
     ResourcesModule,
@@ -58,17 +63,27 @@ import { CoreModule } from './core/core.module';
     ManagenementModule,
     RouterModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
-    CoreModule.forRoot()
+    CoreModule.forRoot(),
+    ToastrModule.forRoot({
+      timeOut: 10000
+    })
   ],
   providers: [{
       provide: LocationStrategy,
       useClass: HashLocationStrategy,
       useValue: '/'
     }, {
-      provide: Http,
-      useFactory: LogInterceptorFactory,
-      deps: [XHRBackend, RequestOptions, Router]
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpTokenInterceptor,
+      multi: true
+    }, {
+      provide: HTTP_INTERCEPTORS,
+      useClass: NoCacheInterceptor,
+      multi: true,
+    }, {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true,
     }
   ],
   bootstrap: [AppComponent]

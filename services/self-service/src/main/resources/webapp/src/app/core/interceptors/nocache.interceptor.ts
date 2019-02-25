@@ -16,42 +16,27 @@ limitations under the License.
 
 ****************************************************************************/
 
-.no-access-page {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #f5f5f5;
-  color: #8c8888;
-  z-index: -1;
-  .content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    max-width: 560px;
-    max-height: 360px;
-    margin: auto;
+import { Injectable } from '@angular/core';
+import {
+    HttpInterceptor,
+    HttpRequest,
+    HttpHandler,
+    HttpEvent
+} from '@angular/common/http';
+
+import { Observable } from 'rxjs';
+
+@Injectable()
+export class NoCacheInterceptor implements HttpInterceptor {
+  private addNoCacheToUrl(url: string) {
+    const separator = url.indexOf('?') === -1 ? '?' : '&';
+    const returnUrl = url + separator + 'noCache=' + new Date().getTime();
+
+    return returnUrl;
   }
-  .logo {
-    display: block;
-    img {
-      width: 100%;
-    }
-  }
-  .message-block {
-    width: 300px;
-    margin: 0 auto;
-    text-align: center;
-    a {
-      text-decoration: none;
-      color: #36afd5;
-      transition: all .35s ease-in-out;
-      &:hover, &:active {
-        color: #3392b0;
-      }
-    }
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const apiReq = req.clone({ url: this.addNoCacheToUrl(req.url) });
+    return next.handle(apiReq);
   }
 }

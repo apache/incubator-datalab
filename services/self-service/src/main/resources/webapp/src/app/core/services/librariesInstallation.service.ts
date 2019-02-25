@@ -17,13 +17,11 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
 import { ErrorUtils } from '../util';
-
-import { ApplicationServiceFacade } from '.';
-
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 
 @Injectable()
 export class LibrariesInstallationService {
@@ -35,15 +33,17 @@ export class LibrariesInstallationService {
 
     return this.applicationServiceFacade
       .buildGetGroupsList(body)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getAvailableLibrariesList(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetAvailableLibrariesList(data)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getAvailableDependencies(data): Observable<{}> {
@@ -51,15 +51,17 @@ export class LibrariesInstallationService {
 
     return this.applicationServiceFacade
       .buildGetAvailableDependenciest(body)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public installLibraries(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildInstallLibraries(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getInstalledLibrariesList(exploratory): Observable<{}> {
@@ -67,8 +69,9 @@ export class LibrariesInstallationService {
 
     return this.applicationServiceFacade
       .buildGetInstalledLibrariesList(body)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getInstalledLibsByResource(exploratory, computational?): Observable<{}> {
@@ -77,7 +80,8 @@ export class LibrariesInstallationService {
 
     return this.applicationServiceFacade
       .buildGetInstalledLibsByResource(body)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }

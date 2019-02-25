@@ -61,7 +61,8 @@ table {
 
 ::-webkit-file-upload-button {
   -webkit-appearance: button;
-  font: inherit;
+  // font: inherit;
+  font-family: inherit;
 }
 
 [type="search"]::-webkit-search-cancel-button,
