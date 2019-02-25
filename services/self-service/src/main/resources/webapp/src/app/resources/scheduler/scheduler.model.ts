@@ -65,7 +65,7 @@ export class SchedulerModel {
   }
 
   public setInactivityTime(params) {
-    let [notebook, data, resource] = params;
+    const [notebook, data, resource] = params;
     return this.scheduleInstance(notebook, data, resource);
   }
 

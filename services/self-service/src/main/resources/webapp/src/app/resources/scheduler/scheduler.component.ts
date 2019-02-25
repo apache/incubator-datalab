@@ -55,7 +55,7 @@ export class SchedulerComponent implements OnInit {
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
 
-  public inactivityLimits = { min: 10, max: 10080 };
+  public inactivityLimits = { min: 120, max: 10080 };
 
 
   public idleImplemented: boolean = true;
@@ -235,9 +235,9 @@ export class SchedulerComponent implements OnInit {
           this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
           this.formInit(params.begin_date, params.finish_date);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity);
-
           this.enableIdleTime = params.check_inactivity_required;
-          this.toggleSchedule({checked: true});
+
+          this.enableIdleTime && params.max_inactivity ? this.toggleIdleTimes({checked: true}) : this.toggleSchedule({checked: true});
         }
       },
       error => this.resetDialog());
@@ -251,7 +251,9 @@ export class SchedulerComponent implements OnInit {
   private validInactivityRange(control) {
     if (control)
       return this.enableIdleTime
-          ? (control.value && control.value >= this.inactivityLimits.min && control.value <= this.inactivityLimits.max ? null : { valid: false })
+          ? (control.value
+            && control.value >= this.inactivityLimits.min
+            && control.value <= this.inactivityLimits.max ? null : { valid: false })
           : control.value;
   }
 
