@@ -236,11 +236,7 @@ export class SchedulerComponent implements OnInit {
           this.toggleSchedule({checked: true});
         }
       },
-      error => {
-        this.toastr.info(error.message || 'Scheduler job data not found!', null);
-        this.resetDialog();
-      }
-    );
+      error => this.resetDialog());
   }
 
   private checkParentInherit() {
