@@ -334,7 +334,7 @@ def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
             maven_version = '3.5.4'
-            sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make')
+            sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make expect')
             with cd('/opt/'):
                 if os.environ['local_repository_enabled'] == 'True':
                     sudo('wget {0}/apache-maven-{1}-bin.zip'.format(
@@ -366,11 +366,21 @@ def install_build_dep():
                     sudo('./deps/npm/bin/npm-cli.js config set sass_binary_path /opt/node/linux-x64-57_binding.node')
                     sudo('./deps/npm/bin/npm-cli.js config set registry {0}/'.format(
                          os.environ['local_repository_npm_repo']))
+                    if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
+                        put('/root/files/npm_login', '/tmp/npm_login')
+
+                        sudo('expect -f /tmp/npm_login {0} {1} {2} "{3}"'.format("./deps/npm/bin/npm-cli.js",
+                             os.environ['local_repository_user_name'], os.environ['local_repository_user_password'],
+                             'example@example.com'))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
                     sudo('npm config set strict-ssl false')
                     sudo('npm config set registry {0}/'.format(
                          os.environ['local_repository_npm_repo']))
+                    if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
+                        sudo('expect -f /tmp/npm_login {0} {1} {2} "{3}"'.format('npm',
+                            os.environ['local_repository_user_name'], os.environ['local_repository_user_password'],
+                            'example@example.com'))
                     sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
             else:
                 sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')

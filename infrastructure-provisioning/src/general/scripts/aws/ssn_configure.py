@@ -58,6 +58,18 @@ if __name__ == "__main__":
         billing_enabled = True
         dlab_ssh_user = os.environ['conf_os_user']
         network_type = os.environ['conf_network_type']
+        if os.environ['local_repository_enabled'] == 'True' and 'local_repository_user_name' \
+                in os.environ and 'local_repository_user_password' in os.environ:
+            basic_auth_repos = ('apt_bintray_repo', 'apt_ubuntu_security_repo', 'apt_ubuntu_repo', 'docker_repo',
+                                'jenkins_repo', 'maven_bintray_repo', 'maven_central_repo', 'mongo_repo', 'pypi_repo',
+                                'packages_repo', 'r_repo', 'rrutter_repo')
+            for repo in basic_auth_repos:
+                os.environ['local_repository_{}'.format(repo)] = os.environ['local_repository_{}'.format(
+                    repo)].replace('{}://'.format(os.environ['local_repository_{}'.format(repo)].split(':')[0]),
+                                   '{0}://{1}:{2}@'.format(os.environ['local_repository_{}'.format(repo)].split(':')[0],
+                                                           os.environ['local_repository_user_name'],
+                                                           os.environ['local_repository_user_password']))
+
         if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and \
                 'ssn_subdomain' in os.environ:
             domain_created = True

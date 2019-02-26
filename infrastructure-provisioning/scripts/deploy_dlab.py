@@ -121,6 +121,8 @@ parser.add_argument('--ldap_service_password', type=str, default='service-user-p
 parser.add_argument('--local_repository_enabled', type=str, default='False', help='True - to use local repository. '
                                                                                   'Otherwise - False')
 parser.add_argument('--local_repository_host', type=str, default='', help='IP address or DNS name of repository')
+parser.add_argument('--local_repository_user_name', type=str, default='', help='Name of repository user')
+parser.add_argument('--local_repository_user_password', type=str, default='', help='Password of repository user')
 parser.add_argument('--local_repository_cert_path', type=str, default='', help='Full path to cert')
 parser.add_argument('--local_repository_parent_proxy_host', type=str, default='', help='IP address or DNS name of '
                                                                                        'parent proxy')
