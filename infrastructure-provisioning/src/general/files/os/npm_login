@@ -17,5 +17,4 @@ send "$p4\r"
 
 expect {
    timeout      exit 1
-   eof
 }
