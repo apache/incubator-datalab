@@ -57,9 +57,6 @@ export class SchedulerComponent implements OnInit {
 
   public inactivityLimits = { min: 120, max: 10080 };
 
-
-  public idleImplemented: boolean = true;
-
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
@@ -146,9 +143,7 @@ export class SchedulerComponent implements OnInit {
     if (!this.enableSchedule)
       this.model
         .resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null)
-        .subscribe(res => {
-          this.resetDialog();
-        });
+        .subscribe(() => this.resetDialog());
   }
 
   public toggleIdleTimes($event) {
@@ -234,13 +229,15 @@ export class SchedulerComponent implements OnInit {
           this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
           this.formInit(params.begin_date, params.finish_date);
-          this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity);
+          this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
 
           this.enableIdleTime && params.max_inactivity ? this.toggleIdleTimes({checked: true}) : this.toggleSchedule({checked: true});
         }
       },
-      error => this.resetDialog());
+      error => {
+        this.resetDialog();
+      });
   }
 
   private checkParentInherit() {
@@ -288,5 +285,8 @@ export class SchedulerComponent implements OnInit {
     this.tzOffset = _moment().format('Z');
     this.startTime = this.convertTimeFormat('09:00');
     this.endTime = this.convertTimeFormat('20:00');
+
+    this.schedulerForm.get('startDate').disable();
+    this.schedulerForm.get('finishDate').disable();
   }
 }

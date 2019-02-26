@@ -17,14 +17,28 @@ limitations under the License.
 ****************************************************************************/
 
 .scheduler-dialog {
+  .mat-form-field-appearance-legacy {
+    .mat-form-field-label {
+      font-family: 'Open Sans', sans-serif !important;
+      font-size: 13px;
+    }
+  }
   .mat-select-value {
     color: #758da9;
+  }
+  .mat-select-disabled {
+    .mat-select-value {
+      color: #9e9e9e;
+    }
   }
   .mat-form-field-flex {
     width: 160px;
   }
   .mat-select-trigger {
     width: 180px;
+  }
+  .content-box {
+    overflow: hidden;
   }
   .enable-schedule {
     display: flex;
@@ -46,7 +60,7 @@ limitations under the License.
     opacity: 0;
     visibility: hidden;
     text-align: left;
-    transition: all .35s linear .2s;
+    transition: height .35s linear .2s;
     padding-bottom: 0;
     &.show {
       height: 30px;
