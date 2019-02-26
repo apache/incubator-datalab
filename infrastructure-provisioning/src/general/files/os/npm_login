@@ -3,7 +3,7 @@
 set i 0; foreach n $argv {set "p[incr i]" $n}
 
 set timeout 60
-eval spawn $p1
+eval spawn $p1 login
 match_max 100000
 
 expect "Username"
