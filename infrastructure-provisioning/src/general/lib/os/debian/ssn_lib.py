@@ -371,7 +371,7 @@ def install_build_dep():
 
                         sudo('expect -f /tmp/npm_login {0} {1} {2} "{3}"'.format("./deps/npm/bin/npm-cli.js",
                              os.environ['local_repository_user_name'], os.environ['local_repository_user_password'],
-                             'example@example.com'))
+                             'dlab-nexus@example.org'))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
                     sudo('npm config set strict-ssl false')
@@ -379,8 +379,8 @@ def install_build_dep():
                          os.environ['local_repository_npm_repo']))
                     if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
                         sudo('expect -f /tmp/npm_login {0} {1} {2} "{3}"'.format('npm',
-                            os.environ['local_repository_user_name'], os.environ['local_repository_user_password'],
-                            'example@example.com'))
+                             os.environ['local_repository_user_name'], os.environ['local_repository_user_password'],
+                            'dlab-nexus@example.org'))
                     sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
             else:
                 sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')

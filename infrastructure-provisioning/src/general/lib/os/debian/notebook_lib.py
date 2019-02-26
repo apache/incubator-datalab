@@ -445,7 +445,7 @@ def install_nodejs(os_user):
                                                                              os.environ['local_repository_user_name'],
                                                                              os.environ[
                                                                                  'local_repository_user_password'],
-                                                                             'example@example.com'))
+                                                                             'dlab-nexus@example.org'))
                 sudo('./deps/npm/bin/npm-cli.js install npm')
                 sudo('cp deps/npm/bin/npm /opt/node/')
                 sudo('npm config set strict-ssl false')
@@ -456,7 +456,7 @@ def install_nodejs(os_user):
                                                                              os.environ['local_repository_user_name'],
                                                                              os.environ[
                                                                                  'local_repository_user_password'],
-                                                                             'example@example.com'))
+                                                                             'dlab-nexus@example.org'))
                 sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
         else:
             sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
