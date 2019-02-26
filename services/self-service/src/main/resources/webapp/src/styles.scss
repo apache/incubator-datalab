@@ -334,10 +334,11 @@ input[type='number'] {
       padding: 12px 20px;
       overflow: inherit;
       margin: 0 0 15px;
+      font-size: 14px;
       &::before {
         position: absolute;
         left: -15px;
-        top: -12px;
+        top: -15px;
         font-family: "Material Icons";
         background-color: #fff;
         width: 30px;
