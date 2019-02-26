@@ -20,7 +20,7 @@
 
 from dlab.fab import *
 from dlab.actions_lib import *
-import sys, os, json
+import sys, os, json, time
 from fabric.api import *
 from dlab.ssn_lib import *
 import traceback
@@ -363,6 +363,7 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
+            time.sleep(7200)
             traceback.print_exc()
             raise Exception
     except Exception as err:
