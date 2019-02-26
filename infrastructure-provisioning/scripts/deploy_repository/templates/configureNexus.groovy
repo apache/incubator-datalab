@@ -9,6 +9,7 @@ import org.sonatype.nexus.ldap.persist.entity.*
 import org.sonatype.nexus.scheduling.TaskScheduler
 import org.sonatype.nexus.scheduling.schedule.Daily
 import org.sonatype.nexus.scheduling.schedule.Hourly
+import org.sonatype.nexus.security.realm.RealmManager
 
 def securitySystem = container.lookup(SecuritySystem.class.name)
 def authorizationManager = securitySystem.getAuthorizationManager('default')
@@ -57,4 +58,6 @@ security.addUser("SERVICE_USER_NAME",
 
 security.securitySystem.changePassword('admin','ADMIN_PASSWORD')
 security.setAnonymousAccess(false)
+realmManager = container.lookup(RealmManager.class.getName())
+realmManager.enableRealm("NpmToken", true)
 log.info('Script completed successfully')
