@@ -50,8 +50,8 @@ limitations under the License.
             </span>
           </div>
         </div>
-
-        <div class="schedule-by-time" *ngIf="!enableIdleTime" [ngClass]="{ hide: enableIdleTime }">
+        <!-- *ngIf="!enableIdleTime" -->
+        <div class="schedule-by-time" [ngClass]="{ hide: enableIdleTime }">
           <div class="row-wrap">
             <div class="col-3">
               <mat-form-field>
@@ -110,14 +110,21 @@ limitations under the License.
               </mat-button-toggle>
             </div>
           </div>
-          <div class="inherit" *ngIf="destination">
+          <div class="options" *ngIf="destination">
             <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
               <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
-                <span>Start all spark clusters associated with current notebook <br /> based on notebook start schedule</span>
+                <span>Start all spark clusters associated with current notebook based on notebook start schedule</span>
               </span>
               <ng-template #resourcePropagation>
                 <span class="hold-label">Inherit notebook schedule settings</span>
               </ng-template>
+            </mat-slide-toggle>
+          </div>
+          <div class="options" *ngIf="destination.type === 'EXPLORATORY'">
+            <mat-slide-toggle labelPosition="after" [checked]="considerInactivity" (change)="considerInactivity = !considerInactivity">
+              <span class="hold-label">
+                <span>Use even some jobs are ran on computational resources</span>
+              </span>
             </mat-slide-toggle>
           </div>
         </div>

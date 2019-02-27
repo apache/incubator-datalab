@@ -45,6 +45,7 @@ export class SchedulerComponent implements OnInit {
   public parentInherit: boolean = false;
   public enableSchedule: boolean = false;
   public enableIdleTime: boolean = false;
+  public considerInactivity: boolean = false;
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -190,9 +191,12 @@ export class SchedulerComponent implements OnInit {
         check_inactivity_required: this.enableIdleTime
       };
 
-      (this.destination.type === 'СOMPUTATIONAL')
-        ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
-        : this.model.confirmAction(this.notebook.name, parameters);
+      if (this.destination.type === 'СOMPUTATIONAL') {
+        this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name);
+      } else {
+        parameters['consider_inactivity'] = this.considerInactivity;
+        this.model.confirmAction(this.notebook.name, parameters);
+      }
     } else {
       const data = { check_inactivity_required: true, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
 
