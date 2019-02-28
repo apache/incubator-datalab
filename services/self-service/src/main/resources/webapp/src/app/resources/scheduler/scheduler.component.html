@@ -50,8 +50,7 @@ limitations under the License.
             </span>
           </div>
         </div>
-        <!-- *ngIf="!enableIdleTime" -->
-        <div class="schedule-by-time" [ngClass]="{ hide: enableIdleTime }">
+        <div class="schedule-by-time" *ngIf="!enableIdleTime" [ngClass]="{ hide: enableIdleTime }">
           <div class="row-wrap">
             <div class="col-3">
               <mat-form-field>
@@ -91,7 +90,7 @@ limitations under the License.
             <div *ngIf="timeReqiered" class="danger_color m-bott-10"><span>At least one of time range fields should be selected</span></div>
             
           </div>
-          <div class="control-group">
+          <div class="control-group" *ngIf="destination">
             <label class="label repeat" for="options">Repeat on :</label>
             <div class="days-block">
               <label>Start date:</label>
@@ -110,7 +109,7 @@ limitations under the License.
               </mat-button-toggle>
             </div>
           </div>
-          <div class="options" *ngIf="destination">
+          <div class="options" *ngIf="destination && allowInheritView">
             <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
               <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
                 <span>Start all spark clusters associated with current notebook based on notebook start schedule</span>
@@ -121,7 +120,7 @@ limitations under the License.
             </mat-slide-toggle>
           </div>
           <div class="options" *ngIf="destination.type === 'EXPLORATORY'">
-            <mat-slide-toggle labelPosition="after" [checked]="considerInactivity" (change)="considerInactivity = !considerInactivity">
+            <mat-slide-toggle labelPosition="after" [checked]="considerInactivity" [disabled]="!enableSchedule" (change)="considerInactivity = !considerInactivity">
               <span class="hold-label">
                 <span>Use even some jobs are ran on computational resources</span>
               </span>

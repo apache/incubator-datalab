@@ -42,6 +42,7 @@ export class SchedulerComponent implements OnInit {
   public infoMessage: boolean = false;
   public timeReqiered: boolean = false;
   public inherit: boolean = false;
+  public allowInheritView: boolean = false;
   public parentInherit: boolean = false;
   public enableSchedule: boolean = false;
   public enableIdleTime: boolean = false;
@@ -99,12 +100,16 @@ export class SchedulerComponent implements OnInit {
           this.destination.type = type;
           this.selectedStartWeekDays.setDegault();
           this.selectedStopWeekDays.setDegault();
+          this.allowInheritView = false;
 
-          (this.destination.type === 'СOMPUTATIONAL')
-            ? this.getExploratorySchedule(this.notebook.name, this.destination.computational_name)
-            : this.getExploratorySchedule(this.notebook.name);
-
-          if (this.destination.type === 'СOMPUTATIONAL') this.checkParentInherit();
+          if (this.destination.type === 'СOMPUTATIONAL') {
+            this.allowInheritView = true;
+            this.getExploratorySchedule(this.notebook.name, this.destination.computational_name);
+            this.checkParentInherit();
+          } else if (this.destination.type === 'EXPLORATORY') {
+            this.allowInheritView = this.checkIsActiveSpark();
+            this.getExploratorySchedule(this.notebook.name);
+          }
           this.bindDialog.open(param);
         },
         this.schedulerService
@@ -133,6 +138,7 @@ export class SchedulerComponent implements OnInit {
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
     this.timeReqiered = false;
+    this.allowInheritView = this.destination.type === 'СOMPUTATIONAL' || this.checkIsActiveSpark();
 
     this.enableSchedule && this.enableIdleTime && this.toggleIdleTimes({checked: false});
     (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
@@ -150,6 +156,7 @@ export class SchedulerComponent implements OnInit {
   public toggleIdleTimes($event) {
     this.enableIdleTime = $event.checked;
     this.enableIdleTime && this.enableSchedule && this.toggleSchedule({checked: false});
+    this.allowInheritView = false;
 
     if (!this.enableIdleTime) {
       this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
@@ -214,7 +221,7 @@ export class SchedulerComponent implements OnInit {
     this.resetDialog();
   }
 
-  private formInit(start?, end?) {
+  private formInit(start?: string, end?: string) {
     this.schedulerForm = this.formBuilder.group({
       startDate: { disabled: this.inherit, value: start ? _moment(start).format() : null },
       finishDate: { disabled: false, value: end ? _moment(end).format() : null },
@@ -281,11 +288,17 @@ export class SchedulerComponent implements OnInit {
     return result;
   }
 
+  private checkIsActiveSpark() {
+    return this.notebook.resources.length > 0 && this.notebook.resources.some(el => el.image === 'docker.dlab-dataengine'
+      && (el.status !== 'terminated' && el.status !== 'terminating' && el.status !== 'failed'));
+  }
+
   private resetDialog() {
     this.infoMessage = false;
     this.timeReqiered = false;
     this.inherit = false;
     this.enableSchedule = false;
+    this.considerInactivity = false;
     this.tzOffset = _moment().format('Z');
     this.startTime = this.convertTimeFormat('09:00');
     this.endTime = this.convertTimeFormat('20:00');
