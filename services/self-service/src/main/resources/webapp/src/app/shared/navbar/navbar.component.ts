@@ -48,7 +48,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
   currentUserName: string;
-  quotesLimit: number;
+  quotesLimit: number = 70;
   isLoggedIn: boolean = false;
 
   healthStatus: GeneralEnvironmentStatus;
@@ -125,8 +125,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userAccessKeyService.generateAccessKey().subscribe(
       data => {
         FileUtils.downloadFile(data);
-      }, error => {
         this.userAccessKeyService.initialUserAccessKeyCheck();
+      }, error => {
         this.toastr.error(error.message || 'Access key generation failed!', 'Oops!');
       });
   }
