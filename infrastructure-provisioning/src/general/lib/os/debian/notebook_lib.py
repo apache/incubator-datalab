@@ -440,11 +440,10 @@ def install_nodejs(os_user):
                      os.environ['local_repository_npm_repo']))
                 if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
                     auth_token = sudo('curl -s -H "Accept: application/json" -H "Content-Type:application/json" -X '
-                                      'PUT --data \'{"name": "{0}", "password": "{1}"}\' '
-                                      '{2}/-/user/org.couchdb.user:{0} | jq -r ".token"'.format(
-                        os.environ['local_repository_user_name'],
-                        os.environ['local_repository_user_password'],
-                        os.environ['local_repository_npm_repo']))
+                                      'PUT --data \'{"name": "' + os.environ['local_repository_user_name'] +
+                                      '", "password": "' + os.environ['local_repository_user_password'] + '"}\' ' +
+                                      os.environ['local_repository_npm_repo'] + '/-/user/org.couchdb.user:' +
+                                      os.environ['local_repository_user_name'] + ' | jq -r ".token"')
                     sudo('echo "{0}/:_authToken={1}" >> ~/.npmrc'.format(
                         os.environ['local_repository_npm_repo'].split(':')[1], auth_token))
                 sudo('./deps/npm/bin/npm-cli.js install npm')
