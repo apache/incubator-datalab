@@ -343,6 +343,19 @@ def install_build_dep():
                     put('templates/settings.xml', '/tmp/settings.xml')
                     sudo('sed -i "s|REPOSITORY_MAVEN_REPO|{}|g" /tmp/settings.xml'.format(
                         os.environ['local_repository_maven_central_repo']))
+                    if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
+                        sudo('sed -i "$ d" /tmp/settings.xml')
+                        sudo('echo "<servers>" >> /tmp/settings.xml')
+                        sudo('echo "<server>" >> /tmp/settings.xml')
+                        sudo('echo "<id>dlab-repo</id>" >> /tmp/settings.xml')
+                        sudo('echo "<username>{}</username>" >> /tmp/settings.xml'.format(
+                            os.environ['local_repository_user_name']))
+                        sudo('echo "<password>{}</password>" >> /tmp/settings.xml'.format(
+                            os.environ['local_repository_user_password']
+                        ))
+                        sudo('echo "</server>" >> /tmp/settings.xml')
+                        sudo('echo "</servers>" >> /tmp/settings.xml')
+                        sudo('echo "</settings>" >> /tmp/settings.xml')
                     sudo('cp -f /tmp/settings.xml apache-maven-{}/conf/'.format(maven_version))
                 else:
                     sudo(

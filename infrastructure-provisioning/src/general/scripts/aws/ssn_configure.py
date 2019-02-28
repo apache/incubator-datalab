@@ -61,7 +61,7 @@ if __name__ == "__main__":
         if os.environ['local_repository_enabled'] == 'True' and 'local_repository_user_name' \
                 in os.environ and 'local_repository_user_password' in os.environ:
             basic_auth_repos = ('apt_bintray_repo', 'apt_ubuntu_security_repo', 'apt_ubuntu_repo', 'docker_repo',
-                                'jenkins_repo', 'maven_bintray_repo', 'maven_central_repo', 'mongo_repo', 'pypi_repo',
+                                'jenkins_repo', 'maven_bintray_repo', 'mongo_repo', 'pypi_repo',
                                 'packages_repo', 'r_repo', 'rrutter_repo')
             for repo in basic_auth_repos:
                 os.environ['local_repository_{}'.format(repo)] = os.environ['local_repository_{}'.format(
