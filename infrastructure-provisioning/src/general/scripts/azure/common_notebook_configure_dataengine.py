@@ -82,11 +82,12 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        params = "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --datalake_enabled {}".\
+        params = "--cluster_name {0} --spark_version {1} --hadoop_version {2} --os_user {3} --spark_master {4}" \
+                 " --keyfile {5} --notebook_ip {6} --datalake_enabled {7} --spark_master_ip {8}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    notebook_config['spark_master_url'], notebook_config['key_path'], notebook_config['notebook_ip'],
-                   os.environ['azure_datalake_enable'])
+                   os.environ['azure_datalake_enable'], notebook_config['spark_master_ip'])
         try:
             local("~/scripts/{}_{}.py {}".format(os.environ['application'], 'install_dataengine_kernels', params))
         except:

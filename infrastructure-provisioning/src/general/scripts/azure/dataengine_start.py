@@ -82,11 +82,8 @@ if __name__ == "__main__":
         logging.info('[UPDATE LAST ACTIVITY TIME]')
         print('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['notebook_ip'] = AzureMeta().get_private_ip_address(data_engine['resource_group_name'], os.environ['notebook_instance_name'])
-        data_engine['computational_ip'] = AzureMeta().get_private_ip_address(data_engine['tag_name'],
-                                                                         data_engine['computational_id']).get(
-            'Private')
+        data_engine['computational_ip'] = AzureMeta().get_private_ip_address(data_engine['resource_group_name'], data_engine['computational_id'])
         data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
             .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
