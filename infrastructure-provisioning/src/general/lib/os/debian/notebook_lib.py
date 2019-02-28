@@ -448,16 +448,6 @@ def install_nodejs(os_user):
                         os.environ['local_repository_npm_repo'].split(':')[1], auth_token))
                 sudo('./deps/npm/bin/npm-cli.js install npm')
                 sudo('cp deps/npm/bin/npm /opt/node/')
-                # sudo('npm config set strict-ssl false')
-                # sudo('npm config set registry {0}/'.format(
-                #      os.environ['local_repository_npm_repo']))
-                # if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
-                #     sudo('expect -f /tmp/npm_login {0} {1} {2} "{3}"'.format('npm',
-                #                                                              os.environ['local_repository_user_name'],
-                #                                                              os.environ[
-                #                                                                  'local_repository_user_password'],
-                #                                                              'dlab-nexus@example.org'))
-                # sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
         else:
             sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
             sudo('apt-get install -y nodejs')

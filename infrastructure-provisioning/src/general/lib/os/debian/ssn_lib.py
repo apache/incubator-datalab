@@ -389,12 +389,6 @@ def install_build_dep():
                             os.environ['local_repository_npm_repo'].split(':')[1], auth_token))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
-                    # sudo('npm config set strict-ssl false')
-                    # sudo('npm config set registry {0}/'.format(
-                    #      os.environ['local_repository_npm_repo']))
-                    # if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
-                    #
-                    # sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
             else:
                 sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
                 sudo('apt-get install -y nodejs')
