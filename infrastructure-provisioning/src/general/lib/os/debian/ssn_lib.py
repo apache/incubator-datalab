@@ -334,7 +334,7 @@ def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
             maven_version = '3.5.4'
-            sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make expect')
+            sudo('apt-get install -y openjdk-8-jdk git wget unzip gcc g++ make jq')
             with cd('/opt/'):
                 if os.environ['local_repository_enabled'] == 'True':
                     sudo('wget {0}/apache-maven-{1}-bin.zip'.format(
@@ -367,21 +367,22 @@ def install_build_dep():
                     sudo('./deps/npm/bin/npm-cli.js config set registry {0}/'.format(
                          os.environ['local_repository_npm_repo']))
                     if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
-                        put('/root/files/npm_login', '/tmp/npm_login')
-
-                        sudo('expect -f /tmp/npm_login {0} {1} {2} "{3}"'.format("./deps/npm/bin/npm-cli.js",
-                             os.environ['local_repository_user_name'], os.environ['local_repository_user_password'],
-                             'dlab-nexus@example.org'))
+                        auth_token = sudo('curl -s -H "Accept: application/json" -H "Content-Type:application/json" -X '
+                                          'PUT --data \'{"name": "{0}", "password": "{1}"}\' '
+                                          '{2}/-/user/org.couchdb.user:{0} | jq -r ".token"'.format(
+                                           os.environ['local_repository_user_name'],
+                                           os.environ['local_repository_user_password'],
+                                           os.environ['local_repository_npm_repo']))
+                        sudo('echo "{0}/:_authToken={1}" >> ~/.npmrc'.format(
+                            os.environ['local_repository_npm_repo'].split(':')[1], auth_token))
                     sudo('./deps/npm/bin/npm-cli.js install npm')
                     sudo('cp deps/npm/bin/npm /opt/node/')
-                    sudo('npm config set strict-ssl false')
-                    sudo('npm config set registry {0}/'.format(
-                         os.environ['local_repository_npm_repo']))
-                    if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
-                        sudo('expect -f /tmp/npm_login {0} {1} {2} "{3}"'.format('npm',
-                             os.environ['local_repository_user_name'], os.environ['local_repository_user_password'],
-                            'dlab-nexus@example.org'))
-                    sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
+                    # sudo('npm config set strict-ssl false')
+                    # sudo('npm config set registry {0}/'.format(
+                    #      os.environ['local_repository_npm_repo']))
+                    # if 'local_repository_user_name' in os.environ and 'local_repository_user_password' in os.environ:
+                    #
+                    # sudo('npm config set sass_binary_path /opt/node/linux-x64-57_binding.node')
             else:
                 sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_8.x | bash -"')
                 sudo('apt-get install -y nodejs')
