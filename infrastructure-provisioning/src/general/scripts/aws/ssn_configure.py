@@ -363,6 +363,7 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
+            time.sleep(14400)
             traceback.print_exc()
             raise Exception
     except Exception as err:
