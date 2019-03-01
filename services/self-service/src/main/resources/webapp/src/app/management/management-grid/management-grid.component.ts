@@ -35,10 +35,11 @@ export interface ManageAction {
     '../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
   ]
 })
-export class ManagementGridComponent {
+export class ManagementGridComponent implements OnInit{
   @Input() allEnvironmentData: Array<any>;
   @Input() resources: Array<any>;
   @Input() uploadKey: boolean;
+  @Input() isAdmin: boolean;
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
@@ -47,13 +48,17 @@ export class ManagementGridComponent {
 
   constructor(public dialog: MatDialog) {}
 
+  ngOnInit() {
+
+  }
+
   buildGrid(): void {
     this.refreshGrid.emit();
   }
 
-  toggleResourceAction(environment, action, resource?) {
+  toggleResourceAction(environment, action: string, resource?) {
     if (resource) {
-      let resource_name = resource ? resource.computational_name : environment.name;
+      const resource_name = resource ? resource.computational_name : environment.name;
       const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
         data: { action, resource_name, user: environment.user },
         width: '550px'
@@ -63,7 +68,9 @@ export class ManagementGridComponent {
       });
     } else {
       if (action === 'stop') {
-        this.confirmationDialog.open({ isFooter: false }, environment, environment.name === 'edge node' ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory);
+        this.confirmationDialog.open(
+          { isFooter: false }, environment,
+          environment.name === 'edge node' ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory);
       } else if (action === 'terminate') {
         this.confirmationDialog.open({ isFooter: false }, environment, ConfirmationDialogType.TerminateExploratory);
       }
