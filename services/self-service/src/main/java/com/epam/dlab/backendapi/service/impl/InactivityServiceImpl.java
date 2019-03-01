@@ -18,7 +18,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.SystemUserInfoService;
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -33,7 +32,6 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
@@ -66,16 +64,6 @@ public class InactivityServiceImpl implements InactivityService {
 	private ExploratoryService exploratoryService;
 	@Inject
 	private SystemUserInfoService systemUserInfoService;
-
-	@Override
-	public void updateRunningResourcesLastActivity(UserInfo userInfo) {
-		List<EnvResource> resources = envDAO.findRunningResourcesForCheckInactivity();
-		if (!resources.isEmpty()) {
-			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-					userInfo.getAccessToken(), resources, String.class);
-			requestId.put(userInfo.getName(), uuid);
-		}
-	}
 
 	@Override
 	public void stopClustersByInactivity(List<String> computationalIds) {
