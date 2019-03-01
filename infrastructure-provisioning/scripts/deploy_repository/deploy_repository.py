@@ -1166,7 +1166,7 @@ def download_packages():
                 'https://pkg.jenkins.io/debian/jenkins-ci.org.key',
                 'http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                     maven_version.split('.')[0], maven_version),
-                'https://nodejs.org/dist/latest-v8.x/node-v8.15.0.tar.gz',
+                'https://nodejs.org/dist/v8.15.0/node-v8.15.0.tar.gz',
                 'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node',
                 'http://nginx.org/download/nginx-{}.tar.gz'.format(configuration['reverse_proxy_nginx_version']),
                 'http://www.scala-lang.org/files/archive/scala-{}.deb'.format(configuration['notebook_scala_version']),

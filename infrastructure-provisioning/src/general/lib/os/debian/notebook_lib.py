@@ -423,6 +423,7 @@ def install_livy_dependencies_emr(os_user):
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         if os.environ['local_repository_enabled'] == 'True':
+            sudo('apt-get -y install jq')
             sudo('wget {0}/node-v8.15.0.tar.gz'.format(
                 os.environ['local_repository_packages_repo']))
             sudo('tar zxvf node-v8.15.0.tar.gz')
