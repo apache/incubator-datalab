@@ -90,9 +90,10 @@ def build_docker_images(image_list, region, dlab_path):
         if os.environ['local_repository_enabled'] == 'True':
             update_repository(dlab_path, os.environ['local_repository_host'], region)
         if os.environ['local_repository_enabled'] == 'True':
-            sudo('mkdir -p {}sources/infrastructure-provisioning/src/base/certs'.format(args.dlab_path))
-            put('/root/certs/repository.crt', '{}sources/infrastructure-provisioning/src/base/certs/'
-                                              'repository.crt'.format(args.dlab_path), use_sudo=True)
+            if 'local_repository_cert_path' in os.environ:
+                sudo('mkdir -p {}sources/infrastructure-provisioning/src/base/certs'.format(args.dlab_path))
+                put('/root/certs/repository.crt', '{}sources/infrastructure-provisioning/src/base/certs/'
+                                                  'repository.crt'.format(args.dlab_path), use_sudo=True)
         for image in image_list:
             name = image['name']
             tag = image['tag']
