@@ -52,7 +52,7 @@ import static com.mongodb.client.model.Projections.include;
 public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
     public static final String SIZE = "size";
 
-    public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
+    public Document  getReport(UserInfo userInfo, AzureBillingFilter filter) {
 
         boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing");
         setUserFilter(userInfo, filter, isFullReport);
