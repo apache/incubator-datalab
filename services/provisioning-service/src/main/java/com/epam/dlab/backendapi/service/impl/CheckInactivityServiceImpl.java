@@ -44,6 +44,7 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 		startComputationalCallbackListener(userName, dto, uuid);
 		final RunDockerCommand dockerCommand = new RunDockerCommand()
 				.withInteractive()
+				.withRemove()
 				.withName(nameContainer(uuid, DockerAction.CHECK_INACTIVITY.toString()))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
@@ -65,6 +66,7 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 		startExploratoryCallbackListener(userName, dto, uuid);
 		final RunDockerCommand dockerCommand = new RunDockerCommand()
 				.withInteractive()
+				.withRemove()
 				.withName(nameContainer(uuid, DockerAction.CHECK_INACTIVITY.toString()))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
