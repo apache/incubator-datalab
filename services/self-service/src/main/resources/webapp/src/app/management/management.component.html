@@ -36,7 +36,14 @@ limitations under the License.
   </button>
 </div>
 
-<management-grid [isAdmin]="admin" [allEnvironmentData]="allEnvironmentData" [uploadKey]="uploadKey" (refreshGrid)="buildGrid($event)" (actionToggle)="manageEnvironmentAction($event)"></management-grid>
+<management-grid
+  [isAdmin]="admin"
+  [currentUser]="user"
+  [allEnvironmentData]="allEnvironmentData"
+  [uploadKey]="uploadKey"
+  (refreshGrid)="buildGrid($event)"
+  (actionToggle)="manageEnvironmentAction($event)">
+</management-grid>
 
 
 <dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)"></dlab-backup-dilog>

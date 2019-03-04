@@ -27,11 +27,11 @@ import {
   AppRoutingService,
   BackupService,
   UserResourceService,
-  RolesGroupsService
+  RolesGroupsService,
+  StorageService
 } from '../core/services';
 
-import { EnvironmentModel } from './management.model';
-import { GeneralEnvironmentStatus } from './management.model';
+import { EnvironmentModel, GeneralEnvironmentStatus } from './management.model';
 import { HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
@@ -41,10 +41,12 @@ import { HTTP_STATUS_CODES } from '../core/util';
 })
 export class ManagementComponent implements OnInit, OnDestroy {
   public healthStatus: string = '';
+  public user: string = '';
   public billingEnabled: boolean;
   public admin: boolean;
 
   public allEnvironmentData: Array<EnvironmentModel>;
+  public environmentsHealthStatuses: Array<any>;
   public uploadKey: boolean = true;
 
   public anyEnvInProgress: boolean = false;
@@ -68,11 +70,13 @@ export class ManagementComponent implements OnInit, OnDestroy {
     private userResourceService: UserResourceService,
     private appRoutingService: AppRoutingService,
     private rolesService: RolesGroupsService,
+    private storageService: StorageService,
     public toastr: ToastrService
   ) {}
 
   ngOnInit() {
     this.buildGrid();
+    this.user = this.storageService.getUserName();
     this.subscription = this.userAccessKeyService.accessKeyEmitter.subscribe(
       result => {
         this.uploadKey = result ? result.status === 200 : false;
@@ -271,15 +275,13 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
 
   private getEnvironmentHealthStatus() {
-    this.healthStatusService.getEnvironmentHealthStatus().subscribe(result => {
+    this.healthStatusService.getEnvironmentStatuses().subscribe(result => {
       this.healthStatus = result.status;
       this.billingEnabled = result.billingEnabled;
       this.admin = result.admin;
 
-      debugger;
       if (!this.admin) {
-        this.appRoutingService.redirectToNoAccessPage();
-        return false;
+        this.environmentsHealthStatuses = result.list_resources;
       }
 
       this.getAllEnvironmentData();
