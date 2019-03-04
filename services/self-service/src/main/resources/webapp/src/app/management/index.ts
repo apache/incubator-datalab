@@ -72,17 +72,17 @@ export * from './management.component';
   declarations: [
     ManagementComponent,
     ManagementGridComponent,
-    ConfirmationDialog,
 
     GroupNameValidationDirective,
     BackupDilogComponent,
     ManageEnvironmentComponent,
+    ConfirmationDialog,
     ConfirmActionDialogComponent,
     ConfirmDeleteUserAccountDialogComponent,
     SsnMonitorComponent,
     ManageRolesGroupsComponent
   ],
-  entryComponents: [ConfirmationDialog],
+  entryComponents: [ConfirmationDialog, ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialogComponent],
   exports: [ManagementComponent]
 })
 export class ManagenementModule {}
