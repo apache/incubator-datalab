@@ -24,7 +24,6 @@ import {
   HealthStatusService,
   ManageEnvironmentsService,
   UserAccessKeyService,
-  AppRoutingService,
   BackupService,
   UserResourceService,
   RolesGroupsService,
@@ -40,13 +39,9 @@ import { HTTP_STATUS_CODES } from '../core/util';
   styleUrls: ['./management.component.scss']
 })
 export class ManagementComponent implements OnInit, OnDestroy {
-  public healthStatus: string = '';
   public user: string = '';
-  public billingEnabled: boolean;
-  public admin: boolean;
-
+  public healthStatus: GeneralEnvironmentStatus;
   public allEnvironmentData: Array<EnvironmentModel>;
-  public environmentsHealthStatuses: Array<any>;
   public uploadKey: boolean = true;
 
   public anyEnvInProgress: boolean = false;
@@ -68,7 +63,6 @@ export class ManagementComponent implements OnInit, OnDestroy {
     private manageEnvironmentsService: ManageEnvironmentsService,
     private userAccessKeyService: UserAccessKeyService,
     private userResourceService: UserResourceService,
-    private appRoutingService: AppRoutingService,
     private rolesService: RolesGroupsService,
     private storageService: StorageService,
     public toastr: ToastrService
@@ -77,11 +71,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.buildGrid();
     this.user = this.storageService.getUserName();
-    this.subscription = this.userAccessKeyService.accessKeyEmitter.subscribe(
-      result => {
-        this.uploadKey = result ? result.status === 200 : false;
-      }
-    );
+    this.subscription = this.userAccessKeyService.accessKeyEmitter
+      .subscribe(result => this.uploadKey = (result && result.status === 200));
   }
 
   ngOnDestroy(): void {
@@ -97,20 +88,15 @@ export class ManagementComponent implements OnInit, OnDestroy {
       .environmentManagement(
         $event.environment.user,
         $event.action,
-        $event.environment.name === 'edge node'
-          ? 'edge'
-          : $event.environment.name,
+        $event.environment.name === 'edge node' ? 'edge' : $event.environment.name,
         $event.resource ? $event.resource.computational_name : null
-      )
-      .subscribe(
+      ).subscribe(
         () => this.buildGrid(),
-        error => this.toastr.error('Environment management failed!', 'Oops!')
-      );
+        error => this.toastr.error('Environment management failed!', 'Oops!'));
   }
 
   showBackupDialog() {
-    if (!this.backupDialog.isOpened)
-      this.backupDialog.open({ isFooter: false });
+    if (!this.backupDialog.isOpened) this.backupDialog.open({ isFooter: false });
   }
 
   getActiveUsersList() {
@@ -130,7 +116,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
 
   openSsnMonitorDialog() {
     this.healthStatusService.getSsnMonitorData()
-      .subscribe(data => this.ssnMonitorDialog.open({ isFooter: false }, data));
+      .subscribe(data => this.ssnMonitorDialog.open({ isFooter: false }, data),
+      () => this.toastr.error('Failed ssn data loading!', 'Oops!'));
   }
 
   openManageRolesDialog() {
@@ -235,17 +222,17 @@ export class ManagementComponent implements OnInit, OnDestroy {
   private getBackupStatus(result) {
     const uuid = result.body;
     this.backupService.getBackupStatus(uuid)
-        .subscribe((backupStatus: any) => {
+      .subscribe((backupStatus: any) => {
         if (!this.creatingBackup) {
           backupStatus.status === 'FAILED'
           ? this.toastr.error('Backup configuration failed!', 'Oops!')
           : this.toastr.success('Backup configuration completed!', 'Success!');
           clearInterval(this.clear);
         }
-    }, error => {
-      clearInterval(this.clear);
-      this.toastr.error('Backup configuration failed!', 'Oops!');
-    });
+      }, () => {
+        clearInterval(this.clear);
+        this.toastr.error('Backup configuration failed!', 'Oops!');
+      });
   }
 
   get creatingBackup(): boolean {
@@ -255,38 +242,28 @@ export class ManagementComponent implements OnInit, OnDestroy {
   private getAllEnvironmentData() {
     this.manageEnvironmentsService
       .getAllEnvironmentData()
-      .subscribe(
-        (result: any) =>
-          (this.allEnvironmentData = this.loadEnvironmentList(result))
-      );
+      .subscribe((result: Array<EnvironmentModel>) => this.allEnvironmentData = this.loadEnvironmentList(result));
   }
 
   private loadEnvironmentList(data): Array<EnvironmentModel> {
     if (data)
-      return data.map(value => {
-        return new EnvironmentModel(
+      return data.map(value => new EnvironmentModel(
           value.resource_name || value.resource_type,
           value.status,
           value.shape,
           value.computational_resources,
           value.user
-        );
-      });
+        ));
   }
 
   private getEnvironmentHealthStatus() {
-    this.healthStatusService.getEnvironmentStatuses().subscribe(result => {
-      this.healthStatus = result.status;
-      this.billingEnabled = result.billingEnabled;
-      this.admin = result.admin;
-
-      if (!this.admin) {
-        this.environmentsHealthStatuses = result.list_resources;
-      }
-
-      this.getAllEnvironmentData();
-      this.userAccessKeyService.initialUserAccessKeyCheck();
-      this.getExploratoryList();
-    });
+    this.healthStatusService
+      .getEnvironmentStatuses()
+      .subscribe((status: GeneralEnvironmentStatus) => {
+        this.healthStatus = status;
+        this.healthStatus.admin && this.getAllEnvironmentData();
+        this.userAccessKeyService.initialUserAccessKeyCheck();
+        this.getExploratoryList();
+      });
   }
 }

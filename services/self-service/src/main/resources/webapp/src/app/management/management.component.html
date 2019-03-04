@@ -17,7 +17,7 @@ limitations under the License.
 -->
 
 <div class="sub-nav base-retreat">
-  <div *ngIf="admin" class="admin-group">
+  <div *ngIf="healthStatus?.admin" class="admin-group">
       <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()">
         <i class="material-icons"></i>Manage roles
       </button>
@@ -37,18 +37,31 @@ limitations under the License.
 </div>
 
 <management-grid
-  [isAdmin]="admin"
   [currentUser]="user"
-  [allEnvironmentData]="allEnvironmentData"
   [uploadKey]="uploadKey"
+  [isAdmin]="healthStatus?.admin"
+  [allEnvironmentData]="allEnvironmentData"
+  [environmentsHealthStatuses]="healthStatus?.list_resources"
   (refreshGrid)="buildGrid($event)"
   (actionToggle)="manageEnvironmentAction($event)">
 </management-grid>
 
 
-<dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)"></dlab-backup-dilog>
-<dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)" (setBudget)="setBudgetLimits($event)"></dlab-manage-env-dilog>
-<!-- <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog> -->
+<dlab-backup-dilog 
+  #backupDialog
+  (backupOpts)="createBackup($event)">
+</dlab-backup-dilog>
+
+<dlab-manage-env-dilog
+  #manageEnvDialog
+  (manageEnv)="manageEnvironment($event)"
+  (setBudget)="setBudgetLimits($event)">
+</dlab-manage-env-dilog>
+
 <progress-dialog #preloaderModal></progress-dialog>
 <dlab-ssn-monitor #ssnMonitor></dlab-ssn-monitor>
-<dlab-manage-roles-groups #rolesGroupsModal (manageRolesGroupAction)="manageRolesGroups($event)"></dlab-manage-roles-groups>
+
+<dlab-manage-roles-groups
+  #rolesGroupsModal
+  (manageRolesGroupAction)="manageRolesGroups($event)">
+</dlab-manage-roles-groups>
