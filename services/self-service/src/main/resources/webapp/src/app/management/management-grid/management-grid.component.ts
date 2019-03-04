@@ -18,7 +18,11 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ToastrService } from 'ngx-toastr';
+
+import { HealthStatusService, UserAccessKeyService } from '../../core/services';
 import { ConfirmationDialogType } from '../../shared';
+import { FileUtils } from '../../core/util';
 
 export interface ManageAction {
   action: string;
@@ -35,21 +39,27 @@ export interface ManageAction {
     '../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
   ]
 })
-export class ManagementGridComponent implements OnInit{
+export class ManagementGridComponent implements OnInit {
   @Input() allEnvironmentData: Array<any>;
+  @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
   @Input() uploadKey: boolean;
   @Input() isAdmin: boolean;
+  @Input() currentUser: string = '';
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('keyReuploadDialog') keyReuploadDialog;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(
+    private healthStatusService: HealthStatusService,
+    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastrService,
+    public dialog: MatDialog
+  ) {}
 
   ngOnInit() {
-
   }
 
   buildGrid(): void {
@@ -73,7 +83,21 @@ export class ManagementGridComponent implements OnInit{
           environment.name === 'edge node' ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory);
       } else if (action === 'terminate') {
         this.confirmationDialog.open({ isFooter: false }, environment, ConfirmationDialogType.TerminateExploratory);
-      }
+      } else if (action === 'run') {
+        this.healthStatusService
+          .runEdgeNode()
+          .subscribe(() => {
+            this.buildGrid();
+            this.toastr.success('Edge node is starting!', 'Processing!');
+          }, error => this.toastr.error('Edge Node running failed!', 'Oops!'));
+        } else if (action === 'recreate') {
+          this.healthStatusService
+            .recreateEdgeNode()
+            .subscribe(() => {
+              this.buildGrid();
+              this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+            }, error => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
+        }
     }
   }
 
@@ -96,6 +120,17 @@ export class ManagementGridComponent implements OnInit{
       && resource.status !== 'terminated'
       && resource.status !== 'running'
       && resource.status !== 'stopped')).length > 0;
+  }
+
+  showReuploaKeydDialog() {
+    this.keyReuploadDialog.open({ isFooter: false });
+  }
+
+  public generateUserKey() {
+    this.userAccessKeyService.regenerateAccessKey().subscribe(data => {
+      FileUtils.downloadFile(data);
+      this.buildGrid();
+    });
   }
 }
 
