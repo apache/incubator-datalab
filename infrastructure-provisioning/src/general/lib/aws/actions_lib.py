@@ -1425,7 +1425,10 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             local('sudo touch /etc/pip.conf')
             local('sudo echo "[global]" >> /etc/pip.conf')
             local('sudo echo "timeout = 600" >> /etc/pip.conf')
-        local('sudo -i virtualenv /opt/python/python' + python_version)
+        try:
+            local('sudo -i virtualenv /opt/python/python' + python_version)
+        except:
+            local('sudo -i virtualenv --no-setuptools /opt/python/python' + python_version)
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         if region == 'cn-north-1':

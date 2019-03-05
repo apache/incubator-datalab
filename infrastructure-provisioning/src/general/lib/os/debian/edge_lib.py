@@ -22,6 +22,23 @@ import os
 import sys
 from fabric.api import *
 from fabric.contrib.files import exists
+import ipaddress
+
+
+def validate_ip_address(ip_address):
+    try:
+        ipaddress.ip_address(u'{}'.format(ip_address))
+        return True
+    except ValueError:
+        return False
+
+
+def validate_ip_network(ip_network):
+    try:
+        ipaddress.ip_network(u'{}'.format(ip_network))
+        return True
+    except ValueError:
+        return False
 
 
 def configure_http_proxy_server(config):
@@ -41,12 +58,24 @@ def configure_http_proxy_server(config):
             sudo('sed -i "s|LDAP_AUTH_PATH|{}|g" /etc/squid/squid.conf'.format('/usr/lib/squid/basic_ldap_auth'))
             replace_string = ''
             if os.environ['local_repository_enabled'] == 'True':
-                config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_host']))
-                config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_parent_proxy_host']))
-                config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_nginx_proxy_host']))
+                if validate_ip_address(os.environ['local_repository_host']):
+                    config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_host']))
+                else:
+                    config['vpc_cidrs'].append(os.environ['local_repository_host'])
+                if validate_ip_address(os.environ['local_repository_parent_proxy_host']):
+                    config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_parent_proxy_host']))
+                else:
+                    config['vpc_cidrs'].append(os.environ['local_repository_parent_proxy_host'])
+                if validate_ip_address(os.environ['local_repository_nginx_proxy_host']):
+                    config['vpc_cidrs'].append('{}/32'.format(os.environ['local_repository_nginx_proxy_host']))
+                else:
+                    config['vpc_cidrs'].append(os.environ['local_repository_nginx_proxy_host'])
             config['vpc_cidrs'] = set(config['vpc_cidrs'])
             for cidr in config['vpc_cidrs']:
-                replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
+                if validate_ip_network(cidr):
+                    replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
+                else:
+                    replace_string += 'acl AllowedDomains dstdomain {}\\n'.format(cidr)
             sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
             replace_string = ''
             for cidr in config['allowed_ip_cidr']:

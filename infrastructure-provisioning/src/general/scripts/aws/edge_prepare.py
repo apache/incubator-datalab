@@ -24,6 +24,25 @@ from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
 import traceback
+import ipaddress
+import socket
+
+
+def validate_ip_address(ip_address):
+    try:
+        ipaddress.ip_address(u'{}'.format(ip_address))
+        return True
+    except ValueError:
+        return False
+
+
+def get_host_by_name(domain):
+    try:
+        return socket.gethostbyname(domain)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to get host by domain name.", str(err))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -298,25 +317,37 @@ if __name__ == "__main__":
             }
         ])
         if os.environ['local_repository_enabled'] == 'True':
+            if validate_ip_address(os.environ['local_repository_nginx_proxy_host']):
+                nginx_proxy_host = os.environ['local_repository_nginx_proxy_host']
+            else:
+                nginx_proxy_host = get_host_by_name(os.environ['local_repository_nginx_proxy_host'])
+            if validate_ip_address(os.environ['local_repository_host']):
+                repository_host = os.environ['local_repository_host']
+            else:
+                repository_host = get_host_by_name(os.environ['local_repository_host'])
+            if validate_ip_address(os.environ['local_repository_parent_proxy_host']):
+                parent_proxy_host = os.environ['local_repository_parent_proxy_host']
+            else:
+                parent_proxy_host = get_host_by_name(os.environ['local_repository_parent_proxy_host'])
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],
                     "FromPort": 80,
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_nginx_proxy_host'])}],
+                    "IpRanges": [{"CidrIp": "{}/32".format(nginx_proxy_host)}],
                     "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],
                     "FromPort": 443,
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_host'])}],
+                    "IpRanges": [{"CidrIp": "{}/32".format(repository_host)}],
                     "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
             edge_sg_egress.append(
                 {
                     "PrefixListIds": [],
                     "FromPort": int(os.environ['local_repository_parent_proxy_port']),
-                    "IpRanges": [{"CidrIp": "{}/32".format(os.environ['local_repository_parent_proxy_host'])}],
+                    "IpRanges": [{"CidrIp": "{}/32".format(parent_proxy_host)}],
                     "ToPort": int(os.environ['local_repository_parent_proxy_port']),
                     "IpProtocol": "tcp", "UserIdGroupPairs": []
                 })
