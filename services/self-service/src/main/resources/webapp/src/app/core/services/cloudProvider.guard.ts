@@ -20,8 +20,6 @@ import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { HealthStatusService } from './healthStatus.service';
 
-
-
 @Injectable()
 export class CloudProviderGuard implements CanActivate {
   constructor(private _healthStatus: HealthStatusService) {}

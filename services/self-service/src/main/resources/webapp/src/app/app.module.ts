@@ -33,7 +33,6 @@ import { GuidesModule } from './help';
 import { NotFoundModule } from './not-found/not-found.module';
 import { AccessDeniedModule } from './access-denied/access-denied.module';
 import { ResourcesModule } from './resources/resources.module';
-import { HealthStatusModule } from './health-status/health-status.module';
 import { HttpTokenInterceptor } from './core/interceptors/http.token.interceptor';
 import { NoCacheInterceptor } from './core/interceptors/nocache.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
@@ -58,7 +57,6 @@ import { ToastrModule } from 'ngx-toastr';
     GuidesModule,
     NotFoundModule,
     AccessDeniedModule,
-    HealthStatusModule,
     ReportingModule,
     ManagenementModule,
     RouterModule,

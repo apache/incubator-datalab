@@ -21,7 +21,6 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent } from './login/login.module';
 import { ResourcesComponent } from './resources/resources.component';
-import { HealthStatusComponent } from './health-status/health-status.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AccessDeniedComponent } from './access-denied/access-denied.component';
@@ -36,10 +35,6 @@ const routes: Routes = [{
     path: 'resources_list',
     component: ResourcesComponent,
     canActivate: [CheckParamsGuard]
-  }, {
-    path: 'environment_health_status',
-    component: HealthStatusComponent,
-    canActivate: [AuthorizationGuard]
   }, {
     path: 'billing_report',
     component: ReportingComponent,
