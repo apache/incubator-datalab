@@ -20,7 +20,7 @@
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
-import { BackupOptionsModel } from '../environment-status.model';
+import { BackupOptionsModel } from '../management.model';
 
 @Component({
   selector: 'dlab-backup-dilog',

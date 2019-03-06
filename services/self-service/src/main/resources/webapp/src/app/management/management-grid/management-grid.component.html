@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<table class="dashboard_table">
+<table class="dashboard_table" *ngIf="isAdmin; else users">
   <tr>
     <th class="th_user">User</th>
     <th class="th_name">Name</th>
@@ -67,7 +67,7 @@
         <ul class="list-unstyled">
           <li matTooltip="{{ env.name !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
               matTooltipPosition="above"
-              [matTooltipDisabled]="!isResourcesInProgress(env)">
+              [matTooltipDisabled]="!isResourcesInProgress(env)" [hidden]="env.name === 'edge node' && env.status.toLowerCase() !== 'running'">
               <div (click)="toggleResourceAction(env, 'stop')"
                    [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating image' || isResourcesInProgress(env)}">
                 <i class="material-icons">pause_circle_outline</i>
@@ -84,10 +84,75 @@
               <span>Terminate</span>
             </div>
           </li>
+
+          <div *ngIf="env.name === 'edge node' && env.user === currentUser">
+            <li (click)="toggleResourceAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">
+              <i class="material-icons">play_circle_outline</i>
+              <span>Start</span>
+            </li>
+            <li (click)="toggleResourceAction(env, 'recreate')" *ngIf="env.status.toLowerCase() === 'terminated'">
+              <i class="material-icons">refresh</i>
+              <span>Recreate</span>
+            </li>
+            <li *ngIf="!isResourcesInProgress(env)" (click)="showReuploaKeydDialog()">
+              <i class="material-icons">sync_problem</i>
+              <span>Reupload key</span>
+            </li>
+          </div>
         </ul>
       </bubble-up>
     </td>
   </tr>
 </table>
 
+<ng-template #users>
+  <table class="dashboard_table">
+    <tr>
+      <th class="th_name">Type</th>
+      <th>Resource id</th>
+      <th class="th_status">Status</th>
+      <th class="th_actions">Action</th>
+    </tr>
+    <tr *ngFor="let env of environmentsHealthStatuses" class="dashboard_table_body">
+      <td>{{env.type}}</td>
+      <td>{{env.resource_id}}</td>
+      <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
+      <td class="settings">
+        <span #settings (click)="actions.toggle($event, settings)" class="actions"
+              [ngClass]="{'disabled': env.status.toLowerCase() !== 'running'
+              && env.status.toLowerCase() !== 'stopped'
+              && env.status.toLowerCase() !== 'terminated'
+              || notebookInProgress
+              || !uploadKey }">
+        </span>
+
+        <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+          <ul class="list-unstyled">
+            <li (click)="toggleResourceAction(env, 'stop')" *ngIf="env.status.toLowerCase() === 'running'">
+              <i class="material-icons">pause_circle_outline</i>
+              <span>Stop</span>
+            </li>
+            <li (click)="toggleResourceAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">
+              <i class="material-icons">play_circle_outline</i>
+              <span>Start</span>
+            </li>
+            <li (click)="toggleResourceAction(env, 'recreate')" *ngIf="env.status.toLowerCase() === 'terminated'">
+              <i class="material-icons">refresh</i>
+              <span>Recreate</span>
+            </li>
+            <li *ngIf="!anyEnvInProgress" (click)="showReuploaKeydDialog()">
+              <i class="material-icons">sync_problem</i>
+              <span>Reupload key</span>
+            </li>
+          </ul>
+        </bubble-up>
+      </td>
+    </tr>
+  </table>
+</ng-template>
+
 <confirmation-dialog #confirmationDialog [manageAction]="true" (buildGrid)="buildGrid()"></confirmation-dialog>
+<key-upload-dialog #keyReuploadDialog [primaryUploading]="false"
+      (checkInfrastructureCreationProgress)="buildGrid()"
+      (generateUserKey)="generateUserKey()">
+</key-upload-dialog>

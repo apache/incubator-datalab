@@ -25,7 +25,7 @@ import { UserResourceService } from '../../core/services';
 import { CreateResourceModel } from './create-resource.model';
 import { ResourcesGridRowModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
-import { GeneralEnvironmentStatus } from '../../health-status/health-status.module';
+import { GeneralEnvironmentStatus } from '../../management/management.model';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 

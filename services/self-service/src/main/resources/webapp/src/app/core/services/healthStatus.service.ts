@@ -19,9 +19,9 @@
 
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { catchError, map, tap} from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
-import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
+import { GeneralEnvironmentStatus } from '../../management/management.model';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { AppRoutingService } from './appRouting.service';
 import { HTTP_STATUS_CODES, ErrorUtils } from '../util';

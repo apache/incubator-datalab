@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -20,27 +19,71 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ConfirmationDialogModule, BubbleModule, UploadKeyDialogModule, ProgressDialogModule } from '../shared';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import {
+  ModalModule,
+  UploadKeyDialogModule,
+  ProgressDialogModule,
+  BubbleModule,
+  ConfirmationDialogModule
+} from '../shared';
 import { MaterialModule } from '../shared/material.module';
 
 import { ManagementComponent } from './management.component';
-import { ManagementGridComponent, ConfirmationDialog } from './management-grid/management-grid.component';
+import {
+  ManagementGridComponent,
+  ConfirmationDialog
+} from './management-grid/management-grid.component';
 import { ComputationalResourcesModule } from '../resources/computational/computational-resources-list';
+
+
+
+
+import { FormControlsModule } from '../shared/form-controls';
+import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
+import {
+  ManageEnvironmentComponent,
+  ConfirmActionDialogComponent
+} from './manage-environment/manage-environment-dilog.component';
+
+import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
+import { DirectivesModule } from '../core/directives';
+
+import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
+import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialogComponent } from './manage-roles-groups/manage-roles-groups.component';
 
 export * from './management.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    ConfirmationDialogModule,
-    ComputationalResourcesModule,
-    BubbleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ModalModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
+    BubbleModule,
+    ConfirmationDialogModule,
+    ComputationalResourcesModule,
+    FormControlsModule,
+    DirectivesModule,
     MaterialModule
   ],
-  declarations: [ManagementComponent, ManagementGridComponent, ConfirmationDialog],
-  entryComponents: [ConfirmationDialog],
+  declarations: [
+    ManagementComponent,
+    ManagementGridComponent,
+
+    GroupNameValidationDirective,
+    BackupDilogComponent,
+    ManageEnvironmentComponent,
+    ConfirmationDialog,
+    ConfirmActionDialogComponent,
+    ConfirmDeleteUserAccountDialogComponent,
+    SsnMonitorComponent,
+    ManageRolesGroupsComponent
+  ],
+  entryComponents: [ConfirmationDialog, ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialogComponent],
   exports: [ManagementComponent]
 })
-export class ManagenementModule { }
+export class ManagenementModule {}

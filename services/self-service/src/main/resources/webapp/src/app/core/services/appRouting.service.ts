@@ -38,7 +38,7 @@ export class AppRoutingService {
   }
 
   redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_health_status']);
+    this.router.navigate(['/environment_management']);
   }
 
   redirectToAzure(): void {
