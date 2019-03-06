@@ -880,24 +880,6 @@ def install_nexus():
             put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
             sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
             sudo('sed -i "s/ADMIN_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_admin_password))
-            # sudo('sed -i "s/PYPI_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_pypi_repo']))
-            # sudo('sed -i "s/MAVEN_CENTRAL_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_maven_central_repo']))
-            # sudo('sed -i "s/MAVEN_BINTRAY_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_maven_bintray_repo']))
-            # sudo('sed -i "s/DOCKER_INTERNAL_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_docker_internal_repo']))
-            # sudo('sed -i "s/DOCKER_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_docker_repo']))
-            # sudo('sed -i "s/JENKINS_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_jenkins_repo']))
-            # sudo('sed -i "s/MONGO_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_mongo_repo']))
-            # sudo('sed -i "s/PACKAGES_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_packages_repo']))
-            # sudo('sed -i "s/NPM_REPO_NAME/{}/g" /tmp/configureNexus.groovy'.format(
-            #     configuration['local_repository_npm_repo']))
             sudo('sed -i "s/SERVICE_USER_NAME/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_service_user_name))
             sudo('sed -i "s/SERVICE_USER_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(
                 args.nexus_service_user_password))
@@ -999,16 +981,6 @@ def install_nexus():
             nexus_service_waiter()
             put('templates/addCustomRepository.groovy', '/tmp/addCustomRepository.groovy')
             sudo('sed -i "s|REGION|{0}|g" /tmp/addCustomRepository.groovy'.format(args.region))
-            # sudo('sed -i "s|APT_UBUNTU_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-            #     configuration['local_repository_apt_ubuntu_repo']))
-            # sudo('sed -i "s|APT_SECURITY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-            #     configuration['local_repository_apt_ubuntu_security_repo']))
-            # sudo('sed -i "s|APT_BINTRAY_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-            #     configuration['local_repository_apt_bintray_repo']))
-            # sudo('sed -i "s|RRUTTER_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-            #     configuration['local_repository_rrutter_repo']))
-            # sudo('sed -i "s|R_REPO_NAME|{0}|g" /tmp/addCustomRepository.groovy'.format(
-            #     configuration['local_repository_r_repo']))
             script_executed = False
             while not script_executed:
                 try:
@@ -1712,6 +1684,11 @@ if __name__ == "__main__":
             print('INSTALLING SQUID')
             install_squid()
 
+            if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
+                nexus_host = "{0}.{1}".format(args.subdomain, args.hosted_zone_name)
+            else:
+                nexus_host = ec2_ip_address
+
             print('[SUMMARY]')
             print("AWS VPC ID: {0}".format(args.vpc_id))
             print("AWS Subnet ID: {0}".format(args.subnet_id))
@@ -1719,6 +1696,23 @@ if __name__ == "__main__":
             print("AWS EC2 ID: {0}".format(ec2_id))
             print("AWS EC2 IP address: {0}".format(ec2_ip_address))
             print("SSL certificate path: /etc/ssl/certs/repository.crt")
+            print("Service user credentials: {0}/{1}".format(args.nexus_service_user_name,
+                                                             args.nexus_service_user_password))
+            print("PyPi repository URL: https://{0}/repository/pypi".format(nexus_host))
+            print("Maven-central repository URL: https://{0}/repository/maven-central".format(nexus_host))
+            print("Maven-bintray repository URL: https://{0}/repository/maven-bintray".format(nexus_host))
+            print("Docker-internal repository URL: {0}:8083".format(nexus_host))
+            print("Docker repository URL: https://{0}/repository/docker".format(nexus_host))
+            print("Jenkins repository URL: https://{0}/repository/jenkins".format(nexus_host))
+            print("Mongo repository URL: https://{0}/repository/mongo".format(nexus_host))
+            print("Packages repository URL: https://{0}/repository/packages".format(nexus_host))
+            print("NPM repository URL: https://{0}/repository/npm".format(nexus_host))
+            print("Ubuntu repository URL: https://{0}/repository/ubuntu".format(nexus_host))
+            print("Ubuntu-security repository URL: https://{0}/repository/ubuntu-security".format(nexus_host))
+            print("Ubuntu-bintray repository URL: https://{0}/repository/ubuntu-bintray".format(nexus_host))
+            print("Rrutter repository URL: https://{0}/repository/rrutter".format(nexus_host))
+            print("R repository URL: https://{0}/repository/r".format(nexus_host))
+            print("Squid proxy: {0}:3128".format(nexus_host))
             if args.efs_id:
                 print('AWS EFS ID: {}'.format(args.efs_id))
             if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
