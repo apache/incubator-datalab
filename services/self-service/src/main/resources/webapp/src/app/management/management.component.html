@@ -43,7 +43,7 @@
   [isAdmin]="healthStatus?.admin"
   [allEnvironmentData]="allEnvironmentData"
   [environmentsHealthStatuses]="healthStatus?.list_resources"
-  (refreshGrid)="buildGrid($event)"
+  (refreshGrid)="buildGrid()"
   (actionToggle)="manageEnvironmentAction($event)">
 </management-grid>
 
