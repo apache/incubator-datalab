@@ -80,7 +80,7 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
         if 'local_repository_parent_proxy_host' in os.environ:
             transport = ProxiedTransport()
             transport.set_proxy('{}'.format(os.environ['local_repository_parent_proxy_host']),
-                                int(os.environ['local_repository_parent_proxy_host']))
+                                int(os.environ['local_repository_parent_proxy_port']))
             client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi', transport=transport)
         else:
             client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
