@@ -1434,22 +1434,29 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         if region == 'cn-north-1':
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip==9.0.3 --no-cache-dir'.format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip==9.0.3 '
+                      '--no-cache-dir'.format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 setuptools '
+                      '--no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
-                      format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel '
+                      '--no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy=={1} SciPy Matplotlib==2.0.2 pandas=={2} Sympy Pillow sklearn --no-cache-dir'.
-                      format(pip_mirror, numpy_version, pandas_version))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy=={1} '
+                      'SciPy Matplotlib==2.0.2 pandas=={2} Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror,
+                                                                                                       numpy_version,
+                                                                                                       pandas_version))
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
+                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python '
+                          'keras Theano --no-cache-dir'.format(pip_mirror))
                     python_without_dots = python_version.replace('.', '')
                     local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
-                          format(python_without_dots[:2]))
+                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl '
+                          '--no-cache-dir'.format(python_without_dots[:2]))
                 local('sudo rm /etc/pip.conf')
                 local('sudo mv /etc/back_pip.conf /etc/pip.conf')
             except:
@@ -1459,6 +1466,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 sys.exit(1)
         else:
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install setuptools --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             try:
                 local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')

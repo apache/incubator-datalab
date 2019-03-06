@@ -34,9 +34,10 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
             print("Updating repositories "
                   "and installing requested tools: {}".format(requisites))
             apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
-            while apt_proccess == '1':
+            while apt_proccess != '0':
                 time.sleep(10)
                 apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
+            sudo('rm -f /var/lib/apt/lists/lock')
             sudo('apt-get update')
             sudo('apt-get -y install ' + requisites)
             sudo('unattended-upgrades -v')
@@ -48,6 +49,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
 
 def renew_gpg_key():
     try:
+        sudo('rm -f /var/lib/apt/lists/lock')
         sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
         sudo('apt-key update')
     except:
