@@ -42,7 +42,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
 
 def install_haveged(): #fix for gcp entropy bug
     try:
-        sudo('apt install haveged')
+        sudo('apt-get install -y haveged')
         sudo('systemctl enable haveged')
         sudo('systemctl start haveged')
     except:
