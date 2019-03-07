@@ -198,6 +198,9 @@
   border-bottom: 1px solid #edf1f5;
 }
 
+.dashboard_table .message_block {
+  background: #edf6f9;
+}
 .message_block td {
   text-align: left !important;
 }
