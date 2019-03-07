@@ -68,9 +68,6 @@ if __name__ == "__main__":
     print("Updating repositories and installing requested tools.")
     ensure_pkg(args.user)
 
-    if os.environ['conf_os_family'] == 'debian':
-        install_haveged()
-
     print("Installing python packages: {}".format(args.pip_packages))
     ensure_pip(args.pip_packages)
 
