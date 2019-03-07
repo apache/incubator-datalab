@@ -42,6 +42,14 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
     except:
         sys.exit(1)
 
+def install_haveged(): #fix for gcp entropy bug
+    try:
+        sudo('apt-ge install -y haveged')
+        sudo('systemctl enable haveged')
+        sudo('systemctl start haveged')
+    except Exception as err:
+        print("Failed to install haveged" + str(err))
+        sys.exit(1)
 
 def renew_gpg_key():
     try:

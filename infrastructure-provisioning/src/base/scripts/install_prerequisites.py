@@ -25,7 +25,7 @@ from fabric.api import *
 import argparse
 import json
 from dlab.fab import *
-from dlab.common_lib import ensure_pkg
+from dlab.common_lib import ensure_pkg, install_haveged()
 from dlab.common_lib import change_pkg_repos
 from fabric.contrib.files import exists
 import sys
@@ -68,6 +68,9 @@ if __name__ == "__main__":
 
     print("Updating repositories and installing requested tools.")
     ensure_pkg(args.user)
+
+    if os.environ['conf_os_family'] == 'debian':
+        install_haveged()
 
     print("Installing python packages: {}".format(args.pip_packages))
     ensure_pip(args.pip_packages)
