@@ -45,7 +45,9 @@ def install_haveged(): #fix for gcp entropy bug
         sudo('apt-get install -y haveged')
         sudo('systemctl enable haveged')
         sudo('systemctl start haveged')
-    except:
+    except Exception as err:
+        print("Failed to install haveged" + str(err))
+        traceback.print_exc()
         sys.exit(1)
 
 
