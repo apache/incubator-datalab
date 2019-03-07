@@ -27,7 +27,7 @@
     <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
       <i class="material-icons"></i>Git credentials
     </button>
-    <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()">
+    <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()" [disabled]="!exploratoryEnvironments.length">
       <span *ngIf="!resourcesGrid.activeFiltering">
         <i class="material-icons">visibility_off</i> Show active
       </span>

@@ -23,7 +23,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { UserAccessKeyService, HealthStatusService } from '../core/services';
-import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
+import { ResourcesGridRowModel } from './resources-grid/resources-grid.model';
 import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
 
 @Component({
@@ -35,11 +35,8 @@ import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
 export class ResourcesComponent implements OnInit, OnDestroy {
 
   public userUploadAccessKeyState: number;
-  public exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
-  public computationalResources: Array<ComputationalResourceImage> = [];
+  public exploratoryEnvironments: Array<ResourcesGridRowModel> = [];
   public healthStatus: any;
-  // public billingEnabled: boolean;
-  // public admin: boolean;
 
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
   @ViewChild('manageUngitDialog') manageUngitDialog;
@@ -79,6 +76,7 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
     this.getEnvironmentHealthStatus();
+    this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
   public toggleFiltering(): void {
