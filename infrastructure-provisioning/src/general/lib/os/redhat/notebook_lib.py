@@ -78,7 +78,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sys.exit(1)
 
 
-def ensure_r(os_user, r_libs, region, r_mirror, keras=False):
+def ensure_r(os_user, r_libs, region, r_mirror):
     if not exists('/home/{}/.ensure_dir/r_ensured'.format(os_user)):
         try:
             if region == 'cn-north-1':
