@@ -139,7 +139,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
 def download_toree():
     toree_path = '/opt/dlab/sources/infrastructure-provisioning/src/general/files/os/'
     download_link = 'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/toree-0.2.0-incubating-bin.tar.gz'
-    try
+    try:
         run('cd {}'.format(toree_path))
         run('cd {0} && wget {1}'.format(toree_path, download_link))
         run('mv {0}toree-0.2.0-incubating-bin.tar.gz {0}toree-kernel.tar.gz'.format(toree_path))
