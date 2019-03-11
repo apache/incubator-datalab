@@ -59,7 +59,7 @@ def download_toree():
     download_link = 'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/toree-0.2.0-incubating-bin.tar.gz'
     try:
         run('wget {}'.format(download_link))
-        run('cp toree-0.2.0-incubating-bin.tar.gz {0}toree-kernel.tar.gz'.format(toree_path))
+        run('cp toree-0.2.0-incubating-bin.tar.gz {0}toree_kernel.tar.gz'.format(toree_path))
         run('tar xvf toree-0.2.0-incubating-bin.tar.gz')
         run('mv toree-0.2.0-incubating/lib/toree-assembly-0.2.0-incubating.jar {0}toree-assembly-0.2.0.jar'.format(toree_path))
         run('rm -rf toree-0.2.0-incubating')
