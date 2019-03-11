@@ -61,7 +61,7 @@ def download_toree():
         run('cd {}'.format(toree_path))
         run('cd {0} && wget {1}'.format(toree_path, download_link))
         run('mv {0}toree-0.2.0-incubating-bin.tar.gz {0}toree-kernel.tar.gz'.format(toree_path))
-        run('tar xvf toree-kernel.tar.gz')
+        run('tar xvf {0}toree-kernel.tar.gz'.format(toree_path))
         run('mv {0}toree-0.2.0-incubating/lib/toree-assembly-0.2.0-incubating.jar {0}toree-assembly-0.2.0.jar'.format(toree_path))
         run('rm -rf {}toree-0.2.0-incubating'.format(toree_path))
     except Exception as err:
