@@ -54,6 +54,20 @@ def modify_conf_file(args):
     sudo("python /tmp/configure_conf_file.py --dlab_dir {} --variables_list '{}'".format(
         args.dlab_path, json.dumps(variables_list)))
 
+def download_toree():
+    toree_path = '/opt/dlab/sources/infrastructure-provisioning/src/general/files/os/'
+    download_link = 'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/toree-0.2.0-incubating-bin.tar.gz'
+    try:
+        run('cd {}'.format(toree_path))
+        run('cd {0} && wget {1}'.format(toree_path, download_link))
+        run('mv {0}toree-0.2.0-incubating-bin.tar.gz {0}toree-kernel.tar.gz'.format(toree_path))
+        run('tar xvf toree-kernel.tar.gz')
+        run('mv {0}toree-0.2.0-incubating/lib/toree-assembly-0.2.0-incubating.jar {0}toree-assembly-0.2.0.jar'.format(toree_path))
+        run('rm -rf {}toree-0.2.0-incubating'.format(toree_path))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to download toree: ', str(err))
+        sys.exit(1)
 
 def add_china_repository(dlab_path):
     with cd('{}sources/infrastructure-provisioning/src/base/'.format(dlab_path)):
@@ -112,6 +126,9 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
+
+    print("Downloading Apache Toree")
+    download_toree()
 
     print("Installing docker daemon")
     if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):
