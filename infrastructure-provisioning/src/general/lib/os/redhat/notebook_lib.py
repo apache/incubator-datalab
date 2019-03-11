@@ -78,7 +78,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sys.exit(1)
 
 
-def ensure_r(os_user, r_libs, region, r_mirror):
+def ensure_r(os_user, r_libs, region, r_mirror, keras=False):
     if not exists('/home/{}/.ensure_dir/r_ensured'.format(os_user)):
         try:
             if region == 'cn-north-1':
@@ -95,7 +95,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
             sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
             sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
-            sudo('R -e "library(\'devtools\');install_github(\'rstudio/keras\');"')
+            sudo('R -e "library(\'devtools\');install_version(\'keras\', version = \'{}\', repos = \'{}\');"'.format(os.environ['notebook_keras_version'],r_repository))
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/{}/.ensure_dir/r_ensured'.format(os_user))
         except:
