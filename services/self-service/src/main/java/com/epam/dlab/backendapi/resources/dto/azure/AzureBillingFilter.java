@@ -21,12 +21,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AzureBillingFilter extends BillingFilter {
-	@JsonProperty("size")
-	private List<String> nodeSize;
-	private List<String> category;
+    @JsonProperty("size")
+    private List<String> nodeSize;
+    private List<String> category = Collections.emptyList();
+
+    @Override
+    public List<String> getShapes() {
+        return nodeSize;
+    }
 }

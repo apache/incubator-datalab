@@ -31,4 +31,10 @@ public class AwsBillingFilter extends BillingFilter {
 	private List<String> product;
 	@JsonProperty
 	private List<String> shape;
+
+
+	@Override
+	public List<String> getShapes() {
+		return shape;
+	}
 }

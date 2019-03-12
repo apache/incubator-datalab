@@ -34,4 +34,9 @@ public class GcpBillingFilter extends BillingFilter {
     private List<String> shape;
     @JsonProperty
     private List<String> product;
+
+    @Override
+    public List<String> getShapes() {
+        return shape;
+    }
 }
