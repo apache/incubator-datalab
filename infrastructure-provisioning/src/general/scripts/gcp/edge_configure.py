@@ -230,6 +230,36 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print('[INSTALLING NGINX REVERSE PROXY]')
+        logging.info('[INSTALLING NGINX REVERSE PROXY]')
+        params = "--hostname {} --keyfile {} --user {}" \
+            .format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed installing nginx reverse proxy. Excpeption: " + str(err))
+        GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
+        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
+        GCPActions().remove_role(edge_conf['edge_role_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        sys.exit(1)
+
+    try:
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))
