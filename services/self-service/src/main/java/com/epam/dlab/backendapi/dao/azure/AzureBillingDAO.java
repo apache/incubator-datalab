@@ -19,6 +19,7 @@ package com.epam.dlab.backendapi.dao.azure;
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
+import com.epam.dlab.billing.DlabResourceType;
 import com.google.inject.Singleton;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
@@ -122,4 +123,10 @@ public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
     protected String currencyCodeFieldName() {
         return MongoKeyWords.CURRENCY_CODE;
     }
+
+    @Override
+    protected String resourceType(Document id) {
+        return DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE));
+    }
+
 }

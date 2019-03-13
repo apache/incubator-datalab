@@ -141,7 +141,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
                     .append(shapeFieldName(), generateShapeName(shape))
                     .append("dlab_resource_type", DlabResourceType.getResourceTypeName(id.getString("dlab_resource_type"))) //todo check on azure!!!
                     .append(STATUS, statusString)
-                    .append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
+                    .append(FIELD_RESOURCE_TYPE, resourceType(id))
                     .append(productFieldName(), id.getString(productFieldName()))
                     .append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
                     .append(costFieldName(), BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords
@@ -165,6 +165,10 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
                         reportItems.get(0).getString(currencyCodeFieldName())))
                 .append(FULL_REPORT, fullReport);
 
+    }
+
+    protected String resourceType(Document id) {
+        return id.getString(FIELD_RESOURCE_TYPE);
     }
 
     protected String currencyCodeFieldName() {
