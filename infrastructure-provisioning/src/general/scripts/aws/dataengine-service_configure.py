@@ -123,7 +123,7 @@ def configure_dataengine_service(instance, emr_conf):
             .format(emr_conf['edge_instance_hostname'],
                     emr_conf['key_path'],
                     emr_conf['os_user'],
-                    'emr',
+                    'dataengine-service',
                     emr_conf['exploratory_name'],
                     json.dumps(additional_info))
         try:

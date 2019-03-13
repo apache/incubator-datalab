@@ -36,7 +36,6 @@ import multiprocessing
 
 def configure_dataengine_service(instance, dataproc_conf):
     dataproc_conf['instance_ip'] = meta_lib.GCPMeta().get_private_ip_address(instance)
-    # edge_instance_hostname = GCPMeta().get_private_ip_address(dataproc_conf['edge_instance_name'])
     # configuring proxy on Data Engine service
     try:
         logging.info('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
@@ -72,6 +71,48 @@ def configure_dataengine_service(instance, dataproc_conf):
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to configure dataengine service.", str(err))
+        actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        sys.exit(1)
+
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        slaves = []
+        for idx, instance in enumerate(dataproc_conf['cluster_core_instances']):
+            slave_ip = meta_lib.GCPMeta().get_private_ip_address(instance)
+            slave = {
+                'name': 'datanode{}'.format(idx + 1),
+                'ip': slave_ip,
+                'dns': instance
+            }
+            slaves.append(slave)
+        additional_info = {
+            "computational_name": dataproc_conf['computational_name'],
+            "master_ip": dataproc_conf['master_ip'],
+            "master_dns": dataproc_conf['master_name'],
+            "slaves": slaves,
+            "tensor": False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(dataproc_conf['edge_instance_hostname'],
+                    dataproc_conf['key_path'],
+                    dataproc_conf['dlab_ssh_user'],
+                    'dataengine-service',
+                    dataproc_conf['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to configure reverse proxy.", str(err))
         actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
@@ -118,7 +159,11 @@ if __name__ == "__main__":
 
     dataproc_conf['edge_instance_name'] = '{0}-{1}-edge'.format(dataproc_conf['service_base_name'],
                                                                 dataproc_conf['edge_user_name'])
+    dataproc_conf['edge_instance_hostname'] = GCPMeta().get_instance_public_ip_by_name(
+        dataproc_conf['edge_instance_name'])
     dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+    dataproc_conf['master_name'] = dataproc_conf['cluster_name'] + '-m'
+    dataproc_conf['master_ip'] = meta_lib.GCPMeta().get_private_ip_address(dataproc_conf['master_name'])
 
     try:
         res = meta_lib.GCPMeta().get_list_instances(os.environ['gcp_zone'], dataproc_conf['cluster_name'])
@@ -126,6 +171,11 @@ if __name__ == "__main__":
     except Exception as err:
         traceback.print_exc()
         raise Exception
+
+    dataproc_conf['cluster_core_instances'] = list()
+    for instance in dataproc_conf['cluster_instances']:
+        if "{}-w-".format(dataproc_conf['cluster_name']) in instance:
+            dataproc_conf['cluster_core_instances'].append(instance)
 
     try:
         jobs = []
@@ -143,6 +193,8 @@ if __name__ == "__main__":
         raise Exception
 
     try:
+        dataproc_master_acces_url = "http://" + dataproc_conf['edge_instance_hostname'] + "/{}/".format(
+            dataproc_conf['exploratory_name'] + '_' + dataproc_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(dataproc_conf['service_base_name']))
@@ -164,7 +216,12 @@ if __name__ == "__main__":
                    "key_name": dataproc_conf['key_name'],
                    "instance_id": dataproc_conf['cluster_name'],
                    "user_own_bucket_name": dataproc_conf['bucket_name'],
-                   "Action": "Create new Dataproc cluster"}
+                   "Action": "Create new Dataproc cluster",
+                   "computational_url": [
+                       {"description": "EMR Master",
+                        "url": dataproc_master_acces_url}
+                   ]
+                   }
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:
