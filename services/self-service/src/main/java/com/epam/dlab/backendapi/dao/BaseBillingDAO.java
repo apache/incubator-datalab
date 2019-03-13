@@ -104,8 +104,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 
         List<Document> reportItems = new ArrayList<>();
 
-        Date usageDateStart = null;
-        Date usageDateEnd = null;
+        String usageDateStart = null;
+        String usageDateEnd = null;
         double costTotal = 0D;
 
         for (Document d : agg) {
@@ -119,14 +119,15 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
             }
 
 
-            final Date dateStart = d.getDate(usageDateFromFieldName());
-            if (usageDateStart == null || dateStart.before(usageDateStart)) {
+            String dateStart = d.getString(MongoKeyWords.USAGE_FROM);
+            if (StringUtils.compare(usageDateStart, dateStart, false) > 0) {
                 usageDateStart = dateStart;
             }
-            Date dateEnd = d.getDate(usageDateToFieldName());
-            if (usageDateEnd == null || dateEnd.after(usageDateEnd)) {
+            String dateEnd = d.getString(MongoKeyWords.USAGE_TO);
+            if (StringUtils.compare(usageDateEnd, dateEnd) < 0) {
                 usageDateEnd = dateEnd;
             }
+
 
             costTotal += d.getDouble(MongoKeyWords.COST);
 
@@ -138,9 +139,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
                     .append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
                     .append(dlabIdFieldName(), resourceId)
                     .append(shapeFieldName(), generateShapeName(shape))
-                    .append(FIELD_RESOURCE_TYPE, DlabResourceType.getResourceTypeName(id.getString("dlab_resource_type"))) //todo check on azure!!!
-                    .append(STATUS,
-                            statusString)
+                    .append("dlab_resource_type", DlabResourceType.getResourceTypeName(id.getString("dlab_resource_type"))) //todo check on azure!!!
+                    .append(STATUS, statusString)
+                    .append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
                     .append(productFieldName(), id.getString(productFieldName()))
                     .append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
                     .append(costFieldName(), BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords
@@ -282,11 +283,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
         }
 
         if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
-            searchCriteria.add(gte(MongoKeyWords.USAGE_DAY, filter.getDateStart()));
             searchCriteria.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
         }
         if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
-            searchCriteria.add(lte(MongoKeyWords.USAGE_DAY, filter.getDateEnd()));
             searchCriteria.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
         }
 

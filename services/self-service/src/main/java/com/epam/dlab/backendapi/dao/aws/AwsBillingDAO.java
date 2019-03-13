@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.dao.aws;
 
+import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.util.UsernameUtils;
@@ -53,8 +54,8 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
         return group(getGroupingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT, FIELD_RESOURCE_TYPE,
                 FIELD_CURRENCY_CODE),
                 sum(FIELD_COST, "$" + FIELD_COST),
-                min(USAGE_DATE_START, "$" + FIELD_USAGE_DATE),
-                max(USAGE_DATE_END, "$" + FIELD_USAGE_DATE));
+                min(MongoKeyWords.USAGE_FROM, "$" + FIELD_USAGE_DATE),
+                max(MongoKeyWords.USAGE_TO, "$" + FIELD_USAGE_DATE));
     }
 
     @Override
@@ -76,7 +77,6 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     protected String getSsnShape() {
         return "t2.medium";
     }
-
 
 
 }
