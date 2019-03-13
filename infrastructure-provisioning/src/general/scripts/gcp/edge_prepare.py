@@ -189,7 +189,7 @@ if __name__ == "__main__":
         rules = [
             {
                 'IPProtocol': 'tcp',
-                'ports': ['22']
+                'ports': ['22', '80']
             }
         ]
         ingress_rule['allowed'] = rules

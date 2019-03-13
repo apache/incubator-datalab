@@ -26,7 +26,7 @@ import json
 import sys
 from fabric.api import *
 from jinja2 import Environment, FileSystemLoader
-from dlab.meta_lib import get_instance_private_ip_address, get_instance_hostname
+from dlab.meta_lib import get_instance_private_ip_address
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--edge_hostname', type=str, default='')

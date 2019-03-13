@@ -52,7 +52,7 @@ if __name__ == "__main__":
                                                                notebook_config['exploratory_name'])
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
-    edge_instance_hostname = get_instance_public_ip_by_name(edge_instance_name)
+    edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
