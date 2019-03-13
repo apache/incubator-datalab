@@ -218,7 +218,7 @@ if __name__ == "__main__":
                    "user_own_bucket_name": dataproc_conf['bucket_name'],
                    "Action": "Create new Dataproc cluster",
                    "computational_url": [
-                       {"description": "EMR Master",
+                       {"description": "Dataproc Master",
                         "url": dataproc_master_acces_url}
                    ]
                    }
