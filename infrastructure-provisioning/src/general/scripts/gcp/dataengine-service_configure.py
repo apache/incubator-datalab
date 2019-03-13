@@ -64,7 +64,8 @@ def configure_dataengine_service(instance, dataproc_conf):
             env.key_filename = "{}".format(dataproc_conf['key_path'])
             env.host_string = dataproc_conf['dlab_ssh_user'] + '@' + dataproc_conf['instance_ip']
             install_os_pkg(['python-pip', 'python3-pip'])
-            configure_data_engine_service_pip(dataproc_conf['instance_ip'], dataproc_conf['dlab_ssh_user'], dataproc_conf['key_path'])
+            configure_data_engine_service_pip(dataproc_conf['instance_ip'], dataproc_conf['dlab_ssh_user'],
+                                              dataproc_conf['key_path'])
         except:
             traceback.print_exc()
             raise Exception
@@ -98,11 +99,16 @@ if __name__ == "__main__":
     dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     dataproc_conf['region'] = os.environ['gcp_region']
     dataproc_conf['zone'] = os.environ['gcp_zone']
-    dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
-    dataproc_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
-                                                                 dataproc_conf['exploratory_name'], dataproc_conf['computational_name'])
-    dataproc_conf['cluster_tag'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
-    dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
+    dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'],
+                                                      dataproc_conf['edge_user_name'])
+    dataproc_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}'.format(dataproc_conf['service_base_name'],
+                                                                 dataproc_conf['edge_user_name'],
+                                                                 dataproc_conf['exploratory_name'],
+                                                                 dataproc_conf['computational_name'])
+    dataproc_conf['cluster_tag'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
+                                                       dataproc_conf['edge_user_name'])
+    dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'],
+                                                         dataproc_conf['edge_user_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
