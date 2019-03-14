@@ -29,7 +29,7 @@ import sys
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                                 'groff gcc vim less git wget sysv-rc-conf '
                                 'libssl-dev unattended-upgrades nmap '
-                                'libffi-dev unzip libxml2-dev'):
+                                'libffi-dev unzip libxml2-dev haveged'):
     try:
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories "
@@ -39,6 +39,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
             sudo('unattended-upgrades -v')
             sudo('export LC_ALL=C')
             sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
+            sudo('systemctl enable haveged')
+            sudo('systemctl start haveged')
     except:
         sys.exit(1)
 
