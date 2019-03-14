@@ -136,20 +136,6 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
         print('Failed to configure SSL certificates: ', str(err))
         sys.exit(1)
 
-def download_toree():
-    toree_path = /opt/dlab/sources/infrastructure-provisioning/src/general/files/os/
-    download_link = https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/toree-0.2.0-incubating-bin.tar.gz
-    try
-        run('cd {}'.format(toree_path))
-        run('cd {0} && wget {1}'.format(toree_path, download_link))
-        run('mv {0}toree-0.2.0-incubating-bin.tar.gz {0}toree-kernel.tar.gz'.format(toree_path))
-        run('tar xvf toree-kernel.tar.gz')
-        run('mv {0}toree-0.2.0-incubating/lib/toree-assembly-0.2.0-incubating.jar {0}toree-assembly-0.2.0.jar'.format(toree_path))
-        run('rm -rf {}toree-0.2.0-incubating'.format(toree_path))
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to download toree: ', str(err))
-        sys.exit(1)
 
 ##############
 # Run script #
@@ -207,6 +193,3 @@ if __name__ == "__main__":
 
     print("Ensuring safest ssh ciphers")
     ensure_ciphers()
-
-    print("Downloading Apache Toree")
-    download_toree()
