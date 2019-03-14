@@ -132,6 +132,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userAccessKeyService.generateAccessKey().subscribe(
       data => {
         FileUtils.downloadFile(data);
+        this.userAccessKeyService.initialUserAccessKeyCheck();
       }, error => this.toastr.error(error.message || 'Access key generation failed!', 'Oops!', { toastLife: 5000 }));
   }
 
