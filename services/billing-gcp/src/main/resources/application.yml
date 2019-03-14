@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      username: admin
+      password: admin
+      database: DLAB
+      port: 27017
+      host: localhost
+
+ssnBaseName: it78
+tableName: test_dataset.test
+cron: 0 * * * * *

@@ -35,25 +35,31 @@ limitations under the License.
     <profiles>
         <profile>
             <id>aws</id>
+            <modules>
+                <module>services/billing-aws</module>
+                <module>services/security-aws</module>
+            </modules>
         </profile>
         <profile>
             <id>azure</id>
+            <modules>
+                <module>services/billing-azure</module>
+                <module>services/security-azure</module>
+            </modules>
         </profile>
         <profile>
             <id>gcp</id>
+            <modules>
+                <module>services/billing-gcp</module>
+                <module>services/security-gcp</module>
+            </modules>
         </profile>
     </profiles>
 
     <modules>
         <module>services/common</module>
-        <module>services/billing-aws</module>
         <module>services/provisioning-service</module>
         <module>services/self-service</module>
-        <module>services/billing-azure</module>
-        <module>services/billing-gcp</module>
-        <module>services/security-azure</module>
-        <module>services/security-gcp</module>
-        <module>services/security-aws</module>
         <module>services/security-service</module>
         <module>services/dlab-process</module>
         <module>services/dlab-auth-common</module>
