@@ -55,36 +55,6 @@ public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
     }
 
     @Override
-    public Double getTotalCost() {
-        return null;
-    }
-
-    @Override
-    public Double getUserCost(String user) {
-        return null;
-    }
-
-    @Override
-    public int getBillingQuoteUsed() {
-        return 0;
-    }
-
-    @Override
-    public int getBillingUserQuoteUsed(String user) {
-        return 0;
-    }
-
-    @Override
-    public boolean isBillingQuoteReached() {
-        return false;
-    }
-
-    @Override
-    public boolean isUserQuoteReached(String user) {
-        return false;
-    }
-
-    @Override
     protected List<Bson> cloudMatchCriteria(GcpBillingFilter filter) {
         return Collections.emptyList();
     }

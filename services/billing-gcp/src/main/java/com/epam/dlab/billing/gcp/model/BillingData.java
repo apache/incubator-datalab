@@ -37,9 +37,9 @@ public class BillingData {
     @Field("resource_name")
     private String displayName;
     private String resourceName;
-    @Field("usage_date_start")
+    @Field("from")
     private LocalDate usageDateFrom;
-    @Field("usage_date_end")
+    @Field("to")
     private LocalDate usageDateTo;
     @Field("usage_date")
     private String usageDate;

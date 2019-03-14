@@ -28,7 +28,6 @@ import com.epam.dlab.billing.gcp.repository.BillingRepository;
 import com.epam.dlab.billing.gcp.repository.EdgeRepository;
 import com.epam.dlab.billing.gcp.repository.UserInstanceRepository;
 import com.epam.dlab.billing.gcp.util.BillingUtils;
-import com.google.common.collect.Iterables;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +38,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,13 +52,14 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Slf4j
 public class BillingServiceImpl implements BillingService {
 
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
     private final BillingDAO billingDAO;
     private final EdgeRepository edgeRepository;
     private final UserInstanceRepository userInstanceRepository;
     private final BillingRepository billingRepository;
     private final MongoTemplate mongoTemplate;
-    @Value("${ssnBaseName}")
-    private String ssnBaseName;
+    @Value("${dlab.sbn}")
+    private String sbn;
 
     @Autowired
     public BillingServiceImpl(BillingDAO billingDAO, EdgeRepository edgeRepository,
@@ -77,7 +76,7 @@ public class BillingServiceImpl implements BillingService {
     public void updateBillingData() {
         try {
 
-            final Stream<BillingData> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(ssnBaseName);
+            final Stream<BillingData> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(sbn);
             final Stream<BillingData> billableUserInstances = userInstanceRepository.findAll()
                     .stream()
                     .flatMap(BillingUtils::exploratoryBillingDataStream);
@@ -85,17 +84,19 @@ public class BillingServiceImpl implements BillingService {
             final Stream<BillingData> billableEdges = edgeRepository.findAll()
                     .stream()
                     .map(Edge::getId)
-                    .flatMap(e -> edgeBillingDataStream(e, ssnBaseName));
+                    .flatMap(e -> edgeBillingDataStream(e, sbn));
 
-            final Map<String, BillingData> billableResources = Stream.of(billableUserInstances, billableEdges, ssnBillingDataStream)
+            final Map<String, BillingData> billableResources = Stream.of(billableUserInstances, billableEdges,
+                    ssnBillingDataStream)
                     .flatMap(s -> s)
                     .collect(Collectors.toMap(BillingData::getDlabId, b -> b));
             log.trace("Billable resources are: {}", billableResources);
-            final List<BillingData> billingDataList = billingDAO.getBillingData(ssnBaseName)
+            final List<BillingData> billingDataList = billingDAO.getBillingData(sbn)
                     .stream()
                     .map(bd -> toBillingData(bd, getOrDefault(billableResources, bd.getTag())))
                     .collect(Collectors.toList());
 
+            log.debug("Inserting new billing data with size: {}", billingDataList.size());
             billingRepository.insert(billingDataList);
             updateExploratoryCost(billingDataList);
 
@@ -116,7 +117,8 @@ public class BillingServiceImpl implements BillingService {
                 .forEach(this::updateUserExploratoryBillingData);
     }
 
-    private void updateUserExploratoryBillingData(String user, Map<String, List<BillingData>> billableExploratoriesMap) {
+    private void updateUserExploratoryBillingData(String user,
+                                                  Map<String, List<BillingData>> billableExploratoriesMap) {
         billableExploratoriesMap.forEach((exploratoryName, billingInfoList) ->
                 updateExploratoryBillingData(user, exploratoryName, billingInfoList)
         );
@@ -133,7 +135,8 @@ public class BillingServiceImpl implements BillingService {
     private void updateExploratoryBillingData(String user, String exploratoryName, List<BillingData> billingInfoList) {
         userInstanceRepository.findByUserAndExploratoryName(user, exploratoryName).ifPresent(userInstance ->
                 mongoTemplate.updateFirst(Query.query(where("user").is(user).and("exploratory_name").is(exploratoryName)),
-                        Update.update("cost", getTotalCost(billingInfoList)).set("billing", billingInfoList), UserInstance.class));
+                        Update.update("cost", getTotalCost(billingInfoList)).set("billing", billingInfoList),
+                        UserInstance.class));
     }
 
     private double getTotalCost(List<BillingData> billingInfoList) {
@@ -152,7 +155,7 @@ public class BillingServiceImpl implements BillingService {
                 .product(bd.getProduct())
                 .usageDateTo(bd.getUsageDateTo())
                 .usageDateFrom(bd.getUsageDateFrom())
-                .usageDate(bd.getUsageDateFrom().format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                .usageDate(bd.getUsageDateFrom().format((DateTimeFormatter.ofPattern(DATE_FORMAT))))
                 .usageType(bd.getUsageType())
                 .user(billableResource.getUser())
                 .exploratoryName(billableResource.getExploratoryName())

@@ -17,22 +17,20 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.gcp;
+package com.epam.dlab.billing.gcp.conf;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryOptions;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
-@EnableScheduling
-@EnableMongoRepositories
-@EnableConfigurationProperties
-public class BillingGcpApplication {
+@Configuration
+public class BillingApplicationConfiguration {
 
-    public static void main(String[] args) {
-        SpringApplication.run(BillingGcpApplication.class, args);
+
+    @Bean
+    public BigQuery bigQueryService() {
+        return BigQueryOptions.getDefaultInstance().getService();
     }
 
 }

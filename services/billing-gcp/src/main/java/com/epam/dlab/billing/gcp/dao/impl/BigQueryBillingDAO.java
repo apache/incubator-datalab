@@ -19,10 +19,14 @@
 
 package com.epam.dlab.billing.gcp.dao.impl;
 
+import com.epam.dlab.billing.gcp.conf.DlabConfiguration;
 import com.epam.dlab.billing.gcp.dao.BillingDAO;
 import com.epam.dlab.billing.gcp.model.GcpBillingData;
-import com.google.cloud.bigquery.*;
-import org.springframework.beans.factory.annotation.Value;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.FieldValueList;
+import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.QueryParameterValue;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -35,24 +39,32 @@ import java.util.stream.StreamSupport;
 @Component
 public class BigQueryBillingDAO implements BillingDAO {
 
-    public final String tableName;
+    private static final String SBN_PARAM = "sbn";
+    private static final String DATASET_PARAM = "dataset";
+    private final String tableId;
 
-    private static final String QUERY = "SELECT b.sku.description usageType,TIMESTAMP_TRUNC(usage_start_time, DAY, 'UTC') usage_date_from, TIMESTAMP_TRUNC(usage_end_time, DAY, 'UTC') usage_date_to, sum(b.cost) cost, b.service.description product, label.value, currency\n" +
-            "FROM `" + "%s" + "` b\n" +
+    private static final String GET_BILLING_DATA_QUERY = "SELECT b.sku.description usageType," +
+            "TIMESTAMP_TRUNC(usage_start_time, DAY, 'UTC') usage_date_from, TIMESTAMP_TRUNC(usage_end_time, DAY, " +
+            "'UTC')" +
+            " usage_date_to, sum(b.cost) cost, b.service.description product, label.value, currency\n" +
+            "FROM `%s` b\n" +
             "CROSS JOIN UNNEST(b.labels) as label\n" +
-            "where label.key = 'name' and cost != 0 and label.value like @ssnBaseName\n" +
+            "where label.key = 'name' and cost != 0 and label.value like @sbn\n" +
             "group by usageType, usage_date_from, usage_date_to, product, value, currency";
-    private final BigQuery service = BigQueryOptions.getDefaultInstance().getService();
+    private final BigQuery service;
 
-    public BigQueryBillingDAO(@Value("${tableName}") String tableName) {
-        this.tableName = tableName;
+    @Autowired
+    public BigQueryBillingDAO(DlabConfiguration conf, BigQuery service) {
+        this.tableId = String.join(".", conf.getBigQueryDataset(), conf.getBigQueryTable());
+        this.service = service;
     }
 
     @Override
-    public List<GcpBillingData> getBillingData(String ssnBaseName) throws InterruptedException {
-        QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(String.format(QUERY, tableName))
-                .addNamedParameter("ssnBaseName", QueryParameterValue.string(ssnBaseName + "%"))
-                .addNamedParameter("dataset", QueryParameterValue.string(tableName))
+    public List<GcpBillingData> getBillingData(String sbn) throws InterruptedException {
+        QueryJobConfiguration queryConfig = QueryJobConfiguration
+                .newBuilder(String.format(GET_BILLING_DATA_QUERY, tableId))
+                .addNamedParameter(SBN_PARAM, QueryParameterValue.string(sbn + "%"))
+                .addNamedParameter(DATASET_PARAM, QueryParameterValue.string(tableId))
                 .build();
         return StreamSupport.stream(service.query(queryConfig).getValues().spliterator(), false)
                 .map(this::toBillingData)

@@ -35,7 +35,6 @@ public class BillingUtils {
     private static final String VOLUME_PRIMARY = "Volume primary";
     private static final String VOLUME_SECONDARY = "Volume secondary";
     private static final String SHARED_RESOURCE = "Shared resource";
-    private static final String SSN_BUCKET_FORMAT = "%s-bucket";
 
     public static Stream<BillingData> edgeBillingDataStream(String user, String sbn) {
         final String adjustedUserName = adjustUserName(10, user);
@@ -55,8 +54,10 @@ public class BillingUtils {
         return Stream.of(
                 BillingData.builder().user(SHARED_RESOURCE).displayName("SSN").dlabId(ssnId).resourceType(BillingData.ResourceType.SSN).build(),
                 BillingData.builder().user(SHARED_RESOURCE).displayName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingData.ResourceType.VOLUME).build(),
-                BillingData.builder().user(SHARED_RESOURCE).displayName("SSN bucket").dlabId(bucketName + "-ssn-bucket").resourceType(BillingData.ResourceType.SSN_BUCKET).build(),
-                BillingData.builder().user(SHARED_RESOURCE).displayName("Collaboration bucket").dlabId(bucketName + "-shared-bucket").resourceType(BillingData.ResourceType.SHARED_BUCKET).build()
+                BillingData.builder().user(SHARED_RESOURCE).displayName("SSN bucket").dlabId(bucketName + "-ssn" +
+                        "-bucket").resourceType(BillingData.ResourceType.SSN_BUCKET).build(),
+                BillingData.builder().user(SHARED_RESOURCE).displayName("Collaboration bucket").dlabId(bucketName +
+                        "-shared-bucket").resourceType(BillingData.ResourceType.SHARED_BUCKET).build()
         );
     }
 
@@ -74,7 +75,8 @@ public class BillingUtils {
         return Stream.concat(computationalStream, exploratoryStream);
     }
 
-    private static BillingData computationalBillableResource(UserInstance userInstance, UserInstance.ComputationalResource cr) {
+    private static BillingData computationalBillableResource(UserInstance userInstance,
+                                                             UserInstance.ComputationalResource cr) {
         return withExploratoryName(userInstance)
                 .dlabId(cr.getComputationalId())
                 .displayName(cr.getComputationalName())

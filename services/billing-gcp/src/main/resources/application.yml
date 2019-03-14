@@ -6,7 +6,8 @@ spring:
       database: DLAB
       port: 27017
       host: localhost
-
-ssnBaseName: it78
-tableName: test_dataset.test
-cron: 0 * * * * *
+dlab:
+  sbn: it78
+  bigQueryDataset: test_dataset
+  bigQueryTable: test
+  cron: 0 * * * * *
