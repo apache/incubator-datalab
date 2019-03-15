@@ -150,6 +150,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/matplot_ensured'):
         try:
+            sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
+            sudo('sudo apt-get update')
             sudo('apt-get build-dep -y python-matplotlib')
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
