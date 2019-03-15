@@ -87,7 +87,9 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
-    edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
+    edge_conf['allowed_ip_cidr'] = list()
+    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+        edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
     try:
         if os.environ['conf_os_family'] == 'debian':
