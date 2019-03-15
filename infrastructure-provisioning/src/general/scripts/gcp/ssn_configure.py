@@ -304,6 +304,8 @@ if __name__ == "__main__":
         jenkins_url_https = "https://{}/jenkins".format(instance_hostname)
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        print("DLab UI HTTP URL: http://{}".format(instance_hostname))
+        print("DLab UI HTTPS URL: https://{}".format(instance_hostname))
         try:
             with open('jenkins_creds.txt') as f:
                 print(f.read())
