@@ -79,7 +79,6 @@ if __name__ == "__main__":
         GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
     edge_conf['private_ip'] = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
     edge_conf['vpc_cidrs'] = [edge_conf['vpc_cidr']]
-    edge_conf['allowed_ip_cidr'] = [edge_conf['vpc_cidr']]
     edge_conf['fw_common_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
@@ -88,6 +87,7 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
+    edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
-                             "edge_user_name": os.environ['edge_user_name'],
+                             "edge_user_name": os.environ['gcp_iam_user'],
                              "ldap_host": os.environ['ldap_hostname'],
                              "ldap_dn": os.environ['ldap_dn'],
                              "ldap_user": os.environ['ldap_service_username'],
