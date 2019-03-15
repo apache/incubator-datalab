@@ -83,17 +83,13 @@ def configure_dataengine_service(instance, dataproc_conf):
             slave = {
                 'name': 'datanode{}'.format(idx + 1),
                 'ip': slave_ip,
-                'dns': "{0}.{1}.{2}.internal".format(instance,
-                                                     dataproc_conf['zone'].split('-')[-1],
-                                                     os.environ['gcp_project_id'])
+                'dns': "{0}.c.{1}.internal".format(instance, os.environ['gcp_project_id'])
             }
             slaves.append(slave)
         additional_info = {
             "computational_name": dataproc_conf['computational_name'],
             "master_ip": dataproc_conf['master_ip'],
-            "master_dns": "{0}.{1}.{2}.internal".format(dataproc_conf['master_name'],
-                                                        dataproc_conf['zone'].split('-')[-1],
-                                                        os.environ['gcp_project_id']),
+            "master_dns": "{0}.c.{1}.internal".format(dataproc_conf['master_name'], os.environ['gcp_project_id']),
             "slaves": slaves,
             "tensor": False
         }
