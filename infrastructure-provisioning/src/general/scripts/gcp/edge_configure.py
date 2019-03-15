@@ -64,7 +64,8 @@ if __name__ == "__main__":
                                                   edge_conf['edge_user_name'])
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
-    edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'],
+                                                                       edge_conf['edge_user_name'])
     edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name'])
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
@@ -78,7 +79,6 @@ if __name__ == "__main__":
         GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
     edge_conf['private_ip'] = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
     edge_conf['vpc_cidrs'] = [edge_conf['vpc_cidr']]
-    edge_conf['allowed_ip_cidr'] = [edge_conf['vpc_cidr']]
     edge_conf['fw_common_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
@@ -87,6 +87,9 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
+    edge_conf['allowed_ip_cidr'] = list()
+    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+        edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -162,7 +165,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
-                             "edge_user_name": os.environ['edge_user_name'],
+                             "edge_user_name": os.environ['gcp_iam_user'],
                              "ldap_host": os.environ['ldap_hostname'],
                              "ldap_dn": os.environ['ldap_dn'],
                              "ldap_user": os.environ['ldap_service_username'],
@@ -212,6 +215,36 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed installing users key. Excpeption: " + str(err))
+        GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
+        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
+        GCPActions().remove_role(edge_conf['edge_role_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        sys.exit(1)
+
+    try:
+        print('[INSTALLING NGINX REVERSE PROXY]')
+        logging.info('[INSTALLING NGINX REVERSE PROXY]')
+        params = "--hostname {} --keyfile {} --user {}" \
+            .format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed installing nginx reverse proxy. Excpeption: " + str(err))
         GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])

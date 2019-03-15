@@ -52,6 +52,7 @@ if __name__ == "__main__":
                                                                notebook_config['exploratory_name'])
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
+    edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -86,8 +87,8 @@ if __name__ == "__main__":
         print('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
         additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
-            .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], json.dumps(additional_config),
-                    notebook_config['dlab_ssh_user'])
+            .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
+                    json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
@@ -176,10 +177,43 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_hostname,
+                    notebook_config['ssh_key_path'],
+                    notebook_config['dlab_ssh_user'],
+                    'jupyter',
+                    notebook_config['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+    jupyter_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(notebook_config['exploratory_name'])
+    jupyter_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+        notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))
@@ -189,6 +223,8 @@ if __name__ == "__main__":
     print("User key name: {}".format(os.environ['edge_user_name']))
     print("Jupyter URL: {}".format(jupyter_ip_url))
     print("Ungit URL: {}".format(ungit_ip_url))
+    print("ReverseProxyNotebook".format(jupyter_notebook_acces_url))
+    print("ReverseProxyUngit".format(jupyter_ungit_acces_url))
     print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'],
                                                                                        notebook_config['dlab_ssh_user'],
                                                                                        ip_address))
@@ -202,7 +238,12 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Jupyter",
-                    "url": jupyter_ip_url},
+                    "url": jupyter_notebook_acces_url},
                    {"description": "Ungit",
-                    "url": ungit_ip_url}]}
+                    "url": jupyter_ungit_acces_url},
+                   {"description": "Jupyter (via tunnel)",
+                    "url": jupyter_ip_url},
+                   {"description": "Ungit (via tunnel)",
+                    "url": ungit_ip_url}
+               ]}
         result.write(json.dumps(res))
