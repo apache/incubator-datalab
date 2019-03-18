@@ -61,7 +61,8 @@ public class MavenCentralLibraryServiceTest {
 		assertEquals("version", libDTO.getVersion());
 
 		verify(client).get(refEq(URI.create("/solrsearch/select?q=a:%22artifactId%22+AND+g" +
-						":%22groupId%22+AND+v:%22version%22+AND+p:%22jar%22&rows=20&wt=json&core=gav&p=jar")),
+						":%22groupId%22+AND+v:%22version%22+AND+(p:%22jar%22%20OR%20p:%22bundle%22)" +
+						"&rows=20&wt=json&core=gav&p=jar")),
 				eq(MavenSearchArtifactResponse.class));
 	}
 
