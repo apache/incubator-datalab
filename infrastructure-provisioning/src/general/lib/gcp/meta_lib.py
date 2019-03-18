@@ -287,18 +287,22 @@ class GCPMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def get_ami_by_name(self, ami_name):
+    def get_image_by_name(self, image_name):
         try:
-            request = self.service.images().get(project=self.project, image=ami_name)
-            result = request.execute()
-            return result
+            request = self.service.images().get(project=self.project, image=image_name)
+            try:
+                return request.execute()
+            except errors.HttpError as err:
+                if err.resp.status == 404:
+                    return ''
+                else:
+                    raise err
         except Exception as err:
             logging.info("Error with getting image by name: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
             append_result(str({"error": "Error with getting image by name",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
-            return ''
 
     def get_disk(self, disk_name):
         try:

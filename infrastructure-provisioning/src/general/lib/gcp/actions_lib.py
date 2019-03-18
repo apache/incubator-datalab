@@ -221,10 +221,15 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_disk(self, instance_name, zone, size):
+    def create_disk(self, instance_name, zone, size, secondary_image_name):
         try:
-            params = {"sizeGb": size, "name": instance_name + '-secondary',
-                      "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
+            if secondary_image_name == '':
+                params = {"sizeGb": size, "name": instance_name + '-secondary',
+                          "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
+            else:
+                params = {"sizeGb": size, "name": instance_name + '-secondary',
+                          "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone),
+                          "sourceImage": secondary_image_name}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
             meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
@@ -262,7 +267,7 @@ class GCPActions:
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size,
                         ssh_key_path,
-                        initial_user, image_name, service_account_name, instance_class, network_tag,
+                        initial_user, image_name, secondary_image_name, service_account_name, instance_class, network_tag,
                         labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None'):
@@ -278,7 +283,7 @@ class GCPActions:
                 "natIP": static_ip
             }]
         if instance_class == 'notebook':
-            GCPActions().create_disk(instance_name, zone, secondary_disk_size)
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name)
             disks = [
                 {
                     "name": instance_name,
@@ -659,15 +664,20 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disk(self, image_name, source_name, zone):
-        params = {"name": image_name, "sourceDisk": source_name}
+    def create_image_from_instance_disk(self, image_name, disk_type, instance_name, zone):
+        if disk_type == 'primary':
+            disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
+        else:
+            disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
+        params = {"name": image_name, "sourceDisk": disk_name}
         request = self.service.images().insert(project=self.project, body=params)
         try:
-            GCPActions().stop_instance(self, source_name, zone)
+            GCPActions().stop_instance(instance_name, zone)
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('Image {} has been created.'.format(image_name))
-            return result
+            GCPActions().start_instance(instance_name, zone)
+            return result.get('id')
         except Exception as err:
             logging.info(
                 "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
