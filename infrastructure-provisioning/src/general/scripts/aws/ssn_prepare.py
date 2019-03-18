@@ -60,8 +60,10 @@ if __name__ == "__main__":
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
+        ssn_bucket_name_tag = service_base_name + '-ssn-bucket'
+        shared_bucket_name_tag = service_base_name + '-shared-bucket'
+        ssn_bucket_name = ssn_bucket_name_tag.lower().replace('_', '-')
+        shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
@@ -86,7 +88,8 @@ if __name__ == "__main__":
                 pre_defined_vpc = True
                 logging.info('[CREATE VPC AND ROUTE TABLE]')
                 print('[CREATE VPC AND ROUTE TABLE]')
-                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {}".format(vpc_cidr, region, tag_name, service_base_name)
+                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
+                    vpc_cidr, region, tag_name, service_base_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
                 except:
@@ -111,7 +114,8 @@ if __name__ == "__main__":
                 pre_defined_vpc2 = True
                 logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
                 print('[CREATE SECONDARY VPC AND ROUTE TABLE]')
-                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary".format(vpc2_cidr, region, tag2_name, service_base_name)
+                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary".format(
+                    vpc2_cidr, region, tag2_name, service_base_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
                 except:
@@ -136,7 +140,8 @@ if __name__ == "__main__":
                 pre_defined_subnet = True
                 logging.info('[CREATE SUBNET]')
                 print('[CREATE SUBNET]')
-                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
+                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} " \
+                         "--ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 except:
@@ -169,9 +174,11 @@ if __name__ == "__main__":
             try:
                 logging.info('[CREATE PEERING CONNECTION]')
                 print('[CREATE PEERING CONNECTION]')
-                os.environ['aws_peering_id'] = create_peering_connection(os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], service_base_name)
+                os.environ['aws_peering_id'] = create_peering_connection(os.environ['aws_vpc_id'],
+                                                                         os.environ['aws_vpc2_id'], service_base_name)
                 print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
-                create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc2_id']))
+                create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'],
+                                   get_cidr_by_vpc(os.environ['aws_vpc2_id']))
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create peering connection.", str(err))
@@ -236,8 +243,10 @@ if __name__ == "__main__":
                 egress_sg_rules_template = format_sg([
                     {"IpProtocol": "-1", "IpRanges": [{"CidrIp": all_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
                 ])
-                params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
-                    format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
+                params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
+                         "--infra_tag_value {} --force {} --ssn {}". \
+                    format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template),
+                           json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_security_group', params))
                 except:
@@ -341,8 +350,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
-                 format(user_bucket_name, tag_name, user_bucket_name, region)
+        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
+                 format(ssn_bucket_name, tag_name, ssn_bucket_name, region, ssn_bucket_name_tag)
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
@@ -350,8 +359,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
 
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
-                 format(shared_bucket_name, tag_name, shared_bucket_name, region)
+        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
+                 format(shared_bucket_name, tag_name, shared_bucket_name, region, shared_bucket_name_tag)
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
@@ -379,7 +388,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}".\
+        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} " \
+                 "--iam_profile {} --infra_tag_name {} --infra_tag_value {}".\
             format(instance_name, ssn_ami_id, os.environ['aws_ssn_instance_size'], os.environ['conf_key_name'],
                    os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
                    role_profile_name, tag_name, instance_name)
