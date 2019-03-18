@@ -43,8 +43,10 @@ if __name__ == "__main__":
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
+        ssn_bucket_name_tag = service_base_name + '-ssn-bucket'
+        shared_bucket_name_tag = service_base_name + '-shared-bucket'
+        ssn_bucket_name = ssn_bucket_name_tag.lower().replace('_', '-')
+        shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
@@ -391,7 +393,7 @@ if __name__ == "__main__":
         print("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
         print("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
         print("SSN AMI name: {}".format(ssn_image_name))
-        print("SSN bucket name: {}".format(user_bucket_name))
+        print("SSN bucket name: {}".format(ssn_bucket_name))
         print("Shared bucket name: {}".format(shared_bucket_name))
         print("Region: {}".format(region))
         jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
@@ -418,7 +420,7 @@ if __name__ == "__main__":
                    "subnet_id": os.environ['aws_subnet_id'],
                    "security_id": os.environ['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
-                   "bucket_name": user_bucket_name,
+                   "bucket_name": ssn_bucket_name,
                    "shared_bucket_name": shared_bucket_name,
                    "region": region,
                    "action": "Create SSN instance"}
