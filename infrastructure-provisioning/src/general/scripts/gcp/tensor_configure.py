@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -53,6 +56,7 @@ if __name__ == "__main__":
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
+    edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -172,11 +176,46 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': True
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_hostname,
+                    notebook_config['ssh_key_path'],
+                    notebook_config['dlab_ssh_user'],
+                    'jupyter',
+                    notebook_config['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     tensorboard_url = "http://" + ip_address + ":6006/"
     jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+    jupyter_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(notebook_config['exploratory_name'])
+    tensorboard_acces_url = "http://" + edge_instance_hostname + "/{}-tensor/".format(
+        notebook_config['exploratory_name'])
+    jupyter_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+        notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))
@@ -201,10 +240,17 @@ if __name__ == "__main__":
                "notebook_name": notebook_config['instance_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
-                   {"description": "TensorBoard",
-                    "url": tensorboard_url},
                    {"description": "Jupyter",
-                    "url": jupyter_ip_url},
+                    "url": jupyter_notebook_acces_url},
+                   {"description": "TensorBoard",
+                    "url": tensorboard_acces_url},
                    {"description": "Ungit",
-                    "url": ungit_ip_url}]}
+                    "url": jupyter_ungit_acces_url},
+                   {"description": "Jupyter (via tunnel)",
+                    "url": jupyter_ip_url},
+                   {"description": "TensorBoard (via tunnel)",
+                    "url": tensorboard_url},
+                   {"description": "Ungit (via tunnel)",
+                    "url": ungit_ip_url}
+               ]}
         result.write(json.dumps(res))

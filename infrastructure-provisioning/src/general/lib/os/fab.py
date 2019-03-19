@@ -1,18 +1,21 @@
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -39,9 +42,8 @@ def ensure_pip(requisites):
             sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
-        return True
     except:
-        return False
+        sys.exit(1)
 
 
 def dataengine_dir_prepare(cluster_dir):
@@ -679,4 +681,14 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
             local('sudo systemctl restart zeppelin-notebook')
     except Exception as err:
         print('Failed to update Zeppelin interpreters', str(err))
+        sys.exit(1)
+
+
+def update_hosts_file(os_user):
+    try:
+        if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
+            sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
+            sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
+    except Exception as err:
+        print('Failed to update hosts file', str(err))
         sys.exit(1)

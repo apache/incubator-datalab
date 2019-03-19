@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -40,8 +43,10 @@ if __name__ == "__main__":
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
+        ssn_bucket_name_tag = service_base_name + '-ssn-bucket'
+        shared_bucket_name_tag = service_base_name + '-shared-bucket'
+        ssn_bucket_name = ssn_bucket_name_tag.lower().replace('_', '-')
+        shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
@@ -91,13 +96,6 @@ if __name__ == "__main__":
         except KeyError:
             os.environ['aws_peering_id'] = get_peering_by_tag(tag_name, service_base_name)
             pre_defined_peering = True
-        try:
-            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_subnet2_id']:
-                raise KeyError
-        except KeyError:
-            tag = {"Key": tag2_name, "Value": "{}-subnet".format(service_base_name)}
-            os.environ['aws_subnet2_id'] = get_subnet_by_tag(tag, True)
-            pre_defined_subnet2 = True
         try:
             if os.environ['aws_security_groups_ids'] == '':
                 raise KeyError
@@ -296,7 +294,7 @@ if __name__ == "__main__":
         if os.environ['conf_duo_vpc_enable'] == 'true':
             secondary_parameters = {
                 "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
-                "aws_notebook_subnet_id": os.environ['aws_subnet2_id'],
+                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
                 "aws_peering_id": os.environ['aws_peering_id']
             }
         else:
@@ -395,13 +393,15 @@ if __name__ == "__main__":
         print("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
         print("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
         print("SSN AMI name: {}".format(ssn_image_name))
-        print("SSN bucket name: {}".format(user_bucket_name))
+        print("SSN bucket name: {}".format(ssn_bucket_name))
         print("Shared bucket name: {}".format(shared_bucket_name))
         print("Region: {}".format(region))
         jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        print("DLab UI HTTP URL: http://{}".format(get_instance_hostname(tag_name, instance_name)))
+        print("DLab UI HTTPS URL: https://{}".format(get_instance_hostname(tag_name, instance_name)))
         try:
             with open('jenkins_creds.txt') as f:
                 print(f.read())
@@ -420,7 +420,7 @@ if __name__ == "__main__":
                    "subnet_id": os.environ['aws_subnet_id'],
                    "security_id": os.environ['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
-                   "bucket_name": user_bucket_name,
+                   "bucket_name": ssn_bucket_name,
                    "shared_bucket_name": shared_bucket_name,
                    "region": region,
                    "action": "Create SSN instance"}

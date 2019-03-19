@@ -1,20 +1,21 @@
 <!--
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
--->
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
 <modal-dialog #bindDialog modalClass="create-cluster modal-xxl">
   <modal-header>
@@ -110,20 +111,20 @@ limitations under the License.
           </div>
         </div>
 
-        <div class="checkbox-group control-group" *ngIf="PROVIDER === 'aws'"
+        <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'"
             [hidden]="!model.templates.length || !isAvailableSpots()">
           <label class="spot-label label">
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />
             <span>Spot instance</span>
-            <span *ngIf="spotInstancesSelect?.nativeElement['checked']"> bit, %</span>
+            <span *ngIf="spotInstancesSelect?.nativeElement['checked'] || false"> bit, %</span>
           </label>
-          <div class="control spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] }" *ngIf="spotInstancesSelect?.nativeElement['checked']">
+          <div class="control spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] || false }" *ngIf="spotInstancesSelect?.nativeElement['checked'] || false">
             <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="isNumberKey($event)">
             <span class="danger_color" *ngIf="!resourceForm?.controls.instance_price.valid">
               Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed
             </span>
           </div>
-          <span class="info" *ngIf="spotInstancesSelect?.nativeElement['checked']">When the current Spot price rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another customer. Make sure to backup your data on periodic basis.</span>
+          <span class="info" *ngIf="spotInstancesSelect?.nativeElement['checked'] || false">When the current Spot price rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another customer. Make sure to backup your data on periodic basis.</span>
         </div>
 
 
@@ -132,14 +133,14 @@ limitations under the License.
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
           </label>
-          <div class="config-link" *ngIf="configuration?.nativeElement['checked']
+          <div class="config-link" *ngIf="(configuration?.nativeElement['checked'] || false)
             && model.selectedImage?.image === 'docker.dlab-dataengine-service'
             && DICTIONARY.cloud_provider === 'aws'">
             To view example JSON of configurations refer for <a href="https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-configure-apps.html" target="_blank">AWS official documentation</a>
           </div>
         </div>
         <div class="checkbox-group">
-          <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
+          <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
             <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
             <span class="danger_color" *ngIf="!resourceForm?.controls.configuration_parameters.valid && resourceForm?.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
           </div>

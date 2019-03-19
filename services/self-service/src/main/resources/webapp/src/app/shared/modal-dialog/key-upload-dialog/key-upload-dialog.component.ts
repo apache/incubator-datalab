@@ -1,23 +1,24 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { KeyUploadDialogModel } from './key-upload.model';
 import { UserAccessKeyService } from '../../../core/services';
@@ -39,11 +40,9 @@ export class UploadKeyDialogComponent implements OnInit {
 
   constructor(
     private userAccessKeyService: UserAccessKeyService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = KeyUploadDialogModel.getDefault();
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -76,9 +75,7 @@ export class UploadKeyDialogComponent implements OnInit {
             this.checkInfrastructureCreationProgress.emit();
           }
         },
-        error => {
-          this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
-        },
+        error => this.toastr.error(error.message, 'Oops!'),
         this.userAccessKeyService);
       this.bindDialog.open(params);
     }

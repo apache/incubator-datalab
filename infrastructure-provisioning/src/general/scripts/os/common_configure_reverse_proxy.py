@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -23,7 +26,7 @@ import json
 import sys
 from fabric.api import *
 from jinja2 import Environment, FileSystemLoader
-from dlab.meta_lib import get_instance_private_ip_address, get_instance_hostname
+from dlab.meta_lib import get_instance_private_ip_address
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--edge_hostname', type=str, default='')
@@ -44,7 +47,7 @@ def make_template():
     ungit_template = environment.get_template('{}.conf'.format('ungit'))
     tf_template = environment.get_template('{}.conf'.format('tensor'))
     config = {}
-    if args.type != 'emr' and args.type != 'spark':
+    if args.type != 'dataengine-service' and args.type != 'spark':
         config['NAME'] = args.exploratory_name
         config['IP'] = additional_info['instance_hostname']
     elif args.type == 'spark':
@@ -64,7 +67,7 @@ def make_template():
             slaves.append(slave)
         config['slaves'] = slaves
         conf_file_name = config['CLUSTER_NAME']
-    elif args.type == 'emr':
+    elif args.type == 'dataengine-service':
         config['CLUSTER_NAME'] = '{}_{}'.format(
             args.exploratory_name, additional_info['computational_name'])
         config['MASTER_IP'] = additional_info['master_ip']
@@ -76,7 +79,7 @@ def make_template():
     f = open('/tmp/{}.conf'.format(conf_file_name), 'w')
     f.write(template.render(config))
     f.close()
-    if args.type != 'emr' and args.type != 'spark':
+    if args.type != 'dataengine-service' and args.type != 'spark':
         f = open('/tmp/{}.conf'.format(conf_file_name), 'a')
         f.write(ungit_template.render(config))
         f.close()

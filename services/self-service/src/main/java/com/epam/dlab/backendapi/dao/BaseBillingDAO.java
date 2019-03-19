@@ -1,23 +1,29 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.mongodb.client.FindIterable;
 import lombok.Getter;
@@ -44,7 +50,7 @@ import static com.mongodb.client.model.Projections.*;
 import static java.util.Collections.singletonList;
 
 @Slf4j
-public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T> {
+public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO implements BillingDAO<T> {
 
 	public static final String SHAPE = "shape";
 	public static final String SERVICE_BASE_NAME = "service_base_name";
@@ -63,6 +69,7 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 	private static final int ONE_HUNDRED = 100;
 	private static final String TOTAL_FIELD_NAME = "total";
 	private static final String COST_FIELD = "$cost";
+	public static final String SHARED_RESOURCE_NAME = "Shared resource";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -122,6 +129,10 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 		return userSettingsDAO.getAllowedBudget(user)
 				.filter(allowedBudget -> userCost.intValue() != 0 && allowedBudget <= userCost)
 				.isPresent();
+	}
+
+	protected String getUserOrDefault(String user) {
+		return StringUtils.isNotBlank(user) ? user : SHARED_RESOURCE_NAME;
 	}
 
 	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
@@ -202,6 +213,20 @@ public abstract class BaseBillingDAO<T> extends BaseDAO implements BillingDAO<T>
 
 	protected String generateShapeName(ShapeInfo shape) {
 		return Optional.ofNullable(shape).map(ShapeInfo::getName).orElse(StringUtils.EMPTY);
+	}
+
+	protected void usersToLowerCase(List<String> users) {
+		if (users != null) {
+			users.replaceAll(u -> u != null ? u.toLowerCase() : null);
+		}
+	}
+
+	protected void setUserFilter(UserInfo userInfo, BillingFilter filter, boolean isFullReport) {
+		if (isFullReport) {
+			usersToLowerCase(filter.getUser());
+		} else {
+			filter.setUser(Lists.newArrayList(userInfo.getName().toLowerCase()));
+		}
 	}
 
 	/**

@@ -1,20 +1,21 @@
 <!--
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
--->
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
 <table class="dashboard_table">
   <tr>
@@ -146,10 +147,10 @@ limitations under the License.
   </tr>
 </table>
 
-<computational-resource-create-dialog #computationalResourceModal (buildGrid)="buildGrid($event)"></computational-resource-create-dialog>
-<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
-<detail-dialog #detailDialog (buildGrid)="buildGrid($event)"></detail-dialog>
+<computational-resource-create-dialog #computationalResourceModal (buildGrid)="buildGrid()"></computational-resource-create-dialog>
+<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid()"></confirmation-dialog>
+<detail-dialog #detailDialog (buildGrid)="buildGrid()"></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
-<install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
-<dlab-scheduler #envScheduler (buildGrid)="buildGrid($event)"></dlab-scheduler>
-<dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid($event)"></dlab-ami-create-dialog>
+<install-libraries #installLibs (buildGrid)="buildGrid()"></install-libraries>
+<dlab-scheduler #envScheduler (buildGrid)="buildGrid()"></dlab-scheduler>
+<dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid()"></dlab-ami-create-dialog>

@@ -1,25 +1,26 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, Inject, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { ToastsManager } from 'ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from '../../core/services';
@@ -50,11 +51,9 @@ export class ManageUngitComponent implements OnInit {
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
     public dialog: MatDialog,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -67,7 +66,7 @@ export class ManageUngitComponent implements OnInit {
   public open(param): void {
     if (!this.bindDialog.isOpened)
       this.model = new MangeUngitModel(response => { },
-      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!', { toastLife: 5000 }),
+      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!'),
       () => {
         this.bindDialog.open(param);
 
@@ -153,7 +152,7 @@ export class ManageUngitComponent implements OnInit {
     this.model.getGitCredentials()
       .subscribe(
         (response: any) => this.gitCredentials = response.git_creds || [],
-        error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!', { toastLife: 5000 }));
+        error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!'));
   }
 
   private validConfirmField(control) {
