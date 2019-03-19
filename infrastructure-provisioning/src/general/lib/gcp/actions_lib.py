@@ -223,7 +223,7 @@ class GCPActions:
 
     def create_disk(self, instance_name, zone, size, secondary_image_name):
         try:
-            if secondary_image_name == '':
+            if secondary_image_name == 'None':
                 params = {"sizeGb": size, "name": instance_name + '-secondary',
                           "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
             else:
@@ -669,7 +669,7 @@ class GCPActions:
             disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
         else:
             disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
-        params = {"name": image_name, "sourceDisk": disk_name}
+        params = {"name": image_name, "sourceDisk": disk_name, "labels": {"product": "dlab"}}
         request = self.service.images().insert(project=self.project, body=params)
         try:
             GCPActions().stop_instance(instance_name, zone)

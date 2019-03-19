@@ -11,5 +11,9 @@
     "compute.projects.setCommonInstanceMetadata",
     "compute.projects.setDefaultServiceAccount",
     "compute.subnetworks.create",
-    "compute.subnetworks.delete"
+    "compute.subnetworks.delete",
+    "compute.images.create",
+    "compute.images.get",
+    "compute.images.delete",
+    "compute.images.list"
 ]

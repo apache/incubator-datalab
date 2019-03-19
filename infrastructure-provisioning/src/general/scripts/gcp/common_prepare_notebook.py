@@ -102,7 +102,9 @@ if __name__ == "__main__":
         notebook_config['primary_image_name'] = 'global/images/{}'.format(notebook_config['primary_image_name'].get('name'))
 
     notebook_config['secondary_image_name'] = GCPMeta().get_image_by_name(notebook_config['expected_secondary_image_name'])
-    if notebook_config['secondary_image_name'] != '':
+    if notebook_config['secondary_image_name'] == '':
+        notebook_config['secondary_image_name'] = 'None'
+    else:
         print('Pre-configured secondary image found. Using: {}'.format(notebook_config['secondary_image_name'].get('name')))
         notebook_config['secondary_image_name'] = 'global/images/{}'.format(notebook_config['secondary_image_name'].get('name'))
 

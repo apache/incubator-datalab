@@ -50,9 +50,9 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['edge_user_name'],
                                                                notebook_config['exploratory_name'])
-    notebook_config['expected_image_primary_name'] = '{}-{}-notebook-primary-image'.format(notebook_config['service_base_name'],
+    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(notebook_config['service_base_name'],
                                                                            os.environ['application'])
-    notebook_config['expected_image_secondary_name'] = '{}-{}-notebook-secondary-image'.format(notebook_config['service_base_name'],
+    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(notebook_config['service_base_name'],
                                                                            os.environ['application'])
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
@@ -185,18 +185,18 @@ if __name__ == "__main__":
     if notebook_config['shared_image_enabled'] == 'true':
         try:
             print('[CREATING IMAGE]')
-            primary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_image_primary_name'])
-            secondary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_image_secondary_name'])
+            primary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])
+            secondary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_secondary_image_name'])
             if primary_image_id == '':
                 print("Looks like it's first time we configure notebook server. Creating images.")
                 primary_image_id = GCPActions().create_image_from_instance_disk(
-                    notebook_config['expected_image_primary_name'], 'primary',
+                    notebook_config['expected_primary_image_name'], 'primary',
                     notebook_config['instance_name'], notebook_config['zone'])
                 if primary_image_id != '':
                     print("Image of primary disk was successfully created. It's ID is {}".format(primary_image_id))
             if secondary_image_id == '':
                 secondary_image_id = GCPActions().create_image_from_instance_disk(
-                    notebook_config['expected_image_secondary_name'], 'secondary', notebook_config['instance_name'],
+                    notebook_config['expected_secondary_image_name'], 'secondary', notebook_config['instance_name'],
                     notebook_config['zone'])
                 if secondary_image_id != '':
                     print("Image of secondary disk was successfully created. It's ID is {}".format(secondary_image_id))

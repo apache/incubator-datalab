@@ -66,6 +66,16 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+    print("Removing images")
+    try:
+        images = GCPMeta().get_list_images(args.zone, args.service_base_name)
+        if 'items' in images:
+            for i in instances['items']:
+                GCPActions().remove_instance(i['name'], args.zone)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
+
     print("Removing static addresses")
     try:
         static_addresses = GCPMeta().get_list_static_addresses(args.region, args.service_base_name)
