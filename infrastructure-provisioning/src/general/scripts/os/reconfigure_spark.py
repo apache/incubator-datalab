@@ -61,7 +61,7 @@ if __name__ == "__main__":
             sudo('mv /tmp/notebook_reconfigure_dataengine_spark.py '
                  '/usr/local/bin/notebook_reconfigure_dataengine_spark.py')
         sudo('mkdir -p /tmp/{}'.format(args.cluster_name))
-        put(templates_dir + 'notebook_spark-defaults_local.conf',
+        put('{}notebook_spark-defaults_local.conf'.format(templates_dir),
             '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name), use_sudo=True)
         cluster_dir = '/opt/' + args.cluster_name + '/'
         if 'azure_datalake_enable' in os.environ:
