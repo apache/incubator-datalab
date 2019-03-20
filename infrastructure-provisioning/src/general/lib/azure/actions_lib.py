@@ -1150,7 +1150,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
-    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
         additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
