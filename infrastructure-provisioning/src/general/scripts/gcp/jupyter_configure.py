@@ -50,10 +50,10 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['edge_user_name'],
                                                                notebook_config['exploratory_name'])
-    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(notebook_config['service_base_name'],
-                                                                           os.environ['application'])
-    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(notebook_config['service_base_name'],
-                                                                           os.environ['application'])
+    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(
+                                                        notebook_config['service_base_name'], os.environ['application'])
+    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
+                                                        notebook_config['service_base_name'], os.environ['application'])
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -204,6 +204,8 @@ if __name__ == "__main__":
             print('Error: {0}'.format(err))
             append_result("Failed creating image.", str(err))
             GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+            GCPActions().remove_image(notebook_config['expected_primary_image_name'])
+            GCPActions().remove_image(notebook_config['expected_secondary_image_name'])
             sys.exit(1)
 
 

@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     print("Removing images")
     try:
-        images = GCPMeta().get_list_images(args.zone, args.service_base_name)
+        images = GCPMeta().get_list_images(args.service_base_name)
         if 'items' in images:
             for i in instances['items']:
                 GCPActions().remove_instance(i['name'], args.zone)

@@ -15,5 +15,6 @@
     "compute.images.create",
     "compute.images.get",
     "compute.images.delete",
+    "compute.images.setLabels",
     "compute.images.list"
 ]
