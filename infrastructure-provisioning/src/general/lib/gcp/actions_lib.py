@@ -696,19 +696,18 @@ class GCPActions:
                 meta_lib.GCPMeta().wait_for_operation(result['name'])
                 print('Image {} was removed.'.format(image_name))
             except errors.HttpError as err:
-                    if err.resp.status == 404:
-                        print('Image {} was not found. Skipped'.format(instance_name))
-                        return request
-                    else:
-                        raise err
-                return request
-            except Exception as err:
-                logging.info(
-                    "Unable to remove disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove disk",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+                if err.resp.status == 404:
+                    print('Image {} was not found. Skipped'.format(instance_name))
+                    return request
+                else:
+                    raise err
+            return request
+        except Exception as err:
+            logging.info(
+                "Unable to remove disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def put_to_bucket(self, bucket_name, local_file, dest_file):
         try:
