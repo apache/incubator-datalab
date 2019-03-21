@@ -217,10 +217,10 @@ if __name__ == "__main__":
         edge_instance_private_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                     edge_instance_name)
         if os.environ['conf_network_type'] == 'private':
-            edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+            edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                         edge_instance_name)
         else:
-            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
+            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(data_engine['resource_group_name'],
                                                                                 edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(keyfile_name, 'rb').read())
