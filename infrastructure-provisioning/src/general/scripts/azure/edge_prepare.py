@@ -171,7 +171,7 @@ if __name__ == "__main__":
                 "source_address_prefix": "*",
                 "destination_address_prefix": "*",
                 "access": "Allow",
-                "priority": 120,
+                "priority": 130,
                 "direction": "Inbound"
             },
             {
@@ -358,7 +358,7 @@ if __name__ == "__main__":
                 "source_address_prefix": "*",
                 "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",
-                "priority": 190,
+                "priority": 260,
                 "direction": "Outbound"
             },
             {
