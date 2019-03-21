@@ -287,18 +287,22 @@ class GCPMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def get_ami_by_name(self, ami_name):
+    def get_image_by_name(self, image_name):
         try:
-            request = self.service.images().get(project=self.project, image=ami_name)
-            result = request.execute()
-            return result
+            request = self.service.images().get(project=self.project, image=image_name)
+            try:
+                return request.execute()
+            except errors.HttpError as err:
+                if err.resp.status == 404:
+                    return ''
+                else:
+                    raise err
         except Exception as err:
             logging.info("Error with getting image by name: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
             append_result(str({"error": "Error with getting image by name",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
-            return ''
 
     def get_disk(self, disk_name):
         try:
@@ -373,9 +377,26 @@ class GCPMeta:
     def get_list_instances(self, zone, filter_string=''):
         try:
             if not filter_string:
-                request = self.service.instances().list(project=self.project, zone=zone)
+                raise Exception("There are no filter_string was added for list instances")
             else:
                 request = self.service.instances().list(project=self.project, zone=zone, filter='name eq {}-.*'.
+                                                        format(filter_string))
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting list instances: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list instances",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_list_images(self, filter_string=''):
+        try:
+            if not filter_string:
+                raise Exception("There are no filter_string was added for list images")
+            else:
+                request = self.service.images().list(project=self.project, filter='name eq {}-.*'.
                                                         format(filter_string))
             result = request.execute()
             return result
@@ -390,7 +411,7 @@ class GCPMeta:
     def get_list_firewalls(self, filter_string=''):
         try:
             if not filter_string:
-                request = self.service.firewalls().list(project=self.project)
+                raise Exception("There are no filter_string was added for list firewalls")
             else:
                 request = self.service.firewalls().list(project=self.project, filter='name eq {}.*'.format(
                     filter_string))
@@ -407,7 +428,7 @@ class GCPMeta:
     def get_list_subnetworks(self, region, vpc_name='', filter_string=''):
         try:
             if not filter_string and not vpc_name:
-                request = self.service.subnetworks().list(project=self.project, region=region)
+                raise Exception("There are no filter_string or vpc_name was added for list subnetworks")
             elif vpc_name and not filter_string:
                 request = self.service.subnetworks().list(
                     project=self.project, region=region,
@@ -437,7 +458,7 @@ class GCPMeta:
     def get_list_buckets(self, prefix=''):
         try:
             if not prefix:
-                request = self.service_storage.buckets().list(project=self.project)
+                raise Exception("There are no prefix was added for list buckets")
             else:
                 request = self.service_storage.buckets().list(project=self.project, prefix='{}'.format(prefix))
             result = request.execute()
@@ -453,7 +474,7 @@ class GCPMeta:
     def get_list_static_addresses(self, region, filter_string=''):
         try:
             if not filter_string:
-                request = self.service.addresses().list(project=self.project, region=region)
+                raise Exception("There are no filter_string was added for list static adress")
             else:
                 request = self.service.addresses().list(project=self.project, region=region,
                                                         filter='name eq {}.*'.format(filter_string))
