@@ -70,8 +70,14 @@ if __name__ == "__main__":
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                notebook_config['instance_name'])
         edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['user_name'])
-        edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                    edge_instance_name)
+        edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                            edge_instance_name)
+        if os.environ['conf_network_type'] == 'private':
+            edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                        edge_instance_name)
+        else:
+            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
+                                                                                edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
         if os.environ['conf_os_family'] == 'debian':
@@ -108,7 +114,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON DEEP LEARNING INSTANCE]')
         print('[CONFIGURE PROXY ON DEEP LEARNING  INSTANCE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:
@@ -241,8 +247,8 @@ if __name__ == "__main__":
                                                                        notebook_config['instance_name'])
                 remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
                 set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
-                              'http://{}:3128'.format(edge_instance_hostname))
-                additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+                              'http://{}:3128'.format(edge_instance_private_hostname))
+                additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
                             json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -266,7 +272,7 @@ if __name__ == "__main__":
                  "--type {} " \
                  "--exploratory_name {} " \
                  "--additional_info '{}'"\
-            .format(edge_instance_hostname,
+            .format(edge_instance_private_hostname,
                     keyfile_name,
                     notebook_config['dlab_ssh_user'],
                     'jupyter',

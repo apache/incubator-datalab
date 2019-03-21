@@ -103,7 +103,7 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
         print('[CONFIGURE PROXY ON ON SLAVE NODE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
                     data_engine['dlab_ssh_user'])
@@ -214,8 +214,14 @@ if __name__ == "__main__":
         master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                            data_engine['master_node_name'])
         edge_instance_name = '{}-{}-edge'.format(data_engine['service_base_name'], data_engine['user_name'])
-        edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+        edge_instance_private_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                     edge_instance_name)
+        if os.environ['conf_network_type'] == 'private':
+            edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                        edge_instance_name)
+        else:
+            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
+                                                                                edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(keyfile_name, 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -300,7 +306,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON MASTER NODE]')
         print('[CONFIGURE PROXY ON ON MASTER NODE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
                     data_engine['dlab_ssh_user'])
@@ -399,7 +405,7 @@ if __name__ == "__main__":
                  "--type {} " \
                  "--exploratory_name {} " \
                  "--additional_info '{}'"\
-            .format(edge_instance_hostname,
+            .format(edge_instance_private_hostname,
                     keyfile_name,
                     data_engine['dlab_ssh_user'],
                     'spark',
