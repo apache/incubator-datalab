@@ -70,7 +70,7 @@ if __name__ == "__main__":
     try:
         images = GCPMeta().get_list_images(args.service_base_name)
         if 'items' in images:
-            for i in instances['items']:
+            for i in images['items']:
                 GCPActions().remove_image(i['name'])
     except Exception as err:
         print('Error: {0}'.format(err))
