@@ -102,7 +102,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             except:
                 sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             if os.environ['application'] == 'tensor-rstudio':
-                sudo('R -e "library(\'devtools\');install_github(\'rstudio/keras\');"')
+                sudo('R -e "library(\'devtools\');install_version(\'keras\', version = \'{}\', repos = \'{}\');"'.format(os.environ['notebook_keras_version'],r_repository))
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:
