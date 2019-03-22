@@ -309,8 +309,8 @@ if __name__ == "__main__":
         print("Key name: {}".format(notebook_config['key_name']))
         print("User key name: {}".format(notebook_config['user_keyname']))
         print("SG name: {}".format(notebook_config['security_group_name']))
-        print("Jupyter URL: {}".format(jupyter_url))
-        print("Tensor Board URL: {}".format(tensor_board_url))
+        print("Jupyter URL: {}".format(jupyter_ip_url))
+        print("Tensor Board URL: {}".format(tensorboard_ip_url))
         print("Ungit URL: {}".format(ungit_ip_url))
         print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(
             notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
