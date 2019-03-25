@@ -103,7 +103,7 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
         print('[CONFIGURE PROXY ON ON SLAVE NODE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
                     data_engine['dlab_ssh_user'])
@@ -210,11 +210,18 @@ if __name__ == "__main__":
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
+        data_engine['notebook_name'] = os.environ['notebook_instance_name']
         master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                            data_engine['master_node_name'])
         edge_instance_name = '{}-{}-edge'.format(data_engine['service_base_name'], data_engine['user_name'])
-        edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+        edge_instance_private_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                     edge_instance_name)
+        if os.environ['conf_network_type'] == 'private':
+            edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+                                                                        edge_instance_name)
+        else:
+            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(data_engine['resource_group_name'],
+                                                                                edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(keyfile_name, 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -299,7 +306,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON MASTER NODE]')
         print('[CONFIGURE PROXY ON ON MASTER NODE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
                     data_engine['dlab_ssh_user'])
@@ -378,8 +385,51 @@ if __name__ == "__main__":
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         sys.exit(1)
 
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        notebook_instance_ip = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+                                                                  data_engine['notebook_name'])
+        additional_info = {
+            "computational_name": data_engine['computational_name'],
+            "master_node_hostname": master_node_hostname,
+            "notebook_instance_ip": notebook_instance_ip,
+            "instance_count": data_engine['instance_count'],
+            "master_node_name": data_engine['master_node_name'],
+            "slave_node_name": data_engine['slave_node_name'],
+            "tensor": False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_private_hostname,
+                    keyfile_name,
+                    data_engine['dlab_ssh_user'],
+                    'spark',
+                    data_engine['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        sys.exit(1)
 
     try:
+        ip_address = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+                                                        data_engine['master_node_name'])
+        spark_master_url = "http://" + ip_address + ":8080"
+        spark_master_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+            data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(data_engine['service_base_name']))
@@ -392,7 +442,14 @@ if __name__ == "__main__":
             res = {"hostname": data_engine['cluster_name'],
                    "instance_id": data_engine['master_node_name'],
                    "key_name": data_engine['key_name'],
-                   "Action": "Create new Data Engine"}
+                   "Action": "Create new Data Engine",
+                   "computational_url": [
+                       {"description": "Apache Spark Master",
+                        "url": spark_master_acces_url},
+                       # {"description": "Apache Spark Master (via tunnel)",
+                       # "url": spark_master_url}
+                   ]
+                   }
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:
