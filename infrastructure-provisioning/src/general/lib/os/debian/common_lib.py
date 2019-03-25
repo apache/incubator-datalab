@@ -24,6 +24,7 @@
 from fabric.api import *
 from fabric.contrib.files import exists
 import sys
+import os
 
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
@@ -41,7 +42,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
             sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
             sudo('systemctl enable haveged')
             sudo('systemctl start haveged')
-            sudo('apt-get -y install --install-recommends linux-aws-hwe')
+            if os.environ['conf_cloud_provider'] == 'aws':
+                sudo('apt-get -y install --install-recommends linux-aws-hwe')
     except:
         sys.exit(1)
 
