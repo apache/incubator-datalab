@@ -169,6 +169,14 @@ font-weight: 400;
       width: 96%;
     }
   }
+  .list-selected {
+    .mat-chip-list {
+      .mat-chip-list-wrapper{
+        overflow-y: auto;
+        max-height: 110px;
+      }
+    }
+  }
   .mat-reset {
     .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
       .mat-form-field-flex {
