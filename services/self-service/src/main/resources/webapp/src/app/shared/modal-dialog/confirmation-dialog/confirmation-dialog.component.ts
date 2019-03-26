@@ -1,23 +1,24 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
@@ -50,11 +51,9 @@ export class ConfirmationDialogComponent implements OnInit {
     private userResourceService: UserResourceService,
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = ConfirmationDialogModel.getDefault();
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -71,7 +70,7 @@ export class ConfirmationDialogComponent implements OnInit {
           this.buildGrid.emit();
         }
       },
-      error => this.toastr.error(error.message || 'Action failed!', 'Oops!', { toastLife: 5000 }),
+      error => this.toastr.error(error.message || 'Action failed!', 'Oops'),
       this.manageAction,
       this.userResourceService,
       this.healthStatusService,
@@ -80,7 +79,10 @@ export class ConfirmationDialogComponent implements OnInit {
     this.bindDialog.open(param);
     if (!this.confirmationType) this.filterResourcesByType(notebook.resources);
     this.isAliveResources = this.model.isAliveResources(notebook.resources);
-    this.onlyKilled = !notebook.resources.some(el => el.status !== 'terminated')
+    this.onlyKilled = notebook.resources ? !notebook.resources.some(el => el.status !== 'terminated') : false;
+  }
+  public confirm() {
+    this.model.confirmAction();
   }
 
   public close() {

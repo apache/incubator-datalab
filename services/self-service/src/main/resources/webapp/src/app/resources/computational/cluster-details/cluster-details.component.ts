@@ -1,25 +1,26 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, ViewChild, OnInit, ViewContainerRef, Output, EventEmitter } from '@angular/core';
+import { Component, ViewChild, OnInit, Output, EventEmitter } from '@angular/core';
 import { DateUtils } from '../../../core/util';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 
 import { CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
@@ -51,11 +52,8 @@ export class DetailComputationalResourcesComponent implements OnInit {
   constructor(
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
-  ) {
-    this.toastr.setRootViewContainerRef(vcr);
-  }
+    public toastr: ToastrService
+  ) {}
 
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
@@ -93,7 +91,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
     this.dataengineConfigurationService
       .getClusterConfiguration(this.environment.name, this.resource.computational_name)
       .subscribe((result: any) => this.config = result,
-      error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
   }
 
   public editClusterConfiguration(data): void {
@@ -103,7 +101,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
         this.bindDialog.close();
         this.buildGrid.emit();
       },
-      error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
   }
 
   public resetDialog() {

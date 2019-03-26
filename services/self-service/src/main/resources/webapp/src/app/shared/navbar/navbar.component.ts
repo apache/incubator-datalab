@@ -1,37 +1,35 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { Subscription } from 'rxjs/Subscription';
-import { ToastsManager } from 'ng2-toastr';
-
-import { TimerObservable } from 'rxjs/observable/TimerObservable';
-import { timer } from 'rxjs/observable/timer';
-import { interval } from 'rxjs/observable/interval';
-import 'rxjs/add/operator/takeWhile';
+import { Subscription, timer, interval } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 import { ApplicationSecurityService,
   HealthStatusService,
   AppRoutingService,
   UserAccessKeyService,
-  SchedulerService } from '../../core/services';
-import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
+  SchedulerService,
+  StorageService} from '../../core/services';
+import { GeneralEnvironmentStatus } from '../../management/management.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
@@ -51,7 +49,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
   currentUserName: string;
-  quotesLimit: number;
+  quotesLimit: number = 70;
   isLoggedIn: boolean = false;
 
   healthStatus: GeneralEnvironmentStatus;
@@ -61,17 +59,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef,
+    public toastr: ToastrService,
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
     private schedulerService: SchedulerService,
+    private storage: StorageService,
     private dialog: MatDialog
-  ) {
-    this.toastr.setRootViewContainerRef(vcr);
-  }
+  ) { }
 
   ngOnInit() {
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
@@ -93,7 +89,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.currentUserName = this.getUserName();
       }
     });
-    this.quotesLimit = 70;
   }
 
   ngOnDestroy(): void {
@@ -102,7 +97,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   getUserName(): string {
-    return this.applicationSecurityService.getCurrentUserName() || '';
+    return this.storage.getUserName() || '';
   }
 
   logout_btnClick(): void {
@@ -122,7 +117,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       width: '550px'
     });
     dialogRef.afterClosed().subscribe(() => {
-      this.applicationSecurityService.setBillingQuoteUsed('informed');
+      this.storage.setBillingQuoteUsed('informed');
     });
   }
 
@@ -131,7 +126,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userAccessKeyService.generateAccessKey().subscribe(
       data => {
         FileUtils.downloadFile(data);
-      }, error => this.toastr.error(error.message || 'Access key generation failed!', 'Oops!', { toastLife: 5000 }));
+        this.userAccessKeyService.initialUserAccessKeyCheck();
+      }, error => {
+        this.toastr.error(error.message || 'Access key generation failed!', 'Oops!');
+      });
   }
 
   public checkCreationProgress($event): void {
@@ -139,7 +137,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private checkQuoteUsed(params): void {
-    if (!this.applicationSecurityService.getBillingQuoteUsed() && params) {
+    if (!this.storage.getBillingQuoteUsed() && params) {
       let checkQuotaAlert = '';
 
       if (params.billingUserQuoteUsed >= this.quotesLimit && params.billingUserQuoteUsed < 100) checkQuotaAlert = 'user_quota';
@@ -161,9 +159,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (!this.alive) {
         this.alive = true;
-        this.subscriptions.add(interval(this.CHECK_ACCESS_KEY_TIMEOUT)
-        .takeWhile(() => this.alive)
-        .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
+        this.subscriptions.add(
+          interval(this.CHECK_ACCESS_KEY_TIMEOUT)
+            .pipe(takeWhile(() => this.alive))
+            .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
       }
 
     } else if (status === HTTP_STATUS_CODES.OK) {

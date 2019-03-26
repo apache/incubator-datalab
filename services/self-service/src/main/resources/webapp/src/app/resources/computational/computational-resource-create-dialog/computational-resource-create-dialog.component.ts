@@ -1,26 +1,27 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 
-import { ComputationalResourceCreateModel } from '.';
+import { ComputationalResourceCreateModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
 
@@ -72,11 +73,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
     private ref: ChangeDetectorRef,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -217,12 +216,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
             this.buildGrid.emit();
           }
         },
-        error => {
-          this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!', { toastLife: 5000 });
-        },
-        () => {
-          this.template_description = this.model.selectedItem.description;
-        },
+        error => this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!'),
+        () => this.template_description = this.model.selectedItem.description,
         () => {
           this.bindDialog.open(params);
           this.ref.detectChanges();
@@ -358,7 +353,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private filterShapes(): void {
     if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
       || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
-      const allowed = ['GPU optimized'];
+      const allowed: any = ['GPU optimized'];
       const filtered = Object.keys(this.model.selectedImage.shapes.resourcesShapeTypes)
         .filter(key => allowed.includes(key))
         .reduce((obj, key) => {

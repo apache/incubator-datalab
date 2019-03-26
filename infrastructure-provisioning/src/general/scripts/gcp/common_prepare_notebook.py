@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -82,7 +85,29 @@ if __name__ == "__main__":
                                                                notebook_config['exploratory_name'])
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
-    notebook_config['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
+
+
+    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(
+        notebook_config['service_base_name'], os.environ['application'])
+    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
+        notebook_config['service_base_name'], os.environ['application'])
+    notebook_config['notebook_primary_image_name'] = (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
+        else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
+    print('Searching pre-configured images')
+    notebook_config['primary_image_name'] = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])
+    if notebook_config['primary_image_name'] == '':
+        notebook_config['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
+    else:
+        print('Pre-configured primary image found. Using: {}'.format(notebook_config['primary_image_name'].get('name')))
+        notebook_config['primary_image_name'] = 'global/images/{}'.format(notebook_config['primary_image_name'].get('name'))
+
+    notebook_config['secondary_image_name'] = GCPMeta().get_image_by_name(notebook_config['expected_secondary_image_name'])
+    if notebook_config['secondary_image_name'] == '':
+        notebook_config['secondary_image_name'] = 'None'
+    else:
+        print('Pre-configured secondary image found. Using: {}'.format(notebook_config['secondary_image_name'].get('name')))
+        notebook_config['secondary_image_name'] = 'global/images/{}'.format(notebook_config['secondary_image_name'].get('name'))
+
     notebook_config['gpu_accelerator_type'] = 'None'
 
     if os.environ['application'] in ('tensor', 'deeplearning'):
@@ -98,13 +123,17 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print('[CREATE NOTEBOOK INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} --primary_disk_size {} --secondary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'".\
+        params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
+                 "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
+                 "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} --secondary_disk_size {13} " \
+                 "--gpu_accelerator_type {14} --network_tag {15} --labels '{16}'".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'],
                    notebook_config['vpc_name'], notebook_config['subnet_name'], notebook_config['instance_size'],
                    notebook_config['ssh_key_path'], initial_user, notebook_config['notebook_service_account_name'],
-                   notebook_config['image_name'], 'notebook', notebook_config['primary_disk_size'],
-                   notebook_config['secondary_disk_size'], notebook_config['gpu_accelerator_type'],
-                   notebook_config['network_tag'], json.dumps(notebook_config['labels']))
+                   notebook_config['primary_image_name'], notebook_config['secondary_image_name'], 'notebook',
+                   notebook_config['primary_disk_size'], notebook_config['secondary_disk_size'],
+                   notebook_config['gpu_accelerator_type'], notebook_config['network_tag'],
+                   json.dumps(notebook_config['labels']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

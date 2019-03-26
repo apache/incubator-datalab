@@ -1,28 +1,29 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
-import { ToastsManager } from 'ng2-toastr';
-
-import { ResourcesGridComponent } from './resources-grid';
+import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { UserAccessKeyService, HealthStatusService } from '../core/services';
-import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
+import { ResourcesGridRowModel } from './resources-grid/resources-grid.model';
 import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
 
 @Component({
@@ -34,11 +35,8 @@ import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
 export class ResourcesComponent implements OnInit, OnDestroy {
 
   public userUploadAccessKeyState: number;
-  public exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
-  public computationalResources: Array<ComputationalResourceImage> = [];
+  public exploratoryEnvironments: Array<ResourcesGridRowModel> = [];
   public healthStatus: any;
-  // public billingEnabled: boolean;
-  // public admin: boolean;
 
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
   @ViewChild('manageUngitDialog') manageUngitDialog;
@@ -49,11 +47,9 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   constructor(
     private userAccessKeyService: UserAccessKeyService,
     private healthStatusService: HealthStatusService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.userUploadAccessKeyState = HTTP_STATUS_CODES.NOT_FOUND;
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -80,6 +76,7 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
     this.getEnvironmentHealthStatus();
+    this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
   public toggleFiltering(): void {
@@ -102,6 +99,6 @@ export class ResourcesComponent implements OnInit, OnDestroy {
           this.resourcesGrid.healthStatus = this.healthStatus;
           this.userAccessKeyService.initialUserAccessKeyCheck();
         },
-      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 }

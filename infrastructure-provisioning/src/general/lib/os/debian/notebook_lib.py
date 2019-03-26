@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -125,7 +128,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                      'install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');'
                      'install_github(\'IRkernel/IRkernel\');"')
             if os.environ['application'] == 'tensor-rstudio':
-                sudo('R -e "library(\'devtools\');install_github(\'rstudio/keras\');"')
+                sudo('R -e "library(\'devtools\');install_version(\'keras\', version = \'{}\', repos = \'{}\');"'.format(os.environ['notebook_keras_version'],r_repository))
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:
@@ -181,6 +184,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/matplot_ensured'):
         try:
+            sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
+            sudo('sudo apt-get update')
             sudo('apt-get build-dep -y python-matplotlib')
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
@@ -323,12 +328,10 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('apt-get -y install dkms')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
-                sudo('apt-get -y install linux-modules-extra-`uname -r`')
+                sudo('apt-get -y install linux-modules-`uname -r`')
             else:
-                # legacy support for old kernels
-                sudo('if [[ $(apt-cache search linux-image-extra-`uname -r`) ]]; then apt-get -y '
-                     'install linux-image-extra-`uname -r`; else apt-get -y install '
-                     'linux-modules-extra-`uname -r`; fi;')
+                #legacy support for old kernels
+                sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
             if os.environ['local_repository_enabled'] == 'True':
                 sudo('wget {2}/NVIDIA-Linux-x86_64-{0}.run -O '
                      '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user,

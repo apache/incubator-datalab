@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -49,13 +52,17 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
 
     print("Terminating data engine cluster")
     try:
-        for vm in GCPMeta().get_list_instances(zone)['items']:
-            try:
-                if instance_name == vm['labels']['notebook_name']:
+        clusters_list = GCPMeta().get_list_instances_by_label(zone, instance_name)
+        if clusters_list.get('items'):
+            for vm in clusters_list['items']:
+                try:
                     GCPActions().remove_instance(vm['name'], zone)
                     print("Instance {} has been terminated".format(vm['name']))
-            except:
-                pass
+                except:
+                    pass
+        else:
+            print("There are no data engine clusters to terminate.")
+
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

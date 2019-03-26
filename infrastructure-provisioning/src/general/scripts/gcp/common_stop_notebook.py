@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -55,17 +58,18 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         sys.exit(1)
 
     print("Stopping data engine cluster")
-    cluster_list = []
     try:
-        for vm in GCPMeta().get_list_instances(zone)['items']:
-            try:
-                if instance_name == vm['labels']['notebook_name']:
-                    if 'master' == vm['labels']["type"]:
-                        cluster_list.append(vm['labels']["name"])
+        clusters_list = GCPMeta().get_list_instances_by_label(zone, instance_name)
+        if clusters_list.get('items'):
+            for vm in clusters_list['items']:
+                try:
                     GCPActions().stop_instance(vm['name'], zone)
                     print("Instance {} has been stopped".format(vm['name']))
-            except:
-                pass
+                except:
+                    pass
+        else:
+            print("There are no data engine clusters to terminate.")
+
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
