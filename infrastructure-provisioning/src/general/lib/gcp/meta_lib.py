@@ -391,6 +391,24 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def get_list_instances_by_label(self, zone, filter_string=''):
+        try:
+            if not filter_string:
+                raise Exception("There are no filter_string was added for list instances by label")
+            else:
+                request = self.service.instances().list(project=self.project, zone=zone,
+                                                        filter='labels.notebook_name eq {}'.format(filter_string))
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting list instances by label: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list instances by label",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+
     def get_list_images(self, filter_string=''):
         try:
             if not filter_string:
@@ -641,14 +659,10 @@ class GCPMeta:
                 private_list_ip.append(GCPMeta().get_private_ip_address(
                 instance_id))
             elif conf_type == 'computational_resource':
-                instance_list = GCPMeta().get_list_instances(
-                    os.environ['gcp_zone'])
+                instance_list = GCPMeta().get_list_instances_by_label(
+                    os.environ['gcp_zone'], instance_id)
                 for instance in instance_list.get('items'):
-                    if instance.get('labels') != None:
-                        if instance.get('labels').get('name') == instance_id:
-                            private_list_ip.append(
-                                instance.get('networkInterfaces')[0].get(
-                                    'networkIP'))
+                    private_list_ip.append(instance.get('networkInterfaces')[0].get('networkIP'))
             return private_list_ip
         except Exception as err:
             logging.info(

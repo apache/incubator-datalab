@@ -58,17 +58,18 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         sys.exit(1)
 
     print("Stopping data engine cluster")
-    cluster_list = []
     try:
-        for vm in GCPMeta().get_list_instances(zone)['items']:
-            try:
-                if instance_name == vm['labels']['notebook_name']:
-                    if 'master' == vm['labels']["type"]:
-                        cluster_list.append(vm['labels']["name"])
+        clusters_list = GCPMeta().get_list_instances_by_label(zone, instance_name)
+        if clusters_list.get('items'):
+            for vm in clusters_list['items']:
+                try:
                     GCPActions().stop_instance(vm['name'], zone)
                     print("Instance {} has been stopped".format(vm['name']))
-            except:
-                pass
+                except:
+                    pass
+        else:
+            print("There are no data engine clusters to terminate.")
+
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
