@@ -33,4 +33,6 @@ public class ComputationalClusterConfigDTO extends ComputationalBase<Computation
 	private String copmutationalId;
 	@JsonProperty("spark_configurations")
 	private List<ClusterConfig> config;
+	@JsonProperty("azure_user_refresh_token")
+	private String azureUserRefreshToken;
 }
