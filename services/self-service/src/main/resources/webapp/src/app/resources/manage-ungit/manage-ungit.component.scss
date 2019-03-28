@@ -19,12 +19,16 @@
 
 .manage-ungit {
   .content-box {
-    height: 440px;
+    height: 500px;
     padding: 25px 35px;
+  }
+  .add-creds {
+    margin: 15px 5px;
   }
   .scrollingList {
     overflow-x: hidden;
     padding: 5px;
+    height: 185px;
     &.info {
       display: flex;
       justify-content: center;
@@ -100,5 +104,8 @@
     .danger_color {
       padding-top: 0;
     }
+  }
+  .submit {
+    margin-top: 60px;
   }
 }
