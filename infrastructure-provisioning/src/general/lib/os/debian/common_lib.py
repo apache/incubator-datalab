@@ -66,6 +66,7 @@ def renew_gpg_key():
 
 def update_apt_repository_configuration(repository_host=''):
     if not exists('/tmp/apt_conf_update_ensured'):
+        sudo('echo "apt_preserve_sources_list: true" >> /etc/cloud/cloud.cfg')
         put('/root/files/sources.list', '/tmp/sources.list')
         sudo('mv /tmp/sources.list /etc/apt/sources.list')
         if os.environ['local_repository_enabled'] == 'True':
