@@ -21,16 +21,20 @@ package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComputationalClusterConfigDTO extends ComputationalBase<ComputationalClusterConfigDTO> {
 
-	@JsonProperty("computational_id")
-	private String copmutationalId;
-	@JsonProperty("spark_configurations")
-	private List<ClusterConfig> config;
+    @JsonProperty("computational_id")
+    private String copmutationalId;
+    @JsonProperty("spark_configurations")
+    private List<ClusterConfig> config;
+    @JsonProperty("azure_user_refresh_token")
+    private String azureUserRefreshToken;
 }

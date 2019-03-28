@@ -62,12 +62,16 @@
     </td>
     <td class="settings">
       <span #settings class="actions" (click)="actions.toggle($event, settings)"
-            [ngClass]="{ 'disabled' : !uploadKey || env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping' }"></span>
+            [ngClass]="{ 'disabled' : !uploadKey
+            || (env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping')
+            || (env.name === 'edge node' && env.user === currentUser && env.status === 'stopping')
+            || env.name === 'edge node' && env.user !== currentUser && env.status.toLowerCase() !== 'running' }"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
           <li matTooltip="{{ env.name !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
               matTooltipPosition="above"
-              [matTooltipDisabled]="!isResourcesInProgress(env)" [hidden]="env.name === 'edge node' && env.status.toLowerCase() !== 'running'">
+              [matTooltipDisabled]="!isResourcesInProgress(env)"
+              [hidden]="env.name === 'edge node' && env.status.toLowerCase() === 'stopped'">
               <div (click)="toggleResourceAction(env, 'stop')"
                    [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating image' || isResourcesInProgress(env)}">
                 <i class="material-icons">pause_circle_outline</i>

@@ -27,7 +27,7 @@
     font-style: normal;
     font-weight: 600;
     font-size: 16px;
-    font-family:'Open Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     color: #577289;
     i {
       margin: 0 5px 0 0;
@@ -58,13 +58,13 @@
     }
     &:disabled {
       cursor: not-allowed;
-      opacity: .6;
+      opacity: 0.6;
     }
   }
 }
 
 .mat-button-focus-overlay {
-  background-color: rgba(255, 0, 0, 0)!important;
+  background-color: rgba(255, 0, 0, 0) !important;
 }
 
 .mat-button-ripple.mat-button-ripple-round.mat-ripple {
@@ -84,8 +84,7 @@
 /*.mat-input-placeholder.mat-focused, */
 .mat-input-underline .mat-input-ripple,
 .mat-form-field-underline .mat-form-field-ripple,
-.mat-select-underline
-.mat-input-underline {
+.mat-select-underline .mat-input-underline {
   background-color: #35afd5 !important;
 }
 .mat-input-placeholder.mat-focused,
@@ -101,7 +100,7 @@
   font-size: 14px;
 }
 .mat-input-placeholder {
-font-weight: 400;
+  font-weight: 400;
 }
 .mat-datepicker-toggle-active {
   color: #2dadd7;
@@ -109,7 +108,7 @@ font-weight: 400;
 
 /* grid filtering */
 .filter-row .dropdown-multiselect button,
-.filter-row input[type=text] {
+.filter-row input[type='text'] {
   font-size: 14px;
   height: 34px;
 }
@@ -121,7 +120,7 @@ font-weight: 400;
   font-weight: 100;
   font-size: 16px;
   line-height: 24px;
-  font-family:'Open Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 .backup-dialog .mat-slide-toggle,
 .scheduler-dialog .mat-slide-toggle {
@@ -134,17 +133,27 @@ font-weight: 400;
   justify-content: flex-end;
 }
 
-.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb,
-.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+.backup-dialog
+  .mat-slide-toggle.mat-checked:not(.mat-disabled)
+  .mat-slide-toggle-thumb,
+.scheduler-dialog
+  .mat-slide-toggle.mat-checked:not(.mat-disabled)
+  .mat-slide-toggle-thumb {
   background-color: #36afd5;
 }
 
-.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar,
-.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+.backup-dialog
+  .mat-slide-toggle.mat-checked:not(.mat-disabled)
+  .mat-slide-toggle-bar,
+.scheduler-dialog
+  .mat-slide-toggle.mat-checked:not(.mat-disabled)
+  .mat-slide-toggle-bar {
   background-color: rgba(54, 175, 213, 0.3);
 }
 
-.scheduler-dialog .mat-fab.mat-accent, .mat-mini-fab.mat-accent, .mat-raised-button.mat-accent {
+.scheduler-dialog .mat-fab.mat-accent,
+.mat-mini-fab.mat-accent,
+.mat-raised-button.mat-accent {
   background-color: #36afd5;
 }
 
@@ -171,7 +180,7 @@ font-weight: 400;
   }
   .list-selected {
     .mat-chip-list {
-      .mat-chip-list-wrapper{
+      .mat-chip-list-wrapper {
         overflow-y: auto;
         max-height: 110px;
       }
@@ -194,7 +203,7 @@ font-weight: 400;
           font-weight: 300;
           .mat-select-value-text {
             span {
-              color: #607D8B;
+              color: #607d8b;
             }
           }
         }
@@ -208,7 +217,7 @@ font-weight: 400;
           padding-top: 0;
           color: #607d8b;
         }
-        .mat-select{
+        .mat-select {
           &:focus {
             .mat-input-underline {
               .mat-input-ripple {
@@ -220,7 +229,7 @@ font-weight: 400;
                 color: transparent;
               }
             }
-          } 
+          }
         }
       }
       .mat-input-wrapper.mat-form-field-wrapper .mat-form-field-underline {
@@ -229,7 +238,7 @@ font-weight: 400;
     }
   }
   .mat-form-field-type-mat-chip-list {
-      width: 100%;
+    width: 100%;
   }
   .mat-step-header {
     .mat-step-icon {
@@ -262,17 +271,63 @@ font-weight: 400;
 
 .mat-primary {
   .mat-pseudo-checkbox-checked {
-    background: #00BCD4;
+    background: #00bcd4;
   }
 }
 
-.mat-icon-button .mat-icon, .mat-icon-button i {
+.mat-icon-button .mat-icon,
+.mat-icon-button i {
   line-height: 1 !important;
   font-size: 18px;
 }
 
 .error-modalbox {
+  overflow: hidden;
   .mat-dialog-container {
     padding: 0;
+    .content {
+      color: #718ba6;
+      padding: 20px 0;
+      font-size: 14px;
+      font-weight: 400;
+      text-align: center;
+      margin: 0;
+    }
+    .dialog-header {
+      position: relative;
+      top: 0;
+      padding-left: 30px;
+      background: #f6fafe;
+      height: 54px;
+      line-height: 54px;
+    }
+    .dialog-header h4 {
+      color: #455c74;
+      font-size: 18px;
+      font-weight: 600;
+      i {
+        vertical-align: sub;
+      }
+    }
+    .close {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 50px;
+      width: 50px;
+      font-size: 24px;
+      border: 0;
+      background: none;
+      color: #577289;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.45s ease-in-out;
+    }
+    .close:hover {
+      color: #36afd5;
+    }
+    .text-center button {
+      margin-bottom: 25px;
+    }
   }
 }

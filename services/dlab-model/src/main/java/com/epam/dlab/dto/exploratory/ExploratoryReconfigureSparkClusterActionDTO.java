@@ -26,11 +26,18 @@ import java.util.List;
 
 public class ExploratoryReconfigureSparkClusterActionDTO extends ExploratoryActionDTO<ExploratoryReconfigureSparkClusterActionDTO> {
 
-	@JsonProperty("spark_configurations")
-	private List<ClusterConfig> config;
+    @JsonProperty("spark_configurations")
+    private List<ClusterConfig> config;
+    @JsonProperty("azure_user_refresh_token")
+    private String azureUserRefreshToken;
 
-	public ExploratoryReconfigureSparkClusterActionDTO withConfig(List<ClusterConfig> config) {
-		this.config = config;
-		return this;
-	}
+    public ExploratoryReconfigureSparkClusterActionDTO withConfig(List<ClusterConfig> config) {
+        this.config = config;
+        return this;
+    }
+
+    public ExploratoryReconfigureSparkClusterActionDTO withAzureUserRefreshToken(String azureUserRefreshToken) {
+        this.azureUserRefreshToken = azureUserRefreshToken;
+        return this;
+    }
 }
