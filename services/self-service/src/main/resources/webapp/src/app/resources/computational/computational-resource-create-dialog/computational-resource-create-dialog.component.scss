@@ -82,6 +82,11 @@
     }
   }
   .spot-details {
+    position: relative;
+    .danger_color {
+      bottom: -5px;
+    }
+
     &.show {
       height: 50px;
       text-align: right;

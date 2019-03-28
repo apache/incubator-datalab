@@ -87,7 +87,7 @@ export class ManageRolesGroupsComponent implements OnInit {
       const data = (type === 'users') ? {group: item.group, user: value} : {group: item.group, id: item};
       const dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialogComponent> = this.dialog.open(
         ConfirmDeleteUserAccountDialogComponent,
-        { data: data, width: '550px' }
+        { data: data, width: '550px', panelClass: 'error-modalbox' }
       );
 
       dialogRef.afterClosed().subscribe(result => {
@@ -168,6 +168,10 @@ export class ManageRolesGroupsComponent implements OnInit {
 @Component({
   selector: 'dialog-result-example-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
     <p *ngIf="data.user">User <strong>{{ data.user }}</strong> will be deleted from <strong>{{ data.group }}</strong> group.</p>
     <p *ngIf="data.id">Group <strong>{{ data.group }}</strong> will be decommissioned.</p>
@@ -178,9 +182,7 @@ export class ManageRolesGroupsComponent implements OnInit {
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
-  styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-  `]
+  styles: []
 })
 export class ConfirmDeleteUserAccountDialogComponent {
   constructor(

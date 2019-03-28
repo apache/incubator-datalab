@@ -221,6 +221,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         () => this.template_description = this.model.selectedItem.description,
         () => {
           this.bindDialog.open(params);
+          this.bindDialog.modalClass += !this.model.availableTemplates ? 'reset' : '';
+
           this.ref.detectChanges();
 
           this.setDefaultParams();

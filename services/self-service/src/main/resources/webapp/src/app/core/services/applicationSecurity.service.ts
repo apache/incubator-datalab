@@ -25,7 +25,7 @@ import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { AppRoutingService } from './appRouting.service';
 import { StorageService } from './storage.service';
 import { LoginModel } from '../../login/login.model';
-import { HTTP_STATUS_CODES } from '../util';
+import { ErrorUtils, HTTP_STATUS_CODES } from '../util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
@@ -64,7 +64,8 @@ export class ApplicationSecurityService {
           }
           this._loggedInStatus.next(false);
           return false;
-        }));
+        }),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public logout(): Observable<boolean> {
