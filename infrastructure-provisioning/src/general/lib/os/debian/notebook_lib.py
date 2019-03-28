@@ -102,7 +102,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             except:
                 sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             if os.environ['application'] == 'tensor-rstudio':
-                sudo('R -e "library(\'devtools\');install_github(\'rstudio/keras\');"')
+                sudo('R -e "library(\'devtools\');install_version(\'keras\', version = \'{}\', repos = \'{}\');"'.format(os.environ['notebook_keras_version'],r_repository))
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:
@@ -150,6 +150,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/matplot_ensured'):
         try:
+            sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
+            sudo('sudo apt-get update')
             sudo('apt-get build-dep -y python-matplotlib')
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
@@ -280,10 +282,10 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('apt-get -y install dkms')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
-                sudo('apt-get -y install linux-modules-extra-`uname -r`')
+                sudo('apt-get -y install linux-modules-`uname -r`')
             else:
                 #legacy support for old kernels
-                sudo('if [[ $(apt-cache search linux-image-extra-`uname -r`) ]]; then apt-get -y install linux-image-extra-`uname -r`; else apt-get -y install linux-modules-extra-`uname -r`; fi;')
+                sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))

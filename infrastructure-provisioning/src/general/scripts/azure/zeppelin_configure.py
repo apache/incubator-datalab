@@ -71,8 +71,14 @@ if __name__ == "__main__":
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                notebook_config['instance_name'])
         edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['user_name'])
-        edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                    edge_instance_name)
+        edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                            edge_instance_name)
+        if os.environ['conf_network_type'] == 'private':
+            edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                        edge_instance_name)
+        else:
+            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
+                                                                                edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
         if os.environ['conf_os_family'] == 'debian':
@@ -109,7 +115,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON ZEPPELIN INSTANCE]')
         print('[CONFIGURE PROXY ON ZEPPELIN INSTANCE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
                     notebook_config['dlab_ssh_user'])
@@ -145,7 +151,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
         print('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
-        additional_config = {"frontend_hostname": edge_instance_hostname,
+        additional_config = {"frontend_hostname": edge_instance_private_hostname,
                              "backend_hostname": instance_hostname,
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
@@ -160,7 +166,7 @@ if __name__ == "__main__":
                  "--exploratory_name {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['azure_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
-                    os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
+                    os.environ['notebook_hadoop_version'], edge_instance_private_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
                     os.environ['notebook_r_mirror'], 'null',
@@ -253,8 +259,8 @@ if __name__ == "__main__":
                                                                        notebook_config['instance_name'])
                 remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
                 set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
-                              'http://{}:3128'.format(edge_instance_hostname))
-                additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+                              'http://{}:3128'.format(edge_instance_private_hostname))
+                additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
                             json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -264,12 +270,47 @@ if __name__ == "__main__":
             append_result("Failed creating image.", str(err))
             AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
+
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_private_hostname,
+                    keyfile_name,
+                    notebook_config['dlab_ssh_user'],
+                    'zeppelin',
+                    notebook_config['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     # generating output information
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
         zeppelin_ip_url = "http://" + ip_address + ":8080/"
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+        zeppelin_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+            notebook_config['exploratory_name'])
+        zeppelin_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+            notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))
@@ -292,9 +333,14 @@ if __name__ == "__main__":
                    "Action": "Create new notebook server",
                    "exploratory_url": [
                        {"description": "Apache Zeppelin",
-                        "url": zeppelin_ip_url},
+                        "url": zeppelin_notebook_acces_url},
                        {"description": "Ungit",
-                        "url": ungit_ip_url}]}
+                        "url": zeppelin_ungit_acces_url},
+                       {"description": "Apache Zeppelin (via tunnel)",
+                        "url": zeppelin_ip_url},
+                       {"description": "Ungit (via tunnel)",
+                        "url": ungit_ip_url}
+                   ]}
             result.write(json.dumps(res))
     except Exception as err:
         print('Error: {0}'.format(err))

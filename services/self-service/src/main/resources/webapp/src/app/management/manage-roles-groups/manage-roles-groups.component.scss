@@ -67,6 +67,13 @@
       }
     }
   }
+  .text-center {
+    button {
+      &:not(:last-child) {
+        margin-right: 5px;
+      }
+    }
+  }
 }
 .selector-wrapper {
   display: flex;

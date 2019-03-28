@@ -26,7 +26,7 @@ import json
 import sys
 from fabric.api import *
 from jinja2 import Environment, FileSystemLoader
-from dlab.meta_lib import get_instance_private_ip_address, get_instance_hostname
+from dlab.meta_lib import get_instance_private_ip_address
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--edge_hostname', type=str, default='')
@@ -47,7 +47,7 @@ def make_template():
     ungit_template = environment.get_template('{}.conf'.format('ungit'))
     tf_template = environment.get_template('{}.conf'.format('tensor'))
     config = {}
-    if args.type != 'emr' and args.type != 'spark':
+    if args.type != 'dataengine-service' and args.type != 'spark':
         config['NAME'] = args.exploratory_name
         config['IP'] = additional_info['instance_hostname']
     elif args.type == 'spark':
@@ -67,7 +67,7 @@ def make_template():
             slaves.append(slave)
         config['slaves'] = slaves
         conf_file_name = config['CLUSTER_NAME']
-    elif args.type == 'emr':
+    elif args.type == 'dataengine-service':
         config['CLUSTER_NAME'] = '{}_{}'.format(
             args.exploratory_name, additional_info['computational_name'])
         config['MASTER_IP'] = additional_info['master_ip']
@@ -79,7 +79,7 @@ def make_template():
     f = open('/tmp/{}.conf'.format(conf_file_name), 'w')
     f.write(template.render(config))
     f.close()
-    if args.type != 'emr' and args.type != 'spark':
+    if args.type != 'dataengine-service' and args.type != 'spark':
         f = open('/tmp/{}.conf'.format(conf_file_name), 'a')
         f.write(ungit_template.render(config))
         f.close()

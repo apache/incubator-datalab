@@ -52,13 +52,17 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
 
     print("Terminating data engine cluster")
     try:
-        for vm in GCPMeta().get_list_instances(zone)['items']:
-            try:
-                if instance_name == vm['labels']['notebook_name']:
+        clusters_list = GCPMeta().get_list_instances_by_label(zone, instance_name)
+        if clusters_list.get('items'):
+            for vm in clusters_list['items']:
+                try:
                     GCPActions().remove_instance(vm['name'], zone)
                     print("Instance {} has been terminated".format(vm['name']))
-            except:
-                pass
+                except:
+                    pass
+        else:
+            print("There are no data engine clusters to terminate.")
+
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

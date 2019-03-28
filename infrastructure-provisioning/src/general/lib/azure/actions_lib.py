@@ -1103,7 +1103,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
         sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
         if os.environ['azure_datalake_enable'] == 'true':
-            client_id = os.environ['azure_client_id']
+            client_id = os.environ['azure_application_id']
             refresh_token = os.environ['azure_user_refresh_token']
             sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
             sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
@@ -1150,9 +1150,17 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
-    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
-    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
+    if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
+        additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
+                                            '/tmp/{0}/notebook_spark-defaults_local.conf '
+                                            '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
+                                             cluster_name, cluster_dir), capture=True)
+        for property in additional_spark_properties.split('\n'):
+            local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
+    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
+                                                                                                        cluster_dir))
     if datalake_enabled == 'false':
         local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     else:

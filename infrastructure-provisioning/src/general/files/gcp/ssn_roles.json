@@ -5,5 +5,7 @@
     "dataproc.editor",
     "resourcemanager.projectIamAdmin",
     "iam.roleAdmin",
-    "compute.instanceAdmin"
+    "compute.instanceAdmin",
+    "bigquery.dataViewer",
+    "bigquery.jobUser"
 ]

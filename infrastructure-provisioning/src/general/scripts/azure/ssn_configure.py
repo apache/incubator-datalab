@@ -292,6 +292,8 @@ if __name__ == "__main__":
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instnace_ip'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instnace_ip']))
+        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instnace_ip']))
 
         try:
             with open('jenkins_creds.txt') as f:
