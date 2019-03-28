@@ -1129,7 +1129,7 @@ class GCPActions:
                 local('sudo systemctl start livy-server-{}'.format(str(livy_port)))
             else:
                 template_file = "/tmp/dataengine-service_interpreter.json"
-                p_versions = ["2", python_version[:3]]
+                p_versions = ["2", "{}-dp".format(python_version[:3])]
                 for p_version in p_versions:
                     fr = open(template_file, 'r+')
                     text = fr.read()
@@ -1180,8 +1180,8 @@ class GCPActions:
                     python_without_dots = python_version.replace('.', '')
                     local('{0} && sudo -i {1} install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{2}-cp{2}m-linux_x86_64.whl --no-cache-dir'
                           .format(venv_command, pip_command, python_without_dots[:2]))
-                local('sudo rm -rf /usr/bin/python{}'.format(python_version[0:3]))
-                local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}'.format(python_version, python_version[0:3]))
+                local('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]))
+                local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version, python_version[0:3]))
         except Exception as err:
             logging.info(
                 "Unable to install python: " + str(err) + "\n Traceback: " + traceback.print_exc(

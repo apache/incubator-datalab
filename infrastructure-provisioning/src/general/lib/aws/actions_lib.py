@@ -1510,9 +1510,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl '
                       '--no-cache-dir'.format(python_without_dots[:2]))
-        local('sudo rm -rf /usr/bin/python' + python_version[0:3])
-        local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
-              ' /usr/bin/python' + python_version[0:3])
+        local('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]))
+        local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version, python_version[0:3]))
 
 
 def spark_defaults(args):
@@ -1705,7 +1704,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             local('sudo systemctl start livy-server-{}'.format(str(livy_port)))
         else:
             template_file = "/tmp/dataengine-service_interpreter.json"
-            p_versions = ["2", python_version[:3]]
+            p_versions = ["2", "{}-dp".format(python_version[:3])]
             for p_version in p_versions:
                 fr = open(template_file, 'r+')
                 text = fr.read()
