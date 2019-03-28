@@ -55,10 +55,17 @@ def modify_conf_file(args):
     sudo("python /tmp/configure_conf_file.py --dlab_dir {} --variables_list '{}'".format(
         args.dlab_path, json.dumps(variables_list)))
 
+
 def download_toree():
     toree_path = '/opt/dlab/sources/infrastructure-provisioning/src/general/files/os/'
-    tarball_link = 'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/toree-0.2.0-incubating-bin.tar.gz'
-    jar_link = 'https://repo1.maven.org/maven2/org/apache/toree/toree-assembly/0.2.0-incubating/toree-assembly-0.2.0-incubating.jar'
+    if os.environ['local_repository_enabled'] == 'True':
+        tarball_link = '{}/toree-0.2.0-incubating-bin.tar.gz'.format(os.environ['local_repository_packages_repo'])
+        jar_link = '{}/toree-assembly-0.2.0-incubating.jar'.format(os.environ['local_repository_packages_repo'])
+    else:
+        tarball_link = 'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/' \
+                       'toree-0.2.0-incubating-bin.tar.gz'
+        jar_link = 'https://repo1.maven.org/maven2/org/apache/toree/toree-assembly/0.2.0-incubating/' \
+                   'toree-assembly-0.2.0-incubating.jar'
     try:
         run('wget {}'.format(tarball_link))
         run('wget {}'.format(jar_link))
@@ -68,6 +75,7 @@ def download_toree():
         traceback.print_exc()
         print('Failed to download toree: ', str(err))
         sys.exit(1)
+
 
 def update_repository(dlab_path, repository_host, region):
     with cd('{}sources/infrastructure-provisioning/src/general/files/aws/'.format(dlab_path)):

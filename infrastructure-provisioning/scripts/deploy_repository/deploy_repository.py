@@ -1197,7 +1197,11 @@ def download_packages():
                 'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(
                     configuration['notebook_livy_version']),
                 'https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
-                '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar'
+                '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar',
+                'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/'
+                'toree-0.2.0-incubating-bin.tar.gz',
+                'https://repo1.maven.org/maven2/org/apache/toree/toree-assembly/0.2.0-incubating/'
+                'toree-assembly-0.2.0-incubating.jar'
             ]
             packages_list = list()
             for package in packages_urls:
