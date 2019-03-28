@@ -51,6 +51,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
             if os.environ['conf_cloud_provider'] == 'aws':
                 sudo('apt-get -y install --install-recommends linux-aws-hwe')
     except:
+        time.sleep(3600)
         sys.exit(1)
 
 
