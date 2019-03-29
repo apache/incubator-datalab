@@ -143,6 +143,37 @@ RrutterDebianProxyConfiguration = new Configuration(
                 ] as Map,
         ] as Map
 )
+CanonicalDebianProxyConfiguration = new Configuration(
+        repositoryName: "ubuntu-canonical",
+        recipeName: "apt-proxy",
+        online: true,
+        attributes: [
+                storage: [
+                        blobStoreName              : 'packages_store',
+                        writePolicy                : WritePolicy.ALLOW,
+                        strictContentTypeValidation: true
+                ] as Map,
+                apt: [
+                        distribution : 'xenial',
+                        flat : false
+                ] as Map,
+                httpclient   : [
+                        connection: [
+                                blocked  : false,
+                                autoBlock: true
+                        ] as Map
+                ] as Map,
+                proxy: [
+                        remoteUrl: 'http://archive.canonical.com/ubuntu',
+                        contentMaxAge: 0,
+                        metaDataMaxAge: 0
+                ] as Map,
+                negativeCache: [
+                        enabled   : true,
+                        timeToLive: 1440
+                ] as Map,
+        ] as Map
+)
 RProxyConfiguration = new Configuration(
         repositoryName: "r",
         recipeName: "r-proxy",
@@ -175,3 +206,4 @@ repository.createRepository(ubuntuProxyConfiguration)
 repository.createRepository(securityProxyConfiguration)
 repository.createRepository(BintrayDebianProxyConfiguration)
 repository.createRepository(RrutterDebianProxyConfiguration)
+repository.createRepository(CanonicalDebianProxyConfiguration)

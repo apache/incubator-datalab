@@ -1717,6 +1717,7 @@ if __name__ == "__main__":
             print("Ubuntu repository URL: https://{0}/repository/ubuntu".format(nexus_host))
             print("Ubuntu-security repository URL: https://{0}/repository/ubuntu-security".format(nexus_host))
             print("Ubuntu-bintray repository URL: https://{0}/repository/ubuntu-bintray".format(nexus_host))
+            print("Ubuntu-canonical repository URL: https://{0}/repository/ubuntu-canonical".format(nexus_host))
             print("Rrutter repository URL: https://{0}/repository/rrutter".format(nexus_host))
             print("R repository URL: https://{0}/repository/r".format(nexus_host))
             print("Squid proxy: {0}:3128".format(nexus_host))

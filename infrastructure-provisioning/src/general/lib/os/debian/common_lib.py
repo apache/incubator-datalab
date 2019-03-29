@@ -73,6 +73,8 @@ def update_apt_repository_configuration(repository_host=''):
                  os.environ['local_repository_apt_ubuntu_repo']))
             sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{0}/|g" /etc/apt/sources.list'.format(
                 os.environ['local_repository_apt_ubuntu_security_repo']))
+            sudo('sed -i "s|REPOSITORY_CANONICAL_UBUNTU|{0}/|g" /etc/apt/sources.list'.format(
+                os.environ['local_repository_apt_ubuntu_canonical_repo']))
         else:
             sudo('sed -i "s|REPOSITORY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
             sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))

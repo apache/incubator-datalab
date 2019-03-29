@@ -140,6 +140,8 @@ parser.add_argument('--local_repository_apt_ubuntu_security_repo', type=str, def
                     help='Repository name for APT security')
 parser.add_argument('--local_repository_apt_ubuntu_repo', type=str, default='',
                     help='Repository name for APT')
+parser.add_argument('--local_repository_apt_ubuntu_canonical_repo', type=str, default='',
+                    help='Repository name for APT Canonical')
 parser.add_argument('--local_repository_docker_internal_repo', type=str, default='',
                     help='Internal repository name for Docker')
 parser.add_argument('--local_repository_docker_repo', type=str, default='',
