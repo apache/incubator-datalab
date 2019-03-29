@@ -81,8 +81,12 @@ export class ManagementGridComponent implements OnInit {
     } else {
       if (action === 'stop') {
         this.confirmationDialog.open(
-          { isFooter: false }, environment,
-          environment.name === 'edge node' ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory);
+          { isFooter: false },
+          environment,
+          (environment.name === 'edge node' || environment.type.toLowerCase() === 'edge node')
+            ? ConfirmationDialogType.StopEdgeNode
+            : ConfirmationDialogType.StopExploratory,
+          );
       } else if (action === 'terminate') {
         this.confirmationDialog.open({ isFooter: false }, environment, ConfirmationDialogType.TerminateExploratory);
       } else if (action === 'run') {
