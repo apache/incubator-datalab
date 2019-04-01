@@ -28,6 +28,17 @@ import os
 import time
 
 
+def check_apt():
+    try:
+        apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
+        while apt_proccess != '0':
+            time.sleep(10)
+            apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
+        sudo('rm -f /var/lib/apt/lists/lock')
+    except:
+        sys.exit(1)
+
+
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                                 'groff gcc vim less git wget sysv-rc-conf '
                                 'libssl-dev unattended-upgrades nmap '
@@ -36,11 +47,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories "
                   "and installing requested tools: {}".format(requisites))
-            apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
-            while apt_proccess != '0':
-                time.sleep(10)
-                apt_proccess = sudo('ps aux | grep apt | grep -v grep | wc -l')
-            sudo('rm -f /var/lib/apt/lists/lock')
+            check_apt()
             sudo('apt-get update')
             sudo('apt-get -y install ' + requisites)
             sudo('unattended-upgrades -v')
@@ -78,6 +85,7 @@ def update_apt_repository_configuration(repository_host=''):
         else:
             sudo('sed -i "s|REPOSITORY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
             sudo('sed -i "s|REPOSITORY_SECURITY_UBUNTU|{}|g" /etc/apt/sources.list'.format(repository_host))
+        check_apt()
         sudo('apt-get update')
         sudo('touch /tmp/apt_conf_update_ensured')
 

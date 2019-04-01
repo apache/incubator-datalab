@@ -1553,6 +1553,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             except:
                 local(venv_command + ' && sudo -i ' + pip_command + ' install ipython==5.0.0 --no-cache-dir')
+                local(venv_command + ' && sudo -i ' + pip_command + ' install tornado==5.1.1 --no-cache-dir')
                 local(venv_command + ' && sudo -i ' + pip_command + ' install ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={} --no-cache-dir'.format(
                 numpy_version))

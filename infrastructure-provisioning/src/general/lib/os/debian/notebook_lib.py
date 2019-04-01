@@ -128,7 +128,14 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                      'install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');'
                      'install_github(\'IRkernel/IRkernel\');"')
             if os.environ['application'] == 'tensor-rstudio':
-                sudo('R -e "library(\'devtools\');install_version(\'keras\', version = \'{}\', repos = \'{}\');"'.format(os.environ['notebook_keras_version'],r_repository))
+                if os.environ['local_repository_enabled'] == 'True':
+                    sudo('R -e "install.packages(\'zeallot\',repos=\'{}\')"'.format(r_repository))
+                    sudo('R -e "library(\'devtools\'); packageurl <- \'{0}/keras_{1}.tar.gz\'; '
+                         'install.packages(packageurl, repos=NULL, type=\'source\');"'.format(
+                          os.environ['local_repository_packages_repo'], os.environ['notebook_keras_version']))
+                else:
+                    sudo('R -e "library(\'devtools\');install_version(\'keras\', version = \'{}\', '
+                         'repos = \'{}\');"'.format(os.environ['notebook_keras_version'], r_repository))
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:

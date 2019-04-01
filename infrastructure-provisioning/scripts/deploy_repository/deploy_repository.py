@@ -1201,7 +1201,9 @@ def download_packages():
                 'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/'
                 'toree-0.2.0-incubating-bin.tar.gz',
                 'https://repo1.maven.org/maven2/org/apache/toree/toree-assembly/0.2.0-incubating/'
-                'toree-assembly-0.2.0-incubating.jar'
+                'toree-assembly-0.2.0-incubating.jar',
+                'https://cran.r-project.org/src/contrib/Archive/keras/keras_{}.tar.gz'.format(
+                    configuration['notebook_keras_version'])
             ]
             packages_list = list()
             for package in packages_urls:
