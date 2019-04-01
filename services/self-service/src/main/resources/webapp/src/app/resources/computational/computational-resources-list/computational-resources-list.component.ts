@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { Component, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
@@ -48,7 +49,7 @@ export class ComputationalResourcesListComponent {
   toggleResourceAction(resource, action: string) {
     if (action === 'stop' || action === 'terminate') {
       const dialogRef: MatDialogRef<ConfirmationDialogComponent> = this.dialog.open(ConfirmationDialogComponent,
-        { data: {action, resource}, width: '550px' });
+        { data: {action, resource}, width: '550px', panelClass: 'error-modalbox' });
       dialogRef.afterClosed().subscribe(result => {
         if (result && action === 'stop') {
           this.userResourceService
@@ -90,8 +91,11 @@ export class ComputationalResourcesListComponent {
 @Component({
   selector: 'confirmation-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> resource</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
-
     <p>Computational resource <strong> {{ data.resource.computational_name }}</strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
@@ -102,10 +106,7 @@ export class ComputationalResourcesListComponent {
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
-  `,
-  styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-  `]
+  `
 })
 export class ConfirmationDialogComponent {
   constructor(

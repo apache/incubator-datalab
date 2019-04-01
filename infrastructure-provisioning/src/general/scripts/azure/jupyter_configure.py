@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -68,8 +71,14 @@ if __name__ == "__main__":
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                notebook_config['instance_name'])
         edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['user_name'])
-        edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                    edge_instance_name)
+        edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                            edge_instance_name)
+        if os.environ['conf_network_type'] == 'private':
+            edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                        edge_instance_name)
+        else:
+            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
+                                                                                edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
         if os.environ['conf_os_family'] == 'debian':
@@ -106,7 +115,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
         print('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
                     notebook_config['dlab_ssh_user'])
@@ -241,8 +250,8 @@ if __name__ == "__main__":
                                                                        notebook_config['instance_name'])
                 remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
                 set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
-                              'http://{}:3128'.format(edge_instance_hostname))
-                additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+                              'http://{}:3128'.format(edge_instance_private_hostname))
+                additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
                             json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -252,12 +261,47 @@ if __name__ == "__main__":
             append_result("Failed creating image from notebook.", str(err))
             AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
+
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_private_hostname,
+                    keyfile_name,
+                    notebook_config['dlab_ssh_user'],
+                    'jupyter',
+                    notebook_config['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     # generating output information
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+        jupyter_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+            notebook_config['exploratory_name'])
+        jupyter_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+            notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))
@@ -280,9 +324,14 @@ if __name__ == "__main__":
                    "notebook_image_name": notebook_config['notebook_image_name'],
                    "exploratory_url": [
                        {"description": "Jupyter",
-                        "url": jupyter_ip_url},
+                        "url": jupyter_notebook_acces_url},
                        {"description": "Ungit",
-                        "url": ungit_ip_url}]}
+                        "url": jupyter_ungit_acces_url},
+                       {"description": "Jupyter (via tunnel)",
+                        "url": jupyter_ip_url},
+                       {"description": "Ungit (via tunnel)",
+                        "url": ungit_ip_url}
+                   ]}
             result.write(json.dumps(res))
     except Exception as err:
         append_result("Failed to generate output information", str(err))

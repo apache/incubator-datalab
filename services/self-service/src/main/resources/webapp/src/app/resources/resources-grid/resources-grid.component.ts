@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /* tslint:disable:no-empty */
 
 import { Component, ViewChild, OnInit } from '@angular/core';
@@ -24,7 +25,7 @@ import { UserResourceService } from '../../core/services';
 import { CreateResourceModel } from './create-resource.model';
 import { ResourcesGridRowModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
-import { GeneralEnvironmentStatus } from '../../health-status/health-status.module';
+import { GeneralEnvironmentStatus } from '../../management/management.model';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 
@@ -113,7 +114,7 @@ export class ResourcesGridComponent implements OnInit {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
 
-    filteredData = filteredData.filter((item: any) => {
+    config && (filteredData = filteredData.filter((item: any) => {
       const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
       const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
       const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
@@ -129,9 +130,9 @@ export class ResourcesGridComponent implements OnInit {
       }
 
       return isName && isStatus && isShape && isResources;
-    });
+    }));
 
-    this.updateUserPreferences(config);
+    config && this.updateUserPreferences(config);
     this.filteredEnvironments = filteredData;
   }
 
@@ -253,13 +254,13 @@ export class ResourcesGridComponent implements OnInit {
 
   getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
-      .subscribe((result: any) => {
-        this.isActiveFilter(result);
-        this.filterForm = this.loadUserPreferences( result.type ? this.filterActiveInstances() : this.aliveStatuses(result) );
-        this.applyFilter_btnClick(this.filterForm);
-      }, (error) => {
-        this.applyFilter_btnClick(this.filterForm); // in case of empty database
-      });
+      .subscribe((result: FilterConfigurationModel) => {
+        if (result) {
+          this.isActiveFilter(result);
+          this.filterForm = this.loadUserPreferences(result.type ? this.filterActiveInstances() : this.aliveStatuses(result));
+        }
+        this.applyFilter_btnClick(result ? this.filterForm : result);
+      }, () => this.applyFilter_btnClick(null));
   }
 
   loadUserPreferences(config): FilterConfigurationModel {

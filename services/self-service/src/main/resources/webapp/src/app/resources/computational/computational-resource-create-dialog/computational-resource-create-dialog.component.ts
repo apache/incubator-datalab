@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -47,6 +48,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   clusterNamePattern: string = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
   delimitersRegex = /[-_]?/g;
+  integerRegex = '^[0-9]*$';
 
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
@@ -176,7 +178,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectConfiguration() {
-    if (this.configuration.nativeElement.checked) {
+    if (this.configuration && this.configuration.nativeElement.checked) {
       const template = (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
         : CLUSTER_CONFIGURATION.SPARK;
@@ -219,6 +221,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         () => this.template_description = this.model.selectedItem.description,
         () => {
           this.bindDialog.open(params);
+          this.bindDialog.modalClass += !this.model.availableTemplates ? 'reset' : '';
+
           this.ref.detectChanges();
 
           this.setDefaultParams();
@@ -226,6 +230,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         },
         this.userResourceService);
     }
+  }
+
+  public preemptibleCounter($event, action): void {
+    $event.preventDefault();
+
+    const value = this.resourceForm.controls['preemptible_instance_number'].value;
+    const newValue = (action === 'increment' ? Number(value) + 1 : Number(value) - 1);
+    this.resourceForm.controls.preemptible_instance_number.setValue(newValue);
   }
 
   public close(): void {
@@ -238,7 +250,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern),
                                 this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
-      preemptible_instance_number: [0, [this.validPreemptibleRange.bind(this)]],
+      preemptible_instance_number: [0, Validators.compose([Validators.pattern(this.integerRegex), this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]]
     });

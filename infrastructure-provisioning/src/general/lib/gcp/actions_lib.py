@@ -1,18 +1,21 @@
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -218,10 +221,15 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_disk(self, instance_name, zone, size):
+    def create_disk(self, instance_name, zone, size, secondary_image_name):
         try:
-            params = {"sizeGb": size, "name": instance_name + '-secondary',
-                      "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
+            if secondary_image_name == 'None':
+                params = {"sizeGb": size, "name": instance_name + '-secondary',
+                          "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
+            else:
+                params = {"sizeGb": size, "name": instance_name + '-secondary',
+                          "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone),
+                          "sourceImage": secondary_image_name}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
             meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
@@ -259,7 +267,7 @@ class GCPActions:
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size,
                         ssh_key_path,
-                        initial_user, image_name, service_account_name, instance_class, network_tag,
+                        initial_user, image_name, secondary_image_name, service_account_name, instance_class, network_tag,
                         labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None'):
@@ -275,7 +283,7 @@ class GCPActions:
                 "natIP": static_ip
             }]
         if instance_class == 'notebook':
-            GCPActions().create_disk(instance_name, zone, secondary_disk_size)
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name)
             disks = [
                 {
                     "name": instance_name,
@@ -656,15 +664,20 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disk(self, image_name, source_name, zone):
-        params = {"name": image_name, "sourceDisk": source_name}
+    def create_image_from_instance_disk(self, image_name, disk_type, instance_name, zone):
+        if disk_type == 'primary':
+            disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
+        else:
+            disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
+        params = {"name": image_name, "sourceDisk": disk_name, "labels": {"product": "dlab"}}
         request = self.service.images().insert(project=self.project, body=params)
         try:
-            GCPActions().stop_instance(self, source_name, zone)
+            GCPActions().stop_instance(instance_name, zone)
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('Image {} has been created.'.format(image_name))
-            return result
+            GCPActions().start_instance(instance_name, zone)
+            return result.get('id')
         except Exception as err:
             logging.info(
                 "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -674,6 +687,27 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
+
+    def remove_image(self, image_name):
+        try:
+            request = self.service.images().delete(project=self.project, image=image_name)
+            try:
+                result = request.execute()
+                meta_lib.GCPMeta().wait_for_operation(result['name'])
+                print('Image {} was removed.'.format(image_name))
+            except errors.HttpError as err:
+                if err.resp.status == 404:
+                    print('Image {} was not found. Skipped'.format(instance_name))
+                    return request
+                else:
+                    raise err
+            return request
+        except Exception as err:
+            logging.info(
+                "Unable to remove disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def put_to_bucket(self, bucket_name, local_file, dest_file):
         try:
@@ -1095,7 +1129,7 @@ class GCPActions:
                 local('sudo systemctl start livy-server-{}'.format(str(livy_port)))
             else:
                 template_file = "/tmp/dataengine-service_interpreter.json"
-                p_versions = ["2", python_version[:3]]
+                p_versions = ["2", "{}-dp".format(python_version[:3])]
                 for p_version in p_versions:
                     fr = open(template_file, 'r+')
                     text = fr.read()
@@ -1146,8 +1180,8 @@ class GCPActions:
                     python_without_dots = python_version.replace('.', '')
                     local('{0} && sudo -i {1} install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{2}-cp{2}m-linux_x86_64.whl --no-cache-dir'
                           .format(venv_command, pip_command, python_without_dots[:2]))
-                local('sudo rm -rf /usr/bin/python{}'.format(python_version[0:3]))
-                local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}'.format(python_version, python_version[0:3]))
+                local('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]))
+                local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version, python_version[0:3]))
         except Exception as err:
             logging.info(
                 "Unable to install python: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -1335,9 +1369,17 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
 
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
-    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-          /tmp/{1}notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
-    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
+          /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
+    if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
+        additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
+                                            '/tmp/{0}/notebook_spark-defaults_local.conf '
+                                            '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
+                                             cluster_name, cluster_dir), capture=True)
+        for property in additional_spark_properties.split('\n'):
+            local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
+    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
+                                                                                                        cluster_dir))
     local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     if spark_configs:
         spark_configurations = ast.literal_eval(spark_configs)

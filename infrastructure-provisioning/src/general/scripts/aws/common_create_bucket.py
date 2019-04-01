@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -27,6 +30,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
+parser.add_argument('--bucket_name_tag', type=str, default='')
 parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
 parser.add_argument('--region', type=str, default='')
@@ -40,7 +44,7 @@ if __name__ == "__main__":
             bucket = get_bucket_by_name(args.bucket_name)
             if bucket == '':
                 print("Creating bucket {0} with tag {1}.".format(args.bucket_name, json.dumps(tag)))
-                bucket = create_s3_bucket(args.bucket_name, tag, args.region)
+                bucket = create_s3_bucket(args.bucket_name, tag, args.region, args.bucket_name_tag)
             else:
                 print("REQUESTED BUCKET ALREADY EXISTS")
             print("BUCKET_NAME {}".format(bucket))

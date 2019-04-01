@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
@@ -28,7 +29,7 @@ import { ApplicationSecurityService,
   UserAccessKeyService,
   SchedulerService,
   StorageService} from '../../core/services';
-import { GeneralEnvironmentStatus } from '../../health-status/environment-status.model';
+import { GeneralEnvironmentStatus } from '../../management/management.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
@@ -48,7 +49,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
   currentUserName: string;
-  quotesLimit: number;
+  quotesLimit: number = 70;
   isLoggedIn: boolean = false;
 
   healthStatus: GeneralEnvironmentStatus;
@@ -125,8 +126,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userAccessKeyService.generateAccessKey().subscribe(
       data => {
         FileUtils.downloadFile(data);
-      }, error => {
         this.userAccessKeyService.initialUserAccessKeyCheck();
+      }, error => {
         this.toastr.error(error.message || 'Access key generation failed!', 'Oops!');
       });
   }

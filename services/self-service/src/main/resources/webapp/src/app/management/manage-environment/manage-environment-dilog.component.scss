@@ -1,0 +1,87 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.manage-env-dialog {
+  .mat-list {
+    .mat-list-item {
+      height: 60px;
+      position: relative;
+      .mat-list-item-content {
+        padding: 0 !important;
+        justify-content: space-between;
+        color: #577289;
+      }
+    }
+  }
+  .scrolling-content {
+    max-height: 300px;
+    min-height: 85px;
+    overflow-y: auto;
+  }
+  .username {
+    width: 45%;
+  }
+  .quotes {
+    width: 40%;
+    margin-right: 10px;
+    position: relative;
+    .danger_color {
+      position: absolute;
+      left: 0;
+      top: 36px;
+    }
+  }
+  .action {
+    width: 15%;
+    span {
+      padding: 3px;
+      cursor: pointer;
+      &:hover {
+        color: #35afd5;
+      }
+      i {
+        font-size: 20px;
+      }
+    }
+    .disabled {
+      cursor: not-allowed !important;
+      pointer-events: all;
+      opacity: .6;
+      &:hover {
+        color: #6b8299;
+      }
+    }
+  }
+  .total-budget {
+    border-top: 1px solid #edf1f5;
+    padding-top: 15px;
+    .control {
+      position: relative;
+      width: 56%;
+      .danger_color {
+        position: absolute;
+        left: 0;
+        bottom: -20px;
+      }
+    }
+    .label {
+      width: 44%;
+    }
+  }
+}

@@ -1,24 +1,29 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ToastrService } from 'ngx-toastr';
+
+import { HealthStatusService, UserAccessKeyService } from '../../core/services';
 import { ConfirmationDialogType } from '../../shared';
+import { FileUtils } from '../../core/util';
 
 export interface ManageAction {
   action: string;
@@ -35,38 +40,70 @@ export interface ManageAction {
     '../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
   ]
 })
-export class ManagementGridComponent {
+export class ManagementGridComponent implements OnInit {
   @Input() allEnvironmentData: Array<any>;
+  @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
   @Input() uploadKey: boolean;
+  @Input() isAdmin: boolean;
+  @Input() currentUser: string = '';
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('keyReuploadDialog') keyReuploadDialog;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(
+    private healthStatusService: HealthStatusService,
+    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastrService,
+    public dialog: MatDialog
+  ) {}
+
+  ngOnInit() {
+  }
 
   buildGrid(): void {
     this.refreshGrid.emit();
   }
 
-  toggleResourceAction(environment, action, resource?) {
+  toggleResourceAction(environment, action: string, resource?) {
     if (resource) {
-      let resource_name = resource ? resource.computational_name : environment.name;
+      const resource_name = resource ? resource.computational_name : environment.name;
       const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
         data: { action, resource_name, user: environment.user },
-        width: '550px'
+        width: '550px',
+        panelClass: 'error-modalbox'
       });
       dialogRef.afterClosed().subscribe(result => {
         result && this.actionToggle.emit({ action, environment, resource });
       });
     } else {
       if (action === 'stop') {
-        this.confirmationDialog.open({ isFooter: false }, environment, environment.name === 'edge node' ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory);
+        this.confirmationDialog.open(
+          { isFooter: false },
+          environment,
+          (environment.name === 'edge node' || environment.type.toLowerCase() === 'edge node')
+            ? ConfirmationDialogType.StopEdgeNode
+            : ConfirmationDialogType.StopExploratory,
+          );
       } else if (action === 'terminate') {
         this.confirmationDialog.open({ isFooter: false }, environment, ConfirmationDialogType.TerminateExploratory);
-      }
+      } else if (action === 'run') {
+        this.healthStatusService
+          .runEdgeNode()
+          .subscribe(() => {
+            this.buildGrid();
+            this.toastr.success('Edge node is starting!', 'Processing!');
+          }, error => this.toastr.error('Edge Node running failed!', 'Oops!'));
+        } else if (action === 'recreate') {
+          this.healthStatusService
+            .recreateEdgeNode()
+            .subscribe(() => {
+              this.buildGrid();
+              this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+            }, error => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
+        }
     }
   }
 
@@ -90,12 +127,27 @@ export class ManagementGridComponent {
       && resource.status !== 'running'
       && resource.status !== 'stopped')).length > 0;
   }
+
+  showReuploaKeydDialog() {
+    this.keyReuploadDialog.open({ isFooter: false });
+  }
+
+  public generateUserKey() {
+    this.userAccessKeyService.regenerateAccessKey().subscribe(data => {
+      FileUtils.downloadFile(data);
+      this.buildGrid();
+    });
+  }
 }
 
 
 @Component({
   selector: 'confirm-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> resource</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
     <p>Resource <strong> {{ data.resource_name }}</strong> of user <strong> {{ data.user }} </strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
@@ -109,14 +161,6 @@ export class ManagementGridComponent {
   </div>
   `,
   styles: [
-    `
-      .content {
-        color: #718ba6;
-        padding: 20px 50px;
-        font-size: 14px;
-        font-weight: 400;
-      }
-    `
   ]
 })
 export class ConfirmationDialog {

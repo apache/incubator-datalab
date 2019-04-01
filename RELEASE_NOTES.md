@@ -2,7 +2,7 @@
 
 ## New features in v2.1
 **All Cloud platforms:**
-- implemented tuning Apache Spark standalone cluster and local spark  configurations from WEB UI (except for Apache Zeppelin)
+- implemented tuning Apache Spark standalone cluster and local spark configurations from WEB UI (except for Apache Zeppelin)
 - added a reminder after user logged in notifying that corresponding resources are about to be stopped/terminated
 - implemented SSN load monitor: CPU, Memory, HDD
 - updated versions of installed software:
@@ -40,6 +40,9 @@
 ## Bug fixes in v2.1
 **AWS:**
 - fixed pricing retrieval logic to optimize RAM usage on SSN for small instances
+**GCP:**
+- fixed a bug when DeepLearning creation was failing
+- fixed a bug which caused shared bucket to be deleted in case Edge node creation failed for new users
 
 ## Known issues in v2.1
 **All Cloud platforms:**
@@ -61,10 +64,11 @@ For more details please refer for Apache Zeppelin official documentation: https:
 - storage permissions aren't differentiated by users via Dataproc permissions (all users have R/W access to other users buckets)
 - Data Engine Service creation is failing after environment has been recreated
 - It is temporarily not possible to run playbooks using remote kernel of Data Engine (dependencies issue)
-- DeepLearning creation fails 
+- Data Engine creation fails for DeepLearning template
+- Jupyter does not start successfully after Data Engine Service creation (create Jupyter -> create Data Engine -> stop Jupyter -> Jupyter fails) 
 
 **Microsoft Azure:**
-- creation of Zeppelin from custom image fails on the step when cluster kernels are removing
+- creation of Zeppelin or RStudio from custom image fails on the step when cluster kernels are removing
 - start Notebook by scheduler does not work when Data Lake is enabled
 - playbook running on Apache Zeppelin fails due to impossible connection to blob via wasbs protocol 
 

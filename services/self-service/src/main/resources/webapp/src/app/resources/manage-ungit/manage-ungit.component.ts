@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -108,11 +109,12 @@ export class ManageUngitComponent implements OnInit {
   public deleteAccount(item: AccountCredentials) {
     const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(
       ConfirmDeleteAccountDialog,
-      { data: item, width: '550px' });
+      { data: item, width: '550px', panelClass: 'error-modalbox' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
         this.model.confirmAction(this.gitCredentials);
+        this.toastr.success('Git credentials deleted successfully!', 'Success!');
       }
     });
   }
@@ -134,6 +136,7 @@ export class ManageUngitComponent implements OnInit {
     this.model.confirmAction(this.gitCredentials);
     this.tabGroup.selectedIndex = 0;
     this.editableForm = false;
+    this.toastr.success('Git credentials updated successfully!', 'Success!');
   }
 
   private initFormModel(): void {
@@ -180,6 +183,10 @@ export class ManageUngitComponent implements OnInit {
 @Component({
   selector: 'dialog-result-example-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
     <p>Account <strong>{{ data.hostname }}</strong> will be decommissioned.</p>
     <p class="m-top-20"><strong>Do you want to proceed?</strong></p>

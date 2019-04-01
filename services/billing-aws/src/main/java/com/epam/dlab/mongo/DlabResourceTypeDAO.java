@@ -1,20 +1,21 @@
-/***************************************************************************
-
- Copyright (c) 2016, EPAM SYSTEMS INC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-
- ****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.mongo;
 
@@ -151,9 +152,12 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		Iterable<Document> docs = connection.getCollection(COLLECTION_USER_EDGE).find().projection(projection);
 		for (Document d : docs) {
 			String username = d.getString(FIELD_ID);
-			resourceList.append(sbName + "-" + BillingUtils.getSimpleUserName(username) + "-edge", "EDGE Node",
+			final String simpleUserName = BillingUtils.getSimpleUserName(username);
+			resourceList.append(sbName + "-" + simpleUserName + "-edge", "EDGE Node",
 					DlabResourceType.EDGE, username, null);
-			resourceList.append(sbName + "-" + BillingUtils.getSimpleUserName(username) + "-edge-volume-primary",
+			resourceList.append(sbName + "-" + simpleUserName + "-bucket", "Personal bucket",
+					DlabResourceType.COLLABORATION_BUCKET, username, null);
+			resourceList.append(sbName + "-" + simpleUserName + "-edge-volume-primary",
 					"EDGE Volume", DlabResourceType.VOLUME, username, null);
 			resourceList.append(getBucketName(d.getString(FIELD_EDGE_BUCKET)), "EDGE bucket", DlabResourceType
 					.EDGE_BUCKET, username, null);

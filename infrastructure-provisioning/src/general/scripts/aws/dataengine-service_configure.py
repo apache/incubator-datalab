@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -121,7 +124,7 @@ def configure_dataengine_service(instance, emr_conf):
             .format(emr_conf['edge_instance_hostname'],
                     emr_conf['key_path'],
                     emr_conf['os_user'],
-                    'emr',
+                    'dataengine-service',
                     emr_conf['exploratory_name'],
                     json.dumps(additional_info))
         try:
@@ -220,7 +223,7 @@ if __name__ == "__main__":
                                                                emr_conf['edge_instance_name']).get('Private')
     else:
         emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
-                                                                             emr_conf['edge_instance_name']).get('Public')
+                                                               emr_conf['edge_instance_name']).get('Public')
     emr_conf['user_keyname'] = os.environ['edge_user_name']
     emr_conf['os_user'] = os.environ['conf_os_user']
     emr_conf['initial_user'] = 'ec2-user'
@@ -245,7 +248,9 @@ if __name__ == "__main__":
         logging.info('[SUMMARY]')
         ip_address = emr_conf['cluster_master_instances'][0].get('PrivateIpAddress')
         emr_master_url = "http://" + ip_address + ":8088"
-        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] + '_' + emr_conf['computational_name'])
+        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] +
+                                                                                        '_' +
+                                                                                        emr_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(emr_conf['service_base_name']))
