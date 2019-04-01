@@ -73,7 +73,7 @@
       opacity: 1;
     }
   }
-  .preemptible-details {
+  .preemptible {
     .label {
       padding-left: 10px;
     }
@@ -81,7 +81,10 @@
       position: relative;
     }
   }
-  .spot-details {
+  .align {
+    margin-left: 25px;
+  }
+  .spot-details, .preemptible-details {
     position: relative;
     .danger_color {
       bottom: -5px;
