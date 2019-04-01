@@ -85,6 +85,7 @@ under the License.
               <string>rstudio</string>
               <string>zeppelin</string>
               <string>tensor</string>
+              <string>tensor-rstudio</string>
               <string>deeplearning</string>
             </a>
           </choices>
