@@ -114,6 +114,7 @@ export class ManageUngitComponent implements OnInit {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
         this.model.confirmAction(this.gitCredentials);
+        this.toastr.success('Git credentials deleted successfully!', 'Success!');
       }
     });
   }
@@ -135,6 +136,7 @@ export class ManageUngitComponent implements OnInit {
     this.model.confirmAction(this.gitCredentials);
     this.tabGroup.selectedIndex = 0;
     this.editableForm = false;
+    this.toastr.success('Git credentials updated successfully!', 'Success!');
   }
 
   private initFormModel(): void {
