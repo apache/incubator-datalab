@@ -292,4 +292,4 @@ if __name__ == "__main__":
                    {"description": "Ungit (via tunnel)",
                     "url": ungit_ip_url}
                ]}
-result.write(json.dumps(res))
+        result.write(json.dumps(res))
