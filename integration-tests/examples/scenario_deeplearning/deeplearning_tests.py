@@ -80,18 +80,6 @@ def run_tensor():
         prepare_ipynb(i, '/home/{}/test_templates/template_visualization_tensor.ipynb'.format(args.os_user), 'visualization_tensor')
         run_ipynb('visualization_tensor')
 
-def run_caffe():
-    interpreters = ['pyspark_local']
-    for i in interpreters:
-        prepare_ipynb(i, '/home/{}/test_templates/template_caffe.ipynb'.format(args.os_user), 'test_caffe')
-        run_ipynb('test_caffe')
-
-def run_caffe2():
-    interpreters = ['pyspark_local']
-    for i in interpreters:
-        prepare_ipynb(i, '/home/{}/test_templates/template_caffe2.ipynb'.format(args.os_user), 'test_caffe2')
-        run_ipynb('test_caffe2')
-
 def run_cntk():
     interpreters = ['pyspark_local']
     for i in interpreters:
@@ -127,8 +115,6 @@ if __name__ == "__main__":
     try:
         prepare_templates()
         run_tensor()
-        run_caffe()
-        run_caffe2()
         run_cntk()
         run_keras()
         run_mxnet()
