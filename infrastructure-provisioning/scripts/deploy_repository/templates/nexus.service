@@ -18,7 +18,7 @@
 
 [Unit]
 Description=nexus service
-After=network.target
+After=network.target EFS_SERVICE
 
 [Service]
 Type=forking
