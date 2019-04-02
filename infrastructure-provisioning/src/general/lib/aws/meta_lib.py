@@ -849,7 +849,11 @@ def get_ec2_price(instance_shape, region):
     try:
         price = '0.001'
         # Price API endpoints: us-east-1, ap-south-1
-        client = boto3.client('pricing', 'us-east-1')
+        if 'local_repository_nginx_proxy_host' in os.environ:
+            client = boto3.client('pricing', 'us-east-1', endpoint_url='http://{}/pricing'.format(
+                os.environ['local_repository_nginx_proxy_host']))
+        else:
+            client = boto3.client('pricing', 'us-east-1')
         # Price API require full name of region, for example: eu-west-1 -> 'EU (Ireland)'
         # endpoints will be loaded from: botocore/botocore/data/endpoints.json
         data = client._loader._cache.get(('load_data', 'endpoints'))
