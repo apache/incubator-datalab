@@ -347,7 +347,6 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAzureSecurityGroupName();
 		verify(settingsDAO).getAzureSubnetName();
 		verify(settingsDAO).getAzureVpcName();
-		verify(settingsDAO).getAzureDataLakeClientId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -417,7 +416,6 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAzureSecurityGroupName();
 		verify(settingsDAO).getAzureSubnetName();
 		verify(settingsDAO).getAzureVpcName();
-		verify(settingsDAO).getAzureDataLakeClientId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -936,13 +934,11 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getServiceBaseName();
 		verify(settingsDAO).getConfOsFamily();
 		verify(settingsDAO, times(2)).isAzureDataLakeEnabled();
-		verify(settingsDAO).getAzureDataLakeClientId();
 		verify(settingsDAO).getAzureRegion();
 		verify(settingsDAO).getAzureResourceGroupName();
 		verify(settingsDAO).getAzureSecurityGroupName();
 		verify(settingsDAO).getAzureSubnetName();
 		verify(settingsDAO).getAzureVpcName();
-		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
 	@Test
