@@ -186,20 +186,17 @@ if __name__ == "__main__":
         try:
             print('[CREATING IMAGE]')
             primary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])
-            secondary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_secondary_image_name'])
             if primary_image_id == '':
                 print("Looks like it's first time we configure notebook server. Creating images.")
-                primary_image_id = GCPActions().create_image_from_instance_disk(
-                    notebook_config['expected_primary_image_name'], 'primary',
+                image_id_list = GCPActions().create_image_from_instance_disks(
+                    notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
                     notebook_config['instance_name'], notebook_config['zone'])
-                if primary_image_id != '':
-                    print("Image of primary disk was successfully created. It's ID is {}".format(primary_image_id))
-            if secondary_image_id == '':
-                secondary_image_id = GCPActions().create_image_from_instance_disk(
-                    notebook_config['expected_secondary_image_name'], 'secondary', notebook_config['instance_name'],
-                    notebook_config['zone'])
-                if secondary_image_id != '':
-                    print("Image of secondary disk was successfully created. It's ID is {}".format(secondary_image_id))
+                if image_id_list and image_id_list[0] != '':
+                    print("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
+                else:
+                    print("Looks like another image creating operation for your template have been started a moment ago.")
+                if image_id_list and image_id_list[1] != '':
+                    print("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
         except Exception as err:
             print('Error: {0}'.format(err))
             append_result("Failed creating image.", str(err))
@@ -207,6 +204,7 @@ if __name__ == "__main__":
             GCPActions().remove_image(notebook_config['expected_primary_image_name'])
             GCPActions().remove_image(notebook_config['expected_secondary_image_name'])
             sys.exit(1)
+
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
