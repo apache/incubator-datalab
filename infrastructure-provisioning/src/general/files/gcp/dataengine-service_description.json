@@ -5,7 +5,6 @@
   "computation_resources_shapes":
   {
     "For testing" : [
-      {"Size": "XS", "Description": "n1-standard-1", "Type": "n1-standard-1","Ram": "3.75 GB","Cpu": "1"},
       {"Size": "S", "Description": "n1-standard-2", "Type": "n1-standard-2","Ram": "7.50 GB","Cpu": "2"}
     ],
     "Memory optimized" : [
