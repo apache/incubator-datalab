@@ -881,6 +881,9 @@ footer {
             }
         }
         .contact-us {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             @include flex(1);
             color: $light;
             background-image: url('../images/sources/background_people.png');
@@ -980,6 +983,23 @@ footer {
     }
 }
 
+@media (max-width: 1500px) {
+    .features {
+        .mac-screen-wrap {
+            .screen-slider-thumbs {
+                .swiper-slide {
+                    height: 150px;
+                    width: 110px;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    a {
+                        margin-top: 35px;
+                    }
+                }
+            }
+        }
+    }
+}
 @media (max-width: 1024px) {
     .controls-nav, .technologies {
         display: none;
