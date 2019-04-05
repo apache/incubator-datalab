@@ -17,16 +17,15 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.dto;
 
-import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
-import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
+import lombok.Builder;
+import lombok.Data;
 
-public interface InfrastructureInfoService {
-	InfrastructureInfo getUserResources(String user);
-
-	HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean isAdmin);
-
-	InfrastructureMetaInfoDTO getInfrastructureMetaInfo();
+@Data
+@Builder
+public class InfrastructureMetaInfoDTO {
+	private final String branch;
+	private final String version;
+	private final String commit;
 }

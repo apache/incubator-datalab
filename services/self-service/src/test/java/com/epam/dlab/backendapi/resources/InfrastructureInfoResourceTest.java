@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import com.epam.dlab.exceptions.DlabException;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -207,6 +208,22 @@ public class InfrastructureInfoResourceTest extends TestBase {
 
 		verify(infrastructureInfoService).getUserResources(USER.toLowerCase());
 		verifyNoMoreInteractions(infrastructureInfoService);
+	}
+
+	@Test
+	public void getInfrastructureMeta() {
+
+		when(infrastructureInfoService.getInfrastructureMetaInfo()).thenReturn(
+				InfrastructureMetaInfoDTO.builder()
+						.version("1.0").build());
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure/meta")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		final InfrastructureMetaInfoDTO infrastructureMetaInfoDTO = response.readEntity(InfrastructureMetaInfoDTO.class);
+		assertEquals("1.0", infrastructureMetaInfoDTO.getVersion());
 	}
 
 	private HealthStatusPageDTO getHealthStatusPageDTO() {
