@@ -674,7 +674,7 @@ class GCPActions:
         id_list=[]
         try:
             GCPActions().stop_instance(instance_name, zone)
-            primary_image_check = GCPMeta().get_image_by_name(primary_image_name)
+            primary_image_check = meta_lib.GCPMeta().get_image_by_name(primary_image_name)
             if primary_image_check != '':
                 GCPActions().start_instance(instance_name, zone)
                 return ''
