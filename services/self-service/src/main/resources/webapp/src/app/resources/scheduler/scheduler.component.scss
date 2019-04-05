@@ -86,6 +86,14 @@
       visibility: hidden;
       text-align: left;
     }
+    .row-wrap {
+      position: relative;
+      .error {
+        position: absolute;
+        bottom: -10px;
+        font-size: 12px;
+      }
+    }
   }
   .col-3 {
     width: 33%;

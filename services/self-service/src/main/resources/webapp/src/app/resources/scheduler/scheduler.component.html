@@ -88,8 +88,7 @@
               <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'"
                 [disable]="!enableSchedule"></dlab-time-picker>
             </div>
-            <div *ngIf="timeReqiered" class="danger_color m-bott-10"><span>At least one of time range fields should be selected</span></div>
-            
+            <div *ngIf="timeReqiered" class="error m-bott-10 mt-5"><span>At least one of time range fields should be selected</span></div>
           </div>
           <div class="control-group" *ngIf="destination">
             <label class="label repeat" for="options">Repeat on :</label>
