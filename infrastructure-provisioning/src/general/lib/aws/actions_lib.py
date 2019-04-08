@@ -338,6 +338,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        tag_name = {"Key": 'Name', "Value": "{0}-peering-connection".format(service_base_name)}
         peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
         client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
         client.modify_vpc_peering_connection_options(
@@ -350,6 +351,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
             VpcPeeringConnectionId=peering.id
         )
         create_tag(peering.id, json.dumps(tag))
+        create_tag(peering.id, json.dumps(tag_name))
         return peering.id
     except Exception as err:
         logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -513,7 +515,6 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
                 '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
         if tag:
             conn.tag_role(RoleName=role_name, Tags=[tag])
-            conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")
