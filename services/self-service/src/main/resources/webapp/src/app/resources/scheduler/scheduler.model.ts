@@ -94,7 +94,11 @@ export class WeekdaysModel {
     public saturday: boolean
   ) {}
 
-  setDegault(): void {
+  public static setDefault(): WeekdaysModel {
+    return new WeekdaysModel(false, false, false, false, false, false, false);
+  }
+
+  reset(): void {
     this.sunday = false;
     this.monday = false;
     this.tuesday = false;

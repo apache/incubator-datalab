@@ -26,6 +26,7 @@ import 'moment-timezone';
 
 import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
+import { SchedulerCalculations } from './scheduler.calculations';
 import { HTTP_STATUS_CODES } from '../../core/util';
 import { ScheduleSchema } from './scheduler.model';
 
@@ -37,8 +38,8 @@ import { ScheduleSchema } from './scheduler.model';
 })
 export class SchedulerComponent implements OnInit {
   public model: SchedulerModel;
-  public selectedStartWeekDays: WeekdaysModel = new WeekdaysModel(false, false, false, false, false, false, false);
-  public selectedStopWeekDays: WeekdaysModel = new WeekdaysModel(false, false, false, false, false, false, false);
+  public selectedStartWeekDays: WeekdaysModel = WeekdaysModel.setDefault();
+  public selectedStopWeekDays: WeekdaysModel = WeekdaysModel.setDefault();
   public notebook: any;
   public infoMessage: boolean = false;
   public timeReqiered: boolean = false;
@@ -99,8 +100,8 @@ export class SchedulerComponent implements OnInit {
           this.changeDetector.detectChanges();
           this.destination = (type === 'EXPLORATORY') ? this.notebook : resource;
           this.destination.type = type;
-          this.selectedStartWeekDays.setDegault();
-          this.selectedStopWeekDays.setDegault();
+          this.selectedStartWeekDays.reset();
+          this.selectedStopWeekDays.reset();
           this.allowInheritView = false;
 
           if (this.destination.type === 'СOMPUTATIONAL') {
@@ -190,8 +191,8 @@ export class SchedulerComponent implements OnInit {
       const parameters: ScheduleSchema = {
         begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
         finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
-        start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
-        end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
+        start_time: this.startTime ? SchedulerCalculations.convertTimeFormat(this.startTime) : null,
+        end_time: this.endTime ? SchedulerCalculations.convertTimeFormat(this.endTime) : null,
         start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
         stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
         timezone_offset: this.tzOffset,
@@ -238,8 +239,8 @@ export class SchedulerComponent implements OnInit {
           params.stop_days_repeat.filter(key => (this.selectedStopWeekDays[key.toLowerCase()] = true));
           this.inherit = params.sync_start_required;
           this.tzOffset = params.timezone_offset;
-          this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
-          this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
+          this.startTime = params.start_time ? SchedulerCalculations.convertTimeFormat(params.start_time) : null;
+          this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : null;
           this.formInit(params.begin_date, params.finish_date);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
@@ -247,9 +248,7 @@ export class SchedulerComponent implements OnInit {
           this.enableIdleTime && params.max_inactivity ? this.toggleIdleTimes({checked: true}) : this.toggleSchedule({checked: true});
         }
       },
-      error => {
-        this.resetDialog();
-      });
+      error => this.resetDialog());
   }
 
   private checkParentInherit() {
@@ -266,29 +265,6 @@ export class SchedulerComponent implements OnInit {
           : control.value;
   }
 
-  private convertTimeFormat(time24: any) {
-    let result;
-    if (typeof time24 === 'string') {
-      const spl = time24.split(':');
-
-      result = {
-        hour: +spl[0] % 12 || 12,
-        minute: +spl[1],
-        meridiem: +spl[0] < 12 || +spl[0] === 24 ? 'AM' : 'PM'
-      };
-    } else {
-      let hours = time24.hour;
-      const minutes = (time24.minute < 10) ? '0' + time24.minute : time24.minute;
-
-      if (time24.meridiem === 'PM' && time24.hour < 12) hours = time24.hour + 12;
-      if (time24.meridiem === 'AM' &&  time24.hour === 12) hours = time24.hour - 12;
-      hours = hours < 10 ? '0' + hours : hours;
-
-      result = `${hours}:${minutes}`;
-    }
-    return result;
-  }
-
   private checkIsActiveSpark() {
     return this.notebook.resources.length > 0 && this.notebook.resources.some(el => el.image === 'docker.dlab-dataengine'
       && (el.status !== 'terminated' && el.status !== 'terminating' && el.status !== 'failed'));
@@ -301,8 +277,8 @@ export class SchedulerComponent implements OnInit {
     this.enableSchedule = false;
     this.considerInactivity = false;
     this.tzOffset = _moment().format('Z');
-    this.startTime = this.convertTimeFormat('09:00');
-    this.endTime = this.convertTimeFormat('20:00');
+    this.startTime = SchedulerCalculations.convertTimeFormat('09:00');
+    this.endTime = SchedulerCalculations.convertTimeFormat('20:00');
 
     this.schedulerForm.get('startDate').disable();
     this.schedulerForm.get('finishDate').disable();
