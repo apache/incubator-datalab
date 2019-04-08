@@ -29,7 +29,8 @@
                 "iam:ListInstanceProfilesForRole",
                 "iam:ListRoles",
                 "iam:ListPolicies",
-                "iam:ListRolePolicies"
+                "iam:ListRolePolicies",
+                "iam:TagRole"
             ],
             "Effect": "Allow",
             "Resource": "*"

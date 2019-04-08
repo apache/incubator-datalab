@@ -189,22 +189,6 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
-def create_product_tag(resource):
-    print('Tag product for the resource {} will be created'.format(resource))
-    tags_list = list()
-    ec2 = boto3.client('ec2')
-    if type(resource) != list:
-        resource = [resource]
-    tags_list.append(
-        {
-            'Key': os.environ['conf_billing_tag_key'],
-            'Value': os.environ['conf_billing_tag_value']
-        }
-    )
-    ec2.create_tags(
-        Resources=resource,
-        Tags=tags_list
-    )
 
 def remove_emr_tag(emr_id, tag):
     try:
@@ -260,9 +244,11 @@ def create_subnet(vpc_id, subnet, tag):
 def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
     try:
         ec2 = boto3.resource('ec2')
+        tag_name = {"Key": "Name", "Value": security_group_name}
         group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
         time.sleep(10)
         create_tag(group.id, tag)
+        create_tag(group.id, tag_name)
         try:
             group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
                                                 "UserIdGroupPairs": [], "PrefixListIds": []}])
@@ -352,6 +338,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        tag_name = {"Key": 'Name', "Value": "{0}-peering-connection".format(service_base_name)}
         peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
         client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
         client.modify_vpc_peering_connection_options(
@@ -364,6 +351,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
             VpcPeeringConnectionId=peering.id
         )
         create_tag(peering.id, json.dumps(tag))
+        create_tag(peering.id, json.dumps(tag_name))
         return peering.id
     except Exception as err:
         logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -462,6 +450,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_intance_volume(instance_id, node_name, instance_tag):
     try:
         print('volume tagging')
@@ -490,6 +479,7 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_emr_volume(cluster_id, node_name, billing_tag):
     try:
         client = boto3.client('emr')
@@ -508,7 +498,8 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-def create_iam_role(role_name, role_profile, region, service='ec2'):
+
+def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
     conn = boto3.client('iam')
     try:
         if region == 'cn-north-1':
@@ -522,6 +513,9 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
                 RoleName=role_name, AssumeRolePolicyDocument=
                 '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service +
                 '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
+        if tag:
+            conn.tag_role(RoleName=role_name, Tags=[tag])
+            conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")

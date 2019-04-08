@@ -162,6 +162,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -194,6 +202,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -231,6 +247,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -276,6 +300,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -376,6 +408,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -453,4 +493,12 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
