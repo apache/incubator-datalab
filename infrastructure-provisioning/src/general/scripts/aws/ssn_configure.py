@@ -60,7 +60,7 @@ if __name__ == "__main__":
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
-        biling_enabled = True
+        billing_enabled = True
         dlab_ssh_user = os.environ['conf_os_user']
         network_type = os.environ['conf_network_type']
         if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and \
