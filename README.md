@@ -181,7 +181,8 @@ Prerequisites:
 				"iam:GetInstanceProfile",
 				"iam:ListInstanceProfilesForRole"
 				"iam:RemoveRoleFromInstanceProfile",
-				"iam:DeleteInstanceProfile"
+				"iam:DeleteInstanceProfile",
+				"iam:TagRole"
 			],
 			"Effect": "Allow",
 			"Resource": "*"

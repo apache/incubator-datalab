@@ -79,7 +79,7 @@ if __name__ == "__main__":
     edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'],
                                                                      os.environ['edge_user_name'])
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-    edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(os.environ['aws_private_subnet_prefix'],
+    edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'],
                                                                os.environ['edge_user_name'])
     edge_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])

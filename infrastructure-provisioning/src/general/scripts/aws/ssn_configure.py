@@ -60,7 +60,7 @@ if __name__ == "__main__":
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
-        billing_enabled = True
+        biling_enabled = True
         dlab_ssh_user = os.environ['conf_os_user']
         network_type = os.environ['conf_network_type']
         if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and \
@@ -177,7 +177,7 @@ if __name__ == "__main__":
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 backoff argparse fabric==1.14.0 awscli pymongo " \
                  "pyyaml jinja2' --user {} --region {}". \
-            fformat(instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
+            format(instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
                    os.environ['aws_region'])
 
         try:
