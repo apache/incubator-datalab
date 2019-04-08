@@ -88,6 +88,8 @@ if __name__ == "__main__":
         edge_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ','')})
     edge_conf['network_type'] = os.environ['conf_network_type']
     edge_conf['all_ip_cidr'] = '0.0.0.0/0'
+    edge_conf['elastic_ip_name'] = '{0}-{1}-edge-EIP'.format(edge_conf['service_base_name'],
+                                                             os.environ['edge_user_name'])
     if 'aws_user_predefined_s3_policies' not in os.environ:
         os.environ['aws_user_predefined_s3_policies'] = 'None'
 
@@ -532,7 +534,8 @@ if __name__ == "__main__":
                 edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
             except:
                 edge_conf['elastic_ip'] = 'None'
-            params = "--elastic_ip {} --edge_id {}".format(edge_conf['elastic_ip'], edge_conf['edge_id'])
+            params = "--elastic_ip {} --edge_id {}  --infra_tag_name {} --infra_tag_value {}".format(
+                edge_conf['elastic_ip'], edge_conf['edge_id'], edge_conf['tag_name'], edge_conf['elastic_ip_name'])
             try:
                 local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
             except:

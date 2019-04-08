@@ -189,22 +189,6 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
-def create_product_tag(resource):
-    print('Tag product for the resource {} will be created'.format(resource))
-    tags_list = list()
-    ec2 = boto3.client('ec2')
-    if type(resource) != list:
-        resource = [resource]
-    tags_list.append(
-        {
-            'Key': os.environ['conf_billing_tag_key'],
-            'Value': os.environ['conf_billing_tag_value']
-        }
-    )
-    ec2.create_tags(
-        Resources=resource,
-        Tags=tags_list
-    )
 
 def remove_emr_tag(emr_id, tag):
     try:
