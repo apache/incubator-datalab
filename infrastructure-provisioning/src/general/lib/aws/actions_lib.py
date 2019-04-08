@@ -862,7 +862,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
         client = boto3.client('iam')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
         roles_list = []
         for item in client.list_roles(MaxItems=250).get("Roles"):
             if item.get("RoleName").startswith(service_base_name + '-'):
@@ -872,14 +872,15 @@ def remove_all_iam_resources(instance_type, scientist=''):
             for iam_role in roles_list:
                 if '-ssn-Role' in iam_role and instance_type == 'ssn' or instance_type == 'all':
                     try:
-                        client.delete_role_policy(RoleName=iam_role, PolicyName=service_base_name + '-ssn-Policy')
+                        client.delete_role_policy(RoleName=iam_role, PolicyName='{0}-ssn-Policy'.format(
+                            service_base_name))
                     except:
                         print('There is no policy {}-ssn-Policy to delete'.format(service_base_name))
                     role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
                     if role_profiles:
                         for i in role_profiles:
                             role_profile_name = i.get('InstanceProfileName')
-                            if role_profile_name == service_base_name + '-ssn-Profile':
+                            if role_profile_name == '{0}-ssn-Profile'.format(service_base_name):
                                 remove_roles_and_profiles(iam_role, role_profile_name)
                     else:
                         print("There is no instance profile for {}".format(iam_role))
@@ -888,8 +889,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-edge-Role' in iam_role:
                     if instance_type == 'edge' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = os.environ['conf_service_base_name'] + '-' + '{}'.format(scientist) + \
-                                            '-edge-Profile'
+                        role_profile_name = '{0}-{1}-edge-Profile'.format(service_base_name, scientist)
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -912,8 +912,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + \
-                                            '-nb-de-Profile'
+                        role_profile_name = '{0}-{1}-nb-de-Profile'.format(service_base_name, scientist)
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -937,7 +936,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
             print("There are no IAM roles to delete. Checking instance profiles...")
         profile_list = []
         for item in client.list_instance_profiles(MaxItems=250).get("InstanceProfiles"):
-            if item.get("InstanceProfileName").startswith(service_base_name + '-'):
+            if item.get("InstanceProfileName").startswith('{}-'.format(service_base_name)):
                 profile_list.append(item.get('InstanceProfileName'))
         if profile_list:
             for instance_profile in profile_list:
