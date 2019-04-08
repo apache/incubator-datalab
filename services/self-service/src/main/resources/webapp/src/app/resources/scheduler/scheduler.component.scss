@@ -70,6 +70,17 @@
       margin-bottom: 50px;
     }
   }
+  .idle-control {
+    .control {
+      position: relative;
+      .error {
+        position: absolute;
+        left: 5px;
+        top: 40px;
+        font-size: 12px;
+      }
+    }
+  }
   .info-message {
     &.show {
       margin-bottom: 15px;

@@ -50,7 +50,7 @@
               (keypress)="CheckUtils.isNumberKey($event)"
               (keydown.arrowup)="inactivityCounter($event, 'increment')"
               (keydown.arrowdown)="inactivityCounter($event, 'decrement')" />
-            <span class="danger_color" *ngIf="!schedulerForm.controls.inactivityTime.valid">
+            <span class="error" *ngIf="!schedulerForm.controls.inactivityTime.valid">
               <span>The value should be an integer greater than or equal to {{ inactivityLimits.min }} and cannot exceed 1 week ({{ inactivityLimits.max }}) in min</span>
             </span>
           </div>
