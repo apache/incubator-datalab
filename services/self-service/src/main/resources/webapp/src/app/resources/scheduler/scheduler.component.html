@@ -45,7 +45,11 @@
         <div class="control-group idle-control" [ngClass]="{ show: enableIdleTime }">
           <label class="label">Scheduler by inactivity, min</label>
           <div class="control">
-            <input type="number" class="form-control" min="10" max="10080" formControlName="inactivityTime" class="form-control" placeholder="Enter time in min" />
+            <input type="text" class="form-control" placeholder="Enter time in min"
+              formControlName="inactivityTime"
+              (keypress)="CheckUtils.isNumberKey($event)"
+              (keydown.arrowup)="inactivityCounter($event, 'increment')"
+              (keydown.arrowdown)="inactivityCounter($event, 'decrement')" />
             <span class="danger_color" *ngIf="!schedulerForm.controls.inactivityTime.valid">
               <span>The value should be an integer greater than or equal to {{ inactivityLimits.min }} and cannot exceed 1 week ({{ inactivityLimits.max }}) in min</span>
             </span>

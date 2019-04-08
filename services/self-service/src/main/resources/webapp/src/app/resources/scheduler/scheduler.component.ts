@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
 import * as _moment from 'moment';
@@ -27,7 +27,7 @@ import 'moment-timezone';
 import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
 import { SchedulerCalculations } from './scheduler.calculations';
-import { HTTP_STATUS_CODES } from '../../core/util';
+import { HTTP_STATUS_CODES, CheckUtils } from '../../core/util';
 import { ScheduleSchema } from './scheduler.model';
 
 @Component({
@@ -37,6 +37,8 @@ import { ScheduleSchema } from './scheduler.model';
   encapsulation: ViewEncapsulation.None
 })
 export class SchedulerComponent implements OnInit {
+  readonly CheckUtils = CheckUtils;
+
   public model: SchedulerModel;
   public selectedStartWeekDays: WeekdaysModel = WeekdaysModel.setDefault();
   public selectedStopWeekDays: WeekdaysModel = WeekdaysModel.setDefault();
@@ -60,6 +62,7 @@ export class SchedulerComponent implements OnInit {
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
 
   public inactivityLimits = { min: 120, max: 10080 };
+  public integerRegex: string = '^[0-9]*$';
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;
@@ -175,6 +178,13 @@ export class SchedulerComponent implements OnInit {
       error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'));
   }
 
+  public inactivityCounter($event, action: string): void {
+    $event.preventDefault();
+    const value = this.schedulerForm.controls.inactivityTime.value;
+    const newValue = (action === 'increment' ? Number(value) + 10 : Number(value) - 10);
+    this.schedulerForm.controls.inactivityTime.setValue(newValue);
+  }
+
   public scheduleInstance_btnClick() {
 
     if (!this.enableIdleTime) {
@@ -227,7 +237,8 @@ export class SchedulerComponent implements OnInit {
     this.schedulerForm = this.formBuilder.group({
       startDate: { disabled: this.inherit, value: start ? _moment(start).format() : null },
       finishDate: { disabled: false, value: end ? _moment(end).format() : null },
-      inactivityTime: [this.inactivityLimits.min , this.validInactivityRange.bind(this)]
+      inactivityTime: [this.inactivityLimits.min,
+                      [Validators.compose([Validators.pattern(this.integerRegex), this.validInactivityRange.bind(this)])]]
     });
   }
 
