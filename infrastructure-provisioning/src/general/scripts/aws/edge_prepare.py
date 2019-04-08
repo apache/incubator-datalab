@@ -79,6 +79,8 @@ if __name__ == "__main__":
     edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'],
                                                                      os.environ['edge_user_name'])
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(os.environ['aws_private_subnet_prefix'],
+                                                               os.environ['edge_user_name'])
     edge_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
@@ -113,10 +115,9 @@ if __name__ == "__main__":
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
         params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {} " \
-                 "--user_subnets_range '{}'".format(edge_conf['vpc2_id'], edge_conf['tag_name'],
-                                                    edge_conf['service_base_name'], os.environ['edge_user_name'],
-                                                    edge_conf['private_subnet_prefix'],
-                                                    os.environ['conf_user_subnets_range'])
+                 "--user_subnets_range '{}' --subnet_name {}".format(
+            edge_conf['vpc2_id'], edge_conf['tag_name'], edge_conf['service_base_name'], os.environ['edge_user_name'],
+            edge_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'], edge_conf['private_subnet_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
@@ -135,9 +136,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE ROLES]')
         print('[CREATE EDGE ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+        params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
+                 "--infra_tag_value {}" \
                  .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-                         edge_conf['policy_name'], os.environ['aws_region'])
+                         edge_conf['policy_name'], os.environ['aws_region'], edge_conf['tag_name'],
+                         edge_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -151,9 +154,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+        params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
+                 "--infra_tag_value {}" \
                  .format(edge_conf['notebook_dataengine_role_name'], edge_conf['notebook_dataengine_role_profile_name'],
-                         edge_conf['notebook_dataengine_policy_name'], os.environ['aws_region'])
+                         edge_conf['notebook_dataengine_policy_name'], os.environ['aws_region'], edge_conf['tag_name'],
+                         edge_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:

@@ -92,15 +92,14 @@ if __name__ == "__main__":
                 pre_defined_vpc = True
                 logging.info('[CREATE VPC AND ROUTE TABLE]')
                 print('[CREATE VPC AND ROUTE TABLE]')
-                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
-                    vpc_cidr, region, tag_name, service_base_name)
+                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --vpc_name {}".format(
+                    vpc_cidr, region, tag_name, service_base_name, vpc_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
                 except:
                     traceback.print_exc()
                     raise Exception
                 os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
-                create_tag(os.environ['aws_vpc_id'], {"Key": "Name", "Value": vpc_name})
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create VPC. Exception:" + str(err))
@@ -118,15 +117,14 @@ if __name__ == "__main__":
                 pre_defined_vpc2 = True
                 logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
                 print('[CREATE SECONDARY VPC AND ROUTE TABLE]')
-                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary".format(
-                    vpc2_cidr, region, tag2_name, service_base_name)
+                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary " \
+                         "--vpc_name {}".format(vpc2_cidr, region, tag2_name, service_base_name, vpc2_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
                 except:
                     traceback.print_exc()
                     raise Exception
                 os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
-                create_tag(os.environ['aws_vpc2_id'], {"Key": "Name", "Value": vpc2_name})
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create secondary VPC. Exception:" + str(err))
@@ -145,7 +143,8 @@ if __name__ == "__main__":
                 logging.info('[CREATE SUBNET]')
                 print('[CREATE SUBNET]')
                 params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} " \
-                         "--ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
+                         "--ssn {} --subnet_name {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name,
+                                                            service_base_name, '20', True, subnet_name)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 except:
@@ -271,8 +270,10 @@ if __name__ == "__main__":
                 sys.exit(1)
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {}".\
-            format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'])
+        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
+                 "--infra_tag_name {} --infra_tag_value {}".\
+            format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'], tag_name,
+                   service_base_name)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -320,8 +321,6 @@ if __name__ == "__main__":
             remove_route_tables(tag2_name, True)
             remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
-
-
 
     if os.environ['conf_duo_vpc_enable'] == 'true':
         try:

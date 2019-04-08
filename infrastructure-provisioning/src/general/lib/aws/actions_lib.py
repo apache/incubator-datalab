@@ -244,9 +244,11 @@ def create_subnet(vpc_id, subnet, tag):
 def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
     try:
         ec2 = boto3.resource('ec2')
+        tag_name = {"Key": "Name", "Value": security_group_name}
         group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
         time.sleep(10)
         create_tag(group.id, tag)
+        create_tag(group.id, tag_name)
         try:
             group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
                                                 "UserIdGroupPairs": [], "PrefixListIds": []}])
@@ -446,6 +448,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_intance_volume(instance_id, node_name, instance_tag):
     try:
         print('volume tagging')
@@ -474,6 +477,7 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_emr_volume(cluster_id, node_name, billing_tag):
     try:
         client = boto3.client('emr')
@@ -492,7 +496,8 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-def create_iam_role(role_name, role_profile, region, service='ec2'):
+
+def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
     conn = boto3.client('iam')
     try:
         if region == 'cn-north-1':
@@ -506,6 +511,9 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
                 RoleName=role_name, AssumeRolePolicyDocument=
                 '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service +
                 '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
+        if tag:
+            conn.tag_role(RoleName=role_name, Tags=[tag])
+            conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")
