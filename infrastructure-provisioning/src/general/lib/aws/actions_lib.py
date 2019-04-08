@@ -515,6 +515,7 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
                 '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
         if tag:
             conn.tag_role(RoleName=role_name, Tags=[tag])
+            conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")

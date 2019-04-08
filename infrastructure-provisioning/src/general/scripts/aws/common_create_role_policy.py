@@ -45,7 +45,7 @@ if __name__ == "__main__":
             if role_name == '':
                 tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
                 print("Creating role {0}, profile name {1}".format(args.role_name, args.role_profile_name))
-                create_iam_role(args.role_name, args.role_profile_name, args.region, tag)
+                create_iam_role(args.role_name, args.role_profile_name, args.region, tag=tag)
             else:
                 print("ROLE AND ROLE PROFILE ARE ALREADY CREATED")
             print("ROLE {} created. IAM group {} created".format(args.role_name, args.role_profile_name))
