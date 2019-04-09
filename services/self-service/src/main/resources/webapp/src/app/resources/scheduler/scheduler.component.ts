@@ -50,6 +50,7 @@ export class SchedulerComponent implements OnInit {
   public parentInherit: boolean = false;
   public enableSchedule: boolean = false;
   public enableIdleTime: boolean = false;
+  public enableIdleTimeView: boolean = false;
   public considerInactivity: boolean = false;
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
@@ -152,10 +153,13 @@ export class SchedulerComponent implements OnInit {
 
     this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
 
-    if (!this.enableSchedule)
+    if (!this.enableSchedule) {
       this.model
         .resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null)
         .subscribe(() => this.resetDialog());
+    } else {
+      this.enableIdleTimeView = false;
+    }
   }
 
   public toggleIdleTimes($event) {
@@ -165,6 +169,9 @@ export class SchedulerComponent implements OnInit {
 
     if (!this.enableIdleTime) {
       this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
+      this.allowInheritView = this.destination.type === 'СOMPUTATIONAL' || this.checkIsActiveSpark();
+    } else {
+      this.enableIdleTimeView = true;
     }
   }
 
@@ -221,7 +228,7 @@ export class SchedulerComponent implements OnInit {
 
       (this.destination.type === 'СOMPUTATIONAL')
         ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
-        : this.setInactivity(this.notebook.name, data);
+        : this.setInactivity(this.notebook.name, {...data, consider_inactivity: this.considerInactivity});
     }
   }
 

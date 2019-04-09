@@ -42,7 +42,7 @@
 
         <div class="note m-bott-10">NOTE: In case of turning on inactivity time-check, your schedule configuration will be decommissioned.</div>
 
-        <div class="control-group idle-control" [ngClass]="{ show: enableIdleTime }">
+        <div class="control-group idle-control" [ngClass]="{ show: enableIdleTimeView }">
           <label class="label">Scheduler by inactivity, min</label>
           <div class="control">
             <input type="text" class="form-control" placeholder="Enter time in min"
@@ -55,7 +55,7 @@
             </span>
           </div>
         </div>
-        <div class="schedule-by-time" *ngIf="!enableIdleTime" [ngClass]="{ hide: enableIdleTime }">
+        <div class="schedule-by-time" *ngIf="!enableIdleTimeView" [ngClass]="{ hide: enableIdleTimeView }">
           <div class="row-wrap">
             <div class="col-3">
               <mat-form-field>
@@ -113,6 +113,7 @@
               </mat-button-toggle>
             </div>
           </div>
+
           <div class="options" *ngIf="destination && allowInheritView">
             <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)" [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
               <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
@@ -123,18 +124,20 @@
               </ng-template>
             </mat-slide-toggle>
           </div>
-          <div class="options" *ngIf="destination.type === 'EXPLORATORY'">
-            <mat-slide-toggle labelPosition="after" [checked]="considerInactivity" [disabled]="!enableSchedule" (change)="considerInactivity = !considerInactivity">
-              <span class="hold-label">
-                <span>Use even some jobs are ran on computational resources</span>
-              </span>
-            </mat-slide-toggle>
-          </div>
+        </div>
+        <div class="options" *ngIf="destination.type === 'EXPLORATORY'">
+          <mat-slide-toggle labelPosition="after" [checked]="considerInactivity" [disabled]="!enableSchedule && !enableIdleTime" (change)="considerInactivity = !considerInactivity">
+            <span class="hold-label">
+              <!-- <span>Use even some jobs are ran on computational resources</span> -->
+              <span>In case of running jobs on Spark standalone, notebook stop scheduler will not be trigger</span>
+            </span>
+          </mat-slide-toggle>
         </div>
       </form>
       <div class="text-center m-top-30">
         <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
-        <button mat-raised-button type="button" class="butt butt-success action" [disabled]="!enableSchedule && !enableIdleTime" (click)="scheduleInstance_btnClick()">Save</button>
+        <button mat-raised-button type="button" class="butt butt-success action" (click)="scheduleInstance_btnClick()">Save</button>
+        <!-- [disabled]="!enableSchedule && !enableIdleTime" -->
       </div>
     </div>
   </modal-content>
