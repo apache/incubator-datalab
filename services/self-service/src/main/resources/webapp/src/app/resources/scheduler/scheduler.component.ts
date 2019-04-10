@@ -153,24 +153,21 @@ export class SchedulerComponent implements OnInit {
 
     this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
 
-    if (!this.enableSchedule) {
-      this.model
-        .resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null)
-        .subscribe(() => this.resetDialog());
-    } else {
-      this.enableIdleTimeView = false;
-    }
+    if (this.enableSchedule && $event.source) this.enableIdleTimeView = false;
   }
 
   public toggleIdleTimes($event) {
+    const control = this.schedulerForm.controls.inactivityTime;
+
     this.enableIdleTime = $event.checked;
     this.enableIdleTime && this.enableSchedule && this.toggleSchedule({checked: false});
     this.allowInheritView = false;
 
     if (!this.enableIdleTime) {
-      this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
       this.allowInheritView = this.destination.type === 'СOMPUTATIONAL' || this.checkIsActiveSpark();
+      control.setValue('');
     } else {
+      !control.value && control.setValue(this.inactivityLimits.min);
       this.enableIdleTimeView = true;
     }
   }
@@ -193,43 +190,59 @@ export class SchedulerComponent implements OnInit {
   }
 
   public scheduleInstance_btnClick() {
-
-    if (!this.enableIdleTime) {
-      const data = {
-        startDate: this.schedulerForm.controls.startDate.value,
-        finishDate: this.schedulerForm.controls.finishDate.value
-      };
-
-      if (!this.startTime && !this.endTime && this.enableSchedule) {
-        this.timeReqiered = true;
-        return false;
-      }
-      const selectedDays = Object.keys(this.selectedStartWeekDays);
-      const parameters: ScheduleSchema = {
-        begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
-        finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
-        start_time: this.startTime ? SchedulerCalculations.convertTimeFormat(this.startTime) : null,
-        end_time: this.endTime ? SchedulerCalculations.convertTimeFormat(this.endTime) : null,
-        start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
-        stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
-        timezone_offset: this.tzOffset,
-        sync_start_required: this.inherit,
-        check_inactivity_required: this.enableIdleTime
-      };
-
-      if (this.destination.type === 'СOMPUTATIONAL') {
-        this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name);
-      } else {
-        parameters['consider_inactivity'] = this.considerInactivity;
-        this.model.confirmAction(this.notebook.name, parameters);
-      }
+    if (this.enableIdleTimeView) {
+      this.enableIdleTime ? this.setScheduleByInactivity() : this.resetScheduler();
     } else {
-      const data = { check_inactivity_required: true, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
-
-      (this.destination.type === 'СOMPUTATIONAL')
-        ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
-        : this.setInactivity(this.notebook.name, {...data, consider_inactivity: this.considerInactivity});
+      this.enableSchedule ? this.setScheduleByTime() : this.resetScheduler();
     }
+  }
+
+  private resetScheduler() {
+    const resource = this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null;
+    this.model.resetSchedule(this.notebook.name, resource)
+      .subscribe(() => {
+        this.resetDialog();
+        this.toastr.success('Schedule data were successfully deleted', 'Success!');
+        this.close();
+      });
+  }
+
+  private setScheduleByTime() {
+    const data = {
+      startDate: this.schedulerForm.controls.startDate.value,
+      finishDate: this.schedulerForm.controls.finishDate.value
+    };
+
+    if (!this.startTime && !this.endTime && this.enableSchedule) {
+      this.timeReqiered = true;
+      return false;
+    }
+    const selectedDays = Object.keys(this.selectedStartWeekDays);
+    const parameters: ScheduleSchema = {
+      begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
+      finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
+      start_time: this.startTime ? SchedulerCalculations.convertTimeFormat(this.startTime) : null,
+      end_time: this.endTime ? SchedulerCalculations.convertTimeFormat(this.endTime) : null,
+      start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
+      stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
+      timezone_offset: this.tzOffset,
+      sync_start_required: this.inherit,
+      check_inactivity_required: this.enableIdleTime
+    };
+
+    if (this.destination.type === 'СOMPUTATIONAL') {
+      this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name);
+    } else {
+      parameters['consider_inactivity'] = this.considerInactivity;
+      this.model.confirmAction(this.notebook.name, parameters);
+    }
+  }
+
+  private setScheduleByInactivity() {
+    const data = { check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
+    (this.destination.type === 'СOMPUTATIONAL')
+      ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
+      : this.setInactivity(this.notebook.name, {...data, consider_inactivity: this.considerInactivity});
   }
 
   public close(): void {
@@ -263,7 +276,9 @@ export class SchedulerComponent implements OnInit {
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
 
-          this.enableIdleTime && params.max_inactivity ? this.toggleIdleTimes({checked: true}) : this.toggleSchedule({checked: true});
+          (this.enableIdleTime && params.max_inactivity)
+            ? this.toggleIdleTimes({checked: true})
+            : this.toggleSchedule({checked: true});
         }
       },
       error => this.resetDialog());
@@ -294,6 +309,7 @@ export class SchedulerComponent implements OnInit {
     this.inherit = false;
     this.enableSchedule = false;
     this.considerInactivity = false;
+    this.enableIdleTime = false;
     this.tzOffset = _moment().format('Z');
     this.startTime = SchedulerCalculations.convertTimeFormat('09:00');
     this.endTime = SchedulerCalculations.convertTimeFormat('20:00');
