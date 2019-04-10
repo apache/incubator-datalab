@@ -1722,6 +1722,8 @@ if __name__ == "__main__":
             print("Ubuntu-canonical repository URL: https://{0}/repository/ubuntu-canonical".format(nexus_host))
             print("Rrutter repository URL: https://{0}/repository/rrutter".format(nexus_host))
             print("R repository URL: https://{0}/repository/r".format(nexus_host))
+            print("Amazon-main repository URL: https://{0}/repository/amazon-main".format(nexus_host))
+            print("Amazon-updates repository URL: https://{0}/repository/amazon-updates".format(nexus_host))
             print("Squid proxy: {0}:3128".format(nexus_host))
             if args.efs_id:
                 print('AWS EFS ID: {}'.format(args.efs_id))

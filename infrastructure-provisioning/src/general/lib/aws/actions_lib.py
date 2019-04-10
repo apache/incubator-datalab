@@ -1957,3 +1957,23 @@ def find_des_jars(all_jars, des_path):
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
+
+
+def configure_dataengine_service_repos():
+    # Configuring yum
+    put('templates/repository.repo', '/etc/yum.repos.d/repository.repo', use_sudo=True)
+    sudo('sed -i "s|REPOSITORY_AMAZON_MAIN|{}|g" /etc/yum.repos.d/repository.repo'.format(
+        os.environ['local_repository_amazon_main_repo']))
+    sudo('sed -i "s|REPOSITORY_AMAZON_UPDATES|{}|g" /etc/yum.repos.d/repository.repo'.format(
+        os.environ['local_repository_amazon_updates_repo']))
+    sudo('yum-config-manager --disable *')
+    sudo('yum-config-manager --enable dlabrepo*')
+    # Configuring pip
+    sudo('touch /etc/pip.conf')
+    sudo('echo "[global]" > /etc/pip.conf')
+    sudo('echo "timeout = 600" >> /etc/pip.conf')
+    sudo('echo "index-url = {}/simple/" >> /etc/pip.conf'.format(os.environ['local_repository_pypi_repo']))
+    sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['local_repository_host']))
+    # Configuring R
+    put('templates/Rprofile.site', '/usr/lib64/R/etc/Rprofile.site', use_sudo=True)
+    sudo('sed -i "s|R_REPO|{}|g" /usr/lib64/R/etc/Rprofile.site'.format(os.environ['local_repository_r_repo']))

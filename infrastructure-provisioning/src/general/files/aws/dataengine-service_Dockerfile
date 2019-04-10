@@ -23,8 +23,7 @@ FROM docker.dlab-base:latest
 
 ARG OS
 
-COPY dataengine-service/fabfile.py /root/
-COPY dataengine-service/description.json /root/
+COPY dataengine-service/ /root/
 COPY general/scripts/aws/dataengine-service_* /root/scripts/
 COPY general/scripts/os/common_configure_proxy.py /root/scripts/
 COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
@@ -32,6 +31,7 @@ COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_availa
 COPY general/scripts/os/common_* /root/scripts/
 COPY general/lib/os/redhat/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/lib/os/redhat/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/templates/aws/Rprofile.site /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

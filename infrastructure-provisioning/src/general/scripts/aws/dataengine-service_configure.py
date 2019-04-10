@@ -85,7 +85,10 @@ def configure_dataengine_service(instance, emr_conf):
             env['connection_attempts'] = 100
             env.key_filename = emr_conf['key_path']
             env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
-            sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> /etc/yum/pluginconf.d/priorities.conf')
+            sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
+                 '/etc/yum/pluginconf.d/priorities.conf')
+            if os.environ['local_repository_enabled'] == 'True':
+                configure_dataengine_service_repos()
         except:
             traceback.print_exc()
             raise Exception

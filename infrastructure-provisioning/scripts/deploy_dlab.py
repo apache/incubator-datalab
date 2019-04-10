@@ -164,6 +164,10 @@ parser.add_argument('--local_repository_r_repo', type=str, default='',
                     help='Repository name for R')
 parser.add_argument('--local_repository_rrutter_repo', type=str, default='',
                     help='Repository name for Rrutter')
+parser.add_argument('--local_repository_amazon_main_repo', type=str, default='',
+                    help='Repository name for Amazon main')
+parser.add_argument('--local_repository_amazon_updates_repo', type=str, default='',
+                    help='Repository name for Amazon updates')
 parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
                                                                                   'contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
