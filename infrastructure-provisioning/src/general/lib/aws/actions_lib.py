@@ -1960,6 +1960,9 @@ def find_des_jars(all_jars, des_path):
 
 
 def configure_dataengine_service_repos():
+    if 'local_repository_cert_path' in os.environ:
+        put('/root/certs/repository.crt', '/tmp/repository.crt')
+        sudo('cat /tmp/repository.crt >> /etc/ssl/certs/ca-bundle.crt')
     # Configuring yum
     put('templates/repository.repo', '/etc/yum.repos.d/repository.repo', use_sudo=True)
     sudo('sed -i "s|REPOSITORY_AMAZON_MAIN|{}|g" /etc/yum.repos.d/repository.repo'.format(

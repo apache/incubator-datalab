@@ -5,7 +5,6 @@ enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 priority=1
-sslverify=0
 
 [dlabrepo-updates]
 name=DLab Repository
@@ -14,4 +13,3 @@ enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 priority=1
-sslverify=0
