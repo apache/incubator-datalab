@@ -17,41 +17,18 @@
  * under the License.
  */
 
-package com.epam.dlab.auth.dao.script;
+package com.epam.dlab.auth.service;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
 
-public class DeepMap {
-	
-	private final Map<String, Object> root;
-	
-	public DeepMap(Map<String, Object> parent) {
-		super();
-		this.root = parent;
-	}
+import java.util.Optional;
 
-	public DeepMap() {
-		super();
-		this.root = new HashMap<>();
-	}
+public interface AuthenticationService {
 
-	public Map<String, Object> getRoot() {
-		return root;
-	}
-	
-	public DeepMap getBranch(String branchName) {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> branch = (Map<String, Object>) root.get(branchName);
-		if( branch == null ) {
-			branch = new HashMap<>();
-			root.put(branchName, branch);
-		}
-		return new DeepMap(branch);
-	}
-	
-	public void put(String key,Object val) {
-		root.put(key, val);
-	}
-	
+	Optional<UserInfo> getUserInfo(String token);
+
+	Optional<UserInfo> login(UserCredentialDTO credentialDTO);
+
+	void logout(String token);
 }
