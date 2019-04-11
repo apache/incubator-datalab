@@ -18,9 +18,6 @@
  */
 package com.epam.dlab.process;
 
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
 import com.aegisql.conveyor.AssemblingConveyor;
 import com.aegisql.conveyor.BuildingSite;
 import com.aegisql.conveyor.cart.Cart;
@@ -28,6 +25,9 @@ import com.aegisql.conveyor.cart.FutureCart;
 import com.epam.dlab.process.model.ProcessId;
 import com.epam.dlab.process.model.ProcessInfo;
 import com.epam.dlab.process.model.ProcessStep;
+
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class ProcessConveyor extends AssemblingConveyor<ProcessId,ProcessStep,ProcessInfo>{
 

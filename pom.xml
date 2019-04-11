@@ -56,7 +56,6 @@
         <module>services/security-gcp</module>
         <module>services/security-aws</module>
         <module>services/security-service</module>
-        <module>services/dlab-process</module>
         <module>services/dlab-auth-common</module>
         <module>services/dlab-rest-client</module>
         <module>services/dlab-model</module>
