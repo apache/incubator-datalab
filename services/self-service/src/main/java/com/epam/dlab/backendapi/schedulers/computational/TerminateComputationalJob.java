@@ -25,18 +25,17 @@ import com.google.inject.Inject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
-/**
- * There realized integration with Quartz scheduler framework and defined stop computational resource scheduler job
- * which executes every time specified.
- */
-@Scheduled("stopComputationalScheduler")
-public class StopComputationalJob implements Job {
+@Scheduled("terminateComputationalScheduler")
+public class TerminateComputationalJob implements Job {
+	private final SchedulerJobService schedulerJobService;
 
 	@Inject
-	private SchedulerJobService schedulerJobService;
+	public TerminateComputationalJob(SchedulerJobService schedulerJobService) {
+		this.schedulerJobService = schedulerJobService;
+	}
 
 	@Override
-	public void execute(JobExecutionContext jobExecutionContext) {
-		schedulerJobService.stopComputationalByScheduler();
+	public void execute(JobExecutionContext context) {
+		schedulerJobService.terminateComputationalByScheduler();
 	}
 }
