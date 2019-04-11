@@ -249,6 +249,9 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
         time.sleep(10)
         create_tag(group.id, tag)
         create_tag(group.id, tag_name)
+        if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
+            create_tag(group.id, {'Key': os.environ['conf_billing_tag_key'],
+                                  'Value': os.environ['conf_billing_tag_value']})
         try:
             group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
                                                 "UserIdGroupPairs": [], "PrefixListIds": []}])
@@ -516,6 +519,9 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
         if tag:
             conn.tag_role(RoleName=role_name, Tags=[tag])
             conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
+            if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
+                conn.tag_role(RoleName=role_name, Tags=[{'Key': os.environ['conf_billing_tag_key'],
+                                                         'Value': os.environ['conf_billing_tag_value']}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")
