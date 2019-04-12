@@ -43,7 +43,7 @@ export class ManageEnvironmentComponent {
     public dialog: MatDialog
   ) { }
 
-  get usersEnvironments(): FormArray{
+  get usersEnvironments(): FormArray {
     return <FormArray>this.manageUsersForm.get('users');
   }
 
@@ -108,7 +108,7 @@ export class ManageEnvironmentComponent {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Environment of <b>{{ data.user }}</b> will be 
+    <p>Environment of <b>{{ data.user }}</b> will be
       <span *ngIf="data.action === 'terminate'"> terminated.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>

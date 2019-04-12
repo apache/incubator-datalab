@@ -33,7 +33,7 @@ import { MaterialModule } from '../shared/material.module';
 import { ManagementComponent } from './management.component';
 import {
   ManagementGridComponent,
-  ConfirmationDialog
+  ConfirmationDialogComponent
 } from './management-grid/management-grid.component';
 import { ComputationalResourcesModule } from '../resources/computational/computational-resources-list';
 
@@ -77,13 +77,13 @@ export * from './management.component';
     GroupNameValidationDirective,
     BackupDilogComponent,
     ManageEnvironmentComponent,
-    ConfirmationDialog,
+    ConfirmationDialogComponent,
     ConfirmActionDialogComponent,
     ConfirmDeleteUserAccountDialogComponent,
     SsnMonitorComponent,
     ManageRolesGroupsComponent
   ],
-  entryComponents: [ConfirmationDialog, ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialogComponent],
+  entryComponents: [ConfirmationDialogComponent, ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialogComponent],
   exports: [ManagementComponent]
 })
 export class ManagenementModule {}

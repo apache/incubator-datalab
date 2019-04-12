@@ -176,6 +176,14 @@ export class HealthStatusService {
         catchError(error => error));
   }
 
+  public getAppMetaData(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetAppMetaData()
+      .pipe(
+        map(response => response),
+        catchError(error => error));
+  }
+
   public resetStatusValue() {
     this._statusData.next(<GeneralEnvironmentStatus>{});
   }
