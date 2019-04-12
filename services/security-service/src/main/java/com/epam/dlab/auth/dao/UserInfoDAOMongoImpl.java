@@ -74,7 +74,6 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 
 	@Override
 	public void deleteUserInfo(String accessToken) {
-		//delete used in logout and has to be synchronized
 		BasicDBObject uiDoc = new BasicDBObject();
 		uiDoc.put("_id", accessToken);
 		MongoCollection<BasicDBObject> security = ms.getCollection(SECURITY_COLLECTION, BasicDBObject.class);
@@ -84,9 +83,6 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 
 	@Override
 	public void saveUserInfo(UserInfo ui) {
-		//UserInfo first cached and immediately becomes available
-		//Saving can be asynch
-
 		BasicDBObject uiDoc = new BasicDBObject();
 		uiDoc.put("_id", ui.getAccessToken());
 		uiDoc.put("name", ui.getName());
