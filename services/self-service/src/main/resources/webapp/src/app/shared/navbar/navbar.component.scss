@@ -69,7 +69,8 @@
           color: #bd4146;
         }
       }
-      .info {
+      .meta {
+        color: #fff;
         &:hover {
           color: #c7d4d6;
         }
@@ -133,7 +134,7 @@ a.nav-item {
   }
  }
 
-.ok, .warning, .error, .user-name {
+.ok, .warning, .error, .user-name, .meta {
   transition: all .35s ease-in-out;
 }
 
