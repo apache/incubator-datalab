@@ -25,6 +25,7 @@ import com.epam.dlab.auth.UserVerificationService;
 import com.epam.dlab.auth.dao.LdapUserDAO;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.auth.service.AuthenticationService;
+import com.epam.dlab.exceptions.DlabAuthenticationException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -57,8 +58,13 @@ public class LdapAuthenticationService implements AuthenticationService {
 
 	@Override
 	public Optional<UserInfo> login(UserCredentialDTO credentialDTO) {
-		final String token = credentialDTO.getAccessToken();
-		return StringUtils.isNoneBlank(token) ? getUserInfo(token) : getLdapUserInfo(credentialDTO);
+		try {
+			final String token = credentialDTO.getAccessToken();
+			return StringUtils.isNoneBlank(token) ? getUserInfo(token) : getLdapUserInfo(credentialDTO);
+		} catch (Exception e) {
+			log.error("Error occurred during login for user {}: {}", credentialDTO.getUsername(), e.getMessage());
+			throw new DlabAuthenticationException("Username or password is invalid");
+		}
 	}
 
 	@Override
