@@ -42,6 +42,16 @@
     <a *ngIf="healthStatus.status" [routerLink]="['/environment_management']" class="statusbar">
       <span class="material-icons" ngClass="{{healthStatus.status || ''}}">radio_button_checked</span>
     </a>
+    <!-- *ngIf="metadata"  -->
+    <a class="statusbar" #info (click)="actions.toggle($event, info)">
+      <span class="material-icons info">share</span>
+    </a>
+    <bubble-up #actions class="list-menu" position="bottom-right">
+      <div class="app-info">
+          <p><strong>Version:</strong> {{ metadata?.version | - }}</p>
+          <p><strong>Branch</strong> {{ metadata?.branch | - }}</p>
+      </div>
+    </bubble-up>
     <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span class="user-name">{{currentUserName}}</span></button>
   </div>
 </div>

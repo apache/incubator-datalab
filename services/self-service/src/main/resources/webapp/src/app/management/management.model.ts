@@ -23,7 +23,8 @@ export class EnvironmentModel {
     public status: string,
     public shape: string,
     public resources: Array<any>,
-    public user: string
+    public user: string,
+    public type?: string
   ) { }
 }
 

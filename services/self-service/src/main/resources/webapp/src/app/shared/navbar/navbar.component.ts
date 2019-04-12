@@ -51,6 +51,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   currentUserName: string;
   quotesLimit: number = 70;
   isLoggedIn: boolean = false;
+  metadata: any;
 
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
@@ -87,6 +88,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         }));
         this.subscriptions.add(timer(0, this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
         this.currentUserName = this.getUserName();
+        this.checkVersionData();
       }
     });
   }
@@ -151,7 +153,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private processAccessKeyStatus(status: number): void {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
+    if (status === HTTP_STATUS_CODES.NOT_FOUND || status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
+      this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.close();
       this.keyUploadDialog.open({ isFooter: false });
       this.alive = false;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
@@ -193,23 +196,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return memo;
   }
 
+  public checkVersionData(): void {
+    this.healthStatusService.getAppMetaData().subscribe(res => this.metadata = res);
+  }
+
   private selectQuotesAlert(type: string, user_quota?: number, total_quota?: number): string {
     const alerts = {
       user_exceed: `Dear <b>${ this.currentUserName }</b>,<br />
           DLab cloud infrastructure usage quota associated with your user has been exceeded.
-          All your analytical environment will be stopped. To proceed working with environment, 
+          All your analytical environment will be stopped. To proceed working with environment,
           request increase of user quota from DLab administrator.`,
       total_exceed: `Dear <b>${ this.currentUserName }</b>,<br />
           DLab cloud infrastructure usage quota has been exceeded.
-          All your analytical environment will be stopped. To proceed working with environment, 
+          All your analytical environment will be stopped. To proceed working with environment,
           request increase application quota from DLab administrator.`,
       user_quota: `Dear <b>${ this.currentUserName }</b>,<br />
           Cloud infrastructure usage quota associated with your user has been used for <b>${user_quota}%</b>.
-          Once quota is depleted all your analytical environment will be stopped. 
+          Once quota is depleted all your analytical environment will be stopped.
           To proceed working with environment you'll have to request increase of user quota from DLab administrator.`,
       total_quota: `Dear <b>${ this.currentUserName }</b>,<br />
           DLab cloud infrastructure usage quota has been used for <b>${total_quota}%</b>.
-          Once quota is depleted all your analytical environment will be stopped. 
+          Once quota is depleted all your analytical environment will be stopped.
           To proceed working with environment you'll have to request increase of user quota from DLab administrator. `
     };
 
