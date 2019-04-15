@@ -1,20 +1,21 @@
-/***************************************************************************
-
- Copyright (c) 2018, EPAM SYSTEMS INC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-
- ****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.backendapi.dao;
 
@@ -24,23 +25,27 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Filters;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
+import static java.util.stream.Collectors.toList;
 
 /**
  * DAO for user's scheduler jobs.
@@ -49,41 +54,23 @@ import static com.mongodb.client.model.Projections.*;
 @Singleton
 public class SchedulerJobDAO extends BaseDAO {
 
-    static final String SCHEDULER_DATA = "scheduler_data";
+	static final String SCHEDULER_DATA = "scheduler_data";
 	public static final String TIMEZONE_PREFIX = "UTC";
+	private static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
+	private static final String CHECK_INACTIVITY_FLAG = SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED;
 
 	public SchedulerJobDAO() {
-        log.info("{} is initialized", getClass().getSimpleName());
-    }
-
-	/** Returns condition for search scheduler for exploratory which is not null.
-	 *
-	 * @return Bson condition.
-     */
-    private Bson schedulerNotNullCondition() {
-        return ne(SCHEDULER_DATA, null);
-    }
+		log.info("{} is initialized", getClass().getSimpleName());
+	}
 
 	/**
-	 * Returns condition for search exploratory which has stopped state for starting it, running state for stopping it
-	 * and stopped/running state for termination.
+	 * Returns condition for search scheduler for exploratory which is not null.
 	 *
-	 * @param desiredStatus 'running' value for searching stopped exploratories, 'stopped' - for searching
-	 *                       exploratories with 'running' state, 'terminated' for searching exploratories with
-	 *                       'stopped'
-	 *                       or 'running' state.
 	 * @return Bson condition.
 	 */
-	private Bson statusCondition(UserInstanceStatus desiredStatus) {
-		if (desiredStatus == RUNNING) {
-			return eq(STATUS, UserInstanceStatus.STOPPED.toString());
-		} else if (desiredStatus == STOPPED) {
-			return eq(STATUS, UserInstanceStatus.RUNNING.toString());
-		} else if (desiredStatus == TERMINATED) {
-			return or(eq(STATUS, UserInstanceStatus.STOPPED.toString()),
-					eq(STATUS, UserInstanceStatus.RUNNING.toString()));
-		} else return null;
-    }
+	private Bson schedulerNotNullCondition() {
+		return and(exists(SCHEDULER_DATA), ne(SCHEDULER_DATA, null));
+	}
 
 	/**
 	 * Finds and returns the info of user's single scheduler job by exploratory name.
@@ -121,92 +108,93 @@ public class SchedulerJobDAO extends BaseDAO {
 				.map(d -> convertFromDocument(d, SchedulerJobDTO.class));
 	}
 
-	public List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus,
-																  boolean isAppliedForClusters) {
-		return isAppliedForClusters ? getSchedulerComputationalJobsToAchieveStatus(desiredStatus) :
-				getSchedulerExploratoryJobsToAchieveStatus(desiredStatus);
-	}
-
 	/**
 	 * Finds and returns the list of all scheduler jobs for starting/stopping/terminating exploratories regarding to
 	 * parameter passed.
 	 *
-	 * @param desiredStatus 'running' value for starting exploratory, 'stopped' - for stopping and 'terminated' - for
-	 *                        terminating.
+	 * @param status 'running' value for starting exploratory, 'stopped' - for stopping and 'terminated' -
+	 *               for
+	 *               terminating.
 	 * @return list of scheduler jobs.
 	 */
-	private List<SchedulerJobData> getSchedulerExploratoryJobsToAchieveStatus(UserInstanceStatus desiredStatus) {
-		FindIterable<Document> userInstances = find(USER_INSTANCES,
-				and(
-						statusCondition(desiredStatus),
-                        schedulerNotNullCondition()
-                ),
-                fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
+	public List<SchedulerJobData> getExploratorySchedulerDataWithStatus(UserInstanceStatus status) {
+		FindIterable<Document> userInstances = userInstancesWithScheduler(eq(STATUS, status.toString()));
 
 		return stream(userInstances).map(d -> convertFromDocument(d, SchedulerJobData.class))
-				.collect(Collectors.toList());
-    }
+				.collect(toList());
+	}
 
+	public List<SchedulerJobData> getExploratorySchedulerDataWithOneOfStatus(UserInstanceStatus... statuses) {
+		FindIterable<Document> userInstances = userInstancesWithScheduler(in(STATUS,
+				Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(toList())));
 
-	/**
-	 * Finds and returns the list of all scheduler jobs for starting/stopping/terminating Spark clusters regarding to
-	 * parameter passed.
-	 *
-	 * @param desiredStatus 'running' value for starting computational resource, 'stopped' - for stopping and
-	 *                      'terminated' - for terminating.
-	 * @return list of scheduler jobs.
-	 */
+		return stream(userInstances).map(d -> convertFromDocument(d, SchedulerJobData.class))
+				.collect(toList());
+	}
 
-	@SuppressWarnings("unchecked")
-	private List<SchedulerJobData> getSchedulerComputationalJobsToAchieveStatus(UserInstanceStatus desiredStatus) {
+	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
+																			   DataEngineType dataEngineType,
+																			   UserInstanceStatus... statuses) {
+		final Bson computationalSchedulerCondition = Filters.elemMatch(COMPUTATIONAL_RESOURCES,
+				and(schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)));
 		FindIterable<Document> userInstances = find(USER_INSTANCES,
-				and(
-						eq(STATUS, RUNNING.toString()),
-						ne(COMPUTATIONAL_RESOURCES, null)
-				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
+				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + ".$")));
 
-		return stream(userInstances).map(doc ->
-				schedulerComputationalDataFromDocument(doc, DataEngineType.SPARK_STANDALONE, desiredStatus)
-		).flatMap(Function.identity()).collect(Collectors.toList());
+		return stream(userInstances)
+				.map(doc -> computationalSchedulerDataStream(doc, dataEngineType, statuses))
+				.flatMap(Function.identity())
+				.collect(toList());
 	}
 
-	private Stream<SchedulerJobData> schedulerComputationalDataFromDocument(Document doc,
-																			DataEngineType computationalType,
-																			UserInstanceStatus
-																					targetComputationalStatus) {
+	public void removeScheduler(String user, String exploratory) {
+		updateOne(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratory)),
+				unset(SCHEDULER_DATA, StringUtils.EMPTY));
+	}
 
-		return computationalResourcesWithSchedulersFromDocument(doc, computationalType, targetComputationalStatus)
-				.stream().map(compResource ->
-						new SchedulerJobData(doc.getString(USER), doc.getString(EXPLORATORY_NAME),
-								compResource.getString(COMPUTATIONAL_NAME),
-								convertFromDocument((Document) compResource.get(SCHEDULER_DATA),
-										SchedulerJobDTO.class)));
+	public void removeScheduler(String user, String exploratory, String computational) {
+		updateOne(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratory),
+				Filters.elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_NAME, computational))),
+				unset(COMPUTATIONAL_RESOURCES + ".$." + SCHEDULER_DATA, StringUtils.EMPTY));
+	}
+
+	private FindIterable<Document> userInstancesWithScheduler(Bson statusCondition) {
+		return find(USER_INSTANCES,
+				and(
+						statusCondition,
+						schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)
+				),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
+	}
+
+	private Stream<SchedulerJobData> computationalSchedulerDataStream(Document doc, DataEngineType computationalType,
+																	  UserInstanceStatus... computationalStatuses) {
+		return computationalSchedulerData(doc, computationalType, computationalStatuses)
+				.stream()
+				.map(compResource -> toSchedulerData(doc, compResource));
+	}
+
+	private SchedulerJobData toSchedulerData(Document userInstanceDocument, Document compResource) {
+		final String user = userInstanceDocument.getString(USER);
+		final String exploratoryName = userInstanceDocument.getString(EXPLORATORY_NAME);
+		final String computationalName = compResource.getString(COMPUTATIONAL_NAME);
+		final SchedulerJobDTO schedulerData = convertFromDocument((Document) compResource.get(SCHEDULER_DATA),
+				SchedulerJobDTO.class);
+		return new SchedulerJobData(user, exploratoryName, computationalName, schedulerData);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Document> computationalResourcesWithSchedulersFromDocument(Document doc,
-																			DataEngineType computationalType,
-																			UserInstanceStatus
-																						targetComputationalStatus) {
-		return ((List<Document>) doc.get(COMPUTATIONAL_RESOURCES)).stream()
+	private List<Document> computationalSchedulerData(Document doc, DataEngineType computationalType,
+													  UserInstanceStatus... computationalStatuses) {
+		final Set<String> statusSet = Arrays.stream(computationalStatuses)
+				.map(UserInstanceStatus::toString)
+				.collect(Collectors.toSet());
+		return ((List<Document>) doc.get(COMPUTATIONAL_RESOURCES))
+				.stream()
 				.filter(compResource ->
 						DataEngineType.fromDockerImageName(compResource.getString(IMAGE)) ==
-								computationalType &&
-								computationalStatusCondition(compResource, targetComputationalStatus) &&
-								compResource.get(SCHEDULER_DATA) != null)
-				.collect(Collectors.toList());
+								computationalType && statusSet.contains(compResource.getString(STATUS)))
+				.collect(toList());
 	}
-
-	private boolean computationalStatusCondition(Document computationalResource, UserInstanceStatus desiredStatus) {
-		if (desiredStatus == RUNNING) {
-			return computationalResource.get(STATUS).equals(STOPPED.toString());
-		} else if (desiredStatus == STOPPED) {
-			return computationalResource.get(STATUS).equals(RUNNING.toString());
-		} else
-			return desiredStatus == TERMINATED && (computationalResource.get(STATUS).equals(STOPPED.toString()) ||
-					computationalResource.get(STATUS).equals(RUNNING.toString()));
-	}
-
 }
 

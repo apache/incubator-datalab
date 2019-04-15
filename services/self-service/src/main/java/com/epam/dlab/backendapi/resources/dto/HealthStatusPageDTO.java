@@ -1,20 +1,21 @@
-/***************************************************************************
-
- Copyright (c) 2016, EPAM SYSTEMS INC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-
- ****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.backendapi.resources.dto;
 
@@ -35,6 +36,10 @@ public class HealthStatusPageDTO {
 	private boolean billingEnabled;
 	@JsonProperty
 	private boolean admin;
+	@JsonProperty
+	private int billingQuoteUsed;
+	@JsonProperty
+	private int billingUserQuoteUsed;
 
 	/**
 	 * Return the status of environment.
@@ -123,11 +128,29 @@ public class HealthStatusPageDTO {
 		return this;
 	}
 
+	public HealthStatusPageDTO withBillingQuoteUsed(int billingQuoteUsedPct) {
+		this.billingQuoteUsed = billingQuoteUsedPct;
+		return this;
+	}
+
+	public HealthStatusPageDTO withBillingUserQuoteUsed(int billingUserQuoteUsed) {
+		this.billingUserQuoteUsed = billingUserQuoteUsed;
+		return this;
+	}
+
 	public boolean isBillingEnabled() {
 		return billingEnabled;
 	}
 
 	public boolean isAdmin() {
 		return admin;
+	}
+
+	public int getBillingQuoteUsed() {
+		return billingQuoteUsed;
+	}
+
+	public int getBillingUserQuoteUsed() {
+		return billingUserQuoteUsed;
 	}
 }

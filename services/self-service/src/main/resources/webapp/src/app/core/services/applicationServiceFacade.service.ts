@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { Injectable } from '@angular/core';
 import { Http, Response, RequestOptions, RequestMethod, Headers } from '@angular/http';
@@ -44,11 +45,17 @@ export class ApplicationServiceFacade {
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
   private static readonly USER_PREFERENCES = 'user_preferences';
+  private static readonly BUDGET = 'budget';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
+  private static readonly ROLES = 'roles';
+  private static readonly GROUPS = 'groups';
+  private static readonly GROUP_ROLE = 'group_role';
+  private static readonly GROUP_USER = 'group_user';
   private static readonly BACKUP = 'backup';
   private static readonly EDGE_NODE_START = 'edge_node_start';
   private static readonly EDGE_NODE_STOP = 'edge_node_stop';
   private static readonly EDGE_NODE_RECREATE = 'edge_node_recreate';
+  private static readonly SNN_MONITOR = 'ssn_monitor';
   private static readonly LIB_GROUPS = 'lib_groups';
   private static readonly LIB_LIST = 'lib_list';
   private static readonly LIB_INSTALL = 'lib_install';
@@ -57,6 +64,7 @@ export class ApplicationServiceFacade {
   private static readonly GIT_CREDS = 'git_creds';
   private static readonly BILLING = 'billing';
   private static readonly DOWNLOAD_REPORT = 'download_report';
+  private static readonly SETTINGS = 'settings';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -82,7 +90,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
       body,
-      this.getRequestOptions(true, true));
+      this.getRequestOptions(false, true));
   }
 
   public buildGetAuthToken(body: any): Observable<Response> {
@@ -371,6 +379,20 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildResetScheduleSettings(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public BuildGetActiveSchcedulersData(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildGetActiveUsers(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
@@ -399,6 +421,118 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(false, true));
   }
 
+  public buildUpdateUsersBudget(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUDGET),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildGetSsnMonitorData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SNN_MONITOR),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetTotalBudgetData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildUpdateTotalBudgetData(param, method: number): Observable<Response> {
+    return this.buildRequest(method,
+      this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetGroupsData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetRolesData(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.ROLES),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildSetupNewGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildUpdateGroupData(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildSetupRolesForGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUP_ROLE),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildSetupUsersForGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildRemoveUsersForGroup(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildRemoveGroupById(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
+      data,
+      this.getRequestOptions(false, true));
+  }
+
+  public buildGetClusterConfiguration(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildEditClusterConfiguration(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetExploratorySparkConfiguration(param): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildEditExploratorySparkConfiguration(param, data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -406,7 +540,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
-    this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user/active');
+    this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 
@@ -440,6 +574,7 @@ export class ApplicationServiceFacade {
 
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
+    this.requestRegistry.Add(ApplicationServiceFacade.BUDGET, '/api/user/settings/budget');
 
     // Environment Health Status
     this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS, '/api/infrastructure/status');
@@ -447,6 +582,12 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_STOP, '/api/infrastructure/edge/stop');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
     this.requestRegistry.Add(ApplicationServiceFacade.BACKUP, '/api/infrastructure/backup');
+    this.requestRegistry.Add(ApplicationServiceFacade.SNN_MONITOR, '/api/sysinfo');
+    this.requestRegistry.Add(ApplicationServiceFacade.ROLES, '/api/role');
+    this.requestRegistry.Add(ApplicationServiceFacade.GROUPS, '/api/group');
+    this.requestRegistry.Add(ApplicationServiceFacade.GROUP_ROLE, 'api/group/role');
+    this.requestRegistry.Add(ApplicationServiceFacade.GROUP_USER, '/api/group/user');
+    this.requestRegistry.Add(ApplicationServiceFacade.SETTINGS, '/api/settings');
 
     // Libraries Installation
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');

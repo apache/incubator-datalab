@@ -1,24 +1,27 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.dao.azure;
 
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -50,7 +53,7 @@ import static com.mongodb.client.model.Projections.include;
 
 @Singleton
 @Slf4j
-public class AzureBillingDAO extends BillingDAO {
+public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
 	public static final String SIZE = "size";
 
 	public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
@@ -111,10 +114,11 @@ public class AzureBillingDAO extends BillingDAO {
 			costTotal += d.getDouble(MongoKeyWords.COST);
 
 			Document item = new Document()
-					.append(MongoKeyWords.DLAB_USER, id.getString(USER))
+					.append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
 					.append(MongoKeyWords.DLAB_ID, resourceId)
 					.append(SIZE, generateShapeName(shape))
-					.append(STATUS, status)
+					.append(STATUS,
+							Optional.ofNullable(status).map(UserInstanceStatus::toString).orElse(StringUtils.EMPTY))
 					.append(MongoKeyWords.METER_CATEGORY, id.getString(MongoKeyWords.METER_CATEGORY))
 					.append(MongoKeyWords.RESOURCE_TYPE,
 							DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE)))
@@ -200,7 +204,7 @@ public class AzureBillingDAO extends BillingDAO {
 
 		final String ssnSize = settings.getAzureSsnInstanceSize();
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnSize)) {
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnSize, UserInstanceStatus.RUNNING));
+			shapes.put(serviceBaseName + "-ssn", new BaseBillingDAO.ShapeInfo(ssnSize, UserInstanceStatus.RUNNING));
 		}
 
 
@@ -211,7 +215,7 @@ public class AzureBillingDAO extends BillingDAO {
 					.projection(fields(include(INSTANCE_ID, EDGE_STATUS)));
 			for (Document d : docs) {
 				shapes.put(d.getString(INSTANCE_ID),
-						new BillingDAO.ShapeInfo(edgeSize, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
+						new BaseBillingDAO.ShapeInfo(edgeSize, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
 			}
 		}
 	}

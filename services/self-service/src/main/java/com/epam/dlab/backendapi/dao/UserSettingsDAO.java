@@ -1,70 +1,77 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import io.dropwizard.auth.Auth;
-import org.bson.Document;
-import org.hibernate.validator.constraints.NotBlank;
+import org.apache.commons.lang3.StringUtils;
 
-import static com.epam.dlab.backendapi.dao.MongoCollections.USER_UI_SETTINGS;
+import java.util.Optional;
+
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_SETTINGS;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.set;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
-/** DAO for the user preferences.
+/**
+ * DAO for the user preferences.
  */
 public class UserSettingsDAO extends BaseDAO {
-    private static final String VALUE = "userSettings";
+	private static final String USER_UI_SETTINGS_FIELD = "userUISettings";
+	private static final String USER_ALLOWED_BUDGET = "allowedBudget";
 
-    /** Returns a value or empty string from collection.
-     * @param collectionName name of collection.
-     * @param id value identifier.
-     * @return value or empty string.
-     */
-	private String getValue(String collectionName, String id) {
-		Document d = mongoService
-				.getCollection(collectionName)
-				.find(eq(ID, id))
-				.first();
-		return (d == null ? EMPTY :
-					d.getOrDefault(VALUE, EMPTY).toString());
-	}
-
-	/** Returns the user preferences of UI dashboard.
+	/**
+	 * Returns the user preferences of UI dashboard.
+	 *
 	 * @param userInfo user info.
 	 * @return JSON content.
 	 */
 	public String getUISettings(@Auth UserInfo userInfo) {
-        return getValue(USER_UI_SETTINGS,
-        				userInfo.getName());
-    }
-    
-	/** Store the user preferences of UI dashboard.
+		return findOne(USER_SETTINGS, eq(ID, userInfo.getName()))
+				.map(d -> d.getString(USER_UI_SETTINGS_FIELD))
+				.orElse(StringUtils.EMPTY);
+	}
+
+	/**
+	 * Store the user preferences of UI dashboard.
+	 *
 	 * @param userInfo user info.
 	 * @param settings user preferences in JSON format.
 	 */
-    public void setUISettings(@Auth UserInfo userInfo, @NotBlank String settings) {
-    	updateOne(USER_UI_SETTINGS,
-    			eq(ID, userInfo.getName()),
-    			set(VALUE, settings),
-    			true);
-    }
+	public void setUISettings(UserInfo userInfo, String settings) {
+		updateOne(USER_SETTINGS,
+				eq(ID, userInfo.getName()),
+				set(USER_UI_SETTINGS_FIELD, settings),
+				true);
+	}
+
+	public void updateBudget(UserDTO allowedBudgetDTO) {
+		updateOne(USER_SETTINGS,
+				eq(ID, allowedBudgetDTO.getName()),
+				set(USER_ALLOWED_BUDGET, allowedBudgetDTO.getBudget()),
+				true);
+	}
+
+	public Optional<Integer> getAllowedBudget(String user) {
+		return findOne(USER_SETTINGS, eq(ID, user))
+				.flatMap(d -> Optional.ofNullable(d.getInteger(USER_ALLOWED_BUDGET)));
+	}
 
 }

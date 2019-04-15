@@ -1,30 +1,36 @@
-/***************************************************************************
-
- Copyright (c) 2016, EPAM SYSTEMS INC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.ServiceConfiguration;
+import com.epam.dlab.backendapi.domain.SchedulerConfigurationData;
 import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequenceProvider;
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.rest.client.RESTServiceFactory;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
 import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.group.GroupSequenceProvider;
 
@@ -32,6 +38,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Configuration for Self Service.
@@ -97,10 +104,22 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private boolean mongoMigrationEnabled;
 	@JsonProperty
 	private int privateKeySize = 2048;
+	@JsonProperty
+	private SwaggerBundleConfiguration swaggerConfiguration;
+
+	@Valid
+	@NotNull
+	private Map<String, SchedulerConfigurationData> schedulers;
+
 
 	@Valid
 	@NotNull
 	private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
+
+	@Valid
+	@NotNull
+	@JsonProperty(ServiceConsts.MAVEN_SEARCH_API)
+	private RESTServiceFactory mavenApiFactory;
 
 	@JsonProperty("jerseyClient")
 	public JerseyClientConfiguration getJerseyClientConfiguration() {
@@ -109,6 +128,14 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public long getMaxSessionDurabilityMilliseconds() {
 		return maxSessionDurabilityMilliseconds;
+	}
+
+	public Map<String, SchedulerConfigurationData> getSchedulers() {
+		return schedulers;
+	}
+
+	public SwaggerBundleConfiguration getSwaggerConfiguration() {
+		return swaggerConfiguration;
 	}
 
 	public boolean isGcpOuauth2AuthenticationEnabled() {
@@ -208,5 +235,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isMongoMigrationEnabled() {
 		return mongoMigrationEnabled;
+	}
+
+	@NotNull
+	public RESTServiceFactory getMavenApiFactory() {
+		return mavenApiFactory;
 	}
 }

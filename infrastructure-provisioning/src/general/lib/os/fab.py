@@ -1,18 +1,21 @@
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -28,6 +31,7 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 import dlab.actions_lib
 import re
+import traceback
 
 
 def ensure_pip(requisites):
@@ -38,9 +42,8 @@ def ensure_pip(requisites):
             sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
-        return True
     except:
-        return False
+        sys.exit(1)
 
 
 def dataengine_dir_prepare(cluster_dir):
@@ -147,17 +150,17 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip3.5 install jupyter --no-cache-dir')
-            sudo('rm -rf ' + jupyter_conf_file)
-            run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
+            sudo('rm -rf {}'.format(jupyter_conf_file))
+            run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             with cd('/home/{}'.format(os_user)):
                 run('mkdir -p ~/.jupyter/custom/')
                 run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
-            sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
+            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
             sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
-            sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
-            sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
-            sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
-            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
+            sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
+            sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
+            sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
+            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
             put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
             sudo("chmod 644 /tmp/jupyter-notebook.service")
             if os.environ['application'] == 'tensor':
@@ -271,14 +274,19 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
 
 
 def ensure_ciphers():
-    sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
-    sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
-    sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
-    sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
     try:
-        sudo('service ssh restart')
-    except:
-        sudo('service sshd restart')
+        sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
+        sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
+        sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
+        sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
+        try:
+            sudo('service ssh reload')
+        except:
+            sudo('service sshd reload')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to ensure ciphers: ', str(err))
+        sys.exit(1)
 
 
 def install_r_pkg(requisites):
@@ -302,31 +310,70 @@ def install_r_pkg(requisites):
     except:
         return "Fail to install R packages"
 
+
+def update_spark_jars(jars_dir='/opt/jars'):
+    try:
+        configs = sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
+        if exists(jars_dir):
+            for conf in filter(None, configs):
+                des_path = ''
+                all_jars = sudo('find {0} -name "*.jar"'.format(jars_dir)).split('\r\n')
+                if ('-des-' in conf):
+                    des_path = '/'.join(conf.split('/')[:3])
+                    all_jars = find_des_jars(all_jars, des_path)
+                sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
+                sudo('echo "# Generated spark.jars by DLab from {0}\nspark.jars {1}" >> {2}'
+                     .format(','.join(filter(None, [jars_dir, des_path])), ','.join(all_jars), conf))
+                # sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
+        else:
+            print("Can't find directory {0} with jar files".format(jars_dir))
+    except Exception as err:
+        append_result("Failed to update spark.jars parameter", str(err))
+        print("Failed to update spark.jars parameter")
+        sys.exit(1)
+
+
 def install_java_pkg(requisites):
     status = list()
-    full_pkg = [a + ":" + b for a, b in zip(requisites[::2], requisites[1::2])]
-    error_parser = "ERROR|error|No such|no such|Please run|requires"
-    work_dir = "/opt/dlab/java_libs"
+    error_parser = "ERROR|error|No such|no such|Please run|requires|module not found"
+    templates_dir = '/root/templates/'
+    ivy_dir = '/opt/ivy'
+    ivy_cache_dir = '{0}/cache/'.format(ivy_dir)
+    ivy_settings = 'ivysettings.xml'
+    dest_dir = '/opt/jars/java'
     try:
-        if not exists(work_dir):
-            sudo('mkdir -p {}'.format(work_dir))
-        for java_pkg in full_pkg:
-            splitted_pkg = java_pkg.split(":")
-            name_pkg = splitted_pkg[1] + '-' + splitted_pkg[2] + '.jar'
-            sudo('wget -O {5}/{3} https://search.maven.org/classic/remotecontent?filepath={0}/{1}/{2}/{3} 2>&1 | tee /tmp/tee.tmp; \
-                  if ! grep -w -E  "({4})" /tmp/tee.tmp >  /tmp/install_{3}.log; \
-                  then  echo "" > /tmp/install_{3}.log;fi'.format(splitted_pkg[0].replace(".","/"), splitted_pkg[1], splitted_pkg[2],name_pkg, error_parser, work_dir))
-            sudo('jar tf {2}/{0} 2>&1 |if ! grep -w -E "({1})" > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name_pkg, error_parser, work_dir))
-            err = sudo('cat /tmp/install_{0}.log'.format(name_pkg)).replace('"', "'")
-            res = sudo('cat /tmp/install_{0}.list'.format(name_pkg))
+        ivy_jar = sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version']))
+        sudo('mkdir -p {0} {1}'.format(ivy_dir, dest_dir))
+        put('{0}{1}'.format(templates_dir, ivy_settings), '{0}/{1}'.format(ivy_dir, ivy_settings), use_sudo=True)
+        proxy_string = sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="')
+        proxy_re = '(?P<proto>http.*)://(?P<host>[^:/ ]+):(?P<port>[0-9]*)'
+        proxy_find = re.search(proxy_re, proxy_string)
+        java_proxy = "export _JAVA_OPTIONS='-Dhttp.proxyHost={0} -Dhttp.proxyPort={1} \
+            -Dhttps.proxyHost={0} -Dhttps.proxyPort={1}'".format(proxy_find.group('host'), proxy_find.group('port'))
+        for java_pkg in requisites:
+            sudo('rm -rf {0}'.format(ivy_cache_dir))
+            sudo('mkdir -p {0}'.format(ivy_cache_dir))
+            group, artifact, version, override = java_pkg
+            print("Installing package (override: {3}): {0}:{1}:{2}".format(group, artifact, version, override))
+            sudo('{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; \
+                if ! grep -w -E  "({7})" /tmp/tee.tmp > /tmp/install_{5}.log; then echo "" > /tmp/install_{5}.log;fi'
+                 .format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser, java_proxy))
+            err = sudo('cat /tmp/install_{0}.log'.format(artifact)).replace('"', "'").strip()
+            sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
+                if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(ivy_cache_dir, artifact))
+            res = sudo('cat /tmp/install_{0}.list'.format(artifact))
             if res:
-                err+=' jar tf results:' + sudo('cat /tmp/install_{0}.list'.format(name_pkg))
-                status.append({"group": "java", "name": splitted_pkg[0]+':'+splitted_pkg[1], "status": "failed", "error_message": err})
+                sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
+                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
             else:
-                status.append({"group": "java", "name": splitted_pkg[0]+':'+splitted_pkg[1], "version": splitted_pkg[2], "status": "installed"})
+                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "failed", "error_message": err})
+        update_spark_jars()
         return status
-    except Exception as errr:
-        return "Fail to install Java packages: " + str(errr)
+    except Exception as err:
+        append_result("Failed to install {} packages".format(requisites), str(err))
+        print("Failed to install {} packages".format(requisites))
+        sys.exit(1)
+
 
 def get_available_r_pkgs():
     try:
@@ -470,10 +517,15 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):
     try:
+        cluster_re = ['-{}"'.format(cluster_name),
+                      '-{}-'.format(cluster_name),
+                      '-{}/'.format(cluster_name)]
         get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
         data = open('Rprofile').read()
-        conf = [i for i in data.split('\n') if i != '']
-        conf = [i for i in conf if cluster_name not in i]
+        conf = filter(None, data.split('\n'))
+        # Filter config from any math of cluster_name in line,
+        # separated by defined symbols to avoid partly matches
+        conf = [i for i in conf if not any(x in i for x in cluster_re)]
         comment_all = lambda x: x if x.startswith('#master') else '#{}'.format(x)
         uncomment = lambda x: x[1:] if not x.startswith('#master') else x
         conf =[comment_all(i) for i in conf]
@@ -488,10 +540,12 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
         get('/home/{}/.Renviron'.format(os_user), 'Renviron')
         data = open('Renviron').read()
-        conf = [i for i in data.split('\n') if i != '']
+        conf = filter(None, data.split('\n'))
         comment_all = lambda x: x if x.startswith('#') else '#{}'.format(x)
         conf = [comment_all(i) for i in conf]
-        conf = [i for i in conf if cluster_name not in i]
+        # Filter config from any math of cluster_name in line,
+        # separated by defined symbols to avoid partly matches
+        conf = [i for i in conf if not any(x in i for x in cluster_re)]
         if active_cluster:
             activate_cluster = lambda x: x[1:] if active_cluster in x else x
             conf = [activate_cluster(i) for i in conf]
@@ -627,4 +681,14 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
             local('sudo systemctl restart zeppelin-notebook')
     except Exception as err:
         print('Failed to update Zeppelin interpreters', str(err))
+        sys.exit(1)
+
+
+def update_hosts_file(os_user):
+    try:
+        if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
+            sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
+            sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
+    except Exception as err:
+        print('Failed to update hosts file', str(err))
         sys.exit(1)

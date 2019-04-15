@@ -1,32 +1,35 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /* tslint:disable:no-empty */
 
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, ViewContainerRef, OnInit } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
+
 import { UserResourceService } from '../../core/services';
-import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from './';
+import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from '.';
+import { GeneralEnvironmentStatus } from '../../health-status/health-status.module';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
   styleUrls: ['./resources-grid.component.css']
@@ -45,8 +48,8 @@ export class ResourcesGridComponent implements OnInit {
   collapseFilterRow: boolean = false;
   filtering: boolean = false;
   activeFiltering: boolean = false;
-  healthStatus: string = '';
-  billingEnabled: boolean = false;
+  healthStatus: GeneralEnvironmentStatus;
+  // billingEnabled: boolean = false;
 
   delimitersRegex = /[-_]?/g;
 
@@ -69,8 +72,12 @@ export class ResourcesGridComponent implements OnInit {
   ];
 
   constructor(
-    private userResourceService: UserResourceService
-  ) { }
+    private userResourceService: UserResourceService,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit(): void {
     this.buildGrid();
@@ -139,11 +146,11 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   isResourcesInProgress(notebook) {
-    let filteredEnv: any = this.environments.find(env => env.name === notebook.name);
+    const filteredEnv: any = this.environments.find(env => env.name === notebook.name);
 
-    if(filteredEnv && filteredEnv.resources.length) {
+    if (filteredEnv && filteredEnv.resources.length) {
       return filteredEnv.resources.filter(resource => (
-        resource.status !== 'failed' 
+        resource.status !== 'failed'
         && resource.status !== 'terminated'
         && resource.status !== 'running'
         && resource.status !== 'stopped')).length > 0;
@@ -250,7 +257,7 @@ export class ResourcesGridComponent implements OnInit {
 
   getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
-      .subscribe((result) => {
+      .subscribe((result: any) => {
         this.isActiveFilter(result);
         this.filterForm = this.loadUserPreferences( result.type ? this.filterActiveInstances() : this.aliveStatuses(result) );
         this.applyFilter_btnClick(this.filterForm);
@@ -280,17 +287,15 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   exploratoryAction(data, action: string) {
-
     if (action === 'deploy') {
       this.notebookName = data.name;
       this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name })
-        .subscribe((result) => {
-          console.log('startUsernotebook result: ', result);
-          this.buildGrid();
-        });
+        .subscribe(
+          () => this.buildGrid(),
+          error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!', { toastLife: 5000 }));
     } else if (action === 'stop') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
     } else if (action === 'terminate') {

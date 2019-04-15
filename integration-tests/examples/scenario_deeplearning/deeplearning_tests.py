@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -76,18 +79,6 @@ def run_tensor():
         prepare_ipynb(i, '/home/{}/test_templates/template_visualization_tensor.ipynb'.format(args.os_user), 'visualization_tensor')
         run_ipynb('visualization_tensor')
 
-def run_caffe():
-    interpreters = ['pyspark_local']
-    for i in interpreters:
-        prepare_ipynb(i, '/home/{}/test_templates/template_caffe.ipynb'.format(args.os_user), 'test_caffe')
-        run_ipynb('test_caffe')
-
-def run_caffe2():
-    interpreters = ['pyspark_local']
-    for i in interpreters:
-        prepare_ipynb(i, '/home/{}/test_templates/template_caffe2.ipynb'.format(args.os_user), 'test_caffe2')
-        run_ipynb('test_caffe2')
-
 def run_cntk():
     interpreters = ['pyspark_local']
     for i in interpreters:
@@ -123,8 +114,6 @@ if __name__ == "__main__":
     try:
         prepare_templates()
         run_tensor()
-        run_caffe()
-        run_caffe2()
         run_cntk()
         run_keras()
         run_mxnet()

@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -40,7 +43,6 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
     if args.ssn:
         tag = {"Key": args.infra_tag_name, "Value": "{}-subnet".format(args.infra_tag_value)}
     else:
@@ -128,10 +130,15 @@ if __name__ == "__main__":
         if not args.ssn:
             print("Associating route_table with the subnet")
             ec2 = boto3.resource('ec2')
-            rt = get_route_table_by_tag(args.infra_tag_name, args.infra_tag_value)
+            if os.environ['conf_duo_vpc_enable'] == 'true':
+                rt = get_route_table_by_tag(args.infra_tag_value + '-secondary-Tag', args.infra_tag_value)
+            else:
+                rt = get_route_table_by_tag(args.infra_tag_name, args.infra_tag_value)
             route_table = ec2.RouteTable(rt)
             try:
                 route_table.associate_with_subnet(SubnetId=subnet_id)
+                if os.environ['conf_duo_vpc_enable'] == 'true':
+                    create_peer_routes(os.environ['aws_peering_id'], args.infra_tag_value)
             except exceptions.ClientError as err:
                 if 'Resource.AlreadyAssociated' in str(err):
                     print('Other route table is already associted with this subnet. Skipping...')
@@ -143,11 +150,6 @@ if __name__ == "__main__":
             route_table.associate_with_subnet(SubnetId=subnet_id)
             with open('/tmp/ssn_subnet_id', 'w') as f:
                 f.write(subnet_id)
-        success = True
-    except:
-        success = False
-
-    if success:
-        sys.exit(0)
-    else:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)

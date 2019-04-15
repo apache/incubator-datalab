@@ -1,23 +1,27 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
@@ -44,13 +48,15 @@ public class InfrastructureInfoServiceBaseTest {
 	private final String USER = "test";
 
 	@Mock
-	private EnvStatusDAO envDAO;
+	private EnvDAO envDAO;
 	@Mock
 	private ExploratoryDAO expDAO;
 	@Mock
 	private KeyDAO keyDAO;
 	@Mock
 	private SelfServiceApplicationConfiguration configuration;
+	@Mock
+	private BillingDAO billingDAO;
 
 	@InjectMocks
 	private InfrastructureInfoServiceBase infrastructureInfoServiceBase = spy(InfrastructureInfoServiceBase.class);
@@ -100,6 +106,7 @@ public class InfrastructureInfoServiceBaseTest {
 		when(envDAO.getHealthStatusPageDTO(anyString(), anyBoolean())).thenReturn(new HealthStatusPageDTO()
 				.withStatus(HealthStatusEnum.OK));
 		when(configuration.isBillingSchedulerEnabled()).thenReturn(false);
+		when(billingDAO.getBillingQuoteUsed()).thenReturn(10);
 
 		HealthStatusPageDTO actualHealthStatusPageDTO =
 				infrastructureInfoServiceBase.getHeathStatus(USER, false, true);
@@ -107,6 +114,7 @@ public class InfrastructureInfoServiceBaseTest {
 		assertEquals(HealthStatusEnum.OK.toString(), actualHealthStatusPageDTO.getStatus());
 		assertFalse(actualHealthStatusPageDTO.isBillingEnabled());
 		assertTrue(actualHealthStatusPageDTO.isAdmin());
+		assertEquals(10, actualHealthStatusPageDTO.getBillingQuoteUsed());
 
 		verify(envDAO).getHealthStatusPageDTO(USER, false);
 		verify(configuration).isBillingSchedulerEnabled();

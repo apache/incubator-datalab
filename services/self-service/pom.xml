@@ -1,20 +1,21 @@
 <!--
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
--->
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -26,15 +27,28 @@ limitations under the License.
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>michaelklishin</id>
+            <url>https://dl.bintray.com/michaelklishin/maven/</url>
+        </repository>
+    </repositories>
+
     <artifactId>self-service</artifactId>
 
     <properties>
         <com.fiestacabin.dropwizard.quartz.version>0.7.1</com.fiestacabin.dropwizard.quartz.version>
         <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
         <org.glassfish.jersey.media.version>2.23.1</org.glassfish.jersey.media.version>
+        <com.github.oshi.core.version>3.8.0</com.github.oshi.core.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.novemberain</groupId>
+            <artifactId>quartz-mongodb</artifactId>
+            <version>2.1.0</version>
+        </dependency>
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
@@ -68,7 +82,14 @@ limitations under the License.
             <groupId>com.fiestacabin.dropwizard.quartz</groupId>
             <artifactId>dropwizard-quartz</artifactId>
             <version>${com.fiestacabin.dropwizard.quartz.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.quartz-scheduler</groupId>
+                    <artifactId>quartz</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
@@ -107,6 +128,16 @@ limitations under the License.
             <artifactId>dropwizard-testing</artifactId>
             <version>${io.dropwizard.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>${com.github.oshi.core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.smoketurner</groupId>
+            <artifactId>dropwizard-swagger</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

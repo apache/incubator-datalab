@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -68,13 +71,21 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                                   edge_conf['private_subnet_name']).address_prefix
-        edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                       edge_conf['instance_name'])
-        edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                                   edge_conf['instance_name'])
+        if os.environ['conf_network_type'] == 'private':
+            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
+                                                                                    edge_conf['instance_name'])
+            edge_conf['edge_public_ip'] =  edge_conf['edge_private_ip']
+        else:
+            edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                                        edge_conf['instance_name'])
+            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
+                                                                                    edge_conf['instance_name'])
         instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                         edge_conf['instance_name'])
+        edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
+                                                      edge_conf['vpc_name']).address_space.address_prefixes
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to generate infrastructure names", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -114,6 +125,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -144,6 +156,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -167,7 +180,14 @@ if __name__ == "__main__":
         print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
-                             "template_file": "/root/templates/squid.conf"}
+                             "template_file": "/root/templates/squid.conf",
+                             "edge_user_name": os.environ['azure_iam_user'],
+                             "ldap_host": os.environ['ldap_hostname'],
+                             "ldap_dn": os.environ['ldap_dn'],
+                             "ldap_user": os.environ['ldap_service_username'],
+                             "ldap_password": os.environ['ldap_service_password'],
+                             "vpc_cidrs": edge_conf['vpc_cidrs'],
+                             "allowed_ip_cidr": ['0.0.0.0/0']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}" \
                  .format(instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
@@ -176,6 +196,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing http proxy.", str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -209,6 +230,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key. Excpeption: " + str(err))
         AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -300,5 +322,3 @@ if __name__ == "__main__":
     except:
         print("Failed writing results.")
         sys.exit(0)
-
-    sys.exit(0)

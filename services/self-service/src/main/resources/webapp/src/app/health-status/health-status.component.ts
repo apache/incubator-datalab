@@ -1,58 +1,74 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
+import { ISubscription } from 'rxjs/Subscription';
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
-import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService } from '../core/services';
-import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
+import { HealthStatusService, BackupService, UserResourceService, UserAccessKeyService, RolesGroupsService } from '../core/services';
+import { HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
-  moduleId: module.id,
   selector: 'health-status',
   templateUrl: 'health-status.component.html',
   styleUrls: ['./health-status.component.scss']
 })
-export class HealthStatusComponent implements OnInit {
+export class HealthStatusComponent implements OnInit, OnDestroy {
+  private clear = undefined;
+  private subscription: ISubscription;
+
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
-  billingEnabled: boolean;
-  isAdmin: boolean;
   anyEnvInProgress: boolean = false;
   notebookInProgress: boolean = false;
   usersList: Array<string> = [];
   uploadKey: boolean = true;
 
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
-  private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
   @ViewChild('keyUploadModal') keyUploadDialog;
   @ViewChild('preloaderModal') preloaderDialog;
+  @ViewChild('ssnMonitor') ssnMonitorDialog;
+  @ViewChild('rolesGroupsModal') rolesGroupsDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
     private userResourceService: UserResourceService,
-    private userAccessKeyService: UserAccessKeyService
-  ) {}
+    private userAccessKeyService: UserAccessKeyService,
+    private rolesService: RolesGroupsService,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit(): void {
     this.buildGrid();
+    this.subscription = this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
+      this.uploadKey = result ? result.status === 200 : false;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   buildGrid(): void {
@@ -62,11 +78,8 @@ export class HealthStatusComponent implements OnInit {
   }
 
   loadHealthStatusList(healthStatusList): Array<EnvironmentStatusModel> {
-    this.healthStatus = healthStatusList.status;
-    this.billingEnabled = healthStatusList.billingEnabled;
-    this.isAdmin = healthStatusList.admin;
-
-    this.checkUserAccessKey();
+    this.healthStatus = healthStatusList;
+    this.userAccessKeyService.initialUserAccessKeyCheck();
     this.getExploratoryList();
 
     if (healthStatusList.list_resources)
@@ -83,60 +96,98 @@ export class HealthStatusComponent implements OnInit {
   getActiveUsersList() {
     return this.healthStatusService.getActiveUsers();
   }
- 
+
+  getTotalBudgetData() {
+    return this.healthStatusService.getTotalBudgetData();
+  }
+
   openManageEnvironmentDialog() {
     this.getActiveUsersList().subscribe(usersList => {
-      this.manageEnvironmentDialog.open({ isFooter: false }, usersList);
-    });
+      this.getTotalBudgetData().subscribe(total => this.manageEnvironmentDialog.open({ isFooter: false }, usersList, total));
+    },
+    () => this.toastr.error('Failed users list loading!', 'Oops!', { toastLife: 5000 }));
   }
 
-  manageEnvironment($event) {
+  openSsnMonitorDialog() {
+    this.healthStatusService.getSsnMonitorData()
+      .subscribe(data => this.ssnMonitorDialog.open({ isFooter: false }, data));
+  }
+
+  openManageRolesDialog() {
+    this.rolesService.getGroupsData().subscribe(group => {
+        this.rolesService.getRolesData().subscribe(
+          roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
+          error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      },
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  getGroupsData() {
+    this.rolesService.getGroupsData().subscribe(
+      list => this.rolesGroupsDialog.updateGroupData(list),
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+  }
+
+  manageEnvironment(event: {action: string, user: string}) {
     this.healthStatusService
-      .manageEnvironment($event.action, $event.user)
+      .manageEnvironment(event.action, event.user)
       .subscribe(res => {
           this.getActiveUsersList().subscribe(usersList => {
-              this.manageEnvironmentDialog.usersList = usersList;
-              this.buildGrid();
-            });
+            this.manageEnvironmentDialog.usersList = usersList;
+            this.toastr.success(`Action ${ event.action } is processing!`, 'Processing!', { toastLife: 5000 });
+            this.buildGrid();
+          });
         },
-      (error) => {
-        this.manageEnvironmentDialog.errorMessage = JSON.parse(error.message).message;
-      });
+      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
 
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
+  setBudgetLimits($event) {
+    this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
+      this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
+        result.status === HTTP_STATUS_CODES.OK
+        && res.status === HTTP_STATUS_CODES.NO_CONTENT
+        && this.toastr.success('Budget limits updated!', 'Success!', { toastLife: 5000 });
         this.buildGrid();
       });
+    }, error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
   }
 
-  public checkUserAccessKey() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-        response => this.processAccessKeyStatus(response.status),
-        error => this.processAccessKeyStatus(error.status));
-  }
-
-  private processAccessKeyStatus(status: number) {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
-      this.uploadKey = false;
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      this.preloaderDialog.open({ isHeader: false, isFooter: false });
-
-      setTimeout(() => this.buildGrid(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      this.preloaderDialog.close();
-      this.keyUploadDialog.close();
-      this.uploadKey = true;
+  manageRolesGroups($event) {
+    switch ($event.action) {
+      case 'create':
+        this.rolesService.setupNewGroup($event.value).subscribe(res => {
+          this.toastr.success('Group creation success!', 'Created!', { toastLife: 5000 });
+          this.getGroupsData();
+        }, () => this.toastr.error('Group creation failed!', 'Oops!', { toastLife: 5000 }));
+        break;
+      case 'update':
+        this.rolesService.updateGroup($event.value).subscribe(res => {
+          this.toastr.success('Group data successfully updated!', 'Success!', { toastLife: 5000 });
+          this.getGroupsData();
+        }, () => this.toastr.error('Failed group data updating!', 'Oops!', { toastLife: 5000 }));
+        break;
+      case 'delete':
+        if ($event.type === 'users') {
+          this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
+            this.toastr.success('Users was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed users deleting!', 'Oops!', { toastLife: 5000 }));
+        } else if ($event.type === 'group') {
+          console.log('delete group');
+          this.rolesService.removeGroupById($event.value).subscribe(res => {
+            this.toastr.success('Group was successfully deleted!', 'Success!', { toastLife: 5000 });
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed group deleting!', 'Oops!', { toastLife: 5000 }));
+        }
+        break;
+      default:
     }
   }
 
   createBackup($event) {
     this.backupService.createBackup($event).subscribe(result => {
       this.getBackupStatus(result);
+      this.toastr.success('Backup configuration is processing!', 'Processing!', { toastLife: 5000 });
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
     });
   }
@@ -151,8 +202,8 @@ export class HealthStatusComponent implements OnInit {
 
   isEnvironmentsInProgress(data): boolean {
     return data.exploratory.some(el => {
-      return el.status === 'creating' || el.status === 'starting' || 
-        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring')
+      return el.status === 'creating' || el.status === 'starting' ||
+        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring');
     });
   }
 
@@ -162,9 +213,18 @@ export class HealthStatusComponent implements OnInit {
 
   private getBackupStatus(result) {
     const uuid = result.text();
-    this.backupService.getBackupStatus(uuid).subscribe(status => {
-      if (!this.creatingBackup) clearInterval(this.clear);
-    }, error => clearInterval(this.clear));
+    this.backupService.getBackupStatus(uuid)
+        .subscribe((backupStatus: any) => {
+        if (!this.creatingBackup) {
+          backupStatus.status === 'FAILED'
+          ? this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 })
+          : this.toastr.success('Backup configuration completed!', 'Success!', { toastLife: 5000 });
+          clearInterval(this.clear);
+        }
+    }, error => {
+      clearInterval(this.clear);
+      this.toastr.error('Backup configuration failed!', 'Oops!', { toastLife: 5000 });
+    });
   }
 
   get creatingBackup(): boolean {

@@ -9,7 +9,7 @@
       "computational_url": [
         {
           "url": "http://172.31.48.131:8080/",
-          "description": "Spark job tracker url"
+          "description": "Apache Spark job tracker url"
         }
       ]
     },

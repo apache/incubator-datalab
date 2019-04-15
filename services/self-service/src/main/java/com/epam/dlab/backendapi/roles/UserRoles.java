@@ -1,20 +1,21 @@
-/***************************************************************************
-
- Copyright (c) 2016, EPAM SYSTEMS INC 
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-
- ****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.backendapi.roles;
 
@@ -53,6 +54,7 @@ public class UserRoles {
 	 * List of roles.
 	 */
 	private List<UserRole> roles = null;
+	private Map<String, Set<String>> userGroups;
 
 	/**
 	 * Default access to features if the role is not defined.
@@ -134,6 +136,7 @@ public class UserRoles {
 					}
 				}
 			}
+			userGroups = dao.getGroups();
 		} catch (Exception e) {
 			throw new DlabException("Cannot load roles from database. " + e.getLocalizedMessage(), e);
 		}
@@ -188,7 +191,7 @@ public class UserRoles {
 	 */
 	private Set<String> getAndRemoveSet(Document document, String key) {
 		Object o = document.get(key);
-		if (o == null || !(o instanceof ArrayList)) {
+		if (!(o instanceof ArrayList)) {
 			return Collections.emptySet();
 		}
 
@@ -225,7 +228,6 @@ public class UserRoles {
 		if (role == null) {
 			return checkDefault(useDefault);
 		}
-		if (hasAccessByUserName(userInfo, role)) return true;
 		if (hasAccessByGroup(userInfo, role)) return true;
 		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
 		return false;
@@ -242,6 +244,15 @@ public class UserRoles {
 					LOGGER.trace("Got access by group {}", group);
 					return true;
 				}
+			}
+
+			final Optional<String> group = role.getGroups()
+					.stream()
+					.filter(g -> userGroups.getOrDefault(g, Collections.emptySet()).contains(userInfo.getName()))
+					.findAny();
+			if (group.isPresent()) {
+				LOGGER.trace("Got access by local group {}", group.get());
+				return true;
 			}
 		}
 		return false;

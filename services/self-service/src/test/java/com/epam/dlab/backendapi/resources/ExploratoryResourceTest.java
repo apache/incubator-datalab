@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.resources;
@@ -20,8 +23,9 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;
@@ -32,9 +36,12 @@ import org.junit.Test;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -249,6 +256,42 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(exploratoryService).terminate(getUserInfo(), "someName");
+		verifyNoMoreInteractions(exploratoryService);
+	}
+
+	@Test
+	public void updateSparkConfig() {
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/someName/reconfigure")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.put(Entity.json(Collections.singletonList(new ClusterConfig())));
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+
+		verify(exploratoryService).updateClusterConfig(refEq(getUserInfo()), eq("someName"),
+				eq(Collections.singletonList(new ClusterConfig())));
+		verifyNoMoreInteractions(exploratoryService);
+	}
+
+	@Test
+	public void getSparkConfig() {
+		final ClusterConfig config = new ClusterConfig();
+		config.setClassification("test");
+		when(exploratoryService.getClusterConfig(any(UserInfo.class), anyString())).thenReturn(Collections.singletonList(config));
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/someName/cluster/config")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		final List<ClusterConfig> clusterConfigs = response.readEntity(new GenericType<List<ClusterConfig>>() {
+		});
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(1, clusterConfigs.size());
+		assertEquals("test", clusterConfigs.get(0).getClassification());
+
+		verify(exploratoryService).getClusterConfig(refEq(getUserInfo()), eq("someName"));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 

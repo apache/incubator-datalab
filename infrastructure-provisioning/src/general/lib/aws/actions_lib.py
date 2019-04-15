@@ -1,18 +1,21 @@
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -34,7 +37,8 @@ import traceback
 import urllib2
 import meta_lib
 import dlab.fab
-
+import uuid
+import ast
 
 def backoff_log(err):
     logging.info("Unable to create Tag: " + \
@@ -79,6 +83,7 @@ def create_s3_bucket(bucket_name, tag, region):
         tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
                                                                          bucket_name})
+        tags.append({'Key': os.environ['conf_billing_tag_key'], 'Value': os.environ['conf_billing_tag_value']})
         if 'conf_additional_tags' in os.environ:
             for tag in os.environ['conf_additional_tags'].split(';'):
                 tags.append(
@@ -155,6 +160,12 @@ def create_tag(resource, tag, with_tag_res_id=True):
                 'Value': os.environ['conf_service_base_name'] + ':' + resource_name
             }
         )
+        tags_list.append(
+            {
+                'Key': os.environ['conf_billing_tag_key'],
+                'Value': os.environ['conf_billing_tag_value']
+            }
+        )
     if 'conf_additional_tags' in os.environ:
         for tag in os.environ['conf_additional_tags'].split(';'):
             tags_list.append(
@@ -168,7 +179,22 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
-
+def create_product_tag(resource):
+    print('Tag product for the resource {} will be created'.format(resource))
+    tags_list = list()
+    ec2 = boto3.client('ec2')
+    if type(resource) != list:
+        resource = [resource]
+    tags_list.append(
+        {
+            'Key': os.environ['conf_billing_tag_key'],
+            'Value': os.environ['conf_billing_tag_value']
+        }
+    )
+    ec2.create_tags(
+        Resources=resource,
+        Tags=tags_list
+    )
 
 def remove_emr_tag(emr_id, tag):
     try:
@@ -180,7 +206,7 @@ def remove_emr_tag(emr_id, tag):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_rt(vpc_id, infra_tag_name, infra_tag_value):
+def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
     try:
         tag = {"Key": infra_tag_name, "Value": infra_tag_value}
         route_table = []
@@ -190,13 +216,14 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value):
         route_table.append(rt_id)
         print('Created Route-Table with ID: {}'.format(rt_id))
         create_tag(route_table, json.dumps(tag))
-        ig = ec2.create_internet_gateway()
-        ig_id = ig.get('InternetGateway').get('InternetGatewayId')
-        route_table = []
-        route_table.append(ig_id)
-        create_tag(route_table, json.dumps(tag))
-        ec2.attach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
-        ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
+        if not secondary:
+            ig = ec2.create_internet_gateway()
+            ig_id = ig.get('InternetGateway').get('InternetGatewayId')
+            route_table = []
+            route_table.append(ig_id)
+            create_tag(route_table, json.dumps(tag))
+            ec2.attach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
+            ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
         return rt_id
     except Exception as err:
         logging.info("Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -218,19 +245,111 @@ def create_subnet(vpc_id, subnet, tag):
 
 
 def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
-    ec2 = boto3.resource('ec2')
-    group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
-    time.sleep(10)
-    create_tag(group.id, tag)
     try:
-        group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
-    except:
-        print("Mentioned rule does not exist")
-    for rule in security_group_rules:
-        group.authorize_ingress(IpPermissions=[rule])
-    for rule in egress:
-        group.authorize_egress(IpPermissions=[rule])
-    return group.id
+        ec2 = boto3.resource('ec2')
+        group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
+        time.sleep(10)
+        create_tag(group.id, tag)
+        try:
+            group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
+        except:
+            print("Mentioned rule does not exist")
+        for rule in security_group_rules:
+            group.authorize_ingress(IpPermissions=[rule])
+        for rule in egress:
+            group.authorize_egress(IpPermissions=[rule])
+        return group.id
+    except Exception as err:
+        logging.info("Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create security group", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def create_route_by_id(subnet_id, vpc_id, peering_id, another_cidr):
+    client = boto3.client('ec2')
+    try:
+        table_id = client.describe_route_tables(Filters=[{'Name': 'association.subnet-id', 'Values': [subnet_id]}]).get(
+            'RouteTables')
+        if table_id:
+            final_id = table_id[0]['Associations'][0]['RouteTableId']
+        else:
+            table_id = client.describe_route_tables(
+                Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}, {'Name': 'association.main', 'Values': ['true']}]).get(
+                'RouteTables')
+            final_id = table_id[0]['Associations'][0]['RouteTableId']
+        for table in table_id:
+            routes = table.get('Routes')
+            routeExists = False
+            for route in routes:
+                if route.get('DestinationCidrBlock') == another_cidr:
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock = another_cidr,
+                    VpcPeeringConnectionId = peering_id,
+                    RouteTableId = final_id)
+    except Exception as err:
+        logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create route",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+def create_peer_routes(peering_id, service_base_name):
+    client = boto3.client('ec2')
+    try:
+        route_tables = client.describe_route_tables(
+            Filters=[{'Name': 'tag:{}-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+        route_tables2 = client.describe_route_tables(Filters=[
+            {'Name': 'tag:{}-secondary-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+        for table in route_tables:
+            routes = table.get('Routes')
+            routeExists=False
+            for route in routes:
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock=os.environ['conf_vpc2_cidr'].replace("'", ""),
+                    VpcPeeringConnectionId=peering_id,
+                    RouteTableId=table.get('RouteTableId'))
+        for table in route_tables2:
+            routeExists=False
+            for route in routes:
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                    routeExists = True
+            if not routeExists:
+                client.create_route(
+                    DestinationCidrBlock=os.environ['conf_vpc_cidr'].replace("'", ""),
+                    VpcPeeringConnectionId=peering_id,
+                    RouteTableId=table.get('RouteTableId'))
+    except Exception as err:
+        logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create route",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_peering_connection(vpc_id, vpc2_id, service_base_name):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
+        client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
+        client.modify_vpc_peering_connection_options(
+            AccepterPeeringConnectionOptions={
+                'AllowDnsResolutionFromRemoteVpc': True,
+            },
+            RequesterPeeringConnectionOptions={
+                'AllowDnsResolutionFromRemoteVpc': True,
+            },
+            VpcPeeringConnectionId=peering.id
+        )
+        create_tag(peering.id, json.dumps(tag))
+        return peering.id
+    except Exception as err:
+        logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 
 def enable_auto_assign_ip(subnet_id):
@@ -239,8 +358,7 @@ def enable_auto_assign_ip(subnet_id):
         client.modify_subnet_attribute(MapPublicIpOnLaunch={'Value': True}, SubnetId=subnet_id)
     except Exception as err:
         logging.info("Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Subnet",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create Subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -425,6 +543,97 @@ def create_attach_policy(policy_name, role_name, file_path):
     except Exception as err:
         logging.info("Unable to attach Policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to attach Policy", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_route_53_record(hosted_zone_id, hosted_zone_name, subdomain, ip_address):
+    try:
+        if 'ssn_assume_role_arn' in os.environ:
+            role_session_name = str(uuid.uuid4()).split('-')[0]
+            sts_client = boto3.client('sts')
+            credentials = sts_client.assume_role(
+                RoleArn=os.environ['ssn_assume_role_arn'],
+                RoleSessionName=role_session_name
+            ).get('Credentials')
+            route53_client = boto3.client('route53',
+                                          aws_access_key_id=credentials.get('AccessKeyId'),
+                                          aws_secret_access_key=credentials.get('SecretAccessKey'),
+                                          aws_session_token=credentials.get('SessionToken')
+                                          )
+        else:
+            route53_client = boto3.client('route53')
+        route53_client.change_resource_record_sets(
+            HostedZoneId=hosted_zone_id,
+            ChangeBatch={
+                'Changes': [
+                    {
+                        'Action': 'CREATE',
+                        'ResourceRecordSet': {
+                            'Name': "{}.{}".format(subdomain, hosted_zone_name),
+                            'Type': 'A',
+                            'TTL': 300,
+                            'ResourceRecords': [
+                                {
+                                    'Value': ip_address
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+    except Exception as err:
+        logging.info("Unable to create Route53 record: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to create Route53 record",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_route_53_record(hosted_zone_id, hosted_zone_name, subdomain):
+    try:
+        if 'ssn_assume_role_arn' in os.environ:
+            role_session_name = str(uuid.uuid4()).split('-')[0]
+            sts_client = boto3.client('sts')
+            credentials = sts_client.assume_role(
+                RoleArn=os.environ['ssn_assume_role_arn'],
+                RoleSessionName=role_session_name
+            ).get('Credentials')
+            route53_client = boto3.client('route53',
+                                          aws_access_key_id=credentials.get('AccessKeyId'),
+                                          aws_secret_access_key=credentials.get('SecretAccessKey'),
+                                          aws_session_token=credentials.get('SessionToken')
+                                          )
+        else:
+            route53_client = boto3.client('route53')
+        for record_set in route53_client.list_resource_record_sets(HostedZoneId=hosted_zone_id).get('ResourceRecordSets'):
+            if record_set['Name'] == "{}.{}.".format(subdomain, hosted_zone_name):
+                for record in record_set['ResourceRecords']:
+                    route53_client.change_resource_record_sets(
+                        HostedZoneId=hosted_zone_id,
+                        ChangeBatch={
+                            'Changes': [
+                                {
+                                    'Action': 'DELETE',
+                                    'ResourceRecordSet': {
+                                        'Name': record_set['Name'],
+                                        'Type': 'A',
+                                        'TTL': 300,
+                                        'ResourceRecords': [
+                                            {
+                                                'Value': record['Value']
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    )
+    except Exception as err:
+        logging.info("Unable to remove Route53 record: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove Route53 record",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -761,12 +970,20 @@ def remove_subnets(tag_value):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        tag2_name = os.environ['conf_service_base_name'] + '-secondary-Tag'
         subnets = ec2.subnets.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
-        if subnets:
-            for subnet in subnets:
-                client.delete_subnet(SubnetId=subnet.id)
-                print("The subnet {} has been deleted successfully".format(subnet.id))
+        subnets2 = ec2.subnets.filter(
+            Filters=[{'Name': 'tag:{}'.format(tag2_name), 'Values': [tag_value]}])
+        if subnets or subnets2:
+            if subnets:
+                for subnet in subnets:
+                    client.delete_subnet(SubnetId=subnet.id)
+                    print("The subnet {} has been deleted successfully".format(subnet.id))
+            if subnets2:
+                for subnet in subnets2:
+                    client.delete_subnet(SubnetId=subnet.id)
+                    print("The subnet {} has been deleted successfully".format(subnet.id))
         else:
             print("There are no private subnets to delete")
     except Exception as err:
@@ -774,6 +991,25 @@ def remove_subnets(tag_value):
         append_result(str({"error": "Unable to remove subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
+def remove_peering(tag_value):
+    try:
+        client = boto3.client('ec2')
+        tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        if os.environ['conf_duo_vpc_enable']=='true':
+            peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
+                                                                   {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
+            if peering_id:
+                client.delete_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
+                print("Peering connection {} has been deleted successfully".format(peering_id))
+            else:
+                print("There are no peering connections to delete")
+        else:
+            print("There are no peering connections to delete because duo vpc option is disabled")
+    except Exception as err:
+        logging.info("Unable to remove peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def remove_sgroups(tag_value):
     try:
@@ -861,7 +1097,7 @@ def terminate_emr(id):
         traceback.print_exc(file=sys.stdout)
 
 
-def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version):
+def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version, computational_name=''):
     try:
         ec2 = boto3.resource('ec2')
         inst = ec2.instances.filter(
@@ -917,7 +1153,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                     sudo('sleep 5')
                     sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
                 if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                    dlab.fab.remove_rstudio_dataengines_kernel(emr_name, ssh_user)
+                    dlab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print("Notebook's {} kernels were removed".format(env.hosts))
         else:
@@ -992,6 +1228,7 @@ def remove_vpc_endpoints(vpc_id):
 def create_image_from_instance(tag_name='', instance_name='', image_name='', tags=''):
     try:
         ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
         instances = ec2.instances.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                      {'Name': 'instance-state-name', 'Values': ['running']}])
@@ -1004,6 +1241,11 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
             tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+            response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
+            for ebs in response:
+                if ebs.get('Ebs'):
+                    snapshot_id = ebs.get('Ebs').get('SnapshotId')
+                    create_tag(snapshot_id, tag)
             create_tag(image.id, tag)
             if tags:
                 all_tags = json.loads(tags)
@@ -1117,7 +1359,8 @@ def create_aws_config_files(generate_full_config=False):
         logging.info(local("chmod 550 " + aws_user_dir+" 2>&1", capture=True))
 
         return True
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -1213,49 +1456,79 @@ def spark_defaults(args):
         endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """ " >> """ + spark_def_path + """'""")
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
 def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            sudo('mkdir -p ' + jars_dir)
-            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
-                 jars_dir + 'hadoop-aws-2.7.4.jar')
-            sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar -O ' +
-                 jars_dir + 'aws-java-sdk-1.7.4.jar')
-            sudo('wget http://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/0.4.20/hadoop-lzo-0.4.20.jar -O ' +
-                 jars_dir + 'hadoop-lzo-0.4.20.jar')
+            sudo('mkdir -p {0}'.format(jars_dir))
+            sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
+                    {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
+            sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
+                    {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
+            sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
+                    {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
-    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
-        try:
-            if region == 'us-east-1':
-                endpoint_url = 'https://s3.amazonaws.com'
-            elif region == 'cn-north-1':
-                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
-            else:
-                endpoint_url = 'https://s3-' + region + '.amazonaws.com'
-            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-            sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(endpoint_url))
-            sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
-            if os.environ['application'] == 'zeppelin':
-                sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
-        except:
-            sys.exit(1)
+def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        # Checking if spark.jars parameter was generated previously
+        spark_jars_paths = None
+        if exists('/opt/spark/conf/spark-defaults.conf'):
+            try:
+                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+            except:
+                spark_jars_paths = None
+        region = sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone')[:-1]
+        if region == 'us-east-1':
+            endpoint_url = 'https://s3.amazonaws.com'
+        elif region == 'cn-north-1':
+            endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+        else:
+            endpoint_url = 'https://s3-' + region + '.amazonaws.com'
+        put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(
+            endpoint_url))
+        sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
+             '/tmp/notebook_spark-defaults_local.conf')
+        if os.environ['application'] == 'zeppelin':
+            sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> '
+                                                           '/tmp/notebook_spark-defaults_local.conf')
+        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = dlab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
-    except:
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+                                                                                              spark_memory))
+        if 'spark_configurations' in os.environ:
+            spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+            new_spark_defaults = list()
+            spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
+            current_spark_properties = spark_defaults.split('\n')
+            for param in current_spark_properties:
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
+            new_spark_defaults = set(new_spark_defaults)
+            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            for prop in new_spark_defaults:
+                prop = prop.rstrip()
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+            if spark_jars_paths:
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+    except Exception as err:
+        print('Error:', str(err))
         sys.exit(1)
     
 
@@ -1270,24 +1543,26 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             python_version = f.read()
         python_version = python_version[0:5]
         livy_port = ''
-        livy_path = '/opt/' + emr_version + '/' + cluster_name + '/livy/'
-        spark_libs = "/opt/" + emr_version + "/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/" + \
-                     emr_version + "/jars/usr/lib/hadoop/hadoop-aws*.jar /opt/" + emr_version + \
-                     "/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/" + emr_version + \
-                     "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar"
+        livy_path = '/opt/{0}/{1}/livy/'.format(emr_version, cluster_name)
+        spark_libs = "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/{0}/jars/usr/lib/hadoop/hadoop-aws*.jar /opt/" + \
+                     "{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/{0}" + \
+                     "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar".format(emr_version)
+        #fix due to: Multiple py4j files found under ..../spark/python/lib
+        #py4j-0.10.7-src.zip still in folder. Versions may varies.
+        local('rm /opt/{0}/{1}/spark/python/lib/py4j-src.zip'.format(emr_version, cluster_name))
+
         local('echo \"Configuring emr path for Zeppelin\"')
-        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/' + emr_version + '\/' +
-              cluster_name + '\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-        local('sed -i \"s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=\/opt\/' + emr_version + '\/' +
-              cluster_name + '\/conf/\" /opt/' + emr_version + '/' + cluster_name +
-              '/spark/conf/spark-env.sh')
-        local('echo \"spark.jars $(ls ' + spark_libs + ' | tr \'\\n\' \',\')\" >> /opt/' + emr_version + '/' +
-              cluster_name + '/spark/conf/spark-defaults.conf')
-        local('sed -i "/spark.executorEnv.PYTHONPATH/d" /opt/' + emr_version + '/' + cluster_name +
-              '/spark/conf/spark-defaults.conf')
-        local('sed -i "/spark.yarn.dist.files/d" /opt/' + emr_version + '/' + cluster_name +
-              '/spark/conf/spark-defaults.conf')
-        local('sudo chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/{0}\/{1}\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh'.
+              format(emr_version, cluster_name))
+        local('sed -i "s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=' + \
+              '\/opt\/{0}\/{1}\/conf/" /opt/{0}/{1}/spark/conf/spark-env.sh'.format(emr_version, cluster_name))
+        local('echo \"spark.jars $(ls {0} | tr \'\\n\' \',\')\" >> /opt/{1}/{2}/spark/conf/spark-defaults.conf'
+              .format(spark_libs, emr_version, cluster_name))
+        local('sed -i "/spark.executorEnv.PYTHONPATH/d" /opt/{0}/{1}/spark/conf/spark-defaults.conf'
+              .format(emr_version, cluster_name))
+        local('sed -i "/spark.yarn.dist.files/d" /opt/{0}/{1}/spark/conf/spark-defaults.conf'
+              .format(emr_version, cluster_name))
+        local('sudo chown {0}:{0} -R /opt/zeppelin/'.format(os_user))
         local('sudo systemctl daemon-reload')
         local('sudo service zeppelin-notebook stop')
         local('sudo service zeppelin-notebook start')
@@ -1309,15 +1584,13 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                     port_number_found = True
                 else:
                     default_port += 1
-            local('sudo echo "livy.server.port = ' + str(livy_port) + '" >> ' + livy_path + 'conf/livy.conf')
-            local('sudo echo "livy.spark.master = yarn" >> ' + livy_path + 'conf/livy.conf')
-            if os.path.exists(livy_path + 'conf/spark-blacklist.conf'):
-                local('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf')
-            local(''' sudo echo "export SPARK_HOME=''' + spark_dir + '''" >> ''' + livy_path + '''conf/livy-env.sh''')
-            local(''' sudo echo "export HADOOP_CONF_DIR=''' + yarn_dir + '''" >> ''' + livy_path +
-                  '''conf/livy-env.sh''')
-            local(''' sudo echo "export PYSPARK3_PYTHON=python''' + python_version[0:3] + '''" >> ''' +
-                  livy_path + '''conf/livy-env.sh''')
+            local('sudo echo "livy.server.port = {0}" >> {1}conf/livy.conf'.format(str(livy_port), livy_path))
+            local('sudo echo "livy.spark.master = yarn" >> {}conf/livy.conf'.format(livy_path))
+            if os.path.exists('{}conf/spark-blacklist.conf'.format(livy_path)):
+                local('sudo sed -i "s/^/#/g" {}conf/spark-blacklist.conf'.format(livy_path))
+            local(''' sudo echo "export SPARK_HOME={0}" >> {1}conf/livy-env.sh'''.format(spark_dir, livy_path))
+            local(''' sudo echo "export HADOOP_CONF_DIR={0}" >> {1}conf/livy-env.sh'''.format(yarn_dir, livy_path))
+            local(''' sudo echo "export PYSPARK3_PYTHON=python{0}" >> {1}conf/livy-env.sh'''.format(python_version[0:3], livy_path))
             template_file = "/tmp/dataengine-service_interpreter.json"
             fr = open(template_file, 'r+')
             text = fr.read()
@@ -1335,16 +1608,16 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                     break
                 except:
                     local('sleep 5')
-            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
-                  '.service')
-            local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
-                  '.service')
-            local("sudo sed -i 's|LIVY_PATH|" + livy_path + "|' /etc/systemd/system/livy-server-" + str(livy_port)
-                  + '.service')
-            local('sudo chmod 644 /etc/systemd/system/livy-server-' + str(livy_port) + '.service')
+            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-{}.service'
+                  .format(str(livy_port)))
+            local("sudo sed -i 's|OS_USER|{0}|' /etc/systemd/system/livy-server-{1}.service"
+                  .format(os_user, str(livy_port)))
+            local("sudo sed -i 's|LIVY_PATH|{0}|' /etc/systemd/system/livy-server-{1}.service"
+                  .format(livy_path, str(livy_port)))
+            local('sudo chmod 644 /etc/systemd/system/livy-server-{}.service'.format(str(livy_port)))
             local("sudo systemctl daemon-reload")
-            local("sudo systemctl enable livy-server-" + str(livy_port))
-            local('sudo systemctl start livy-server-' + str(livy_port))
+            local("sudo systemctl enable livy-server-{}".format(str(livy_port)))
+            local('sudo systemctl start livy-server-{}'.format(str(livy_port)))
         else:
             template_file = "/tmp/dataengine-service_interpreter.json"
             p_versions = ["2", python_version[:3]]
@@ -1357,7 +1630,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                 text = text.replace('PYTHONVER_SHORT', p_version[:1])
                 text = text.replace('ENDPOINTURL', endpoint_url)
                 text = text.replace('DATAENGINE-SERVICE_VERSION', emr_version)
-                tmp_file = "/tmp/emr_spark_py" + p_version + "_interpreter.json"
+                tmp_file = "/tmp/emr_spark_py{}_interpreter.json".format(p_version)
                 fw = open(tmp_file, 'w')
                 fw.write(text)
                 fw.close()
@@ -1371,21 +1644,52 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                         local('sleep 5')
         local('touch /home/' + os_user + '/.ensure_dir/dataengine-service_' + cluster_name + '_interpreter_ensured')
     except:
-            sys.exit(1)
+        sys.exit(1)
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
-    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
+    region = local('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture=True)[:-1]
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
         endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
     else:
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/{}/notebook_spark-defaults_local.conf'""".format(cluster_name))
-    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/{}/notebook_spark-defaults_local.conf'.format(cluster_name))
-    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url +
+          """" >> /tmp/{}/notebook_spark-defaults_local.conf'""".format(cluster_name))
+    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
+          '/tmp/{}/notebook_spark-defaults_local.conf'.format(cluster_name))
+    if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
+        additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
+                                            '/tmp/{0}/notebook_spark-defaults_local.conf '
+                                            '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
+            cluster_name, cluster_dir), capture=True)
+        for property in additional_spark_properties.split('\n'):
+            local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
+    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
+                                                                                                        cluster_dir))
+    if spark_configs:
+        spark_configurations = ast.literal_eval(spark_configs)
+        new_spark_defaults = list()
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
+        current_spark_properties = spark_defaults.split('\n')
+        for param in current_spark_properties:
+            for config in spark_configurations:
+                if config['Classification'] == 'spark-defaults':
+                    for property in config['Properties']:
+                        if property == param.split(' ')[0]:
+                            param = property + ' ' + config['Properties'][property]
+                        else:
+                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
+            new_spark_defaults.append(param)
+        new_spark_defaults = set(new_spark_defaults)
+        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        for prop in new_spark_defaults:
+            prop = prop.rstrip()
+            local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
+        local('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
 
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
@@ -1438,7 +1742,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
@@ -1470,7 +1774,8 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
             sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
             sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
 
 
@@ -1479,3 +1784,21 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
     local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/' + cluster_name)
     local('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
+
+
+def find_des_jars(all_jars, des_path):
+    try:
+        default_jars = ['hadoop-aws', 'hadoop-lzo', 'aws-java-sdk']
+        for i in default_jars:
+            for j in all_jars:
+                if i in j:
+                    print('Remove default cloud jar: {0}'.format(j))
+                    all_jars.remove(j)
+        additional_jars = ['hadoop-aws', 'aws-java-sdk-s3', 'hadoop-lzo', 'aws-java-sdk-core']
+        aws_filter = '\|'.join(additional_jars)
+        aws_jars = sudo('find {0} -name *.jar | grep "{1}"'.format(des_path, aws_filter)).split('\r\n')
+        all_jars.extend(aws_jars)
+        return all_jars
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)

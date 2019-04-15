@@ -1,30 +1,30 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /* tslint:disable:no-empty */
 
-import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 
 export class ConfirmationDialogModel {
-  private title: string;
+  public title: string;
   private notebook: any;
   private confirmAction: Function;
   private manageAction: Function;
@@ -33,8 +33,7 @@ export class ConfirmationDialogModel {
   private manageEnvironmentsService: ManageEnvironmentsService;
 
   static getDefault(): ConfirmationDialogModel {
-    return new
-      ConfirmationDialogModel(
+    return new ConfirmationDialogModel(
       ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, false, null, null, null);
   }
 
@@ -70,19 +69,19 @@ export class ConfirmationDialogModel {
   }
 
 
-  private stopExploratory(): Observable<{} | Response> {
+  private stopExploratory(): Observable<{}> {
     return this.manageAction 
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.name)
       : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
-  private terminateExploratory(): Observable<{} | Response> {
+  private terminateExploratory(): Observable<{}> {
     return this.manageAction 
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'terminate', this.notebook.name)
       : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
-  private stopEdgeNode(): Observable<{} | Response> {
+  private stopEdgeNode(): Observable<{}> {
     return this.manageAction 
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', 'edge')
       : this.healthStatusService.suspendEdgeNode();
@@ -102,32 +101,36 @@ export class ConfirmationDialogModel {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesStopMessage : defaultStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
       case ConfirmationDialogType.TerminateExploratory: {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.terminateExploratory()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
       case ConfirmationDialogType.StopEdgeNode: {
         this.title = edgeNodeStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopEdgeNode()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
       default: {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
-          .subscribe((response: Response) => fnProcessResults(response),
-          (response: Response) => fnProcessErrors(response));
+          .subscribe(
+            response => fnProcessResults(response),
+            error => fnProcessErrors(error));
       }
         break;
     }

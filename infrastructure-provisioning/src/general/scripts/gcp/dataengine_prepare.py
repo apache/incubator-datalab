@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -101,12 +104,14 @@ if __name__ == "__main__":
                                    "sbn": data_engine['service_base_name'],
                                    "user": data_engine['edge_user_name'],
                                    "type": "slave",
-                                   "notebook_name": data_engine['notebook_name']}
+                                   "notebook_name": data_engine['notebook_name'],
+                                   "product": "dlab"}
     data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                     "sbn": data_engine['service_base_name'],
                                     "user": data_engine['edge_user_name'],
                                     "type": "master",
-                                    "notebook_name": data_engine['notebook_name']}
+                                    "notebook_name": data_engine['notebook_name'],
+                                    "product": "dlab"}
 
     try:
         logging.info('[CREATE MASTER NODE]')
@@ -123,6 +128,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create instance.", str(err))
         GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
         sys.exit(1)
@@ -144,6 +150,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:

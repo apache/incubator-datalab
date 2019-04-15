@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi;
@@ -21,18 +24,22 @@ import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
 import com.epam.dlab.backendapi.healthcheck.ProvisioningServiceHealthCheck;
+import com.epam.dlab.backendapi.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
+import com.epam.dlab.backendapi.schedulers.internal.ManagedScheduler;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.migration.mongo.DlabMongoMigration;
 import com.epam.dlab.mongo.MongoServiceFactory;
+import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.mappers.*;
 import com.epam.dlab.util.ServiceUtils;
-import com.fiestacabin.dropwizard.quartz.ManagedScheduler;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -41,6 +48,8 @@ import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -73,6 +82,12 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		bootstrap.addBundle(new TemplateConfigBundle(
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
+		bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
+			@Override
+			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration configuration) {
+				return configuration.getSwaggerConfiguration();
+			}
+		});
 	}
 
 	@Override
@@ -86,6 +101,10 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		if (configuration.isMongoMigrationEnabled()) {
 			environment.lifecycle().addServerLifecycleListener(server -> applyMongoMigration(configuration));
 		}
+		final RestoreHandlerStartupListener restoreHandlerStartupListener =
+				new RestoreHandlerStartupListener(injector.getInstance(Key.get(RESTService.class,
+						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))));
+		environment.lifecycle().addServerLifecycleListener(restoreHandlerStartupListener);
 		environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
 		environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
@@ -101,6 +120,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(new ResourceNotFoundExceptionMapper());
 		jersey.register(new DlabValidationExceptionMapper());
 		jersey.register(new ValidationExceptionMapper());
+		jersey.register(new ResourceQuoteReachedExceptionMapper());
 		jersey.register(injector.getInstance(SecurityResource.class));
 		jersey.register(injector.getInstance(KeyUploaderResource.class));
 		jersey.register(injector.getInstance(EdgeResource.class));
@@ -129,6 +149,11 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(BackupCallback.class));
 		jersey.register(injector.getInstance(EnvironmentResource.class));
 		jersey.register(injector.getInstance(ReuploadKeyCallback.class));
+		jersey.register(injector.getInstance(CheckInactivityCallback.class));
+		jersey.register(injector.getInstance(SystemInfoResource.class));
+		jersey.register(injector.getInstance(UserGroupResource.class));
+		jersey.register(injector.getInstance(UserRoleResource.class));
+		jersey.register(injector.getInstance(ApplicationSettingResource.class));
 	}
 
 	private void applyMongoMigration(SelfServiceApplicationConfiguration configuration) {
@@ -137,6 +162,5 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		new DlabMongoMigration(mongoFactory.getHost(), mongoFactory.getPort(), mongoFactory.getUsername(),
 				mongoFactory.getPassword(), mongoFactory.getDatabase()).migrate();
 	}
-
 
 }

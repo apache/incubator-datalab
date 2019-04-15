@@ -1,21 +1,25 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.resources.callback;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -24,6 +28,7 @@ import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibListStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -52,7 +57,7 @@ public class LibraryCallback {
      */
     @POST
     @Path("/lib_status")
-    public Response libInstallStatus(LibInstallStatusDTO dto) {
+    public Response libInstallStatus(@Auth UserInfo userInfo, LibInstallStatusDTO dto) {
         log.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
                 dto.getExploratoryName(), dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
@@ -77,7 +82,7 @@ public class LibraryCallback {
      */
     @POST
     @Path("/update_lib_list")
-    public Response updateLibList(LibListStatusDTO dto) {
+    public Response updateLibList(@Auth UserInfo userInfo, LibListStatusDTO dto) {
         log.debug("Updating the list of libraries for image {}", dto.getImageName());
 		requestId.checkAndRemove(dto.getRequestId());
         try {

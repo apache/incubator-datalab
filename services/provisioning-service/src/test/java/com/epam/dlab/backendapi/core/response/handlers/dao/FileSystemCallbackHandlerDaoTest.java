@@ -1,25 +1,25 @@
 /*
- * **************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * ***************************************************************************
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.core.response.handlers.dao;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
@@ -56,6 +56,8 @@ public class FileSystemCallbackHandlerDaoTest {
 	private ProvisioningServiceApplicationConfiguration configuration;
 	@Mock
 	private CallbackHandlerDao dao;
+	@Mock
+	private SystemUserInfoService systemUserInfoService;
 	@InjectMocks
 	private FileSystemCallbackHandlerDao fileSystemCallbackHandlerDao;
 
@@ -75,8 +77,9 @@ public class FileSystemCallbackHandlerDaoTest {
 		final String handlersFolders = getHandlersFolder();
 		when(configuration.getHandlerDirectory()).thenReturn(handlersFolders);
 		when(mapper.writeValueAsBytes(any())).thenReturn("{'test': 'test'}".getBytes());
-		final PersistentFileHandler persistentFileHandler = new PersistentFileHandler(new LibListCallbackHandler(null,
-				DockerAction.LIB_LIST, "uuid", "test", "das"), 1L, "/opt/test");
+		final PersistentFileHandler persistentFileHandler =
+				new PersistentFileHandler(new LibListCallbackHandler(systemUserInfoService, null,
+						DockerAction.LIB_LIST, "uuid", "test", "das"), 1L, "/opt/test");
 
 		fileSystemCallbackHandlerDao.upsert(persistentFileHandler);
 
@@ -93,10 +96,12 @@ public class FileSystemCallbackHandlerDaoTest {
 		when(mapper.writeValueAsBytes(any())).thenReturn("{'test': 'test'}".getBytes());
 		final PersistentFileHandler persistentFileHandler1 = new PersistentFileHandler(new DockerWarmuper()
 				.new DockerFileHandlerCallback("sameUUID"), 1L, "/opt/test");
-		final PersistentFileHandler persistentFileHandler2 = new PersistentFileHandler(new LibListCallbackHandler(null,
-				DockerAction.LIB_LIST, "sameUUID", "test", "das1"), 1L, "/opt/test");
-		final PersistentFileHandler persistentFileHandler3 = new PersistentFileHandler(new LibListCallbackHandler(null,
-				DockerAction.LIB_LIST, "anotherUUID", "test", "das2"), 1L, "/opt/test");
+		final PersistentFileHandler persistentFileHandler2 =
+				new PersistentFileHandler(new LibListCallbackHandler(systemUserInfoService, null,
+						DockerAction.LIB_LIST, "sameUUID", "test", "das1"), 1L, "/opt/test");
+		final PersistentFileHandler persistentFileHandler3 =
+				new PersistentFileHandler(new LibListCallbackHandler(systemUserInfoService, null,
+						DockerAction.LIB_LIST, "anotherUUID", "test", "das2"), 1L, "/opt/test");
 
 
 		fileSystemCallbackHandlerDao.upsert(persistentFileHandler1);

@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -118,6 +121,8 @@ def configure_local_livy_kernels(args):
         put(templates_dir + 'interpreter_livy.json', '/tmp/interpreter.json')
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
+        spark_memory = get_spark_memory()
+        sudo('sed -i "s|DRIVER_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
         while not port_number_found:
             port_free = sudo('nmap -p ' + str(default_port) + ' localhost | grep "closed" > /dev/null; echo $?')
             port_free = port_free[:1]
@@ -145,6 +150,8 @@ def configure_local_spark_kernels(args):
         put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
+        spark_memory = get_spark_memory()
+        sudo('sed -i "s|DRIVER_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
         update_zeppelin_interpreters(args.multiple_clusters, r_enabled, 'local')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
@@ -215,7 +222,7 @@ if __name__ == "__main__":
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
+    configure_local_spark(jars_dir, templates_dir)
 
     # INSTALL ZEPPELIN
     print("Install Zeppelin")

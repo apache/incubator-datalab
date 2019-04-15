@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -42,18 +45,7 @@ if __name__ == "__main__":
     try:
         data_engine = dict()
         data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        edge_status = AzureMeta().get_instance_status(os.environ['conf_service_base_name'],
-                                                      os.environ['conf_service_base_name'] + '-' +
-                                                      data_engine['user_name'] + '-edge')
-        if edge_status != 'running':
-            logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = AzureMeta().get_private_ip_address(os.environ['conf_service_base_name'],
-                                                              os.environ['conf_service_base_name'] + '-ssn')
-            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                ssn_hostname)
-            append_result("Edge node is unavailable")
-            sys.exit(1)
+        
         print('Generating infrastructure names and tags')
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -95,12 +87,14 @@ if __name__ == "__main__":
                                      "SBN": data_engine['service_base_name'],
                                      "User": data_engine['user_name'],
                                      "Type": "slave",
-                                     "notebook_name": data_engine['notebook_name']}
+                                     "notebook_name": data_engine['notebook_name'],
+                                     os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         data_engine['master_tags'] = {"Name": data_engine['cluster_name'],
                                       "SBN": data_engine['service_base_name'],
                                       "User": data_engine['user_name'],
                                       "Type": "master",
-                                      "notebook_name": data_engine['notebook_name']}
+                                      "notebook_name": data_engine['notebook_name'],
+                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         data_engine['primary_disk_size'] = '32'
         data_engine['image_type'] = 'default'
         data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(data_engine['service_base_name'],
@@ -120,6 +114,24 @@ if __name__ == "__main__":
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        sys.exit(1)
+
+    try:
+        edge_status = AzureMeta().get_instance_status(data_engine['resource_group_name'],
+                                                      os.environ['conf_service_base_name'] + '-' +
+                                                      data_engine['user_name'] + '-edge')
+        if edge_status != 'running':
+            logging.info('ERROR: Edge node is unavailable! Aborting...')
+            print('ERROR: Edge node is unavailable! Aborting...')
+            ssn_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+                                                              os.environ['conf_service_base_name'] + '-ssn')
+            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
+                                ssn_hostname)
+            append_result("Edge node is unavailable")
+            sys.exit(1)
+    except Exception as err:
+        print("Failed to verify edge status.")
+        append_result("Failed to verify edge status.", str(err))
         sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -154,6 +166,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         except:
@@ -188,6 +201,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:

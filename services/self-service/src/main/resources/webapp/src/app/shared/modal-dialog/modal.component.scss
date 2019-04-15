@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 /** Keyframes **/
 @keyframes show {
@@ -165,6 +166,7 @@ limitations under the License.
   list-style: none;
   padding: 0;
   margin: 0;
+  transition: all .35s linear .2s;
 }
 
 .dialog-content {
@@ -178,16 +180,16 @@ limitations under the License.
   outline: 0;
   -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
   box-shadow: 0 3px 9px rgba(0,0,0,.5);
+  .danger_color {
+    padding-left: 5px;
+    font-size: 12px;
+    display: inline-block;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    border-color: #d9534f !important;
+  }
 }
-
-.dialog-content .danger_color {
-  padding-top: 5px;
-  font-size: 12px;
-  display: inline-block;
-}
-.dialog-content .danger_field {
-  border-color: #d9534f !important;
-}
+ 
 .modal-footer .btn {
   margin-top: 0;
 }
@@ -204,8 +206,10 @@ limitations under the License.
     height: 54px;
     line-height: 54px;
     .modal-title {
+      width: 90%;
       margin: 0;
       overflow: hidden;
+      white-space: nowrap;
       text-overflow: ellipsis;
       font-weight: 600;
       color: #455c74;
@@ -236,9 +240,6 @@ limitations under the License.
 
   .dialog-body {
     padding-top: 0;
-    .content-box {
-      padding: 25px 35px 45px;
-    }
   }
   .upload-key {
     margin-bottom: 20px;
@@ -327,7 +328,9 @@ limitations under the License.
     }
   }
 }
-
+.content-box {
+  padding: 25px 30px 35px;
+}
 .detail-header {
   border-bottom: 0;
   width: 100%;
@@ -388,7 +391,6 @@ limitations under the License.
   }
   span {
     font-size: 14px;
-    color: #9cadbe;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
@@ -398,5 +400,11 @@ limitations under the License.
   }
   .time_info {
     margin-top: 15px;
+  }
+}
+
+.create-cluster {
+  .dialog-header {
+    padding-left: 45px !important;
   }
 }

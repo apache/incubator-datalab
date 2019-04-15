@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.modules;
@@ -21,24 +24,15 @@ import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
-import com.epam.dlab.backendapi.dao.BackupDao;
-import com.epam.dlab.backendapi.dao.BackupDaoImpl;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
-import com.epam.dlab.backendapi.domain.EnvStatusListener;
-import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.dao.*;
 import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.service.impl.*;
-import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
-import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
-
-import javax.ws.rs.client.Client;
 
 /**
  * Production class for an application configuration of SelfService.
@@ -62,7 +56,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
 				.toInstance(configuration.getSecurityFactory().build(environment, ServiceConsts
 						.SECURITY_SERVICE_NAME));
-		requestStaticInjection(EnvStatusListener.class, RequestId.class, RequestBuilder.class);
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
 				.toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts
 						.PROVISIONING_SERVICE_NAME));
@@ -82,8 +75,16 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(EdgeService.class).to(EdgeServiceImpl.class);
 		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
 		bind(UserResourceService.class).to(UserResourceServiceImpl.class);
-		bind(Client.class).toInstance(new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration())
-				.build(""));
+		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.MAVEN_SEARCH_API))
+				.toInstance(configuration.getMavenApiFactory().build(environment, ServiceConsts.MAVEN_SEARCH_API));
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);
+		bind(SystemInfoService.class).to(SystemInfoServiceImpl.class);
+		bind(UserGroupService.class).to(UserGroupServiceImpl.class);
+		bind(UserRoleService.class).to(UserRoleServiceImpl.class);
+		bind(UserRoleDao.class).to(UserRoleDaoImpl.class);
+		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
+		bind(InactivityService.class).to(InactivityServiceImpl.class);
+		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
+		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
 	}
 }

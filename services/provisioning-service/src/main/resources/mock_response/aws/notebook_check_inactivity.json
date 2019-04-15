@@ -1,0 +1,14 @@
+{
+  "status": "ok",
+  "request_id": "${REQUEST_ID}",
+  "resources": [
+    {
+      "id": "i-e649463cf6fd461bb",
+      "status": "running",
+      "name": "jup_sc",
+      "resourceType": "COMPUTATIONAL",
+      "lastActivity": 1575842400000
+    }
+  ]
+}
+

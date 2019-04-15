@@ -7,7 +7,7 @@
          "exploratory_url": [
             {
                "url": "http://172.31.48.131:8080/",
-               "description": "Zeppelin"
+              "description": "Apache Zeppelin"
             }
          ],
          "instance_id": "${INSTANCE_ID}",

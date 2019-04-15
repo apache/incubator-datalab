@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -86,7 +89,8 @@ if __name__ == "__main__":
     edge_conf['network_tag'] = edge_conf['instance_name']
     edge_conf['instance_labels'] = {"name": edge_conf['instance_name'],
                                     "sbn": edge_conf['service_base_name'],
-                                    "user": edge_conf['edge_user_name']}
+                                    "user": edge_conf['edge_user_name'],
+                                    "product": "dlab"}
     edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     # FUSE in case of absence of user's key
@@ -113,6 +117,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         except:
@@ -134,6 +139,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
             GCPActions().remove_role(edge_conf['edge_role_name'])
@@ -156,6 +162,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         try:
             GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
             GCPActions().remove_role(edge_conf['ps_role_name'])
@@ -231,7 +238,7 @@ if __name__ == "__main__":
             {
                 'IPProtocol': 'tcp',
                 'ports': ['22', '8888', '8080', '8787', '6006', '20888', '8088', '18080', '50070', '8085', '8081',
-                          '4040']
+                          '4040-4045']
             }
         ]
         egress_rule['allowed'] = rules
@@ -246,6 +253,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
         GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
@@ -323,6 +331,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create firewall for private subnet.", str(err))
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
@@ -346,6 +355,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create bucket.", str(err))
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
@@ -367,6 +377,7 @@ if __name__ == "__main__":
         GCPActions().set_bucket_owner(edge_conf['bucket_name'], edge_conf['ps_service_account_name'])
         GCPActions().set_bucket_owner(edge_conf['shared_bucket_name'], edge_conf['ps_service_account_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to set bucket permissions.", str(err))
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
@@ -393,6 +404,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create static ip.", str(err))
         try:
             GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
@@ -436,6 +448,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create instance.", str(err))
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])

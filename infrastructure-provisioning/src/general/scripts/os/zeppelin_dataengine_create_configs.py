@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -45,6 +48,7 @@ parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
+parser.add_argument('--spark_configurations', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
@@ -145,8 +149,9 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
                     except:
                         local('sleep 5')
         local('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured')
-    except:
-            sys.exit(1)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
 
 def install_remote_livy(args):
@@ -169,7 +174,8 @@ if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
     install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
                              args.datalake_enabled)
-    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
+    configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled,
+                               args.spark_configurations)
     if args.multiple_clusters == 'true':
         install_remote_livy(args)
     configure_zeppelin_dataengine_interpreter(args.cluster_name, cluster_dir, args.os_user,

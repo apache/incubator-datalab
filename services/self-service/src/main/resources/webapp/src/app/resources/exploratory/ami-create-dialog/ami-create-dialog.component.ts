@@ -1,23 +1,25 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2018, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
 
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES } from '../../../core/util';
@@ -28,7 +30,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   templateUrl: './ami-create-dialog.component.html',
   styleUrls: ['./ami-create-dialog.component.scss']
 })
-export class AmiCreateDialogComponent {
+export class AmiCreateDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public notebook: any;
   public createAMIForm: FormGroup;
@@ -42,8 +44,12 @@ export class AmiCreateDialogComponent {
 
   constructor(
     private _userResource: UserResourceService,
-    private _fb: FormBuilder
-  ) {}
+    private _fb: FormBuilder,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
     this._userResource.getImagesList().subscribe(res => this.imagesList = res);
@@ -53,6 +59,7 @@ export class AmiCreateDialogComponent {
     this.notebook = notebook;
 
     this.initFormModel();
+    this._userResource.getImagesList().subscribe(res => this.imagesList = res);
     this.bindDialog.open(param);
   }
 
@@ -62,12 +69,15 @@ export class AmiCreateDialogComponent {
   }
 
   public assignChanges(data) {
-    this._userResource.createAMI(data).subscribe(res => {
-      if (res.status === HTTP_STATUS_CODES.ACCEPTED) {
-        this.bindDialog.close();
-        this.buildGrid.emit();
-      }
-    });
+    this._userResource.createAMI(data).subscribe(
+      response => {
+        if (response.status === HTTP_STATUS_CODES.ACCEPTED) {
+          this.bindDialog.close();
+          this.buildGrid.emit();
+        }
+      },
+      error => this.toastr.error(error.message
+        || `${ DICTIONARY.image.toLocaleUpperCase() } creation failed!`, 'Oops!', { toastLife: 5000 }));
   }
 
   private initFormModel(): void {
@@ -80,7 +90,7 @@ export class AmiCreateDialogComponent {
 
   private providerMaxLength(control) {
     if (DICTIONARY.cloud_provider !== 'aws')
-      return control.value.length <=10 ? null : { valid: false };
+      return control.value.length <= 10 ? null : { valid: false };
   }
 
   private delimitersFiltering(resource): string {

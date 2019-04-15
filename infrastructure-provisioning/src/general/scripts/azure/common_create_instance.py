@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -53,33 +56,33 @@ if __name__ == "__main__":
     create_option = 'fromImage'
     if args.instance_name != '':
         try:
-            if AzureMeta().get_instance(args.service_base_name, args.instance_name):
+            if AzureMeta().get_instance(args.resource_group_name, args.instance_name):
                 print("REQUESTED INSTANCE {} ALREADY EXISTS".format(args.instance_name))
             else:
                 if args.public_ip_name != 'None':
-                    if AzureMeta().get_static_ip(args.service_base_name, args.public_ip_name):
+                    if AzureMeta().get_static_ip(args.resource_group_name, args.public_ip_name):
                         print("REQUESTED PUBLIC IP ADDRESS {} ALREADY EXISTS.".format(args.public_ip_name))
                         static_public_ip_address = AzureMeta().get_static_ip(
-                            args.service_base_name, args.public_ip_name).ip_address
+                            args.resource_group_name, args.public_ip_name).ip_address
                     else:
                         print("Creating Static IP address {}".format(args.public_ip_name))
                         static_public_ip_address = \
-                            AzureActions().create_static_public_ip(args.service_base_name, args.public_ip_name,
+                            AzureActions().create_static_public_ip(args.resource_group_name, args.public_ip_name,
                                                                    args.region, args.instance_name,
                                                                    json.loads(args.tags))
-                if AzureMeta().get_network_interface(args.service_base_name, args.network_interface_name):
+                if AzureMeta().get_network_interface(args.resource_group_name, args.network_interface_name):
                     print("REQUESTED NETWORK INTERFACE {} ALREADY EXISTS.".format(args.network_interface_name))
-                    network_interface_id = AzureMeta().get_network_interface(args.service_base_name,
+                    network_interface_id = AzureMeta().get_network_interface(args.resource_group_name,
                                                                              args.network_interface_name).id
                 else:
                     print("Creating Network Interface {}".format(args.network_interface_name))
-                    network_interface_id = AzureActions().create_network_if(args.service_base_name, args.vpc_name,
+                    network_interface_id = AzureActions().create_network_if(args.resource_group_name, args.vpc_name,
                                                                             args.subnet_name,
                                                                             args.network_interface_name, args.region,
                                                                             args.security_group_name,
                                                                             json.loads(args.tags),
                                                                             args.public_ip_name)
-                disk = AzureMeta().get_disk(args.service_base_name, '{}-disk0'.format(
+                disk = AzureMeta().get_disk(args.resource_group_name, '{}-disk0'.format(
                     args.instance_name))
                 if disk:
                     create_option = 'attach'
@@ -91,7 +94,9 @@ if __name__ == "__main__":
                                                args.instance_type, args.image_name, json.loads(args.tags), args.user_name,
                                                create_option, disk_id, args.instance_storage_account_type,
                                                args.image_type)
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
     else:
-        sys.exit(1)
+        parser.print_help()
+        sys.exit(2)

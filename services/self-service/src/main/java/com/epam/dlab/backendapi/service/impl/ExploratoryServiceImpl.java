@@ -1,22 +1,26 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
@@ -28,11 +32,12 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import com.epam.dlab.model.library.Library;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -68,7 +73,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Inject
 	private RequestId requestId;
 
-
+	@BudgetLimited
 	@Override
 	public String start(UserInfo userInfo, String exploratoryName) {
 		return action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
@@ -84,6 +89,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		return action(userInfo, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
 	}
 
+	@BudgetLimited
 	@Override
 	public String create(UserInfo userInfo, Exploratory exploratory) {
 		boolean isAdded = false;
@@ -139,8 +145,26 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	public List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
 														  UserInstanceStatus computationalStatus) {
 		return getExploratoriesWithStatus(user, exploratoryStatus).stream()
-						.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
-						.collect(Collectors.toList());
+				.map(e -> e.withResources(computationalResourcesWithStatus(e, computationalStatus)))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config) {
+		final String userName = userInfo.getName();
+		final String token = userInfo.getAccessToken();
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName,
+				exploratoryName);
+		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
+				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
+		final String uuid = provisioningService.post(EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
+				String.class);
+		requestId.put(userName, uuid);
+		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
+				.withUser(userName)
+				.withExploratoryName(exploratoryName)
+				.withConfig(config)
+				.withStatus(UserInstanceStatus.RECONFIGURING.toString()));
 	}
 
 	/**
@@ -159,6 +183,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		}
 		return Optional.empty();
 	}
+
+	@Override
+	public List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName) {
+		return exploratoryDAO.getClusterConfig(user.getName(), exploratoryName);
+	}
+
 
 	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
 																			 UserInstanceStatus computationalStatus) {
@@ -287,6 +317,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withImageName(exploratory.getDockerImage())
 				.withImageVersion(exploratory.getVersion())
 				.withTemplateName(exploratory.getTemplateName())
+				.withClusterConfig(exploratory.getClusterConfig())
 				.withShape(exploratory.getShape());
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {
 			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory

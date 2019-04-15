@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service.impl;
@@ -25,12 +28,12 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.Before;
@@ -43,8 +46,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -212,7 +217,8 @@ public class ExploratoryServiceImplTest {
 		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME, UserInstanceStatus
-				.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+						.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.FAILED);
 		verify(requestBuilder).newExploratoryStop(userInfo, userInstance);
 		verify(provisioningService).post(exploratoryTerminate, TOKEN, eaDto, String.class);
 		verify(requestId).put(USER, UUID);
@@ -330,7 +336,7 @@ public class ExploratoryServiceImplTest {
 	@Test
 	public void updateExploratoryStatusesWithRunningStatus() {
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 
@@ -348,7 +354,7 @@ public class ExploratoryServiceImplTest {
 	public void updateExploratoryStatusesWithStoppingStatus() {
 		userInstance.setStatus("stopping");
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 		doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
@@ -371,7 +377,7 @@ public class ExploratoryServiceImplTest {
 	public void updateExploratoryStatusesWithTerminatingStatus() {
 		userInstance.setStatus("terminating");
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 		when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class)))
@@ -404,7 +410,7 @@ public class ExploratoryServiceImplTest {
 	@Test
 	public void getInstancesWithStatuses() {
 		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), anyBoolean(), anyVararg()))
-				.thenReturn(Collections.singletonList(userInstance));
+				.thenReturn(singletonList(userInstance));
 		exploratoryService.getInstancesWithStatuses(USER, UserInstanceStatus.RUNNING, UserInstanceStatus.RUNNING);
 
 		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, true, UserInstanceStatus.RUNNING);
@@ -436,6 +442,79 @@ public class ExploratoryServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
+	@Test
+	public void testUpdateExploratoryClusterConfig() {
+
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
+		when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
+				anyListOf(ClusterConfig.class))).thenReturn(new ExploratoryReconfigureSparkClusterActionDTO());
+		when(provisioningService.post(anyString(), anyString(), any(ExploratoryReconfigureSparkClusterActionDTO.class)
+				, any())).thenReturn(UUID);
+
+		exploratoryService.updateClusterConfig(getUserInfo(), EXPLORATORY_NAME, singletonList(new ClusterConfig()));
+
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(getUserInstanceDto()),
+				refEq(singletonList(new ClusterConfig())));
+		verify(requestId).put(USER, UUID);
+		verify(provisioningService).post(eq("exploratory/reconfigure_spark"), eq(TOKEN),
+				refEq(new ExploratoryReconfigureSparkClusterActionDTO(), "self"), eq(String.class));
+		verify(exploratoryDAO).updateExploratoryFields(refEq(new ExploratoryStatusDTO()
+				.withUser(USER)
+				.withConfig(singletonList(new ClusterConfig()))
+				.withStatus(UserInstanceStatus.RECONFIGURING.toString())
+				.withExploratoryName(EXPLORATORY_NAME), "self"));
+		verifyNoMoreInteractions(requestBuilder, requestId, exploratoryDAO, provisioningService);
+	}
+
+	@Test
+	public void testUpdateExploratoryClusterConfigWhenNotRunning() {
+
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenThrow(new ResourceNotFoundException("EXCEPTION"));
+
+		try {
+
+			exploratoryService.updateClusterConfig(getUserInfo(), EXPLORATORY_NAME,
+					singletonList(new ClusterConfig()));
+		} catch (ResourceNotFoundException e) {
+			assertEquals("EXCEPTION", e.getMessage());
+		}
+
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+		verifyZeroInteractions(requestBuilder, requestId, provisioningService);
+
+	}
+
+	@Test
+	public void testGetClusterConfig() {
+
+		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenReturn(Collections.singletonList(getClusterConfig()));
+		final List<ClusterConfig> clusterConfig = exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
+
+		assertEquals(1, clusterConfig.size());
+		assertEquals("classification", clusterConfig.get(0).getClassification());
+
+		verify(exploratoryDAO).getClusterConfig(getUserInfo().getName(), EXPLORATORY_NAME);
+		verifyNoMoreInteractions(exploratoryDAO);
+	}
+
+	@Test
+	public void testGetClusterConfigWithException() {
+
+		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenThrow(new RuntimeException("Exception"));
+
+		expectedException.expect(RuntimeException.class);
+		expectedException.expectMessage("Exception");
+		exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
+	}
+
+	private ClusterConfig getClusterConfig() {
+		final ClusterConfig config = new ClusterConfig();
+		config.setClassification("classification");
+		return config;
+	}
+
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
@@ -445,8 +524,9 @@ public class ExploratoryServiceImplTest {
 		compResource.setImageName("YYYY.dataengine");
 		compResource.setComputationalName("compName");
 		compResource.setStatus("stopped");
+		compResource.setComputationalId("compId");
 		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME).withStatus("running")
-				.withResources(Collections.singletonList(compResource));
+				.withResources(singletonList(compResource));
 	}
 
 	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {

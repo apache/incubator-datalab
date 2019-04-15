@@ -18,13 +18,15 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage libraries](#manage_libraries)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Create image](#create_image)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Stop Notebook server](#notebook_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Notebook server](#notebook_terminate)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Deploy Computational resource](#computational_deploy)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Stop Spark cluster](#spark_stop)
+&nbsp; &nbsp; &nbsp; &nbsp; [Stop Apache Spark cluster](#spark_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Computational resource](#computational_terminate)
 
@@ -35,6 +37,14 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool (ungit)](#git_ui)
 
 [DLab Health Status Page](#health_page)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Backup](#backup)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage environment](#manage_environment)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage roles](#manage_roles)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [SSN monitor](#ssn_monitor)
 
 [DLab billing report](#billing_page)
 
@@ -66,6 +76,16 @@ DLab Web Application authenticates users against:
 
 To stop working with DLab - click on Log Out link at the top right corner of DLab.
 
+After login user will see warning in case of exceeding quota or close to this limit.
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/exceeded quota.png" alt="Exceeded quota" width="400">
+</p>
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/close to limit.png" alt="Close to limit" width="400">
+</p>
+
 ----------------------------------
 # Setup a Gateway/Edge node <a name="setup_edge_node"></a>
 
@@ -73,13 +93,13 @@ When you log into DLab Web Application, the first thing you will have to setup i
 
 To do this click on “Upload” button on “Create initial infrastructure”, select your personal public key and hit “Create” button or click on "Generate" button on “Create initial infrastructure” and save your private key.
 
-<p align="center"> 
+<p align="center" class="facebox-popup"> 
     <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="400">
 </p>
 
 Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Create initial infrastructure” dialog. DLab build-in wiki page will guide Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-After you hit Create or Generate button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
+After you hit "Create" or "Generate" button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
 
 <p align="center"> 
     <img src="doc/loading_key.png" alt="Loading user key" width="350">
@@ -95,20 +115,21 @@ As soon as an Edge node is created, Data Scientist will see a blank “List of R
 ----------------------
 ## Create notebook server <a name="notebook_create"></a>
 
-To create new analytical environment from “List of Resources” page click on Create new button.
+To create new analytical environment from “List of Resources” page click on "Create new" button.
 
 “Create analytical tool” popup will show-up. Data Scientist can choose a preferable analytical tool to be setup. Adding new analytical tools is supported by architecture, so you can expect new templates to show up in upcoming releases.
 
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
 -   Jupyter
--   Zeppelin
+-   Apache Zeppelin
 -   RStudio
--   TensorFlow (Jupyter + TensorFlow)
+-   RStudio with TensorFlow
+-   Jupyter with TensorFlow
 -   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
 
 <p align="center"> 
-    <img src="doc/notebook_create.png" alt="Create notebook" width="480">
+    <img src="doc/notebook_create.png" alt="Create notebook" width="574">
 </p>
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
@@ -125,7 +146,9 @@ These groups have T-Shirt based shapes (configurable), that can help Data Scient
 
 \* Please refer to official documentation from Amazon that will help you understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) would be most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
 
-After you Select the template, fill in the Name and choose needed instance shape - you need to click on Create button for your instance to start creating. Corresponding record will show up in your dashboard:
+You can override the default configurations for local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in text box.
+
+After you Select the template, fill in the Name and choose needed instance shape - you need to click on "Create" button for your instance to start creating. Corresponding record will show up in your dashboard:
 
 ![Dashboard](doc/main_page2.png)
 
@@ -136,7 +159,7 @@ As soon as notebook server is created, its status will change to Running:
 When you click on the name of your Analytical tool in the dashboard – analytical tool popup will show up:
 
 <p align="center"> 
-    <img src="doc/notebook_info.png" alt="Notebook info" width="400">
+    <img src="doc/notebook_info.png" alt="Notebook info" width="574">
 </p>
 
 In the header you will see version of analytical tool, its status and shape.
@@ -149,11 +172,17 @@ In the body of the dialog:
 -   Shared bucket for all users
 -   Bucket that has been provisioned for your needs
 
-To access analytical tool Web UI – you need to configure SOCKS proxy. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
+To access analytical tool Web UI you proceed with one of the options:
+
+-   use direct URL's to access notebooks (your access will be established via reverse proxy, so you don't need to have Edge node tunnel up and running)
+-   SOCKS proxy based URL's to access notebooks (via tunnel to Edge node)
+
+If you use direct urls you don't need to open tunnel for Edge node and set SOCKS proxy.
+If you use indirect urls you need to configure SOCKS proxy and open tunnel for Edge node. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines. “Read instruction how to create the tunnel” is available on DLab notebook popup.
 
 ### Manage libraries <a name="manage_libraries"></a>
 
-On every analytical tool instance you can install additional libraries by clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
+On every analytical tool instance you can install additional libraries by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions column for a needed Notebook and hit Manage libraries:
 
 <p align="center"> 
     <img src="doc/notebook_menu_manage_libraries.png" alt="Notebook manage_libraries" width="150">
@@ -161,8 +190,8 @@ On every analytical tool instance you can install additional libraries by clicki
 
 After clicking you will see the window with 3 fields:
 -   Field for selecting an active resource to install libraries on
--   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Others)
--   Field for search available packages with autocomplete function
+-   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
+-   Field for search available packages with autocomplete function except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
 
 ![Install libraries dialog](doc/install_libs_form.png)
 
@@ -186,12 +215,40 @@ After clicking on "Install" button you will see process of installation with app
 
 **Note:** If package can't be installed you will see "Failed" in status column and button to retry installation.
 
+### Create image <a name="create_image"></a>
+
+Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you would like to re-use existing configuration. To create an AMI click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions menu for a needed Notebook and hit "Create AMI":
+
+<p align="center"> 
+    <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_ami" width="150">
+</p>
+
+On Create AMI popup you will be asked to fill in:
+-   text box for an AMI name (mandatory)
+-   text box for an AMI description (optional)
+
+<p align="center"> 
+    <img src="doc/create_ami.png" alt="Create AMI" width="480">
+</p>
+
+After clicking on "Assign" button the Notebook status will change to Creating AMI. Once an image is created the Notebook status changes back to Running.
+
+To create new analytical environment from custom image click "Create new" button on “List of Resources” page. 
+
+“Create analytical tool” popup will show-up. Choose a template of a Notebook for which the custom image is created:
+
+<p align="center"> 
+    <img src="doc/create_notebook_from_ami.png" alt="Create notebook from AMI" width="560">
+</p>
+
+Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
+
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
 Once you have stopped working with an analytical tool and you would like to release cloud resources for the sake of the costs, you might want to Stop the notebook. You will be able to Start the notebook again after a while and proceed with your analytics.
 
-To Stop the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Stop:
+To Stop the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions column for a needed Notebook and hit Stop:
 
 <p align="center"> 
     <img src="doc/notebook_menu_stop.png" alt="Notebook stopping" width="150">
@@ -212,7 +269,7 @@ After you confirm you intent to Stop the notebook - the status will be changed t
 
 Once you have finished working with an analytical tool and you would like to release cloud resources for the sake of the costs, you might want to Terminate the notebook. You will not be able to Start the notebook which has been Terminated. Instead, you will have to create new Notebook server if you will need to proceed your analytical activities.
 
-To Terminate the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Terminate:
+To Terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the Actions column for a needed Notebook and hit Terminate:
 
 **NOTE:** if any Computational resources have been linked to your notebook server – they will be automatically terminated if you stop the notebook.
 
@@ -244,15 +301,22 @@ Also, if you would like to save some costs for your Computational resource you c
 
 This picture shows menu for creating Computational resource for AWS:
 <p align="center"> 
-    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="450">
+    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
+</p>
+
+You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster ). The configuration object is referenced as a JSON file.
+To tune computational resource configuration check off "Cluster configurations" check box and insert JSON format in text box:
+
+<p align="center"> 
+    <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
-    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="450">
+    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
 
-If you click on Create button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
+If you click on "Create" button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
 
 ![Creating Computational resource](doc/emr_creating.png)
 
@@ -261,8 +325,10 @@ Once Computational resources are provisioned, their status will be changed to **
 Clicking on Computational resource name in DLab dashboard will open Computational resource details popup:
 
 <p align="center"> 
-    <img src="doc/emr_info.png" alt="Computational resource info" width="400">
+    <img src="doc/emr_info.png" alt="Computational resource info" width="480">
 </p>
+
+Also you can go to computational resource master UI via link "Apache Spark Master' or "EMR Master" (this functionality is only available for AWS cloud).
 
 Since Computational resource is up and running - you are now able to leverage cluster computational power to run your analytical jobs on.
 
@@ -288,19 +354,19 @@ Insert following “magics” before blocks of your code to start executing your
 ![RStudio](doc/rstudio.png)
 
 ---------------
-## Stop Spark cluster <a name="spark_stop"></a>
+## Stop  Apache Spark cluster <a name="spark_stop"></a>
 
-Once you have stopped working with a spark cluster and you would like to release cloud resources for the sake of the costs, you might want to Stop the spark cluster. You will be able to Start the spark cluster again after a while and proceed with your analytics.
+Once you have stopped working with a spark cluster and you would like to release cloud resources for the sake of the costs, you might want to Stop Apache Spark cluster. You will be able to Start apache Spark cluster again after a while and proceed with your analytics.
 
-To Stop the spark cluster click on ![stop](doc/stop_icon.png) button close to spark cluster alias.
+To Stop Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to spark cluster alias.
 
-Hit YES in confirmation popup.
+Hit "YES" in confirmation popup.
 
 <p align="center"> 
     <img src="doc/spark_stop_confirm.png" alt="Spark stop confirm" width="400">
 </p>
 
-After you confirm your intent to Stop the spark cluster - the status will be changed to Stopping and will become Stopped in a while.
+After you confirm your intent to Apache Spark cluster - the status will be changed to Stopping and will become Stopped in a while.
 
 ------------------
 ## Terminate Computational resource <a name="computational_terminate"></a>
@@ -323,7 +389,7 @@ To work with Git (pull, push) via UI tool (ungit) you could add multiple credent
 When you click on the button "Git credentials" – following popup will show up:
 
 <p align="center"> 
-    <img src="doc/git_creds_window.png" alt="Git_creds_window" width="600">
+    <img src="doc/git_creds_window.png" alt="Git_creds_window" width="760">
 </p>
 
 In this window you need to add:
@@ -338,7 +404,7 @@ Once all fields are filled in and you click on "Assign" button, you will see the
 Clicking on "Apply changes" button, your credentials will be sent to all running instances with analytical tools. It takes a few seconds for changes to be applied.
 
 <p align="center"> 
-    <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="600">
+    <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="760">
 </p>
 
 On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
@@ -348,7 +414,7 @@ On this tab you can also edit your credentials (click on pen icon) or delete (cl
 On every analytical tool instance you can see Git UI tool (ungit):
 
 <p align="center"> 
-    <img src="doc/git_ui_link.png" alt="Git_ui_link" width="400">
+    <img src="doc/notebook_info.png" alt="Git_ui_link" width="520">
 </p>
 
 Before start working with git repositories, you need to change working directory on the top of window to:
@@ -367,7 +433,7 @@ After creating repository you can see all commits and branches:
 
 On the top of window in the red field UI show us changed or new files to commit. You can uncheck or add some files to gitignore.
 
-**Note:** Git always checks you credentials. If this is your first commit after adding/changing credentials and after clicking on "Commit" button nothing happened - just click on Commit button again.
+**Note:** Git always checks you credentials. If this is your first commit after adding/changing credentials and after clicking on "Commit" button nothing happened - just click on "Commit" button again.
 
 On the right pane of window you also can see buttons to fetch last changes of repository, add upstreams and switch between branches.
 
@@ -400,13 +466,13 @@ corner of the DLab:
 
 ![Health_status](doc/health_status.png)
 
-To Stop Edge Node please click on actions icon on Health Status page and hit Stop.
+To Stop Edge Node please click on actions icon on Health Status page and hit "Stop".
 
 <p align="center"> 
     <img src="doc/edge_stop.png" alt="EDGE stop" width="150">
 </p>
 
-Confirm you want to stop Edge node by clicking Yes:
+Confirm you want to stop Edge node by clicking "Yes":
 
 <p align="center"> 
     <img src="doc/edge_stop_confirm.png" alt="EDGE stop confirm" width="400">
@@ -414,28 +480,70 @@ Confirm you want to stop Edge node by clicking Yes:
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
 
+### Backup <a name="backup"></a>
+
 Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
 
 <p align="center"> 
-    <img src="doc/backup_options.png" alt="Backup options" width="515">
+    <img src="doc/backup_options.png" alt="Backup options" width="400">
 </p>
 
-Confirm you want to do backup by clicking Apply.
+Confirm you want to do backup by clicking "Apply".
+
+### Manage environment <a name="manage_environment"></a>
 
 Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
 
 <p align="center"> 
-    <img src="doc/manage_environment.png" alt="Manage environment" width="580">
+    <img src="doc/manage_environment.png" alt="Manage environment" width="520">
 </p>
 
-If Administrator hit Stop button all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
+If Administrator hit "Stop" icon <img src="doc/stop_icon_env.png" alt="stop" width="22"> all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
 
-If Administrator hit Terminate button all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
+If Administrator hit "Terminate" icon <img src="doc/terminate_icon_env.png" alt="terminate" width="22"> all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
 
 Administrator should confirm user environment stopping or termination by clicking Yes:
 
 <p align="center"> 
     <img src="doc/manage_env_confirm.png" alt="Manage environment confirm" width="550">
+</p>
+
+Administrator can manage total billing quota for DLab as well as billing quota per user(s).To do this enter appropriate number in text box(es) per user(s) or/and total budget. Hit "Apply" button.
+
+### Manage roles <a name="manage_roles"></a>
+
+Administrator can choose what instance shape(s) and notebook(s) can be allowed for certain group(s) or user(s).
+To do it click on "Manage roles" button. "Manage roles" popup will show-up:
+
+<p align="center"> 
+    <img src="doc/manage_role.png" alt="Manage roles" width="780">
+</p>
+
+To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
+New group will be added and appears on "Manage roles" popup.
+
+Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon <img src="doc/cross_icon.png" alt="delete" width="16"> for particular user. After that Hit "Yes" in confirmation popup.
+
+<p align="center"> 
+    <img src="doc/delete_group.png" alt="Delete group" width="780">
+</p>
+
+### SSN monitor <a name="ssn_monitor"></a>
+
+Administrator can monitor SSN HDD, Memory and CPU. 
+Clicking on "SSN monitor button" will open "SSN monitor" popup. 
+There are three tabs on  'SSN monitor' popup: CPU, HDD, Memory:
+
+<p align="center"> 
+    <img src="doc/cpu.png" alt="SSN CPU" width="480">
+</p>
+
+<p align="center"> 
+    <img src="doc/memory.png" alt="SSN memory" width="480">
+</p>
+
+<p align="center"> 
+    <img src="doc/hdd.png" alt="SSN HDD" width="480">
 </p>
 
 --------------------------------
@@ -456,7 +564,7 @@ On the center of header you can choose period of report in datepicker:
     <img src="doc/billing_datepicker.png" alt="Billing datepicker" width="400">
 </p>
 
-You can save billing report in csv format hitting Export button.
+You can save billing report in csv format hitting "Export" button.
 
 You can also filter data by each column:
 
@@ -469,7 +577,7 @@ In the footer of billing report, you can see Total cost for all environments.
 --------------------------------
 # DLab Environment Management Page <a name="environment_management"></a>
 
-DLab Environment Management page is an administration page allowing admins to show the list of all users` environments and to stop/terminate all of hem of separate specific resource.
+DLab Environment Management page is an administration page allowing admins to show the list of all users` environments and to stop/terminate all of them of separate specific resource.
 
 To access Environment management page either navigate to it via main menu:
 
@@ -504,11 +612,11 @@ Confirm stopping/decommissioning of the Computational resource by hitting Yes:
 
 --------------------------------
 
-# Web UI filters <a name="filters"></a>
+# Web UI filters <a name="filter"></a>
 
 You can leverage functionality of build-in UI filter to quickly manage the analytical tools and computational resources, which you only want to see in your dashboard.
 
-To do this, simply click on icon ![filter](doc/filter_icon.png) in dashboard header and filter your list by any of:
+To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" width="16"> in dashboard header and filter your list by any of:
 
 -   environment name (input field);
 -   status (multiple choice);
@@ -517,8 +625,7 @@ To do this, simply click on icon ![filter](doc/filter_icon.png) in dashboard hea
 
 ![Main page filter](doc/main_page_filter.png)
 
-Once your list of filtered by any of the columns, icon ![filter](doc/filter_icon.png) changes to
-![filter](doc/sort_icon.png) for a filtered columns only.
+Once your list of filtered by any of the columns, icon <img src="doc/filter_icon.png" alt="filter" width="16"> changes to <img src="doc/sort_icon.png" alt="filter" width="16"> for a filtered columns only.
 
 There is also an option for quick and easy way to filter out all inactive instances (Failed and Terminated) by clicking on “Show active” button in the ribbon. To switch back to the list of all resources, click on “Show all”.
 
@@ -528,7 +635,7 @@ Scheduler component allows to automatically schedule start/stop of notebook/clus
 - notebook scheduler;
 - data engine scheduler (currently spark cluster only);
 
-To create scheduler for a notebook click on a ![gear](doc/gear_icon.png) icon in the Actions column for a needed Notebook and hit Scheduler:
+To create scheduler for a notebook click on a <img src="doc/gear_icon.png" alt="gear" width="20"> icon in the Actions column for a needed Notebook and hit Scheduler:
 
 <p align="center"> 
     <img src="doc/notebook_menu_scheduler.png" alt="Notebook scheduler action" width="150">
@@ -560,12 +667,18 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 Once any scheduler is set up, notebook/spark cluster will be started/stopped automatically.
 Please also note that if notebook is configured to be stopped, all running data engines assosiated with it will be stopped (for spark cluster) or terminated (for data engine serice) with notebook.
 
+After login user will be notified  that corresponding resources are about to be stopped/terminated in some time.
+
+<p align="center"> 
+    <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="400">
+</p>
+
 # Key reupload <a name="key_reupload"></a>
 In case when user private key was corrupted, lost etc. DLAB provide a possibility to reupload user public key.
 It can be done on manage environment page using ACTIONS menu on edge instance:
 
 <p align="center"> 
-    <img src="doc/reupload_key_action.png" alt="Reupload key action" width="400">
+    <img src="doc/reupload_key_action.png" alt="Reupload key action" width="200">
 </p>
 
 After that similar to create initial environment dialog appeared where you can upload new key or generate new key-pair:

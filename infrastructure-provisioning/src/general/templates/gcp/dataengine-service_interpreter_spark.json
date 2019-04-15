@@ -2,23 +2,125 @@
   "name": "CLUSTERNAME_pyPYTHONVER_SHORT",
   "group": "spark",
   "properties": {
-    "args": "",
-    "zeppelin.spark.useHiveContext": "true",
-    "spark.app.name": "Zeppelin",
-    "zeppelin.spark.printREPLOutput": "true",
-    "zeppelin.spark.maxResult": "1000",
-    "master": "yarn",
-    "zeppelin.spark.concurrentSQL": "false",
-    "zeppelin.spark.sql.stacktrace": "false",
-    "zeppelin.spark.importImplicit": "true",
-    "zeppelin.pyspark.python": "pythonPYTHONVERSION",
-    "zeppelin.dep.localrepo": "local-repo",
-    "zeppelin.dep.additionalRemoteRepository": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
-    "spark.home": "SPARK_HOME",
-    "zeppelin.R.image.width": "100%",
-    "zeppelin.R.render.options": "out.format \u003d \u0027html\u0027, comment \u003d NA, echo \u003d FALSE, results \u003d \u0027asis\u0027, message \u003d F, warning \u003d F",
-    "zeppelin.R.cmd": "R",
-    "zeppelin.R.knitr": "true"
+    "zeppelin.spark.useHiveContext": {
+        "envName": "ZEPPELIN_SPARK_USEHIVECONTEXT",
+        "propertyName": "zeppelin.spark.useHiveContext",
+        "value": "true",
+        "description": "Use HiveContext instead of SQLContext if it is true.",
+        "type": "checkbox"
+      },
+    "spark.app.name": {
+        "envName": "SPARK_APP_NAME",
+        "propertyName": "spark.app.name",
+        "value": "Zeppelin",
+        "description": "The name of spark application.",
+        "type": "string"
+      },
+    "zeppelin.spark.printREPLOutput": {
+        "envName": null,
+        "propertyName": "zeppelin.spark.printREPLOutput",
+        "value": "true",
+        "description": "Print REPL output",
+        "type": "checkbox"
+      },
+    "zeppelin.spark.maxResult": {
+        "envName": "ZEPPELIN_SPARK_MAXRESULT",
+        "propertyName": "zeppelin.spark.maxResult",
+        "value": "1000",
+        "description": "Max number of Spark SQL result to display.",
+        "type": "number"
+      },
+    "master":{
+        "envName": "Master",
+        "propertyName": "spark.master",
+        "value": "yarn",
+        "description": "Spark master uri. ex) spark://masterhost:7077",
+        "type": "string"
+      },
+    "spark.submit.deployMode":{
+        "envName": "spark submit deploy mode",
+        "propertyName": "spark.submit.deployMode",
+        "value": "client",
+        "description": "",
+        "type": "string"
+      },
+    "zeppelin.spark.concurrentSQL": {
+        "envName": "ZEPPELIN_SPARK_CONCURRENTSQL",
+        "propertyName": "zeppelin.spark.concurrentSQL",
+        "value": "false",
+        "description": "",
+        "type": "checkbox"
+      },
+    "zeppelin.spark.sql.stacktrace": {
+        "envName": "ZEPPELIN_SPARK_SQL_STACKTRACE",
+        "propertyName": "zeppelin.spark.sql.stacktrace",
+        "value": "false",
+        "description": "",
+        "type": "checkbox"
+      },
+    "zeppelin.spark.importImplicit":{
+        "envName": "ZEPPELIN_SPARK_IMPORTIMPLICIT",
+        "propertyName": "zeppelin.spark.importImplicit",
+        "value": "true",
+        "description": "",
+        "type": "checkbox"
+      },
+    "zeppelin.pyspark.python": {
+        "envName": "ZEPPELIN_PYSPARK_PYTHON",
+        "propertyName": "zeppelin.pyspark.python",
+        "value": "pythonPYTHONVERSION",
+        "description": "",
+        "type": "string"
+      },
+    "zeppelin.dep.localrepo": {
+        "envName": "ZEPPELIN_DEP_LOCALREPO",
+        "propertyName": "zeppelin.dep.localrepo",
+        "value": "local-repo",
+        "description": "",
+        "type": "string"
+      },
+    "zeppelin.dep.additionalRemoteRepository": {
+        "envName": "ZEPPELIN_DEP_ADDITIONALREMOTEREPOSITORY",
+        "propertyName": "zeppelin.dep.additionalRemoteRepository",
+        "value": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
+        "description": "",
+        "type": "string"
+      },
+    "spark.home": {
+        "envName": "Spark Home",
+        "propertyName": "spark.home",
+        "value": "SPARK_HOME",
+        "description": "",
+        "type": "string"
+      },
+	"zeppelin.R.image.width": {
+        "envName": "ZEPPELIN_R_IMAGE_WIDTH",
+        "propertyName": "zeppelin.R.image.width",
+        "value": "100%",
+        "description": "",
+        "type": "string"
+      },
+    "zeppelin.R.render.options": {
+        "envName": "ZEPPELIN_R_RENDER_OPTIONS",
+        "propertyName": "zeppelin.R.render.options",
+        "value": "out.format \u003d \u0027html\u0027, comment \u003d NA, echo \u003d FALSE, results \u003d \u0027asis\u0027, message \u003d F, warning \u003d F",
+        "description": "",
+        "type": "string"
+      },
+	"zeppelin.R.cmd": {
+        "envName": "ZEPPELIN_R_CMD",
+        "propertyName": "zeppelin.R.cmd",
+        "value": "R",
+        "description": "",
+        "type": "string"
+      },
+	"zeppelin.R.knitr": {
+        "envName": "ZEPPELIN_R_KNITR",
+        "propertyName": "zeppelin.R.knitr",
+        "value": "true",
+        "description": "",
+        "type": "checkbox"
+      }
   },
   "dependencies": [],
   "option": {

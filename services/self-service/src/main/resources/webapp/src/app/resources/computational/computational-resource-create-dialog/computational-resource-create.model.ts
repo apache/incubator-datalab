@@ -1,24 +1,24 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /* tslint:disable:no-empty */
 
 import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
 
 import { UserResourceService } from '../../../core/services';
 import { ComputationalResourceImage,
@@ -39,6 +39,7 @@ export class ComputationalResourceCreateModel {
   emr_slave_instance_spot: boolean;
   emr_slave_instance_price: number;
   preemptible_inst: number;
+  config: any;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
     new ResourceShapeTypesModel({}), '', '', '');
@@ -46,6 +47,7 @@ export class ComputationalResourceCreateModel {
   resourceImages: Array<ComputationalResourceImage> = [];
   templates: Array<ComputationalResourceApplicationTemplate> = [];
 
+  availableTemplates: boolean = false;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
@@ -84,7 +86,8 @@ export class ComputationalResourceCreateModel {
     shape_slave: string,
     spot: boolean,
     price: number,
-    preemptible_inst?: number
+    preemptible_inst?: number,
+    config?: any
   ): void {
     this.computational_resource_alias = name;
     this.computational_resource_count = count;
@@ -93,6 +96,7 @@ export class ComputationalResourceCreateModel {
     this.emr_slave_instance_spot = spot;
     this.emr_slave_instance_price = price;
     this.preemptible_inst = preemptible_inst || 0;
+    this.config = config || null;
   }
 
   public loadTemplates(): void {
@@ -101,6 +105,8 @@ export class ComputationalResourceCreateModel {
         .subscribe(
         data => {
           let computationalResourceImage;
+
+          this.availableTemplates = !!data.length;
 
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
             computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
@@ -112,8 +118,8 @@ export class ComputationalResourceCreateModel {
           if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider !== 'azure') {
             this.setSelectedClusterType(0);
           } else if (DICTIONARY.cloud_provider === 'azure') {
-            this.selectedItem = computationalResourceImage;
-            this.selectedImage = computationalResourceImage;
+            this.selectedItem = computationalResourceImage || {};
+            this.selectedImage = computationalResourceImage || {};
           }
 
           if (this.continueWith)
@@ -148,12 +154,12 @@ export class ComputationalResourceCreateModel {
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
     this.confirmAction = () => this.createComputationalResource()
       .subscribe(
-      (response: Response) => fnProcessResults(response),
-      (response: Response) => fnProcessErrors(response)
+      response => fnProcessResults(response),
+      error => fnProcessErrors(error)
       );
   }
 
-  private createComputationalResource(): Observable<Response> {
+  private createComputationalResource(): Observable<{}> {
     if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: this.computational_resource_alias,
@@ -165,7 +171,8 @@ export class ComputationalResourceCreateModel {
         image: this.selectedItem.image,
         template_name: this.selectedItem.template_name,
         emr_slave_instance_spot: this.emr_slave_instance_spot,
-        emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
+        emr_slave_instance_spot_pct_price: this.emr_slave_instance_price,
+        config: this.config
       });
     } else if (DICTIONARY.cloud_provider === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
@@ -179,6 +186,7 @@ export class ComputationalResourceCreateModel {
         dataproc_master_count: 1,
         dataproc_slave_count: (this.computational_resource_count - 1),
         dataproc_preemptible_count: this.preemptible_inst,
+        config: this.config
       });
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
@@ -188,6 +196,7 @@ export class ComputationalResourceCreateModel {
         notebook_name: this.notebook_name,
         image: this.selectedImage.image,
         template_name: this.selectedImage.template_name,
+        config: this.config
       });
     }
   };

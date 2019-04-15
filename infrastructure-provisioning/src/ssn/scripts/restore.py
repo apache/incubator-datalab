@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -29,7 +32,7 @@ parser = argparse.ArgumentParser(description="Restore script for DLab configs, k
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
 parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Also available: skip. Default: all')
 parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
-parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all')
+parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Also available: skip. Default: all')
 parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service", etc. Default: skip')
 parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
 parser.add_argument('--file', type=str, default='', required=True, help='Full or relative path to backup file or folder. Required field')

@@ -1,31 +1,38 @@
-/***************************************************************************
-
- Copyright (c) 2016, EPAM SYSTEMS INC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-
- ****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.dto.status;
 
 import com.epam.dlab.model.ResourceType;
+import com.epam.dlab.util.mongo.IsoLocalDateTimeDeSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 /**
  * Describe the resource (host, cluster, storage) for check status in Cloud.
  */
+@NoArgsConstructor
 public class EnvResource {
 	@JsonProperty
 	private String id;
@@ -35,6 +42,15 @@ public class EnvResource {
 	private String name;
 	@JsonProperty
 	private ResourceType resourceType;
+	@JsonDeserialize(using = IsoLocalDateTimeDeSerializer.class)
+	@JsonProperty
+	private LocalDateTime lastActivity;
+
+	public EnvResource(String id, String name, ResourceType resourceType) {
+		this.id = id;
+		this.name = name;
+		this.resourceType = resourceType;
+	}
 
 	/**
 	 * Return the id of resource. instanceId for host, clusterId for cluster, path for storage.
@@ -106,12 +122,26 @@ public class EnvResource {
 		this.resourceType = resourceType;
 	}
 
+	public LocalDateTime getLastActivity() {
+		return lastActivity;
+	}
+
+	public void setLastActivity(LocalDateTime lastActivity) {
+		this.lastActivity = lastActivity;
+	}
+
+	public EnvResource withLastActivity(LocalDateTime lastActivity) {
+		setLastActivity(lastActivity);
+		return this;
+	}
+
 	public ToStringHelper toStringHelper(Object self) {
 		return MoreObjects.toStringHelper(self)
 				.add("id", id)
 				.add("status", status)
 				.add("name", name)
-				.add("resourceType", resourceType);
+				.add("resourceType", resourceType)
+				.add("lastActivity", lastActivity);
 	}
 
 	@Override

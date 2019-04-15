@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -74,6 +77,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -92,6 +96,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure proxy.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -108,6 +113,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -119,19 +125,19 @@ if __name__ == "__main__":
                  "--os_user {} --jupyter_version {} " \
                  "--scala_version {} --spark_version {} " \
                  "--hadoop_version {} --region {} " \
-                 "--tensorflow_version {} --r_mirror {} " \
-                 "--exploratory_name {}" \
+                 "--r_mirror {} --exploratory_name {}" \
                  .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
-                         os.environ['gcp_region'], os.environ['notebook_tensorflow_version'],
-                         os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
+                         os.environ['gcp_region'], os.environ['notebook_r_mirror'],
+                         notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure Deep Learning node.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -149,6 +155,7 @@ if __name__ == "__main__":
             append_result("Failed installing users key")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -165,6 +172,7 @@ if __name__ == "__main__":
             append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to setup git credentials.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
@@ -184,7 +192,7 @@ if __name__ == "__main__":
     print("User key name: {}".format(os.environ['edge_user_name']))
     print("TensorBoard URL: {}".format(tensorboard_url))
     print("TensorBoard log dir: /var/log/tensorboard")
-    print("Jupyter URL: {}".format(jupyter_ip_url))
+    print("Jupyter URL: {}".format(jupyter_url))
     print("Ungit URL: {}".format(ungit_ip_url))
     print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'],
                                                                                        notebook_config['dlab_ssh_user'],
@@ -202,7 +210,7 @@ if __name__ == "__main__":
                    {"description": "TensorBoard",
                     "url": tensorboard_url},
                    {"description": "Jupyter",
-                    "url": jupyter_ip_url},
+                    "url": jupyter_url},
                    {"description": "Ungit",
                     "url": ungit_ip_url}]}
         result.write(json.dumps(res))

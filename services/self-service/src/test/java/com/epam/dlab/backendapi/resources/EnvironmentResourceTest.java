@@ -1,21 +1,25 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import io.dropwizard.auth.AuthenticationException;
@@ -31,7 +35,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -52,28 +56,31 @@ public class EnvironmentResourceTest extends TestBase {
 
 	@Test
 	public void getUsersWithActiveEnv() {
-		when(environmentService.getActiveUsers()).thenReturn(Collections.singleton("activeUser"));
+		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
+				null, UserDTO.Status.ACTIVE)));
 		final Response response = resources.getJerseyTest()
-				.target("/environment/user/active")
+				.target("/environment/user")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(Collections.singleton("activeUser"), response.readEntity(new GenericType<Set<String>>() {
-		}));
+		assertEquals(Collections.singletonList(new UserDTO("activeUser", null, UserDTO.Status.ACTIVE)),
+				response.readEntity(new GenericType<List<UserDTO>>() {
+				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).getActiveUsers();
+		verify(environmentService).getUsers();
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void getUsersWithActiveEnvWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(environmentService.getActiveUsers()).thenReturn(Collections.singleton("activeUser"));
+		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
+				null, UserDTO.Status.ACTIVE)));
 		final Response response = resources.getJerseyTest()
-				.target("/environment/user/active")
+				.target("/environment/user")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();

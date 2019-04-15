@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.resources;
@@ -20,6 +23,7 @@ import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
+import com.epam.dlab.model.scheduler.SchedulerJobData;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;
@@ -28,12 +32,15 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -80,7 +87,7 @@ public class SchedulerJobResourceTest extends TestBase {
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/explName")
 				.request()
-				.header("Authorization", "Bearer " + TOKEN)
+				.header("Authorization", String.join(" ", "Bearer", TOKEN))
 				.post(Entity.json(getSchedulerJobDTO()));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -215,7 +222,7 @@ public class SchedulerJobResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
-		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(schedulerJobService).fetchSchedulerJobForUserAndExploratory(USER.toLowerCase(), "explName");
 		verifyNoMoreInteractions(schedulerJobService);
@@ -272,11 +279,37 @@ public class SchedulerJobResourceTest extends TestBase {
 				.get();
 
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
-		assertEquals(MediaType.TEXT_PLAIN, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(schedulerJobService).fetchSchedulerJobForComputationalResource(USER.toLowerCase(),
 				"explName", "compName");
 		verifyNoMoreInteractions(schedulerJobService);
+	}
+
+	@Test
+	public void testGetActiveSchedulers() {
+		when(schedulerJobService.getActiveSchedulers(anyString(), anyLong()))
+				.thenReturn(Collections.singletonList(new SchedulerJobData(USER, "exploratoryName", null,
+						getSchedulerJobDTO())));
+		final long minuteOffset = 10L;
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/scheduler/active")
+				.queryParam("minuteOffset", minuteOffset)
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+		final List<SchedulerJobData> activeSchedulers = response.readEntity(new GenericType<List<SchedulerJobData>>() {
+		});
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(1, activeSchedulers.size());
+		assertEquals(Collections.singletonList(new SchedulerJobData(USER, "exploratoryName", null,
+				getSchedulerJobDTO())), activeSchedulers);
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(schedulerJobService).getActiveSchedulers(USER.toLowerCase(), minuteOffset);
+		verifyNoMoreInteractions(schedulerJobService);
+
 	}
 
 	private SchedulerJobDTO getSchedulerJobDTO() {

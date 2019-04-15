@@ -1,32 +1,32 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { Response } from '@angular/http';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { HTTP_STATUS_CODES } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-  moduleId: module.id,
   selector: 'confirmation-dialog',
   templateUrl: 'confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.scss'],
@@ -37,12 +37,9 @@ export class ConfirmationDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   model: ConfirmationDialogModel;
   isAliveResources: boolean;
-  processError: boolean = false;
-  errorMessage: string = '';
-
+  onlyKilled: boolean = false;
   dataengines: Array<any> = [];
   dataengineServices: Array<any> = [];
-
   confirmationType: number = 0;
 
   @ViewChild('bindDialog') bindDialog;
@@ -53,9 +50,12 @@ export class ConfirmationDialogComponent implements OnInit {
   constructor(
     private userResourceService: UserResourceService,
     private healthStatusService: HealthStatusService,
-    private manageEnvironmentsService: ManageEnvironmentsService
+    private manageEnvironmentsService: ManageEnvironmentsService,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
   ) {
     this.model = ConfirmationDialogModel.getDefault();
+    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -65,16 +65,14 @@ export class ConfirmationDialogComponent implements OnInit {
   public open(param, notebook: any, type: ConfirmationDialogType) {
     this.confirmationType = type;
 
-    this.model = new ConfirmationDialogModel(type, notebook, (response: Response) => {
-      if (response.status === HTTP_STATUS_CODES.OK) {
-        this.close();
-        this.buildGrid.emit();
-      }
-    },
-      (response: Response) => {
-        this.processError = true;
-        this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+    this.model = new ConfirmationDialogModel(type, notebook,
+      response => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.close();
+          this.buildGrid.emit();
+        }
       },
+      error => this.toastr.error(error.message || 'Action failed!', 'Oops!', { toastLife: 5000 }),
       this.manageAction,
       this.userResourceService,
       this.healthStatusService,
@@ -83,6 +81,7 @@ export class ConfirmationDialogComponent implements OnInit {
     this.bindDialog.open(param);
     if (!this.confirmationType) this.filterResourcesByType(notebook.resources);
     this.isAliveResources = this.model.isAliveResources(notebook.resources);
+    this.onlyKilled = !notebook.resources.some(el => el.status !== 'terminated')
   }
 
   public close() {
@@ -96,9 +95,7 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   private resetDialog(): void {
-    this.processError = false;
     this.dataengines = [];
     this.dataengineServices = [];
-    this.errorMessage = '';
   }
 }
