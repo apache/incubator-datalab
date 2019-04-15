@@ -528,8 +528,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         if os.environ['local_repository_enabled'] == 'True':
             sudo('pip2 install jupyter-console=={} --no-cache-dir'.format(
                 os.environ['notebook_jupyter_console_version']))
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests '
-             'scikit-image scipy setuptools tornado --no-cache-dir')
+        sudo('pip2 install networkx==2.2 flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 '
+             'pyyaml requests scikit-image==0.14.2 scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests '
              'scikit-image scipy setuptools tornado --no-cache-dir')
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')

@@ -53,8 +53,8 @@ repository.createRawProxy('jenkins','http://pkg.jenkins.io/debian-stable', 'pack
 repository.createRawProxy('mongo','http://repo.mongodb.org/apt/ubuntu', 'packages_store')
 repository.createRawHosted('packages', 'packages_store')
 repository.createNpmProxy('npm', 'https://registry.npmjs.org', 'packages_store')
-repository.createRawProxy('amazon-main','http://packages.us-west-2.amazonaws.com/2017.09/main/154a6dd467e2/', 'packages_store')
-repository.createRawProxy('amazon-updates','http://packages.us-west-2.amazonaws.com/2017.09/updates/154a6dd467e2/', 'packages_store')
+repository.createRawProxy('amazon-main','AMAZON_MAIN_URL', 'packages_store')
+repository.createRawProxy('amazon-updates','AMAZON_UPDATES_URL', 'packages_store')
 
 // create a role for service user
 def role = new org.sonatype.nexus.security.role.Role(

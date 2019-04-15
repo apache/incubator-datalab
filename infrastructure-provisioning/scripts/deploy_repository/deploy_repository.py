@@ -849,7 +849,9 @@ def install_nexus():
                 mounting_disks()
             else:
                 mount_efs()
-            sudo('apt-get install -y maven nmap')
+            sudo('apt-get install -y maven nmap python-pip')
+            sudo('pip2 install -UI pip')
+            sudo('pip2 install -U fabric==1.14.0')
             sudo('mkdir -p /opt/nexus')
             sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
                   /opt/nexus-{1}-unix.tar.gz'.format(
@@ -886,6 +888,17 @@ def install_nexus():
             sudo('sed -i "s/SERVICE_USER_NAME/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_service_user_name))
             sudo('sed -i "s/SERVICE_USER_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(
                 args.nexus_service_user_password))
+            sudo('wget http://repo.{}.amazonaws.com/2017.09/main/mirror.list -O /tmp/main_mirror.list'.format(
+                args.region))
+            sudo('wget http://repo.{}.amazonaws.com/2017.09/updates/mirror.list -O /tmp/updates_mirror.list'.format(
+                args.region))
+            amazon_main_repo = sudo("cat /tmp/main_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region))
+            amazon_updates_repo = sudo("cat /tmp/updates_mirror.list  | grep {} | sed 's/$basearch//g'".format(
+                args.region))
+            sudo('sed -i "s|AMAZON_MAIN_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_main_repo))
+            sudo('sed -i "s|AMAZON_UPDATES_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_updates_repo))
+            sudo('rm -f /tmp/main_mirror.list')
+            sudo('rm -f /tmp/updates_mirror.list')
             put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
             script_executed = False
             while not script_executed:
@@ -1000,6 +1013,13 @@ def install_nexus():
             sudo('echo "admin:{}" > /opt/nexus/credentials'.format(args.nexus_admin_password))
             sudo('echo "{0}:{1}" >> /opt/nexus/credentials'.format(args.nexus_service_user_name,
                                                                    args.nexus_service_user_password))
+            put('templates/updateRepositories.groovy', '/opt/nexus/updateRepositories.groovy', use_sudo=True)
+            put('scripts/update_amazon_repositories.py', '/opt/nexus/update_amazon_repositories.py', use_sudo=True)
+            sudo('sed -i "s|NEXUS_PASSWORD|{}|g" /opt/nexus/update_amazon_repositories.py'.format(
+                 args.nexus_admin_password))
+            sudo('touch /var/log/amazon_repo_update.log')
+            sudo('echo "0 0 * * * root /usr/bin/python /opt/nexus/update_amazon_repositories.py --region {} >> '
+                 '/var/log/amazon_repo_update.log" >> /etc/crontab'.format(args.region))
             sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
@@ -1162,7 +1182,7 @@ def download_packages():
                 'http://central.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar'.format('1.0.19'),
                 'http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar'.format('1.0.24'),
                 '--no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar'.format('2.3'),
-                'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz',
+                'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-`/toree-0.2.0.tar.gz',
                 'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(
                     configuration['notebook_rstudio_version']),
                 'http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run'.format(
