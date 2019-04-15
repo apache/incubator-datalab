@@ -247,8 +247,10 @@ def create_subnet(vpc_id, subnet, tag, zone):
     try:
         ec2 = boto3.resource('ec2')
         if zone == "":
+            print('with zone@@@')
             subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet, AvailabilityZone=zone)
         else:
+            print('without zone@@@')
             subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet)
         create_tag(subnet.id, tag)
         subnet.reload()
