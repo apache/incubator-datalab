@@ -112,10 +112,10 @@ if __name__ == "__main__":
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
         params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {} " \
-                 "--user_subnets_range '{}' --zone".format(edge_conf['vpc2_id'], edge_conf['tag_name'],
+                 "--user_subnets_range '{}' --zone {}".format(edge_conf['vpc2_id'], edge_conf['tag_name'],
                                                     edge_conf['service_base_name'], os.environ['edge_user_name'],
                                                     edge_conf['private_subnet_prefix'],
-                                                    os.environ['conf_user_subnets_range'])
+                                                    os.environ['conf_user_subnets_range'], edge_conf['zone'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
