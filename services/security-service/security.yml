@@ -33,95 +33,29 @@ useLdapBindTemplate: true
 ldapBindTemplate: uid=%s,LDAP_OU,LDAP_DN
 ldapBindAttribute: uid
 ldapSearchAttribute: uid
-ldapSearch:
-  - name: userLookUp
-    cache: true
-    expirationTimeMsec: 600000
-    scope: SUBTREE
-    attributes:
-      - cn
-      - mail
-      - uid
-      - gidNumber
-    timeLimit: 0
-    base: LDAP_DN
-    filter: "(&(objectClass=inetOrgPerson)(uid=%uid%))"
-  - name: userInfo
-    cache: true
-    expirationTimeMsec: 600000
-    scope: SUBTREE
-    attributes:
-      - cn
-      - gidNumber
-    timeLimit: 0
-    base: LDAP_DN
-    filter: "(&(objectClass=inetOrgPerson)(uid=%uid%))"
-    searchResultProcessor:
-      language: python
-#      path: c:\tmp\enrich.py
-      code: |
-        def enrichUserInfo(ui,context):
-          name = ui.getName()
-          key = context['key'].lower()
-          userInfo=context['userInfo']
-          if not key in userInfo:
-            raise Exception('Python LDAP UserInfo not found for '+key)
-          uid= userInfo[key]
-          cn = context['userInfo'][key]['cn'].split(' ')
-          ui.setFirstName(cn[0])
-          ui.setLastName(cn[1])
-          return ui
-  - name: groupInfo
-    cache: true
-    expirationTimeMsec: 600000
-    scope: SUBTREE
-    attributes:
-      - cn
-      - mail
-      - gidNumber
-      - memberUid
-    timeLimit: 0
-    base: LDAP_DN
-    filter: "(&(objectClass=posixGroup))"
-    searchResultProcessor:
-      language: javascript
-#      path: c:\tmp\enrich.js
-      code: |
-        var enrichUserInfo = function(ui,context) {
-          name = ui.getName();
-          key = context['key'].toLowerCase();
-          userInfo=context['userInfo'];
-          if( userInfo[key] == undefined ) {
-            throw 'JavaScript LDAP UserInfo not found for '+key;
-          }
-          uid= userInfo[key];
-          userGid = uid['gidnumber'];
-          groupInfo=context['groupInfo'];
-          for( dn in groupInfo ) {
-            group = groupInfo[dn];
-            if( userGid == group['gidnumber']) {
-              ui.addRole(group['cn']);
-            } else {
-                grMembers = group['memberuid'];
-                if (grMembers != undefined) {
-                  index = grMembers.split(",");
-                  members = new Array();
-                  for(i in index) {
-                    members[i] = grMembers.split(",")[i];
-                  }
-                  for (member in members) {
-                    if (members[member] != undefined) {
-                      if (members[member].toLowerCase() == name.toLowerCase()) {
-                        ui.addRole(group['cn']);
-                      }
-                    }
-                  }
-                }
-              }
-          }
-          return ui;
-        }
-
+ldapGroupAttribute: memberUid
+ldapGroupNameAttribute: cn
+ldapGroupUserAttribute: uid
+ldapSearchRequest:
+  expirationTimeMsec: 600000
+  scope: SUBTREE
+  attributes:
+  - cn
+  - mail
+  - uid
+  - gidNumber
+  timeLimit: 0
+  base: LDAP_DN
+  filter: "(&(objectClass=inetOrgPerson)(uid=$LDAP_SEARCH_ATTRIBUTE))"
+ldapGroupSearchRequest:
+  expirationTimeMsec: 600000
+  scope: SUBTREE
+  attributes:
+  - cn
+  - memberUid
+  timeLimit: 0
+  base: LDAP_DN
+  filter: "(&(objectClass=posixGroup))"
 server:
   requestLog:
     appenders:

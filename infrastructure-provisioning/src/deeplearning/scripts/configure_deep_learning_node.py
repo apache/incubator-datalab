@@ -121,8 +121,6 @@ if __name__ == "__main__":
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
     install_keras(args.os_user, keras_version)
-    print("Installing Caffe")
-    install_caffe(args.os_user, args.region, caffe_version)
     print("Installing Caffe2")
     install_caffe2(args.os_user, caffe2_version, cmake_version)
     print("Installing Torch")

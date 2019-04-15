@@ -30,7 +30,7 @@ public abstract class DlabLdapConnection implements Closeable {
 
 	abstract LdapConnection getConnection() throws Exception;
 
-	public LdapConnection connect() throws Exception {
+	public LdapConnection getBoundConnection() throws Exception {
 		final LdapConnection connection = getConnection();
 		if (!connection.connect()) {
 			log.error("Cannot establish a connection to LDAP server");

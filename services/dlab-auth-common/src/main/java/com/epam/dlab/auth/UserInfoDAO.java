@@ -19,12 +19,14 @@
 
 package com.epam.dlab.auth;
 
+import java.util.Optional;
+
 public interface UserInfoDAO {
-    UserInfo getUserInfoByAccessToken(String accessToken);
+	Optional<UserInfo> getUserInfoByAccessToken(String accessToken);
 
-    void updateUserInfoTTL(String accessToken, UserInfo ui);
+	void updateUserInfoTTL(String accessToken, UserInfo ui);
 
-    void deleteUserInfo(String accessToken);
+	void deleteUserInfo(String accessToken);
 
-    void saveUserInfo(UserInfo ui);
+	void saveUserInfo(UserInfo ui);
 }

@@ -885,15 +885,14 @@ public class SchedulerJobServiceImplTest {
 				, terminateDateTime, false, USER, LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 		);
 		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
-				any(DataEngineType.class), anyVararg())).thenReturn(singletonList(schedulerJobData));
+				anyVararg())).thenReturn(singletonList(schedulerJobData));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.terminateComputationalByScheduler();
 
 		verify(systemUserService).create(USER);
 		verify(schedulerJobDAO)
-				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, STOPPED,
-						RUNNING);
+				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
 		verify(computationalService).terminateComputational(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
 				eq(COMPUTATIONAL_NAME));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, computationalService);
@@ -906,8 +905,7 @@ public class SchedulerJobServiceImplTest {
 
 		schedulerJobService.terminateComputationalByScheduler();
 
-		verify(schedulerJobDAO).getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE,
-				STOPPED, RUNNING);
+		verify(schedulerJobDAO).getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
 		verifyNoMoreInteractions(schedulerJobDAO);
 		verifyZeroInteractions(systemUserService, computationalService);
 	}
@@ -926,8 +924,7 @@ public class SchedulerJobServiceImplTest {
 
 		schedulerJobService.terminateComputationalByScheduler();
 
-		verify(schedulerJobDAO).getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE,
-				STOPPED, RUNNING);
+		verify(schedulerJobDAO).getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, computationalService);
 	}
 
@@ -947,8 +944,7 @@ public class SchedulerJobServiceImplTest {
 
 		schedulerJobService.terminateComputationalByScheduler();
 
-		verify(schedulerJobDAO).getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE,
-				STOPPED, RUNNING);
+		verify(schedulerJobDAO).getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, computationalService);
 	}
 
@@ -969,8 +965,7 @@ public class SchedulerJobServiceImplTest {
 		schedulerJobService.terminateComputationalByScheduler();
 
 		verify(schedulerJobDAO)
-				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, STOPPED,
-						RUNNING);
+				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, computationalService);
 	}
 

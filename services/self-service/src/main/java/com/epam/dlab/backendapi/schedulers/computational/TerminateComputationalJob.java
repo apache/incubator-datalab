@@ -17,41 +17,25 @@
  * under the License.
  */
 
-package com.epam.dlab.auth.dao.script;
+package com.epam.dlab.backendapi.schedulers.computational;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
+import com.epam.dlab.backendapi.service.SchedulerJobService;
+import com.google.inject.Inject;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
 
-public class DeepMap {
-	
-	private final Map<String, Object> root;
-	
-	public DeepMap(Map<String, Object> parent) {
-		super();
-		this.root = parent;
-	}
+@Scheduled("terminateComputationalScheduler")
+public class TerminateComputationalJob implements Job {
+	private final SchedulerJobService schedulerJobService;
 
-	public DeepMap() {
-		super();
-		this.root = new HashMap<>();
+	@Inject
+	public TerminateComputationalJob(SchedulerJobService schedulerJobService) {
+		this.schedulerJobService = schedulerJobService;
 	}
 
-	public Map<String, Object> getRoot() {
-		return root;
+	@Override
+	public void execute(JobExecutionContext context) {
+		schedulerJobService.terminateComputationalByScheduler();
 	}
-	
-	public DeepMap getBranch(String branchName) {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> branch = (Map<String, Object>) root.get(branchName);
-		if( branch == null ) {
-			branch = new HashMap<>();
-			root.put(branchName, branch);
-		}
-		return new DeepMap(branch);
-	}
-	
-	public void put(String key,Object val) {
-		root.put(key, val);
-	}
-	
 }

@@ -23,7 +23,7 @@
     <th class="th_name">Name</th>
     <th class="th_status">Status</th>
     <th class="th_shape">Shape</th>
-    <th>Computational resources</th>
+    <th class="th_resources">Computational resources</th>
     <th class="th_actions">Action</th>
   </tr>
 
@@ -44,7 +44,7 @@
                 {{ resource.computational_name }}
               </a>
             </div>
-            <span ngClass="{{resource.status.toLowerCase() || ''}}" class="resource-status">{{ resource.status }}</span>
+            <span ngClass="{{resource.status || ''}}" class="resource-status">{{ resource.status }}</span>
             <div class="resource-actions">
               <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine'">
                 <i class="material-icons" (click)="toggleResourceAction(env, 'stop', resource)"
@@ -62,18 +62,18 @@
     </td>
     <td class="settings">
       <span #settings class="actions" (click)="actions.toggle($event, settings)"
-            [ngClass]="{ 'disabled' : !uploadKey
-            || (env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping')
-            || (env.name === 'edge node' && env.user === currentUser && env.status === 'stopping')
-            || env.name === 'edge node' && env.user !== currentUser && env.status.toLowerCase() !== 'running' }"></span>
+            [ngClass]="{ 'disabled' : (!uploadKey && env.type === 'notebook')
+            || (env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'failed' )
+            || (env.type === 'edge node' && env.user === currentUser && env.status === 'stopping')
+            || env.type === 'edge node' && env.user !== currentUser && env.status !== 'running' }"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
-          <li matTooltip="{{ env.name !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
+          <li matTooltip="{{ env.type !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
               matTooltipPosition="above"
               [matTooltipDisabled]="!isResourcesInProgress(env)"
-              [hidden]="env.name === 'edge node' && env.status.toLowerCase() === 'stopped'">
+              [hidden]="env.name === 'edge node' && env.status === 'stopped'">
               <div (click)="toggleResourceAction(env, 'stop')"
-                   [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating image' || isResourcesInProgress(env)}">
+                   [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating image' || env.status === 'failed' || isResourcesInProgress(env)}">
                 <i class="material-icons">pause_circle_outline</i>
                 <span>Stop</span>
               </div>
@@ -83,18 +83,18 @@
               matTooltipPosition="above"
               [matTooltipDisabled]="!isResourcesInProgress(env)">
             <div (click)="toggleResourceAction(env, 'terminate')"
-              [ngClass]="{'not-allowed' : env.status.toLowerCase() !== 'running' && env.status.toLowerCase() !== 'stopped' || isResourcesInProgress(env)}">
+              [ngClass]="{'not-allowed' : env.status !== 'running' && env.status !== 'stopped' || isResourcesInProgress(env)}">
               <i class="material-icons">phonelink_off</i>
               <span>Terminate</span>
             </div>
           </li>
 
           <div *ngIf="env.name === 'edge node' && env.user === currentUser">
-            <li (click)="toggleResourceAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">
+            <li (click)="toggleResourceAction(env, 'run')" *ngIf="env.status === 'stopped'">
               <i class="material-icons">play_circle_outline</i>
               <span>Start</span>
             </li>
-            <li (click)="toggleResourceAction(env, 'recreate')" *ngIf="env.status.toLowerCase() === 'terminated'">
+            <li (click)="toggleResourceAction(env, 'recreate')" *ngIf="env.status === 'terminated'">
               <i class="material-icons">refresh</i>
               <span>Recreate</span>
             </li>
@@ -123,24 +123,24 @@
       <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
       <td class="settings">
         <span #settings (click)="actions.toggle($event, settings)" class="actions"
-              [ngClass]="{'disabled': env.status.toLowerCase() !== 'running'
-              && env.status.toLowerCase() !== 'stopped'
-              && env.status.toLowerCase() !== 'terminated'
+              [ngClass]="{'disabled': env.status !== 'running'
+              && env.status !== 'stopped'
+              && env.status !== 'terminated'
               || notebookInProgress
-              || !uploadKey }">
+              || !uploadKey && env.status !== 'failed' }">
         </span>
 
         <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
           <ul class="list-unstyled">
-            <li (click)="toggleResourceAction(env, 'stop')" *ngIf="env.status.toLowerCase() === 'running'">
+            <li (click)="toggleResourceAction(env, 'stop')" *ngIf="env.status === 'running'">
               <i class="material-icons">pause_circle_outline</i>
               <span>Stop</span>
             </li>
-            <li (click)="toggleResourceAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">
+            <li (click)="toggleResourceAction(env, 'run')" *ngIf="env.status === 'stopped'">
               <i class="material-icons">play_circle_outline</i>
               <span>Start</span>
             </li>
-            <li (click)="toggleResourceAction(env, 'recreate')" *ngIf="env.status.toLowerCase() === 'terminated'">
+            <li (click)="toggleResourceAction(env, 'recreate')" *ngIf="env.status === 'terminated'">
               <i class="material-icons">refresh</i>
               <span>Recreate</span>
             </li>

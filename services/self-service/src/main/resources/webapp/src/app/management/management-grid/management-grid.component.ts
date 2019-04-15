@@ -70,7 +70,7 @@ export class ManagementGridComponent implements OnInit {
   toggleResourceAction(environment, action: string, resource?) {
     if (resource) {
       const resource_name = resource ? resource.computational_name : environment.name;
-      const dialogRef: MatDialogRef<ConfirmationDialog> = this.dialog.open(ConfirmationDialog, {
+      const dialogRef: MatDialogRef<ConfirmationDialogComponent> = this.dialog.open(ConfirmationDialogComponent, {
         data: { action, resource_name, user: environment.user },
         width: '550px',
         panelClass: 'error-modalbox'
@@ -149,7 +149,7 @@ export class ManagementGridComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Resource <strong> {{ data.resource_name }}</strong> of user <strong> {{ data.user }} </strong> will be 
+    <p>Resource <strong> {{ data.resource_name }}</strong> of user <strong> {{ data.user }} </strong> will be
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
@@ -163,9 +163,9 @@ export class ManagementGridComponent implements OnInit {
   styles: [
   ]
 })
-export class ConfirmationDialog {
+export class ConfirmationDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ConfirmationDialog>,
+    public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 }

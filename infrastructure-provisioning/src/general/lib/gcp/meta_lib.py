@@ -332,10 +332,13 @@ class GCPMeta:
             while next_page:
                 result2 = self.service_iam.projects().serviceAccounts().list(name='projects/{}'.format(self.project),
                                                                              pageToken=page_token).execute()
-                for account in result2['accounts']:
-                    service_account_names.append(account['displayName'])
-                if 'nextPageToken' in result2:
-                    page_token = result2['nextPageToken']
+                if result2:
+                    for account in result2['accounts']:
+                        service_account_names.append(account['displayName'])
+                    if 'nextPageToken' in result2:
+                        page_token = result2['nextPageToken']
+                    else:
+                        next_page = False
                 else:
                     next_page = False
             return service_account_names

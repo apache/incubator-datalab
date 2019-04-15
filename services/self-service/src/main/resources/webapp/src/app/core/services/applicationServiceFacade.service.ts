@@ -49,6 +49,7 @@ export class ApplicationServiceFacade {
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly BUDGET = 'budget';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
+  private static readonly META_DATA = 'meta';
   private static readonly ROLES = 'roles';
   private static readonly GROUPS = 'groups';
   private static readonly GROUP_ROLE = 'group_role';
@@ -514,6 +515,12 @@ export class ApplicationServiceFacade {
       data);
   }
 
+  public buildGetAppMetaData(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.META_DATA),
+      null);
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -559,6 +566,8 @@ export class ApplicationServiceFacade {
 
     // Environment Health Status
     this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS, '/api/infrastructure/status');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS, '/api/infrastructure/status');
+    this.requestRegistry.Add(ApplicationServiceFacade.META_DATA, '/api/infrastructure/meta');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_START, '/api/infrastructure/edge/start');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_STOP, '/api/infrastructure/edge/stop');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');

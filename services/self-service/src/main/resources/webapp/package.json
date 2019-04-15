@@ -48,7 +48,7 @@
     "@types/jasmine": "2.5.38",
     "@types/moment-timezone": "^0.5.4",
     "@types/node": "~6.0.60",
-    "codelyzer": "~2.0.0",
+    "codelyzer": "^3.0.1",
     "jasmine-core": "~2.5.2",
     "jasmine-spec-reporter": "~3.2.0",
     "karma": "~1.4.1",
@@ -60,7 +60,7 @@
     "node-sass": "^4.7.2",
     "protractor": "~5.1.0",
     "ts-node": "~2.0.0",
-    "tslint": "~4.4.2",
+    "tslint": "^5.15.0",
     "typescript": "^3.2.4"
   }
 }

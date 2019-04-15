@@ -179,12 +179,12 @@ public class TestServices {
 		responseBody = login(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(),
 				HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
 
-		Assert.assertEquals(responseBody.path("message"), "Username or password are not valid");
+		Assert.assertEquals(responseBody.path("message"), "Username or password is invalid");
 
 		if (!ConfigPropertyValue.isRunModeLocal()) {
 			responseBody = login(ConfigPropertyValue.getUsername(), ".", HttpStatusCode.UNAUTHORIZED,
 					"Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
-			Assert.assertEquals(responseBody.path("message"), "Username or password are not valid");
+			Assert.assertEquals(responseBody.path("message"), "Username or password is invalid");
 		}
 
 		LOGGER.info("Logging in with credentials {}/***", ConfigPropertyValue.getUsername());
