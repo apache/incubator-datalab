@@ -246,7 +246,7 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
 def create_subnet(vpc_id, subnet, tag, zone):
     try:
         ec2 = boto3.resource('ec2')
-        if zone == "":
+        if zone != "":
             print('with zone@@@')
             subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet, AvailabilityZone=zone)
         else:
