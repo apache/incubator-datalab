@@ -90,6 +90,7 @@ if __name__ == "__main__":
         edge_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ','')})
     edge_conf['network_type'] = os.environ['conf_network_type']
     edge_conf['all_ip_cidr'] = '0.0.0.0/0'
+    edge_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
     edge_conf['elastic_ip_name'] = '{0}-{1}-edge-EIP'.format(edge_conf['service_base_name'],
                                                              os.environ['edge_user_name'])
     if 'aws_user_predefined_s3_policies' not in os.environ:
@@ -115,9 +116,10 @@ if __name__ == "__main__":
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
         params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {} " \
-                 "--user_subnets_range '{}' --subnet_name {}".format(
+                 "--user_subnets_range '{}' --subnet_name {} --zone {}".format(
             edge_conf['vpc2_id'], edge_conf['tag_name'], edge_conf['service_base_name'], os.environ['edge_user_name'],
-            edge_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'], edge_conf['private_subnet_name'])
+            edge_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'], edge_conf['private_subnet_name'],
+            edge_conf['zone'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:

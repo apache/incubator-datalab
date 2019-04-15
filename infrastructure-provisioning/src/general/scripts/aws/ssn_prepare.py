@@ -68,6 +68,7 @@ if __name__ == "__main__":
         tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
+        zone_full = os.environ['aws_region'] + os.environ['aws_zone']
         ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
@@ -142,9 +143,9 @@ if __name__ == "__main__":
                 pre_defined_subnet = True
                 logging.info('[CREATE SUBNET]')
                 print('[CREATE SUBNET]')
-                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} " \
-                         "--ssn {} --subnet_name {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name,
-                                                            service_base_name, '20', True, subnet_name)
+                params = "--vpc_id {0} --username {1} --infra_tag_name {2} --infra_tag_value {3} --prefix {4} " \
+                         "--ssn {5} --zone {6} --subnet_name {7}".format(os.environ['aws_vpc_id'], 'ssn', tag_name,
+                                                             service_base_name, '20', True, zone_full, subnet_name)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 except:
@@ -424,11 +425,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} " \
-                 "--iam_profile {} --infra_tag_name {} --infra_tag_value {}".\
+        params = "--node_name {0} --ami_id {1} --instance_type {2} --key_name {3} --security_group_ids {4} --subnet_id {5} " \
+                 "--iam_profile {6} --infra_tag_name {7} --infra_tag_value {8} --instance_class {9}".\
             format(instance_name, ssn_ami_id, os.environ['aws_ssn_instance_size'], os.environ['conf_key_name'],
                    os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
-                   role_profile_name, tag_name, instance_name)
+                   role_profile_name, tag_name, instance_name, 'ssn')
 
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
