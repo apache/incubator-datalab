@@ -4,5 +4,5 @@
   "dataengine_instance_count" : "2",
   "dataengine_instance_shape": "Standard_NC6",
   "notebook_name" : "set notebook name",
-  "template_name" : "Spark cluster"
+  "template_name": "Apache Spark cluster"
 }

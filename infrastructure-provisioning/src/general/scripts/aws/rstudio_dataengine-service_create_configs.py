@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -46,9 +49,9 @@ parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-emr_dir = '/opt/' + args.emr_version + '/jars/'
-spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
-yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
+emr_dir = '/opt/{}/jars/'.format(args.emr_version)
+spark_dir = '/opt/{0}/{1}/spark/'.format(args.emr_version, args.cluster_name)
+yarn_dir = '/opt/{0}/{1}/conf/'.format(args.emr_version, args.cluster_name)
 
 
 def configure_rstudio():
@@ -61,8 +64,12 @@ def configure_rstudio():
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
+            #fix emr 5.19 problem with warnings in rstudio because of bug in AWS configuration
+            if args.emr_version == "emr-5.19.0":
+                local("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties")
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
@@ -75,7 +82,11 @@ def configure_rstudio():
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-        except:
+            #fix emr 5.19 problem with warnings in rstudio because of bug in AWS configuration
+            if args.emr_version == "emr-5.19.0":
+                local("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties")
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
 
 

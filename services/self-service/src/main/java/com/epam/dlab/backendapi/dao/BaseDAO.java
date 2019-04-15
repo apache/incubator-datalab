@@ -1,35 +1,40 @@
-/***************************************************************************
-
- Copyright (c) 2016, EPAM SYSTEMS INC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-
- ****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.mongo.MongoService;
-import com.epam.dlab.util.mongo.IsoDateModule;
+import com.epam.dlab.util.mongo.modules.IsoDateModule;
+import com.epam.dlab.util.mongo.modules.JavaPrimitiveModule;
+import com.epam.dlab.util.mongo.modules.MongoModule;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -42,7 +47,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.mongodb.client.model.Aggregates.unwind;
+import static com.mongodb.client.model.Filters.*;
 
 /**
  * Implements the base API for Mongo database.
@@ -52,10 +57,11 @@ public class BaseDAO {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-			.registerModule(new IsoDateModule());
+			.registerModule(new IsoDateModule())
+			.registerModule(new JavaPrimitiveModule())
+			.registerModule(new MongoModule());
 
 	static final String FIELD_SET_DELIMETER = ".$.";
-	private static final String FIELD_PROJECTION_DELIMITER = "$";
 	public static final String ID = "_id";
 	static final String SET = "$set";
 	public static final String USER = "user";
@@ -65,6 +71,12 @@ public class BaseDAO {
 	public static final String ERROR_MESSAGE = "error_message";
 	static final String TIMESTAMP = "timestamp";
 	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
+	protected static final String ADD_TO_SET = "$addToSet";
+	protected static final String UNSET_OPERATOR = "$unset";
+	private static final String PULL = "$pull";
+	private static final String PULL_ALL = "$pullAll";
+	private static final String EACH = "$each";
+	private static final String ELEMENT_AT_OPERATOR = "$arrayElemAt";
 
 	@Inject
 	protected MongoService mongoService;
@@ -202,6 +214,22 @@ public class BaseDAO {
 	}
 
 	/**
+	 * Removes single document in the collection by condition.
+	 *
+	 * @param collection collection name.
+	 * @param condition  condition for search documents in collection.
+	 */
+	protected DeleteResult deleteOne(String collection, Bson condition) {
+		try {
+			return mongoService.getCollection(collection)
+					.deleteOne(condition);
+		} catch (MongoException e) {
+			LOGGER.warn("Removing document from Mongo DB fails: {}", e.getLocalizedMessage(), e);
+			throw new DlabException("Removing document from Mongo DB fails: " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	/**
 	 * Finds and returns all documents from the collection.
 	 *
 	 * @param collection collection name.
@@ -219,6 +247,20 @@ public class BaseDAO {
 	protected FindIterable<Document> find(String collection, Bson condition) {
 		return mongoService.getCollection(collection)
 				.find(condition);
+	}
+
+	/**
+	 * Finds and returns all documents from the collection converted to resulted type.
+	 *
+	 * @param collection    collection name.
+	 * @param resultedClass type of class for deserialization.
+	 */
+	protected <T> List<T> find(String collection, Class<T> resultedClass) {
+		return find(collection)
+				.into(new ArrayList<>())
+				.stream()
+				.map(d -> convertFromDocument(d, resultedClass))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -256,8 +298,8 @@ public class BaseDAO {
 	 * @param collection collection name.
 	 * @param pipeline   the aggregate pipeline.
 	 */
-	private AggregateIterable<Document> aggregate(String collection,
-												  List<? extends Bson> pipeline) {
+	public AggregateIterable<Document> aggregate(String collection,
+												 List<? extends Bson> pipeline) {
 		return mongoService.getCollection(collection)
 				.aggregate(pipeline);
 	}
@@ -304,7 +346,7 @@ public class BaseDAO {
 										 Bson condition,
 										 Bson projection) {
 		FindIterable<Document> found = find(collection, condition, projection);
-		return limitOne(found);
+			return limitOne(found);
 	}
 
 	/**
@@ -346,19 +388,6 @@ public class BaseDAO {
 	}
 
 	/**
-	 * Aggregates and returns one document according to the specified aggregation pipeline.
-	 *
-	 * @param collection collection name.
-	 * @param pipeline   the aggregate pipeline.
-	 * @throws DlabException if have more than one aggregated documents.
-	 */
-	Optional<Document> aggregateOne(String collection,
-									List<? extends Bson> pipeline) {
-		MongoIterable<Document> found = aggregate(collection, pipeline);
-		return limitOne(found);
-	}
-
-	/**
 	 * Deserializes given document to object and returns it.
 	 *
 	 * @param document element from database
@@ -369,6 +398,17 @@ public class BaseDAO {
 			return MAPPER.readValue(json, clazz);
 		} catch (IOException e) {
 			throw new DlabException("error converting from document with id " + document.get(ID), e);
+		}
+	}
+
+	<T> T convertFromDocument(List<Document> documents, TypeReference<T> valueTypeRef) {
+		final String jsonArray = documents.stream()
+				.map(Document::toJson)
+				.collect(Collectors.joining(",", "[", "]"));
+		try {
+			return MAPPER.readValue(jsonArray, valueTypeRef);
+		} catch (IOException e) {
+			throw new DlabException("error converting array " + jsonArray, e);
 		}
 	}
 
@@ -399,36 +439,31 @@ public class BaseDAO {
 		return UUID.randomUUID().toString();
 	}
 
-	static Bson unwindField(String fieldName) {
-		return unwind(FIELD_PROJECTION_DELIMITER + fieldName);
+	protected BasicDBObject addToSet(String columnName, Set<String> values) {
+		return new BasicDBObject(ADD_TO_SET, new BasicDBObject(columnName, new BasicDBObject(EACH, values)));
 	}
 
-	private static Object getDotted(Document d, String fieldName) {
-		if (fieldName.isEmpty()) {
-			return null;
-		}
-		final String[] fieldParts = StringUtils.split(fieldName, '.');
-		Object val = d.get(fieldParts[0]);
-		for (int i = 1; i < fieldParts.length; ++i) {
-			if (fieldParts[i].equals("$")
-					&& val instanceof ArrayList) {
-				ArrayList<?> array = (ArrayList<?>) val;
-				if (array.isEmpty()) {
-					return val;
-				} else {
-					val = array.get(0);
-				}
-			} else if (val instanceof Document) {
-				val = ((Document) val).get(fieldParts[i]);
-			} else {
-				return val;
-			}
-		}
-		return val;
+	protected Bson unset(String columnName, String value) {
+		return new BasicDBObject(UNSET_OPERATOR, new BasicDBObject(columnName, value));
 	}
 
-	static Object getDottedOrDefault(Document d, String fieldName, Object defaultValue) {
-		Object result = getDotted(d, fieldName);
-		return result == null ? defaultValue : result;
+	protected BasicDBObject pull(String columnName, String value) {
+		return new BasicDBObject(PULL, new BasicDBObject(columnName, value));
+	}
+
+	protected BasicDBObject pullAll(String columnName, Set<String> values) {
+		return new BasicDBObject(PULL_ALL, new BasicDBObject(columnName, values));
+	}
+
+	protected Document elementAt(String arrayColumnName, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList("$" + arrayColumnName, index));
+	}
+
+	protected Document elementAt(Bson bson, int index) {
+		return new Document(ELEMENT_AT_OPERATOR, Arrays.asList(bson, index));
+	}
+
+	protected Bson notNull(String fieldName) {
+		return and(exists(fieldName), ne(fieldName, null));
 	}
 }

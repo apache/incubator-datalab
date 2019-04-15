@@ -1,33 +1,41 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
-import { Response } from '@angular/http';
+import { Component,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+  ViewEncapsulation,
+  ChangeDetectorRef,
+  Inject,
+  ViewContainerRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { FormControl } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
+
+import { InstallLibrariesModel } from '.';
+import { LibrariesInstallationService} from '../../../core/services';
+import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
-
-import { InstallLibrariesModel } from './';
-import { LibrariesInstallationService} from '../../../core/services';
-import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -49,16 +57,20 @@ export class InstallLibrariesComponent implements OnInit {
   public destination: any;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
-
-  public processError: boolean = false;
-  public errorMessage: string = '';
   public validity_format: string = '';
 
   public isInstalled: boolean = false;
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
-  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others', 'java': 'Java'};
+  public groupsListMap = {
+    'r_pkg': 'R packages',
+    'pip2': 'Python 2',
+    'pip3': 'Python 3',
+    'os_pkg': 'Apt/Yum',
+    'others': 'Others',
+    'java': 'Java'
+  };
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
@@ -73,8 +85,12 @@ export class InstallLibrariesComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private librariesInstallationService: LibrariesInstallationService,
-    private changeDetector : ChangeDetectorRef) {
+    private changeDetector: ChangeDetectorRef,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
+    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -98,23 +114,24 @@ export class InstallLibrariesComponent implements OnInit {
           this.libsUploadingStatus(response);
           this.changeDetector.detectChanges();
 
-          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.title, 'destination', 'title', 'array');
-          this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
+          this.resource_select && this.resource_select.setDefaultOptions(
+            this.getResourcesList(),
+            this.destination.title, 'destination', 'title', 'array');
+
+          this.group_select && this.group_select.setDefaultOptions(
+            this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
-        error => {
-          this.processError = true;
-          this.errorMessage = JSON.parse(error.message).message;
-        });
+        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   private getResourcesList() {
     this.notebook.type = 'EXPLORATORY';
-    this.notebook.title = `${ this.notebook.name } <em>notebook</em>`;
+    this.notebook.title = `${ this.notebook.name } <em class="capt">notebook</em>`;
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
-        item['title'] = `${ item.computational_name } <em>cluster</em>`;
+        item['title'] = `${ item.computational_name } <em class="capt">cluster</em>`;
         item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
@@ -125,11 +142,20 @@ export class InstallLibrariesComponent implements OnInit {
     (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
+  public filterGroups(groupsList) {
+    const PREVENT_TEMPLATES = ['rstudio', 'rstudio with tensorflow'];
+    const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
+    const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
+
+    const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
+    return SortUtil.libGroupsSort(filteredGroups);
+  }
+
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
     } else if ($event.model.type === 'destination') {
-      this.resetDialog(true);
+      this.resetDialog();
 
       this.destination = $event.model.value;
       this.destination && this.destination.type === 'СOMPUTATIONAL'
@@ -149,9 +175,11 @@ export class InstallLibrariesComponent implements OnInit {
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
     if (this.destination && this.destination.libs)
-      this.isInstalled = this.destination.libs.findIndex(libr =>
-        select.name === libr.name && select.group === libr.group && select.version === libr.version
-      ) >= 0;
+      this.isInstalled = this.destination.libs.findIndex(libr => {
+        return select.group !== 'java'
+          ? select.name === libr.name && select.group === libr.group && select.version === libr.version
+          : select.name === libr.name && select.group === libr.group;
+      }) >= 0;
 
     return this.isInSelectedList || this.isInstalled;
   }
@@ -172,24 +200,22 @@ export class InstallLibrariesComponent implements OnInit {
   public open(param, notebook): void {
     if (!this.bindDialog.isOpened)
       this.notebook = notebook;
-      this.model = new InstallLibrariesModel(notebook, (response: Response) => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          this.getInstalledLibrariesList();
-          this.resetDialog();
-        }
-      },
-      (error: any) => {
-        this.processError = true;
-        this.errorMessage = error.message;
-      },
-      () => {
-        this.bindDialog.open(param);
+      this.model = new InstallLibrariesModel(notebook,
+        response => {
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            this.getInstalledLibrariesList();
+            this.resetDialog();
+          }
+        },
+        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!', { toastLife: 5000 }),
+        () => {
+          this.bindDialog.open(param);
 
-        this.getInstalledLibrariesList(true);
-        this.changeDetector.detectChanges();
-        this.selectorsReset();
-      },
-      this.librariesInstallationService);
+          this.getInstalledLibrariesList(true);
+          this.changeDetector.detectChanges();
+          this.selectorsReset();
+        },
+       this.librariesInstallationService);
   }
 
   public close(): void {
@@ -201,7 +227,8 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public showErrorMessage(item): void {
-    const dialogRef: MatDialogRef<ErrorMessageDialog> = this.dialog.open(ErrorMessageDialog, { data: item.error, width: '550px' });
+    const dialogRef: MatDialogRef<ErrorMessageDialogComponent> = this.dialog.open(
+      ErrorMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
   }
 
   public isInstallingInProgress(data): void {
@@ -220,7 +247,7 @@ export class InstallLibrariesComponent implements OnInit {
   public reinstallLibrary(item, lib) {
     const retry = [{group: lib.group, name: lib.name, version: lib.version}];
 
-    if (this.getResourcesList().find(el => el.name == item.resource).type === 'СOMPUTATIONAL') {
+    if (this.getResourcesList().find(el => el.name === item.resource).type === 'СOMPUTATIONAL') {
       this.model.confirmAction(retry, item.resource);
     } else {
       this.model.confirmAction(retry);
@@ -243,7 +270,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
-      this.groupsList = SortUtil.libGroupsSort(groupsList);
+      this.groupsList = this.filterGroups(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
     } else {
@@ -261,35 +288,32 @@ export class InstallLibrariesComponent implements OnInit {
         .subscribe(
           lib => this.filteredList = [lib],
           error => {
-          if (error.status === HTTP_STATUS_CODES.NOT_FOUND || error.status === HTTP_STATUS_CODES.BAD_REQUEST) {
+          if (error.status === HTTP_STATUS_CODES.NOT_FOUND
+            || error.status === HTTP_STATUS_CODES.BAD_REQUEST
+            || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
             this.validity_format = error.message;
             this.filteredList = null;
           }
         });
     } else {
       this.model.getLibrariesList(this.group, this.query)
-        .subscribe(libs => {
-          this.filteredList = libs;
-        });
+        .subscribe(libs => this.filteredList = libs);
     }
   }
 
-  private selectorsReset():void {
-    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'title', 'array');
+  private selectorsReset(): void {
+    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(),
+      'Select resource', 'destination', 'title', 'array');
     this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
   }
 
-  private resetDialog(nActive?): void {
+  private resetDialog(): void {
     this.group = '';
     this.query = '';
     this.libSearch.setValue('');
-
-    this.processError = false;
     this.isInstalled = false;
     this.isInSelectedList = false;
     this.uploading = false;
-
-    this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
     this.destination = null;
@@ -305,12 +329,55 @@ export class InstallLibrariesComponent implements OnInit {
 
 @Component({
   selector: 'error-message-dialog',
-  template: `<div class="content">{{ data }}</div>`,
-  styles: [`.content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }`]
+  template: `
+  <div class="dialog-header">
+    <h4 class="modal-title">Library installation error</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
+  <div class="content">{{ data }}</div>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+  </div>
+  `,
+  styles: [`
+  .content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }
+  .dialog-header {
+    position: relative;
+    top: 0;
+    padding-left: 30px;
+    background: #f6fafe;
+    height: 54px;
+    line-height: 54px;
+  }
+  .dialog-header h4 {
+    color: #455c74;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 50px;
+    width: 50px;
+    font-size: 24px;
+    border: 0;
+    background: none;
+    color: #577289;
+    outline: none;
+    cursor: pointer;
+    transition: all .45s ease-in-out;
+    }
+    .close:hover {
+      color: #36afd5;
+    }
+    .text-center button {
+      margin-bottom: 25px;
+    }`]
 })
-export class ErrorMessageDialog {
+export class ErrorMessageDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ErrorMessageDialog>,
+    public dialogRef: MatDialogRef<ErrorMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -58,7 +61,9 @@ if __name__ == "__main__":
         "name": notebook_config['cluster_name'],
         "sbn": notebook_config['service_base_name'],
         "user": notebook_config['edge_user_name'],
-        "notebook_name": os.environ['notebook_instance_name']
+        "notebook_name": os.environ['notebook_instance_name'],
+        "product": "dlab",
+        "computational_name": (os.environ['computational_name']).lower().replace('_', '-')
     }
 
     try:
@@ -77,7 +82,30 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing Dataproc kernels.", str(err))
+        actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
+        actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
+                                                os.environ['dataproc_version'], os.environ['conf_os_user'], notebook_config['key_path'])
+        sys.exit(1)
+
+    try:
+        logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        params = "--hostname {0} " \
+                 "--keyfile {1} " \
+                 "--os_user {2} " \
+            .format(notebook_config['notebook_ip'],
+                    notebook_config['key_path'],
+                    os.environ['conf_os_user'])
+        try:
+            local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to configure Spark.", str(err))
         actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
         actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
                                                 os.environ['dataproc_version'], os.environ['conf_os_user'], notebook_config['key_path'])

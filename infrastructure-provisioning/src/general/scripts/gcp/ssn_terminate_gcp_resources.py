@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -49,7 +52,8 @@ if __name__ == "__main__":
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
             print("There are no Dataproc clusters to terminate.")
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Terminating instances")
@@ -58,7 +62,8 @@ if __name__ == "__main__":
         if 'items' in instances:
             for i in instances['items']:
                 GCPActions().remove_instance(i['name'], args.zone)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing static addresses")
@@ -67,7 +72,8 @@ if __name__ == "__main__":
         if 'items' in static_addresses:
             for i in static_addresses['items']:
                 GCPActions().remove_static_address(i['name'], args.region)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing firewalls")
@@ -76,7 +82,8 @@ if __name__ == "__main__":
         if 'items' in firewalls:
             for i in firewalls['items']:
                 GCPActions().remove_firewall(i['name'])
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing Service accounts and roles")
@@ -89,7 +96,8 @@ if __name__ == "__main__":
         for role in list_roles_names:
             if args.service_base_name in role:
                 GCPActions().remove_role(role)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing subnets")
@@ -101,7 +109,8 @@ if __name__ == "__main__":
             subnets = GCPMeta().get_list_subnetworks(args.region, vpc_name, args.service_base_name)
             for i in subnets['items']:
                 GCPActions().remove_subnet(i['name'], args.region)
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing s3 buckets")
@@ -110,11 +119,14 @@ if __name__ == "__main__":
         if 'items' in buckets:
             for i in buckets['items']:
                 GCPActions().remove_bucket(i['name'])
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing SSN VPC")
     try:
         GCPActions().remove_vpc(args.service_base_name + '-ssn-vpc')
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         print("No such VPC")
+        sys.exit(1)

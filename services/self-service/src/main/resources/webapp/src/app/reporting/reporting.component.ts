@@ -1,25 +1,27 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr';
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-
-import { BillingReportService, HealthStatusService, UserAccessKeyService }  from './../core/services';
+import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -29,15 +31,15 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled" [admin]="admin"></dlab-navbar>
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
+  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)"
+                (exportReport)="exportBillingReport()"
+                (setRangeOption)="setRangeOption($event)">
+  </dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer *ngIf="data">
     Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
 
-  <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)" [primaryUploading]="true"></key-upload-dialog>
-  <progress-dialog #preloaderModal></progress-dialog>
   `,
   styles: [`
     footer {
@@ -56,13 +58,9 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 })
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
 
   @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
-
-  @ViewChild('keyUploadModal') keyUploadDialog;
-  @ViewChild('preloaderModal') preloaderDialog;
 
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
@@ -74,11 +72,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
-    private userAccessKeyService: UserAccessKeyService) { }
+    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef) {
+      this.toastr.setRootViewContainerRef(vcr);
+    }
 
   ngOnInit() {
     this.rebuildBillingReport();
-    this.getEnvironmentHealthStatus();
   }
 
   ngOnDestroy() {
@@ -95,7 +96,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
-          localStorage.setItem('report_period' , JSON.stringify({start_date: this.data[DICTIONARY.billing.dateFrom], end_date: this.data[DICTIONARY.billing.dateTo]}));
+          localStorage.setItem('report_period' , JSON.stringify({
+            start_date: this.data[DICTIONARY.billing.dateFrom],
+            end_date: this.data[DICTIONARY.billing.dateTo]}));
           this.reportingToolbar.setDateRange();
         }
 
@@ -119,9 +122,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   exportBillingReport($event): void {
     this.billingReportService.downloadReport(this.reportData)
-      .subscribe(data => {
-        FileUtils.downloadFile(data);
-      });
+      .subscribe(
+        data => FileUtils.downloadFile(data),
+        error => this.toastr.error('Billing report export failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   getDefaultFilterConfiguration(data): void {
@@ -147,7 +150,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
               shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
-          let parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+          const parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
           if (shapes.indexOf(parsedShape) === -1) {
             shapes.push(parsedShape);
           }
@@ -187,34 +190,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
-  public checkUserAccessKey() {
-    this.userAccessKeyService.checkUserAccessKey()
-      .subscribe(
-        response => this.processAccessKeyStatus(response.status),
-        error => this.processAccessKeyStatus(error.status));
-  }
-
-  public generateUserKey($event) {
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.rebuildBillingReport();
-      });
-  }
-
-  private processAccessKeyStatus(status: number) {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND) {
-      this.healthStatus === 'error' && this.keyUploadDialog.open({ isFooter: false });
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      this.preloaderDialog.open({ isHeader: false, isFooter: false });
-
-      setTimeout(() => this.rebuildBillingReport(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      this.preloaderDialog.close();
-      this.keyUploadDialog.close();
-    }
-  }
-
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
@@ -222,7 +197,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
 
-        this.checkUserAccessKey();
+        this.userAccessKeyService.initialUserAccessKeyCheck();
       });
   }
 }

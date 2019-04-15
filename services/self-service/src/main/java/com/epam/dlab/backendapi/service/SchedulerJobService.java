@@ -1,22 +1,29 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.model.scheduler.SchedulerJobData;
+
+import java.util.List;
 
 public interface SchedulerJobService {
 	/**
@@ -61,27 +68,26 @@ public interface SchedulerJobService {
 	void updateComputationalSchedulerData(String user, String exploratoryName,
 										  String computationalName, SchedulerJobDTO dto);
 
-	/**
-	 * Executes start scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
-	 * computational resources ('isAppliedForClusters' equals 'true').
-	 *
-	 * @param isAppliedForClusters true/false
-	 */
-	void executeStartResourceJob(boolean isAppliedForClusters);
+	void stopComputationalByScheduler();
+
+	void stopExploratoryByScheduler();
+
+	void startExploratoryByScheduler();
+
+	void startComputationalByScheduler();
+
+	void terminateExploratoryByScheduler();
+
+	void terminateComputationalByScheduler();
 
 	/**
-	 * Executes stop scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
-	 * computational resources ('isAppliedForClusters' equals 'true').
-	 *
-	 * @param isAppliedForClusters true/false
+	 * Executes check cluster inactivity job for all running resources.
 	 */
-	void executeStopResourceJob(boolean isAppliedForClusters);
+	void updateRunningResourcesLastActivity(UserInfo userInfo);
 
-	/**
-	 * Executes terminate scheduler job for corresponding exploratories ('isAppliedForClusters' equals 'false') or
-	 * computational resources ('isAppliedForClusters' equals 'true').
-	 *
-	 * @param isAppliedForClusters true/false
-	 */
-	void executeTerminateResourceJob(boolean isAppliedForClusters);
+	void removeScheduler(String user, String exploratoryName);
+
+	void removeScheduler(String user, String exploratoryName, String computationalName);
+
+	List<SchedulerJobData> getActiveSchedulers(String user, long timeOffset);
 }

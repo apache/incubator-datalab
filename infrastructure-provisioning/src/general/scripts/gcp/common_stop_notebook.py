@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -39,16 +42,20 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
+                computational_name = meta_lib.GCPMeta().get_cluster(cluster_name).get('labels').get(
+                    'computational_name')
                 cluster = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
                 actions_lib.GCPActions().bucket_cleanup(bucket_name, user_name, cluster_name)
                 print('The bucket {} has been cleaned successfully'.format(bucket_name))
                 actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, region)
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
-                actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user, key_path)
+                actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user,
+                                                        key_path, computational_name)
         else:
             print("There are no Dataproc clusters to terminate.")
-    except:
-       sys.exit(1)
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
     print("Stopping data engine cluster")
     cluster_list = []
@@ -62,13 +69,15 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
                     print("Instance {} has been stopped".format(vm['name']))
             except:
                 pass
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Stopping notebook")
     try:
         GCPActions().stop_instance(instance_name, zone)
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 
@@ -101,6 +110,7 @@ if __name__ == "__main__":
                       os.environ['conf_os_user'], notebook_config['key_path'],
                       notebook_config['edge_user_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 

@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -30,6 +33,7 @@ from dlab.actions_lib import *
 import json
 import traceback
 import logging
+import ast
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')
@@ -74,7 +78,7 @@ if args.region == 'us-east-1':
 elif args.region == 'cn-north-1':
     endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
 else:
-    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
+    endpoint_url = 'https://s3-{}.amazonaws.com'.format(args.region)
 
 cp_config = "Name=CUSTOM_JAR, Args=aws " \
             "s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml " \
@@ -197,6 +201,7 @@ def remove_user_key(args):
                      str(err) + "\n Traceback: " +
                      traceback.print_exc(file=sys.stdout))
 
+
 def get_instance_by_ip(ip):
     try:
         ec2 = boto3.resource('ec2')
@@ -278,15 +283,6 @@ def action_validate(id):
         return ["True", state]
 
 
-def read_json(path):
-    try:
-        with open(path) as json_data:
-            data = json.load(json_data)
-    except:
-        data = []
-    return data
-
-
 def build_emr_cluster(args):
     try:
         # Parse applications
@@ -302,7 +298,9 @@ def build_emr_cluster(args):
             key, value = i.split("=")
             tags.append({"Value": value, "Key": key})
         tags.append({'Key': os.environ['conf_tag_resource_id'],
-                     'Value': args.service_base_name + ':' + args.name})
+                     'Value': '{}:{}'.format(args.service_base_name, args.name)})
+        tags.append({'Key': os.environ['conf_billing_tag_key'],
+                     'Value': os.environ['conf_billing_tag_value']})
         if 'conf_additional_tags' in os.environ:
             for tag in os.environ['conf_additional_tags'].split(';'):
                 tags.append(
@@ -372,7 +370,7 @@ def build_emr_cluster(args):
                     VisibleToAllUsers=not args.auto_terminate,
                     JobFlowRole=args.ec2_role,
                     ServiceRole=args.service_role,
-                    Configurations=read_json(args.configurations))
+                    Configurations=ast.literal_eval(args.configurations))
             else:
                 result = socket.run_job_flow(
                     Name=args.name,
@@ -399,7 +397,7 @@ def build_emr_cluster(args):
                     VisibleToAllUsers=not args.auto_terminate,
                     JobFlowRole=args.ec2_role,
                     ServiceRole=args.service_role,
-                    Configurations=read_json(args.configurations))
+                    Configurations=ast.literal_eval(args.configurations))
             print("Cluster_id {}".format(result.get('JobFlowId')))
             return result.get('JobFlowId')
     except Exception as err:
@@ -477,4 +475,3 @@ if __name__ == "__main__":
                 terminate_emr(cluster_id)
             s3_cleanup(args.s3_bucket, args.name, args.edge_user_name)
             sys.exit(1)
-    sys.exit(0)

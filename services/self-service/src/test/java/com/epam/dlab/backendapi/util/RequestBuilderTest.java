@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.util;
@@ -31,12 +34,13 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.ResourceType;
-import com.epam.dlab.model.exloratory.Exploratory;
+import com.epam.dlab.model.exploratory.Exploratory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -107,6 +111,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -238,6 +244,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -273,6 +281,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -308,6 +318,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -376,6 +388,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -444,6 +458,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -508,6 +524,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -562,7 +580,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto);
+		requestBuilder.newLibInstall(userInfo, uiDto, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -572,6 +590,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -586,7 +606,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto);
+		requestBuilder.newLibInstall(userInfo, uiDto, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -606,7 +626,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newLibInstall(userInfo, uiDto);
+		requestBuilder.newLibInstall(userInfo, uiDto, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
@@ -636,6 +656,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -690,7 +712,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource);
+		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -700,6 +722,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -714,7 +738,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource);
+		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -734,7 +758,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource);
+		requestBuilder.newLibInstall(userInfo, uiDto, computationalResource, new ArrayList<LibInstallDTO>());
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
@@ -764,6 +788,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -830,33 +856,17 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
 	@Test
 	public void newComputationalCreateForAzure() {
 		when(configuration.getCloudProvider()).thenReturn(CloudProvider.AZURE);
-		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
-		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
-		when(settingsDAO.getAzureRegion()).thenReturn("someAzureRegion");
-		when(settingsDAO.getAzureResourceGroupName()).thenReturn("someAzureResourceGroup");
-		when(settingsDAO.getAzureSecurityGroupName()).thenReturn("someAzureResourceGroupName");
-		when(settingsDAO.getAzureSubnetName()).thenReturn("someAzureSubnetId");
-		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
-		ComputationalCreateFormDTO form = new AwsComputationalCreateForm();
-
-		requestBuilder.newComputationalCreate(userInfo, uiDto, form);
-
-		verify(configuration, times(3)).getCloudProvider();
-		verify(settingsDAO).getServiceBaseName();
-		verify(settingsDAO).getConfOsFamily();
-		verify(settingsDAO).getAzureRegion();
-		verify(settingsDAO).getAzureResourceGroupName();
-		verify(settingsDAO).getAzureSecurityGroupName();
-		verify(settingsDAO).getAzureSubnetName();
-		verify(settingsDAO).getAzureVpcName();
-		verifyNoMoreInteractions(configuration, settingsDAO);
+		expectedException.expect(UnsupportedOperationException.class);
+		requestBuilder.newComputationalCreate(userInfo, uiDto, new AwsComputationalCreateForm());
 	}
 
 	@Test
@@ -900,6 +910,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -974,6 +986,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookVpcId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -1044,6 +1058,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -1118,6 +1134,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 
@@ -1188,6 +1206,8 @@ public class RequestBuilderTest {
 		verify(settingsDAO).getAwsSubnetId();
 		verify(settingsDAO).getAwsVpcId();
 		verify(settingsDAO).getConfTagResourceId();
+		verify(settingsDAO).getAwsNotebookSubnetId();
+		verify(settingsDAO).getAwsNotebookVpcId();
 		verifyNoMoreInteractions(configuration, settingsDAO);
 	}
 

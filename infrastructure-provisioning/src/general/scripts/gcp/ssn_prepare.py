@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -62,7 +65,8 @@ if __name__ == "__main__":
     ssn_conf['ssn_roles_path'] = '/root/files/ssn_roles.json'
     ssn_conf['network_tag'] = ssn_conf['instance_name']
     ssn_conf['instance_labels'] = {"name": ssn_conf['instance_name'],
-                                   "sbn": ssn_conf['service_base_name']}
+                                   "sbn": ssn_conf['service_base_name'],
+                                   os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
     ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     try:
@@ -83,6 +87,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to create VPC. Exception:" + str(err))
             if pre_defined_vpc:
                 try:
@@ -112,6 +117,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to create Subnet.", str(err))
             if pre_defined_vpc:
                 try:
@@ -173,6 +179,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed to create Firewall.", str(err))
             if pre_defined_vpc:
                 GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
@@ -191,6 +198,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create Service account and role.", str(err))
         try:
             GCPActions().remove_service_account(ssn_conf['service_account_name'])
@@ -223,6 +231,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create bucket.", str(err))
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
@@ -240,6 +249,7 @@ if __name__ == "__main__":
         print('[SET PERMISSIONS FOR SSN BUCKET]')
         GCPActions().set_bucket_owner(ssn_conf['ssn_bucket_name'], ssn_conf['service_account_name'])
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to set bucket permissions.", str(err))
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
@@ -264,6 +274,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create static ip.", str(err))
         try:
             GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
@@ -305,6 +316,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Unable to create ssn instance.", str(err))
         GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_role(ssn_conf['role_name'])

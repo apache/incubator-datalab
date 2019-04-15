@@ -1,18 +1,21 @@
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
 #
 # ******************************************************************************
 
@@ -45,9 +48,9 @@ maxSparkInstanceCount: 14
 checkEnvStatusTimeout: 5m
 
 # Restrict access to DLab features using roles policy
-rolePolicyEnabled : true
+rolePolicyEnabled: true
 # Default access to DLab features using roles policy
-roleDefaultAccess : true
+roleDefaultAccess: true
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
@@ -66,32 +69,34 @@ maxSessionDurabilityMilliseconds: 288000000
 server:
   requestLog:
     appenders:
-      - type: file
-        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-        archive: true
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
-        archivedFileCount: 10
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-#    - type: http
-#      port: 8080
-    - type: https
-      port: 8443
-      certAlias: dlab
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
+  #    - type: http
+  #      port: 8080
+  - type: https
+    port: 8443
+    certAlias: dlab
+    validateCerts: true
+    keyStorePath: ${KEY_STORE_PATH}
+    keyStorePassword: ${KEY_STORE_PASSWORD}
+    trustStorePath: ${TRUST_STORE_PATH}
+    trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-#    - type: http
-#      port: 8081
-    - type: https
-      port: 8444
-      certAlias: dlab
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
+  #    - type: http
+  #      port: 8081
+  - type: https
+    port: 8444
+    certAlias: dlab
+    validateCerts: true
+    keyStorePath: ${KEY_STORE_PATH}
+    keyStorePassword: ${KEY_STORE_PASSWORD}
+    trustStorePath: ${TRUST_STORE_PATH}
+    trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 mongoMigrationEnabled: false
 
@@ -99,12 +104,56 @@ logging:
   level: INFO
   loggers:
     com.epam: TRACE
+    com.novemberain: ERROR
   appenders:
 <#if DEV_MODE == "true">
-    - type: console
+  - type: console
 </#if>
-    - type: file
-      currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
-      archive: true
-      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
-      archivedFileCount: 10
+  - type: file
+    currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
+    archive: true
+    archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
+    archivedFileCount: 10
+
+swaggerConfiguration:
+  resourcePackage: com.epam.dlab.backendapi.resources
+  title: DLab API
+  description: Essential toolset for analytics. Deployed on ${CLOUD_TYPE} provider
+  schemes: [https, http]
+  version: 2.0
+  contact: DLab
+  contactUrl: http://dlab.opensource.epam.com/
+  license: Apache 2.0
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
+
+mavenSearchService:
+  protocol: http
+  host: search.maven.org
+  port: 80
+  jerseyClient:
+    timeout: 5s
+    connectionTimeout: 5s
+
+schedulers:
+  inactivity:
+    enabled: false
+    cron: "0 0 0/2 ? * * *"
+  startComputationalScheduler:
+    enabled: true
+    cron: "*/20 * * ? * * *"
+  stopComputationalScheduler:
+    enabled: true
+    cron: "*/20 * * ? * * *"
+  startExploratoryScheduler:
+    enabled: true
+    cron: "*/20 * * ? * * *"
+  stopExploratoryScheduler:
+    enabled: true
+    cron: "*/20 * * ? * * *"
+  checkQuoteScheduler:
+    enabled: true
+    cron: "0 0 * ? * * *"
+  checkUserQuoteScheduler:
+    enabled: true
+    cron: "0 0 * ? * * *"
+

@@ -1,23 +1,26 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.dao.aws;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -51,7 +54,7 @@ import static com.mongodb.client.model.Projections.include;
 /**
  * DAO for user billing.
  */
-public class AwsBillingDAO extends BillingDAO {
+public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AwsBillingDAO.class);
 
 	public static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
@@ -150,11 +153,12 @@ public class AwsBillingDAO extends BillingDAO {
 			costTotal += cost;
 
 			Document item = new Document()
-					.append(FIELD_USER_ID, id.getString(USER))
+					.append(FIELD_USER_ID, getUserOrDefault(id.getString(USER)))
 					.append(FIELD_DLAB_ID, resourceId)
 					.append(DLAB_RESOURCE_TYPE, resourceTypeId)
 					.append(SHAPE, shapeName)
-					.append(STATUS, status)
+					.append(STATUS,
+							Optional.ofNullable(status).map(UserInstanceStatus::toString).orElse(StringUtils.EMPTY))
 					.append(FIELD_PRODUCT, id.getString(FIELD_PRODUCT))
 					.append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
 					.append(FIELD_COST, BillingCalculationUtils.formatDouble(cost))
@@ -195,18 +199,18 @@ public class AwsBillingDAO extends BillingDAO {
 		}
 	}
 
-	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, BillingDAO.ShapeInfo> shapes) {
+	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
 		// Add SSN and EDGE nodes
 		final String ssnShape = "t2.medium";
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
 			String serviceBaseName = settings.getServiceBaseName();
-			shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
+			shapes.put(serviceBaseName + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
 			FindIterable<Document> docs = getCollection(USER_EDGE)
 					.find()
 					.projection(fields(include(ID, EDGE_STATUS)));
 			for (Document d : docs) {
 				shapes.put(String.join("-", serviceBaseName, UsernameUtils.removeDomain(d.getString(ID)), "edge"),
-						new BillingDAO.ShapeInfo(ssnShape, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
+						new ShapeInfo(ssnShape, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
 			}
 		}
 	}

@@ -1,20 +1,21 @@
 <!--
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
--->
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
 <modal-dialog #bindDialog modalClass="install-libraries modal-xl">
   <modal-header>
@@ -22,6 +23,7 @@ limitations under the License.
       <b>{{ notebook?.name }}</b> Libraries</h4>
   </modal-header>
   <modal-content>
+   <div class="aligner">
     <div class="info" *ngIf="notebook?.status !== 'running'">
       <p class=" message">Cannot install libraries: Exploratory
         <strong>{{ notebook?.name }}</strong> is not running</p>
@@ -32,8 +34,8 @@ limitations under the License.
         <img src="assets/img/gif-spinner.gif" alt="loading">
       </div>
     </div>
-    <div *ngIf="notebook?.status === 'running'" class="lib-view-wrap">
-      <div class="search-box" *ngIf="!uploading">
+    <div *ngIf="notebook?.status === 'running' && !uploading" class="lib-view-wrap">
+      <div class="search-box">
         <div class="search-form">
           <div>
             <div class="control-group constol-select">
@@ -148,12 +150,10 @@ limitations under the License.
         </div>
       </mat-list>
     </div>
-    <div class="text-center error" *ngIf="processError">
-      <small>{{ errorMessage }}</small>
-    </div>
-    <div class="text-center m-top-15 m-bott-10 actions" *ngIf="!uploading && notebook?.status === 'running'">
+    <div class="m-top-15 actions" *ngIf="!uploading && notebook?.status === 'running'">
       <button mat-raised-button type="button" class="butt action" (click)="close()">Close</button>
       <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
     </div>
+   </div>
   </modal-content>
 </modal-dialog>

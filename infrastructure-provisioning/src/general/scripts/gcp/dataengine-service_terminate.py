@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -32,14 +35,17 @@ def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_us
     try:
         cluster = meta_lib.GCPMeta().get_list_cluster_statuses([dataproc_name])
         if cluster[0]['status'] == 'running':
+            computational_name = meta_lib.GCPMeta().get_cluster(dataproc_name).get('labels').get('computational_name')
             actions_lib.GCPActions().bucket_cleanup(bucket_name, os.environ['edge_user_name'], dataproc_name)
             print('The bucket {} has been cleaned successfully'.format(bucket_name))
             actions_lib.GCPActions().delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
             print('The Dataproc cluster {} has been terminated successfully'.format(dataproc_name))
-            actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user, key_path)
+            actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user,
+                                                    key_path, computational_name)
         else:
             print("There are no Dataproc clusters to terminate.")
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -74,7 +80,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             append_result("Failed to terminate Dataproc cluster.", str(err))
             raise Exception
-    except:
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     try:

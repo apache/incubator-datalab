@@ -1,0 +1,153 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<modal-dialog #bindDialog modalClass="manage-roles-dialog modal-xxl">
+  <modal-header>
+    <h4 class="modal-title">Manage roles</h4>
+  </modal-header>
+  <modal-content>
+    <div class="content-box">
+      <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView">
+        <i class="material-icons">people_outline</i>Add group
+      </button>
+      <mat-horizontal-stepper #stepper *ngIf="stepperView" class="stepper ani">
+        <mat-step>
+          <ng-template matStepLabel>Groups</ng-template>
+          <div class="inner-step mat-reset">
+            <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup" #setupGroupName="ngModel">
+            <div class="danger_color" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only contain letters, numbers, hyphens and '_'</div>
+            <div class="danger_color" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already exists</div>
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
+            <button mat-raised-button matStepperNext class="butt">Next<i class="material-icons">keyboard_arrow_right</i></button>
+          </div>
+        </mat-step>
+        <mat-step>
+          <ng-template matStepLabel>Roles</ng-template>
+          <div class="inner-step mat-reset">
+            <div class="selector-wrapper">
+              <!-- <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'role'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown> -->
+              <mat-form-field>
+                  <mat-select multiple [compareWith]="compareObjects" name="roles" [(value)]="setupRoles" placeholder="Select roles">
+                    <mat-option class="multiple-select" disabled>
+                      <a class="select ani" (click)="selectAllOptions(setupRoles, rolesList)">
+                        <i class="material-icons">playlist_add_check</i>&nbsp;All
+                      </a>
+                      <a class="deselect ani" (click)="selectAllOptions(setupRoles)">
+                        <i class="material-icons">clear</i>&nbsp;None
+                      </a>
+                    </mat-option>
+                    <mat-option *ngFor="let role of rolesList" [value]="role">
+                      {{ role }}
+                    </mat-option>
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+            </div>
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button matStepperPrevious class="butt"><i class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
+            <button mat-raised-button matStepperNext class="butt">Next<i class="material-icons">keyboard_arrow_right</i></button>
+          </div>
+        </mat-step>
+        <mat-step>
+          <ng-template matStepLabel>Users</ng-template>
+          <div class="inner-step mat-reset">
+            <input type="text" placeholder="Enter user login" [(ngModel)]="setupUser">
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button matStepperPrevious class="butt"><i class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
+            <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
+                    [disabled]="!setupGroup || setupGroupName.errors?.pattern || !setupRoles.length > 0">Create</button>
+          </div>
+        </mat-step>
+      </mat-horizontal-stepper>
+      <mat-divider></mat-divider>
+      <div *ngIf="groupsData.length" class="ani">
+        <table class="dashboard_table">
+          <tr>
+            <th class="th_name groups">Name</th>
+            <th class="roles">Roles</th>
+            <th class="users">Users</th>
+            <th class="th_actions">Action</th>
+          </tr>
+          <tr *ngFor="let item of groupsData" class="dashboard_table_body filter-row">
+            <td>{{ item.group }}</td>
+            <td class="roles mat-reset">
+              <div class="selector-wrapper-edit">
+                <mat-form-field>
+                  <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="item.selected_roles" placeholder="Select roles">
+                    <mat-option class="multiple-select" disabled>
+                      <a class="select ani" (click)="selectAllOptions(item, rolesList, 'selected_roles')">
+                        <i class="material-icons">playlist_add_check</i>&nbsp;All
+                      </a>
+                      <a class="deselect ani" (click)="selectAllOptions(item, null, 'selected_roles')">
+                        <i class="material-icons">clear</i>&nbsp;None
+                      </a>
+                    </mat-option>
+                    <mat-option *ngFor="let role of rolesList" [value]="role">
+                      {{ role }}
+                    </mat-option>
+                  </mat-select>
+                  <button class="caret ani">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+              </div>
+            </td>
+            <td class="users-list ani">
+              <mat-form-field class="chip-list">
+                <input #user matInput placeholder="Enter user login" pattern="[@.-_0-9a-zA-Z]" (keydown.enter)="addUser(user.value, item); user.value = ''">
+                <button mat-icon-button matSuffix (click)="addUser(user.value, item); user.value = ''">
+                  <mat-icon>person_add</mat-icon>
+                </button>
+              </mat-form-field>
+              <div class="list-selected list-container ani">
+                <mat-chip-list>
+                  <mat-chip *ngFor="let user of item.users">
+                    {{ user }}
+                    <a class="material-icons" (click)="removeUser(item.users, user)">clear</a>
+                  </mat-chip>
+                </mat-chip-list>
+              </div>
+            </td>
+            <td class="actions">
+              <button mat-icon-button class="reset ani" (click)="manageAction('delete', 'group', item)">
+                <i class="material-icons">close</i>
+              </button>
+
+              <button mat-icon-button class="apply ani" matTooltip="Group cannot be updated without any selected role"
+                      matTooltipPosition="above"
+                      [matTooltipDisabled]="item.selected_roles.length > 0"
+                      [ngClass]="{ 'not-allowed' : !item.selected_roles.length }"
+                      (click)="manageAction('update', 'group', item)">
+                <i class="material-icons">done</i>
+              </button>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </modal-content>
+</modal-dialog>

@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -64,11 +67,13 @@ if __name__ == "__main__":
         try:
             notebook_config['spark_master_ip'] = GCPMeta().get_private_ip_address(notebook_config['master_node_name'])
             notebook_config['notebook_ip'] = GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
-        except:
+        except Exception as err:
+            print('Error: {0}'.format(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
             GCPActions().remove_instance(slave_name, notebook_config['zone'])
@@ -89,11 +94,35 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
             GCPActions().remove_instance(slave_name, notebook_config['zone'])
         GCPActions().remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
         append_result("Failed installing Dataengine kernels.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
+        params = "--hostname {0} " \
+                 "--keyfile {1} " \
+                 "--os_user {2} " \
+            .format(notebook_config['notebook_ip'],
+                    notebook_config['key_path'],
+                    notebook_config['dlab_ssh_user'])
+        try:
+            local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        for i in range(notebook_config['instance_count'] - 1):
+            slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
+            GCPActions().remove_instance(slave_name, notebook_config['zone'])
+        GCPActions().remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
+        append_result("Failed to configure Spark.", str(err))
         sys.exit(1)
 
     try:

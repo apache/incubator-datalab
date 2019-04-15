@@ -2,22 +2,94 @@
   "name": "CLUSTER_NAME",
   "group": "livy",
   "properties": {
-    "zeppelin.livy.concurrentSQL": "false",
-    "livy.spark.home":"SPARK_HOME",
-    "zeppelin.interpreter.localRepo": "/opt/zeppelin/local-repo/2CAC665T6",
-    "zeppelin.livy.url": "http://localhost:LIVY_PORT",
-    "zeppelin.spark.useHiveContext": "true",
-    "livy.spark.app.name": "Zeppelin",
-    "zeppelin.spark.printREPLOutput": "true",
-    "zeppelin.spark.maxResult": "1000",
-    "zeppelin.spark.concurrentSQL": "false",
-    "zeppelin.spark.importImplicit": "true",
-    "zeppelin.dep.localrepo": "local-repo",
-    "zeppelin.dep.additionalRemoteRepository": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
-    "zeppelin.R.image.width": "100%",
-    "zeppelin.R.render.options": "out.format \u003d \u0027html\u0027, comment \u003d NA, echo \u003d FALSE, results \u003d \u0027asis\u0027, message \u003d F, warning \u003d F",
-    "zeppelin.R.cmd": "R",
-    "zeppelin.R.knitr": "true"
+        "zeppelin.livy.concurrentSQL": {
+            "propertyName": "zeppelin.livy.concurrentSQL",
+            "value": "false",
+            "type": "checkbox"
+          },
+	    "livy.spark.home": {
+            "propertyName": "livy.spark.home",
+            "value": "SPARK_HOME",
+            "type": "string"
+          },
+        "zeppelin.interpreter.localRepo": {
+            "propertyName": "livy.spark.home",
+            "value": "/opt/zeppelin/local-repo/2CAC665T6",
+            "type": "string"
+          },
+        "zeppelin.livy.url": {
+            "propertyName": "zeppelin.livy.url",
+            "value": "http://localhost:LIVY_PORT",
+            "type": "string"
+          },
+        "zeppelin.spark.useHiveContext": {
+            "propertyName": "zeppelin.spark.useHiveContext",
+            "value": "true",
+            "type": "checkbox"
+          },
+        "livy.spark.app.name": {
+            "propertyName": "livy.spark.app.name",
+            "value": "Zeppelin",
+            "type": "string"
+          },
+        "zeppelin.spark.printREPLOutput": {
+            "propertyName": "zeppelin.spark.printREPLOutput",
+            "value": "true",
+            "type": "checkbox"
+          },
+        "zeppelin.spark.maxResult": {
+            "propertyName": "zeppelin.spark.maxResult",
+            "value": "1000",
+            "type": "number"
+          },
+        "zeppelin.spark.concurrentSQL": {
+            "propertyName": "zeppelin.spark.concurrentSQL",
+            "value": "false",
+            "type": "checkbox"
+          },
+        "zeppelin.spark.importImplicit": {
+            "propertyName": "zeppelin.spark.importImplicit",
+            "value": "true",
+            "type": "checkbox"
+          },
+        "zeppelin.dep.localrepo": {
+            "propertyName": "zeppelin.dep.localrepo",
+            "value": "local-repo",
+            "type": "string"
+          },
+        "zeppelin.dep.additionalRemoteRepository": {
+            "propertyName": "zeppelin.dep.additionalRemoteRepository",
+            "value": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
+            "type": "string"
+          },
+		"zeppelin.R.image.width": {
+			"envName": "ZEPPELIN_R_IMAGE_WIDTH",
+			"propertyName": "zeppelin.R.image.width",
+			"value": "100%",
+			"description": "",
+			"type": "string"
+		  },
+		"zeppelin.R.render.options": {
+			"envName": "ZEPPELIN_R_RENDER_OPTIONS",
+			"propertyName": "zeppelin.R.render.options",
+			"value": "out.format \u003d \u0027html\u0027, comment \u003d NA, echo \u003d FALSE, results \u003d \u0027asis\u0027, message \u003d F, warning \u003d F",
+			"description": "",
+			"type": "string"
+		  },
+		"zeppelin.R.cmd": {
+			"envName": "ZEPPELIN_R_CMD",
+			"propertyName": "zeppelin.R.cmd",
+			"value": "R",
+			"description": "",
+			"type": "string"
+          },
+		"zeppelin.R.knitr": {
+			"envName": "ZEPPELIN_R_KNITR",
+			"propertyName": "zeppelin.R.knitr",
+			"value": "true",
+			"description": "",
+			"type": "checkbox"
+		  }
   },
     "interpreterGroup": [
       {

@@ -1,34 +1,33 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2018, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
-
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, ViewContainerRef } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { ToastsManager } from 'ng2-toastr';
 
 import * as _moment from 'moment';
 import 'moment-timezone';
 
-import { HTTP_STATUS_CODES } from './../../core/util';
-
-import { SchedulerService } from './../../core/services';
+import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
+import { HTTP_STATUS_CODES } from '../../core/util';
+import { log } from 'util';
 
 @Component({
   selector: 'dlab-scheduler',
@@ -46,6 +45,7 @@ export class SchedulerComponent implements OnInit {
   public inherit: boolean = false;
   public parentInherit: boolean = false;
   public enableSchedule: boolean = false;
+  public enableIdleTime: boolean = false;
   public date_format: string = 'YYYY-MM-DD';
   public timeFormat: string = 'HH:mm';
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -56,6 +56,11 @@ export class SchedulerComponent implements OnInit {
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
 
+  public inactivityLimits = { min: 10, max: 10080 };
+
+
+  public idleImplemented: boolean = false;
+
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
@@ -63,11 +68,18 @@ export class SchedulerComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private schedulerService: SchedulerService,
-    private changeDetector : ChangeDetectorRef
-  ) {}
+    private changeDetector: ChangeDetectorRef,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.resetDialog();
+    this.bindDialog.onClosing = () => {
+      this.resetDialog();
+      this.buildGrid.emit();
+    };
   }
 
   public open(param, notebook, type, resource?): void {
@@ -79,13 +91,13 @@ export class SchedulerComponent implements OnInit {
 
     if (!this.bindDialog.isOpened)
       this.model = new SchedulerModel(
-        (response: Response) => {
+        response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
+            // this.toastr.success('Schedule data were successfully saved', 'Success!', { toastLife: 5000 });
             this.close();
-            this.buildGrid.emit();
           }
         },
-        error => {},
+        error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }),
         () => {
           this.formInit();
           this.changeDetector.detectChanges();
@@ -127,48 +139,80 @@ export class SchedulerComponent implements OnInit {
   public toggleSchedule($event) {
     this.enableSchedule = $event.checked;
     this.timeReqiered = false;
-    
+
+    this.enableSchedule && this.enableIdleTime && this.toggleIdleTimes({checked: false});
     (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
       ? this.schedulerForm.get('startDate').enable()
       : this.schedulerForm.get('startDate').disable();
 
     this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+
+    if (!this.enableSchedule)
+      this.model
+        .resetSchedule(this.notebook.name, this.destination.type === 'СOMPUTATIONAL' ? this.destination.computational_name : null)
+        .subscribe(res => {
+          this.resetDialog();
+        });
+  }
+
+  public toggleIdleTimes($event) {
+    this.enableIdleTime = $event.checked;
+    this.enableIdleTime && this.enableSchedule && this.toggleSchedule({checked: false});
+
+    if (!this.enableIdleTime) {
+      this.schedulerForm.controls.inactivityTime.setValue(this.inactivityLimits.min);
+    }
+  }
+
+  public setInactivity(...params) {
+    this.model.setInactivityTime(params).subscribe(
+      () => {
+        this.toastr.success('Inactivity settings were successfully saved', 'Success!', { toastLife: 5000 });
+      },
+      error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   public scheduleInstance_btnClick() {
-    let data = {
-      startDate: this.schedulerForm.controls.startDate.value,
-      finishDate: this.schedulerForm.controls.finishDate.value
-    };
 
-    if (!this.startTime && !this.endTime && this.enableSchedule) {
-      this.timeReqiered = true;
-      return false;
+    if (!this.enableIdleTime) {
+      const data = {
+        startDate: this.schedulerForm.controls.startDate.value,
+        finishDate: this.schedulerForm.controls.finishDate.value
+      };
+
+      if (!this.startTime && !this.endTime && this.enableSchedule) {
+        this.timeReqiered = true;
+        return false;
+      }
+      const selectedDays = Object.keys(this.selectedStartWeekDays);
+      const parameters: any = {
+        begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
+        finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
+        start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
+        end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
+        start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
+        stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
+        timezone_offset: this.tzOffset,
+        sync_start_required: this.inherit,
+        check_inactivity_required: this.enableIdleTime
+      };
+
+      (this.destination.type === 'СOMPUTATIONAL')
+        ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
+        : this.model.confirmAction(this.notebook.name, parameters);
+    } else {
+      const data = { check_inactivity_required: true, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
+
+      (this.destination.type === 'СOMPUTATIONAL')
+        ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
+        : this.setInactivity(this.notebook.name, data);
     }
-    const selectedDays = Object.keys(this.selectedStartWeekDays);
-    let parameters = {
-      begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
-      finish_date: data.finishDate ? _moment(data.finishDate).format(this.date_format) : null,
-      start_time: this.startTime ? this.convertTimeFormat(this.startTime) : null,
-      end_time: this.endTime ? this.convertTimeFormat(this.endTime) : null,
-      start_days_repeat: selectedDays.filter(el => Boolean(this.selectedStartWeekDays[el])).map(day => day.toUpperCase()),
-      stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
-      timezone_offset: this.tzOffset,
-      sync_start_required: this.inherit
-    };
-
-    if(!this.enableSchedule) {
-      parameters = { begin_date: null, finish_date: null, start_time: null, end_time: null, start_days_repeat: [], stop_days_repeat: [], timezone_offset: null, sync_start_required: false };
-    }
-
-    (this.destination.type === 'СOMPUTATIONAL')
-      ? this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name)
-      : this.model.confirmAction(this.notebook.name, parameters);
   }
 
   public close(): void {
-    if (this.bindDialog.isOpened) this.bindDialog.close();
-    this.buildGrid.emit();
+    if (this.bindDialog.isOpened) {
+      this.bindDialog.close();
+    }
 
     this.resetDialog();
   }
@@ -176,7 +220,8 @@ export class SchedulerComponent implements OnInit {
   private formInit(start?, end?) {
     this.schedulerForm = this.formBuilder.group({
       startDate: { disabled: this.inherit, value: start ? _moment(start).format() : null },
-      finishDate: { disabled: false, value: end ? _moment(end).format() : null }
+      finishDate: { disabled: false, value: end ? _moment(end).format() : null },
+      inactivityTime: [this.inactivityLimits.min , this.validInactivityRange.bind(this)]
     });
   }
 
@@ -191,12 +236,15 @@ export class SchedulerComponent implements OnInit {
           this.startTime = params.start_time ? this.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? this.convertTimeFormat(params.end_time) : null;
           this.formInit(params.begin_date, params.finish_date);
+          this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity);
+
+          this.enableIdleTime = params.check_inactivity_required;
           this.toggleSchedule({checked: true});
         }
       },
       error => {
-        let errorMessage = JSON.parse(error.message);
-        this.toggleSchedule({checked: false});
+        this.toastr.info(error.message || 'Scheduler job data not found!', null, { toastLife: 5000 });
+        this.resetDialog();
       }
     );
   }
@@ -204,6 +252,13 @@ export class SchedulerComponent implements OnInit {
   private checkParentInherit() {
     this.schedulerService.getExploratorySchedule(this.notebook.name)
       .subscribe((res: any) => this.parentInherit = res.sync_start_required);
+  }
+
+  private validInactivityRange(control) {
+    if (control)
+      return this.enableIdleTime
+          ? (control.value && control.value >= this.inactivityLimits.min && control.value <= this.inactivityLimits.max ? null : { valid: false })
+          : control.value;
   }
 
   private convertTimeFormat(time24: any) {

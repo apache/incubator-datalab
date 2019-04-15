@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -33,6 +36,7 @@ parser.add_argument('--type', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 parser.add_argument('--additional_info', type=str, default='')
 args = parser.parse_args()
+
 
 def make_template():
     conf_file_name = args.exploratory_name
@@ -85,6 +89,7 @@ def make_template():
         f.close()
     return conf_file_name
 
+
 ##############
 # Run script #
 ##############
@@ -94,7 +99,7 @@ if __name__ == "__main__":
     try:
         conf_file_name = make_template()
     except Exception as err:
-        print('Error:', str(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Configure connections")
@@ -102,7 +107,7 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.edge_hostname
     put('/tmp/{}.conf'.format(conf_file_name), '/etc/nginx/locations', use_sudo=True)
-    sudo('service nginx restart')
+    sudo('service nginx reload')
 
 
 

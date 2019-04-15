@@ -1,0 +1,10 @@
+{
+    "conf_resource": "notebook",
+    "request_id": "RID",
+    "edge_user_name": "NUN",
+    "notebook_instance_name": "NIN",
+    "azure_user_refresh_token":"AURT",
+    "additional_libs": "ADL",
+    "application": "APP",
+    "spark_configurations": SPC
+}

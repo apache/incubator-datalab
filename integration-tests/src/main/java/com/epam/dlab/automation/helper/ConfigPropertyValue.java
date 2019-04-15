@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package com.epam.dlab.automation.helper;
 
@@ -76,6 +77,7 @@ public class ConfigPropertyValue {
 
 	private static final String JUPYTER_SCENARIO_FILES = "JUPYTER_SCENARIO_FILES";
 	private static final String NOTEBOOKS_TO_TEST = "NOTEBOOKS_TO_TEST";
+	private static final String SKIPPED_LIBS = "SKIPPED_LIBS";
 	private static final String EXECUTION_TREADS = "execution.threads";
 
     private static final String USE_JENKINS = "USE_JENKINS";
@@ -150,6 +152,7 @@ public class ConfigPropertyValue {
 			PropertiesResolver.overlapProperty(props, GCP_DLAB_PROJECT_ID, true);
             PropertiesResolver.overlapProperty(props, GCP_REGION, true);
             PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
+			PropertiesResolver.overlapProperty(props, SKIPPED_LIBS, true);
 			PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
             PropertiesResolver.overlapProperty(props, JENKINS_JOB_URL, !isUseJenkins());
             PropertiesResolver.overlapProperty(props, SSN_URL, isUseJenkins());
@@ -189,6 +192,7 @@ public class ConfigPropertyValue {
         printProperty(AZURE_DATALAKE_SHARED_ACCOUNT);
         printProperty(AZURE_STORAGE_SHARED_ACCOUNT);
         printProperty(NOTEBOOKS_TO_TEST);
+		printProperty(SKIPPED_LIBS);
 		printProperty(CLUSTER_OS_USERNAME);
         printProperty(CLUSTER_OS_FAMILY);
         printProperty(CONF_TAG_RESOURCE_ID);
@@ -358,6 +362,10 @@ public class ConfigPropertyValue {
     public static String getNotebookTemplates() {
     	return get(NOTEBOOKS_TO_TEST);
     }
+
+	public static String getSkippedLibs() {
+		return get(SKIPPED_LIBS, "[]");
+	}
 
 	public static boolean isUseJenkins() {
         String s = get(USE_JENKINS, "true");

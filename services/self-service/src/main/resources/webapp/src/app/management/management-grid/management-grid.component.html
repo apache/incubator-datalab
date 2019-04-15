@@ -1,20 +1,21 @@
 <!--
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
--->
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
 <table class="dashboard_table">
   <tr>
@@ -26,7 +27,7 @@ limitations under the License.
     <th class="th_actions">Action</th>
   </tr>
 
-  <tr *ngFor="let env of allEnvironmentData">
+  <tr *ngFor="let env of allEnvironmentData" class="dashboard_table_body">
     <td>{{ env.user }}</td>
     <td [ngClass]="{'capitalize': env.name === 'edge node'}">{{ env.name }}</td>
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
@@ -64,10 +65,11 @@ limitations under the License.
             [ngClass]="{ 'disabled' : !uploadKey || env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping' }"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
-          <li matTooltip="Unable to stop notebook because at least one computational resource is in progress"
+          <li matTooltip="{{ env.name !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
               matTooltipPosition="above"
               [matTooltipDisabled]="!isResourcesInProgress(env)">
-              <div (click)="toggleResourceAction(env, 'stop')" [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating image' || isResourcesInProgress(env)}">
+              <div (click)="toggleResourceAction(env, 'stop')"
+                   [ngClass]="{'not-allowed' : env.status === 'stopped' || env.status === 'stopping' || env.status === 'starting' || env.status === 'creating image' || isResourcesInProgress(env)}">
                 <i class="material-icons">pause_circle_outline</i>
                 <span>Stop</span>
               </div>

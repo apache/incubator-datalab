@@ -1,18 +1,21 @@
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -35,6 +38,7 @@ import urllib2
 import dlab.fab
 import dlab.common_lib
 import backoff
+import ast
 
 
 class GCPActions:
@@ -963,7 +967,7 @@ class GCPActions:
         local(""" sudo bash -c " sed -i 's/STANDALONE_SPARK_MASTER_HOST.*/STANDALONE_SPARK_MASTER_HOST={0}-m/g' {1}" """.format(args.cluster_name, spark_def_path))
         local(""" sudo bash -c " sed -i 's|/hadoop_gcs_connector_metadata_cache|/tmp/hadoop_gcs_connector_metadata_cache|g' /opt/{0}/{1}/conf/core-site.xml" """.format(args.dataproc_version, args.cluster_name))
 
-    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path):
+    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path, computational_name):
         try:
             notebook_ip = meta_lib.GCPMeta().get_private_ip_address(notebook_name)
             env.hosts = "{}".format(notebook_ip)
@@ -1010,7 +1014,7 @@ class GCPActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(dataproc_name, ssh_user)
+                dlab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
             sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
@@ -1175,7 +1179,8 @@ def ensure_local_jars(os_user, jars_dir):
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
 
 
@@ -1214,26 +1219,53 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
             sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
             sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, memory_type='driver'):
-    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
-        try:
-            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-            if os.environ['application'] == 'zeppelin':
-                sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
-        except:
-            sys.exit(1)
+def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
+        # Checking if spark.jars parameter was generated previously
+        spark_jars_paths = None
+        if exists('/opt/spark/conf/spark-defaults.conf'):
+            try:
+                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+            except:
+                spark_jars_paths = None
+        put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        if os.environ['application'] == 'zeppelin':
+            sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = dlab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type, spark_memory))
-    except:
+            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+                                                                                              spark_memory))
+        if 'spark_configurations' in os.environ:
+            spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+            new_spark_defaults = list()
+            spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
+            current_spark_properties = spark_defaults.split('\n')
+            for param in current_spark_properties:
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
+            new_spark_defaults = set(new_spark_defaults)
+            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            for prop in new_spark_defaults:
+                prop = prop.rstrip()
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+            if spark_jars_paths:
+                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+    except Exception as err:
+        print('Error:', str(err))
         sys.exit(1)
 
 
@@ -1287,7 +1319,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
@@ -1305,9 +1337,45 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
 
 
-def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, region, datalake_enabled):
-    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-          /tmp/{1}notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
-    local('mv /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name, cluster_dir))
-    local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
+def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
+    	          /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
+    if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
+        additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
+                                            '/tmp/{0}/notebook_spark-defaults_local.conf '
+                                            '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
+            cluster_name, cluster_dir), capture=True)
+        for property in additional_spark_properties.split('\n'):
+            local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
+    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
+                                                                                                        cluster_dir))
+    local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
+    if spark_configs:
+        spark_configurations = ast.literal_eval(spark_configs)
+        new_spark_defaults = list()
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
+        current_spark_properties = spark_defaults.split('\n')
+        for param in current_spark_properties:
+            for config in spark_configurations:
+                if config['Classification'] == 'spark-defaults':
+                    for property in config['Properties']:
+                        if property == param.split(' ')[0]:
+                            param = property + ' ' + config['Properties'][property]
+                        else:
+                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
+            new_spark_defaults.append(param)
+        new_spark_defaults = set(new_spark_defaults)
+        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        for prop in new_spark_defaults:
+            prop = prop.rstrip()
+            local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
+        local('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
 
+
+def find_des_jars(all_jars, des_path):
+    try:
+        # Use this method to filter cloud jars (see an example in aws method)
+        return all_jars
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)

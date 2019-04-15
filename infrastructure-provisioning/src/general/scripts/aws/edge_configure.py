@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -43,11 +46,14 @@ if __name__ == "__main__":
                                                      os.environ['edge_user_name']).lower().replace('_', '-')
     edge_conf['shared_bucket_name'] = (edge_conf['service_base_name'] + '-shared-bucket').lower().replace('_', '-')
     edge_conf['edge_security_group_name'] = '{}-SG'.format(edge_conf['instance_name'])
-    edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'],
+                                                            os.environ['edge_user_name'])
     edge_conf['notebook_role_profile_name'] = '{}-{}-nb-Profile' \
         .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
     edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'],
                                                                      os.environ['edge_user_name'])
+    edge_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
+        .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     tag = {"Key": edge_conf['tag_name'],
            "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
@@ -62,6 +68,12 @@ if __name__ == "__main__":
         edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get(
             'Private')
         edge_conf['edge_public_ip'] = edge_conf['edge_private_ip']
+    edge_conf['vpc1_cidrs'] = get_vpc_cidr_by_id(os.environ['aws_vpc_id'])
+    edge_conf['vpc2_cidrs'] = get_vpc_cidr_by_id(os.environ['aws_notebook_vpc_id'])
+    edge_conf['vpc_cidrs'] = list(set(edge_conf['vpc1_cidrs'] + edge_conf['vpc2_cidrs']))
+    edge_conf['allowed_ip_cidr'] = list()
+    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+        edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
 
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
@@ -87,6 +99,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -108,6 +121,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -122,7 +136,14 @@ if __name__ == "__main__":
         print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
-                             "template_file": "/root/templates/squid.conf"}
+                             "template_file": "/root/templates/squid.conf",
+                             "edge_user_name": os.environ['aws_iam_user'],
+                             "ldap_host": os.environ['ldap_hostname'],
+                             "ldap_dn": os.environ['ldap_dn'],
+                             "ldap_user": os.environ['ldap_service_username'],
+                             "ldap_password": os.environ['ldap_service_password'],
+                             "vpc_cidrs": edge_conf['vpc_cidrs'],
+                             "allowed_ip_cidr": edge_conf['allowed_ip_cidr']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}" \
                  .format(instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
@@ -131,6 +152,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing http proxy.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
@@ -155,7 +177,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing users key. Excpeption: " + str(err))
+        print('Error: {0}'.format(err))
+        append_result("Failed installing users key." + str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
@@ -176,7 +199,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing users key. Excpeption: " + str(err))
+        print('Error: {0}'.format(err))
+        append_result("Failed installing users key." + str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])

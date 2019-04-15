@@ -1,24 +1,28 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.service.SparkClusterService;
+import com.epam.dlab.backendapi.service.impl.SparkClusterService;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
+import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
 import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
@@ -77,6 +81,14 @@ public class ComputationalResourceAzure {
 				dto.getComputationalName(), ui.getName(), dto);
 
 		return sparkClusterService.start(ui, dto);
+	}
+
+	@POST
+	@Path(ComputationalAPI.COMPUTATIONAL_RECONFIGURE_SPARK)
+	public String reconfigureSparkCluster(@Auth UserInfo ui, ComputationalClusterConfigDTO config) {
+		log.debug("User is reconfiguring {} spark cluster for exploratory {}", ui.getName(),
+				config.getComputationalName(), config.getNotebookInstanceName());
+		return sparkClusterService.updateConfig(ui, config);
 	}
 
 }

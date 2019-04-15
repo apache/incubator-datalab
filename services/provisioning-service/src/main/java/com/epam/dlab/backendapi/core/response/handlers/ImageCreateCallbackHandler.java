@@ -1,21 +1,25 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
@@ -38,20 +42,24 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 	@JsonProperty
 	private final String exploratoryName;
 
-	public ImageCreateCallbackHandler(RESTService selfService, String uuid, DockerAction action,
-									  ExploratoryImageDTO image) {
-		super(selfService, image.getCloudSettings().getIamUser(), uuid, action);
+	public ImageCreateCallbackHandler(
+			SystemUserInfoService systemUserInfoService,
+			RESTService selfService, String uuid, DockerAction action,
+			ExploratoryImageDTO image) {
+		super(systemUserInfoService, selfService, image.getCloudSettings().getIamUser(), uuid, action);
 		this.imageName = image.getImageName();
 		this.exploratoryName = image.getExploratoryName();
 	}
 
 	@JsonCreator
-	private ImageCreateCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("uuid") String uuid,
-									  @JsonProperty("action") DockerAction action,
-									  @JsonProperty("user") String user,
-									  @JsonProperty("imageName") String imageName,
-									  @JsonProperty("exploratoryName") String exploratoryName) {
-		super(selfService, user, uuid, action);
+	private ImageCreateCallbackHandler(
+			@JacksonInject SystemUserInfoService systemUserInfoService,
+			@JacksonInject RESTService selfService, @JsonProperty("uuid") String uuid,
+			@JsonProperty("action") DockerAction action,
+			@JsonProperty("user") String user,
+			@JsonProperty("imageName") String imageName,
+			@JsonProperty("exploratoryName") String exploratoryName) {
+		super(systemUserInfoService, selfService, user, uuid, action);
 		this.imageName = imageName;
 		this.exploratoryName = exploratoryName;
 	}

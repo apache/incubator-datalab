@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -43,7 +46,8 @@ if __name__ == "__main__":
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
                               "Image": image_conf['image_name'],
-                              "FIN": image_conf['full_image_name']}
+                              "FIN": image_conf['full_image_name'],
+                              os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])
@@ -86,6 +90,7 @@ if __name__ == "__main__":
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
                 print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
             except Exception as err:
+                print('Error: {0}'.format(err))
                 AzureActions().remove_instance(image_conf['resource_group_name'], image_conf['instance_name'])
                 append_result("Failed to create instance from image.", str(err))
                 sys.exit(1)
@@ -100,5 +105,6 @@ if __name__ == "__main__":
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to create image from notebook", str(err))
         sys.exit(1)

@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -31,7 +34,7 @@ parser.add_argument('--user', type=str, default='dlab-user', help='System userna
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
 parser.add_argument('--configs', type=str, default='skip', help='Comma separated names of config files, like "security.yml", etc. Default: skip. Also available: all')
 parser.add_argument('--keys', type=str, default='skip', help='Comma separated names of keys, like "user_name.pub". Default: skip. Also available: all')
-parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Default: skip. Also available: all')
+parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Default: skip. Also available: all')
 parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Default: skip. Also available: all')
 parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
 parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). Key without arguments. Default: disable')
@@ -192,7 +195,7 @@ if __name__ == "__main__":
     conf_folder = 'conf/'
     keys_folder = '/home/{}/keys/'.format(os_user)
     certs_folder = '/etc/ssl/certs/'
-    all_certs = ['dhparam.pem', 'dlab-selfsigned.crt', 'dlab-selfsigned.key']
+    all_certs = ['dhparam.pem', 'dlab.crt', 'dlab.key']
     jars_folder = 'webapp/lib/'
     dlab_logs_folder = '/var/log/dlab/'
     docker_logs_folder = '/var/lib/docker/containers/'

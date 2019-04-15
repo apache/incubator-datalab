@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service.impl;
@@ -32,6 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -102,11 +106,12 @@ public class InfrastructureTemplateServiceBaseTest {
 
 	@Test
 	public void getComputationalTemplates() throws NoSuchFieldException, IllegalAccessException {
-		List<ComputationalMetadataDTO> expectedCmdDtoList = Arrays.asList(
-				new ComputationalMetadataDTO("dataengine-service"),
-				new ComputationalMetadataDTO("dataengine-service")
+		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
+		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
+		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(
+				computationalMetadataDTO
 		);
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray());
+		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
 				.map(e -> infrastructureTemplateServiceBaseChild.getCloudFullComputationalTemplate(e))
@@ -142,11 +147,10 @@ public class InfrastructureTemplateServiceBaseTest {
 
 	@Test
 	public void getComputationalTemplatesWithInapproprietaryImageName() {
-		List<ComputationalMetadataDTO> expectedCmdDtoList = Arrays.asList(
-				new ComputationalMetadataDTO("dataengine-service"),
-				new ComputationalMetadataDTO("blablabla")
-		);
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray());
+		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
+		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
+		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
+		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {

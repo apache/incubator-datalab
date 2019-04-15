@@ -15,6 +15,8 @@ CONTENTS
 
 [DLab Deployment](#DLab_Deployment)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of main DLab directory](#DLab_directory)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of log directory](#log_directory)
@@ -136,11 +138,13 @@ The next step is setting up a Notebook node (or a Notebook server). It is a serv
 
 -   Jupyter
 -   RStudio
--   Zeppelin
+-   Apache Zeppelin
 -   TensorFlow + Jupyter
 -   Deep Learning + Jupyter
 
 Apache Spark is also installed for each of the analytical tools above.
+
+**Note:** terms 'Apache Zeppelin' and 'Apache Spark' hereinafter may be referred to as 'Zeppelin' and 'Spark' respectively or may have original reference.
 
 ## Data engine cluster
 
@@ -150,6 +154,31 @@ After deploying Notebook node, user can create one of the cluster for it:
 That simplifies running big data frameworks, such as Apache Hadoop and Apache Spark to process and analyze vast amounts of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for job execution.
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
+
+## Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
+
+#### In Amazon cloud
+If you want to deploy DLab from inside of your AWS account, you can use the following instruction:
+
+- Create an EC2 instance with the following settings:
+    - Shape of the instance shouldn't be less than t2.medium
+    - The instance should have access to Internet in order to install required prerequisites 
+    - The instance should have access to further DLab installation
+    - AMI - Ubuntu 16.04
+    - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
+- Connect to the instance via SSH and run the following commands:
+```
+    sudo su
+    apt-get update
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    apt-get update
+    apt-cache policy docker-ce
+    apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
+    usermod -a -G docker ubuntu
+    pip install fabric==1.14.0
+```
+- Clone DLab repository and run deploy script.
 
 ## Structure of main DLab directory <a name="DLab_directory"></a>
 
@@ -207,110 +236,68 @@ Prerequisites:
  - SSH key for EC2 instances. This key could be created through Amazon Console.
  - IAM user
  - AWS access key ID and secret access key
- - VPC ID
- - Subnet ID
- - The following permissions should be assigned either for IAM user or EC2 instance:
+ - The following permissions should be assigned for IAM user:
+ <a name="AWS_SSN_policy"></a>
 ```
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "iam:CreatePolicy",
-                "iam:AttachRolePolicy",
-                "iam:DetachRolePolicy",
-                "iam:DeletePolicy",
-                "iam:DeleteRolePolicy",
-                "iam:GetRolePolicy",
-                "iam:GetPolicy",
-                "iam:GetUser",
-                "iam:ListUsers",
-                "iam:ListAccessKeys",
-                "iam:ListUserPolicies",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListPolicies",
-                "iam:ListRolePolicies",
-                "iam:ListRoles",
-                "iam:CreateRole",
-                "iam:CreateInstanceProfile",
-                "iam:PutRolePolicy",
-                "iam:AddRoleToInstanceProfile",
-                "iam:PassRole",
-                "iam:GetInstanceProfile",
-                "iam:ListInstanceProfilesForRole",
-                "iam:RemoveRoleFromInstanceProfile",
-                "iam:DeleteInstanceProfile",
-                "iam:ListInstanceProfiles",
-                "iam:DeleteRole",
-                "iam:GetRole"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": [
-                "ec2:AuthorizeSecurityGroupEgress",
-                "ec2:AuthorizeSecurityGroupIngress",
-                "ec2:DeleteRouteTable",
-                "ec2:DeleteSubnet",
-                "ec2:DeleteTags",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeInstanceStatus",
-                "ec2:ModifyInstanceAttribute",
-                "ec2:RevokeSecurityGroupIngress",
-                "ec2:DescribeImages",
-                "ec2:CreateTags",
-                "ec2:DescribeRouteTables",
-                "ec2:CreateRouteTable",
-                "ec2:AssociateRouteTable",
-                "ec2:DescribeVpcEndpoints",
-                "ec2:CreateVpcEndpoint",
-                "ec2:ModifyVpcEndpoint",
-                "ec2:DescribeInstances",
-                "ec2:RunInstances",
-                "ec2:DescribeAddresses",
-                "ec2:AllocateAddress",
-                "ec2:AssociateAddress",
-                "ec2:DisassociateAddress",
-                "ec2:ReleaseAddress",
-                "ec2:TerminateInstances",
-                "ec2:AuthorizeSecurityGroupIngress",
-                "ec2:AuthorizeSecurityGroupEgress",
-                "ec2:DescribeSecurityGroups",
-                "ec2:CreateSecurityGroup",
-                "ec2:DeleteSecurityGroup",
-                "ec2:RevokeSecurityGroupEgress"
-                
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": [
-                "s3:GetBucketLocation",
-                "s3:PutBucketPolicy",
-                "s3:GetBucketPolicy",
-                "s3:DeleteBucket",
-                "s3:DeleteObject",
-                "s3:GetObject",
-                "s3:ListBucket",
-                "s3:PutEncryptionConfiguration"
-                "s3:ListAllMyBuckets",
-                "s3:CreateBucket",
-                "s3:PutBucketTagging",
-                "s3:GetBucketTagging"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        }
-    ]
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Action": [
+				"iam:ListRoles",
+				"iam:CreateRole",
+				"iam:CreateInstanceProfile",
+				"iam:PutRolePolicy",
+				"iam:AddRoleToInstanceProfile",
+				"iam:PassRole",
+				"iam:GetInstanceProfile",
+				"iam:ListInstanceProfilesForRole"
+				"iam:RemoveRoleFromInstanceProfile",
+				"iam:DeleteInstanceProfile"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"ec2:DescribeImages",
+				"ec2:CreateTags",
+				"ec2:DescribeRouteTables",
+				"ec2:CreateRouteTable",
+				"ec2:AssociateRouteTable",
+				"ec2:DescribeVpcEndpoints",
+				"ec2:CreateVpcEndpoint",
+				"ec2:ModifyVpcEndpoint",
+				"ec2:DescribeInstances",
+				"ec2:RunInstances",
+				"ec2:DescribeAddresses",
+				"ec2:AllocateAddress",
+				"ec2:DescribeInstances",
+				"ec2:AssociateAddress",
+				"ec2:DisassociateAddress",
+				"ec2:ReleaseAddress",
+				"ec2:TerminateInstances"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"s3:ListAllMyBuckets",
+				"s3:CreateBucket",
+				"s3:PutBucketTagging",
+				"s3:GetBucketTagging"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		}
+	]
 }
 ```
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
@@ -328,8 +315,9 @@ List of parameters for SSN node deployment:
 | aws\_secret\_access\_key  | AWS user secret access key                                                              |
 | aws\_region               | AWS region                                                                              |
 | conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)                            |
-| aws\_vpc\_id              | ID of the Virtual Private Cloud (VPC)                                                   |
+| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS) 
+| conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
+| aws\_vpc\_id              | ID of the VPC                                                   |
 | aws\_subnet\_id           | ID of the public subnet                                                                 |
 | aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
 | key\_path                 | Path to admin key (without key name)                                                    |
@@ -338,7 +326,8 @@ List of parameters for SSN node deployment:
 | aws\_account\_id          | The The ID of Amazon account                                                            |
 | aws\_billing\_bucket      | The name of S3 bucket where billing reports will be placed                              |
 | aws\_report\_path         | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
-| action                    | In case of SSN node creation, this parameter should be set to “create”                  |
+| action                    | In case of SSN node creation, this parameter should be set to “create”
+| workspace\_path           | Path to DLab sources root
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   aws\_vpc\_id
@@ -375,7 +364,7 @@ Prerequisites:
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed
 2.  Go to *dlab* directory
 3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
 4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
@@ -458,7 +447,7 @@ Prerequisites:
   
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
@@ -567,7 +556,7 @@ Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a 
 
 ### Create
 
-In order to create Edge node using DLab Web UI – login and, click on the button “Upload”. Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
+In order to create Edge node using DLab Web UI – login and, click on the button “Upload” (Depending on authorization provider that was chosen on deployment stage, user may be taken from [LDAP](#LDAP_Authentication) or from [Azure AD (Oauth2)](#Azure_OAuth2_Authentication)). Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
 
 #### In Amazon
 
@@ -1671,7 +1660,7 @@ List of parameters for run backup:
 | --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
 | --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
 | --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
-| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Also available: skip. Default: all |
 | --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
 | --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
 | --logs         | All logs (include docker). Key without arguments. Default: disable                                                      |
@@ -1683,7 +1672,7 @@ List of parameters for run restore:
 | --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
 | --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
 | --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
-| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Also available: skip. Default: all |
 | --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
 | --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
 | --file         | Full or relative path to backup file or folder. Required field                                                          |
@@ -1744,6 +1733,7 @@ docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/ju
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/rstudio_Dockerfile -t docker.dlab-rstudio .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/zeppelin_Dockerfile -t docker.dlab-zeppelin .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor_Dockerfile -t docker.dlab-tensor .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor-rstudio_Dockerfile -t docker.dlab-tensor-rstudio .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/deeplearning_Dockerfile -t docker.dlab-deeplearning .
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/dataengine_Dockerfile -t docker.dlab-dataengine .
 ```
@@ -1779,16 +1769,8 @@ DLab services could be ran in development mode. This mode emulates real work an 
 In order to start development of Front-end Web UI part of DLab - Git repository should be cloned and the following packages should be installed:
 
 -   Git 1.7 or higher
--   Maven 3.3 or higher
--   Python 2.7
--   Mongo DB 3.0 or higher
+-   Python 2.7 with library Fabric v1.14.0
 -   Docker 1.12 - Infrastructure provisioning
--   Java Development Kit 8 – Back-end
--   Node.js 6.x & 7.x - WebUI
--   Angular CLI v1.0.0-rc.1 or higher - WebUI
--   TypeScript v2.0 or higher - WebUI
--   Angular2 v2.4 – WebUI
--   Development IDE (Eclipse or Intellij IDEA)
 
 ## Java back-end services <a name="Java_back_end_services"></a>
 
@@ -1847,7 +1829,7 @@ Security service is REST based service for user authentication against LDAP/LDAP
 LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. 
 If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
 
-DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP ot OAuth2
+DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP or OAuth2
 If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure). 
 If Data Lake is enabled default permission scope(can be configured manually after deploy DLab) is Data Lake Store account so only if user has any role in scope of Data Lake Store Account resource he/she will be allowed to log in
 If Data Lake is disabled but Azure OAuth2 is in use default permission scope will be Resource Group where DLab is created and only users who have any roles in the resource group will be allowed to log in.
@@ -2334,10 +2316,10 @@ Example of this file for Jupyter node for AWS cloud:
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 5.2.0",
+      "template_name": "Jupyter notebook 5.7.4",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-5.2.0",
+      "version": "jupyter_notebook-5.7.4",
       "vendor": "Azure"
     }
   ]
@@ -2403,7 +2385,6 @@ To apply some customization it is required to update a few properties in **secur
 ### Properties overview
 
 There are just a few properties based in which the customization could be done:
-
 - **ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com**
 - **ldapBindAttribute: uid**
 - **ldapSearchAttribute: uid**
@@ -2412,6 +2393,12 @@ Where the:
 - **ldapBindTemplate** is a user`s DN template which should be filed with custom value. Here the template could be changed: uid=%s,ou=People,dc=example,dc=com -> cn=%s,ou=People,dc=example,dc=com.
 - **ldapBindAttribute** - this is a major attribute, on which the DN is based on. Usually it is any of: uid or cn, or email.
 - **ldapSearchAttribute** - another attribute, based on which users will be looked up in LDAP.
+
+Additional parameters that are populated during deployment and may be changed in future are:
+- **ldapConnectionConfig.name: ldap user name**
+- **ldapConnectionConfig.ldapHost: ldap host**
+- **ldapConnectionConfig.ldapPort: ldap port**
+- **ldapConnectionConfig.credentials: ldap credentials**
  
 ### Scripts overview
 

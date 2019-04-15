@@ -1,26 +1,31 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
@@ -39,8 +44,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
+import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.NOT_ACTIVE;
+import static java.util.stream.Collectors.toList;
 
 @Singleton
 @Slf4j
@@ -49,7 +57,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private static final String ERROR_MSG_FORMAT = "Can not %s environment because on of user resource is in status " +
 			"CREATING or STARTING";
 	@Inject
-	private EnvStatusDAO envStatusDAO;
+	private EnvDAO envDAO;
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 	@Inject
@@ -62,31 +70,43 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private KeyDAO keyDAO;
 	@Inject
 	private EdgeService edgeService;
+	@Inject
+	private UserSettingsDAO settingsDAO;
 
 	@Override
-	public Set<String> getActiveUsers() {
-		log.debug("Getting users that have at least 1 running instance");
-		return envStatusDAO.fetchActiveEnvUsers();
+	public List<UserDTO> getUsers() {
+		final Set<String> activeUsers = envDAO.fetchActiveEnvUsers();
+		log.trace("Active users: {}", activeUsers);
+		final Set<String> notActiveUsers = envDAO.fetchUsersNotIn(activeUsers);
+		log.trace("Not active users: {}", notActiveUsers);
+		final Stream<UserDTO> activeUsersStream = activeUsers
+				.stream()
+				.map(u -> toUserDTO(u, ACTIVE));
+		final Stream<UserDTO> notActiveUsersStream = notActiveUsers
+				.stream()
+				.map(u -> toUserDTO(u, NOT_ACTIVE));
+		return Stream.concat(activeUsersStream, notActiveUsersStream)
+				.collect(toList());
 	}
 
 	@Override
-	public Set<String> getAllUsers() {
+	public Set<String> getUserNames() {
 		log.debug("Getting all users...");
-		return envStatusDAO.fetchAllUsers();
+		return envDAO.fetchAllUsers();
 	}
 
 	@Override
 	public List<UserResourceInfo> getAllEnv() {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-		return getAllUsers().stream().map(user -> getUserEnv(user, expList)).flatMap(Collection::stream)
-				.collect(Collectors.toList());
+		return getUserNames().stream().map(user -> getUserEnv(user, expList)).flatMap(Collection::stream)
+				.collect(toList());
 	}
 
 	@Override
 	public void stopAll() {
 		log.debug("Stopping environment for all users...");
-		getAllUsers().forEach(this::stopEnvironment);
+		getUserNames().forEach(this::stopEnvironment);
 	}
 
 	@Override
@@ -118,7 +138,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Override
 	public void terminateAll() {
 		log.debug("Terminating environment for all users...");
-		getAllUsers().forEach(this::terminateEnvironment);
+		getUserNames().forEach(this::terminateEnvironment);
 	}
 
 	@Override
@@ -140,6 +160,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Override
 	public void terminateComputational(String user, String exploratoryName, String computationalName) {
 		terminateCluster(user, exploratoryName, computationalName);
+	}
+
+	private UserDTO toUserDTO(String u, UserDTO.Status status) {
+		return new UserDTO(u, settingsDAO.getAllowedBudget(u).orElse(null), status);
 	}
 
 	private void checkState(String user, String action) {
@@ -181,7 +205,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private void terminateCluster(String user, String exploratoryName, String computationalName) {
 		final UserInfo userInfo = systemUserInfoService.create(user);
-		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 	}
 
 	private List<UserResourceInfo> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
@@ -191,7 +215,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.withUser(user);
 		return Stream.concat(Stream.of(edgeResource), allInstances.stream()
 				.filter(instance -> instance.getUser().equals(user)).map(this::toUserResourceInfo))
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {

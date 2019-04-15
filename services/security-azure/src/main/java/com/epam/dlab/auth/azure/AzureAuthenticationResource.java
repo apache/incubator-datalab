@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2017, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.auth.azure;
@@ -24,6 +27,7 @@ import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.auth.rest.AbstractAuthenticationService;
 import com.epam.dlab.dto.azure.auth.AuthorizationCodeFlowResponse;
+import com.epam.dlab.rest.dto.ErrorDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -149,9 +153,9 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 					(azureLoginConfiguration, response))).build();
 		} catch (AuthenticationException e) {
 			log.error("OAuth authentication failed", e);
-			return Response.status(Response.Status.UNAUTHORIZED)
-					.entity(new AzureLocalAuthResponse(null, null,
-							"User authentication failed")).build();
+			final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
+			return Response.status(unauthorized)
+					.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
 		}
 	}
 
@@ -183,8 +187,8 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 				log.warn("Cannot handle authentication exception", ioException);
 			}
 		}
-		return Response.status(Response.Status.UNAUTHORIZED)
-				.entity(new AzureLocalAuthResponse(null, null,
-						"User authentication failed")).build();
+		final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
+		return Response.status(unauthorized)
+				.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
 	}
 }

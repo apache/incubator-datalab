@@ -1,23 +1,27 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
@@ -39,9 +43,11 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	@Inject
 	private KeyDAO keyDAO;
 	@Inject
-	private EnvStatusDAO envDAO;
+	private EnvDAO envDAO;
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
+	@Inject
+	private BillingDAO billingDAO;
 
 
 	@SuppressWarnings("unchecked")
@@ -68,7 +74,9 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 		try {
 			return envDAO.getHealthStatusPageDTO(user, fullReport)
 					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
-					.withAdmin(isAdmin);
+					.withAdmin(isAdmin)
+					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed())
+					.withBillingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user));
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);

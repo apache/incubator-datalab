@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /* tslint:disable:no-empty */
 
 import { Observable } from 'rxjs/Observable';
@@ -38,6 +39,7 @@ export class ExploratoryEnvironmentCreateModel {
   private environment_template_name: string;
   private environment_version: string;
   private environment_shape: string;
+  private config: any;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
@@ -83,12 +85,13 @@ export class ExploratoryEnvironmentCreateModel {
     }
   }
 
-  public setCreatingParams(name, shape): void {
+  public setCreatingParams(name, shape, config?): void {
     this.environment_image = this.selectedItem.image;
     this.environment_version = this.selectedItem.version;
     this.environment_template_name = this.selectedItem.template_name;
     this.environment_name = name;
     this.environment_shape = shape;
+    this.config = config;
   }
 
   public loadTemplates(): void {
@@ -122,8 +125,8 @@ export class ExploratoryEnvironmentCreateModel {
     this.setSelectedTemplate(0);
   }
 
-  private createExploratoryEnvironment(): Observable<Response> {
-    let params: any = {
+  private createExploratoryEnvironment(): Observable<{}> {
+    const params: any = {
       image: this.environment_image,
       template_name: this.environment_template_name,
       name: this.environment_name,
@@ -133,6 +136,7 @@ export class ExploratoryEnvironmentCreateModel {
     if (this.notebookImage)
       params.notebook_image_name = this.notebookImage;
 
+    if (this.config) params.cluster_config = this.config;
     return this.userResourceService.createExploratoryEnvironment(params);
   }
 
@@ -144,8 +148,10 @@ export class ExploratoryEnvironmentCreateModel {
     environment_shape: string,
     fnProcessResults: any, fnProcessErrors: any): void {
 
-    this.setCreatingParams(environment_name, environment_shape);
+    this.setCreatingParams(environment_name, environment_shape, this.config);
     this.confirmAction = () => this.createExploratoryEnvironment()
-      .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
+      .subscribe(
+        response => fnProcessResults(response),
+        error => fnProcessErrors(error));
   }
 }

@@ -1,20 +1,21 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
@@ -71,16 +72,27 @@ export class ManagementGridComponent {
   }
 
   isResourcesInProgress(notebook) {
-    if(notebook && notebook.resources.length) {
-      return notebook.resources.filter(resource => (
-        resource.status !== 'failed'
-        && resource.status !== 'terminated'
-        && resource.status !== 'running'
-        && resource.status !== 'stopped')).length > 0;
+    if (notebook) {
+      if (notebook.name === 'edge node') {
+        return this.allEnvironmentData
+          .filter(env => env.user === notebook.user)
+          .some(el => this.inProgress([el]) || this.inProgress(el.resources));
+      } else if (notebook.resources.length) {
+        return this.inProgress(notebook.resources);
+      }
     }
     return false;
   }
+
+  inProgress(resources) {
+    return resources.filter(resource => (
+      resource.status !== 'failed'
+      && resource.status !== 'terminated'
+      && resource.status !== 'running'
+      && resource.status !== 'stopped')).length > 0;
+  }
 }
+
 
 @Component({
   selector: 'confirm-dialog',

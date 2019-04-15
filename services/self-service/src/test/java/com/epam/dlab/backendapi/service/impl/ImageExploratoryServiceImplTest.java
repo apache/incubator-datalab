@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.service.impl;
@@ -31,7 +34,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceAlreadyExistException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.ResourceType;
-import com.epam.dlab.model.exloratory.Image;
+import com.epam.dlab.model.exploratory.Image;
 import com.epam.dlab.model.library.Library;
 import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
@@ -231,15 +234,16 @@ public class ImageExploratoryServiceImplTest {
 	public void getCreatedImages() {
 		ImageInfoRecord imageInfoRecord = getImageInfoRecord();
 		List<ImageInfoRecord> expectedRecordList = Collections.singletonList(imageInfoRecord);
-		when(imageExploratoryDao.getImages(anyString(), any(ImageStatus.class), anyString()))
+		when(imageExploratoryDao.getImages(anyString(), anyString(), anyVararg()))
 				.thenReturn(expectedRecordList);
 
-		List<ImageInfoRecord> actualRecordList = imageExploratoryService.getCreatedImages(USER, "someImage");
+		List<ImageInfoRecord> actualRecordList = imageExploratoryService.getNotFailedImages(USER,
+				"someImage");
 		assertNotNull(actualRecordList);
 		assertEquals(1, actualRecordList.size());
 		assertEquals(expectedRecordList, actualRecordList);
 
-		verify(imageExploratoryDao).getImages(USER, ImageStatus.CREATED, "someImage");
+		verify(imageExploratoryDao).getImages(USER, "someImage", ImageStatus.CREATED, ImageStatus.CREATING);
 		verifyNoMoreInteractions(imageExploratoryDao);
 	}
 

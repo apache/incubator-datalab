@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -51,6 +54,7 @@ if __name__ == "__main__":
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['user_keyname'] = os.environ['edge_user_name']
+    notebook_config['network_type'] = os.environ['conf_network_type']
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
                                                                os.environ['edge_user_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
@@ -72,8 +76,10 @@ if __name__ == "__main__":
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
-    edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get(
-        'Public')
+    if notebook_config['network_type'] == 'private':
+        edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
+    else:
+        edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Public')
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:
@@ -96,6 +102,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab'.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -113,6 +120,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure proxy.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -129,6 +137,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing apps: apt & pip.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -149,6 +158,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to configure TensorFlow.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -166,6 +176,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed installing users key.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -181,6 +192,7 @@ if __name__ == "__main__":
             append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to setup git credentials.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -198,6 +210,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to post configuring instance.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -217,6 +230,7 @@ if __name__ == "__main__":
             append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
+        print('Error: {0}'.format(err))
         append_result("Failed to set edge reverse proxy template.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
@@ -233,6 +247,7 @@ if __name__ == "__main__":
                 if image_id != '':
                     print("Image was successfully created. It's ID is {}".format(image_id))
         except Exception as err:
+            print('Error: {0}'.format(err))
             append_result("Failed creating image.", str(err))
             remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
             sys.exit(1)

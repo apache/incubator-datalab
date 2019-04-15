@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2018, EPAM SYSTEMS INC
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package com.epam.dlab.backendapi.resources.gcp;
@@ -20,15 +23,18 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
+import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
+import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.gcp.computational.GcpComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
@@ -36,6 +42,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 
@@ -46,6 +53,8 @@ import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "Service for computational resources on GCP. (NOTE: available only on GCP platform)",
+		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH), hidden = true)
 @Slf4j
 public class ComputationalResourceGcp implements ComputationalAPI {
 
@@ -65,8 +74,14 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 */
 	@PUT
 	@Path("dataengine-service")
-	public Response createDataEngineService(@Auth UserInfo userInfo, @Valid @NotNull GcpComputationalCreateForm
-			formDTO) {
+	@ApiOperation("Creates Dataproc cluster on GCP")
+	@ApiResponses({
+			@ApiResponse(code = 302, message = "Dataproc cluster on GCP with current parameters already exists"),
+			@ApiResponse(code = 200, message = "Dataproc cluster on GCP created successfully")
+	})
+	public Response createDataEngineService(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+											@ApiParam(value = "GCP form DTO for Dataproc creation", required = true)
+											@Valid @NotNull GcpComputationalCreateForm formDTO) {
 
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), formDTO);
 
@@ -82,7 +97,8 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.slaveNumber(formDTO.getSlaveInstanceCount())
 					.masterNumber(formDTO.getMasterInstanceCount())
 					.preemptibleNumber(formDTO.getPreemptibleCount())
-					.version(formDTO.getVersion()).build();
+					.version(formDTO.getVersion())
+					.build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
 					gcpComputationalResource);
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
@@ -101,7 +117,14 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 */
 	@PUT
 	@Path("dataengine")
-	public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
+	@ApiOperation("Creates Spark cluster on GCP")
+	@ApiResponses({
+			@ApiResponse(code = 302, message = "Spark cluster on GCP with current parameters already exists"),
+			@ApiResponse(code = 200, message = "Spark cluster on GCP successfully created")
+	})
+	public Response createDataEngine(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Spark cluster create form DTO", required = true)
+									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
 		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
@@ -125,12 +148,17 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 */
 	@DELETE
 	@Path("/{exploratoryName}/{computationalName}/terminate")
-	public Response terminate(@Auth UserInfo userInfo,
+	@ApiOperation("Terminates computational resource (Dataproc/Spark cluster) on GCP")
+	@ApiResponses(@ApiResponse(code = 200, message = "Dataproc/Spark cluster on GCP successfully terminated"))
+	public Response terminate(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+							  @ApiParam(value = "Notebook's name corresponding to computational resource",
+									  required = true)
 							  @PathParam("exploratoryName") String exploratoryName,
+							  @ApiParam(value = "Computational resource's name for terminating", required = true)
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 
 		return Response.ok().build();
 	}
@@ -145,8 +173,12 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 */
 	@DELETE
 	@Path("/{exploratoryName}/{computationalName}/stop")
-	public Response stop(@Auth UserInfo userInfo,
+	@ApiOperation("Stops Spark cluster on GCP")
+	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on GCP successfully stopped"))
+	public Response stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+						 @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
 						 @PathParam("exploratoryName") String exploratoryName,
+						 @ApiParam(value = "Spark cluster's name for stopping", required = true)
 						 @PathParam("computationalName") String computationalName) {
 		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -165,14 +197,52 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 */
 	@PUT
 	@Path("/{exploratoryName}/{computationalName}/start")
-	public Response start(@Auth UserInfo userInfo,
+	@ApiOperation("Starts Spark cluster on GCP")
+	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on GCP successfully started"))
+	public Response start(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+						  @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
 						  @PathParam("exploratoryName") String exploratoryName,
+						  @ApiParam(value = "Spark cluster's name for starting", required = true)
 						  @PathParam("computationalName") String computationalName) {
 		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
 		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
 
 		return Response.ok().build();
+	}
+
+	@PUT
+	@Path("dataengine/{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Updates Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully updated")
+	)
+	public Response updateDataEngineConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+										   @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+												   required = true)
+										   @PathParam("exploratoryName") String exploratoryName,
+										   @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+										   @PathParam("computationalName") String computationalName,
+										   @ApiParam(value = "Spark cluster config", required = true)
+										   @Valid @NotNull List<ClusterConfig> config) {
+
+		computationalService.updateSparkClusterConfig(userInfo, exploratoryName, computationalName, config);
+		return Response.ok().build();
+	}
+
+	@GET
+	@Path("{exploratoryName}/{computationalName}/config")
+	@ApiOperation("Returns Spark cluster configuration on AWS")
+	@ApiResponses(
+			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully returned")
+	)
+	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+									 @ApiParam(value = "Notebook's name corresponding to Spark cluster",
+											 required = true)
+									 @PathParam("exploratoryName") String exploratoryName,
+									 @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
+									 @PathParam("computationalName") String computationalName) {
+		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
 	}
 
 	private void validate(@Auth UserInfo userInfo, GcpComputationalCreateForm formDTO) {

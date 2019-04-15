@@ -1,29 +1,29 @@
-/***************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Response } from '@angular/http';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ToastsManager } from 'ng2-toastr';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
-import { ManageUngitService } from './../../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
+import { ManageUngitService } from '../../core/services';
 
 @Component({
   selector: 'dlab-manage-ungit',
@@ -41,9 +41,6 @@ export class ManageUngitComponent implements OnInit {
   login_acceptance_pattern = '[-_@.a-zA-Z0-9]+';
   acceptance_pattern = '[-_ a-zA-Z0-9]+';
 
-  errorMessage: string;
-  processError: boolean = false;
-
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
@@ -53,9 +50,12 @@ export class ManageUngitComponent implements OnInit {
   constructor(
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public toastr: ToastsManager,
+    public vcr: ViewContainerRef
   ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
+    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -67,11 +67,8 @@ export class ManageUngitComponent implements OnInit {
 
   public open(param): void {
     if (!this.bindDialog.isOpened)
-      this.model = new MangeUngitModel((response: Response) => { },
-      error => {
-        this.processError = true;
-        this.errorMessage = error.message;
-      },
+      this.model = new MangeUngitModel(response => { },
+      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!', { toastLife: 5000 }),
       () => {
         this.bindDialog.open(param);
 
@@ -93,9 +90,6 @@ export class ManageUngitComponent implements OnInit {
 
   public cancelAllModifyings() {
     this.editableForm = false;
-    this.errorMessage = '';
-    this.processError = false;
-
     this.getGitCredentials();
     this.resetForm();
   }
@@ -115,7 +109,9 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(ConfirmDeleteAccountDialog, { data: item, width: '550px' });
+    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(
+      ConfirmDeleteAccountDialog,
+      { data: item, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
@@ -125,9 +121,6 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public assignChanges(current: any): void {
-    this.errorMessage = '';
-    this.processError = false;
-
     const modifiedCredentials = JSON.parse(JSON.stringify(this.gitCredentials));
     const index = modifiedCredentials.findIndex(el => JSON.stringify(el) === JSON.stringify(this.currentEditableItem));
 
@@ -159,10 +152,9 @@ export class ManageUngitComponent implements OnInit {
 
   private getGitCredentials(): void {
     this.model.getGitCredentials()
-      .subscribe((response: any) => {
-          this.gitCredentials = response.git_creds || [];
-        },
-        error => console.log(error));
+      .subscribe(
+        (response: any) => this.gitCredentials = response.git_creds || [],
+        error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!', { toastLife: 5000 }));
   }
 
   private validConfirmField(control) {

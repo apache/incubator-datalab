@@ -2,19 +2,22 @@
 
 # *****************************************************************************
 #
-# Copyright (c) 2016, EPAM SYSTEMS INC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
@@ -66,10 +69,10 @@ def get_note_status(note_id, notebook_ip):
         return "OK"
 
 def import_note(note_path, notebook_ip):
-    files = {'file': (note_path, open(note_path, 'rb'), 'application/json', {'Expires': '0'})}
-    response = requests.post('http://{0}:8080/api/notebook/import'.format(notebook_ip), files=files)
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Expires': '0'}
+    response = requests.post('http://{0}:8080/api/notebook/import'.format(notebook_ip), data=open(note_path, 'rb'), headers=headers)
     status = json.loads(response.content)
-    if status.get('status') == 'CREATED':
+    if status.get('status') == 'OK':
         print('Imported notebook: {}'.format(note_path))
         return status.get('body')
     else:
