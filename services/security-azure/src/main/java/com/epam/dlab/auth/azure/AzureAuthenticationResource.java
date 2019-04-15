@@ -155,7 +155,7 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 			log.error("OAuth authentication failed", e);
 			final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
 			return Response.status(unauthorized)
-					.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
+					.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password is invalid")).build();
 		}
 	}
 
@@ -189,6 +189,6 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 		}
 		final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
 		return Response.status(unauthorized)
-				.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
+				.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password is invalid")).build();
 	}
 }

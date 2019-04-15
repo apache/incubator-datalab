@@ -68,7 +68,7 @@ DLab Web Application authenticates users against:
 
 | Login error messages               | Reason                                                                           |
 |------------------------------------|----------------------------------------------------------------------------------|
-| Username or password are not valid |The username provided:<br>doesn’t match any LDAP user OR<br>there is a type in the password field |
+| Username or password is invalid |The username provided:<br>doesn’t match any LDAP user OR<br>there is a type in the password field |
 | Please contact AWS administrator to create corresponding IAM User | The user name provided:<br>exists in LDAP BUT:<br>doesn’t match any of IAM users in AWS |
 | Please contact AWS administrator to activate your Access Key      | The username provided:<br>exists in LDAP BUT:<br>IAM user doesn’t have a single Access Key\* created OR<br>IAM user’s Access Key is Inactive |
 
