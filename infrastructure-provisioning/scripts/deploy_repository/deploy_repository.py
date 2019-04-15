@@ -1182,7 +1182,7 @@ def download_packages():
                 'http://central.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar'.format('1.0.19'),
                 'http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar'.format('1.0.24'),
                 '--no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar'.format('2.3'),
-                'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-`/toree-0.2.0.tar.gz',
+                'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz',
                 'https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(
                     configuration['notebook_rstudio_version']),
                 'http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run'.format(
