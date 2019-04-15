@@ -32,6 +32,7 @@ parser.add_argument('--secondary', dest='secondary', action='store_true')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
+parser.add_argument('--vpc_name', type=str, default='')
 parser.set_defaults(secondary=False)
 args = parser.parse_args()
 
@@ -42,14 +43,18 @@ if args.secondary:
 
 if __name__ == "__main__":
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
+    vpc_tag_name = {"Key": "Name", "Value": args.vpc_name}
+    rt_tag_name = {"Key": "Name", "Value": "{0}-rt".format(args.vpc_name)}
     if args.vpc != '':
         try:
             vpc_id = get_vpc_by_tag(args.infra_tag_name, args.infra_tag_value)
             if vpc_id == '':
                 print("Creating {3}vpc {0} in region {1} with tag {2}".format(args.vpc, args.region, json.dumps(tag), sec_str))
                 vpc_id = create_vpc(args.vpc, tag)
+                create_tag(vpc_id, vpc_tag_name)
                 enable_vpc_dns(vpc_id)
                 rt_id = create_rt(vpc_id, args.infra_tag_name, args.infra_tag_value, args.secondary)
+                create_tag(rt_id, rt_tag_name)
             else:
                 print("REQUESTED {}VPC ALREADY EXISTS".format(sec_str))
             print("{0}VPC_ID: {1}".format(sec_str, vpc_id))

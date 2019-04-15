@@ -31,6 +31,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--elastic_ip', type=str, default='')
 parser.add_argument('--ssn_id', type=str)
+parser.add_argument('--infra_tag_name', type=str, default='')
+parser.add_argument('--infra_tag_value', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -43,7 +45,10 @@ if __name__ == "__main__":
         if args.elastic_ip == 'None':
             print("Allocating Elastic IP")
             allocation_id = allocate_elastic_ip()
-            create_product_tag(allocation_id)
+            tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
+            tag_name = {"Key": "Name", "Value": args.infra_tag_value}
+            create_tag(allocation_id, tag)
+            create_tag(allocation_id, tag_name)
         else:
             allocation_id = get_allocation_id_by_elastic_ip(args.elastic_ip)
 

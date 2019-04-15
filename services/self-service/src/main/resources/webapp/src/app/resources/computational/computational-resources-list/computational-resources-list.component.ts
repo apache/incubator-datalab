@@ -49,7 +49,7 @@ export class ComputationalResourcesListComponent {
   toggleResourceAction(resource, action: string) {
     if (action === 'stop' || action === 'terminate') {
       const dialogRef: MatDialogRef<ConfirmationDialogComponent> = this.dialog.open(ConfirmationDialogComponent,
-        { data: {action, resource}, width: '550px' });
+        { data: {action, resource}, width: '550px', panelClass: 'error-modalbox' });
       dialogRef.afterClosed().subscribe(result => {
         if (result && action === 'stop') {
           this.userResourceService
@@ -91,8 +91,11 @@ export class ComputationalResourcesListComponent {
 @Component({
   selector: 'confirmation-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> resource</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
-
     <p>Computational resource <strong> {{ data.resource.computational_name }}</strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
@@ -103,10 +106,7 @@ export class ComputationalResourcesListComponent {
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
-  `,
-  styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-  `]
+  `
 })
 export class ConfirmationDialogComponent {
   constructor(

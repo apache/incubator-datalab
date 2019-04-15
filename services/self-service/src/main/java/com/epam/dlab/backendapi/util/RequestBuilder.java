@@ -210,7 +210,6 @@ public class RequestBuilder {
 						.withNotebookInstanceSize(exploratory.getShape());
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryCreateAzure) exploratoryCreate)
-							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 				}
 
@@ -259,7 +258,6 @@ public class RequestBuilder {
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryActionStartAzure) exploratoryStart)
-							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 				}
 
@@ -424,7 +422,6 @@ public class RequestBuilder {
 						.withConfig(form.getConfig());
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
-							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 				}
 
@@ -550,6 +547,10 @@ public class RequestBuilder {
 				.withApplicationName(compRes.getImageName());
 		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
 		clusterConfigDTO.setConfig(config);
+		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
+			clusterConfigDTO.setAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+		}
+
 		return clusterConfigDTO;
 	}
 
@@ -557,12 +558,20 @@ public class RequestBuilder {
 																			  UserInstanceDTO userInstance,
 																			  List<ClusterConfig> config) {
 
-		return newResourceSysBaseDTO(userInfo, ExploratoryReconfigureSparkClusterActionDTO.class)
-				.withNotebookInstanceName(userInstance.getExploratoryId())
-				.withExploratoryName(userInstance.getExploratoryName())
-				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withNotebookImage(userInstance.getImageName())
-				.withConfig(config);
+		final ExploratoryReconfigureSparkClusterActionDTO dto =
+				newResourceSysBaseDTO(userInfo, ExploratoryReconfigureSparkClusterActionDTO.class)
+						.withNotebookInstanceName(userInstance.getExploratoryId())
+						.withExploratoryName(userInstance.getExploratoryName())
+						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+						.withNotebookImage(userInstance.getImageName())
+						.withConfig(config);
+		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
+			dto.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+		}
+
+		return dto;
+
+
 	}
 
 	private CloudProvider cloudProvider() {

@@ -29,7 +29,6 @@ import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 
 import javax.validation.constraints.Min;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SecurityServiceConfiguration extends ServiceConfiguration {
@@ -42,8 +41,6 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 	@JsonProperty
 	@Min(5)
 	private int loginAuthenticationTimeout = 10;
-	@JsonProperty
-	private List<Request> ldapSearch;
 	@JsonProperty
 	private String ldapBindTemplate;
 	@JsonProperty
@@ -61,6 +58,16 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	private LdapConnectionConfig ldapConfiguration;
 
+	private String ldapGroupAttribute;
+	private String ldapGroupNameAttribute;
+	private String ldapGroupUserAttribute;
+
+	@JsonProperty
+	private Request ldapSearchRequest;
+
+	@JsonProperty
+	private Request ldapGroupSearchRequest;
+
 	@JsonProperty
 	private String awsUserIdentificationEndpoint;
 	@JsonProperty
@@ -70,12 +77,24 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 		super();
 	}
 
-	public boolean isUserInfoPersistenceEnabled() {
-		return userInfoPersistenceEnabled;
+	public String getLdapGroupUserAttribute() {
+		return ldapGroupUserAttribute;
 	}
 
-	public List<Request> getLdapSearch() {
-		return ldapSearch;
+	public String getLdapGroupAttribute() {
+		return ldapGroupAttribute;
+	}
+
+	public String getLdapGroupNameAttribute() {
+		return ldapGroupNameAttribute;
+	}
+
+	public Request getLdapGroupSearchRequest() {
+		return ldapGroupSearchRequest;
+	}
+
+	public boolean isUserInfoPersistenceEnabled() {
+		return userInfoPersistenceEnabled;
 	}
 
 	public LdapConnectionConfig getLdapConnectionConfig() {
@@ -124,6 +143,10 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	public GcpLoginConfiguration getGcpLoginConfiguration() {
 		return gcpLoginConfiguration;
+	}
+
+	public Request getLdapSearchRequest() {
+		return ldapSearchRequest;
 	}
 
 	public String getAwsUserIdentificationEndpoint() {

@@ -43,7 +43,7 @@ export class ManageEnvironmentComponent {
     public dialog: MatDialog
   ) { }
 
-  get usersEnvironments(): FormArray{
+  get usersEnvironments(): FormArray {
     return <FormArray>this.manageUsersForm.get('users');
   }
 
@@ -66,7 +66,7 @@ export class ManageEnvironmentComponent {
 
   public applyAction(action, user) {
     const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
-      ConfirmActionDialogComponent, { data: {action, user: user.value.name}, width: '550px' });
+      ConfirmActionDialogComponent, { data: {action, user: user.value.name}, width: '550px', panelClass: 'error-modalbox' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.manageEnv.emit({action, user: user.value.name});
     });
@@ -103,8 +103,12 @@ export class ManageEnvironmentComponent {
 @Component({
   selector: 'dialog-result-example-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> resource</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
-    <p>Environment of <b>{{ data.user }}</b> will be 
+    <p>Environment of <b>{{ data.user }}</b> will be
       <span *ngIf="data.action === 'terminate'"> terminated.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
@@ -115,9 +119,7 @@ export class ManageEnvironmentComponent {
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
-  styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-  `]
+  styles: []
 })
 export class ConfirmActionDialogComponent {
   constructor(

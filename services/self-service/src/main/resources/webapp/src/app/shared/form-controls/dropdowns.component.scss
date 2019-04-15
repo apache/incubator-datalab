@@ -117,6 +117,13 @@
       }
     }
   }
+  &.shapes {
+    .list-menu {
+      .list-item {
+        text-transform: initial;
+      }
+    }
+  }
 }
 
 .dropdown-list .list-menu a,

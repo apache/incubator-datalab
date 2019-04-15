@@ -514,55 +514,6 @@ def get_available_os_pkgs():
         sys.exit(1)
 
 
-def install_caffe(os_user, region, caffe_version):
-    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
-        env.shell = "/bin/bash -l -c -i"
-        sudo('apt-get install -y python-dev')
-        sudo('apt-get install -y python3-dev')
-        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
-             'protobuf-compiler')
-        sudo('apt-get install -y --no-install-recommends libboost-all-dev')
-        sudo('apt-get install -y libatlas-base-dev libopenblas-dev')
-        sudo('apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev')
-        with cd('/usr/lib/x86_64-linux-gnu/'):
-            sudo('ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so')
-            sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
-        sudo('git clone https://github.com/BVLC/caffe.git')
-        with cd('/home/{}/caffe/'.format(os_user)):
-            sudo('git checkout {}'.format(caffe_version))
-            if os.environ['local_repository_enabled'] == 'True':
-                sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
-                sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
-            sudo('pip2 install -r python/requirements.txt --no-cache-dir')
-            sudo('pip3 install -r python/requirements.txt --no-cache-dir')
-            sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
-            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | "
-                             "cut -f2 -d ':'")
-            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(
-                cuda_arch.replace('.', '')))
-            sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/'
-                 'core/include" >> Makefile.config')
-            sudo('echo "BLAS := open" >> Makefile.config')
-            sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
-            #sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
-            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
-                 '>> Makefile.config')
-            sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
-            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ '
-                 '/usr /usr/lib /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" '
-                 '>> Makefile.config')
-            sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib" >> Makefile.config')
-            sudo('echo "BUILD_DIR := build" >> Makefile.config')
-            sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
-            sudo('echo "TEST_GPUID := 0" >> Makefile.config')
-            sudo('echo "Q ?= @" >> Makefile.config')
-            sudo('make all -j$(nproc)')
-            sudo('make test -j$(nproc)')
-            run('make runtest')
-            sudo('make pycaffe')
-        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
-
-
 def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"

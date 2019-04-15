@@ -17,10 +17,18 @@
  * under the License.
  */
 
-package com.epam.dlab.auth.dao;
+package com.epam.dlab.auth.service;
 
-public class SearchRequestBuilder {
-	public SearchRequestBuilder() {
-		
-	}
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.dto.UserCredentialDTO;
+
+import java.util.Optional;
+
+public interface AuthenticationService {
+
+	Optional<UserInfo> getUserInfo(String token);
+
+	Optional<UserInfo> login(UserCredentialDTO credentialDTO);
+
+	void logout(String token);
 }

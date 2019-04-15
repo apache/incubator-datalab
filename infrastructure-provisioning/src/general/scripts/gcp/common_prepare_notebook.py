@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     notebook_config['gpu_accelerator_type'] = 'None'
 
-    if os.environ['application'] in ('tensor', 'deeplearning'):
+    if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
 
     notebook_config['network_tag'] = '{0}-{1}-ps'.format(notebook_config['service_base_name'],

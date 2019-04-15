@@ -109,11 +109,12 @@ export class ManageUngitComponent implements OnInit {
   public deleteAccount(item: AccountCredentials) {
     const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(
       ConfirmDeleteAccountDialog,
-      { data: item, width: '550px' });
+      { data: item, width: '550px', panelClass: 'error-modalbox' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
         this.model.confirmAction(this.gitCredentials);
+        this.toastr.success('Git credentials deleted successfully!', 'Success!');
       }
     });
   }
@@ -135,6 +136,7 @@ export class ManageUngitComponent implements OnInit {
     this.model.confirmAction(this.gitCredentials);
     this.tabGroup.selectedIndex = 0;
     this.editableForm = false;
+    this.toastr.success('Git credentials updated successfully!', 'Success!');
   }
 
   private initFormModel(): void {
@@ -181,6 +183,10 @@ export class ManageUngitComponent implements OnInit {
 @Component({
   selector: 'dialog-result-example-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
     <p>Account <strong>{{ data.hostname }}</strong> will be decommissioned.</p>
     <p class="m-top-20"><strong>Do you want to proceed?</strong></p>

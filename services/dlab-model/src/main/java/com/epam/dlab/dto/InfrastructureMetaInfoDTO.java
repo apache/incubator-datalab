@@ -17,15 +17,15 @@
  * under the License.
  */
 
-package com.epam.dlab.auth.dao.filter;
+package com.epam.dlab.dto;
 
-import org.apache.directory.api.ldap.model.cursor.SearchCursor;
+import lombok.Builder;
+import lombok.Data;
 
-import java.io.IOException;
-import java.util.Map;
-
-public interface SearchResultMapper<M extends Map<String, Object>> {
-	M transformSearchResult(SearchCursor cursor) throws IOException;
-
-	M getBranch();
+@Data
+@Builder
+public class InfrastructureMetaInfoDTO {
+	private final String branch;
+	private final String version;
+	private final String commit;
 }

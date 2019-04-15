@@ -28,7 +28,7 @@ import com.epam.dlab.auth.azure.AzureSecurityResource;
 import com.epam.dlab.auth.azure.service.AzureAuthorizationCodeService;
 import com.epam.dlab.auth.azure.service.AzureAuthorizationCodeServiceImpl;
 import com.epam.dlab.auth.conf.AzureLoginConfiguration;
-import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
+import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationResource;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
@@ -66,7 +66,7 @@ public class AzureSecurityServiceModule extends CloudModule {
 	public void init(Environment environment, Injector injector) {
 
 		if (conf.getAzureLoginConfiguration().isUseLdap()) {
-			environment.jersey().register(injector.getInstance(SynchronousLdapAuthenticationService.class));
+			environment.jersey().register(injector.getInstance(SynchronousLdapAuthenticationResource.class));
 		} else {
 			final AzureAuthenticationResource azureAuthenticationResource = new AzureAuthenticationResource(conf,
 					injector.getInstance(UserInfoDAO.class), conf.getAzureLoginConfiguration(),
