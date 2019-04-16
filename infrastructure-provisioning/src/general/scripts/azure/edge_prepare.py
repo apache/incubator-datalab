@@ -363,6 +363,17 @@ if __name__ == "__main__":
             },
             {
                 "name": "out-18",
+                "protocol": "Udp",
+                "source_port_range": "*",
+                "destination_port_range": "123",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 270,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-19",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
