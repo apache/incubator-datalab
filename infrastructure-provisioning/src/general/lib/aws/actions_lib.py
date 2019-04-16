@@ -323,9 +323,10 @@ def create_peer_routes(peering_id, service_base_name):
                     VpcPeeringConnectionId=peering_id,
                     RouteTableId=table.get('RouteTableId'))
         for table in route_tables2:
+            routes = table.get('Routes')
             routeExists=False
             for route in routes:
-                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc_cidr'].replace("'", ""):
                     routeExists = True
             if not routeExists:
                 client.create_route(
