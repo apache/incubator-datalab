@@ -79,7 +79,7 @@ def ensure_ntpd(user, edge_private_ip=''):
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             sudo('timedatectl set-ntp no')
             sudo('apt-get -y install ntp ntpdate')
-            if os.environ['conf_resource'] != 'ssn' or os.environ['conf_resource'] != 'edge':
+            if os.environ['conf_resource'] != 'ssn' and os.environ['conf_resource'] != 'edge':
                 sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
                 sudo('systemctl restart ntp')
             sudo('systemctl enable ntp')
