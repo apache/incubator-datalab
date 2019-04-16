@@ -61,6 +61,7 @@ export class SchedulerComponent implements OnInit {
   public tzOffset: string =  _moment().format('Z');
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
+  public terminateTime = null;
 
   public inactivityLimits = { min: 120, max: 10080 };
   public integerRegex: string = '^[0-9]*$';
@@ -253,10 +254,11 @@ export class SchedulerComponent implements OnInit {
     this.resetDialog();
   }
 
-  private formInit(start?: string, end?: string) {
+  private formInit(start?: string, end?: string, terminate?: string) {
     this.schedulerForm = this.formBuilder.group({
       startDate: { disabled: this.inherit, value: start ? _moment(start).format() : null },
       finishDate: { disabled: false, value: end ? _moment(end).format() : null },
+      terminateDate: { disabled: false, value: terminate ? _moment(terminate).format() : null },
       inactivityTime: [this.inactivityLimits.min,
                       [Validators.compose([Validators.pattern(this.integerRegex), this.validInactivityRange.bind(this)])]]
     });
@@ -272,7 +274,7 @@ export class SchedulerComponent implements OnInit {
           this.tzOffset = params.timezone_offset;
           this.startTime = params.start_time ? SchedulerCalculations.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : null;
-          this.formInit(params.begin_date, params.finish_date);
+          this.formInit(params.begin_date, params.finish_date, params.terminate_datetime);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
 
@@ -313,6 +315,7 @@ export class SchedulerComponent implements OnInit {
     this.tzOffset = _moment().format('Z');
     this.startTime = SchedulerCalculations.convertTimeFormat('09:00');
     this.endTime = SchedulerCalculations.convertTimeFormat('20:00');
+    this.terminateTime = null;
 
     this.schedulerForm.get('startDate').disable();
     this.schedulerForm.get('finishDate').disable();
