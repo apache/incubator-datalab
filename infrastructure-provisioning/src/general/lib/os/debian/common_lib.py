@@ -74,13 +74,13 @@ def find_java_path_local():
     return java_path
 
 
-def ensure_ntpd(user, edge_ip=''):
+def ensure_ntpd(user, edge_private_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             sudo('timedatectl set-ntp no')
             sudo('apt-get -y install ntp ntpdate')
             if os.environ['conf_resource'] != 'ssn' or os.environ['conf_resource'] != 'edge':
-                sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_ip))
+                sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
                 sudo('systemctl restart ntp')
             sudo('systemctl enable ntp')
             sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))

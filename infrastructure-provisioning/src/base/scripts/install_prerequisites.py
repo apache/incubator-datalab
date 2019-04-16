@@ -73,6 +73,6 @@ if __name__ == "__main__":
     ensure_pip(args.pip_packages)
 
     print("Installing NTPd")
-    ensure_ntpd(args.user, args.edge_ip)
+    ensure_ntpd(args.user, args.edge_private_ip)
 
 
