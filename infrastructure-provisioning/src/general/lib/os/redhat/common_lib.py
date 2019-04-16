@@ -80,6 +80,7 @@ def ensure_ntpd(user, edge_private_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             sudo('yum -y install ntp')
+            sudo('echo "tinker panic 0" >> /etc/ntp.conf')
             sudo('systemctl start ntpd')
             if os.environ['conf_resource'] != 'ssn' and os.environ['conf_resource'] != 'edge':
                 sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
