@@ -134,8 +134,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}" \
-            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['azure_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}" \
+            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['azure_region'],
+                    edge_instance_private_hostname)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:

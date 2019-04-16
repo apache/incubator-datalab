@@ -24,6 +24,7 @@
 from fabric.api import *
 from fabric.contrib.files import exists
 import sys
+import os
 
 
 def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip'):
@@ -75,11 +76,14 @@ def find_java_path_local():
     return java_path
 
 
-def ensure_ntpd(user):
+def ensure_ntpd(user, edge_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             sudo('yum -y install ntp')
             sudo('systemctl start ntpd')
+            if os.environ['conf_resource'] != 'ssn' or os.environ['conf_resource'] != 'edge':
+                sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_ip))
+                sudo('systemctl restart ntp')
             sudo('systemctl enable ntpd')
             sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
     except:

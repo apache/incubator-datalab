@@ -65,7 +65,8 @@ def configure_slave(slave_number, data_engine):
         additional_config = {"user_keyname": os.environ['edge_user_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(
+                additional_config), data_engine['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -104,8 +105,9 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[INSTALLING PREREQUISITES ON SLAVE NODE]')
         print('[INSTALLING PREREQUISITES ON SLAVE NODE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}". \
-            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
+            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -124,7 +126,8 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
         print('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
+                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
             format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
@@ -207,6 +210,7 @@ if __name__ == "__main__":
         edge_instance_name = '{0}-{1}-edge'.format(data_engine['service_base_name'],
                                                    data_engine['edge_user_name'])
         edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
+        edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     except Exception as err:
@@ -285,8 +289,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES ON MASTER NODE]')
         print('[INSTALLING PREREQUISITES ON MASTER NODE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
+            format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -305,7 +310,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE MASTER NODE]')
         print('[CONFIGURE MASTER NODE]')
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
+                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
             format(master_node_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,

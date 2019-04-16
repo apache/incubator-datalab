@@ -65,6 +65,7 @@ if __name__ == "__main__":
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
+    edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -101,7 +102,8 @@ if __name__ == "__main__":
         print('[CONFIGURE PROXY ON TENSORFLOW-RSTUDIO INSTANCE]')
         additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
-            .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+            .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
+                    json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
@@ -117,8 +119,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO TENSORFLOW-RSTUDIO NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO TENSORFLOW-RSTUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}". \
-            format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'], os.environ['gcp_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
+            format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
+                   os.environ['gcp_region'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:

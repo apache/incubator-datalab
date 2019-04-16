@@ -71,6 +71,7 @@ if __name__ == "__main__":
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+    edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     else:
@@ -142,9 +143,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".format(instance_hostname, keyfile_name,
-                                                                           notebook_config['dlab_ssh_user'],
-                                                                           os.environ['aws_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".format(
+            instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'],
+            edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
