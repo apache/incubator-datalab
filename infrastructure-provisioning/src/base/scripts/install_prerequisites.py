@@ -71,4 +71,7 @@ if __name__ == "__main__":
     print("Installing python packages: {}".format(args.pip_packages))
     ensure_pip(args.pip_packages)
 
+    print("Installing NTPd")
+    ensure_ntpd(args.user)
+
 

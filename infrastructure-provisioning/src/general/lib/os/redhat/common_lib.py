@@ -73,3 +73,14 @@ def find_java_path_remote():
 def find_java_path_local():
     java_path = local("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'", capture=True)
     return java_path
+
+
+def ensure_ntpd(user):
+    try:
+        if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
+            sudo('yum -y install ntp')
+            sudo('systemctl start ntpd')
+            sudo('systemctl enable ntpd')
+            sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
+    except:
+        sys.exit(1)
