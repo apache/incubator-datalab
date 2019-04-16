@@ -211,10 +211,14 @@ export class SchedulerComponent implements OnInit {
   private setScheduleByTime() {
     const data = {
       startDate: this.schedulerForm.controls.startDate.value,
-      finishDate: this.schedulerForm.controls.finishDate.value
+      finishDate: this.schedulerForm.controls.finishDate.value,
+      terminateDate: this.schedulerForm.controls.terminateDate.value
     };
+    const terminateDateTime = (data.terminateDate && this.terminateTime)
+      ? `${_moment(data.terminateDate).format(this.date_format)} ${SchedulerCalculations.convertTimeFormat(this.terminateTime)}`
+      : null;
 
-    if (!this.startTime && !this.endTime && this.enableSchedule) {
+    if (!this.startTime && !this.endTime && !this.terminateTime && this.enableSchedule) {
       this.timeReqiered = true;
       return false;
     }
@@ -228,7 +232,8 @@ export class SchedulerComponent implements OnInit {
       stop_days_repeat: selectedDays.filter(el => Boolean(this.selectedStopWeekDays[el])).map(day => day.toUpperCase()),
       timezone_offset: this.tzOffset,
       sync_start_required: this.inherit,
-      check_inactivity_required: this.enableIdleTime
+      check_inactivity_required: this.enableIdleTime,
+      terminate_datetime: terminateDateTime
     };
 
     if (this.destination.type === 'СOMPUTATIONAL') {
@@ -277,6 +282,12 @@ export class SchedulerComponent implements OnInit {
           this.formInit(params.begin_date, params.finish_date, params.terminate_datetime);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
+
+          if (params.terminate_datetime) {
+            const terminate_datetime = params.terminate_datetime.split(' ');
+            this.schedulerForm.controls.terminateDate.setValue(terminate_datetime[0]);
+            this.terminateTime =  SchedulerCalculations.convertTimeFormat(terminate_datetime[1]);
+          }
 
           (this.enableIdleTime && params.max_inactivity)
             ? this.toggleIdleTimes({checked: true})
