@@ -22,7 +22,6 @@ package com.epam.dlab.auth.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-
 import org.hibernate.validator.constraints.NotBlank;
 
 public class UserCredentialDTO {

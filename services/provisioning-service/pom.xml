@@ -40,11 +40,6 @@
         </dependency>
         <dependency>
             <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-process</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
             <artifactId>dlab-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -62,6 +57,11 @@
             <groupId>com.epam.dlab</groupId>
             <artifactId>dlab-webapp-common</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aegisql</groupId>
+            <artifactId>conveyor</artifactId>
+            <version>${com.aegisql.conveyor.version}</version>
         </dependency>
 
         <dependency>
