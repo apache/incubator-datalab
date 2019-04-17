@@ -294,6 +294,12 @@ if __name__ == "__main__":
             },
             {
                 "PrefixListIds": [],
+                "FromPort": 123,
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "ToPort": 123, "IpProtocol": "udp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
                 "FromPort": 443,
                 "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
