@@ -79,6 +79,7 @@ def find_java_path_local():
 def ensure_ntpd(user, edge_private_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
+            sudo('systemctl disable chronyd')
             sudo('yum -y install ntp')
             sudo('echo "tinker panic 0" >> /etc/ntp.conf')
             sudo('systemctl start ntpd')
