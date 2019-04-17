@@ -40,6 +40,10 @@
           <div class="col"><p>Cluster type:</p></div>
           <div class="col"><span>{{ resource.template_name }}</span></div>
         </div>
+        <div class="row-wrap" *ngIf="resource.image === 'docker.dlab-dataengine-service'">
+          <div class="col"><p>Cluster version:</p></div>
+          <div class="col"><span>{{ resource[DICTIONARY.cluster_version] }}</span></div>
+        </div>
         <div class="row-wrap">
          <div class="col"><p>Cluster alias:</p></div>
          <div class="col tooltip-wrap" (mouseover)="isEllipsisActive($event)">
