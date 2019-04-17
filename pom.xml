@@ -28,8 +28,8 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:file://.</connection>
-        <url>scm:git:file://.</url>
+        <connection>scm:git:https://github.com/apache/incubator-dlab.git</connection>
+        <url>scm:git:https://github.com/apache/incubator-dlab.git</url>
         <tag>HEAD</tag>
     </scm>
 
