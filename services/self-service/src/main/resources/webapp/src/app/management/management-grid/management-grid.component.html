@@ -22,7 +22,7 @@
     <th class="th_user">User</th>
     <th class="th_name">Name</th>
     <th class="th_status">Status</th>
-    <th class="th_shape">Shape</th>
+    <th class="th_shape">Shape / Resource id</th>
     <th class="th_resources">Computational resources</th>
     <th class="th_actions">Action</th>
   </tr>
@@ -31,7 +31,7 @@
     <td>{{ env.user }}</td>
     <td [ngClass]="{'capitalize': env.name === 'edge node'}">{{ env.name }}</td>
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
-    <td>{{ env.shape }}</td>
+    <td>{{ env.shape || env.ip }}</td>
     <td>
       <div class="source" *ngIf="env.resources">
         <div *ngIf="!env.resources?.length">

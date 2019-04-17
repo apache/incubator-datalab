@@ -24,6 +24,7 @@ export class EnvironmentModel {
     public shape: string,
     public resources: Array<any>,
     public user: string,
+    public ip: string,
     public type?: string
   ) { }
 }
