@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
@@ -33,12 +34,10 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -46,8 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
-import java.util.Date;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,7 +54,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.dto.base.DataEngineType.getDockerImageName;
@@ -306,10 +304,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		return schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(RUNNING,
 				clusterMaxInactivityAllowedDate)
 				.stream()
-				.filter(schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
-						currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
-						schedulerJobData.getJobDTO().getEndTime()) ||
-						(checkInactivity && exploratoryInactivityCondition(schedulerJobData)))
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime)
+						.or(schedulerJobData -> checkInactivity && exploratoryInactivityCondition(schedulerJobData)))
 				.collect(Collectors.toList());
 	}
 
@@ -358,7 +354,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		return schedulerJobDAO
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING)
 				.stream()
-				.filter(canSchedulerForStoppingBeApplied(currentDateTime))
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime)
+						.or(schedulerJobData -> checkInactivity && computationalInactivityCondition(schedulerJobData)))
 				.collect(Collectors.toList());
 	}
 
