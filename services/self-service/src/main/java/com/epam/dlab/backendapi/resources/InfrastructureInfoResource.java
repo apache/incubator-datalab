@@ -88,4 +88,13 @@ public class InfrastructureInfoResource {
 		return infrastructureInfoService.getUserResources(userInfo.getName());
 
 	}
+
+	@GET
+	@Path("/meta")
+	@ApiOperation("Return metainfo regarding application version etc")
+	public Response getVersion(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+		return Response.ok(infrastructureInfoService.getInfrastructureMetaInfo())
+				.build();
+
+	}
 }

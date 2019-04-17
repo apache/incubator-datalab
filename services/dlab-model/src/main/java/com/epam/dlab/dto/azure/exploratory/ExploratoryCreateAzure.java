@@ -26,8 +26,6 @@ import com.google.common.base.MoreObjects;
 public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCreateAzure> {
     @JsonProperty("azure_notebook_instance_size")
     private String notebookInstanceType;
-    @JsonProperty("azure_client_id")
-    private String azureClientId;
     @JsonProperty("azure_datalake_enable")
     private String azureDataLakeEnabled;
     @JsonProperty("azure_user_refresh_token")
@@ -39,14 +37,6 @@ public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCrea
 
     public void setNotebookInstanceType(String notebookInstanceType) {
         this.notebookInstanceType = notebookInstanceType;
-    }
-
-    public String getAzureClientId() {
-        return azureClientId;
-    }
-
-    public void setAzureClientId(String azureClientId) {
-        this.azureClientId = azureClientId;
     }
 
     public String getAzureDataLakeEnabled() {
@@ -70,11 +60,6 @@ public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCrea
         return this;
     }
 
-    public ExploratoryCreateAzure withAzureClientId(String azureClientId) {
-        setAzureClientId(azureClientId);
-        return this;
-    }
-
     public ExploratoryCreateAzure withAzureDataLakeEnabled(String azureDataLakeEnabled) {
         setAzureDataLakeEnabled(azureDataLakeEnabled);
         return this;
@@ -89,7 +74,6 @@ public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCrea
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
                 .add("notebookInstanceType", notebookInstanceType)
-                .add("azureClientId", azureClientId != null ? "***" : null)
                 .add("azureDataLakeEnabled", azureDataLakeEnabled)
                 .add("azureUserRefreshToken", azureUserRefreshToken != null ? "***" : null);
     }

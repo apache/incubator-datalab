@@ -150,6 +150,9 @@ schedulers:
   stopExploratoryScheduler:
     enabled: true
     cron: "*/20 * * ? * * *"
+  terminateComputationalScheduler:
+    enabled: true
+    cron: "*/20 * * ? * * *"
   checkQuoteScheduler:
     enabled: true
     cron: "0 0 * ? * * *"

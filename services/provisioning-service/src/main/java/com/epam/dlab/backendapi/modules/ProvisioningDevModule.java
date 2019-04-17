@@ -114,7 +114,7 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 					return (T) Response.ok(TOKEN).build();
 				} else {
 					return (T) Response.status(Response.Status.UNAUTHORIZED)
-							.entity("Username or password are not valid")
+							.entity("Username or password is invalid")
 							.build();
 				}
 			}

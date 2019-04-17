@@ -41,15 +41,15 @@ public class AwsUserVerificationService implements UserVerificationService {
 	}
 
 	@Override
-	public void verify(String username, UserInfo userInfo) {
-		verifyAwsUser(username, userInfo);
-		verifyAwsKeys(username, userInfo);
+	public void verify(UserInfo userInfo) {
+		verifyAwsUser(userInfo);
+		verifyAwsKeys(userInfo);
 	}
 
 
-	private User verifyAwsUser(String username, UserInfo userInfo) {
+	private User verifyAwsUser(UserInfo userInfo) {
 		try {
-			User awsUser = awsUserDAO.getAwsUser(username);
+			User awsUser = awsUserDAO.getAwsUser(userInfo.getName());
 			if (awsUser != null) {
 				userInfo.setAwsUser(true);
 				return awsUser;
@@ -61,16 +61,16 @@ public class AwsUserVerificationService implements UserVerificationService {
 		}
 	}
 
-	private List<AccessKeyMetadata> verifyAwsKeys(String username, UserInfo userInfo) {
+	private List<AccessKeyMetadata> verifyAwsKeys(UserInfo userInfo) {
 
 		userInfo.getKeys().clear();
 
 		try {
-			List<AccessKeyMetadata> keys = awsUserDAO.getAwsAccessKeys(username);
+			List<AccessKeyMetadata> keys = awsUserDAO.getAwsAccessKeys(userInfo.getName());
 			if (keys == null || keys.isEmpty()
 					|| keys.stream().noneMatch(k -> "Active".equalsIgnoreCase(k.getStatus()))) {
 
-				throw new DlabException("Cannot get aws access key for user " + username);
+				throw new DlabException("Cannot get aws access key for user " + userInfo.getName());
 			}
 			keys.forEach(e -> userInfo.addKey(e.getAccessKeyId(), e.getStatus()));
 

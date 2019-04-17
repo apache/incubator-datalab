@@ -664,29 +664,39 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disk(self, image_name, disk_type, instance_name, zone):
-        if disk_type == 'primary':
-            disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
-        else:
-            disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
-        params = {"name": image_name, "sourceDisk": disk_name, "labels": {"product": "dlab"}}
-        request = self.service.images().insert(project=self.project, body=params)
+    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone):
+        primary_disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
+        secondary_disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
+        primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": {"product": "dlab"}}
+        primary_request = self.service.images().insert(project=self.project, body=primary_params)
+        secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": {"product": "dlab"}}
+        secondary_request = self.service.images().insert(project=self.project, body=secondary_params)
+        id_list=[]
         try:
             GCPActions().stop_instance(instance_name, zone)
-            result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
-            print('Image {} has been created.'.format(image_name))
+            primary_image_check = meta_lib.GCPMeta().get_image_by_name(primary_image_name)
+            if primary_image_check != '':
+                GCPActions().start_instance(instance_name, zone)
+                return ''
+            primary_result = primary_request.execute()
+            secondary_result = secondary_request.execute()
+            meta_lib.GCPMeta().wait_for_operation(primary_result['name'])
+            print('Image {} has been created.'.format(primary_image_name))
+            id_list.append(primary_result.get('id'))
+            meta_lib.GCPMeta().wait_for_operation(secondary_result['name'])
+            print('Image {} has been created.'.format(secondary_image_name))
+            id_list.append(secondary_result.get('id'))
             GCPActions().start_instance(instance_name, zone)
-            return result.get('id')
+            return id_list
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to create image from disks: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to create images from disks",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
-            return ''
+            return id_list
 
     def remove_image(self, image_name):
         try:
@@ -1274,21 +1284,23 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
         if 'spark_configurations' in os.environ:
+            dlab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
             spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
-                for config in spark_configurations:
-                    if config['Classification'] == 'spark-defaults':
-                        for property in config['Properties']:
-                            if property == param.split(' ')[0]:
-                                param = property + ' ' + config['Properties'][property]
-                            else:
-                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
-                new_spark_defaults.append(param)
+                if param.split(' ')[0] != '#':
+                    for config in spark_configurations:
+                        if config['Classification'] == 'spark-defaults':
+                            for property in config['Properties']:
+                                if property == param.split(' ')[0]:
+                                    param = property + ' ' + config['Properties'][property]
+                                else:
+                                    new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                    new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(dlab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
@@ -1382,21 +1394,24 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                                                                                         cluster_dir))
     local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     if spark_configs:
+        dlab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
+                            capture=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
         spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
-            for config in spark_configurations:
-                if config['Classification'] == 'spark-defaults':
-                    for property in config['Properties']:
-                        if property == param.split(' ')[0]:
-                            param = property + ' ' + config['Properties'][property]
-                        else:
-                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
-            new_spark_defaults.append(param)
+            if param.split(' ')[0] != '#':
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_dir))
         for prop in new_spark_defaults:
             prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))

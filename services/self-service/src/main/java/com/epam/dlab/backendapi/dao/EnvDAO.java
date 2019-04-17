@@ -154,29 +154,31 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the of computational resource.
-	 *
 	 * @param user       the name of user.
 	 * @param fullReport return full report if <b>true</b> otherwise common status only.
 	 * @throws DlabException in case of any exception
 	 */
 	public HealthStatusPageDTO getHealthStatusPageDTO(String user, boolean fullReport) {
-		List<HealthStatusResource> listResource = new ArrayList<>();
+		List<HealthStatusResource> listResource = new ArrayList<>(1);
 		final HealthStatusPageDTO healthStatusPageDTO = new HealthStatusPageDTO()
 				.withStatus(HealthStatusEnum.OK);
 
-		getEdgeNode(user).ifPresent(edge -> {
-			final String edgeStatus = edge.getString(EDGE_STATUS);
+		final Optional<Document> edgeNode = getEdgeNode(user);
+		if (edgeNode.isPresent()) {
+			final Document document = edgeNode.get();
+			final String edgeStatus = document.getString(EDGE_STATUS);
 			if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(edgeStatus)) {
 				healthStatusPageDTO.withStatus(HealthStatusEnum.ERROR);
 			}
 			if (fullReport) {
 				listResource.add(new HealthStatusResource()
 						.withType("Edge Node")
-						.withResourceId(edge.getString(EDGE_PUBLIC_IP))
+						.withResourceId(document.getString(EDGE_PUBLIC_IP))
 						.withStatus(edgeStatus));
 			}
-		});
+		} else {
+			healthStatusPageDTO.withStatus(HealthStatusEnum.ERROR);
+		}
 		return healthStatusPageDTO
 				.withListResources(fullReport ? listResource : null);
 	}

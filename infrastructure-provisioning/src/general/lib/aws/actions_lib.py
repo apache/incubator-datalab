@@ -189,22 +189,6 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
-def create_product_tag(resource):
-    print('Tag product for the resource {} will be created'.format(resource))
-    tags_list = list()
-    ec2 = boto3.client('ec2')
-    if type(resource) != list:
-        resource = [resource]
-    tags_list.append(
-        {
-            'Key': os.environ['conf_billing_tag_key'],
-            'Value': os.environ['conf_billing_tag_value']
-        }
-    )
-    ec2.create_tags(
-        Resources=resource,
-        Tags=tags_list
-    )
 
 def remove_emr_tag(emr_id, tag):
     try:
@@ -243,10 +227,13 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_subnet(vpc_id, subnet, tag):
+def create_subnet(vpc_id, subnet, tag, zone):
     try:
         ec2 = boto3.resource('ec2')
-        subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet)
+        if zone != "":
+            subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet, AvailabilityZone=zone)
+        else:
+            subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet)
         create_tag(subnet.id, tag)
         subnet.reload()
         return subnet.id
@@ -260,9 +247,14 @@ def create_subnet(vpc_id, subnet, tag):
 def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
     try:
         ec2 = boto3.resource('ec2')
+        tag_name = {"Key": "Name", "Value": security_group_name}
         group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
         time.sleep(10)
         create_tag(group.id, tag)
+        create_tag(group.id, tag_name)
+        if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
+            create_tag(group.id, {'Key': os.environ['conf_billing_tag_key'],
+                                  'Value': os.environ['conf_billing_tag_value']})
         try:
             group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
                                                 "UserIdGroupPairs": [], "PrefixListIds": []}])
@@ -331,9 +323,10 @@ def create_peer_routes(peering_id, service_base_name):
                     VpcPeeringConnectionId=peering_id,
                     RouteTableId=table.get('RouteTableId'))
         for table in route_tables2:
+            routes = table.get('Routes')
             routeExists=False
             for route in routes:
-                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc_cidr'].replace("'", ""):
                     routeExists = True
             if not routeExists:
                 client.create_route(
@@ -352,6 +345,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        tag_name = {"Key": 'Name', "Value": "{0}-peering-connection".format(service_base_name)}
         peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
         client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
         client.modify_vpc_peering_connection_options(
@@ -364,6 +358,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
             VpcPeeringConnectionId=peering.id
         )
         create_tag(peering.id, json.dumps(tag))
+        create_tag(peering.id, json.dumps(tag_name))
         return peering.id
     except Exception as err:
         logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -438,6 +433,15 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                                              SubnetId=definitions.subnet_id,
                                              IamInstanceProfile={'Name': definitions.iam_profile},
                                              UserData=user_data)
+        elif definitions.instance_class == 'ssn':
+            get_iam_profile(definitions.iam_profile)
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
         else:
             get_iam_profile(definitions.iam_profile)
             instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
@@ -461,6 +465,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         append_result(str({"error": "Unable to create EC2",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 
 def tag_intance_volume(instance_id, node_name, instance_tag):
     try:
@@ -490,6 +495,7 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_emr_volume(cluster_id, node_name, billing_tag):
     try:
         client = boto3.client('emr')
@@ -508,7 +514,8 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-def create_iam_role(role_name, role_profile, region, service='ec2'):
+
+def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
     conn = boto3.client('iam')
     try:
         if region == 'cn-north-1':
@@ -522,6 +529,12 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
                 RoleName=role_name, AssumeRolePolicyDocument=
                 '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service +
                 '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
+        if tag:
+            conn.tag_role(RoleName=role_name, Tags=[tag])
+            conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
+            if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
+                conn.tag_role(RoleName=role_name, Tags=[{'Key': os.environ['conf_billing_tag_key'],
+                                                         'Value': os.environ['conf_billing_tag_value']}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")
@@ -862,7 +875,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
         client = boto3.client('iam')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
         roles_list = []
         for item in client.list_roles(MaxItems=250).get("Roles"):
             if item.get("RoleName").startswith(service_base_name + '-'):
@@ -872,14 +885,15 @@ def remove_all_iam_resources(instance_type, scientist=''):
             for iam_role in roles_list:
                 if '-ssn-Role' in iam_role and instance_type == 'ssn' or instance_type == 'all':
                     try:
-                        client.delete_role_policy(RoleName=iam_role, PolicyName=service_base_name + '-ssn-Policy')
+                        client.delete_role_policy(RoleName=iam_role, PolicyName='{0}-ssn-Policy'.format(
+                            service_base_name))
                     except:
                         print('There is no policy {}-ssn-Policy to delete'.format(service_base_name))
                     role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
                     if role_profiles:
                         for i in role_profiles:
                             role_profile_name = i.get('InstanceProfileName')
-                            if role_profile_name == service_base_name + '-ssn-Profile':
+                            if role_profile_name == '{0}-ssn-Profile'.format(service_base_name):
                                 remove_roles_and_profiles(iam_role, role_profile_name)
                     else:
                         print("There is no instance profile for {}".format(iam_role))
@@ -888,8 +902,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-edge-Role' in iam_role:
                     if instance_type == 'edge' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = os.environ['conf_service_base_name'] + '-' + '{}'.format(scientist) + \
-                                            '-edge-Profile'
+                        role_profile_name = '{0}-{1}-edge-Profile'.format(service_base_name, scientist)
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -912,8 +925,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + \
-                                            '-nb-de-Profile'
+                        role_profile_name = '{0}-{1}-nb-de-Profile'.format(service_base_name, scientist)
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -937,7 +949,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
             print("There are no IAM roles to delete. Checking instance profiles...")
         profile_list = []
         for item in client.list_instance_profiles(MaxItems=250).get("InstanceProfiles"):
-            if item.get("InstanceProfileName").startswith(service_base_name + '-'):
+            if item.get("InstanceProfileName").startswith('{}-'.format(service_base_name)):
                 profile_list.append(item.get('InstanceProfileName'))
         if profile_list:
             for instance_profile in profile_list:
@@ -1588,21 +1600,23 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
         if 'spark_configurations' in os.environ:
+            dlab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
             spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
-                for config in spark_configurations:
-                    if config['Classification'] == 'spark-defaults':
-                        for property in config['Properties']:
-                            if property == param.split(' ')[0]:
-                                param = property + ' ' + config['Properties'][property]
-                            else:
-                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
-                new_spark_defaults.append(param)
+                if param.split(' ')[0] != '#':
+                    for config in spark_configurations:
+                        if config['Classification'] == 'spark-defaults':
+                            for property in config['Properties']:
+                                if property == param.split(' ')[0]:
+                                    param = property + ' ' + config['Properties'][property]
+                                else:
+                                    new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                    new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(dlab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
@@ -1755,21 +1769,24 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
     local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
                                                                                                         cluster_dir))
     if spark_configs:
+        dlab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
+                            capture=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
         spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
-            for config in spark_configurations:
-                if config['Classification'] == 'spark-defaults':
-                    for property in config['Properties']:
-                        if property == param.split(' ')[0]:
-                            param = property + ' ' + config['Properties'][property]
-                        else:
-                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
-            new_spark_defaults.append(param)
+            if param.split(' ')[0] != '#':
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_dir))
         for prop in new_spark_defaults:
             prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))

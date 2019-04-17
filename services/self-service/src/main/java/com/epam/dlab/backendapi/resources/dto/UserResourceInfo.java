@@ -49,6 +49,9 @@ public class UserResourceInfo {
 	@JsonProperty
 	private String user;
 
+	@JsonProperty("public_ip")
+	private String ip;
+
 
 	public UserResourceInfo withResourceType(ResourceEnum resourceType) {
 		setResourceType(resourceType);
@@ -77,6 +80,11 @@ public class UserResourceInfo {
 
 	public UserResourceInfo withUser(String user) {
 		setUser(user);
+		return this;
+	}
+
+	public UserResourceInfo withIp(String ip) {
+		setIp(ip);
 		return this;
 	}
 }

@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
+import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
 import com.epam.dlab.backendapi.service.ComputationalService;
@@ -32,16 +33,21 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.util.Date;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,6 +56,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
+import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.dto.base.DataEngineType.getDockerImageName;
 import static java.time.ZoneId.systemDefault;
@@ -81,6 +88,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Inject
 	private SystemUserInfoService systemUserService;
+
+	@Inject
+	private EnvDAO envDAO;
+
+	@Inject
+	private RequestId requestId;
+
+	@Inject
+	@Named(PROVISIONING_SERVICE_NAME)
+	private RESTService provisioningService;
 
 	@Override
 	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
@@ -218,8 +235,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private List<SchedulerJobData> getComputationalSchedulersForTerminating(OffsetDateTime now) {
-		return schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(RUNNING,
-				DataEngineType.SPARK_STANDALONE, STOPPED, RUNNING)
+		return schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING)
 				.stream()
 				.filter(canSchedulerForTerminatingBeApplied(now))
 				.collect(Collectors.toList());
@@ -312,6 +328,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				.collect(Collectors.toList());
 	}
 
+	private Predicate<SchedulerJobData> canSchedulerForStoppingBeApplied(OffsetDateTime currentDateTime) {
+		return schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
+				currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
+				schedulerJobData.getJobDTO().getEndTime());
+	}
 
 	private Predicate<SchedulerJobData> canSchedulerForStartingBeApplied(OffsetDateTime currentDateTime) {
 		return schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
@@ -325,9 +346,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private boolean shouldBeTerminated(OffsetDateTime currentDateTime, SchedulerJobData schedulerJobData) {
 		final SchedulerJobDTO jobDTO = schedulerJobData.getJobDTO();
-		final LocalDateTime convertedCurrentTime = schedulerExecutionDate(jobDTO, currentDateTime);
-		return isSchedulerActive(schedulerJobData.getJobDTO(), convertedCurrentTime) && Objects.nonNull(jobDTO.getTerminateDateTime()) &&
-				convertedCurrentTime.equals(jobDTO.getTerminateDateTime());
+		final ZoneOffset timeZoneOffset = jobDTO.getTimeZoneOffset();
+		final LocalDateTime convertedCurrentTime = localDateTimeAtZone(currentDateTime, timeZoneOffset);
+		final LocalDateTime terminateDateTime = jobDTO.getTerminateDateTime();
+		return Objects.nonNull(terminateDateTime) && isSchedulerActive(jobDTO, convertedCurrentTime) &&
+				convertedCurrentTime.equals(terminateDateTime.atOffset(timeZoneOffset).toLocalDateTime());
 	}
 
 	private List<SchedulerJobData> getComputationalSchedulersForStopping(OffsetDateTime currentDateTime,
@@ -335,10 +358,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		return schedulerJobDAO
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING)
 				.stream()
-				.filter(schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
-						currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
-						schedulerJobData.getJobDTO().getEndTime()) ||
-						(checkInactivity && computationalInactivityCondition(schedulerJobData)))
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime))
 				.collect(Collectors.toList());
 	}
 
@@ -413,7 +433,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private boolean shouldSchedulerBeExecuted(SchedulerJobDTO dto, OffsetDateTime dateTime, List<DayOfWeek> daysRepeat,
 											  LocalTime time) {
-		LocalDateTime convertedDateTime = schedulerExecutionDate(dto, dateTime);
+		LocalDateTime convertedDateTime = localDateTimeAtZone(dateTime, dto.getTimeZoneOffset());
 
 		return isSchedulerActive(dto, convertedDateTime)
 				&& daysRepeat.contains(convertedDateTime.toLocalDate().getDayOfWeek())
@@ -425,15 +445,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				&& finishDateAfterCurrentDate(dto, convertedDateTime);
 	}
 
-	private LocalDateTime schedulerExecutionDate(SchedulerJobDTO dto, OffsetDateTime dateTime) {
-		ZoneOffset zOffset = dto.getTimeZoneOffset();
-		OffsetDateTime roundedDateTime = OffsetDateTime.of(
-				dateTime.toLocalDate(),
-				LocalTime.of(dateTime.toLocalTime().getHour(), dateTime.toLocalTime().getMinute()),
-				dateTime.getOffset());
-
-		return ZonedDateTime.ofInstant(roundedDateTime.toInstant(),
-				ZoneId.ofOffset(TIMEZONE_PREFIX, zOffset)).toLocalDateTime();
+	private LocalDateTime localDateTimeAtZone(OffsetDateTime dateTime, ZoneOffset timeZoneOffset) {
+		return dateTime.atZoneSameInstant(ZoneOffset.UTC)
+				.truncatedTo(ChronoUnit.MINUTES)
+				.withZoneSameInstant(timeZoneOffset)
+				.toLocalDateTime();
 	}
 
 	private boolean finishDateAfterCurrentDate(SchedulerJobDTO dto, LocalDateTime currentDateTime) {

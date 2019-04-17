@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Used to authenticate users against Azure Active Directory
@@ -108,16 +109,15 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 	public UserInfo getUserInfo(String accessToken, @Context HttpServletRequest request) {
 		String remoteIp = request.getRemoteAddr();
 
-		UserInfo ui = userInfoDao.getUserInfoByAccessToken(accessToken);
+		final Optional<UserInfo> ui = userInfoDao.getUserInfoByAccessToken(accessToken);
 
-		if (ui != null) {
-			ui = ui.withToken(accessToken);
-			userInfoDao.updateUserInfoTTL(accessToken, ui);
+		if (ui.isPresent()) {
+			userInfoDao.updateUserInfoTTL(accessToken, ui.get().withToken(accessToken));
 			log.debug("restored UserInfo from DB {}", ui);
 		}
 
 		log.debug("Authorized {} {} {}", accessToken, ui, remoteIp);
-		return ui;
+		return ui.get().withToken(accessToken);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 			log.error("OAuth authentication failed", e);
 			final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
 			return Response.status(unauthorized)
-					.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
+					.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password is invalid")).build();
 		}
 	}
 
@@ -189,6 +189,6 @@ public class AzureAuthenticationResource<C extends Configuration> extends Abstra
 		}
 		final Response.Status unauthorized = Response.Status.UNAUTHORIZED;
 		return Response.status(unauthorized)
-				.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password are not valid")).build();
+				.entity(new ErrorDTO(unauthorized.getStatusCode(), "Username or password is invalid")).build();
 	}
 }

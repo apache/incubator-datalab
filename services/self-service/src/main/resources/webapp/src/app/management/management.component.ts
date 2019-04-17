@@ -44,7 +44,6 @@ export class ManagementComponent implements OnInit, OnDestroy {
   public healthStatus: GeneralEnvironmentStatus;
   public allEnvironmentData: Array<EnvironmentModel>;
   public uploadKey: boolean = true;
-
   public anyEnvInProgress: boolean = false;
   public notebookInProgress: boolean = false;
 
@@ -253,7 +252,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
           value.status,
           value.shape,
           value.computational_resources,
-          value.user
+          value.user,
+          value.resource_type
         ));
   }
 

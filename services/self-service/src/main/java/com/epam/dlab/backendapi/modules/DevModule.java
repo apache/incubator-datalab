@@ -146,7 +146,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 				} else {
 					return (T) Response.status(Response.Status.UNAUTHORIZED)
 							.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
-									" are not valid"))
+									" is invalid"))
 							.type(MediaType.APPLICATION_JSON_TYPE)
 							.build();
 				}
