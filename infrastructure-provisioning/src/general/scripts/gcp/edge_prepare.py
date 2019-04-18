@@ -218,7 +218,7 @@ if __name__ == "__main__":
         rules = [
             {
                 'IPProtocol': 'udp',
-                'ports': ['53']
+                'ports': ['53', '123']
             },
             {
                 'IPProtocol': 'tcp',

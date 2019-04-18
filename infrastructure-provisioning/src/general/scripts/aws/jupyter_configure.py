@@ -72,6 +72,7 @@ if __name__ == "__main__":
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+    edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     else:
@@ -109,7 +110,8 @@ if __name__ == "__main__":
         print('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
-            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
+                    notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
@@ -125,8 +127,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
+            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:

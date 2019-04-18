@@ -21,8 +21,8 @@ package com.epam.dlab.auth.gcp.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.UserInfoDAO;
+import com.epam.dlab.auth.conf.GcpLoginConfiguration;
 import com.epam.dlab.auth.oauth2.Oauth2AuthenticationService;
-import com.epam.dlab.config.gcp.GcpLoginConfiguration;
 import com.epam.dlab.exceptions.DlabAuthenticationException;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
