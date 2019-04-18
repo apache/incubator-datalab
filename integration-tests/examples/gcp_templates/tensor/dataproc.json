@@ -6,7 +6,7 @@
   "dataproc_preemptible_count": "0",
   "dataproc_master_instance_type" : "n1-standard-2",
   "dataproc_slave_instance_type" : "n1-standard-2",
-  "dataproc_version" : "1.1",
+  "dataproc_version" : "1.2",
   "notebook_name": "set notebook name",
   "template_name" : "Dataproc cluster"
 }

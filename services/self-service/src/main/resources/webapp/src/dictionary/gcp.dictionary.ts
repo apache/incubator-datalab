@@ -35,6 +35,7 @@ export const NAMING_CONVENTION = {
   'total_instance_number': 'total_instance_number',
 
   'spot_instance': 'Preemptible worker nodes',
+  'cluster_version': 'dataproc_version',
   'billing': {
       'resourceName': 'resource_name',
       'cost': 'cost',

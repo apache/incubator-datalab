@@ -102,8 +102,9 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[INSTALLING PREREQUISITES ON SLAVE NODE]')
         print('[INSTALLING PREREQUISITES ON SLAVE NODE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}". \
-            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
+            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -189,6 +190,7 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
         edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
+        edge_instance_private_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
         if data_engine['network_type'] == 'private':
             edge_instance_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
         else:
@@ -279,8 +281,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES ON MASTER NODE]')
         print('[INSTALLING PREREQUISITES ON MASTER NODE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
+            format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:

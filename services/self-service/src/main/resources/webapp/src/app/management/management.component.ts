@@ -253,6 +253,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
           value.shape,
           value.computational_resources,
           value.user,
+          value.public_ip,
           value.resource_type
         ));
   }

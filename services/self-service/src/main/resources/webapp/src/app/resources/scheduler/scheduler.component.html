@@ -80,7 +80,6 @@
                 <input matInput [matDatepicker]="terminateDate" placeholder="Choose terminate date"
                   formControlName="terminateDate">
                 <mat-datepicker-toggle
-                  [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }"
                   matSuffix [for]="terminateDate"></mat-datepicker-toggle>
                 <mat-datepicker #terminateDate></mat-datepicker>
               </mat-form-field>

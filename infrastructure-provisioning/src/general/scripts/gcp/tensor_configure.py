@@ -60,6 +60,7 @@ if __name__ == "__main__":
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
+    edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -112,8 +113,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO TENSOR NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO TENSOR NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}". \
-            format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'], os.environ['gcp_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
+            format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
+                   os.environ['gcp_region'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -150,7 +152,8 @@ if __name__ == "__main__":
         additional_config = {"user_keyname": os.environ['edge_user_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, notebook_config['ssh_key_path'], json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+            instance_hostname, notebook_config['ssh_key_path'], json.dumps(additional_config),
+            notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -191,7 +194,8 @@ if __name__ == "__main__":
                 if image_id_list and image_id_list[0] != '':
                     print("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
                 else:
-                    print("Looks like another image creating operation for your template have been started a moment ago.")
+                    print("Looks like another image creating operation for your template have been started a "
+                          "moment ago.")
                 if image_id_list and image_id_list[1] != '':
                     print("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
         except Exception as err:

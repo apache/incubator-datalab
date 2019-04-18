@@ -153,6 +153,7 @@ export class SchedulerComponent implements OnInit {
       : this.schedulerForm.get('startDate').disable();
 
     this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+    this.enableSchedule ? this.schedulerForm.get('terminateDate').enable() : this.schedulerForm.get('terminateDate').disable();
 
     if (this.enableSchedule && $event.source) this.enableIdleTimeView = false;
   }
@@ -330,5 +331,6 @@ export class SchedulerComponent implements OnInit {
 
     this.schedulerForm.get('startDate').disable();
     this.schedulerForm.get('finishDate').disable();
+    this.schedulerForm.get('terminateDate').disable();
   }
 }
