@@ -47,11 +47,11 @@
                         <span ngClass="{{resource.status || ''}}" class="resource-status">{{ resource.status }}</span>
                         <div class="resource-actions">
                             <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine'">
-                                <i class="material-icons" (click)="toggleResourceAction(env, 'stop', resource)" [ngClass]="{'not-allowed' : resource.status !== 'running' || env.user === currentUser && healthStatus !== 'ok' }">pause_circle_outline</i>
+                                <i class="material-icons" (click)="toggleResourceAction(env, 'stop', resource)" [ngClass]="{'not-allowed' : resource.status !== 'running' || env.user.toLowerCase() === currentUser && healthStatus !== 'ok' }">pause_circle_outline</i>
                             </a>
 
                             <a class="remove_butt" (click)="toggleResourceAction(env, 'terminate', resource)" [ngClass]="{'disabled' : env.status !== 'running' || resource.status !== 'running' && resource.status !== 'stopped'
-                || env.user === currentUser && healthStatus !== 'ok' }">
+                || env.user.toLowerCase() === currentUser && healthStatus !== 'ok' }">
                                 <i class="material-icons">highlight_off</i>
                             </a>
                         </div>
@@ -62,9 +62,9 @@
         <td class="settings">
             <span #settings class="actions" (click)="actions.toggle($event, settings)" [ngClass]="{ 'disabled' : (!uploadKey && env.type === 'notebook')
             || (env.status !== 'running' && env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'failed' )
-            || (env.type === 'edge node' && env.user === currentUser && env.status === 'stopping')
-            || env.type === 'edge node' && env.user !== currentUser && env.status !== 'running'
-            || env.user === currentUser && healthStatus !== 'ok' && env.type !== 'edge node' }"></span>
+            || (env.type === 'edge node' && env.user.toLowerCase() === currentUser && env.status === 'stopping')
+            || env.type === 'edge node' && env.user.toLowerCase() !== currentUser && env.status !== 'running'
+            || env.user.toLowerCase() === currentUser && healthStatus !== 'ok' && env.type !== 'edge node' }"></span>
             <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
                 <ul class="list-unstyled">
                     <li matTooltip="{{ env.type !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}" matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(env)"
@@ -81,7 +81,7 @@
                         </div>
                     </li>
 
-                    <div *ngIf="env.name === 'edge node' && env.user === currentUser">
+                    <div *ngIf="env.name === 'edge node' && env.user.toLowerCase() === currentUser">
                         <li (click)="toggleResourceAction(env, 'run')" *ngIf="env.status === 'stopped'">
                             <i class="material-icons">play_circle_outline</i>
                             <span>Start</span>

@@ -18,52 +18,38 @@
   -->
 
 <div class="sub-nav base-retreat">
-  <div *ngIf="healthStatus?.admin" class="admin-group">
-      <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()">
+    <div *ngIf="healthStatus?.admin" class="admin-group">
+        <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()">
         <i class="material-icons"></i>Manage roles
       </button>
-      <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()">
+        <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()">
         <i class="material-icons"></i>SSN Monitor
       </button>
-      <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()">
+        <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()">
         <i class="material-icons"></i>Manage environment
       </button>
-      <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup">
+        <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup">
         <i class="material-icons">backup</i>Backup
       </button>
     </div>
-  <button mat-raised-button class="butt" (click)="buildGrid()">
+    <button mat-raised-button class="butt" (click)="buildGrid()">
     <i class="material-icons">autorenew</i>Refresh
   </button>
 </div>
 
-<management-grid
-  [currentUser]="user"
-  [uploadKey]="uploadKey"
-  [healthStatus]="healthStatus?.status"
-  [isAdmin]="healthStatus?.admin"
-  [allEnvironmentData]="allEnvironmentData"
-  [environmentsHealthStatuses]="healthStatus?.list_resources"
-  (refreshGrid)="buildGrid()"
-  (actionToggle)="manageEnvironmentAction($event)">
+<management-grid [currentUser]="user.toLowerCase()" [uploadKey]="uploadKey" [healthStatus]="healthStatus?.status" [isAdmin]="healthStatus?.admin" [allEnvironmentData]="allEnvironmentData" [environmentsHealthStatuses]="healthStatus?.list_resources" (refreshGrid)="buildGrid()"
+    (actionToggle)="manageEnvironmentAction($event)">
 </management-grid>
 
 
-<dlab-backup-dilog 
-  #backupDialog
-  (backupOpts)="createBackup($event)">
+<dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)">
 </dlab-backup-dilog>
 
-<dlab-manage-env-dilog
-  #manageEnvDialog
-  (manageEnv)="manageEnvironment($event)"
-  (setBudget)="setBudgetLimits($event)">
+<dlab-manage-env-dilog #manageEnvDialog (manageEnv)="manageEnvironment($event)" (setBudget)="setBudgetLimits($event)">
 </dlab-manage-env-dilog>
 
 <progress-dialog #preloaderModal></progress-dialog>
 <dlab-ssn-monitor #ssnMonitor></dlab-ssn-monitor>
 
-<dlab-manage-roles-groups
-  #rolesGroupsModal
-  (manageRolesGroupAction)="manageRolesGroups($event)">
+<dlab-manage-roles-groups #rolesGroupsModal (manageRolesGroupAction)="manageRolesGroups($event)">
 </dlab-manage-roles-groups>
