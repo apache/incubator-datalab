@@ -75,7 +75,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
       .subscribe(result => this.uploadKey = (result && result.status === 200)));
 
     this.subscriptions.add(this.userAccessKeyService.keyUploadProccessEmitter.subscribe(response => {
-      if (response) console.log('Refresh DATA after KEY UPLOAD!!!');
+      if (response) this.buildGrid();
     }));
   }
 

@@ -60,7 +60,7 @@ export class ResourcesComponent implements OnInit, OnDestroy {
       if (response) this.userUploadAccessKeyState = response.status;
     }));
     this.subscriptions.add(this.userAccessKeyService.keyUploadProccessEmitter.subscribe(response => {
-      if (response) console.log('Refresh DATA after KEY UPLOAD!!!');
+      if (response) this.refreshGrid();
     }));
   }
 
