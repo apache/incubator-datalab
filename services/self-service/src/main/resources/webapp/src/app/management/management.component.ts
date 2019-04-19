@@ -19,7 +19,7 @@
 
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { SubscriptionLike } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import {
   HealthStatusService,
@@ -47,7 +47,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
   public anyEnvInProgress: boolean = false;
   public notebookInProgress: boolean = false;
 
-  private subscription: SubscriptionLike;
+  private subscriptions: Subscription = new Subscription();
   private clear = undefined;
 
   @ViewChild('backupDialog') backupDialog;
@@ -71,12 +71,16 @@ export class ManagementComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.buildGrid();
     this.user = this.storageService.getUserName();
-    this.subscription = this.userAccessKeyService.accessKeyEmitter
-      .subscribe(result => this.uploadKey = (result && result.status === 200));
+    this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter
+      .subscribe(result => this.uploadKey = (result && result.status === 200)));
+
+    this.subscriptions.add(this.userAccessKeyService.keyUploadProccessEmitter.subscribe(response => {
+      if (response) this.buildGrid();
+    }));
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   public buildGrid() {

@@ -44,6 +44,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
 
   private alive: boolean = false;
+  private lastStatus: number | boolean = false;
   private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 30000;
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
@@ -157,6 +158,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.close();
       this.keyUploadDialog.open({ isFooter: false });
       this.alive = false;
+      this.lastStatus = status;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
       !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
 
@@ -167,10 +169,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
             .pipe(takeWhile(() => this.alive))
             .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
       }
-
+      this.lastStatus = status;
     } else if (status === HTTP_STATUS_CODES.OK) {
+      if (this.lastStatus) {
+        this.userAccessKeyService.emitActionOnKeyUploadComplete();
+        this.lastStatus = false;
+      }
       this.alive = false;
-      this.userAccessKeyService.emitActionOnKeyUploadComplete();
       this.preloaderDialog.close();
       this.keyUploadDialog.close();
     }

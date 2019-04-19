@@ -59,6 +59,9 @@ export class ResourcesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
       if (response) this.userUploadAccessKeyState = response.status;
     }));
+    this.subscriptions.add(this.userAccessKeyService.keyUploadProccessEmitter.subscribe(response => {
+      if (response) this.refreshGrid();
+    }));
   }
 
   ngOnDestroy() {

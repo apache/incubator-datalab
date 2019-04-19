@@ -27,11 +27,16 @@ import { ErrorUtils } from '../util';
 @Injectable()
 export class UserAccessKeyService {
   _accessKeyEmitter: BehaviorSubject<any> = new BehaviorSubject<boolean>(null);
+  _keyUploadProccessEmitter: BehaviorSubject<any> = new BehaviorSubject<boolean>(null);
 
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   get accessKeyEmitter() {
     return this._accessKeyEmitter.asObservable();
+  }
+
+  get keyUploadProccessEmitter() {
+    return this._keyUploadProccessEmitter.asObservable();
   }
 
   public initialUserAccessKeyCheck() {
@@ -56,6 +61,7 @@ export class UserAccessKeyService {
 
   public emitActionOnKeyUploadComplete() {
     console.log('key uploaded!!!!!!!!!!!!!');
+    this._keyUploadProccessEmitter.next(true);
   }
 
   public generateAccessKey(): Observable<{}> {
