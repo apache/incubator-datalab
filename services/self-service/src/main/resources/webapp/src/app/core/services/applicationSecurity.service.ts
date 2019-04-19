@@ -101,7 +101,6 @@ export class ApplicationSecurityService {
             }
 
             this.storage.destroyToken();
-            this.appRoutingService.redirectToLoginPage();
             return false;
           }),
           catchError(error => {
@@ -111,7 +110,6 @@ export class ApplicationSecurityService {
             return observableOf(false);
           }));
     }
-    this.appRoutingService.redirectToLoginPage();
     this._loggedInStatus.next(false);
     return observableOf(false);
   }
@@ -142,8 +140,7 @@ export class ApplicationSecurityService {
           if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
             window.location.href = error.headers.get('Location');
           } else {
-            const errObj = error.json();
-            this.emmitMessage(errObj.message);
+            this.emmitMessage(error.message);
             return observableOf(false);
           }
         }));
