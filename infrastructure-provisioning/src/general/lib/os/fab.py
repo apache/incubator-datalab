@@ -224,23 +224,22 @@ def configure_docker(os_user, docker_version, docker_conf_file):
         sys.exit(1)
 
 def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
-    try:
-        if not exists(jupyter_dir):
-            try:
-                sudo('mkdir {}'.format(jupyter_dir))
-                put('{}Dockerfile_jupyter {}/Dockerfile_jupyter'.format(templates_dir, jupyter_dir))
-                put('{}jupyter_run.sh {}/jupyter_run.sh'.format(templates_dir, jupyter_dir))
-                sudo('sed -i \'s/jup_version/{}/\' Dockerfile_jupyter'.format(jupyter_version))
-                sudo('sed -i \'s/CONF_PATH/{}/\' {}jupyter'.format(docker_jupyter_conf, jupyter_dir))
-                sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
-                sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
-                sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
-                sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
-                sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
-                sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
-            except Exception as err:
-                print('Failed to configure Jupyter files:', str(err))
-                sys.exit(1)
+    if not exists(jupyter_dir):
+        try:
+           sudo('mkdir {}'.format(jupyter_dir))
+           put('{}Dockerfile_jupyter {}/Dockerfile_jupyter'.format(templates_dir, jupyter_dir))
+           put('{}jupyter_run.sh {}/jupyter_run.sh'.format(templates_dir, jupyter_dir))
+           sudo('sed -i \'s/jup_version/{}/\' Dockerfile_jupyter'.format(jupyter_version))
+           sudo('sed -i \'s/CONF_PATH/{}/\' {}jupyter'.format(docker_jupyter_conf, jupyter_dir))
+           sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
+           sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
+           sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
+           sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
+           sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
+           sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+        except Exception as err:
+           print('Failed to configure Jupyter files:', str(err))
+           sys.exit(1)
 
 
 def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version):
