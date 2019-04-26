@@ -230,7 +230,7 @@ def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, templat
                 sudo('mkdir {}'.format(jupyter_dir))
                 put('{}Dockerfile_jupyter {}/Dockerfile_jupyter'.format(templates_dir, jupyter_dir))
                 put('{}jupyter_run.sh {}/jupyter_run.sh'.format(templates_dir, jupyter_dir))
-                sudo('sed -i \'s/jup_version/{}/\' Dockerfile_jupyter'.format(jupyter_version)
+                sudo('sed -i \'s/jup_version/{}/\' Dockerfile_jupyter'.format(jupyter_version))
                 sudo('sed -i \'s/CONF_PATH/{}/\' {}jupyter'.format(docker_jupyter_conf, jupyter_dir))
                 sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
                 sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
