@@ -219,9 +219,9 @@ def configure_docker(os_user, docker_version, docker_conf_file):
             run('sudo -E ./install.sh')
             sudo('rm install.sh')
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
-        except Exception as err:
-            print('Failed to configure Docker:', str(err))
-            sys.exit(1)
+    except Exception as err:
+        print('Failed to configure Docker:', str(err))
+        sys.exit(1)
 
 def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     try:
