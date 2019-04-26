@@ -193,7 +193,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             print('Error:', str(err))
             sys.exit(1)
 
-def configure_docker(os_user, docker_version):
+def configure_docker(os_user, docker_version, docker_conf_file):
     try:
         if not exists('/home/' + os_user + '/.ensure_dir/docker_ensured'):
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
@@ -208,8 +208,8 @@ def configure_docker(os_user, docker_version):
             sudo('touch {}'.format(https_file))
             sudo('echo -e \'[Service] \nEnvironment=\"\'$http_proxy\'\"\' > {}'.format(https_file))
             sudo('mkdir /home/{}/.docker'.format(os_user))
-            sudo('touch {}'.format(docker_conf_file))
-            sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > {}'.format(docker_conf_file))
+            sudo('touch /home/{}/.docker/config.json'.format(os_user))
+            sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')

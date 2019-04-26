@@ -55,7 +55,6 @@ else:
 docker_version = '18.09.4'
 http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
 https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
-docker_conf_file = '/home/' + os_user + '/.docker/config.json'
 jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
 pyspark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/py3spark_local/'
