@@ -22,10 +22,8 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
-import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
-import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.dto.SchedulerJobDTO;
@@ -34,11 +32,9 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
-import com.epam.dlab.rest.client.RESTService;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,10 +45,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.dto.UserInstanceStatus.*;
@@ -67,8 +60,6 @@ public class SchedulerJobServiceImplTest {
 	private final String USER = "test";
 	private final String EXPLORATORY_NAME = "explName";
 	private final String COMPUTATIONAL_NAME = "compName";
-
-	private UserInfo userInfo;
 	private SchedulerJobDTO schedulerJobDTO;
 	private UserInstanceDTO userInstance;
 
@@ -84,12 +75,6 @@ public class SchedulerJobServiceImplTest {
 	private ExploratoryService exploratoryService;
 	@Mock
 	private ComputationalService computationalService;
-	@Mock
-	private EnvDAO envDAO;
-	@Mock
-	private RESTService provisioningService;
-	@Mock
-	private RequestId requestId;
 
 	@InjectMocks
 	private SchedulerJobServiceImpl schedulerJobService;
@@ -97,7 +82,6 @@ public class SchedulerJobServiceImplTest {
 
 	@Before
 	public void setUp() {
-		userInfo = getUserInfo();
 		schedulerJobDTO = getSchedulerJobDTO(LocalDate.now(), LocalDate.now().plusDays(1),
 				Arrays.asList(DayOfWeek.values()), Arrays.asList(DayOfWeek.values()), false,
 				LocalDateTime.of(LocalDate.now(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES)),
@@ -400,34 +384,6 @@ public class SchedulerJobServiceImplTest {
 	}
 
 	@Test
-	public void executeCheckClusterInactivityJob() {
-		EnvResource resource = new EnvResource();
-		when(envDAO.findRunningResourcesForCheckInactivity()).thenReturn(singletonList(resource));
-		when(provisioningService.post(anyString(), anyString(), anyListOf(EnvResource.class), any()))
-				.thenReturn("someUuid");
-		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
-
-		schedulerJobService.updateRunningResourcesLastActivity(userInfo);
-
-		verify(envDAO).findRunningResourcesForCheckInactivity();
-		verify(provisioningService).post("/infrastructure/check_inactivity", "token",
-				singletonList(resource), String.class);
-		verify(requestId).put(USER, "someUuid");
-		verifyNoMoreInteractions(envDAO, provisioningService, requestId);
-	}
-
-	@Test
-	public void executeCheckClusterInactivityJobWithoutRunningClusters() {
-		when(envDAO.findRunningResourcesForCheckInactivity()).thenReturn(Collections.emptyList());
-
-		schedulerJobService.updateRunningResourcesLastActivity(userInfo);
-
-		verify(envDAO).findRunningResourcesForCheckInactivity();
-		verifyNoMoreInteractions(envDAO);
-		verifyZeroInteractions(provisioningService, requestId);
-	}
-
-	@Test
 	public void testStartComputationalByScheduler() {
 		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
 				any(DataEngineType.class), anyVararg())).thenReturn(singletonList(getSchedulerJobData(LocalDate.now(),
@@ -627,26 +583,32 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void testStopExploratoryByScheduler() {
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(getSchedulerJobData(LocalDate.now(), LocalDate.now().plusDays(1), Arrays.asList(DayOfWeek.values()), Arrays.asList(DayOfWeek.values()), LocalDateTime.of(LocalDate.now(),
-				LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
-				LocalTime.now().truncatedTo(ChronoUnit.MINUTES))));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).
+				thenReturn(singletonList(getSchedulerJobData(LocalDate.now(), LocalDate.now().plusDays(1),
+						Arrays.asList(DayOfWeek.values()), Arrays.asList(DayOfWeek.values()),
+						LocalDateTime.of(LocalDate.now(),
+								LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
+						LocalTime.now().truncatedTo(ChronoUnit.MINUTES))));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
 		verify(systemUserService).create(USER);
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verify(exploratoryService).stop(refEq(getUserInfo()), eq(EXPLORATORY_NAME));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
 	@Test
 	public void testStopExploratoryBySchedulerWhenSchedulerIsNotConfigured() {
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(Collections.emptyList());
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class)))
+				.thenReturn(Collections.emptyList());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(schedulerJobDAO);
 		verifyZeroInteractions(systemUserService, exploratoryService);
 	}
@@ -660,12 +622,13 @@ public class SchedulerJobServiceImplTest {
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 				LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 		);
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(schedulerJobData));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).thenReturn(singletonList(schedulerJobData));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
@@ -680,12 +643,14 @@ public class SchedulerJobServiceImplTest {
 		final SchedulerJobData schedulerJobData = getSchedulerJobData(beginDate, finishDate, startDays, stopDays,
 				terminateDateTime, false, USER, LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 		);
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(schedulerJobData));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class)))
+				.thenReturn(singletonList(schedulerJobData));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
@@ -699,12 +664,13 @@ public class SchedulerJobServiceImplTest {
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 				LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 		);
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(singletonList(schedulerJobData));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).thenReturn(singletonList(schedulerJobData));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(RUNNING);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
 		verifyNoMoreInteractions(systemUserService, schedulerJobDAO, exploratoryService);
 	}
 
@@ -1075,7 +1041,7 @@ public class SchedulerJobServiceImplTest {
 				LocalDateTime.of(now, currentTime.plusMinutes(minutesOffset).truncatedTo(ChronoUnit.MINUTES)),
 				false, "user123", offsetTime.truncatedTo(ChronoUnit.MINUTES));
 
-		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(Arrays.asList(schedulerJobData, secondScheduler));
+		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).thenReturn(Arrays.asList(schedulerJobData, secondScheduler));
 		when(systemUserService.create(anyString())).thenReturn(getUserInfo());
 		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
 				any(DataEngineType.class), anyVararg())).thenReturn(singletonList(schedulerJobData));

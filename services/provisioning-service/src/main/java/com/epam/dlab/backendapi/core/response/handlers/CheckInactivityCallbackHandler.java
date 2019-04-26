@@ -18,34 +18,33 @@
  */
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.dto.computational.CheckInactivityStatus;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.CheckInactivityStatusDTO;
-import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 @Slf4j
+@Singleton
 public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 	private static final String STATUS_FIELD = "status";
-	private static final String RESOURCES_FIELD = "resources";
 	private static final String ERROR_MESSAGE_FIELD = "error_message";
+	private static final String RESPONSE = "response";
+	private static final String OK_STATUS_STRING = "ok";
+	private static final String RESULT_NODE = "result";
 	@JsonProperty
 	private final String uuid;
 	private final RESTService selfService;
@@ -53,15 +52,30 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 	private final String callbackUrl;
 	@JsonProperty
 	private final String user;
+	@JsonProperty
+	private final String exploratoryName;
+	@JsonProperty
+	private final String computationalName;
+	private SystemUserInfoService systemUserInfoService;
 
 	@JsonCreator
 	public CheckInactivityCallbackHandler(@JacksonInject RESTService selfService,
+										  @JacksonInject SystemUserInfoService systemUserInfoService,
 										  @JsonProperty("callbackUrl") String callbackUrl,
-										  @JsonProperty("user") String user, String uuid) {
+										  @JsonProperty("user") String user, String uuid, String exploratoryName,
+										  String computationalName) {
 		this.selfService = selfService;
 		this.uuid = uuid;
 		this.callbackUrl = callbackUrl;
 		this.user = user;
+		this.exploratoryName = exploratoryName;
+		this.computationalName = computationalName;
+		this.systemUserInfoService = systemUserInfoService;
+	}
+
+	public CheckInactivityCallbackHandler(RESTService selfService, SystemUserInfoService systemUserInfoService,
+										  String callbackUrl, String user, String uuid, String exploratoryName) {
+		this(selfService, systemUserInfoService, callbackUrl, user, uuid, exploratoryName, null);
 	}
 
 	@Override
@@ -83,41 +97,16 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 
 		final JsonNode treeNode = MAPPER.readTree(fileContent);
 		final String status = treeNode.get(STATUS_FIELD).textValue();
-		CheckInactivityStatusDTO checkInactivityStatusDTO = "ok".equals(status) ?
-				getOkStatusDto(treeNode) : getFailedStatusDto(treeNode);
+		CheckInactivityStatusDTO checkInactivityStatusDTO = OK_STATUS_STRING.equals(status) ?
+				getOkStatusDto(treeNode) : getFailedStatusDto(treeNode.get(ERROR_MESSAGE_FIELD).textValue());
 		selfServicePost(checkInactivityStatusDTO);
-		return "ok".equals(status);
-	}
-
-	private CheckInactivityStatusDTO getOkStatusDto(JsonNode jsonNode) throws IOException {
-		final JsonNode clustersNode = jsonNode.get(RESOURCES_FIELD);
-		ObjectReader reader = MAPPER.readerFor(new TypeReference<List<EnvResource>>() {
-		});
-		List<EnvResource> clusters = reader.readValue(clustersNode);
-		return buildCheckInactivityClustersStatusDTO(CheckInactivityStatus.COMPLETED, clusters);
-	}
-
-	private CheckInactivityStatusDTO getFailedStatusDto(JsonNode jsonNode) {
-		return buildCheckInactivityClustersStatusDTO(CheckInactivityStatus.FAILED,
-				Collections.emptyList())
-				.withErrorMessage(jsonNode.get(ERROR_MESSAGE_FIELD).textValue());
-	}
-
-	private void selfServicePost(CheckInactivityStatusDTO statusDTO) {
-		log.debug("Send post request to self service for UUID {}, object is {}", uuid, statusDTO);
-		try {
-			selfService.post(callbackUrl, statusDTO, Response.class);
-		} catch (Exception e) {
-			log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
-			throw new DlabException("Send request or response error for UUID " + uuid + ": "
-					+ e.getLocalizedMessage(), e);
-		}
+		return OK_STATUS_STRING.equals(status);
 	}
 
 	@Override
 	public void handleError(String errorMessage) {
-		buildCheckInactivityClustersStatusDTO(CheckInactivityStatus.FAILED, Collections.emptyList())
-				.withErrorMessage(errorMessage);
+		log.error(errorMessage);
+		selfServicePost(getFailedStatusDto(errorMessage).withErrorMessage(errorMessage));
 	}
 
 	@Override
@@ -125,13 +114,32 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 		return user;
 	}
 
-	private CheckInactivityStatusDTO buildCheckInactivityClustersStatusDTO(CheckInactivityStatus status,
-																		   List<EnvResource> clusters) {
-		return new CheckInactivityStatusDTO()
+	private CheckInactivityStatusDTO getOkStatusDto(JsonNode jsonNode) {
+		final CheckInactivityStatusDTO statusDTO = new CheckInactivityStatusDTO().withStatus(OK_STATUS_STRING)
+				.withRequestId(uuid);
+		statusDTO.setComputationalName(computationalName);
+		statusDTO.setExploratoryName(exploratoryName);
+		final long lastActivity = Long.parseLong(jsonNode.get(RESPONSE).get(RESULT_NODE).textValue());
+		statusDTO.setLastActivityUnixTime(lastActivity);
+		return statusDTO;
+	}
+
+	private CheckInactivityStatusDTO getFailedStatusDto(String errorMessage) {
+		return new CheckInactivityStatusDTO().withStatus(UserInstanceStatus.FAILED)
 				.withRequestId(uuid)
-				.withResources(clusters)
-				.withStatus(status)
-				.withUser(user);
+				.withErrorMessage(errorMessage);
+	}
+
+	private void selfServicePost(CheckInactivityStatusDTO statusDTO) {
+		log.debug("Send post request to self service for UUID {}, object is {}", uuid, statusDTO);
+		try {
+			selfService.post(callbackUrl, systemUserInfoService.create(user).getAccessToken(), statusDTO,
+					Response.class);
+		} catch (Exception e) {
+			log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
+			throw new DlabException("Send request or response error for UUID " + uuid + ": "
+					+ e.getLocalizedMessage(), e);
+		}
 	}
 
 }

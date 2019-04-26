@@ -68,6 +68,7 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
 
     region = os.environ['aws_region']
     if region == 'us-east-1':
@@ -158,21 +159,22 @@ if __name__ == "__main__":
                              "backend_hostname": get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name']),
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} " \
-                 "--keyfile {} --region {} " \
-                 "--additional_config '{}' --os_user {} " \
-                 "--spark_version {} --hadoop_version {} " \
-                 "--edge_hostname {} --proxy_port {} " \
-                 "--zeppelin_version {} --scala_version {} " \
-                 "--livy_version {} --multiple_clusters {} " \
-                 "--r_mirror {} --endpoint_url {} " \
-                 "--exploratory_name {}" \
+        params = "--hostname {0} --instance_name {1} " \
+                 "--keyfile {2} --region {3} " \
+                 "--additional_config '{4}' --os_user {5} " \
+                 "--spark_version {6} --hadoop_version {7} " \
+                 "--edge_hostname {8} --proxy_port {9} " \
+                 "--zeppelin_version {10} --scala_version {11} " \
+                 "--livy_version {12} --multiple_clusters {13} " \
+                 "--r_mirror {14} --endpoint_url {15} " \
+                 "--ip_adress {16} --exploratory_name {17}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
-                    os.environ['notebook_r_mirror'], endpoint_url, notebook_config['exploratory_name'])
+                    os.environ['notebook_r_mirror'], endpoint_url, notebook_config['ip_address'],
+                    notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
         except:

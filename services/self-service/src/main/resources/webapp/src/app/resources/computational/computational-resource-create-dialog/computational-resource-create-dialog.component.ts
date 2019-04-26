@@ -38,6 +38,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly PROVIDER = DICTIONARY.cloud_provider;
   readonly DICTIONARY = DICTIONARY;
   readonly CLUSTER_CONFIGURATION = CLUSTER_CONFIGURATION;
+  readonly CheckUtils = CheckUtils;
 
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
@@ -84,14 +85,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  public isNumberKey($event): boolean {
-    const charCode = ($event.which) ? $event.which : $event.keyCode;
-    if (charCode !== 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
-      $event.preventDefault();
-      return false;
-    }
-    return true;
-  }
+  // public isNumberKey($event): boolean {
+  //   const charCode = ($event.which) ? $event.which : $event.keyCode;
+  //   if (charCode !== 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+  //     $event.preventDefault();
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   public onUpdate($event): void {
     if ($event.model.type === 'template') {

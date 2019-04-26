@@ -69,7 +69,7 @@
               <label class="label">{{ DICTIONARY[model.selectedImage.image].instance_number }}</label>
               <div class="control">
                 <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}"
-                      formControlName="instance_number" (keypress)="isNumberKey($event)" />
+                      formControlName="instance_number" (keypress)="CheckUtils.isNumberKey($event)" />
                 <span class="danger_color" *ngIf="!resourceForm?.controls.instance_number.valid">
                   <span>Only integer values greater than or equal to {{ minInstanceNumber }} and less than {{ maxInstanceNumber }} are allowed</span>
                 </span>
@@ -102,7 +102,7 @@
                 [ngClass]="{ show: preemptible?.nativeElement['checked'] || false}">
             <input type="text" class="form-control"
               formControlName="preemptible_instance_number"
-              (keypress)="isNumberKey($event)"
+              (keypress)="CheckUtils.isNumberKey($event)"
               (keydown.arrowup)="preemptibleCounter($event, 'increment')"
               (keydown.arrowdown)="preemptibleCounter($event, 'decrement')" />
             <span class="danger_color" *ngIf="!resourceForm?.controls.preemptible_instance_number.valid">
@@ -122,7 +122,7 @@
             <span *ngIf="spotInstancesSelect?.nativeElement['checked'] || false"> bit, %</span>
           </label>
           <div class="control spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] || false }" *ngIf="spotInstancesSelect?.nativeElement['checked'] || false">
-            <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="isNumberKey($event)">
+            <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="CheckUtils.isNumberKey($event)">
             <span class="danger_color" *ngIf="!resourceForm?.controls.instance_price.valid">
               Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed
             </span>

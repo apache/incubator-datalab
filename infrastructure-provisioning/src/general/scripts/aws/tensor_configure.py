@@ -71,6 +71,7 @@ if __name__ == "__main__":
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
+    notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -149,12 +150,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} " \
-                 "--region {} --os_user {} " \
-                 "--exploratory_name {}" \
+        params = "--hostname {0} --keyfile {1} " \
+                 "--region {2} --os_user {3} " \
+                 "--ip_adress {4} --exploratory_name {5}" \
                  .format(instance_hostname, keyfile_name,
                          os.environ['aws_region'], notebook_config['dlab_ssh_user'],
-                         notebook_config['exploratory_name'])
+                         notebook_config['ip_address'], notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
         except:
