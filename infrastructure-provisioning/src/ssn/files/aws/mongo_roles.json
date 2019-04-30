@@ -150,6 +150,16 @@
     ]
   },
   {
+    "_id": "nbCreateJupyterDocker",
+    "description": "Create Notebook Jupyter in Docker container",
+    "exploratories": [
+      "docker.dlab-jupyter-docker"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateDataEngine",
     "description": "Create Data Engine",
     "computationals": [
