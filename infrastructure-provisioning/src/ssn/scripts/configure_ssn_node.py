@@ -140,7 +140,7 @@ def docker_build_script():
     try:
         put('/root/templates/docker_build.py', 'docker_build')
         sudo('chmod +x docker_build')
-        sudo('mv docker_build /usr/bin/docker_build')
+        sudo('mv docker_build /usr/bin/docker-build')
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure docker_build script: ', str(err))
