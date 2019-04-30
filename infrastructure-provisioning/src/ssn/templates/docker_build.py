@@ -51,7 +51,8 @@ def image_build(src_path, node):
             cloud_provider = 'aws'
         elif local("uname -r | awk -F '-' '{print $3}'", capture=True).stdout == 'azure':
             cloud_provider = 'azure'
-            local('cp /home/dlab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path))
+            if not exists('{}base/azure_auth.json'.format(src_path)):
+                local('cp /home/dlab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path))
         else:
             cloud_provider = 'gcp'
         with lcd(src_path):
