@@ -28,18 +28,19 @@ import os
 import traceback
 
 src_path = '/opt/dlab/sources/infrastructure-provisioning/src/'
-node = [
-        'edge',
-        'jupyter',
-        'rstudio',
-        'zeppelin',
-        'tensor',
-        'tensor-rstudio',
-        'deeplearning',
-        'dataengine'
-        ] #for building the certain image just comment unnecessary nodes
-          #you can also comment line 57 if you don't need to rebuild ssn image
-
+if sys.argv[1] == 'all':
+    node = [
+            'edge',
+            'jupyter',
+            'rstudio',
+            'zeppelin',
+            'tensor',
+            'tensor-rstudio',
+            'deeplearning',
+            'dataengine'
+            ]
+else:
+    node = sys.argv[1:]
 
 def image_build(src_path, node):
     try:
