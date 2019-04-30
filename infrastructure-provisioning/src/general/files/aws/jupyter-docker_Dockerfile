@@ -28,8 +28,8 @@ COPY jupyter/ /root/
 COPY general/scripts/os/* /root/scripts/
 COPY general/scripts/aws/jupyter_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/jupyter-docker/Dockerfile_jupyter /root/templates/
-COPY general/jupyter-docker/jupyter_run.sh /root/templates/
+COPY jupyter-docker/Dockerfile_jupyter /root/templates/
+COPY jupyter-docker/jupyter_run.sh /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
