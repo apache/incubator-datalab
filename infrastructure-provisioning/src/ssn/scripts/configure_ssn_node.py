@@ -136,7 +136,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
         print('Failed to configure SSL certificates: ', str(err))
         sys.exit(1)
 
-def docker_build_script()
+def docker_build_script():
     try:
         put('/root/templates/docker_build.py', 'docker_build')
         sudo('chmod +x docker_build')
