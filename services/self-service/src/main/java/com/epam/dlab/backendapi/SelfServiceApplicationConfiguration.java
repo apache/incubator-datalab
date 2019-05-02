@@ -121,6 +121,22 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@JsonProperty(ServiceConsts.MAVEN_SEARCH_API)
 	private RESTServiceFactory mavenApiFactory;
 
+	@Valid
+	@NotNull
+	private Map<String, String> guacamole;
+
+	public Map<String, String> getGuacamole() {
+		return guacamole;
+	}
+
+	public String getGuacamoleHost() {
+		return guacamole.get("serverHost");
+	}
+
+	public Integer getGuacamolePort() {
+		return Integer.valueOf(guacamole.get("serverPort"));
+	}
+
 	@JsonProperty("jerseyClient")
 	public JerseyClientConfiguration getJerseyClientConfiguration() {
 		return jerseyClient;
