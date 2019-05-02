@@ -193,7 +193,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             print('Error:', str(err))
             sys.exit(1)
 
-def configure_docker(os_user, docker_version, docker_conf_file):
+def configure_docker(os_user, http_file, https_file):
     try:
         if not exists('/home/' + os_user + '/.ensure_dir/docker_ensured'):
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
@@ -201,7 +201,7 @@ def configure_docker(os_user, docker_version, docker_conf_file):
                   stable"')
             sudo('apt-get update')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
+            sudo('apt-get install -y docker-ce')
             sudo('mkdir -p /etc/systemd/system/docker.service.d')
             sudo('touch {}'.format(http_file))
             sudo('echo -e \'[Service] \nEnvironment=\"\'$http_proxy\'\"\' > {}'.format(http_file))
@@ -223,13 +223,17 @@ def configure_docker(os_user, docker_version, docker_conf_file):
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
 
-def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
+def ensure_jupyter_docker_files(jupyter_dir, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
     if not exists(jupyter_dir):
         try:
            sudo('mkdir {}'.format(jupyter_dir))
-           put('/root/Dockerfile_jupyter {}/Dockerfile_jupyter'.format(jupyter_dir))
-           put('/root/jupyter_run.sh {}/jupyter_run.sh'.format(jupyter_dir))
-           sudo('sed -i \'s/jup_version/{}/\' Dockerfile_jupyter'.format(jupyter_version))
+           put('/root/Dockerfile_jupyter', '/tmp/Dockerfile_jupyter')
+           put('/root/jupyter_run.sh', '/tmp/jupyter_run.sh')
+           put('/root/jupyter_notebook_config.py', '/tmp/jupyter_notebook_config.py')
+           sudo('mv /tmp/jupyter_run.sh {}jupyter_run.sh'.format(jupyter_dir))
+           sudo('mv /tmp/Dockerfile_jupyter {}Dockerfile_jupyter'.format(jupyter_dir))
+           sudo('mv /tmp/jupyter_notebook_config.py {}jupyter_notebook_config.py'.format(jupyter_dir))
+           sudo('sed -i \'s/jup_version/{}/\' {}Dockerfile_jupyter'.format(jupyter_version, jupyter_dir))
            sudo('sed -i \'s/CONF_PATH/{}/\' {}jupyter'.format(docker_jupyter_conf, jupyter_dir))
            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))

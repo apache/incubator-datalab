@@ -74,17 +74,12 @@ RUN pip install notebook==jup_version --no-cache-dir \
   && jupyter notebook --generate-config --config $CONF_FILE \
   && mkdir -p /home/$NB_USER/.jupyter/custom/ \
   && echo "#notebook-container { width: auto; }" > /home/$NB_USER/.jupyter/custom/custom.css \
-  && echo "c.NotebookApp.ip = \'0.0.0.0\'" >> $CONF_FILE \
-  && echo "c.NotebookApp.base_url = \'/jup/\'" >> $CONF_FILE \
-  && echo c.NotebookApp.open_browser = False >> $CONF_FILE \
-  && echo "c.NotebookApp.cookie_secret = NzMwZTI5MW" >> $CONF_FILE \
-  && ''echo "c.NotebookApp.token = u''" >> $CONF_FILE'' \
-  && echo 'c.KernelSpecManager.ensure_native_kernel = False' >> $CONF_FILE \
   && chown -R $NB_USER:$NB_USER /home/$NB_USER/.local \
   && mkdir -p /mnt/var \
   && chown $NB_USER:$NB_USER /mnt/var \
   && jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists" \
   && jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"
+COPY jupyter_notebook_config.py /home/$NB_USER/.local/share/jupyter/jupyter_notebook_config.py
 
 #Installing local kernel
 RUN mkdir -p /home/$NB_USER/.local/share/jupyter/kernels/py3spark_local/ \
