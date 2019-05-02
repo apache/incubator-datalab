@@ -99,6 +99,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
 		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
 		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
+		bind(GuacamoleService.class).to(GuacamoleServiceImpl.class);
 	}
 
 	/**
@@ -123,6 +124,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 					return authorize((UserCredentialDTO) parameter);
 				} else if (GET_USER_INFO.equals(path) && TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
 					return (T) getUserInfo();
+				} else if (GET_USER_INFO.equals(path) && !TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
+					return null;
 				} else if (LOGOUT.equals(path)) {
 					return (T) Response.ok().build();
 				}
@@ -134,12 +137,16 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 				if (LOGIN_NAME.equals(credential.getUsername())) {
 					return (T) Response.ok(TOKEN).build();
 				} else {
-					return (T) Response.status(Response.Status.UNAUTHORIZED)
-							.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
-									" is invalid"))
-							.type(MediaType.APPLICATION_JSON_TYPE)
-							.build();
+					return (T) unauthorized();
 				}
+			}
+
+			private Response unauthorized() {
+				return Response.status(Response.Status.UNAUTHORIZED)
+						.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
+								" is invalid"))
+						.type(MediaType.APPLICATION_JSON_TYPE)
+						.build();
 			}
 
 			@Override

@@ -86,5 +86,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(InactivityService.class).to(InactivityServiceImpl.class);
 		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
 		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
+		bind(GuacamoleService.class).to(GuacamoleServiceImpl.class);
 	}
 }

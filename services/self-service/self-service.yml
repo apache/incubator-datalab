@@ -67,6 +67,8 @@ maxSessionDurabilityMilliseconds: 288000000
 </#if>
 
 server:
+  gzip:
+    enabled: false
   requestLog:
     appenders:
     - type: file
@@ -105,6 +107,7 @@ logging:
   loggers:
     com.epam: TRACE
     com.novemberain: ERROR
+    org.apache.guacamole: TRACE
   appenders:
 <#if DEV_MODE == "true">
   - type: console
@@ -159,4 +162,12 @@ schedulers:
   checkUserQuoteScheduler:
     enabled: true
     cron: "0 0 * ? * * *"
+
+guacamole:
+  connectionProtocol: ssh
+  serverHost: localhost
+  serverPort: 4822
+  port: 22
+  username: dlab-user
+
 
