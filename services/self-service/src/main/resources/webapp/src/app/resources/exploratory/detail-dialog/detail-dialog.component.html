@@ -48,16 +48,16 @@
                                 <a class="ellipsis" href="{{item.url}}" target="_blank">&#32;{{item.url}}</a>
                             </p>
                         </div>
-                        <p *ngIf="notebook.username">Node User: &nbsp;<strong>{{ notebook.username }}</strong></p>
-                        <p *ngIf="notebook.password">Password: &nbsp;<strong>{{ notebook.password }}</strong></p>
+                        <p *ngIf="notebook.username">Node User: &#32;<strong>{{ notebook.username }}</strong></p>
+                        <p *ngIf="notebook.password">Password: &#32;<strong>{{ notebook.password }}</strong></p>
 
-                        <p class="m-top-30">{{ DICTIONARY.personal_storage }}: &nbsp;</p>
+                        <p class="m-top-30">{{ DICTIONARY.personal_storage }}: &#32;</p>
                         <div class="links_block">
                             <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY.account }}
                                 <strong>{{ notebook.account_name}}</strong></p>
                             <p *ngIf="notebook.bucket_name">{{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
                         </div>
-                        <p>{{ DICTIONARY.collaboration_storage }}: &nbsp;</p>
+                        <p>{{ DICTIONARY.collaboration_storage }}: &#32;</p>
                         <div class="links_block">
                             <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY.account }}
                                 <strong>{{ notebook.shared_account_name}}</strong></p>
@@ -67,11 +67,11 @@
                         <br />
 
                         <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
-                            <p>Data Lake Store: &nbsp;</p>
+                            <p>Data Lake Store: &#32;</p>
                             <div class="links_block">
-                                <p>Data Lake Store Account: &nbsp;<strong>{{ notebook.datalake_name }}</strong></p>
-                                <p>Personal folder: &nbsp;<strong>{{ notebook.datalake_directory }}</strong></p>
-                                <p>Collaboration folder: &nbsp;<strong>{{ notebook.datalake_shared_directory }}</strong></p>
+                                <p>Data Lake Store Account: &#32;<strong>{{ notebook.datalake_name }}</strong></p>
+                                <p>Personal folder: &#32;<strong>{{ notebook.datalake_directory }}</strong></p>
+                                <p>Collaboration folder: &#32;<strong>{{ notebook.datalake_shared_directory }}</strong></p>
                             </div>
                         </div>
 

@@ -38,6 +38,10 @@ args = parser.parse_args()
 def general_clean():
     try:
         sudo('systemctl stop ungit')
+        sudo('systemctl stop inactive.timer')
+        sudo('rm -f /etc/systemd/system/inactive.service')
+        sudo('rm -f /etc/systemd/system/inactive.timer')
+        sudo('rm -rf /opt/inactivity')
         sudo('npm -g uninstall ungit')
         sudo('rm -f /etc/systemd/system/ungit.service')
         sudo('systemctl daemon-reload')

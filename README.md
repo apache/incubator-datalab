@@ -1727,7 +1727,17 @@ a85d0d3c27aa docker.dlab-dataengine:latest "/root/entrypoint...." 2 hours ago Ex
 ...
 docker logs <container_id> – to get log for particular Docker container.
 ```
-To change Docker images on existing environment, execute following steps:
+
+To change Docker images on existing environment, you can run script on SSN node that rebuilds docker images with the command:
+```
+docker-build all  #to rebuild all images
+```
+or
+```
+docker-build <notebook_name> #to rebuild certain images
+```
+
+You can also rebuild images manually by executing the following steps:
 
 1.  SSH to SSN instance
 2.  go to */opt/dlab/sources/*

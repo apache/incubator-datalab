@@ -20,9 +20,9 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.backendapi.service.impl.CheckInactivityService;
-import com.epam.dlab.dto.status.EnvResource;
+import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryCheckInactivityAction;
 import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -30,7 +30,6 @@ import io.dropwizard.auth.Auth;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path(InfrasctructureAPI.INFRASTRUCTURE)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -49,8 +48,14 @@ public class InfrastructureResource {
 	}
 
 	@POST
-	@Path("check_inactivity")
-	public String checkClusterInactivity(@Auth UserInfo ui, List<EnvResource> resources) {
-		return checkInactivityService.checkClusterAction(ui.getName(), resources, DockerAction.CHECK_INACTIVITY);
+	@Path("/exploratory/check_inactivity")
+	public String checkExploratoryInactivity(@Auth UserInfo ui, ExploratoryCheckInactivityAction dto) {
+		return checkInactivityService.checkExploratoryInactivity(ui.getName(), dto);
+	}
+
+	@POST
+	@Path("/computational/check_inactivity")
+	public String checkComputationalInactivity(@Auth UserInfo ui, ComputationalCheckInactivityDTO dto) {
+		return checkInactivityService.checkComputationalInactivity(ui.getName(), dto);
 	}
 }

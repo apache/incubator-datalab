@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.SystemUserInfoService;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
@@ -41,6 +40,7 @@ import io.dropwizard.setup.Environment;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 /**
  * Mock class for an application configuration of SelfService for developer mode.
@@ -77,7 +77,17 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(BackupDao.class).to(BackupDaoImpl.class);
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
 		bind(InactivityService.class).to(InactivityServiceImpl.class);
-		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
+		bind(SystemUserInfoService.class).toInstance(new SystemUserInfoService() {
+			@Override
+			public Optional<UserInfo> getUser(String token) {
+				return Optional.of(getUserInfo());
+			}
+
+			@Override
+			public UserInfo create(String name) {
+				return getUserInfo();
+			}
+		});
 		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
 		bind(AccessKeyService.class).to(AccessKeyServiceImpl.class);
 		bind(GitCredentialService.class).to(GitCredentialServiceImpl.class);
