@@ -23,7 +23,7 @@ package com.epam.dlab.backendapi.resources.base;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.backendapi.service.impl.ReuploadKeyService;
+import com.epam.dlab.backendapi.service.impl.KeyService;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.rest.contracts.KeyAPI;
 import com.epam.dlab.util.FileUtils;
@@ -39,24 +39,37 @@ import java.util.UUID;
 /**
  * Provides API for reuploading keys
  */
-@Path(KeyAPI.REUPLOAD_KEY)
+@Path("key")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class KeyResource {
 
-	@Inject
-	private ReuploadKeyService reuploadKeyService;
-	@Inject
-	private ProvisioningServiceApplicationConfiguration configuration;
+	private final KeyService keyService;
+	private final ProvisioningServiceApplicationConfiguration configuration;
+	private final String keyContent;
 
+	@Inject
+	public KeyResource(KeyService keyService, ProvisioningServiceApplicationConfiguration configuration) {
+		this.keyService = keyService;
+		this.configuration = configuration;
+		this.keyContent = keyService.getAdminKey();
+	}
+
+
+	@Path("/reupload")
 	@POST
 	public String reuploadKey(@Auth UserInfo ui, @DefaultValue("true") @QueryParam("is_primary_reuploading")
 			boolean isPrimaryReuploading, ReuploadKeyDTO dto) throws IOException {
 		if (isPrimaryReuploading) {
 			replaceKeyfile(dto);
 		}
-		reuploadKeyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
+		keyService.reuploadKeyAction(ui.getName(), dto, DockerAction.REUPLOAD_KEY);
 		return UUID.randomUUID().toString();
+	}
+
+	@GET
+	public String getAdminKey(@Auth UserInfo userInfo) {
+		return keyContent;
 	}
 
 	private void replaceKeyfile(ReuploadKeyDTO dto) throws IOException {

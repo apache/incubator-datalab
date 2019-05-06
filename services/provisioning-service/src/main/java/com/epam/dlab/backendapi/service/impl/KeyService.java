@@ -20,28 +20,42 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.SystemUserInfoService;
+import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ReuploadKeyCallbackHandler;
-import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyCallbackDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+
+import static java.lang.String.format;
+import static java.nio.file.Files.readAllBytes;
+import static java.nio.file.Paths.get;
+
 @Slf4j
 @Singleton
-public class ReuploadKeyService extends DockerService implements DockerCommands {
+public class KeyService extends DockerService implements DockerCommands {
 
 	private static final String REUPLOAD_KEY_ACTION = "reupload_key";
 
+	private final SystemUserInfoService systemUserInfoService;
+	private final ProvisioningServiceApplicationConfiguration conf;
+
 	@Inject
-	private SystemUserInfoService systemUserInfoService;
+	public KeyService(SystemUserInfoService systemUserInfoService, ProvisioningServiceApplicationConfiguration conf) {
+		this.systemUserInfoService = systemUserInfoService;
+		this.conf = conf;
+	}
+
 
 	public void reuploadKeyAction(String userName, ReuploadKeyDTO dto, DockerAction action) {
 		log.debug("{} for edge user {}", action, dto.getEdgeUserName());
@@ -55,6 +69,15 @@ public class ReuploadKeyService extends DockerService implements DockerCommands 
 								buildDockerCommandDTO(callbackDto)))
 				.count();
 		log.debug("Executed {} Docker commands", count);
+	}
+
+	public String getAdminKey() {
+		try {
+			return new String(readAllBytes(get(format("%s/%s.pem", conf.getKeyDirectory(), conf.getAdminKey()))));
+		} catch (IOException e) {
+			log.error("Can not read admin key: {}", e.getMessage());
+			throw new DlabException("Can not read admin key: " + e.getMessage(), e);
+		}
 	}
 
 	private String getUuid() {
