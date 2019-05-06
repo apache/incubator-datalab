@@ -3,7 +3,10 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.service.GuacamoleService;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.KeyAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +16,7 @@ import org.apache.guacamole.net.SimpleGuacamoleTunnel;
 import org.apache.guacamole.protocol.ConfiguredGuacamoleSocket;
 import org.apache.guacamole.protocol.GuacamoleConfiguration;
 
+import javax.inject.Named;
 import java.util.Map;
 
 @Slf4j
@@ -23,20 +27,21 @@ public class GuacamoleServiceImpl implements GuacamoleService {
 	private static final String HOSTNAME_PARAM = "hostname";
 	private static final String CONNECTION_PROTOCOL_PARAM = "connectionProtocol";
 	private final SelfServiceApplicationConfiguration conf;
+	private final RESTService provisioningService;
 
 	@Inject
-	public GuacamoleServiceImpl(SelfServiceApplicationConfiguration conf) {
+	public GuacamoleServiceImpl(SelfServiceApplicationConfiguration conf,
+								@Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
 		this.conf = conf;
+		this.provisioningService = provisioningService;
 	}
 
 	@Override
 	public GuacamoleTunnel getTunnel(UserInfo userInfo, String host) {
 		try {
-			final String privateKeyContent = "";// TODO figure out from which place private key should be taken
-			final InetGuacamoleSocket socket = new InetGuacamoleSocket(conf.getGuacamoleHost(),
-					conf.getGuacamolePort());
-			final GuacamoleConfiguration guacamoleConfig = getGuacamoleConfig(privateKeyContent, conf.getGuacamole(),
-					host);
+			String key = provisioningService.get(KeyAPI.GET_ADMIN_KEY, userInfo.getAccessToken(), String.class);
+			InetGuacamoleSocket socket = new InetGuacamoleSocket(conf.getGuacamoleHost(), conf.getGuacamolePort());
+			GuacamoleConfiguration guacamoleConfig = getGuacamoleConfig(key, conf.getGuacamole(), host);
 			return new SimpleGuacamoleTunnel(new ConfiguredGuacamoleSocket(socket, guacamoleConfig));
 		} catch (Exception e) {
 			log.error("Can not create guacamole tunnel due to: " + e.getMessage());
