@@ -204,9 +204,9 @@ def configure_docker(os_user, http_file, https_file):
             sudo('apt-get install -y docker-ce')
             sudo('mkdir -p /etc/systemd/system/docker.service.d')
             sudo('touch {}'.format(http_file))
-            sudo('echo -e \'[Service] \nEnvironment=\"\'$http_proxy\'\"\' > {}'.format(http_file))
+            sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > {}'.format(http_file))
             sudo('touch {}'.format(https_file))
-            sudo('echo -e \'[Service] \nEnvironment=\"\'$http_proxy\'\"\' > {}'.format(https_file))
+            sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}'.format(https_file))
             sudo('mkdir /home/{}/.docker'.format(os_user))
             sudo('touch /home/{}/.docker/config.json'.format(os_user))
             sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
@@ -229,12 +229,11 @@ def ensure_jupyter_docker_files(jupyter_dir, jupyter_conf_file, jupyter_version,
            sudo('mkdir {}'.format(jupyter_dir))
            put('/root/Dockerfile_jupyter', '/tmp/Dockerfile_jupyter')
            put('/root/jupyter_run.sh', '/tmp/jupyter_run.sh')
-           put('/root/jupyter_notebook_config.py', '/tmp/jupyter_notebook_config.py')
            sudo('mv /tmp/jupyter_run.sh {}jupyter_run.sh'.format(jupyter_dir))
            sudo('mv /tmp/Dockerfile_jupyter {}Dockerfile_jupyter'.format(jupyter_dir))
-           sudo('mv /tmp/jupyter_notebook_config.py {}jupyter_notebook_config.py'.format(jupyter_dir))
            sudo('sed -i \'s/jup_version/{}/\' {}Dockerfile_jupyter'.format(jupyter_version, jupyter_dir))
-           sudo('sed -i \'s/CONF_PATH/{}/\' {}jupyter'.format(docker_jupyter_conf, jupyter_dir))
+           sudo('sed -i \'s/CONF_PATH/{}/\' {}jupyter_run.sh'.format(docker_jupyter_conf, jupyter_dir))
+           sudo('touch {}'.format(jupyter_conf_file))
            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
            sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
@@ -246,7 +245,7 @@ def ensure_jupyter_docker_files(jupyter_dir, jupyter_conf_file, jupyter_version,
            sys.exit(1)
 
 
-def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version):
+def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version, jupyter_dir):
     if not exists('/home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured'):
         try:
             sudo('mkdir -p ' + pyspark_local_path_dir)
@@ -265,7 +264,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sys.exit(1)
 
 
-def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version):
+def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, jupyter_dir):
     if not exists('/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
         try:
             sudo('mkdir -p ' + py3spark_local_path_dir)

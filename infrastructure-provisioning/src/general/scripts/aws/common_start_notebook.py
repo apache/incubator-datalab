@@ -61,6 +61,26 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    if os.environ['application'] == 'jupyter-docker':
+        try:
+            logging.info('[STARTING JUPYTER CONTAINER]')
+            print('[STARTING JUPYTER CONTAINER]')
+            notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+            params = "--hostname {} " \
+                     "--keyfile {} " \
+                     "--os_user {} ". \
+                format(instance_hostname,
+                       keyfile_name,
+                       notebook_config['dlab_ssh_user'])
+            try:
+               local("~/scripts/jupyter_container_start.py {}".format(param))
+            except Exception as err:
+               traceback.print_exc()
+               append_result("Failed to start Jupyter container.", str(err))
+               raise Exception
+        except:
+            sys.exit(1)
+
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print('[SETUP USER GIT CREDENTIALS]')

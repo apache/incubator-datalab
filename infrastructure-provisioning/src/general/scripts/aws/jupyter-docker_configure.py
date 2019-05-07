@@ -273,8 +273,14 @@ if __name__ == "__main__":
     try:
         print('[STARTING JUPYTER CONTAINER]')
         logging.info('[STARTING JUPYTER CONTAINER]')
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   keyfile_name,
+                   notebook_config['dlab_ssh_user'])
         try:
-           local("~/scripts/jupyter_container_start.py")
+           local("~/scripts/jupyter_container_start.py {}".format(param))
         except:
              traceback.print_exc()
              raise Exception

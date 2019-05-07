@@ -71,10 +71,8 @@ RUN pip install notebook==jup_version --no-cache-dir \
   && pip3 install notebook==jup_version --no-cache-dir \
   && pip3 install jupyter --no-cache-dir \
   && rm -rf $CONF_FILE \
-  && jupyter notebook --generate-config --config $CONF_FILE \
   && mkdir -p /home/$NB_USER/.jupyter/custom/ \
   && echo "#notebook-container { width: auto; }" > /home/$NB_USER/.jupyter/custom/custom.css \
-  && chown -R $NB_USER:$NB_USER /home/$NB_USER/.local \
   && mkdir -p /mnt/var \
   && chown $NB_USER:$NB_USER /mnt/var \
   && jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists" \
@@ -86,14 +84,14 @@ RUN mkdir -p /home/$NB_USER/.local/share/jupyter/kernels/py3spark_local/ \
    /home/$NB_USER/.local/share/jupyter/kernels/pyspark_local/
 COPY py3spark_local_kernel.json /home/$NB_USER/.local/share/jupyter/kernels/py3spark_local/kernel.json
 COPY pyspark_local_kernel.json /home/$NB_USER/.local/share/jupyter/kernels/pyspark_local/kernel.json
-RUN chown -R 1001:1001 /home/$NB_USER/.local/share/jupyter/*
 
 EXPOSE 8888
 
+#Prepearing Start script
 COPY jupyter_run.sh /jupyter_run.sh
 RUN  sed -i 's|CONF_PATH|/home/dlab-user/.local/share/jupyter/jupyter_notebook_config.py|' /jupyter_run.sh \
-  && chmod +x /jupyter_run.sh
-RUN cat /jupyter_run.sh
+  && chmod +x /jupyter_run.sh \
+  && chown -R 1001:1001 /home/$NB_USER/.local/share/jupyter
 
 USER $NB_USER
 

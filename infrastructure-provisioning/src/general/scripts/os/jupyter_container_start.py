@@ -27,19 +27,32 @@ from dlab.notebook_lib import *
 from dlab.fab import *
 from fabric.api import *
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--hostname', type=str, default='')
+parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--os_user', type=str, default='')
+args = parser.parse_args()
+
 jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
 
-def start_jupyter_container():
+def start_jupyter_container(jupyter_dir):
     try:
-        with cd('{}'.format(jupyter_dir))
-            run('docker volume create -d local-persist -o mountpoint=/opt --name=jup_volume')
-            run('docker build --file /home/dlab-user/jupyter/Dockerfile.jupyter -t jupyter-notebook .')
+        with cd('{}'.format(jupyter_dir)):
+            if not exists('/home/{}/.ensure_dir/jupyter_image'.format(args.os_user)):
+                run('docker volume create -d local-persist -o mountpoint=/opt --name=jup_volume')
+                run('docker build --file /home/{}/.jupyter/Dockerfile_jupyter -t jupyter-notebook .'.format(args.os_user))
+                sudo('mkdir -p /home/{}/.ensure_dir/jupyter_image'.format(args.os_user))
             run('docker run -d -p 8888:8888 -v jup_volume:/opt/ jupyter-notebook:latest')
+    except: sys.exit(1)
 
 if __name__ == "__main__":
+    print("Configure connections")
+    env['connection_attempts'] = 100
+    env.key_filename = [args.keyfile]
+    env.host_string = args.os_user + '@' + args.hostname
     print("Starting Jupyter container")
     try:
-        start_jupyter_container()
+        start_jupyter_container(jupyter_dir)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

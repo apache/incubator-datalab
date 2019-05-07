@@ -58,8 +58,8 @@ https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
 pyspark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/py3spark_local/'
-jupyter_conf_file = '/home/' + args.os_user + '/.jupyter/jupyter_notebook_config.py'
-docker_jupyter_conf = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
+jupyter_conf_file = jupyter_dir + 'jupyter_notebook_config.py'
+docker_jupyter_conf = '\/home\/' + args.os_user + '\/.local\/share\/jupyter\/jupyter_notebook_config.py'
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 jars_dir = '/opt/jars/'
@@ -93,6 +93,9 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
+    if os.environ['notebook_r_enabled'] == 'true':
+        print("Installing R")
+        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     # INSTALL DOCKER
     print ("Install Docker")
@@ -112,9 +115,9 @@ if __name__ == "__main__":
 
     # INSTALL JUPYTER KERNELS
     print("Install pyspark local kernel for Jupyter")
-    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
+    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version, jupyter_dir)
     print("Install py3spark local kernel for Jupyter")
-    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
+    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, jupyter_dir)
     print("Install Toree-Scala kernel for Jupyter")
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
     if os.environ['notebook_r_enabled'] == 'true':
