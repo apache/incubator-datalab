@@ -29,6 +29,8 @@ import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.backendapi.schedulers.internal.ManagedScheduler;
+import com.epam.dlab.backendapi.servlet.guacamole.GuacamoleSecurityFilter;
+import com.epam.dlab.backendapi.servlet.guacamole.GuacamoleServlet;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.migration.mongo.DlabMongoMigration;
@@ -51,6 +53,9 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.servlet.DispatcherType;
+import java.util.EnumSet;
 
 /**
  * Self Service based on Dropwizard application.
@@ -112,6 +117,14 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
 		environment.healthChecks().register(
 				ServiceConsts.PROVISIONING_SERVICE_NAME, injector.getInstance(ProvisioningServiceHealthCheck.class));
+
+		final String guacamoleServletName = "GuacamoleServlet";
+		environment.servlets().addServlet(guacamoleServletName, injector.getInstance(GuacamoleServlet.class))
+				.addMapping("/api/tunnel");
+		environment.servlets().addFilter("GuacamoleSecurityFilter",
+				injector.getInstance(GuacamoleSecurityFilter.class))
+				.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), true, guacamoleServletName);
+
 
 		JerseyEnvironment jersey = environment.jersey();
 		jersey.register(new RuntimeExceptionMapper());
