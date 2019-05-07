@@ -46,13 +46,11 @@ public class KeyResource {
 
 	private final KeyService keyService;
 	private final ProvisioningServiceApplicationConfiguration configuration;
-	private final String keyContent;
 
 	@Inject
 	public KeyResource(KeyService keyService, ProvisioningServiceApplicationConfiguration configuration) {
 		this.keyService = keyService;
 		this.configuration = configuration;
-		this.keyContent = keyService.getAdminKey();
 	}
 
 
@@ -69,7 +67,7 @@ public class KeyResource {
 
 	@GET
 	public String getAdminKey(@Auth UserInfo userInfo) {
-		return keyContent;
+		return keyService.getAdminKey();
 	}
 
 	private void replaceKeyfile(ReuploadKeyDTO dto) throws IOException {

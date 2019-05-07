@@ -67,8 +67,6 @@ maxSessionDurabilityMilliseconds: 288000000
 </#if>
 
 server:
-  gzip:
-    enabled: false
   requestLog:
     appenders:
     - type: file
