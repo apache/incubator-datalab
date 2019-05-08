@@ -32,7 +32,7 @@ import { HTTP_STATUS_CODES } from '../../../core/util';
 export class UploadKeyDialogComponent implements OnInit {
   model: KeyUploadDialogModel;
   @Input() primaryUploading: boolean = true;
-  
+
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('userAccessKeyUploadControl') userAccessKeyUploadControl;
   @Output() checkInfrastructureCreationProgress: EventEmitter<{}> = new EventEmitter();

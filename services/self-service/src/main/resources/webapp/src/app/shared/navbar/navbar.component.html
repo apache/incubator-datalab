@@ -58,11 +58,11 @@
           </p>
           <p>
             <strong>Revision: </strong>
-            <span class="ellipsis">{{ metadata?.commmit }}</span>
+            <span class="ellipsis">{{ metadata?.commit }}</span>
           </p>
           <p>
-            <strong>Release notes: </strong>
-            <span class="ellipsis">{{ metadata?.release_notes }}</span>
+            <a class="helper_instruction" [attr.href]="metadata?.release_notes" target="_blank">
+              <i class="material-icons">link</i>Release notes </a>
           </p>
       </div>
     </bubble-up>
