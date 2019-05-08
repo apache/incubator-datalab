@@ -98,10 +98,16 @@
   p {
     strong {
       color: #455c74;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
       width: 120px;
       display: inline-block;
+    }
+    .helper_instructiongit {
+      font-size: 14px;
+      i {
+        vertical-align: bottom;
+      }
     }
     span {
       width: 180px;
