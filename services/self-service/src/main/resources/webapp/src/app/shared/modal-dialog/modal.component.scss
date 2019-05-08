@@ -369,23 +369,6 @@
   }
 }
 
-.helper_instruction {
-  color: #35afd5;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all .45s ease-in-out;
-  &:hover {
-    color: #3392b0;
-  }
-  .material-icons {
-    font-size: 20px;
-    vertical-align: top;
-    padding-right: 5px;
-    overflow: hidden;
-  }
-}
-
-
 .detail-info {
   p {
     font-weight: 400;

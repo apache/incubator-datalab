@@ -34,13 +34,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
         <span *ngFor="let item of data.template.notebook">
           <b>{{ item.exploratory_name }}</b>
           <span *ngIf="data.template.notebook.length > 1">, </span>
-        </span> will be stopped and all computational resources will be stopped/terminated 
+        </span> will be stopped and all computational resources will be stopped/terminated
       </div>
 
       <div *ngIf="data.template.cluster.length > 0">
         <p *ngFor="let item of data.template.cluster">
             Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
-            <b>{{ item.computational_name }}</b> on <b>{{ item.exploratory_name }}</b> 
+            <b>{{ item.computational_name }}</b> on <b>{{ item.exploratory_name }}</b>
             will be stopped
         </p>
       </div>
