@@ -223,7 +223,7 @@ def configure_docker(os_user, http_file, https_file):
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
 
-def ensure_jupyter_docker_files(jupyter_dir, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
+def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
     if not exists(jupyter_dir):
         try:
            sudo('mkdir {}'.format(jupyter_dir))
@@ -240,9 +240,20 @@ def ensure_jupyter_docker_files(jupyter_dir, jupyter_conf_file, jupyter_version,
            sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
            sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
-        except Exception as err:
-           print('Failed to configure Jupyter files:', str(err))
+           sudo('chown {0}:{0} /etc/rc.local'.format(os_user))
+           sudo('cat /dev/null > /etc/rc.local')
+           sudo('echo -e \'#!/bin/sh -e\n\nexec 2> /tmp/rc.local.log \nexec 1>&2 \nset -x\n\ndocker run -d -p 8888:8888 -v jup_volume:/opt/ jupyter-notebook:latest\n\nexit 0\' > /etc/rc.local')
+           sudo('chown root:root /etc/rc.local')
+        except:
            sys.exit(1)
+    else:
+        try:
+            sudo(
+                'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(
+                    exploratory_name, jupyter_conf_file))
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 
 def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version, jupyter_dir):
@@ -276,6 +287,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             if os.environ['application'] == 'jupyter-docker':
                 sudo('\cp /tmp/py3spark_local_template.json ' + jupyter_dir + 'py3spark_local_kernel.json')
+                sudo('sed -i \'s/3.5/3.6/\' {}py3spark_local_kernel.json'.format(jupyter_dir))
             else:
                 sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')

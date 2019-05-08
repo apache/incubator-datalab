@@ -38,10 +38,8 @@ jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
 def start_jupyter_container(jupyter_dir):
     try:
         with cd('{}'.format(jupyter_dir)):
-            if not exists('/home/{}/.ensure_dir/jupyter_image'.format(args.os_user)):
-                run('docker volume create -d local-persist -o mountpoint=/opt --name=jup_volume')
-                run('docker build --file /home/{}/.jupyter/Dockerfile_jupyter -t jupyter-notebook .'.format(args.os_user))
-                sudo('mkdir -p /home/{}/.ensure_dir/jupyter_image'.format(args.os_user))
+            run('docker volume create -d local-persist -o mountpoint=/opt --name=jup_volume')
+            run('docker build --file /home/{}/.jupyter/Dockerfile_jupyter -t jupyter-notebook .'.format(args.os_user))
             run('docker run -d -p 8888:8888 -v jup_volume:/opt/ jupyter-notebook:latest')
     except: sys.exit(1)
 

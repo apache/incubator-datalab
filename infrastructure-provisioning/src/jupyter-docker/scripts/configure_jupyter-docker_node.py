@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     # CONFIGURE JUPYTER FILES
     print("Configure jupyter files")
-    ensure_jupyter_docker_files(jupyter_conf_file, jupyter_version, docker_jupyter_conf, args.exploratory_name)
+    ensure_jupyter_docker_files(args.os_user, jupyter_dir, jupyter_conf_file, jupyter_version, docker_jupyter_conf, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")

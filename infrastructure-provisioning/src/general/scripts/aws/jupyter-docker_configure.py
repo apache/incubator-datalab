@@ -280,7 +280,7 @@ if __name__ == "__main__":
                    keyfile_name,
                    notebook_config['dlab_ssh_user'])
         try:
-           local("~/scripts/jupyter_container_start.py {}".format(param))
+           local("~/scripts/jupyter_container_start.py {}".format(params))
         except:
              traceback.print_exc()
              raise Exception
