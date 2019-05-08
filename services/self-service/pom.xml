@@ -196,7 +196,7 @@
                                         <Created-By>&lt;EPAM&gt; Systems</Created-By>
                                         <Name>com/epam/dlab</Name>
                                         <Implementation-Title>DLab Self-Service</Implementation-Title>
-                                        <Implementation-Version>${dlab.version}</Implementation-Version>
+                                        <DLab-Version>${dlab.version}</DLab-Version>
                                         <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
                                         <Build-Time>${maven.build.timestamp}</Build-Time>
                                         <Build-OS>${os.name}</Build-OS>

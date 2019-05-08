@@ -93,7 +93,7 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 		return InfrastructureMetaInfoDTO.builder()
 				.branch(branch)
 				.commit(Manifests.read("GIT-Commit"))
-				.version(Manifests.read("Implementation-Version"))
+				.version(Manifests.read("DLab-Version"))
 				.releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
 				.build();
 	}
