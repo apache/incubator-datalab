@@ -159,3 +159,12 @@ schedulers:
   checkUserQuoteScheduler:
     enabled: true
     cron: "0 0 * ? * * *"
+
+guacamole:
+  connectionProtocol: ssh
+  serverHost: localhost
+  serverPort: 4822
+  port: 22
+  username: dlab-user
+
+

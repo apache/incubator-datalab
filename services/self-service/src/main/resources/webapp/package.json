@@ -28,6 +28,7 @@
     "@angular/platform-server": "^8.0.0-beta.2",
     "@angular/router": "^8.0.0-beta.2",
     "core-js": "2.4.1",
+    "guacamole-common-js": "^1.0.0-b",
     "hammerjs": "^2.0.8",
     "moment": "^2.20.1",
     "moment-timezone": "^0.5.16",
