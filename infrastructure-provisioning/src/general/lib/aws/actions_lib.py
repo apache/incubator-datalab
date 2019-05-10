@@ -436,6 +436,14 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         elif definitions.instance_class == 'ssn':
             get_iam_profile(definitions.iam_profile)
             instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             BlockDeviceMappings=[
+                                                 {
+                                                     "DeviceName": "/dev/sda1",
+                                                     "Ebs":
+                                                         {
+                                                             "VolumeSize": int(primary_disk_size)
+                                                         }
+                                                 }],
                                              KeyName=definitions.key_name,
                                              SecurityGroupIds=security_groups_ids,
                                              InstanceType=definitions.instance_type,
