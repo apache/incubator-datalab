@@ -108,17 +108,20 @@ def build_docker_images(image_list, region, dlab_path):
 def configure_guacamole():
     try:
         mysql_pass = id_generator()
-        sudo('docker run --name guacd -d -p 4822:4822 guacamole/guacd')
+        sudo('docker run --name guacd --restart unless-stopped -d -p 4822:4822 guacamole/guacd')
         sudo('docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql')
         sudo('mkdir /tmp/scripts')
         sudo('cp initdb.sql /tmp/scripts')
         sudo('mkdir /opt/mysql')
-        sudo('docker run --name guac-mysql -v /tmp/scripts:/tmp/scripts -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
+        sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         sudo('touch /opt/mysql/dock-query.sql')
         sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}'; GRANT SELECT,INSERT,UPDATE,DELETE ON guacamolala7.* TO 'guacamolala7';" > /opt/mysql/dock-query.sql""")
-        sudo('docker exec -it guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/query.mysql"'.format(mysql_pass))
-        sudo('docker exec -it guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'.format(mysql_pass))
-        sudo("docker run --name guacamole --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole' -d -p 8080:8080 guacamole/guacamole")
+        sudo('docker exec -i guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/dock-query.sql"'.format(mysql_pass))
+        sudo('docker exec -i guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'.format(mysql_pass))
+        sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole' -d -p 8080:8080 guacamole/guacamole")
+        #create cronjob for run containers on reboot
+        sudo('touch /opt/dlab/handlers/mysql-cron.sh')
+        sudo('chmod 755 /opt/dlab/handlers/mysql-cron.sh')
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure guacamole: ', str(err))
