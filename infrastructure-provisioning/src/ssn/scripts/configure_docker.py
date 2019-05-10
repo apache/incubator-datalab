@@ -116,8 +116,9 @@ def configure_guacamole():
         sudo('docker run --name guac-mysql -v /tmp/scripts:/tmp/scripts -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         sudo('touch /opt/mysql/dock-query.sql')
         sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}'; GRANT SELECT,INSERT,UPDATE,DELETE ON guacamolala7.* TO 'guacamolala7';" > /opt/mysql/dock-query.sql""")
-        sudo('docker exec -it guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/query.mysql"'.format(mysql_pass))
-        sudo('docker exec -it guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'.format(mysql_pass))
+        sudo('docker ps -a')
+        sudo('docker exec -i guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/query.mysql"'.format(mysql_pass))
+        sudo('docker exec -i guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'.format(mysql_pass))
         sudo("docker run --name guacamole --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole' -d -p 8080:8080 guacamole/guacamole")
     except Exception as err:
         traceback.print_exc()
