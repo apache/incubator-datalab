@@ -160,7 +160,10 @@ def configure_guacamole():
         sudo('docker exec -it guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/query.mysql"'.format(mysql_pass))
         sudo('docker exec -it guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'.format(mysql_pass))
         sudo("docker run --name guacamole --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole' -d -p 8080:8080 guacamole/guacamole")
-
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure guacamole: ', str(err))
+        sys.exit(1)
 
 ##############
 # Run script #
@@ -218,6 +221,9 @@ if __name__ == "__main__":
 
     print("Ensuring safest ssh ciphers")
     ensure_ciphers()
+
+    print("Configuring guacamole")
+    configure_guacamole()
 
     print("Configuring docker_build script")
     docker_build_script()
