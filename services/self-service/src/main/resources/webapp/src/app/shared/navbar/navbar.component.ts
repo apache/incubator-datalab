@@ -204,7 +204,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   public checkVersionData(): void {
     this.healthStatusService.getAppMetaData().subscribe(
       result => this.metadata = result || null,
-      error => console.log(error));
+      error => this.toastr.error('Metadata loading failed!', 'Oops!'));
   }
 
   private selectQuotesAlert(type: string, user_quota?: number, total_quota?: number): string {

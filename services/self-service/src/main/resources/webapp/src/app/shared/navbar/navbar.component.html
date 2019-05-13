@@ -58,7 +58,7 @@
           </p>
           <p>
             <strong>Revision: </strong>
-            <span class="ellipsis">{{ metadata?.commit }}</span>
+            <span class="ellipsis commit" matTooltip="{{ metadata?.commit }}" matTooltipPosition="above">{{ metadata?.commit }}</span>
           </p>
           <p>
             <a class="helper_instruction" [attr.href]="metadata?.release_notes" target="_blank">

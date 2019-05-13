@@ -19,5 +19,12 @@
  
 #terminal {
   height: 100vh;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@media screen and (min-width: 1281px) {
+  #terminal {
+    justify-content: center;
+  }
 }

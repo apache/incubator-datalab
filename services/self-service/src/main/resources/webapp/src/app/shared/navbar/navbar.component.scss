@@ -103,7 +103,7 @@
       width: 120px;
       display: inline-block;
     }
-    .helper_instructiongit {
+    .helper_instruction {
       font-size: 14px;
       i {
         vertical-align: bottom;
@@ -114,6 +114,9 @@
       display: inline-block;
       vertical-align: bottom;
     }
+  }
+  .commit {
+    cursor: pointer;
   }
 }
 a.nav-item {
