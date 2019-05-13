@@ -181,7 +181,7 @@ export class HealthStatusService {
       .buildGetAppMetaData()
       .pipe(
         map(response => response),
-        catchError(error => error));
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public resetStatusValue() {
