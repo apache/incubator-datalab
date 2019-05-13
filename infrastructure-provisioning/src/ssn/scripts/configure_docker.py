@@ -117,7 +117,7 @@ def configure_guacamole():
         sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         time.sleep(180)
         sudo('touch /opt/mysql/dock-query.sql')
-        sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}'; GRANT SELECT,INSERT,UPDATE,DELETE ON guacamolala7.* TO 'guacamolala7';" > /opt/mysql/dock-query.sql""".format(mysql_pass))
+        sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}'; GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql""".format(mysql_pass))
         sudo('docker exec -i guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/dock-query.sql"'.format(mysql_pass))
         sudo('docker exec -i guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'.format(mysql_pass))
         sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole' -d -p 8080:8080 guacamole/guacamole")
