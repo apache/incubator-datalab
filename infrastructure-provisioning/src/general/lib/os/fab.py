@@ -223,12 +223,16 @@ def configure_docker(os_user, http_file, https_file):
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
 
-def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
+def ensure_jupyter_docker_files(os_user, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
     if not exists(jupyter_dir):
         try:
            sudo('mkdir {}'.format(jupyter_dir))
+           put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
+           put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
            put('/root/Dockerfile_jupyter', '/tmp/Dockerfile_jupyter')
            put('/root/jupyter_run.sh', '/tmp/jupyter_run.sh')
+           sudo('\cp /tmp/pyspark_local_template.json ' + jupyter_dir + 'pyspark_local_template.json')
+           sudo('\cp /tmp/py3spark_local_template.json ' + jupyter_dir + 'py3spark_local_template.json')
            sudo('mv /tmp/jupyter_run.sh {}jupyter_run.sh'.format(jupyter_dir))
            sudo('mv /tmp/Dockerfile_jupyter {}Dockerfile_jupyter'.format(jupyter_dir))
            sudo('sed -i \'s/jup_version/{}/\' {}Dockerfile_jupyter'.format(jupyter_version, jupyter_dir))
@@ -240,6 +244,26 @@ def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, jupyter
            sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
            sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+           sudo('touch {}'.format(spark_script))
+           sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
+           sudo(
+               'echo "PYJ=`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'`; sed -i \'s|PY4J|'$PYJ\'|g\' /tmp/pyspark_local_template.json" >> {}'.format(
+               spark_script))
+           sudo(
+               'echo "sed -i \'14s/:",/:\/home\/dlab-user\/caffe\/python:\/home\/dlab-user\/pytorch\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
+                   spark_script))
+           sudo('echo \'sed -i "s|SP_VER|2.3.2|g" /tmp/pyspark_local_template.json\' >> {}'.format(spark_script))
+           sudo(
+               'echo "PYJ=`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'`; sed -i \'s|PY4J|'$PYJ\'|g\' /tmp/py3spark_local_template.json" >> {}'.format(
+               spark_script))
+           sudo(
+               'echo "sed -i \'14s/:",/:\/home\/dlab-user\/caffe\/python:\/home\/dlab-user\/pytorch\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
+                   spark_script))
+           sudo('echo \'sed -i "s|SP_VER|2.3.2|g" /tmp/py3spark_local_template.json\' >> {}'.format(spark_script))
+           sudo('echo "cp /tmp/pyspark_local_template.json /home/{}/.local/share/jupyter/kernels/pyspark_local/kernel.json" >> {}'.format(os_user, spark_script))
+           sudo(
+               'echo "cp /tmp/py3spark_local_template.json /home/{}/.local/share/jupyter/kernels/py3spark_local/kernel.json" >> {}'.format(
+                   os_user, spark_script))
            sudo('chown {0}:{0} /etc/rc.local'.format(os_user))
            sudo('cat /dev/null > /etc/rc.local')
            sudo('echo -e \'#!/bin/sh -e\n\nexec 2> /tmp/rc.local.log \nexec 1>&2 \nset -x\n\ndocker run -d -p 8888:8888 -v jup_volume:/opt/ jupyter-notebook:latest\n\nexit 0\' > /etc/rc.local')
@@ -266,10 +290,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
             sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
-            if os.environ['application'] == 'jupyter-docker':
-                sudo('\cp /tmp/pyspark_local_template.json ' + jupyter_dir + 'pyspark_local_kernel.json')
-            else:
-                sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
+            sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
         except:
             sys.exit(1)
@@ -285,11 +306,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
             sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
-            if os.environ['application'] == 'jupyter-docker':
-                sudo('\cp /tmp/py3spark_local_template.json ' + jupyter_dir + 'py3spark_local_kernel.json')
-                sudo('sed -i \'s/3.5/3.6/\' {}py3spark_local_kernel.json'.format(jupyter_dir))
-            else:
-                sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
+            sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
         except:
             sys.exit(1)

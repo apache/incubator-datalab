@@ -52,6 +52,7 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 
+spark_script = jupyter_dir + 'spark.sh'
 docker_version = '18.09.4'
 http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
 https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
@@ -103,26 +104,26 @@ if __name__ == "__main__":
 
     # CONFIGURE JUPYTER FILES
     print("Configure jupyter files")
-    ensure_jupyter_docker_files(args.os_user, jupyter_dir, jupyter_conf_file, jupyter_version, docker_jupyter_conf, args.exploratory_name)
+    ensure_jupyter_docker_files(args.os_user, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
-    print("Install local Spark")
-    ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-    print("Install storage jars")
-    ensure_local_jars(args.os_user, jars_dir)
-    print("Configure local Spark")
-    configure_local_spark(jars_dir, templates_dir)
+#    print("Install local Spark")
+#    ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
+#    print("Install storage jars")
+#    ensure_local_jars(args.os_user, jars_dir)
+#    print("Configure local Spark")
+#    configure_local_spark(jars_dir, templates_dir)
 
     # INSTALL JUPYTER KERNELS
-    print("Install pyspark local kernel for Jupyter")
-    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version, jupyter_dir)
-    print("Install py3spark local kernel for Jupyter")
-    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, jupyter_dir)
-    print("Install Toree-Scala kernel for Jupyter")
-    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
-    if os.environ['notebook_r_enabled'] == 'true':
-        print("Install R kernel for Jupyter")
-        ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
+#    print("Install pyspark local kernel for Jupyter")
+#    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version, jupyter_dir)
+#    print("Install py3spark local kernel for Jupyter")
+#    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, jupyter_dir)
+#    print("Install Toree-Scala kernel for Jupyter")
+#    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
+#    if os.environ['notebook_r_enabled'] == 'true':
+#        print("Install R kernel for Jupyter")
+#        ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
 
     # INSTALL UNGIT
     print("Install nodejs")

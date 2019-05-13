@@ -51,17 +51,33 @@ RUN pip install --upgrade setuptools \
    SciPy pandas Sympy Pillow sklearn --no-cache-dir
 
 
+
 #Installing SBT
-#RUN apt-get install -y apt-transport-https \
-#  && echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list \
-#  && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823 \
-#  && apt-get install -y sbt
+# Env variables
+ENV SCALA_VERSION 2.12.8
+ENV SBT_VERSION 1.2.8
 
+# Install Scala
+## Piping curl directly in tar
+RUN \
+  curl -fsL https://downloads.typesafe.com/scala/$SCALA_VERSION/scala-$SCALA_VERSION.tgz | tar xfz - -C /root/ && \
+  echo >> /root/.bashrc && \
+  echo "export PATH=~/scala-$SCALA_VERSION/bin:$PATH" >> /root/.bashrc
 
-
-#Installing Scala
-RUN wget http://www.scala-lang.org/files/archive/scala-2.12.8.deb -O /tmp/scala.deb \
-  && dpkg -i /tmp/scala.deb
+# Install sbt
+RUN \
+  curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
+  dpkg -i sbt-$SBT_VERSION.deb && \
+  rm sbt-$SBT_VERSION.deb && \
+  apt-get update && \
+  apt-get install sbt && \
+  sbt sbtVersion && \
+  mkdir project && \
+  echo "scalaVersion := \"${SCALA_VERSION}\"" > build.sbt && \
+  echo "sbt.version=${SBT_VERSION}" > project/build.properties && \
+  echo "case object Temp" > Temp.scala && \
+  sbt compile && \
+rm -r project && rm build.sbt && rm Temp.scala && rm -r target
 
 
 
@@ -79,11 +95,28 @@ RUN pip install notebook==jup_version --no-cache-dir \
   && jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"
 COPY jupyter_notebook_config.py /home/$NB_USER/.local/share/jupyter/jupyter_notebook_config.py
 
+#Intsalling local Spark
+RUN wget https://archive.apache.org/dist/spark/spark-2.3.2/spark-2.3.2-bin-hadoop2.7.tgz -O \
+  /tmp/spark-2.3.2-bin-hadoop2.7.tgz \
+  && tar -zxvf /tmp/spark-2.3.2-bin-hadoop2.7.tgz -C /opt/ \
+  && mv /opt/spark-2.3.2-bin-hadoop2.7 /opt/spark \
+  && mkdir -p /opt/jars/ \
+  && wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O \
+  /opt/jars/hadoop-aws-2.7.4.jar \
+  && wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar -O \
+  /opt/jars/aws-java-sdk-1.7.4.jar \
+  && wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/0.4.20/hadoop-lzo-0.4.20.jar -O \
+  /opt/jars/hadoop-lzo-0.4.20.jar
+
+
 #Installing local kernel
 RUN mkdir -p /home/$NB_USER/.local/share/jupyter/kernels/py3spark_local/ \
    /home/$NB_USER/.local/share/jupyter/kernels/pyspark_local/
-COPY py3spark_local_kernel.json /home/$NB_USER/.local/share/jupyter/kernels/py3spark_local/kernel.json
-COPY pyspark_local_kernel.json /home/$NB_USER/.local/share/jupyter/kernels/pyspark_local/kernel.json
+COPY pyspark_local_template.json /tmp/pyspark_local_template.json
+COPY py3spark_local_template.json /tmp/py3spark_local_template.json
+COPY spark.sh /tmp/spark.sh
+RUN /tmp/spark.sh  #this script is needed because docker is not able to handle one of the commands
+
 
 EXPOSE 8888
 
