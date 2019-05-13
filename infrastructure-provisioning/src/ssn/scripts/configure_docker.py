@@ -124,10 +124,11 @@ def configure_guacamole():
         #create cronjob for run containers on reboot
         sudo('touch /opt/dlab/mysql-cron.sh')
         sudo('chmod 755 /opt/dlab/mysql-cron.sh')
+        return True
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure guacamole: ', str(err))
-        sys.exit(1)
+        return False
 
 
 ##############
