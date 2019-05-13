@@ -17,11 +17,12 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewEncapsulation, ViewContainerRef, ViewChild, Renderer2, ElementRef, Inject } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ViewContainerRef, ViewChild, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-
 import Guacamole from 'guacamole-common-js';
+
+import { StorageService } from '../core/services';
 
 @Component({
   selector: 'dlab-webterminal',
@@ -33,9 +34,8 @@ export class WebterminalComponent implements OnInit {
   @ViewChild('terminal', { read: ViewContainerRef }) terminal: ViewContainerRef;
 
   constructor(
-    private elementRef: ElementRef,
-    private renderer: Renderer2,
     private route: ActivatedRoute,
+    private storageService: StorageService,
     @Inject(DOCUMENT) private document) {
   }
 
@@ -45,33 +45,31 @@ export class WebterminalComponent implements OnInit {
     this.open(this.id);
   }
 
-  open(parameters) {
-
+  public open(id_parameter: string) {
     const tunnel = new Guacamole.HTTPTunnel(
-      'https://localhost:8443/api/tunnel', false,
-      { 'Authorization': 'Bearer token123' }
+      `${window.location.origin}/api/tunnel`, false,
+      { 'Authorization': `Bearer ${this.storageService.getToken()}` }
     );
+
     const guac = new Guacamole.Client(tunnel);
     const display = document.getElementById('display');
 
     display.appendChild(guac.getDisplay().getElement());
-
-    guac.connect('52.10.77.216');
+    const guacDisplay = guac.getDisplay();
+    const layer = guacDisplay.getDefaultLayer();
+    guac.connect(id_parameter);
 
     // Error handler
-    guac.onerror = (error) => alert(error);
+    guac.onerror = (error) => console.log(error.message);
     window.onunload = () => guac.disconnect();
 
     // Mouse
     const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
-
     mouse.onmousemove = (mouseState) => guac.sendMouseState(mouseState);
 
     // Keyboard
     const keyboard = new Guacamole.Keyboard(document);
-
     keyboard.onkeydown = (keysym) => guac.sendKeyEvent(1, keysym);
-
     keyboard.onkeyup = (keysym) => guac.sendKeyEvent(0, keysym);
   }
 }
