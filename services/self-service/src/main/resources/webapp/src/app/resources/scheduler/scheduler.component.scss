@@ -101,12 +101,19 @@
     &.resource {
       height: 280px;
     }
+    &.des {
+      height: 80px;
+    }
     .row-wrap {
       position: relative;
       .error {
         position: absolute;
         bottom: -10px;
         font-size: 12px;
+        &.term {
+          right: 40px;
+          bottom: -15px;
+        }
       }
       mat-datepicker-toggle.not-allowed {
         opacity: 1;
