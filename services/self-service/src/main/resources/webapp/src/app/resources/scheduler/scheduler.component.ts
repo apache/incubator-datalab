@@ -283,6 +283,7 @@ export class SchedulerComponent implements OnInit {
           this.formInit(params.begin_date, params.finish_date, params.terminate_datetime);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
+          this.considerInactivity = params.consider_inactivity || false;
 
           if (params.terminate_datetime) {
             const terminate_datetime = params.terminate_datetime.split(' ');
