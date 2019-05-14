@@ -126,7 +126,7 @@ def configure_guacamole():
         sudo('docker exec -i guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'\
              .format(mysql_pass))
         sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql"\
-             "-e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole'"\ "" \
+             "-e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole'"\
              "-d -p 8080:8080 guacamole/guacamole")
         #create cronjob for run containers on reboot
         sudo('mkdir /opt/dlab/cron')
