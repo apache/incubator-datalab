@@ -115,19 +115,19 @@ def configure_guacamole():
         sudo('cp initdb.sql /tmp/scripts')
         sudo('mkdir /opt/mysql')
         sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts '\
-             '-v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
+             ' -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         time.sleep(180)
         sudo('touch /opt/mysql/dock-query.sql')
         sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}';"""\
-             """GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql"""\
+             """ GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql"""\
              .format(mysql_pass))
         sudo('docker exec -i guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/dock-query.sql"'\
              .format(mysql_pass))
         sudo('docker exec -i guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'\
              .format(mysql_pass))
         sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql"\
-             "-e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole'"\
-             "-d -p 8080:8080 guacamole/guacamole")
+             " -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole'"\
+             " -d -p 8080:8080 guacamole/guacamole")
         #create cronjob for run containers on reboot
         sudo('mkdir /opt/dlab/cron')
         sudo('touch /opt/dlab/cron/mysql.sh')
@@ -136,8 +136,8 @@ def configure_guacamole():
         sudo('echo "docker start guac-mysql" >> /opt/dlab/cron/mysql.sh')
         sudo('echo "docker rm guacamole" >> /opt/dlab/cron/mysql.sh')
         sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql"""\
-             """-e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}' -d"""\
-             """-p 8080:8080 guacamole/guacamole" >> /opt/dlab/cron/mysql.sh""".format(mysql_pass))
+             """ -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}' -d"""\
+             """ -p 8080:8080 guacamole/guacamole" >> /opt/dlab/cron/mysql.sh""".format(mysql_pass))
         sudo('(crontab -l 2>/dev/null; echo "@reboot sh /opt/dlab/cron/mysql.sh") | crontab -')
         return True
     except Exception as err:
