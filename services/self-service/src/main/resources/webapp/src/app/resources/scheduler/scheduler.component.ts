@@ -45,6 +45,7 @@ export class SchedulerComponent implements OnInit {
   public notebook: any;
   public infoMessage: boolean = false;
   public timeReqiered: boolean = false;
+  public terminateDataReqiered: boolean = false;
   public inherit: boolean = false;
   public allowInheritView: boolean = false;
   public parentInherit: boolean = false;
@@ -223,6 +224,12 @@ export class SchedulerComponent implements OnInit {
       this.timeReqiered = true;
       return false;
     }
+
+    if ((data.terminateDate && !this.terminateTime) || (!data.terminateDate && this.terminateTime)) {
+      this.terminateDataReqiered = true;
+      return false;
+    }
+
     const selectedDays = Object.keys(this.selectedStartWeekDays);
     const parameters: ScheduleSchema = {
       begin_date: data.startDate ? _moment(data.startDate).format(this.date_format) : null,
@@ -321,6 +328,7 @@ export class SchedulerComponent implements OnInit {
   private resetDialog() {
     this.infoMessage = false;
     this.timeReqiered = false;
+    this.terminateDataReqiered = false;
     this.inherit = false;
     this.enableSchedule = false;
     this.considerInactivity = false;
