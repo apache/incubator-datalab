@@ -123,9 +123,12 @@ def configure_guacamole():
         sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole' -d -p 8080:8080 guacamole/guacamole")
         #create cronjob for run containers on reboot
         sudo('mkdir /opt/dlab/cron')
-        put('/root/templates/mysql.sh /opt/dlab/cron/mysql.sh')
+        sudo('touch /opt/dlab/cron/mysql.sh')
         sudo('chmod 755 /opt/dlab/cron/mysql.sh')
-        sudo('sed -i "s|MYSQL_GENERATED_PASS|{}| /opt/dlab/cron/mysql.sh"'.format(mysql_pass))
+        sudo('echo "docker start guacd" >> /opt/dlab/cron/mysql.sh')
+        sudo('echo "docker start guac-mysql" >> /opt/dlab/cron/mysql.sh')
+        sudo('echo "docker rm guacamole" >> /opt/dlab/cron/mysql.sh')
+        sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}' -d -p 8080:8080 guacamole/guacamole" >> /opt/dlab/cron/mysql.sh""".format(mysql_pass))
         sudo('crontab -l | { cat; echo "@reboot sh /opt/dlab/cron/mysql.sh"; } | crontab -')
         return True
     except Exception as err:
