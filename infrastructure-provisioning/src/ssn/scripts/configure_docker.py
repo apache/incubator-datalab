@@ -123,8 +123,10 @@ def configure_guacamole():
         sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='guacamole' -d -p 8080:8080 guacamole/guacamole")
         #create cronjob for run containers on reboot
         sudo('mkdir /opt/dlab/cron')
-        sudo('touch /opt/dlab/cron/mysql.sh')
+        sudo('mv /root/templates/mysql.sh /opt/dlab/cron/mysql.sh')
         sudo('chmod 755 /opt/dlab/cron/mysql.sh')
+        sudo('sed -i "s|MYSQL_GENERATED_PASS|{}| /opt/dlab/cron/mysql.sh"'.format(mysql_pass))
+        sudo('crontab -l | { cat; echo "@reboot sh /opt/dlab/cron/mysql.sh"; } | crontab -')
         return True
     except Exception as err:
         traceback.print_exc()
