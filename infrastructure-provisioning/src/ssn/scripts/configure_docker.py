@@ -114,7 +114,7 @@ def configure_guacamole():
         sudo('mkdir /tmp/scripts')
         sudo('cp initdb.sql /tmp/scripts')
         sudo('mkdir /opt/mysql')
-        sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts' \ 
+        sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts '\
              '-v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         time.sleep(180)
         sudo('touch /opt/mysql/dock-query.sql')
