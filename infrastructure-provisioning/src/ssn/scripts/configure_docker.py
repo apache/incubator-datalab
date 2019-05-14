@@ -114,7 +114,8 @@ def configure_guacamole():
         sudo('mkdir /tmp/scripts')
         sudo('cp initdb.sql /tmp/scripts')
         sudo('mkdir /opt/mysql')
-        sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
+        sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts' \ 
+             '-v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         time.sleep(180)
         sudo('touch /opt/mysql/dock-query.sql')
         sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}'; GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql""".format(mysql_pass))
