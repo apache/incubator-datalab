@@ -52,11 +52,11 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 
-spark_script = jupyter_dir + 'spark.sh'
 docker_version = '18.09.4'
 http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
 https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
+spark_script = jupyter_dir + 'spark.sh'
 pyspark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/py3spark_local/'
 jupyter_conf_file = jupyter_dir + 'jupyter_notebook_config.py'
@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     # CONFIGURE JUPYTER FILES
     print("Configure jupyter files")
-    ensure_jupyter_docker_files(args.os_user, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, args.exploratory_name)
+    ensure_jupyter_docker_files(args.os_user, templates_dir, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
 #    print("Install local Spark")

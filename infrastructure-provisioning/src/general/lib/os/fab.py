@@ -213,17 +213,12 @@ def configure_docker(os_user, http_file, https_file):
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
-            sudo('wget https://raw.githubusercontent.com/CWSpear/local-persist/master/scripts/install.sh && chmod +x install.sh')
-            sudo('sed -i "66s/curl/sudo curl/g" install.sh')
-            sudo('sed -i "s/sudo curl/sudo -E curl/g" install.sh')
-            run('sudo -E ./install.sh')
-            sudo('rm install.sh')
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
 
-def ensure_jupyter_docker_files(os_user, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
+def ensure_jupyter_docker_files(os_user, templates_dir, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
     if not exists(jupyter_dir):
         try:
            sudo('mkdir {}'.format(jupyter_dir))

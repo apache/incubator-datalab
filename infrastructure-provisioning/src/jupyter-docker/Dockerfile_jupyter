@@ -29,7 +29,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-                tk-dev wget gnupg dirmngr build-essential openssl \
+                tk-dev wget curl gnupg dirmngr build-essential openssl \
                 libreadline-gplv2-dev libncursesw5-dev libssl-dev \
                 libsqlite3-dev libgdbm-dev libc6-dev libbz2-dev \
                 python python-dev python-pip python-virtualenv \
