@@ -218,7 +218,7 @@ def configure_docker(os_user, http_file, https_file):
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
 
-def ensure_jupyter_docker_files(os_user, templates_dir, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
+def ensure_jupyter_docker_files(os_user, legion_dir, templates_dir, jupyter_dir, spark_script, jupyter_conf_file, jupyter_version, docker_jupyter_conf, exploratory_name):
     if not exists(jupyter_dir):
         try:
            sudo('mkdir {}'.format(jupyter_dir))
@@ -228,6 +228,7 @@ def ensure_jupyter_docker_files(os_user, templates_dir, jupyter_dir, spark_scrip
            put('/root/jupyter_run.sh', '/tmp/jupyter_run.sh')
            sudo('\cp /tmp/pyspark_local_template.json ' + jupyter_dir + 'pyspark_local_template.json')
            sudo('\cp /tmp/py3spark_local_template.json ' + jupyter_dir + 'py3spark_local_template.json')
+           sudo('sed -i \'s/3.5/3.6/\' {}py3spark_local_template.json'.format(jupyter_dir))
            sudo('mv /tmp/jupyter_run.sh {}jupyter_run.sh'.format(jupyter_dir))
            sudo('mv /tmp/Dockerfile_jupyter {}Dockerfile_jupyter'.format(jupyter_dir))
            sudo('sed -i \'s/jup_version/{}/\' {}Dockerfile_jupyter'.format(jupyter_version, jupyter_dir))
@@ -242,17 +243,17 @@ def ensure_jupyter_docker_files(os_user, templates_dir, jupyter_dir, spark_scrip
            sudo('touch {}'.format(spark_script))
            sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
            sudo(
-               'echo "PYJ=`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/pyspark_local_template.json" >> {}'.format(
+               'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/pyspark_local_template.json" >> {}'.format(
                spark_script))
            sudo(
-               'echo "sed -i \'14s/:",/:\/home\/dlab-user\/caffe\/python:\/home\/dlab-user\/pytorch\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
+               'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
                    spark_script))
            sudo('echo \'sed -i "s|SP_VER|2.3.2|g" /tmp/pyspark_local_template.json\' >> {}'.format(spark_script))
            sudo(
-               'echo "PYJ=`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/py3spark_local_template.json" >> {}'.format(
+               'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/py3spark_local_template.json" >> {}'.format(
                spark_script))
            sudo(
-               'echo "sed -i \'14s/:",/:\/home\/dlab-user\/caffe\/python:\/home\/dlab-user\/pytorch\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
+               'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
                    spark_script))
            sudo('echo \'sed -i "s|SP_VER|2.3.2|g" /tmp/py3spark_local_template.json\' >> {}'.format(spark_script))
            sudo('echo "cp /tmp/pyspark_local_template.json /home/{}/.local/share/jupyter/kernels/pyspark_local/kernel.json" >> {}'.format(os_user, spark_script))
@@ -263,6 +264,16 @@ def ensure_jupyter_docker_files(os_user, templates_dir, jupyter_dir, spark_scrip
            sudo('cat /dev/null > /etc/rc.local')
            sudo('echo -e \'#!/bin/sh -e\n\nexec 2> /tmp/rc.local.log \nexec 1>&2 \nset -x\n\ndocker run -d -p 8888:8888 -v jup_volume:/opt/ jupyter-notebook:latest\n\nexit 0\' > /etc/rc.local')
            sudo('chown root:root /etc/rc.local')
+           sudo('git clone https://github.com/legion-platform/legion.git')
+           sudo('cp {}sdk/Pipfile {}sdk_Pipefile'.format(legion_dir, jupyter_dir))
+           sudo('cp {}sdk/Pipfile.lock {}sdk_Pipefile.lock'.format(legion_dir, jupyter_dir))
+           sudo('cp {}toolchains/python/Pipfile {}toolchains_Pipfile'.format(legion_dir, jupyter_dir))
+           sudo('cp {}toolchains/python/Pipfile.lock {}toolchains_Pipfile.lock'.format(legion_dir, jupyter_dir))
+           sudo('cp {}cli/Pipfile {}cli_Pipefile'.format(legion_dir, jupyter_dir))
+           sudo('cp l{}cli/Pipfile.lock {}cli_Pipefile.lock'.format(legion_dir, jupyter_dir))
+           sudo('cp {}sdk {}sdk'.format(legion_dir, jupyter_dir))
+           sudo('cp {}toolchains/python {}toolchains_python'.format(legion_dir, jupyter_dir))
+           sudo('cp {}cli {}cli'.format(legion_dir, jupyter_dir))
         except:
            sys.exit(1)
     else:

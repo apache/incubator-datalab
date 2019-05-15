@@ -115,7 +115,28 @@ RUN mkdir -p /home/$NB_USER/.local/share/jupyter/kernels/py3spark_local/ \
 COPY pyspark_local_template.json /tmp/pyspark_local_template.json
 COPY py3spark_local_template.json /tmp/py3spark_local_template.json
 COPY spark.sh /tmp/spark.sh
+RUN chmod +x /tmp/spark.sh
 RUN /tmp/spark.sh  #this script is needed because docker is not able to handle one of the commands
+
+#Install Legion
+RUN pip3 install --disable-pip-version-check --upgrade pip==18.1 pipenv==2018.10.13 ptvsd==4.2.2
+COPY sdk_Pipfile "${LEGION_DIR}/legion/sdk/Pipfile"
+COPY sdk_Pipfile.lock "${LEGION_DIR}/legion/sdk/Pipfile.lock"
+RUN cd ${LEGION_DIR}/legion/sdk && pipenv install --system --three
+COPY toolchains_Pipfile "${LEGION_DIR}/legion/toolchains/python/Pipfile"
+COPY toolchains_Pipfile.lock "${LEGION_DIR}/legion/toolchains/python/Pipfile.lock"
+RUN cd ${LEGION_DIR}/legion/toolchains/python && pipenv install --system --three
+COPY cli_Pipfile "${LEGION_DIR}/legion/cli/Pipfile"
+COPY cli_Pipfile.lock "${LEGION_DIR}/legion/cli/Pipfile.lock"
+RUN cd ${LEGION_DIR}/legion/cli && pipenv install --system --three
+
+COPY sdk "${LEGION_DIR}/legion/sdk"
+COPY toolchains_python "${LEGION_DIR}/legion/toolchains/python"
+COPY cli "${LEGION_DIR}/legion/cli"
+
+RUN pip3 install --no-deps -e $LEGION_DIR/legion/sdk && \
+    pip3 install --no-deps -e $LEGION_DIR/legion/toolchains/python && \
+    pip3 install --no-deps -e $LEGION_DIR/legion/cli
 
 
 EXPOSE 8888
