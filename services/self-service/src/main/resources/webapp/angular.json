@@ -22,11 +22,13 @@
               "src/favicon.ico"
             ],
             "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+              },
               "src/styles.scss",
-              "node_modules/ngx-toastr/toastr.css" 
+              "node_modules/ngx-toastr/toastr.css"
             ],
             "scripts": [
-              "node_modules/hammerjs/hammer.min.js"
             ]
           },
           "configurations": {
@@ -74,11 +76,12 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
-              "node_modules/hammerjs/hammer.min.js"
             ],
             "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+              },
               "src/styles.scss",
-              "node_modules/ng2-toastr/bundles/ng2-toastr.min.css",
               "src/assets/fonts/iconfont/material-icons.css"
             ],
             "assets": [
