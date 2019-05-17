@@ -231,7 +231,14 @@ def ensure_jupyter_docker_files(os_user, legion_dir, templates_dir, jupyter_dir,
            sudo('sed -i \'s/3.5/3.6/\' {}py3spark_local_template.json'.format(jupyter_dir))
            sudo('mv /tmp/jupyter_run.sh {}jupyter_run.sh'.format(jupyter_dir))
            sudo('mv /tmp/Dockerfile_jupyter {}Dockerfile_jupyter'.format(jupyter_dir))
+           sudo('sed -i \'s/nb_user/{}/\' {}Dockerfile_jupyter'.format(os_user, jupyter_dir))
            sudo('sed -i \'s/jup_version/{}/\' {}Dockerfile_jupyter'.format(jupyter_version, jupyter_dir))
+           sudo('sed -i \'s/hadoop_version/{}/\' {}Dockerfile_jupyter'.format(os.environ['notebook_hadoop_version'], jupyter_dir))
+           sudo('sed -i \'s/tornado_version/{}/\' {}Dockerfile_jupyter'.format(os.environ['notebook_tornado_version'], jupyter_dir))
+           sudo('sed -i \'s/matplotlib_version/{}/\' {}Dockerfile_jupyter'.format(os.environ['notebook_matplotlib_version'], jupyter_dir))
+           sudo('sed -i \'s/numpy_version/{}/\' {}Dockerfile_jupyter'.format(os.environ['notebook_numpy_version'], jupyter_dir))
+           sudo('sed -i \'s/spark_version/{}/\' {}Dockerfile_jupyter'.format(os.environ['notebook_spark_version'], jupyter_dir))
+           sudo('sed -i \'s/scala_version/{}/\' {}Dockerfile_jupyter'.format(os.environ['notebook_scala_version'], jupyter_dir))
            sudo('sed -i \'s/CONF_PATH/{}/\' {}jupyter_run.sh'.format(docker_jupyter_conf, jupyter_dir))
            sudo('touch {}'.format(jupyter_conf_file))
            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
@@ -248,32 +255,28 @@ def ensure_jupyter_docker_files(os_user, legion_dir, templates_dir, jupyter_dir,
            sudo(
                'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
                    spark_script))
-           sudo('echo \'sed -i "s|SP_VER|2.3.2|g" /tmp/pyspark_local_template.json\' >> {}'.format(spark_script))
+           sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/pyspark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
            sudo(
                'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/py3spark_local_template.json" >> {}'.format(
                spark_script))
            sudo(
                'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
                    spark_script))
-           sudo('echo \'sed -i "s|SP_VER|2.3.2|g" /tmp/py3spark_local_template.json\' >> {}'.format(spark_script))
+           sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/py3spark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
            sudo('echo "cp /tmp/pyspark_local_template.json /home/{}/.local/share/jupyter/kernels/pyspark_local/kernel.json" >> {}'.format(os_user, spark_script))
            sudo(
                'echo "cp /tmp/py3spark_local_template.json /home/{}/.local/share/jupyter/kernels/py3spark_local/kernel.json" >> {}'.format(
                    os_user, spark_script))
-           sudo('chown {0}:{0} /etc/rc.local'.format(os_user))
-           sudo('cat /dev/null > /etc/rc.local')
-           sudo('echo -e \'#!/bin/sh -e\n\nexec 2> /tmp/rc.local.log \nexec 1>&2 \nset -x\n\ndocker run -d -p 8888:8888 -v jup_volume:/opt/ jupyter-notebook:latest\n\nexit 0\' > /etc/rc.local')
-           sudo('chown root:root /etc/rc.local')
            sudo('git clone https://github.com/legion-platform/legion.git')
-           sudo('cp {}sdk/Pipfile {}sdk_Pipefile'.format(legion_dir, jupyter_dir))
-           sudo('cp {}sdk/Pipfile.lock {}sdk_Pipefile.lock'.format(legion_dir, jupyter_dir))
+           sudo('cp {}sdk/Pipfile {}sdk_Pipfile'.format(legion_dir, jupyter_dir))
+           sudo('cp {}sdk/Pipfile.lock {}sdk_Pipfile.lock'.format(legion_dir, jupyter_dir))
            sudo('cp {}toolchains/python/Pipfile {}toolchains_Pipfile'.format(legion_dir, jupyter_dir))
            sudo('cp {}toolchains/python/Pipfile.lock {}toolchains_Pipfile.lock'.format(legion_dir, jupyter_dir))
-           sudo('cp {}cli/Pipfile {}cli_Pipefile'.format(legion_dir, jupyter_dir))
-           sudo('cp l{}cli/Pipfile.lock {}cli_Pipefile.lock'.format(legion_dir, jupyter_dir))
-           sudo('cp {}sdk {}sdk'.format(legion_dir, jupyter_dir))
-           sudo('cp {}toolchains/python {}toolchains_python'.format(legion_dir, jupyter_dir))
-           sudo('cp {}cli {}cli'.format(legion_dir, jupyter_dir))
+           sudo('cp {}cli/Pipfile {}cli_Pipfile'.format(legion_dir, jupyter_dir))
+           sudo('cp {}cli/Pipfile.lock {}cli_Pipfile.lock'.format(legion_dir, jupyter_dir))
+           sudo('cp -r {}sdk {}sdk'.format(legion_dir, jupyter_dir))
+           sudo('cp -r {}toolchains/python {}toolchains_python'.format(legion_dir, jupyter_dir))
+           sudo('cp -r {}cli {}cli'.format(legion_dir, jupyter_dir))
         except:
            sys.exit(1)
     else:

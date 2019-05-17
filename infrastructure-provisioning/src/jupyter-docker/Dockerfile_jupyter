@@ -21,8 +21,9 @@
 
 FROM ubuntu:18.04
 
-ARG NB_USER="dlab-user"
-ENV CONF_FILE="/home/dlab-user/.local/share/jupyter/jupyter_notebook_config.py"
+ARG NB_USER="nb_user"
+ENV LEGION_DIR="/opt/legion"
+ENV CONF_FILE="/home/nb_user/.local/share/jupyter/jupyter_notebook_config.py"
 ENV PATH /usr/local/bin:$PATH
 ENV LANG C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
@@ -42,19 +43,19 @@ RUN useradd -u 1001 -ms /bin/bash $NB_USER
 
 #Installing Python libraries
 RUN pip install --upgrade setuptools \
-  && pip install tornado==4.5.3 ipython ipython matplotlib==2.0.2 \
-   boto3 fabvenv fabric-virtualenv future NumPy==1.14.3 \
+  && pip install tornado==tornado_version ipython ipython matplotlib==matplotlib_version \
+   boto3 fabvenv fabric-virtualenv future NumPy==numpy_version \
    SciPy pandas Sympy Pillow sklearn pyopenssl --no-cache-dir \
   && pip3 install --upgrade setuptools \
-  && pip3 install tornado==4.5.3 ipython ipython matplotlib==2.0.2 \
-   boto3 fabvenv fabric-virtualenv future NumPy==1.14.3 \
+  && pip3 install tornado==tornado_version ipython ipython matplotlib==matplotlib_version \
+   boto3 fabvenv fabric-virtualenv future NumPy==numpy_version \
    SciPy pandas Sympy Pillow sklearn --no-cache-dir
 
 
 
 #Installing SBT
 # Env variables
-ENV SCALA_VERSION 2.12.8
+ENV SCALA_VERSION scala_version
 ENV SBT_VERSION 1.2.8
 
 # Install Scala
@@ -96,10 +97,10 @@ RUN pip install notebook==jup_version --no-cache-dir \
 COPY jupyter_notebook_config.py /home/$NB_USER/.local/share/jupyter/jupyter_notebook_config.py
 
 #Intsalling local Spark
-RUN wget https://archive.apache.org/dist/spark/spark-2.3.2/spark-2.3.2-bin-hadoop2.7.tgz -O \
-  /tmp/spark-2.3.2-bin-hadoop2.7.tgz \
-  && tar -zxvf /tmp/spark-2.3.2-bin-hadoop2.7.tgz -C /opt/ \
-  && mv /opt/spark-2.3.2-bin-hadoop2.7 /opt/spark \
+RUN wget https://archive.apache.org/dist/spark/spark-spark_version/spark-spark_version-bin-hadoophadoop_version.tgz -O \
+  /tmp/spark-spark_version-bin-hadoophadoop_version.tgz \
+  && tar -zxvf /tmp/spark-spark_version-bin-hadoop2.7.tgz -C /opt/ \
+  && mv /opt/spark-spark_version-bin-hadoop2.7 /opt/spark \
   && mkdir -p /opt/jars/ \
   && wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O \
   /opt/jars/hadoop-aws-2.7.4.jar \
@@ -143,7 +144,7 @@ EXPOSE 8888
 
 #Prepearing Start script
 COPY jupyter_run.sh /jupyter_run.sh
-RUN  sed -i 's|CONF_PATH|/home/dlab-user/.local/share/jupyter/jupyter_notebook_config.py|' /jupyter_run.sh \
+RUN  sed -i 's|CONF_PATH|/home/nb_user/.local/share/jupyter/jupyter_notebook_config.py|' /jupyter_run.sh \
   && chmod +x /jupyter_run.sh \
   && chown -R 1001:1001 /home/$NB_USER/.local/share/jupyter
 

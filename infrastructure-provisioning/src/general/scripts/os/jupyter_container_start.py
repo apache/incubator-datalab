@@ -39,7 +39,7 @@ def start_jupyter_container(jupyter_dir):
     try:
         with cd('{}'.format(jupyter_dir)):
             run('docker build --file /home/{}/.jupyter/Dockerfile_jupyter -t jupyter-notebook .'.format(args.os_user))
-            run('docker run -d -p 8888:8888 jupyter-notebook:latest')
+            run('docker run -d --restart unless-stopped -p 8888:8888 jupyter-notebook:latest')
     except: sys.exit(1)
 
 if __name__ == "__main__":
