@@ -52,10 +52,6 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 
-tornado_version = os.environ['notebook_tornado_version']
-matplotlib
-numpy
-scala
 docker_version = '18.09.4'
 http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
 https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
