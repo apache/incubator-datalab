@@ -42,7 +42,6 @@ import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { ReportingModule } from './reporting/reporting.module';
 import { ManagenementModule } from './management';
 import { WebterminalModule } from './webterminal';
-
 import { CoreModule } from './core/core.module';
 import { ToastrModule } from 'ngx-toastr';
 
