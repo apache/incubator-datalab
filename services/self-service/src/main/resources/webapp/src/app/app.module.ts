@@ -19,7 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -29,7 +29,8 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
-import { NavbarModule } from './shared/navbar';
+import { LayoutModule } from './layout/layout.module'
+
 import { GuidesModule } from './help';
 import { NotFoundModule } from './not-found/not-found.module';
 import { AccessDeniedModule } from './access-denied/access-denied.module';
@@ -54,7 +55,7 @@ import { ToastrModule } from 'ngx-toastr';
     ReactiveFormsModule,
     HttpClientModule,
     LoginModule,
-    NavbarModule,
+    LayoutModule,
     ResourcesModule,
     GuidesModule,
     NotFoundModule,
