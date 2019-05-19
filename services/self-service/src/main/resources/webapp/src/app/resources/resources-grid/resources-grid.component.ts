@@ -20,6 +20,7 @@
 
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog, MatDialogRef } from '@angular/material';
 
 import { UserResourceService } from '../../core/services';
 import { CreateResourceModel } from './create-resource.model';
@@ -28,6 +29,7 @@ import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../management/management.model';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
+import { DetailDialogComponent } from '../exploratory/detail-dialog';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -73,6 +75,7 @@ export class ResourcesGridComponent implements OnInit {
 
   constructor(
     private userResourceService: UserResourceService,
+    private dialog: MatDialog,
     public toastr: ToastrService
   ) {}
 
@@ -276,7 +279,9 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   printDetailEnvironmentModal(data): void {
-    this.detailDialog.open({ isFooter: false }, data);
+    // this.detailDialog.open({ isFooter: false }, data);
+    this.dialog.open(DetailDialogComponent, { data: data })
+               .afterClosed().subscribe(() => this.buildGrid());
   }
 
   printCostDetails(data): void {

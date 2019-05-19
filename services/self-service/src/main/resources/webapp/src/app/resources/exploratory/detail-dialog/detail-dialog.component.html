@@ -17,10 +17,10 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="detail-dialog modal-lg header-white">
-  <modal-header></modal-header>
-  <modal-content>
-    <div *ngIf="notebook">
+<div modalClass="detail-dialog modal-lg header-white">
+  <header></header>
+  <div class="modal-content">
+    <div *ngIf="data">
       <table class="detail-header">
         <tr>
           <td>{{notebook.template_name}}</td>
@@ -120,5 +120,5 @@
         </div>
       </div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

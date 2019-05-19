@@ -37,6 +37,7 @@ export * from './detail-dialog.component';
     DirectivesModule
   ],
   declarations: [DetailDialogComponent],
+  entryComponents: [DetailDialogComponent],
   exports: [DetailDialogComponent]
 })
 export class DetailDialogModule {}
