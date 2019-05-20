@@ -17,27 +17,25 @@
  * under the License.
  */
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-    selector: 'cost-details-dialog',
-    templateUrl: 'cost-details-dialog.component.html',
-    styleUrls: ['cost-details-dialog.component.scss']
+  selector: 'cost-details-dialog',
+  templateUrl: 'cost-details-dialog.component.html',
+  styleUrls: ['cost-details-dialog.component.scss']
 })
-export class CostDetailsDialogComponent {
+export class CostDetailsDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public notebook: any;
 
-  @ViewChild('bindDialog') bindDialog;
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<CostDetailsDialogComponent>
+  ) { }
 
-  public open(params, notebook): void {
-    this.notebook = notebook;
-    this.bindDialog.open(params);
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
+  ngOnInit() {
+    this.notebook = this.data;
   }
 }
