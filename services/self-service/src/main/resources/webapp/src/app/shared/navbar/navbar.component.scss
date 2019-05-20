@@ -120,7 +120,7 @@
   }
 }
 a.nav-item {
-  display: flex;
+  display: block;
   position: relative;
   height: 56px;
   padding: 5px;
@@ -148,6 +148,12 @@ a.nav-item {
   }
   &.active {
     color: #36afd5;
+  }
+  &.has-children {
+    height: auto;
+  }
+  .sub-nav-item {
+      display: block;
   }
  }
 

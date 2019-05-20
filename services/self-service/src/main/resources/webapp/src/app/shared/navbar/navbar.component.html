@@ -29,7 +29,7 @@
     <nav role="navigation">
       <!-- <mat-menu #menu="matMenu" [overlapTrigger]="false">
         <a class="nav-item" mat-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
-        <a class="nav-item" mat-menu-item [routerLink]="['/environment_management']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
+        <a class="nav-item" mat-menu-item [routerLink]="['/administration']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
         <a *ngIf="healthStatus.billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/billing_report']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
       </mat-menu> -->
     </nav>
@@ -73,17 +73,23 @@
 
 </div>
 <mat-sidenav-container class="example-container" autosize>
-  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '80px' : '220px'">
+  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '80px'">
     <mat-nav-list>
       <nav>
         <a class="nav-item" 
           [routerLink]="['/resources_list']"
           [routerLinkActive]="['active']"
           [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
-        <a class="nav-item"
-          [routerLink]="['/environment_management']"
-          [routerLinkActive]="['active']"
-          [routerLinkActiveOptions]="{exact:true}">Administration</a>
+        <a class="nav-item has-children">Administration
+          <a class="sub-nav-item"
+             [routerLink]="['/projects']"
+             [routerLinkActive]="['active']"
+             [routerLinkActiveOptions]="{exact:true}">Projects</a>
+          <a class="sub-nav-item"
+             [routerLink]="['/environment_management']"
+             [routerLinkActive]="['active']"
+             [routerLinkActiveOptions]="{exact:true}">Emvironment Management</a>
+        </a>
         <a *ngIf="healthStatus?.billingEnabled" class="nav-item"
           [routerLink]="['/billing_report']"
           [routerLinkActive]="['active']"
@@ -91,7 +97,7 @@
       </nav>
     </mat-nav-list>
   </mat-sidenav>
-  <mat-sidenav-content [style.margin-left]="isExpanded ? '80px' : '220px'">
+  <mat-sidenav-content [style.margin-left]="isExpanded ? '220px' : '80px'">
 
     <router-outlet></router-outlet>
 
