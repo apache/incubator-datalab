@@ -35,11 +35,11 @@ args = parser.parse_args()
 
 jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
 
-def start_jupyter_container(jupyter_dir):
+def start_jupyter_container():
     try:
-        with cd('{}'.format(jupyter_dir)):
-            run('docker build --file /home/{}/.jupyter/Dockerfile_jupyter -t jupyter-notebook .'.format(args.os_user))
-            run('docker run -d --restart unless-stopped -p 8888:8888 jupyter-notebook:latest')
+        with cd('/home/{}/legion/'.format(args.os_user)):
+            run('docker build --file containers/toolchains/python/Dockerfile -t jupyter-lab .')
+            run('docker run -d --restart unless-stopped -p 8888:8888 jupyter-lab:latest')
     except: sys.exit(1)
 
 if __name__ == "__main__":
