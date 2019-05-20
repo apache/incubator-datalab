@@ -17,11 +17,11 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="modal-lg">
-  <modal-header>
+<div modalClass="modal-lg">
+  <header>
     <h4 class="modal-title" id="myModalLabel">Create analytical tool</h4>
-  </modal-header>
-  <modal-content>
+  </header>
+  <div class="modal-content">
     <div class="content-box">
       <form [formGroup]="createExploratoryEnvironmentForm"
             (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value)"
@@ -89,5 +89,5 @@
         </div>
       </form>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

@@ -24,7 +24,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../shared/material.module';
 import { ModalModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
-import { ExploratoryEnvironmentCreateDialogComponent } from './exploratory-environment-create-dialog.component';
+import { ExploratoryEnvironmentCreateComponent } from './exploratory-environment-create-dialog.component';
 
 @NgModule({
   imports: [
@@ -35,7 +35,8 @@ import { ExploratoryEnvironmentCreateDialogComponent } from './exploratory-envir
     FormControlsModule,
     MaterialModule
   ],
-  declarations: [ExploratoryEnvironmentCreateDialogComponent],
-  exports: [ExploratoryEnvironmentCreateDialogComponent]
+  declarations: [ExploratoryEnvironmentCreateComponent],
+  entryComponents: [ExploratoryEnvironmentCreateComponent],
+  exports: [ExploratoryEnvironmentCreateComponent]
 })
-export class ExploratoryEnvironmentCreateDialogModule {}
+export class ExploratoryEnvironmentCreateModule { }

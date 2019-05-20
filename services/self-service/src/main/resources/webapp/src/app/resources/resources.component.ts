@@ -20,8 +20,10 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
+import { ExploratoryEnvironmentCreateComponent } from './exploratory/exploratory-environment-create-dialog/exploratory-environment-create-dialog.component';
 import { UserAccessKeyService, HealthStatusService } from '../core/services';
 import { ResourcesGridRowModel } from './resources-grid/resources-grid.model';
 import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
@@ -45,16 +47,17 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
 
   constructor(
+    public toastr: ToastrService,
     private userAccessKeyService: UserAccessKeyService,
     private healthStatusService: HealthStatusService,
-    public toastr: ToastrService
+    private dialog: MatDialog
   ) {
     this.userUploadAccessKeyState = HTTP_STATUS_CODES.NOT_FOUND;
   }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
+    // this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
 
     this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
       if (response) this.userUploadAccessKeyState = response.status;
@@ -70,7 +73,10 @@ export class ResourcesComponent implements OnInit, OnDestroy {
 
   public createNotebook_btnClick(): void {
     if (this.userUploadAccessKeyState === HTTP_STATUS_CODES.OK) {
-      if (!this.createAnalyticalModal.isOpened) this.createAnalyticalModal.open({ isFooter: false });
+      // if (!this.createAnalyticalModal.isOpened) this.createAnalyticalModal.open({ isFooter: false });
+
+      this.dialog.open(ExploratoryEnvironmentCreateComponent, { data: this.resourcesGrid })
+               .afterClosed().subscribe(() => this.refreshGrid());
     } else {
       this.userAccessKeyService.initialUserAccessKeyCheck();
     }

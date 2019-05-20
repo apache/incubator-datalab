@@ -20,7 +20,7 @@
 
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 import { UserResourceService } from '../../core/services';
 import { CreateResourceModel } from './create-resource.model';
