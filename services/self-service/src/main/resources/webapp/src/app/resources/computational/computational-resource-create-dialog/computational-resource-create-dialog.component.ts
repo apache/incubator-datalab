@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceCreateModel } from './computational-resource-create.model';
@@ -59,7 +60,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
 
-  @ViewChild('bindDialog') bindDialog;
+  // @ViewChild('bindDialog') bindDialog;
   @ViewChild('name') name;
   @ViewChild('clusterType') cluster_type;
   @ViewChild('templatesList') templates_list;
@@ -72,17 +73,20 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
     private ref: ChangeDetectorRef,
-    public toastr: ToastrService
+    public dialogRef: MatDialogRef<ComputationalResourceCreateDialogComponent>,
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
   }
 
   ngOnInit() {
     this.initFormModel();
-    this.bindDialog.onClosing = () => this.resetDialog();
+    // this.bindDialog.onClosing = () => this.resetDialog();
+    this.open(this.data.notebook, this.data.full_list);
   }
 
   // public isNumberKey($event): boolean {
@@ -207,30 +211,28 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public open(params, notebook_instance, full_list): void {
-    if (!this.bindDialog.isOpened) {
-      this.notebook_instance = notebook_instance;
-      this.full_list = full_list;
-      this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name,
-        response => {
-          if (response.status === HTTP_STATUS_CODES.OK) {
-            this.close();
-            this.buildGrid.emit();
-          }
-        },
-        error => this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!'),
-        () => this.template_description = this.model.selectedItem.description,
-        () => {
-          this.bindDialog.open(params);
-          this.bindDialog.modalClass += !this.model.availableTemplates ? 'reset' : '';
+  public open(notebook_instance, full_list): void {
+    this.notebook_instance = notebook_instance;
+    this.full_list = full_list;
+    this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name,
+      response => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.dialogRef.close();
+          this.buildGrid.emit();
+        }
+      },
+      error => this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!'),
+      () => this.template_description = this.model.selectedItem.description,
+      () => {
+        // this.bindDialog.modalClass += !this.model.availableTemplates ? 'reset' : '';
+        // this.dialogRef.updateSize('40%', '80%');
 
-          this.ref.detectChanges();
+        this.ref.detectChanges();
 
-          this.setDefaultParams();
-          this.getComputationalResourceLimits();
-        },
-        this.userResourceService);
-    }
+        this.setDefaultParams();
+        this.getComputationalResourceLimits();
+      },
+      this.userResourceService);
   }
 
   public preemptibleCounter($event, action): void {
@@ -239,11 +241,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     const value = this.resourceForm.controls['preemptible_instance_number'].value;
     const newValue = (action === 'increment' ? Number(value) + 1 : Number(value) - 1);
     this.resourceForm.controls.preemptible_instance_number.setValue(newValue);
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
   }
 
   private initFormModel(): void {

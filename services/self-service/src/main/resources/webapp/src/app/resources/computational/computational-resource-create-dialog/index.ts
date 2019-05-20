@@ -36,6 +36,7 @@ import { ComputationalResourceCreateDialogComponent } from './computational-reso
     MaterialModule
   ],
   declarations: [ComputationalResourceCreateDialogComponent],
+  entryComponents: [ComputationalResourceCreateDialogComponent],
   exports: [ComputationalResourceCreateDialogComponent]
 })
 export class ComputationalResourceCreateDialogModule {}
