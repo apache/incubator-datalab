@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM legionplatformtest/python-toolchain:1.0.0-rc11
+FROM legionplatformtest/python-toolchain:1.0.0-rc12
 
 ARG NB_USER="nb_user"
 
