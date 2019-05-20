@@ -17,9 +17,9 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog  modalClass="detail-dialog modal-sm header-white">
-  <modal-header></modal-header>
-  <modal-content>
+<div modalClass="detail-dialog modal-sm header-white">
+  <header></header>
+  <div class="modal-content">
     <div *ngIf="resource">
       <table class="detail-header">
         <tr>
@@ -99,7 +99,7 @@
           </small>
         </div>
         <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked'] || false">
-          <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
+          <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
                   class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
                   (click)="editClusterConfiguration(configurationForm.value)">Update</button>
@@ -111,5 +111,5 @@
         <p class="failed">{{resource.error_message}}</p>
       </div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

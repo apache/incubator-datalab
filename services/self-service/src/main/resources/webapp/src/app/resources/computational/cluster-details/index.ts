@@ -30,6 +30,7 @@ export * from './cluster-details.component';
 @NgModule({
   imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule, MaterialModule],
   declarations: [DetailComputationalResourcesComponent],
+  entryComponents: [DetailComputationalResourcesComponent],
   exports: [DetailComputationalResourcesComponent],
 })
 
