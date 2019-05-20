@@ -29,7 +29,7 @@ import { ApplicationSecurityService,
   UserAccessKeyService,
   SchedulerService,
   StorageService} from '../../core/services';
-import { GeneralEnvironmentStatus } from '../../management/management.model';
+import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';

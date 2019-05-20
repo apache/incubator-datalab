@@ -26,7 +26,7 @@ import { UserResourceService } from '../../core/services';
 import { CreateResourceModel } from './create-resource.model';
 import { ResourcesGridRowModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
-import { GeneralEnvironmentStatus } from '../../management/management.model';
+import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 import { DetailDialogComponent } from '../exploratory/detail-dialog';
@@ -74,9 +74,9 @@ export class ResourcesGridComponent implements OnInit {
   ];
 
   constructor(
+    public toastr: ToastrService,
     private userResourceService: UserResourceService,
-    private dialog: MatDialog,
-    public toastr: ToastrService
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {

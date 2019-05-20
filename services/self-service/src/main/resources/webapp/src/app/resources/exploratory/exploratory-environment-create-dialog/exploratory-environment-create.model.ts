@@ -70,7 +70,7 @@ export class ExploratoryEnvironmentCreateModel {
       environment_shape,
       fnProcessResults,
       fnProcessErrors);
-    this.loadTemplates();
+    // this.loadTemplates();
   }
 
   public setSelectedItem(item: ExploratoryEnvironmentVersionModel): void {
