@@ -31,6 +31,7 @@ import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 import { DetailDialogComponent } from '../exploratory/detail-dialog';
 import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
+import { InstallLibrariesComponent } from '../exploratory/install-libraries';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -60,10 +61,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
-  @ViewChild('installLibs') installLibraries;
   @ViewChild('envScheduler') scheduler;
-  // @ViewChild('createAmi') createAMI;
-
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
@@ -304,7 +302,8 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'terminate') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
     } else if (action === 'install') {
-      this.installLibraries.open({ isFooter: false }, data);
+      this.dialog.open(InstallLibrariesComponent, { data: data })
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'schedule') {
       this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
     } else if (action === 'ami') {

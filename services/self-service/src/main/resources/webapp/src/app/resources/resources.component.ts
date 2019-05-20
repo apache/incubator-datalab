@@ -24,8 +24,9 @@ import { MatDialog } from '@angular/material';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/exploratory-environment-create-dialog/exploratory-environment-create-dialog.component';
-import { UserAccessKeyService, HealthStatusService } from '../core/services';
 import { ResourcesGridRowModel } from './resources-grid/resources-grid.model';
+import { UserAccessKeyService, HealthStatusService } from '../core/services';
+import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
 
 @Component({
@@ -41,7 +42,7 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   public healthStatus: any;
 
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
-  @ViewChild('manageUngitDialog') manageUngitDialog;
+  // @ViewChild('manageUngitDialog') manageUngitDialog;
   @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
 
   subscriptions: Subscription = new Subscription();
@@ -97,8 +98,10 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   }
 
   public manageUngit(): void {
-    if (!this.manageUngitDialog.isOpened)
-        this.manageUngitDialog.open({ isFooter: false });
+    // if (!this.manageUngitDialog.isOpened)
+    //     this.manageUngitDialog.open({ isFooter: false });
+    this.dialog.open(ManageUngitComponent)
+               .afterClosed().subscribe(() => this.refreshGrid());
   }
 
   private getEnvironmentHealthStatus() {

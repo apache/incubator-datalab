@@ -50,7 +50,7 @@ import {
     ManageUngitComponent,
     ConfirmDeleteAccountDialog
   ],
-  entryComponents: [ConfirmDeleteAccountDialog],
+  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog],
   exports: [ResourcesComponent]
 })
 export class ResourcesModule {}
