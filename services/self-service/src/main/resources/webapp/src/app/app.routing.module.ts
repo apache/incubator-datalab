@@ -28,8 +28,8 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { AccessDeniedComponent } from './access-denied/access-denied.component';
 import { ReportingComponent } from './reporting/reporting.component';
 import { WebterminalComponent } from './webterminal/webterminal.component';
-import { ManagementComponent } from './management/management.component';
-import { ProjectComponent } from './management/project/project.component';
+import { ManagementComponent } from './administration/management/management.component';
+import { ProjectComponent } from './administration/project/project.component';
 
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard } from './core/services';
 
