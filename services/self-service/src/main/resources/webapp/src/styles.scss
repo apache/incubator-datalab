@@ -50,6 +50,9 @@
 .mat-tab-header-pagination.mat-tab-header-pagination-before {
   display: none !important;
 }
+.mat-drawer-container {
+  height: calc(100% - 48px);
+}
 
 mat-chip.mat-chip {
   outline: none;
