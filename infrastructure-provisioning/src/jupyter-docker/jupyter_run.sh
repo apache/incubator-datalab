@@ -21,7 +21,7 @@
 #
 # ******************************************************************************
 
-jupyter lab --config CONF_PATH
+jupyter notebook --config CONF_PATH
 
 if [[$1 == '-d']];then
         while true; do sleep 1000; done
