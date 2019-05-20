@@ -17,12 +17,12 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="install-libraries modal-xl">
-  <modal-header>
+<div #bindDialog modalClass="install-libraries modal-xl">
+  <header>
     <h4 class="modal-title" id="myModalLabel">Manage
       <b>{{ notebook?.name }}</b> Libraries</h4>
-  </modal-header>
-  <modal-content>
+  </header>
+  <div class="modal-content">
    <div class="aligner">
     <div class="info" *ngIf="notebook?.status !== 'running'">
       <p class=" message">Cannot install libraries: Exploratory
@@ -155,5 +155,5 @@
       <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
     </div>
    </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

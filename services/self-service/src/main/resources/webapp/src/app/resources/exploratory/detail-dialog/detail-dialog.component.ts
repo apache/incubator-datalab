@@ -26,7 +26,6 @@ import { DateUtils, CheckUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
-import { DebugRenderer2 } from '@angular/core/src/view/services';
 
 @Component({
   selector: 'detail-dialog',
