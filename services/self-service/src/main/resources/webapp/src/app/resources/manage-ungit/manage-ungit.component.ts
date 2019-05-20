@@ -44,41 +44,34 @@ export class ManageUngitComponent implements OnInit {
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
-  @ViewChild('bindDialog') bindDialog;
   @ViewChild('tabGroup') tabGroup;
 
   constructor(
+    public toastr: ToastrService,
+    public dialog: MatDialog,
+    public dialogRef: MatDialogRef<ManageUngitComponent>,
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
-    public dialog: MatDialog,
-    public toastr: ToastrService
   ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
   }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.cancelAllModifyings();
+    // this.bindDialog.onClosing = () => this.cancelAllModifyings();
+    this.open();
 
     this.initFormModel();
     this.getGitCredentials();
   }
 
-  public open(param): void {
-    if (!this.bindDialog.isOpened)
-      this.model = new MangeUngitModel(response => { },
-      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!'),
-      () => {
-        this.bindDialog.open(param);
-
-        if (!this.gitCredentials.length)
-          this.tabGroup.selectedIndex = 1;
-      },
-      this.manageUngitService);
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
+  public open(): void {
+    this.model = new MangeUngitModel(response => { },
+    error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!'),
+    () => {
+      if (!this.gitCredentials.length)
+        this.tabGroup.selectedIndex = 1;
+    },
+    this.manageUngitService);
   }
 
   public resetForm(): void {
