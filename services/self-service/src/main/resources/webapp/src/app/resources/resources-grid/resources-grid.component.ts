@@ -30,6 +30,7 @@ import { GeneralEnvironmentStatus } from '../../administration/management/manage
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 import { DetailDialogComponent } from '../exploratory/detail-dialog';
+import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -61,7 +62,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('costDetailsDialog') costDetailsDialog;
   @ViewChild('installLibs') installLibraries;
   @ViewChild('envScheduler') scheduler;
-  @ViewChild('createAmi') createAMI;
+  // @ViewChild('createAmi') createAMI;
 
 
   public filteringColumns: Array<any> = [
@@ -307,7 +308,8 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'schedule') {
       this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
     } else if (action === 'ami') {
-      this.createAMI.open({ isFooter: false }, data);
+      this.dialog.open(AmiCreateDialogComponent, { data: data })
+                 .afterClosed().subscribe(() => this.buildGrid());
     }
   }
 }

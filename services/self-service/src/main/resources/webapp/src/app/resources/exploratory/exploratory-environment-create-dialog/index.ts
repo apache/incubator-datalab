@@ -22,14 +22,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../../../shared/material.module';
-import { ModalModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory-environment-create-dialog.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    ModalModule,
     FormsModule,
     ReactiveFormsModule,
     FormControlsModule,

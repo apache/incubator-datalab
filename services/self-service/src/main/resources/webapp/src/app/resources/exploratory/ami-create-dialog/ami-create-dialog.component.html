@@ -17,11 +17,11 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="ami-dialog modal-sm">
-  <modal-header>
+<div modalClass="ami-dialog modal-sm">
+  <header>
     <h4 class="modal-title" id="myModalLabel">Create {{ DICTIONARY.image }}</h4>
-  </modal-header>
-  <modal-content>
+  </header>
+  <div class="modal-content">
     <div class="content-box" *ngIf="notebook">
       <form [formGroup]="createAMIForm" novalidate>
         <div class="control-group">
@@ -43,9 +43,9 @@
         </div>
       </form>
       <div class="text-center m-top-30 m-bott-10">
-        <button mat-raised-button type="button" class="butt action" (click)="resetForm()">Cancel</button>
+        <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
         <button mat-raised-button type="button" [disabled]="!createAMIForm.valid" (click)="assignChanges(createAMIForm.value)" class="butt butt-success action">Create</button>
       </div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>
