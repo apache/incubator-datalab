@@ -189,7 +189,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private refreshSchedulerData(): void {
       this.schedulerService.getActiveSchcedulersData(this.CHECK_ACTIVE_SCHEDULE_PERIOD).subscribe((list: Array<any>) => {
         if (list.length) {
-          if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
+          if (this.dialog.openDialogs.length > 0) return;
           const filteredData = this.groupSchedulerData(list);
           const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
             data: { template: filteredData, type: 'list' },

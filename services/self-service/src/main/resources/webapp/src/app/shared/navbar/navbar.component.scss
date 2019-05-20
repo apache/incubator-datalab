@@ -132,7 +132,7 @@ a.nav-item {
   overflow: hidden;
   color: #577289;
   outline: none;
-  &:hover {
+  &:not(.has-children):hover {
     background: none !important;
     color: #36afd5;
   }
@@ -153,7 +153,12 @@ a.nav-item {
     height: auto;
   }
   .sub-nav-item {
-      display: block;
+    display: block;
+    transition: all .45s ease-in-out;
+    &:hover {
+      background: none !important;
+      color: #36afd5;
+    }
   }
  }
 
