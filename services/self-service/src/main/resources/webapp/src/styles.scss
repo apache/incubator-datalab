@@ -17,7 +17,7 @@
  * under the License.
  */
 
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+// @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
 @import './assets/fonts/Material_Icons/material-icons.css';
 @import './assets/fonts/Open_Sans/open-sans.css';
@@ -25,6 +25,7 @@
 @import './assets/styles/_reset.scss';
 @import './assets/styles/_general.scss';
 @import './assets/styles/_theme.scss';
+@import './assets/styles/_dialogs.scss';
 
 .mat-tab-label {
   font-family: 'Open Sans', sans-serif !important;
@@ -383,6 +384,3 @@ input[type='number'] {
     }
   }
 }
-
-html, body { height: 100%; }
-body { margin: 0; font-family: 'Roboto', sans-serif; }

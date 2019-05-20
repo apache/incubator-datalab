@@ -1,0 +1,196 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+ .modal-xs { width: 375px; }
+ .modal-sm { width: 525px; }
+ .modal-md { width: 545px; }
+ .modal-lg { width: 580px; }
+ .modal-xl-s { width: 660px; }
+ .modal-xl { width: 900px; }
+ .modal-xxl { width: 1000px; }
+ 
+mat-dialog-container {
+  &.mat-dialog-container {
+    padding: 0;
+    border-radius: 0;
+    .box {
+      .dialog-header {
+        padding-left: 30px;
+        background: #f6fafe;
+        height: 50px;
+        line-height: 50px;
+        position: relative;
+        .modal-title {
+          width: 90%;
+          margin: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          font-weight: 600;
+          color: #455c74;
+          font-size: 18px;
+          background: #f6fafe;
+          i {
+            vertical-align: middle;
+          }
+        }
+        .close {
+          position: absolute;
+          top: 0;
+          right: 0;
+          height: 50px;
+          width: 50px;
+          font-size: 24px;
+          font-weight: 300;
+          border: 0;
+          background: none;
+          color: #577289;
+          outline: none;
+          cursor: pointer;
+          transition: all .45s ease-in-out;
+          &:hover {
+            color: #36afd5;
+          }
+        }
+        &.header-white {
+          background: #fff;
+        }
+      }
+    
+      .dialog-body {
+        padding-top: 0;
+      }
+      .upload-key {
+        margin-bottom: 20px;
+        & > div > div {
+          margin-top: 5px;
+        }
+    
+        .butt-file {
+          position: relative;
+          overflow: hidden;
+          margin-bottom: 10px;
+          display: inline-block;
+          color: #35afd5;
+          padding: 6px 29px 6px 23px;
+          width: 170px;
+          // font: 600 16px/1.45 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          font-size: 16px;
+          line-height: 1.45;
+          font-family:'Open Sans', sans-serif;
+    
+          text-align: center;
+          box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+          .upload-icon {
+            background: url(/img/upload-icon.png) no-repeat;
+            background-size: 100%;
+            display: inline-block;
+            width: 17px;
+            height: 17px;
+            margin-right: 8px;
+            position: relative;
+            top: 2px;
+          }
+          input[type=file] {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            opacity: 0;
+            outline: none;
+            background: #fff;
+            cursor: inherit;
+            display: block;
+          }
+          &:active {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+          }
+        }
+        .butt-generate {
+          color: #35afd5;
+          width: 170px;
+        }
+      }
+      .btn-success {
+        margin-left: 40px;
+        margin-right: 2px;
+      }
+      .btn {
+        padding: 6px 15px;
+        min-width: 140px;
+        font-weight: 600;
+      }
+      a {
+        color: #35afd5;
+        text-decoration: none;
+        transition: all .45s ease-in-out;
+        &:hover {
+          color: #5faec7;
+        }
+      }
+      .info-label {
+        font-size: 16px;
+        margin-top: 20px;
+      }
+      .control-label {
+        font-weight: 600;
+        margin-top: 6px;
+      }
+      .form-group {
+        small {
+          font-size: 12px;
+          color: #9cadbe;
+          display: inline-block;
+          margin-top: 6px;
+        }
+      }
+    }
+  }
+}
+.content-box {
+  padding: 25px 30px 35px;
+}
+
+.modal-content {
+  display: block;
+  position: relative;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 3px;
+  outline: 0;
+  -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+  box-shadow: 0 3px 9px rgba(0,0,0,.5);
+  .danger_color {
+    padding-left: 5px;
+    font-size: 12px;
+    display: inline-block;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    border-color: #d9534f !important;
+  }
+}
