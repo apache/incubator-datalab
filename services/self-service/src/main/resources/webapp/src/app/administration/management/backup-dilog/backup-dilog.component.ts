@@ -17,9 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, Inject } from '@angular/core';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
-
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { BackupOptionsModel } from '../management.model';
 
 @Component({
@@ -32,17 +32,14 @@ export class BackupDilogComponent implements OnInit {
   public backupOptions: BackupOptionsModel = new BackupOptionsModel([], [], [], [], false, false);
   public valid: boolean = true;
 
-  @ViewChild('bindDialog') bindDialog;
-  @Output() backupOpts: EventEmitter<{}> = new EventEmitter();
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<BackupDilogComponent>,
+  ) { }
 
   ngOnInit() {
     this.backupOptions.setDegault();
-    this.bindDialog.onClosing = () => this.backupOptions.setDegault();
-  }
-
-  public open(param): void {
     this.valid = true;
-    this.bindDialog.open(param);
   }
 
   public onHoldChanged($event, key): void {
@@ -54,9 +51,8 @@ export class BackupDilogComponent implements OnInit {
   }
 
   public applyOptions(): void {
-    this.backupOpts.emit(this.backupOptions);
     this.backupOptions.setDegault();
-    this.bindDialog.close();
+    this.dialogRef.close();
   }
 
   private checkValidity(): void {

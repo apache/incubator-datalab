@@ -76,7 +76,11 @@ export * from './management.component';
     SsnMonitorComponent,
     ManageRolesGroupsComponent
   ],
-  entryComponents: [ConfirmationDialogComponent, ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialogComponent],
+  entryComponents: [
+    ConfirmationDialogComponent,
+    ConfirmActionDialogComponent,
+    ConfirmDeleteUserAccountDialogComponent,
+    BackupDilogComponent],
   exports: [ManagementComponent]
 })
-export class ManagenementModule {}
+export class ManagenementModule { }

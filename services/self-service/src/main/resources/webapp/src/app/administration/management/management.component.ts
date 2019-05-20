@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 
@@ -33,6 +34,7 @@ import {
 
 import { EnvironmentModel, GeneralEnvironmentStatus } from './management.model';
 import { HTTP_STATUS_CODES } from '../../core/util';
+import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 
 @Component({
   selector: 'environments-management',
@@ -58,14 +60,15 @@ export class ManagementComponent implements OnInit, OnDestroy {
   @ViewChild('rolesGroupsModal') rolesGroupsDialog;
 
   constructor(
+    public toastr: ToastrService,
+    public dialog: MatDialog,
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
     private manageEnvironmentsService: ManageEnvironmentsService,
     private userAccessKeyService: UserAccessKeyService,
     private userResourceService: UserResourceService,
     private rolesService: RolesGroupsService,
-    private storageService: StorageService,
-    public toastr: ToastrService
+    private storageService: StorageService
   ) {}
 
   ngOnInit() {
@@ -100,7 +103,9 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
 
   showBackupDialog() {
-    if (!this.backupDialog.isOpened) this.backupDialog.open({ isFooter: false });
+    // if (!this.backupDialog.isOpened) this.backupDialog.open({ isFooter: false });
+    this.dialog.open(BackupDilogComponent)
+                 .afterClosed().subscribe(() => this.buildGrid());
   }
 
   getActiveUsersList() {
