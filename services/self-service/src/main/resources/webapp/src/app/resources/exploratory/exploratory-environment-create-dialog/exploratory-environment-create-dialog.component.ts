@@ -144,19 +144,14 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public open(params?): void {
-    this.model.loadTemplates();
     this.model = new ExploratoryEnvironmentCreateModel('', '', '', '', '',
     response => {
-      if (response.status === HTTP_STATUS_CODES.OK) {
-        this.dialogRef.close();
-        // this.buildGrid.emit();
-      }
+      if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
     },
     error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'),
     () => this.templateDescription = this.model.selectedItem.description,
     () => {
       this.initFormModel();
-      // this.bindDialog.open(params);
       this.setDefaultParams();
       this.getImagesList();
     },
@@ -183,11 +178,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.createExploratoryEnvironmentForm.controls['configuration_parameters'].setValue('');
     }
   }
-
-  // public close(): void {
-  //   if (this.bindDialog.isOpened)
-  //     this.bindDialog.close();
-  // }
 
   private resetDialog(): void {
     this.initFormModel();

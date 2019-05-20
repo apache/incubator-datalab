@@ -151,7 +151,7 @@
       </mat-list>
     </div>
     <div class="m-top-15 actions" *ngIf="!uploading && notebook?.status === 'running'">
-      <button mat-raised-button type="button" class="butt action" (click)="close()">Close</button>
+      <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Close</button>
       <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
     </div>
    </div>
