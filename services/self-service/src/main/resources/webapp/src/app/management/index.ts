@@ -52,6 +52,7 @@ import { DirectivesModule } from '../core/directives';
 
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialogComponent } from './manage-roles-groups/manage-roles-groups.component';
+import { ProjectModule } from './project';
 
 export * from './management.component';
 
@@ -60,6 +61,7 @@ export * from './management.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    ProjectModule,
     ModalModule,
     UploadKeyDialogModule,
     ProgressDialogModule,

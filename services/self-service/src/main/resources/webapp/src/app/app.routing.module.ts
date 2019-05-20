@@ -29,6 +29,8 @@ import { AccessDeniedComponent } from './access-denied/access-denied.component';
 import { ReportingComponent } from './reporting/reporting.component';
 import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './management/management.component';
+import { ProjectComponent } from './management/project/project.component';
+
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard } from './core/services';
 
 const routes: Routes = [{
@@ -51,6 +53,10 @@ const routes: Routes = [{
       path: 'billing_report',
       component: ReportingComponent,
       canActivate: [AuthorizationGuard, CloudProviderGuard]
+    }, {
+      path: 'projects',
+      component: ProjectComponent,
+      canActivate: [AuthorizationGuard],
     }, {
       path: 'environment_management',
       component: ManagementComponent,
