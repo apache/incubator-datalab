@@ -18,10 +18,11 @@
  */
 
 import { Component, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { DetailComputationalResourcesComponent } from '../cluster-details';
 
 @Component({
   selector: 'computational-resources-list',
@@ -41,9 +42,9 @@ export class ComputationalResourcesListComponent {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
-    private userResourceService: UserResourceService,
     public dialog: MatDialog,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    private userResourceService: UserResourceService
   ) { }
 
   toggleResourceAction(resource, action: string) {
@@ -79,7 +80,9 @@ export class ComputationalResourcesListComponent {
   }
 
   detailComputationalResources(environment, resource): void {
-    this.detailComputationalResource.open({ isFooter: false }, environment, resource);
+    // this.detailComputationalResource.open({ isFooter: false }, environment, resource);
+    this.dialog.open(DetailComputationalResourcesComponent, { data: { environment, resource }})
+               .afterClosed().subscribe(() => this.rebuildGrid());
   };
 
   openScheduleDialog(resource) {

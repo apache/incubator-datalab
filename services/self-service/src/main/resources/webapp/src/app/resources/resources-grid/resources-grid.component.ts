@@ -32,6 +32,7 @@ import { SortUtil } from '../../core/util';
 import { DetailDialogComponent } from '../exploratory/detail-dialog';
 import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 import { InstallLibrariesComponent } from '../exploratory/install-libraries';
+import { ComputationalResourceCreateDialogComponent } from '../computational/computational-resource-create-dialog/computational-resource-create-dialog.component';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -57,7 +58,7 @@ export class ResourcesGridComponent implements OnInit {
   healthStatus: GeneralEnvironmentStatus;
   delimitersRegex = /[-_]?/g;
 
-  @ViewChild('computationalResourceModal') computationalResourceModal;
+  // @ViewChild('computationalResourceModal') computationalResourceModal;
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
@@ -290,7 +291,10 @@ export class ResourcesGridComponent implements OnInit {
   exploratoryAction(data, action: string) {
     if (action === 'deploy') {
       this.notebookName = data.name;
-      this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
+      // this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
+
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments}})
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name })
