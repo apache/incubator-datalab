@@ -33,6 +33,8 @@ import { DetailDialogComponent } from '../exploratory/detail-dialog';
 import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 import { InstallLibrariesComponent } from '../exploratory/install-libraries';
 import { ComputationalResourceCreateDialogComponent } from '../computational/computational-resource-create-dialog/computational-resource-create-dialog.component';
+import { CostDetailsDialogComponent } from '../billing/cost-details-dialog';
+import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -62,7 +64,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
-  @ViewChild('envScheduler') scheduler;
+  // @ViewChild('envScheduler') scheduler;
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
@@ -285,7 +287,9 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   printCostDetails(data): void {
-    this.costDetailsDialog.open({ isFooter: false }, data);
+    // this.costDetailsDialog.open({ isFooter: false }, data);
+    this.dialog.open(CostDetailsDialogComponent, { data: data })
+               .afterClosed().subscribe(() => this.buildGrid());
   }
 
   exploratoryAction(data, action: string) {
@@ -309,7 +313,9 @@ export class ResourcesGridComponent implements OnInit {
       this.dialog.open(InstallLibrariesComponent, { data: data })
                  .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'schedule') {
-      this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
+      // this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
+      this.dialog.open(SchedulerComponent, { data: {notebook: data, type: 'EXPLORATORY'} })
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'ami') {
       this.dialog.open(AmiCreateDialogComponent, { data: data })
                  .afterClosed().subscribe(() => this.buildGrid());

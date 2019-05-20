@@ -42,6 +42,7 @@ export * from './scheduler.model';
     TimePickerModule
   ],
   declarations: [SchedulerComponent],
+  entryComponents: [SchedulerComponent],
   exports: [SchedulerComponent]
 })
 export class SchedulerModule {}

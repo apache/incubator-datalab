@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, ViewChild, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, ViewChild, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';

@@ -23,6 +23,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
 import { DetailComputationalResourcesComponent } from '../cluster-details';
+import { SchedulerComponent } from '../../scheduler';
 
 @Component({
   selector: 'computational-resources-list',
@@ -86,7 +87,9 @@ export class ComputationalResourcesListComponent {
   };
 
   openScheduleDialog(resource) {
-    this.clusterScheduler.open({ isFooter: false }, this.environment, 'СOMPUTATIONAL', resource);
+    // this.clusterScheduler.open({ isFooter: false }, this.environment, 'СOMPUTATIONAL', resource);
+    this.dialog.open(SchedulerComponent, { data: {notebook: this.environment, type: 'СOMPUTATIONAL', resource} })
+               .afterClosed().subscribe(() => this.rebuildGrid());
   }
 }
 
