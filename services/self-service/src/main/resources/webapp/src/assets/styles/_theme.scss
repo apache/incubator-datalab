@@ -258,6 +258,48 @@
   }
 }
 
+mat-horizontal-stepper {
+  .mat-step-header {
+    .mat-step-icon {
+      background-color: #36afd5;
+    }
+    .mat-step-label {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 300;
+    }
+  }
+  &.stepper {
+    height: 190px;
+    margin-top: 10px;
+    .inner-step {
+      height: 70px;
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      input {
+        width: 490px;
+        align-self: center;
+      }
+      .caret {
+        i {
+          margin-top: 3px;
+        }
+      }
+    }
+    .text-center {
+      button {
+        &:not(:last-child) {
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+}
+
+
 .dashboard_table {
   &.reporting {
     .dropdown-multiselect {
