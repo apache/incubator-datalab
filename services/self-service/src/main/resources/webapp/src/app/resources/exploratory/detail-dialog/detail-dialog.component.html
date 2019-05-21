@@ -17,8 +17,10 @@
   ~ under the License.
   -->
 
-<div modalClass="detail-dialog modal-lg header-white">
-  <header></header>
+<div class="box detail-dialog"> 
+  <header class="dialog-header header-white">
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
   <div class="modal-content">
     <div *ngIf="data">
       <table class="detail-header">
