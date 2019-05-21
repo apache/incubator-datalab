@@ -25,6 +25,7 @@ import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
 
 import { ProjectComponent } from './project.component';
+import { CreateProjectModule } from './create-project';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import { ProjectComponent } from './project.component';
     FormsModule,
     MaterialModule,
     FormControlsModule,
+    CreateProjectModule
   ],
   declarations: [ProjectComponent],
   exports: [ProjectComponent]

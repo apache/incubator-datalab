@@ -17,22 +17,22 @@
  * under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-@Component({
-  selector: 'dlab-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+import { MaterialModule } from '../../../shared/material.module';
+
+import { CreateProjectComponent } from './create-project.component';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule
+  ],
+  declarations: [CreateProjectComponent],
+  exports: [CreateProjectComponent]
 })
-export class ProjectComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-  createProject() {
-    console.log('çreate');
-    
-  }
-}
+export class CreateProjectModule { }

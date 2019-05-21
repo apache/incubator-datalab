@@ -17,22 +17,38 @@
  * under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+ import { Component, OnInit } from '@angular/core';
+ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'dlab-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+  selector: 'create-project',
+  templateUrl: './create-project.component.html',
+  styleUrls: ['./create-project.component.scss']
 })
-export class ProjectComponent implements OnInit {
+export class CreateProjectComponent implements OnInit {
 
-  constructor() { }
+  public projectForm: FormGroup;
+  constructor(
+    private _fb: FormBuilder,
+  ) { }
 
   ngOnInit() {
+    this.initFormModel();
   }
 
-  createProject() {
-    console.log('çreate');
-    
+  public createProject(data) {
+    console.log(data);
+  }
+
+  public reset() {
+    this.initFormModel()
+  }
+
+  private initFormModel(): void {
+    this.projectForm = this._fb.group({
+      'project_name': ['', Validators.required],
+      'endpoint_name': ['', Validators.required],
+      'users_list': ['']
+    });
   }
 }
