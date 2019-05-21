@@ -27,11 +27,14 @@ RUN useradd -u 1001 -ms /bin/bash $NB_USER
 
 EXPOSE 8888
 
+COPY jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
+
 #Prepearing Start script
 COPY jupyter_run.sh /jupyter_run.sh
-RUN  sed -i 's|CONF_PATH|/home/nb_user/.local/share/jupyter/jupyter_notebook_config.py|' /jupyter_run.sh \
+RUN  sed -i 's|CONF_PATH|/etc/jupyter/jupyter_notebook_config.py|' /jupyter_run.sh \
   && chmod +x /jupyter_run.sh \
-  && chown -R 1001:1001 /home/$NB_USER/.local/share/jupyter
+  && chown -R 1001:1001 /etc/jupyter \
+  && chown -R 1001:1001 /opt/legion
 
 USER $NB_USER
 
