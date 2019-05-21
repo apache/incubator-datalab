@@ -68,6 +68,7 @@ export class ApplicationServiceFacade {
   private static readonly BILLING = 'billing';
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
+  private static readonly PROJECT = 'project';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -521,6 +522,17 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public buildCreateProject(): Observable<any> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      null);
+  }
+  public buildGetProjectsList(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      null);
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -593,6 +605,9 @@ export class ApplicationServiceFacade {
     // billing report
     this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/billing/report');
     this.requestRegistry.Add(ApplicationServiceFacade.DOWNLOAD_REPORT, '/api/billing/report/download');
+
+    // project
+    this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt?) {

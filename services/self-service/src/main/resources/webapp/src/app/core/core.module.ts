@@ -37,6 +37,7 @@ import { ManageEnvironmentsService } from './services/managementEnvironments.ser
 import { RolesGroupsService } from './services/rolesManagement.service';
 import { DataengineConfigurationService } from './services/dataengineConfiguration.service';
 import { StorageService } from './services/storage.service';
+import { ProjectService } from './services/project.service';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
@@ -71,6 +72,7 @@ export class CoreModule {
         ApplicationServiceFacade,
         DataengineConfigurationService,
         StorageService,
+        ProjectService,
 
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: [] }
