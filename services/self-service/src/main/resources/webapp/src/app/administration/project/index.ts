@@ -19,23 +19,25 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
 
+import { ProjectFormComponent } from './project-form/project-form.component';
+import { ProjectListComponent } from './project-list/project-list.component';
+
 import { ProjectComponent } from './project.component';
-import { CreateProjectModule } from './create-project';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MaterialModule,
-    FormControlsModule,
-    CreateProjectModule
+    FormControlsModule
   ],
-  declarations: [ProjectComponent],
+  declarations: [ProjectComponent, ProjectFormComponent, ProjectListComponent],
   exports: [ProjectComponent]
 })
 export class ProjectModule { }

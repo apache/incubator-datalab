@@ -16,29 +16,3 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { Component, OnInit } from '@angular/core';
-
-export interface Project {
-  project_name: string;
-  endpoint_name: string;
-  project_tag: string;
-  users_list: string[];
-}
-
-@Component({
-  selector: 'dlab-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
-})
-export class ProjectComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-  createProject() {
-    console.log('create');
-  }
-}

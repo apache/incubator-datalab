@@ -17,28 +17,33 @@
  * under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+ import { Component, OnInit } from '@angular/core';
+ import { ToastrService } from 'ngx-toastr';
 
-export interface Project {
-  project_name: string;
-  endpoint_name: string;
-  project_tag: string;
-  users_list: string[];
-}
+ import { ProjectService } from '../../../core/services';
+ import { Project } from '../project.component';
 
+ import { data } from './data';
+ 
 @Component({
-  selector: 'dlab-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+  selector: 'project-list',
+  templateUrl: './project-list.component.html',
+  styleUrls: ['./project-list.component.scss']
 })
-export class ProjectComponent implements OnInit {
+export class ProjectListComponent implements OnInit {
 
-  constructor() { }
+  projectsList: Project[];
+  constructor(
+    public toastr: ToastrService,
+    private projectService: ProjectService) { }
 
   ngOnInit() {
+    this.getProjectsList();
   }
 
-  createProject() {
-    console.log('create');
+  getProjectsList() {
+    this.projectService.getProjectsList().subscribe(
+      (response: Project[]) => this.projectsList = response,
+      error => this.toastr.error(error.message || 'Receiving list failed!', 'Oops!'));
   }
 }
