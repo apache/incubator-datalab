@@ -213,6 +213,11 @@ def configure_docker(os_user, http_file, https_file):
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
+            sudo('wget https://raw.githubusercontent.com/CWSpear/local-persist/master/scripts/install.sh && chmod +x install.sh')
+            sudo('sed -i "66s/curl/sudo curl/g" install.sh')
+            sudo('sed -i "s/sudo curl/sudo -E curl/g" install.sh')
+            run('sudo -E ./install.sh')
+            sudo('rm install.sh')
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
@@ -247,6 +252,7 @@ def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_
             sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
             sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+            sudo('chown dlab-user:dlab-user /opt')
 #            sudo('touch {}'.format(spark_script))
 #            sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
 #            sudo(

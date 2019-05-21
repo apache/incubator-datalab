@@ -310,8 +310,8 @@ if __name__ == "__main__":
     print("Image name: {}".format(notebook_config['notebook_image_name']))
     print("Profile name: {}".format(notebook_config['role_profile_name']))
     print("SG name: {}".format(notebook_config['security_group_name']))
-    print("Jupyter URL: {}".format(jupyter_ip_url))
-    print("Jupyter URL: {}".format(jupyter_dns_url))
+    print("JupyterLab URL: {}".format(jupyter_ip_url))
+    print("JupyterLab URL: {}".format(jupyter_dns_url))
     print("Ungit URL: {}".format(ungit_ip_url))
     print("ReverseProxyNotebook".format(jupyter_notebook_acces_url))
     print("ReverseProxyUngit".format(jupyter_ungit_acces_url))
@@ -329,11 +329,11 @@ if __name__ == "__main__":
                "notebook_image_name": notebook_config['notebook_image_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
-                   {"description": "Jupyter",
+                   {"description": "JupyterLab",
                     "url": jupyter_notebook_acces_url},
                    {"description": "Ungit",
                     "url": jupyter_ungit_acces_url},
-                   {"description": "Jupyter (via tunnel)",
+                   {"description": "JupyterLab (via tunnel)",
                     "url": jupyter_ip_url},
                    {"description": "Ungit (via tunnel)",
                     "url": ungit_ip_url}

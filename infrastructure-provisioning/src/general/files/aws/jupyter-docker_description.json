@@ -19,10 +19,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Containerized Jupyter notebook 5.7.4",
-      "description": "Base image with Jupyter node creation routines",
+      "template_name": "JupyterLab 0.35.6",
+      "description": "Base image with JupyterLab node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-5.7.4",
+      "version": "jupyter_lab-0.35.6",
       "vendor": "AWS"
     }
   ]
