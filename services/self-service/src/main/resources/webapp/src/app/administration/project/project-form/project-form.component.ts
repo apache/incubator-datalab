@@ -19,17 +19,23 @@
 
  import { Component, OnInit } from '@angular/core';
  import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+ import { ToastrService } from 'ngx-toastr';
+
+ import { ProjectService } from '../../../core/services';
+ import { Project } from '../project.component';
 
 @Component({
-  selector: 'create-project',
-  templateUrl: './create-project.component.html',
-  styleUrls: ['./create-project.component.scss']
+  selector: 'project-form',
+  templateUrl: './project-form.component.html',
+  styleUrls: ['./project-form.component.scss']
 })
-export class CreateProjectComponent implements OnInit {
+export class ProjectFormComponent implements OnInit {
 
   public projectForm: FormGroup;
   constructor(
+    public toastr: ToastrService,
     private _fb: FormBuilder,
+    private projectService: ProjectService
   ) { }
 
   ngOnInit() {
@@ -38,6 +44,11 @@ export class CreateProjectComponent implements OnInit {
 
   public createProject(data) {
     console.log(data);
+
+    this.projectService.createProject().subscribe(response => {
+      response && this.toastr.success('Project created successfully!', 'Success!');
+      this.reset();
+    }, error => this.toastr.error(error.message || 'Project creation failed!', 'Oops!'));
   }
 
   public reset() {
@@ -48,7 +59,18 @@ export class CreateProjectComponent implements OnInit {
     this.projectForm = this._fb.group({
       'project_name': ['', Validators.required],
       'endpoint_name': ['', Validators.required],
-      'users_list': ['']
+      'project_tag': [[], Validators.required],
+      'users_list': ['dlab-']
+    });
+  }
+
+  public editSpecificProject(item: Project) {
+
+    this.projectForm = this._fb.group({
+      'project_name': [item.project_name, Validators.required],
+      'endpoint_name': [item.endpoint_name,Validators.required],
+      'project_tag': [item.project_tag, Validators.required],
+      'users_list': [item.users_list, Validators.required]
     });
   }
 }

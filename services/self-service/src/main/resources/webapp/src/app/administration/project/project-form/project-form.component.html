@@ -17,28 +17,40 @@
   ~ under the License.
   -->
 
-<div>
+<mat-card class="base-retreat">
   <form [formGroup]="projectForm" novalidate>
     <mat-horizontal-stepper #stepper class="stepper ani">
       <mat-step>
         <ng-template matStepLabel>Project</ng-template>
-        Step 1
-        <div class="control-group">
-          <label class="label">Project name</label>
-          <div class="control">
-            <input type="text" formControlName="project_name" placeholder="Enter project name">
-            <input type="text" formControlName="endpoint_name" placeholder="Enter endpoint name">
+        <div class="inner-step">
+          <div class="control-group">
+            <label class="label">Project name</label>
+            <div class="control">
+              <input type="text" formControlName="project_name" placeholder="Enter project name">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="label">Endpoint name</label>
+            <div class="control">
+              <input type="text" formControlName="endpoint_name" placeholder="Enter endpoint name">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="label">Project tag</label>
+            <div class="control">
+              <input type="text" formControlName="project_tag" placeholder="Enter project name">
+            </div>
           </div>
         </div>
       </mat-step>
       <mat-step>
         <ng-template matStepLabel>Users</ng-template>
-        Step 2
-  
-        <button mat-raised-button type="button" class="butt action" (click)="reset()">Clear</button>
-        <button mat-raised-button type="button" class="butt" [disabled]="!projectForm.valid" (click)="createProject(projectForm.value)">Create</button>
+        <div class="inner-step">
+
+          <button mat-raised-button type="button" class="butt action" (click)="reset()">Clear</button>
+          <button mat-raised-button type="button" class="butt" [disabled]="!projectForm.valid" (click)="createProject(projectForm.value)">Create</button>
+        </div>
       </mat-step>
     </mat-horizontal-stepper>
   </form>
-  <mat-divider></mat-divider>
-</div>
+</mat-card>
