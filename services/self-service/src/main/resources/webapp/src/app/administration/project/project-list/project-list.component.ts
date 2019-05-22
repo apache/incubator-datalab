@@ -33,7 +33,7 @@
 })
 export class ProjectListComponent implements OnInit {
 
-  displayedColumns: string[] = ['project_name', 'endpoint_name', 'project_tag'];
+  displayedColumns: string[] = ['project_name', 'endpoint_name', 'project_tag', 'actions'];
   dataSource: any;
 
   constructor(
