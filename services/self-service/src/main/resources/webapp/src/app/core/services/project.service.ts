@@ -28,9 +28,9 @@ import { ErrorUtils } from '../util';
 export class ProjectService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public createProject(): Observable<{}> {
+  public createProject(data): Observable<{}> {
     return this.applicationServiceFacade
-      .buildCreateProject()
+      .buildCreateProject(data)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

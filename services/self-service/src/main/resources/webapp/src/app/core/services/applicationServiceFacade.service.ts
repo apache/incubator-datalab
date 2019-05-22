@@ -522,10 +522,10 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildCreateProject(): Observable<any> {
+  public buildCreateProject(data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
-      null);
+      data);
   }
   public buildGetProjectsList(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
