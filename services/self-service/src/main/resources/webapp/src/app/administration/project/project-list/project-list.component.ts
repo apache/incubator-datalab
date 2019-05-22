@@ -45,7 +45,15 @@ export class ProjectListComponent implements OnInit {
     this.getProjectsList();
   }
 
-  getProjectsList() {
+  public editProject(item: Project[]) {
+    debugger;
+  }
+  
+  public deleteProject(item: Project[]) {
+    debugger;
+  }
+
+  private getProjectsList() {
     // Project[] type
     this.dataSource = new MatTableDataSource(data.projects);
 
