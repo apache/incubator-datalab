@@ -17,6 +17,8 @@
  * under the License.
  */
 
+ @import '_variables.scss';
+
  .modal-xs { width: 375px; }
  .modal-sm { width: 525px; }
  .modal-md { width: 545px; }
@@ -29,10 +31,11 @@ mat-dialog-container {
   &.mat-dialog-container {
     padding: 0;
     border-radius: 0;
-    .box {
+    .dialog-box {
+      color: $modal-text-color;
       .dialog-header {
         padding-left: 30px;
-        background: #f6fafe;
+        background: $modal-header-color;
         height: 50px;
         line-height: 50px;
         position: relative;
@@ -45,7 +48,7 @@ mat-dialog-container {
           font-weight: 600;
           color: #455c74;
           font-size: 18px;
-          background: #f6fafe;
+          background: $modal-header-color;
           i {
             vertical-align: middle;
           }
@@ -152,7 +155,7 @@ mat-dialog-container {
         }
       }
       .info-label {
-        font-size: 16px;
+        font-size: 15px;
         margin-top: 20px;
       }
       .control-label {

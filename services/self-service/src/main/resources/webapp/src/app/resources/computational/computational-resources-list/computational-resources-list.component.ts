@@ -82,7 +82,7 @@ export class ComputationalResourcesListComponent {
 
   detailComputationalResources(environment, resource): void {
     // this.detailComputationalResource.open({ isFooter: false }, environment, resource);
-    this.dialog.open(DetailComputationalResourcesComponent, { data: { environment, resource }})
+    this.dialog.open(DetailComputationalResourcesComponent, { data: { environment, resource }, panelClass: 'modal-sm'})
                .afterClosed().subscribe(() => this.rebuildGrid());
   };
 
