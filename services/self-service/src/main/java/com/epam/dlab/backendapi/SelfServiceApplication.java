@@ -51,8 +51,11 @@ import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.BiDiGzipHandler;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.federecio.dropwizard.swagger.SwaggerBundle;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -60,6 +63,8 @@ import org.eclipse.jetty.server.handler.HandlerWrapper;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Self Service based on Dropwizard application.
@@ -92,12 +97,13 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		bootstrap.addBundle(new TemplateConfigBundle(
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
-		bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
+
+		/*bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
 			@Override
 			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration configuration) {
 				return configuration.getSwaggerConfiguration();
 			}
-		});
+		});*/
 	}
 
 	@Override
@@ -173,6 +179,26 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(UserGroupResource.class));
 		jersey.register(injector.getInstance(UserRoleResource.class));
 		jersey.register(injector.getInstance(ApplicationSettingResource.class));
+		jersey.register(injector.getInstance(EndpointResource.class));
+		jersey.register(injector.getInstance(ProjectResource.class));
+		OpenAPI oas = new OpenAPI();
+		Info info = new Info()
+				.title("Hello World API")
+				.version("2.1")
+				.description("RESTful greetings for you.")
+				.termsOfService("http://example.com/terms")
+				.contact(new Contact().email("john@example.com"));
+
+		oas.info(info);
+		SwaggerConfiguration oasConfig = new SwaggerConfiguration()
+				.openAPI(oas)
+				.readAllResources(false)
+				.prettyPrint(true)
+				.resourceClasses(Stream.of(ProjectResource.class.getName(),
+						EndpointResource.class.getName())
+						.collect(Collectors.toSet()));
+		environment.jersey().register(new OpenApiResource()
+				.openApiConfiguration(oasConfig));
 	}
 
 	private void disableGzipHandlerForGuacamoleServlet(Server server) {
