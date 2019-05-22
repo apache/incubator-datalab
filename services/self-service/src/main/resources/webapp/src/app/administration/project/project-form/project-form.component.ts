@@ -45,22 +45,27 @@ export class ProjectFormComponent implements OnInit {
   public createProject(data) {
     console.log(data);
 
-    this.projectService.createProject().subscribe(response => {
+    this.projectService.createProject(data).subscribe(response => {
       response && this.toastr.success('Project created successfully!', 'Success!');
       this.reset();
     }, error => this.toastr.error(error.message || 'Project creation failed!', 'Oops!'));
   }
 
   public reset() {
-    this.initFormModel()
+    this.initFormModel();
+  }
+
+  public generateProjectTag($event) {
+    let user_tag = `dlab-${ $event.target.value }`;
+    this.projectForm.controls.project_tag.setValue(user_tag.toLowerCase());
   }
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'project_name': ['', Validators.required],
       'endpoint_name': ['', Validators.required],
-      'project_tag': [[], Validators.required],
-      'users_list': ['dlab-']
+      'project_tag': ['dlab-', Validators.required],
+      'users_group': [[]]
     });
   }
 

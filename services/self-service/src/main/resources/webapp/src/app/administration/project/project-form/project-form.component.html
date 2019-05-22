@@ -28,7 +28,8 @@
             <div class="control-group">
               <label class="label">Project name</label>
               <div class="control">
-                <input type="text" formControlName="project_name" placeholder="Enter project name">
+                <input type="text" formControlName="project_name" placeholder="Enter project name"
+                  (blur)="generateProjectTag($event)">
               </div>
             </div>
             <div class="control-group">
@@ -40,7 +41,7 @@
             <div class="control-group">
               <label class="label">Project tag</label>
               <div class="control">
-                <input type="text" formControlName="project_tag" placeholder="Enter project name">
+                <input type="text" formControlName="project_tag" placeholder="dlab-{ project name }">
               </div>
             </div>
           </div>
