@@ -265,20 +265,17 @@ mat-horizontal-stepper {
     }
     .mat-step-label {
       font-family: 'Open Sans', sans-serif;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 300;
     }
   }
   &.stepper {
-    height: 190px;
     margin-top: 10px;
     .inner-step {
-      height: 70px;
-      padding: 5px;
       display: flex;
       justify-content: center;
-      flex-direction: column;
-      text-align: center;
+      align-items: center;
+      padding: 5px;
       input {
         width: 490px;
         align-self: center;
@@ -294,6 +291,14 @@ mat-horizontal-stepper {
         &:not(:last-child) {
           margin-right: 5px;
         }
+      }
+    }
+    &.roles {
+      height: 190px;
+      flex-direction: column;
+      text-align: center;
+      .inner-step {
+        height: 70px;
       }
     }
   }
