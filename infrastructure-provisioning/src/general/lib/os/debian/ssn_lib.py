@@ -302,6 +302,20 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
         sys.exit(1)
 
 
+def create_kuber_images():
+    try:
+        sudo("mkdir /opt/dlab/sources/infrastructure-provisioning/src/tmp-kuber/")
+        sudo("cp -r /opt/dlab/conf/ /opt/dlab/sources/infrastructure-provisioning/src/tmp-kuber/")
+        sudo("cp -r /opt/dlab/webapp/self-service/lib/*.jar /opt/dlab/sources/infrastructure-provisioning/src/tmp-kuber/")
+        sudo("cp -r /opt/dlab/webapp/security-service/lib/*.jar /opt/dlab/sources/infrastructure-provisioning/src/tmp-kuber/")
+        sudo("cp -r /opt/dlab/webapp/provisioning-service/lib/*.jar /opt/dlab/sources/infrastructure-provisioning/src/tmp-kuber/")
+        sudo("cp -r /opt/dlab/webapp/billing/lib/*.jar /opt/dlab/sources/infrastructure-provisioning/src/tmp-kuber/")
+        sudo("cd /opt/dlab/sources/infrastructure-provisioning/src/; docker build --file general/files/aws/webui_Dockerfile --no-cache -t docker.dlab-ui .")
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to build images for Kubernetes', str(err))
+        sys.exit(1)
+
 def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
