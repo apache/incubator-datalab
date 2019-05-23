@@ -28,6 +28,7 @@ import { ProjectFormComponent } from './project-form/project-form.component';
 import { ProjectListComponent } from './project-list/project-list.component';
 
 import { ProjectComponent } from './project.component';
+import { ProjectDataService } from './project-data.service';
 
 @NgModule({
   imports: [
@@ -38,6 +39,7 @@ import { ProjectComponent } from './project.component';
     FormControlsModule
   ],
   declarations: [ProjectComponent, ProjectFormComponent, ProjectListComponent],
+  providers: [ProjectDataService],
   exports: [ProjectComponent]
 })
 export class ProjectModule { }
