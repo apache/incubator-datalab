@@ -38,6 +38,7 @@ import { RolesGroupsService } from './services/rolesManagement.service';
 import { DataengineConfigurationService } from './services/dataengineConfiguration.service';
 import { StorageService } from './services/storage.service';
 import { ProjectService } from './services/project.service';
+import { EndpointService } from './services/endpoint.service';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
@@ -73,6 +74,7 @@ export class CoreModule {
         DataengineConfigurationService,
         StorageService,
         ProjectService,
+        EndpointService,
 
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: [] }
