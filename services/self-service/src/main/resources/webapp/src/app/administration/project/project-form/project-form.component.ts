@@ -21,7 +21,7 @@
  import { FormGroup, FormBuilder, Validators } from '@angular/forms';
  import { ToastrService } from 'ngx-toastr';
 
- import { ProjectService } from '../../../core/services';
+ import { ProjectService,RolesGroupsService } from '../../../core/services';
  import { Project } from '../project.component';
 
 @Component({
@@ -32,17 +32,23 @@
 export class ProjectFormComponent implements OnInit {
 
   public projectForm: FormGroup;
+  public groupsList: any;
+  public setupGroupsList = [];
+
   constructor(
     public toastr: ToastrService,
     private _fb: FormBuilder,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private rolesService: RolesGroupsService
   ) { }
 
   ngOnInit() {
     this.initFormModel();
+    this.getGroupsData();
   }
 
   public createProject(data) {
+    // let parameters = {...data, users: this.setupGroupsList };
     console.log(data);
 
     this.projectService.createProject(data).subscribe(response => {
@@ -60,11 +66,16 @@ export class ProjectFormComponent implements OnInit {
     this.projectForm.controls.project_tag.setValue(user_tag.toLowerCase());
   }
 
+  public selectOptions(select) {
+    debugger;
+    this.projectForm.controls.users_group.setValue(select ? this.groupsList : []);
+  }
+
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'project_name': ['', Validators.required],
       'endpoint_name': ['', Validators.required],
-      'project_tag': ['dlab-', Validators.required],
+      'project_tag': ['', Validators.required],
       'users_group': [[]]
     });
   }
@@ -77,5 +88,11 @@ export class ProjectFormComponent implements OnInit {
       'project_tag': [item.project_tag, Validators.required],
       'users_list': [item.users_list, Validators.required]
     });
+  }
+
+  private getGroupsData() {
+    this.rolesService.getGroupsData().subscribe(
+      (list: any) => this.groupsList = list.map(el => el.group),
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 }
