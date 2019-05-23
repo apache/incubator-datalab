@@ -17,12 +17,12 @@
   ~ under the License.
   -->
 
-<mat-card class="base-retreat">
+<mat-card class="base-retreat project-form">
   <form [formGroup]="projectForm" novalidate>
     <mat-horizontal-stepper #stepper class="stepper ani">
       <mat-step>
         <ng-template matStepLabel>Project</ng-template>
-        <section class="inner-step">
+        <section class="inner-step mat-reset">
 
           <div class="form-block">
             <div class="control-group">
@@ -44,17 +44,47 @@
                 <input type="text" formControlName="project_tag" placeholder="dlab-{ project name }">
               </div>
             </div>
+            <div class="text-center m-bott-10">
+              <button mat-raised-button type="button" class="butt" (click)="reset()">Clear</button>
+              <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i class="material-icons">keyboard_arrow_right</i></button>
+            </div>
           </div>
 
         </section>
       </mat-step>
       <mat-step>
         <ng-template matStepLabel>Users</ng-template>
-        <div class="inner-step">
-
-          <button mat-raised-button type="button" class="butt" (click)="reset()">Clear</button>
-          <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
-            (click)="createProject(projectForm.value)">Create</button>
+        <div class="inner-step mat-reset">
+          <div class="form-block">
+           <div class="control-group">
+              <div class="selector-wrapper">
+                  <mat-form-field>
+                    <mat-select multiple formControlName="users_group" placeholder="Select user groups">
+                      <mat-option class="multiple-select" disabled>
+                        <a class="select ani" (click)="selectOptions('all')">
+                          <i class="material-icons">playlist_add_check</i>&nbsp;All
+                        </a>
+                        <a class="deselect ani" (click)="selectOptions()">
+                          <i class="material-icons">clear</i>&nbsp;None
+                        </a>
+                      </mat-option>
+                      <mat-option *ngFor="let group of groupsList" [value]="group">
+                        {{ group }}
+                      </mat-option>
+                    </mat-select>
+                    <button class="caret">
+                      <i class="material-icons">keyboard_arrow_down</i>
+                    </button>
+                  </mat-form-field>
+                </div>
+           </div>
+            <div class="text-center m-bott-10">
+              <button mat-raised-button type="button" class="butt" (click)="reset()">Clear</button>
+              <button mat-raised-button matStepperPrevious class="butt"><i class="material-icons">keyboard_arrow_left</i>Back</button>
+              <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
+                (click)="createProject(projectForm.value)">Create</button>
+            </div>
+          </div>
         </div>
       </mat-step>
     </mat-horizontal-stepper>
