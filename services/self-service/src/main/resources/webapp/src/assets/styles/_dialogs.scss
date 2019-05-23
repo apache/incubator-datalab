@@ -32,7 +32,7 @@ mat-dialog-container {
   &.mat-dialog-container {
     padding: 0;
     border-radius: 0;
-    .dialog-box {
+    #dialog-box {
       color: $modal-text-color;
       .dialog-header {
         padding-left: 30px;
