@@ -19,12 +19,11 @@
 
  import { Component, OnInit } from '@angular/core';
  import { ToastrService } from 'ngx-toastr';
- import {MatTableDataSource} from '@angular/material';
+ import { MatTableDataSource } from '@angular/material';
 
+ import { ProjectDataService } from '../project-data.service';
  import { ProjectService } from '../../../core/services';
  import { Project } from '../project.component';
-
- import { data } from './data';
 
 @Component({
   selector: 'project-list',
@@ -33,12 +32,14 @@
 })
 export class ProjectListComponent implements OnInit {
 
-  displayedColumns: string[] = ['project_name', 'endpoint_name', 'project_tag', 'actions'];
-  dataSource: any;
+  displayedColumns: string[] = ['project_name', 'endpoints_list', 'project_tag', 'actions'];
+  dataSource: Project[] | any;
 
   constructor(
     public toastr: ToastrService,
-    private projectService: ProjectService) { }
+    private projectDataService: ProjectDataService,
+    private projectService: ProjectService
+    ) { }
 
 
   ngOnInit() {
@@ -55,10 +56,7 @@ export class ProjectListComponent implements OnInit {
 
   private getProjectsList() {
     // Project[] type
-    this.dataSource = new MatTableDataSource(data.projects);
-
-    this.projectService.getProjectsList().subscribe(
-      (response: any) => this.dataSource = response,
-      error => this.toastr.error(error.message || 'Receiving list failed!', 'Oops!'));
+    debugger;
+    this.dataSource = new MatTableDataSource(this.projectDataService.getProjects)
   }
 }
