@@ -21,7 +21,7 @@
  import { FormGroup, FormBuilder, Validators } from '@angular/forms';
  import { ToastrService } from 'ngx-toastr';
 
- import { ProjectService,RolesGroupsService } from '../../../core/services';
+ import { ProjectService,RolesGroupsService, EndpointService } from '../../../core/services';
  import { Project } from '../project.component';
 
 @Component({
@@ -32,23 +32,24 @@
 export class ProjectFormComponent implements OnInit {
 
   public projectForm: FormGroup;
-  public groupsList: any;
-  public setupGroupsList = [];
+  public groupsList: any = [];
+  public endpointsList: any = [];
 
   constructor(
     public toastr: ToastrService,
     private _fb: FormBuilder,
     private projectService: ProjectService,
-    private rolesService: RolesGroupsService
+    private rolesService: RolesGroupsService,
+    private endpointService: EndpointService
   ) { }
 
   ngOnInit() {
     this.initFormModel();
     this.getGroupsData();
+    this.getEndpointsData();
   }
 
   public createProject(data) {
-    // let parameters = {...data, users: this.setupGroupsList };
     console.log(data);
 
     this.projectService.createProject(data).subscribe(response => {
@@ -66,17 +67,17 @@ export class ProjectFormComponent implements OnInit {
     this.projectForm.controls.project_tag.setValue(user_tag.toLowerCase());
   }
 
-  public selectOptions(select) {
+  public selectOptions(list, key, select?) {
     debugger;
-    this.projectForm.controls.users_group.setValue(select ? this.groupsList : []);
+    this.projectForm.controls[key].setValue(select ? list : []);
   }
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'project_name': ['', Validators.required],
-      'endpoint_name': ['', Validators.required],
+      'endpoints_list': [[], Validators.required],
       'project_tag': ['', Validators.required],
-      'users_group': [[]]
+      'users_group': [[], Validators.required]
     });
   }
 
@@ -84,7 +85,7 @@ export class ProjectFormComponent implements OnInit {
 
     this.projectForm = this._fb.group({
       'project_name': [item.project_name, Validators.required],
-      'endpoint_name': [item.endpoint_name,Validators.required],
+      'endpoints_list': [item.endpoints_list,Validators.required],
       'project_tag': [item.project_tag, Validators.required],
       'users_list': [item.users_list, Validators.required]
     });
@@ -93,6 +94,12 @@ export class ProjectFormComponent implements OnInit {
   private getGroupsData() {
     this.rolesService.getGroupsData().subscribe(
       (list: any) => this.groupsList = list.map(el => el.group),
+      error => this.toastr.error(error.message, 'Oops!'));
+  }
+
+  private getEndpointsData() {
+    this.endpointService.getEndpointsData().subscribe(
+      list => this.endpointsList = list,
       error => this.toastr.error(error.message, 'Oops!'));
   }
 }
