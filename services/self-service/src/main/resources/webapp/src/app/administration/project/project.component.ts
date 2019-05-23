@@ -18,10 +18,11 @@
  */
 
 import { Component, OnInit } from '@angular/core';
+import { ProjectDataService } from './project-data.service';
 
 export interface Project {
   project_name: string;
-  endpoint_name: string;
+  endpoints_list: string[];
   project_tag: string;
   users_list: string[];
 }
@@ -32,10 +33,11 @@ export interface Project {
   styleUrls: ['./project.component.scss']
 })
 export class ProjectComponent implements OnInit {
-
-  constructor() { }
+  projectsList: Project[] = [];
+  constructor(private projectDataService: ProjectDataService) { }
 
   ngOnInit() {
+    this.projectsList = this.projectDataService.getProjects;
   }
 
   createProject() {
