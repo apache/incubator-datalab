@@ -69,6 +69,7 @@ export class ApplicationServiceFacade {
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
+  private static readonly ENDPOINT = 'endpoint';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -532,6 +533,11 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
       null);
   }
+  public buildGetEndpointsData(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
+      null);
+  }
 
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
@@ -608,6 +614,7 @@ export class ApplicationServiceFacade {
 
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt?) {
