@@ -17,6 +17,9 @@
  * under the License.
  */
 
- .form-block {
-   width: 600px;
- }
+.form-block {
+  width: 600px;
+  .next {
+    margin-left: 25px;
+  }
+}
