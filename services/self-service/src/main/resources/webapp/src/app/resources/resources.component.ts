@@ -76,7 +76,7 @@ export class ResourcesComponent implements OnInit, OnDestroy {
     if (this.userUploadAccessKeyState === HTTP_STATUS_CODES.OK) {
       // if (!this.createAnalyticalModal.isOpened) this.createAnalyticalModal.open({ isFooter: false });
 
-      this.dialog.open(ExploratoryEnvironmentCreateComponent, { data: this.resourcesGrid })
+      this.dialog.open(ExploratoryEnvironmentCreateComponent, { data: this.resourcesGrid, panelClass: 'modal-lg' })
                .afterClosed().subscribe(() => this.refreshGrid());
     } else {
       this.userAccessKeyService.initialUserAccessKeyCheck();
@@ -100,7 +100,7 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   public manageUngit(): void {
     // if (!this.manageUngitDialog.isOpened)
     //     this.manageUngitDialog.open({ isFooter: false });
-    this.dialog.open(ManageUngitComponent)
+    this.dialog.open(ManageUngitComponent, {panelClass: 'modal-xxl'})
                .afterClosed().subscribe(() => this.refreshGrid());
   }
 

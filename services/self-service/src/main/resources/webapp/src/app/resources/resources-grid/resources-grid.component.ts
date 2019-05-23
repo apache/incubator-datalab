@@ -288,7 +288,7 @@ export class ResourcesGridComponent implements OnInit {
 
   printCostDetails(data): void {
     // this.costDetailsDialog.open({ isFooter: false }, data);
-    this.dialog.open(CostDetailsDialogComponent, { data: data })
+    this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-lg' })
                .afterClosed().subscribe(() => this.buildGrid());
   }
 
@@ -297,7 +297,7 @@ export class ResourcesGridComponent implements OnInit {
       this.notebookName = data.name;
       // this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
 
-      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments}})
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments}, panelClass: 'modal-xxl'})
                  .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'run') {
       this.userResourceService
@@ -310,14 +310,14 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'terminate') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
     } else if (action === 'install') {
-      this.dialog.open(InstallLibrariesComponent, { data: data })
+      this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
                  .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'schedule') {
       // this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
-      this.dialog.open(SchedulerComponent, { data: {notebook: data, type: 'EXPLORATORY'} })
+      this.dialog.open(SchedulerComponent, { data: {notebook: data, type: 'EXPLORATORY'}, panelClass: 'modal-xl-s' })
                  .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'ami') {
-      this.dialog.open(AmiCreateDialogComponent, { data: data })
+      this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
                  .afterClosed().subscribe(() => this.buildGrid());
     }
   }

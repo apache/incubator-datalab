@@ -17,16 +17,17 @@
   ~ under the License.
   -->
 
-<div modalClass="scheduler-dialog modal-xl-s">
-  <header>
+<div modalClass="scheduler-dialog dialog-box">
+  <header class="dialog-header">
     <h4 class="modal-title">Scheduler
       <span *ngIf="destination">for
         <b *ngIf="destination.type === 'EXPLORATORY'; else resource">{{ destination.name }}</b>
         <ng-template #resource><b>{{ destination.computational_name }}</b></ng-template>
       </span>
     </h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
-  <div class="modal-content">
+  <div class="dialog-content">
     <div *ngIf="destination" class="content-box">
       <form [formGroup]="schedulerForm">
         <div class="enable-schedule">

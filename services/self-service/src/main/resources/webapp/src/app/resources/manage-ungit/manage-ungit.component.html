@@ -17,11 +17,12 @@
   ~ under the License.
   -->
 
-<div modalClass="manage-ungit modal-xxl">
-  <header>
+<div class="manage-ungit dialog-box">
+  <header class="dialog-header">
     <h4 class="modal-title" id="myModalLabel">Manage Git Credentials</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
-  <div class="manage-ungit modal-content">
+  <div class="manage-ungit dialog-content">
     <mat-tab-group mat-stretch-tabs #tabGroup class="content-box">
       <mat-tab label="LIST">
         <button mat-raised-button class="butt add-creds" (click)="tabGroup.selectedIndex = 1">

@@ -22,10 +22,10 @@
 @import './assets/fonts/Material_Icons/material-icons.css';
 @import './assets/fonts/Open_Sans/open-sans.css';
 
-@import './assets/styles/_reset.scss';
-@import './assets/styles/_general.scss';
-@import './assets/styles/_theme.scss';
-@import './assets/styles/_dialogs.scss';
+@import '_reset.scss';
+@import '_general.scss';
+@import '_theme.scss';
+@import '_dialogs.scss';
 
 .mat-tab-label {
   font-family: 'Open Sans', sans-serif !important;
@@ -136,7 +136,7 @@ mat-chip.mat-chip strong {
   text-align: center;
 }
 .info {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 300;
   color: #35afd5;
 }

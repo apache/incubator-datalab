@@ -26,6 +26,7 @@
  .modal-xl-s { width: 660px; }
  .modal-xl { width: 900px; }
  .modal-xxl { width: 1000px; }
+ .modal-fullscreen { width: 100vw; height: 100vh;}
  
 mat-dialog-container {
   &.mat-dialog-container {
@@ -176,24 +177,3 @@ mat-dialog-container {
 .content-box {
   padding: 25px 30px 35px;
 }
-
-// .modal-content {
-//   display: block;
-//   position: relative;
-//   background-color: #fff;
-//   -webkit-background-clip: padding-box;
-//   background-clip: padding-box;
-//   border: 1px solid rgba(0,0,0,.2);
-//   border-radius: 3px;
-//   outline: 0;
-//   -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
-//   box-shadow: 0 3px 9px rgba(0,0,0,.5);
-//   .danger_color {
-//     padding-left: 5px;
-//     font-size: 12px;
-//     display: inline-block;
-//     font-family: 'Open Sans', sans-serif;
-//     font-weight: 300;
-//     border-color: #d9534f !important;
-//   }
-// }
