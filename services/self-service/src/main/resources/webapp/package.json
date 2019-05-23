@@ -9,8 +9,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build.dev": "ng build --build-optimizer=false",
-    "build.prod": "ng build --prod"
+    "build.dev": "ng build --build-optimizer=false --stats-json",
+    "build.prod": "ng build --prod --stats-json",
+    "analyse": "webpack-bundle-analyzer dist/stats.json"
   },
   "private": true,
   "dependencies": {
@@ -48,6 +49,7 @@
     "node-sass": "^4.7.2",
     "ts-node": "~2.0.0",
     "tslint": "^5.15.0",
-    "typescript": "^3.2.4"
+    "typescript": "^3.2.4",
+    "webpack-bundle-analyzer": "^3.3.2"
   }
 }
