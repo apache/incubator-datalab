@@ -22,6 +22,7 @@
  import { ToastrService } from 'ngx-toastr';
 
  import { ProjectService,RolesGroupsService, EndpointService } from '../../../core/services';
+ import { ProjectDataService } from '../project-data.service';
  import { Project } from '../project.component';
 
 @Component({
@@ -41,6 +42,7 @@ export class ProjectFormComponent implements OnInit {
     public toastr: ToastrService,
     private _fb: FormBuilder,
     private projectService: ProjectService,
+    private projectDataService: ProjectDataService,
     private rolesService: RolesGroupsService,
     private endpointService: EndpointService
   ) { }
@@ -58,6 +60,7 @@ export class ProjectFormComponent implements OnInit {
 
     this.projectService.createProject(data).subscribe(response => {
       response && this.toastr.success('Project created successfully!', 'Success!');
+      this.projectDataService.updateProjects();
       this.reset();
     }, error => this.toastr.error(error.message || 'Project creation failed!', 'Oops!'));
   }
