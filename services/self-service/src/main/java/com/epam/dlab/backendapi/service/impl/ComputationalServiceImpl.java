@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -90,7 +91,8 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@BudgetLimited
 	@Override
-	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form) {
+	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form,
+									  @Project String project) {
 
 		if (computationalDAO.addComputational(userInfo.getName(), form.getNotebookName(),
 				createInitialComputationalResource(form))) {
@@ -153,7 +155,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	@BudgetLimited
 	@Override
 	public boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO,
-										   UserComputationalResource computationalResource) {
+										   UserComputationalResource computationalResource, @Project String project) {
 
 		boolean isAdded = computationalDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(),
 				computationalResource);
@@ -202,7 +204,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@BudgetLimited
 	@Override
-	public void startSparkCluster(UserInfo userInfo, String expName, String compName) {
+	public void startSparkCluster(UserInfo userInfo, String expName, String compName, @Project String project) {
 		final UserInstanceDTO userInstance =
 				exploratoryDAO.fetchExploratoryFields(userInfo.getName(), expName, true);
 		final UserInstanceStatus requiredStatus = UserInstanceStatus.STOPPED;

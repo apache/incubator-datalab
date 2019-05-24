@@ -130,7 +130,7 @@ public class ComputationalServiceImplTest {
 
 		SparkStandaloneClusterCreateForm sparkClusterCreateForm = (SparkStandaloneClusterCreateForm) formList.get(0);
 		boolean creationResult =
-				computationalService.createSparkCluster(userInfo, sparkClusterCreateForm);
+				computationalService.createSparkCluster(userInfo, sparkClusterCreateForm, "");
 		assertTrue(creationResult);
 
 		verify(computationalDAO)
@@ -153,7 +153,7 @@ public class ComputationalServiceImplTest {
 				any(SparkStandaloneClusterResource.class))).thenReturn(false);
 
 		boolean creationResult =
-				computationalService.createSparkCluster(userInfo, (SparkStandaloneClusterCreateForm) formList.get(0));
+				computationalService.createSparkCluster(userInfo, (SparkStandaloneClusterCreateForm) formList.get(0), "");
 		assertFalse(creationResult);
 
 		verify(computationalDAO).addComputational(eq(USER), eq(EXPLORATORY_NAME), refEq(sparkClusterResource));
@@ -172,7 +172,7 @@ public class ComputationalServiceImplTest {
 
 		SparkStandaloneClusterCreateForm sparkClusterCreateForm = (SparkStandaloneClusterCreateForm) formList.get(0);
 		try {
-			computationalService.createSparkCluster(userInfo, sparkClusterCreateForm);
+			computationalService.createSparkCluster(userInfo, sparkClusterCreateForm,"");
 		} catch (ResourceNotFoundException e) {
 			assertEquals("Exploratory for user with name not found", e.getMessage());
 		}
@@ -198,7 +198,7 @@ public class ComputationalServiceImplTest {
 
 		SparkStandaloneClusterCreateForm sparkClusterCreateForm = (SparkStandaloneClusterCreateForm) formList.get(0);
 		try {
-			computationalService.createSparkCluster(userInfo, sparkClusterCreateForm);
+			computationalService.createSparkCluster(userInfo, sparkClusterCreateForm, "");
 		} catch (DlabException e) {
 			assertEquals("Cannot create instance of resource class ", e.getMessage());
 		}
@@ -347,7 +347,7 @@ public class ComputationalServiceImplTest {
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
 		boolean creationResult =
-				computationalService.createDataEngineService(userInfo, formList.get(1), ucResource);
+				computationalService.createDataEngineService(userInfo, formList.get(1), ucResource, "");
 		assertTrue(creationResult);
 
 		verify(computationalDAO).addComputational(eq(USER), eq(EXPLORATORY_NAME), refEq(ucResource));
@@ -369,7 +369,7 @@ public class ComputationalServiceImplTest {
 		when(computationalDAO.addComputational(anyString(), anyString(), any(UserComputationalResource.class)))
 				.thenReturn(false);
 
-		boolean creationResult = computationalService.createDataEngineService(userInfo, formList.get(1), ucResource);
+		boolean creationResult = computationalService.createDataEngineService(userInfo, formList.get(1), ucResource, "");
 		assertFalse(creationResult);
 
 		verify(computationalDAO).addComputational(eq(USER), eq(EXPLORATORY_NAME), refEq(ucResource));
@@ -387,7 +387,7 @@ public class ComputationalServiceImplTest {
 				.thenReturn(mock(UpdateResult.class));
 
 		try {
-			computationalService.createDataEngineService(userInfo, formList.get(1), ucResource);
+			computationalService.createDataEngineService(userInfo, formList.get(1), ucResource, "");
 		} catch (DlabException e) {
 			assertEquals("Could not send request for creation the computational resource compName: " +
 					"Exploratory for user with name not found", e.getMessage());
@@ -417,7 +417,7 @@ public class ComputationalServiceImplTest {
 
 		ComputationalCreateFormDTO computationalCreateFormDTO = formList.get(1);
 		try {
-			computationalService.createDataEngineService(userInfo, computationalCreateFormDTO, ucResource);
+			computationalService.createDataEngineService(userInfo, computationalCreateFormDTO, ucResource, "");
 		} catch (DlabException e) {
 			assertEquals("Could not send request for creation the computational resource compName: " +
 					"Cannot create instance of resource class ", e.getMessage());
@@ -485,7 +485,7 @@ public class ComputationalServiceImplTest {
 				.thenReturn("someUuid");
 		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
 
-		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME, "");
 
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStarting, "self"));
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, true);
@@ -507,7 +507,7 @@ public class ComputationalServiceImplTest {
 		expectedException.expect(IllegalStateException.class);
 		expectedException.expectMessage("There is no stopped dataengine compName for exploratory expName");
 
-		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME);
+		computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME, "");
 	}
 
 	@Test

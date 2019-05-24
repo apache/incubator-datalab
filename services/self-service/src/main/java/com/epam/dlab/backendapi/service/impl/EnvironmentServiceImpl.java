@@ -119,6 +119,14 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
+	public void stopProjectEnvironment(String project) {
+		log.debug("Stopping environment for project {}", project);
+		checkProjectResourceConditions(project, "stop");
+		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
+				.forEach(this::stopNotebook);
+	}
+
+	@Override
 	public void stopEdge(String user) {
 		if (UserInstanceStatus.RUNNING.toString().equals(keyDAO.getEdgeStatus(user))) {
 			edgeService.stop(systemUserInfoService.create(user));
@@ -150,6 +158,15 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 					UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
 					.forEach(this::terminateNotebook);
 		}
+	}
+
+	@Override
+	public void terminateProjectEnvironment(String project) {
+		log.debug("Terminating environment for project {}", project);
+		checkProjectResourceConditions(project, "terminate");
+		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
+				.forEach(this::terminateNotebook);
 	}
 
 	@Override
@@ -226,5 +243,17 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.withResourceStatus(userInstance.getStatus())
 				.withCompResources(userInstance.getResources())
 				.withUser(userInstance.getUser());
+	}
+
+	private void checkProjectResourceConditions(String project, String action) {
+		final List<UserInstanceDTO> userInstances = exploratoryDAO
+				.fetchProjectExploratoriesWhereStatusIn(project,
+						Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
+								UserInstanceStatus.CREATING_IMAGE),
+						UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
+		if (!userInstances.isEmpty()) {
+			log.error(String.format(ERROR_MSG_FORMAT, action));
+			throw new ResourceConflictException(String.format(ERROR_MSG_FORMAT, action));
+		}
 	}
 }

@@ -63,7 +63,7 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void create() {
-		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class))).thenReturn("someUuid");
+		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
@@ -74,14 +74,14 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()));
+		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()), "");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void createWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class))).thenReturn("someUuid");
+		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
@@ -97,7 +97,7 @@ public class ExploratoryResourceTest extends TestBase {
 	@Test
 	public void createWithException() {
 		doThrow(new DlabException("Could not create exploratory environment"))
-				.when(exploratoryService).create(any(UserInfo.class), any(Exploratory.class));
+				.when(exploratoryService).create(any(UserInfo.class), any(Exploratory.class), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
@@ -111,13 +111,13 @@ public class ExploratoryResourceTest extends TestBase {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()));
+		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()), anyString());
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void start() {
-		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.start(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
@@ -134,7 +134,7 @@ public class ExploratoryResourceTest extends TestBase {
 	@Test
 	public void startWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(exploratoryService.start(any(UserInfo.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.start(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()

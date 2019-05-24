@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
@@ -80,6 +81,22 @@ public class ProjectResource {
 				.build();
 	}
 
+	@Operation(summary = "Get available projects", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about projects",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = ProjectDTO.class))),
+	})
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								@Parameter(description = "Project name")
+								@PathParam("name") String name) {
+		return Response
+				.ok(projectService.getProjects())
+				.build();
+	}
+
 	@Operation(summary = "Update project", tags = "project")
 	@ApiResponses({
 			@ApiResponse(responseCode = "200", description = "Project is successfully updated"),
@@ -110,6 +127,24 @@ public class ProjectResource {
 			@Parameter(description = "Project name")
 			@PathParam("name") String name) {
 		projectService.remove(name);
+		return Response.ok().build();
+	}
+
+	@Operation(summary = "Updates project budget", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Project budget is successfully updated"),
+			@ApiResponse(responseCode = "404", description = "Project with specified name not found"),
+			@ApiResponse(responseCode = "400", description = "Validation error",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON,
+							schema = @Schema(implementation = ErrorDTO.class)))
+	})
+	@PUT
+	@Path("/budget")
+	public Response updateBudget(
+			@Parameter(hidden = true) @Auth UserInfo userInfo,
+			@Parameter(description = "Project name")
+					UpdateProjectBudgetDTO dto) {
+		projectService.updateBudget(dto.getProject(), dto.getBudget());
 		return Response.ok().build();
 	}
 }
