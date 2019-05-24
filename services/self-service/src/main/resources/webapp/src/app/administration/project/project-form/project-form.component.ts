@@ -17,7 +17,7 @@
  * under the License.
  */
 
- import { Component, OnInit } from '@angular/core';
+ import { Component, OnInit, Input } from '@angular/core';
  import { FormGroup, FormBuilder, Validators } from '@angular/forms';
  import { ToastrService } from 'ngx-toastr';
 
@@ -35,6 +35,8 @@ export class ProjectFormComponent implements OnInit {
   public groupsList: any = [];
   public endpointsList: any = [];
 
+  @Input() item: any;
+
   constructor(
     public toastr: ToastrService,
     private _fb: FormBuilder,
@@ -47,6 +49,8 @@ export class ProjectFormComponent implements OnInit {
     this.initFormModel();
     this.getGroupsData();
     this.getEndpointsData();
+
+    this.item && this.editSpecificProject(this.item);
   }
 
   public createProject(data) {

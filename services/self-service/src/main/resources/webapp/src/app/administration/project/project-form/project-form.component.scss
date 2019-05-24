@@ -22,4 +22,10 @@
   .next {
     margin-left: 25px;
   }
+  &.split {
+    flex-direction: column;
+    display: flex;
+    justify-content: space-between;
+    height: 210px;
+  }
 }
