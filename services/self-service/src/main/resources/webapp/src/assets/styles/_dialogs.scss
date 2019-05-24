@@ -29,6 +29,7 @@
  .modal-fullscreen { width: 100vw; height: 100vh;}
  
 mat-dialog-container {
+  overflow-x: hidden;
   &.mat-dialog-container {
     padding: 0;
     border-radius: 0;
