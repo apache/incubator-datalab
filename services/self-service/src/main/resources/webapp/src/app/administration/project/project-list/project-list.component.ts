@@ -17,9 +17,10 @@
  * under the License.
  */
 
- import { Component, OnInit } from '@angular/core';
+ import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
  import { ToastrService } from 'ngx-toastr';
  import { MatTableDataSource } from '@angular/material';
+ import { Subscription } from 'rxjs';
 
  import { ProjectDataService } from '../project-data.service';
  import { ProjectService } from '../../../core/services';
@@ -30,10 +31,13 @@
   templateUrl: './project-list.component.html',
   styleUrls: ['./project-list.component.scss']
 })
-export class ProjectListComponent implements OnInit {
+export class ProjectListComponent implements OnInit, OnDestroy {
 
   displayedColumns: string[] = ['project_name', 'endpoints_list', 'project_tag', 'actions'];
   dataSource: Project[] | any;
+  @Output() editItem: EventEmitter<{}> = new EventEmitter();
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     public toastr: ToastrService,
@@ -43,20 +47,20 @@ export class ProjectListComponent implements OnInit {
 
 
   ngOnInit() {
-    this.getProjectsList();
+    this.subscriptions.add(this.projectDataService._projects.subscribe(value => {
+      this.dataSource = new MatTableDataSource(value);
+    }));
   }
 
-  public editProject(item: Project[]) {
-    debugger;
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+  public editProject(item: Project[]) {;
+    this.editItem.emit(item);
   }
   
   public deleteProject(item: Project[]) {
     debugger;
-  }
-
-  private getProjectsList() {
-    // Project[] type
-    debugger;
-    this.dataSource = new MatTableDataSource(this.projectDataService.getProjects)
   }
 }

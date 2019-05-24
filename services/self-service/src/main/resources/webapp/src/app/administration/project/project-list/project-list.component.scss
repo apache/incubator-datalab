@@ -17,6 +17,20 @@
  * under the License.
  */
 
- table {
+table {
   width: 100%;
- }
+  .project-actions {
+    color: #607d8b;
+    span {
+      transition: all .5s ease-in-out;
+      cursor: pointer;
+      .mat-icon {
+        font-size: 18px;
+        padding-top: 5px;
+      }
+      &:hover {
+        color: darken(#607d8b, 10%);
+      }
+    }
+  }
+}

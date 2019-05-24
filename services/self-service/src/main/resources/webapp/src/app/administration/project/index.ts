@@ -27,7 +27,7 @@ import { FormControlsModule } from '../../shared/form-controls';
 import { ProjectFormComponent } from './project-form/project-form.component';
 import { ProjectListComponent } from './project-list/project-list.component';
 
-import { ProjectComponent } from './project.component';
+import { ProjectComponent, EditProjectComponent } from './project.component';
 import { ProjectDataService } from './project-data.service';
 
 @NgModule({
@@ -38,7 +38,8 @@ import { ProjectDataService } from './project-data.service';
     MaterialModule,
     FormControlsModule
   ],
-  declarations: [ProjectComponent, ProjectFormComponent, ProjectListComponent],
+  declarations: [ProjectComponent, EditProjectComponent, ProjectFormComponent, ProjectListComponent],
+  entryComponents: [EditProjectComponent],
   providers: [ProjectDataService],
   exports: [ProjectComponent]
 })
