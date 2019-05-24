@@ -20,15 +20,17 @@
 <div class="sub-nav base-retreat">
   <div>
     <button mat-raised-button class="butt butt-create"
-      (click)="createProject()">
+      (click)="createProject()" [disabled]="projects?.lenght < 1">
       <i class="material-icons">add</i>Create new
     </button>
   </div>
   <div></div>
 </div>
 
-<mat-card class="base-retreat project-form">
+<mat-card class="base-retreat project-form" *ngIf="projects?.lenght < 1; else list">
   <project-form></project-form>
 </mat-card>
 
-<project-list></project-list>
+<ng-template #list>
+  <project-list (editItem)="editProject($event)"></project-list>
+</ng-template>

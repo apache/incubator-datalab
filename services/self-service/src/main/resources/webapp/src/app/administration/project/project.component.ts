@@ -17,7 +17,10 @@
  * under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { Subscription } from 'rxjs';
+
 import { ProjectDataService } from './project-data.service';
 
 export interface Project {
@@ -32,15 +35,66 @@ export interface Project {
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.scss']
 })
-export class ProjectComponent implements OnInit {
-  projectsList: Project[] = [];
-  constructor(private projectDataService: ProjectDataService) { }
+export class ProjectComponent implements OnInit, OnDestroy {
+  projects: Project[] = [];
+  private subscriptions: Subscription = new Subscription();
+
+  constructor(
+    public dialog: MatDialog,
+    private projectDataService: ProjectDataService
+  ) { }
 
   ngOnInit() {
-    this.projectsList = this.projectDataService.getProjects;
+    this.subscriptions.add(this.projectDataService._projects.subscribe(
+      value => this.projects = value));
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   createProject() {
     console.log('create');
+
+    if (this.projects.length)
+      this.dialog.open(EditProjectComponent, { data: { action: 'create', item: null }, panelClass: 'modal-xl-s' })
+        .afterClosed().subscribe(() => {
+          console.log('Create project');
+        });
   }
+
+  public editProject($event) {
+    this.dialog.open(EditProjectComponent, { data: { action: 'edit', item: $event }, panelClass: 'modal-xl-s' })
+      .afterClosed().subscribe(() => {
+        console.log('Update project');
+      });
+  }
+}
+
+@Component({
+  selector: 'edit-project',
+  template: `
+    <div id="dialog-box" class="edit-form">
+      <div class="dialog-header">
+        <h4 class="modal-title">
+          <span *ngIf="data?.action === 'create'">Create new project</span>
+          <span *ngIf="data?.action === 'edit'">Edit {{ data.item.project_name }}</span>
+        </h4>
+        <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+      </div>
+      <div mat-dialog-content class="content project-form">
+        <project-form [item]="data.item"></project-form>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .content { color: #718ba6; padding: 0; font-size: 14px; font-weight: 400; margin: 0; overflow: hidden; }
+    .edit-form { height: 380px; }
+  `]
+})
+export class EditProjectComponent {
+  constructor(
+    public dialogRef: MatDialogRef<EditProjectComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 }
