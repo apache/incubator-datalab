@@ -22,6 +22,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from './project-data.service';
+import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 
 export interface Project {
   project_name: string;
@@ -67,6 +68,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.dialog.open(EditProjectComponent, { data: { action: 'edit', item: $event }, panelClass: 'modal-xl-s' })
       .afterClosed().subscribe(() => {
         console.log('Update project');
+      });
+  }
+
+  public deleteProject($event) {
+    $event.name = $event.project_name;
+    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event }, panelClass: 'modal-sm' })
+      .afterClosed().subscribe(() => {
+        console.log('Delete project');
       });
   }
 }

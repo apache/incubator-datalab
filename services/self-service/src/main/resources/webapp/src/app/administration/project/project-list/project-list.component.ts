@@ -23,7 +23,6 @@
  import { Subscription } from 'rxjs';
 
  import { ProjectDataService } from '../project-data.service';
- import { ProjectService } from '../../../core/services';
  import { Project } from '../project.component';
 
 @Component({
@@ -36,13 +35,13 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['project_name', 'endpoints_list', 'project_tag', 'actions'];
   dataSource: Project[] | any;
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
+  @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
 
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     public toastr: ToastrService,
-    private projectDataService: ProjectDataService,
-    private projectService: ProjectService
+    private projectDataService: ProjectDataService
     ) { }
 
 
@@ -61,6 +60,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
   
   public deleteProject(item: Project[]) {
-    debugger;
+    this.deleteItem.emit(item);
   }
 }

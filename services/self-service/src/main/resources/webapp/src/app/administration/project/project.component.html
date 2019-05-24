@@ -32,5 +32,5 @@
 </mat-card>
 
 <ng-template #list>
-  <project-list (editItem)="editProject($event)"></project-list>
+  <project-list deleteProject (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
 </ng-template>
