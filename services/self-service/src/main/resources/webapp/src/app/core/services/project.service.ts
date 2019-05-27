@@ -43,4 +43,13 @@ export class ProjectService {
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
+
+  public deleteProject(data): Observable<{}> {
+    const url = `/${data}`;
+    return this.applicationServiceFacade
+      .buildDeleteProject(url)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
 }

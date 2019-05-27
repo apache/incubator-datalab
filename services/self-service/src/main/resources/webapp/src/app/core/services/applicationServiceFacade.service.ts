@@ -533,6 +533,13 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
       null);
   }
+
+  public buildDeleteProject(param): Observable<any> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      null);
+  }
+
   public buildGetEndpointsData(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),

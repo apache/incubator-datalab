@@ -24,7 +24,11 @@
       <i class="material-icons">add</i>Create new
     </button>
   </div>
-  <div></div>
+  <div>
+    <button mat-raised-button class="butt" (click)="refreshGrid()" *ngIf="projects?.lenght > 1">
+      <i class="material-icons">autorenew</i>Refresh
+    </button>
+  </div>
 </div>
 
 <mat-card class="base-retreat project-form" *ngIf="projects?.lenght < 1">

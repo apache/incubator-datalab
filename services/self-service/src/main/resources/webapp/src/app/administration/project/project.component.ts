@@ -22,7 +22,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from './project-data.service';
-import { HealthStatusService, UserAccessKeyService } from '../../core/services';
+import { HealthStatusService, ProjectService } from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 
 export interface Project {
@@ -45,6 +45,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   constructor(
     public dialog: MatDialog,
+    private projectService: ProjectService,
     private projectDataService: ProjectDataService,
     private healthStatusService: HealthStatusService,
     private ref: ChangeDetectorRef,
@@ -65,6 +66,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  refreshGrid() {
+    this.projectDataService.updateProjects();
+  }
+
   createProject() {
     console.log('create');
 
@@ -83,10 +88,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public deleteProject($event) {
-    $event.name = $event.project_name;
     this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event }, panelClass: 'modal-sm' })
-      .afterClosed().subscribe(() => {
-        console.log('Delete project');
+      .afterClosed().subscribe(result => {
+        this.projectService.deleteProject($event.name).subscribe(() => {
+          this.refreshGrid();
+        });
       });
   }
 
@@ -103,7 +109,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       <div class="dialog-header">
         <h4 class="modal-title">
           <span *ngIf="data?.action === 'create'">Create new project</span>
-          <span *ngIf="data?.action === 'edit'">Edit {{ data.item.project_name }}</span>
+          <span *ngIf="data?.action === 'edit'">Edit {{ data.item.name }}</span>
         </h4>
         <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
       </div>

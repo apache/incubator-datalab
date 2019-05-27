@@ -75,7 +75,6 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public selectOptions(list, key, select?) {
-    debugger;
     this.projectForm.controls[key].setValue(select ? list : []);
   }
 
