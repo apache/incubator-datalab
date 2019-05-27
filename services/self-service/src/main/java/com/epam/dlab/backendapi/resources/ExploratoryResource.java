@@ -83,7 +83,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
 		}
-		String uuid = exploratoryService.create(userInfo, getExploratory(formDTO));
+		String uuid = exploratoryService.create(userInfo, getExploratory(formDTO), "");
 		return Response.ok(uuid).build();
 
 	}
@@ -104,7 +104,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 						@Valid @NotNull ExploratoryActionFormDTO formDTO) {
 		log.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(),
 				userInfo.getName());
-		return exploratoryService.start(userInfo, formDTO.getNotebookInstanceName());
+		return exploratoryService.start(userInfo, formDTO.getNotebookInstanceName(), "");
 	}
 
 	/**

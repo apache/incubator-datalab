@@ -192,7 +192,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		oas.info(info);
 		SwaggerConfiguration oasConfig = new SwaggerConfiguration()
 				.openAPI(oas)
-				.readAllResources(false)
+				//.readAllResources(false)
 				.prettyPrint(true)
 				.resourceClasses(Stream.of(ProjectResource.class.getName(),
 						EndpointResource.class.getName())

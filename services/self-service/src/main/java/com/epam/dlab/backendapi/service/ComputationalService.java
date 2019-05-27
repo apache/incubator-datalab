@@ -40,7 +40,7 @@ public interface ComputationalService {
 	 * name already exists
 	 * @throws IllegalArgumentException if input parameters exceed limits or docker image name is malformed
 	 */
-	boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form);
+	boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form, String project);
 
 	/**
 	 * Asynchronously triggers termination of computational resources
@@ -53,11 +53,11 @@ public interface ComputationalService {
 	void terminateComputational(UserInfo userInfo, String exploratoryName, String computationalName);
 
 	boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO, UserComputationalResource
-			computationalResource);
+			computationalResource, String project);
 
 	void stopSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
 
-	void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
+	void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName, String project);
 
 	void updateSparkClusterConfig(UserInfo userInfo, String exploratoryName, String computationalName,
 								  List<ClusterConfig> config);

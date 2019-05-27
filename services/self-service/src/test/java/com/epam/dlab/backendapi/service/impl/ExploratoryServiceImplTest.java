@@ -109,7 +109,7 @@ public class ExploratoryServiceImplTest {
 				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
-		String uuid = exploratoryService.start(userInfo, EXPLORATORY_NAME);
+		String uuid = exploratoryService.start(userInfo, EXPLORATORY_NAME, "");
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
@@ -128,7 +128,7 @@ public class ExploratoryServiceImplTest {
 		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
 				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
 		try {
-			exploratoryService.start(userInfo, EXPLORATORY_NAME);
+			exploratoryService.start(userInfo, EXPLORATORY_NAME, "");
 		} catch (DlabException e) {
 			assertEquals("Could not exploratory/start exploratory environment expName: Exploratory for user with " +
 					"name not found", e.getMessage());
@@ -260,7 +260,7 @@ public class ExploratoryServiceImplTest {
 				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
-		String uuid = exploratoryService.create(userInfo, exploratory);
+		String uuid = exploratoryService.create(userInfo, exploratory, "");
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
@@ -283,7 +283,7 @@ public class ExploratoryServiceImplTest {
 				"Exploratory for user with name not found");
 
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
-		exploratoryService.create(userInfo, exploratory);
+		exploratoryService.create(userInfo, exploratory, "");
 	}
 
 	@Test
@@ -291,7 +291,7 @@ public class ExploratoryServiceImplTest {
 		doThrow(new RuntimeException()).when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
 		try {
-			exploratoryService.create(userInfo, exploratory);
+			exploratoryService.create(userInfo, exploratory, "");
 		} catch (DlabException e) {
 			assertEquals("Could not create exploratory environment expName for user test: null",
 					e.getMessage());
@@ -316,7 +316,7 @@ public class ExploratoryServiceImplTest {
 
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
 		try {
-			exploratoryService.create(userInfo, exploratory);
+			exploratoryService.create(userInfo, exploratory, "");
 		} catch (DlabException e) {
 			assertEquals("Could not create exploratory environment expName for user test: Cannot create instance " +
 					"of resource class ", e.getMessage());

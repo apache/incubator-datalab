@@ -70,11 +70,11 @@ public class EndpointResource {
 	})
 	@GET
 	@Path("{name}")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response getEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								@Parameter(description = "Endpoint name")
 								@PathParam("name") String name) {
-		endpointService.get(name);
-		return Response.ok().build();
+		return Response.ok(endpointService.get(name)).build();
 	}
 
 
