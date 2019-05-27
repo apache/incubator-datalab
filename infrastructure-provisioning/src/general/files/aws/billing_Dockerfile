@@ -37,4 +37,4 @@ RUN apt-get install -y default-jre && \
 COPY tmp-kuber/* /root/
 COPY tmp-kuber/conf/* /root/
 
-CMD sudo java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -DDLAB_CONF_DIR=/root/ /root/self-service-2.1.jar server /root/self-service.yml
+CMD sudo java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -DDLAB_CONF_DIR=/root/ /root/billing-aws-2.1.jar --conf /root/billing.yml

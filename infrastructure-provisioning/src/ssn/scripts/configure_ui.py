@@ -240,7 +240,3 @@ if __name__ == "__main__":
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
              args.dlab_id, args.usage_date, args.product, args.usage_type,
              args.usage, args.cost, args.resource_id, args.tags)
-
-    #raw draft for kuber
-    print("Creating Kuber images")
-    create_kuber_images()
