@@ -35,6 +35,14 @@ export class ProjectService {
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
+
+  public updateProject(data): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildUpdateProject(data)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
   
   public getProjectsList(): Observable<{}> {
     return this.applicationServiceFacade

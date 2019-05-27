@@ -528,6 +528,13 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
       data);
   }
+
+  public buildUpdateProject(data): Observable<any> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      data);
+  }
+
   public buildGetProjectsList(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
