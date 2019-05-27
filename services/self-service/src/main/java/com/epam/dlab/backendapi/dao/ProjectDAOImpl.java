@@ -36,7 +36,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	@Override
 	public void remove(String name) {
-
+		deleteOne(PROJECTS_COLLECTION, projectCondition(name));
 	}
 
 	@Override
