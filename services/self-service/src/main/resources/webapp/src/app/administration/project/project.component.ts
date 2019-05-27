@@ -83,14 +83,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public editProject($event) {
     this.dialog.open(EditProjectComponent, { data: { action: 'edit', item: $event }, panelClass: 'modal-xl-s' })
       .afterClosed().subscribe(() => {
-        console.log('Update project');
+        this.refreshGrid();
       });
   }
 
   public deleteProject($event) {
     this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
-        this.projectService.deleteProject($event.name).subscribe(() => {
+        result && this.projectService.deleteProject($event.name).subscribe(() => {
           this.refreshGrid();
         });
       });
@@ -114,7 +114,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
       </div>
       <div mat-dialog-content class="content project-form">
-        <project-form [item]="data.item"></project-form>
+        <project-form [item]="data.item" (update)="dialogRef.close(true)"></project-form>
       </div>
     </div>
   `,

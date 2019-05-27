@@ -56,6 +56,12 @@
         width: 80px;
       }
     }
+    &.butt-create {
+      color: #35afd5;
+      &:disabled{
+        color: #577289!important;
+      }
+    }
     &:disabled {
       cursor: not-allowed;
       opacity: 0.6;
@@ -106,6 +112,7 @@
     display: inline-block;
     width: 50%;
     padding: 0 15px;
+    text-align: center;
     vertical-align: middle;
     color: #575757;
     cursor: pointer;

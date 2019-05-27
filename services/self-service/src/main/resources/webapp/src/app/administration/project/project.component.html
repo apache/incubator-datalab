@@ -25,7 +25,7 @@
     </button>
   </div>
   <div>
-    <button mat-raised-button class="butt" (click)="refreshGrid()" *ngIf="projects?.lenght > 1">
+    <button mat-raised-button class="butt" (click)="refreshGrid()" [hidden]="projects?.lenght < 1">
       <i class="material-icons">autorenew</i>Refresh
     </button>
   </div>
