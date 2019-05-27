@@ -3,6 +3,7 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import org.bson.conversions.Bson;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -10,6 +11,11 @@ import static com.mongodb.client.model.Filters.eq;
 public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 
 	private static final String ENDPOINTS_COLLECTION = "endpoints";
+
+	@Override
+	public List<EndpointDTO> getEndpoints() {
+		return find(ENDPOINTS_COLLECTION, EndpointDTO.class);
+	}
 
 	@Override
 	public Optional<EndpointDTO> get(String name) {
