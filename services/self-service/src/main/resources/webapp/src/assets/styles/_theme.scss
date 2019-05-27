@@ -396,6 +396,9 @@ mat-horizontal-stepper {
   mat-pseudo-checkbox {
     display: none;
   }
+  &.empty {
+    margin-left: 15px;
+  }
 }
 
 .dashboard_table {
@@ -424,6 +427,7 @@ mat-horizontal-stepper {
 .error-modalbox {
   overflow: hidden;
   .mat-dialog-container {
+    overflow-x: hidden;
     padding: 0;
     .content {
       color: #718ba6;

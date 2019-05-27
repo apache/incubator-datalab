@@ -41,7 +41,7 @@
             <div class="control-group">
                 <div class="selector-wrapper">
                   <mat-form-field>
-                    <mat-select multiple formControlName="endpoints_list" placeholder="Select endpoint name">
+                    <mat-select multiple formControlName="endpoints_list" placeholder="Select endpoints">
                       <mat-option class="multiple-select" disabled>
                         <a class="select ani" (click)="selectOptions(list, 'all')">
                           <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -53,6 +53,7 @@
                       <mat-option *ngFor="let group of endpointsList" [value]="group">
                         {{ group }}
                       </mat-option>
+                      <mat-option *ngIf="!endpointsList.length" class="multiple-select empty" disabled>Endpoints list is empty</mat-option>
                     </mat-select>
                     <button class="caret">
                       <i class="material-icons">keyboard_arrow_down</i>
@@ -90,6 +91,7 @@
                   <mat-option *ngFor="let group of groupsList" [value]="group">
                     {{ group }}
                   </mat-option>
+                  <mat-option *ngIf="!groupsList.length" class="multiple-select" disabled>Groups list is empty</mat-option>
                 </mat-select>
                 <button class="caret">
                   <i class="material-icons">keyboard_arrow_down</i>

@@ -20,12 +20,19 @@
 .form-block {
   width: 600px;
   .next {
-    margin-left: 25px;
+    // margin-left: 25px;
   }
   &.split {
     flex-direction: column;
     display: flex;
     justify-content: space-between;
     height: 210px;
+  }
+  .mat-raised-button {
+    &.butt {
+      &.butt-success {
+        margin: 0;
+      }
+    }
   }
 }
