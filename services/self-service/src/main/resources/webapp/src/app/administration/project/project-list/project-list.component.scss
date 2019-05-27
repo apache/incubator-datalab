@@ -19,8 +19,19 @@
 
 table {
   width: 100%;
+  .name {
+    width: 25%;
+  }
+  .endpoints {
+    width: 30%;
+  }
+  .groups {
+    width: 35%;
+  }
   .project-actions {
     color: #607d8b;
+    width: 10%;
+    text-align: center;
     span {
       transition: all .5s ease-in-out;
       cursor: pointer;

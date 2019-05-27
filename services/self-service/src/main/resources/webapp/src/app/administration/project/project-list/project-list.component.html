@@ -19,19 +19,19 @@
 
 <div class="base-retreat">
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6">
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Project name </th>
+      <th mat-header-cell *matHeaderCellDef class="name"> Project name </th>
       <td mat-cell *matCellDef="let element"> {{element.name}} </td>
     </ng-container>
 
     <ng-container matColumnDef="endpoints">
-      <th mat-header-cell *matHeaderCellDef> Endpoints </th>
+      <th mat-header-cell *matHeaderCellDef class="endpoints"> Endpoints </th>
       <td mat-cell *matCellDef="let element"> {{element.endpoints}} </td>
     </ng-container>
 
     <ng-container matColumnDef="groups">
-      <th mat-header-cell *matHeaderCellDef> Groups </th>
+      <th mat-header-cell *matHeaderCellDef class="groups"> Groups </th>
       <td mat-cell *matCellDef="let element"> {{element.groups}} </td>
     </ng-container>
 
