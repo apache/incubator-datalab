@@ -296,6 +296,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                             .format(dlab_source_dir))
                     sudo("cd {}; docker build --file general/files/aws/billing_Dockerfile -t docker.dlab-billing ."
                             .format(dlab_source_dir))
+                    sudo("rm -rf {}".format(k8s_dir))
                 except Exception as err:
                     traceback.print_exc()
                     print('Failed to build images for services: ', str(err))
@@ -319,27 +320,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
     except Exception as err:
         traceback.print_exc()
         print('Failed to start Self-service: ', str(err))
-        sys.exit(1)
-
-
-def create_kuber_images(dlab_path):
-    try:
-        dlab_source_dir = '{}sources/infrastructure-provisioning/src/'.format(dlab_path)
-        k8s_dir = '{}tmp-kuber/'.format(dlab_source_dir)
-        sudo("mkdir {}".format(k8s_dir))
-        sudo("cp -r {0}conf/ {1}".format(dlab_path))
-        sudo("cp -r {0}webapp/self-service/lib/*.jar {1}".format(dlab_path, k8s_dir))
-        sudo("cp -r {0}webapp/security-service/lib/*.jar {1}".format(dlab_path, k8s_dir))
-        sudo("cp -r {0}webapp/provisioning-service/lib/*.jar {1}".format(dlab_path, k8s_dir))
-        sudo("cp -r {0}webapp/billing/lib/*.jar {1}".format(dlab_path, k8s_dir))
-        sudo('sed -i "s|ssn.yml|/root/ssn.yml|g" {}self-service.yml'.format(k8s_dir))
-        sudo("cd {}; docker build --file general/files/aws/webui_Dockerfile -t docker.dlab-ui .".format(dlab_source_dir))
-        sudo("cd {}; docker build --file general/files/aws/billing_Dockerfile -t docker.dlab-billing ."
-             .format(dlab_source_dir))
-
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to build images for Kubernetes', str(err))
         sys.exit(1)
 
 def install_build_dep():

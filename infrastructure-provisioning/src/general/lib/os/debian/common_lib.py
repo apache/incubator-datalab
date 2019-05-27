@@ -64,7 +64,7 @@ def change_pkg_repos():
         sudo('touch /tmp/pkg_china_ensured')
 
 
-def find_java_path_remote():
+def update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'():
     java_path = sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"")
     return java_path
 
