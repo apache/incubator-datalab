@@ -17,11 +17,12 @@
  * under the License.
  */
 
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ChangeDetectorRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from './project-data.service';
+import { HealthStatusService, UserAccessKeyService } from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 
 export interface Project {
@@ -38,16 +39,26 @@ export interface Project {
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   projects: Project[] = [];
+  healthStatus: any;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     public dialog: MatDialog,
-    private projectDataService: ProjectDataService
+    private projectDataService: ProjectDataService,
+    private healthStatusService: HealthStatusService,
+    private ref: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
+    this.getEnvironmentHealthStatus();
     this.subscriptions.add(this.projectDataService._projects.subscribe(
-      value => this.projects = value));
+      (value: Project[]) => {
+        if (value) {
+          this.projects = value;
+          this.ref.detectChanges();
+        }
+      }));
   }
 
   ngOnDestroy() {
@@ -77,6 +88,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .afterClosed().subscribe(() => {
         console.log('Delete project');
       });
+  }
+
+  private getEnvironmentHealthStatus() {
+    this.healthStatusService.getEnvironmentHealthStatus()
+      .subscribe((result: any) => this.healthStatus = result);
   }
 }
 

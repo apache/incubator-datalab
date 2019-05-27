@@ -42,6 +42,9 @@ export class ProjectDataService {
 
   private getProjectsList() {
     this.projectService.getProjectsList().subscribe(
-      (response: Project[]) => this._projects.next(response));
+      (response: Project[]) => {
+        debugger;
+        this._projects.next(response)
+      });
   }
 }

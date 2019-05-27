@@ -27,10 +27,10 @@
   <div></div>
 </div>
 
-<mat-card class="base-retreat project-form" *ngIf="projects?.lenght < 1; else list">
+<mat-card class="base-retreat project-form" *ngIf="projects?.lenght < 1">
   <project-form></project-form>
 </mat-card>
 
-<ng-template #list>
-  <project-list deleteProject (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
-</ng-template>
+<div [hidden]="projects?.lenght < 1">
+  <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
+</div>
