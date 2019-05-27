@@ -17,7 +17,7 @@
  * under the License.
  */
 
- import { Component, OnInit, Input } from '@angular/core';
+ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
  import { FormGroup, FormBuilder, Validators } from '@angular/forms';
  import { ToastrService } from 'ngx-toastr';
 
@@ -37,6 +37,7 @@ export class ProjectFormComponent implements OnInit {
   public endpointsList: any = [];
 
   @Input() item: any;
+  @Output() update: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     public toastr: ToastrService,
@@ -55,14 +56,20 @@ export class ProjectFormComponent implements OnInit {
     this.item && this.editSpecificProject(this.item);
   }
 
-  public createProject(data) {
-    console.log(data);
-
-    this.projectService.createProject(data).subscribe(response => {
-      response && this.toastr.success('Project created successfully!', 'Success!');
-      this.projectDataService.updateProjects();
-      this.reset();
-    }, error => this.toastr.error(error.message || 'Project creation failed!', 'Oops!'));
+  public confirm(data) {
+    if (this.item) {
+      this.projectService.updateProject(data).subscribe(() => {
+        this.toastr.success('Project creupdatedated successfully!', 'Success!');
+        this.update.emit();
+      }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
+    } else {
+      this.projectService.createProject(data).subscribe(() => {
+        this.toastr.success('Project created successfully!', 'Success!');
+        this.projectDataService.updateProjects();
+        this.update.emit();
+        this.reset();
+      }, error => this.toastr.error(error.message || 'Project creation failed!', 'Oops!'));
+    }
   }
 
   public reset() {
