@@ -28,8 +28,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
       <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
       <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
     </header>
-    <div mat-dialog-content class="content info message">
-      <div *ngIf="data.type === 'list'; else info">
+    <div mat-dialog-content class="content message">
+      <div *ngIf="data.type === 'list'; else info" class="info">
         <div *ngIf="data.template.notebook.length > 0">
           Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
           <span *ngFor="let item of data.template.notebook">
@@ -63,6 +63,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
   styles: [`
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
     .info { color: #35afd5; }
+    .info .confirm-dialog { color: #607D8B; }
     header { display: flex; justify-content: space-between; color: #607D8B; }
     header h4 i { vertical-align: bottom; }
     header a i { font-size: 20px; }
