@@ -71,7 +71,7 @@ export class ProjectFormComponent implements OnInit {
 
   public generateProjectTag($event) {
     let user_tag = `dlab-${ $event.target.value }`;
-    this.projectForm.controls.project_tag.setValue(user_tag.toLowerCase());
+    this.projectForm.controls.tag.setValue(user_tag.toLowerCase());
   }
 
   public selectOptions(list, key, select?) {
@@ -81,20 +81,20 @@ export class ProjectFormComponent implements OnInit {
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
-      'project_name': ['', Validators.required],
-      'endpoints_list': [[], Validators.required],
-      'project_tag': ['', Validators.required],
-      'users_group': [[], Validators.required]
+      'name': ['', Validators.required],
+      'endpoints': [[]],
+      'tag': ['', Validators.required],
+      'groups': [[], Validators.required]
     });
   }
 
   public editSpecificProject(item: Project) {
 
     this.projectForm = this._fb.group({
-      'project_name': [item.project_name, Validators.required],
-      'endpoints_list': [item.endpoints_list,Validators.required],
-      'project_tag': [item.project_tag, Validators.required],
-      'users_list': [item.users_list, Validators.required]
+      'name': [item.name, Validators.required],
+      'endpoints': [item.endpoints],
+      'tag': [item.tag, Validators.required],
+      'groups': [item.groups, Validators.required]
     });
   }
 

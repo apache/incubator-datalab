@@ -25,10 +25,10 @@ import { ProjectDataService } from './project-data.service';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 
 export interface Project {
-  project_name: string;
-  endpoints_list: string[];
-  project_tag: string;
-  users_list: string[];
+  name: string;
+  endpoints: string[];
+  tag: string;
+  groups: string[];
 }
 
 @Component({

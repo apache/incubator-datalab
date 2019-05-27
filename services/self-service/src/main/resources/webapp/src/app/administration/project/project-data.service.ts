@@ -18,12 +18,10 @@
  */
 
 import { Injectable } from '@angular/core';
-import { of as observableOf, Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 import { ProjectService } from '../../core/services';
 import { Project } from './project.component';
-
-import { data } from './project-list/data';
 
 @Injectable()
 export class ProjectDataService {
@@ -43,10 +41,7 @@ export class ProjectDataService {
   }
 
   private getProjectsList() {
-    this._projects.next(data.projects);
-
-    
     this.projectService.getProjectsList().subscribe(
-      (response: any) => this._projects.next(response));
+      (response: Project[]) => this._projects.next(response));
   }
 }

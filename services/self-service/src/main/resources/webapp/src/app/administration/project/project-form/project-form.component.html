@@ -28,20 +28,20 @@
             <div class="control-group">
               <label class="label">Project name</label>
               <div class="control">
-                <input type="text" formControlName="project_name" placeholder="Enter project name"
+                <input type="text" formControlName="name" placeholder="Enter project name"
                   (blur)="generateProjectTag($event)">
               </div>
             </div>
             <div class="control-group">
               <label class="label">Project tag</label>
               <div class="control">
-                <input type="text" formControlName="project_tag" placeholder="dlab-{ project name }">
+                <input type="text" formControlName="tag" placeholder="dlab-{ project name }">
               </div>
             </div>
             <div class="control-group">
                 <div class="selector-wrapper">
                   <mat-form-field>
-                    <mat-select multiple formControlName="endpoints_list" placeholder="Select endpoints">
+                    <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
                       <mat-option class="multiple-select" disabled>
                         <a class="select ani" (click)="selectOptions(list, 'all')">
                           <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -79,7 +79,7 @@
           <div class="control-group">
             <div class="selector-wrapper">
               <mat-form-field>
-                <mat-select multiple formControlName="users_group" placeholder="Select user groups">
+                <mat-select multiple formControlName="groups" placeholder="Select user groups">
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectOptions(groupsList, 'users_group', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All
