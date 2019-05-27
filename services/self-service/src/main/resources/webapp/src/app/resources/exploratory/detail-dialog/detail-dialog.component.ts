@@ -17,9 +17,10 @@
  * under the License.
  */
 
-import { Component, ViewChild, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, ViewChild, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { DateUtils, CheckUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
@@ -34,7 +35,6 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';
@@ -43,31 +43,30 @@ export class DetailDialogComponent implements OnInit {
 
   public configurationForm: FormGroup;
 
-  @ViewChild('bindDialog') bindDialog;
   @ViewChild('configurationNode') configuration;
 
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder,
+    public dialogRef: MatDialogRef<DetailDialogComponent>,
     public toastr: ToastrService
-  ) {}
-
-  ngOnInit() {
-    this.bindDialog.onClosing = () => this.resetDialog();
+  ) {
+    this.notebook = data;
   }
 
-  public open(param, notebook): void {
-    this.tooltip = false;
-    this.notebook = notebook;
+  ngOnInit() {
+    // this.dialogRef.beforeClosed().subscribe(() => this.resetDialog());
+    this.notebook;
 
-    this.upTimeInHours = (notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
-    this.upTimeSince = (notebook.time) ? new Date(this.notebook.time).toString() : '';
-
-    this.initFormModel();
-    this.getClusterConfiguration();
-    this.bindDialog.open(param);
+    if (this.notebook) {
+      this.tooltip = false;
+  
+      this.upTimeInHours = (this.notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
+      this.upTimeSince = (this.notebook.time) ? new Date(this.notebook.time).toString() : '';
+      this.initFormModel();
+      this.getClusterConfiguration();
+    }
   }
 
   public isEllipsisActive($event): void {
@@ -98,8 +97,7 @@ export class DetailDialogComponent implements OnInit {
     this.dataengineConfigurationService
       .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.name)
       .subscribe(result => {
-        this.bindDialog.close();
-        this.buildGrid.emit();
+        this.dialogRef.close();
       },
       error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
   }

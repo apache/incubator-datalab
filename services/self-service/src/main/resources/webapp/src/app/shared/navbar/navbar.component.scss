@@ -120,9 +120,10 @@
   }
 }
 a.nav-item {
+  display: block;
   position: relative;
   height: 56px;
-  padding: 5px 40px;
+  padding: 5px;
   line-height: 48px;
   font-family: "Open Sans", sans-serif;
   transition: all .45s ease-in-out;
@@ -131,7 +132,7 @@ a.nav-item {
   overflow: hidden;
   color: #577289;
   outline: none;
-  &:hover {
+  &:not(.has-children):hover {
     background: none !important;
     color: #36afd5;
   }
@@ -147,6 +148,17 @@ a.nav-item {
   }
   &.active {
     color: #36afd5;
+  }
+  &.has-children {
+    height: auto;
+  }
+  .sub-nav-item {
+    display: block;
+    transition: all .45s ease-in-out;
+    &:hover {
+      background: none !important;
+      color: #36afd5;
+    }
   }
  }
 

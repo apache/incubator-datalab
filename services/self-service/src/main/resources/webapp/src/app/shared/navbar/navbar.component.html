@@ -17,21 +17,21 @@
   ~ under the License.
   -->
 
-<div class="nav-bar" *ngIf="isLoggedIn">
+<div class="nav-bar" [hidden]="!isLoggedIn">
   <div class="menu-area" *ngIf="healthStatus">
 
-    <button class="hamburger" [matMenuTriggerFor]="menu">
+    <button class="hamburger" (click)="collapse()">
       <span class="line"></span>
       <span class="line"></span>
       <span class="line"></span>
     </button>
 
     <nav role="navigation">
-      <mat-menu #menu="matMenu" [overlapTrigger]="false">
+      <!-- <mat-menu #menu="matMenu" [overlapTrigger]="false">
         <a class="nav-item" mat-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
-        <a class="nav-item" mat-menu-item [routerLink]="['/environment_management']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
+        <a class="nav-item" mat-menu-item [routerLink]="['/administration']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
         <a *ngIf="healthStatus.billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/billing_report']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
-      </mat-menu>
+      </mat-menu> -->
     </nav>
     <a [routerLink]="['/resources_list']" class="navbar-logo">
       <img src="assets/img/logo-nav.png" alt="">
@@ -43,35 +43,67 @@
       <span class="material-icons" ngClass="{{healthStatus.status || ''}}">radio_button_checked</span>
     </a>
     <!-- *ngIf="metadata" -->
-    <a  class="statusbar" #info (click)="actions.toggle($event, info)">
+    <a class="statusbar" #info (click)="actions.toggle($event, info)">
       <span class="material-icons meta">info</span>
     </a>
     <bubble-up #actions class="list-menu" position="bottom-right">
       <div class="app-info">
-          <p>
-            <strong>Version: </strong>
-            <span class="ellipsis">{{ metadata?.version }}</span>
-          </p>
-          <p>
-            <strong>Branch: </strong>
-            <span class="ellipsis">{{ metadata?.branch }}</span>
-          </p>
-          <p>
-            <strong>Revision: </strong>
-            <span class="ellipsis commit" matTooltip="{{ metadata?.commit }}" matTooltipPosition="above">{{ metadata?.commit }}</span>
-          </p>
-          <p>
-            <a class="helper_instruction" [attr.href]="metadata?.release_notes" target="_blank">
-              <i class="material-icons">link</i>Release notes </a>
-          </p>
+        <p>
+          <strong>Version: </strong>
+          <span class="ellipsis">{{ metadata?.version }}</span>
+        </p>
+        <p>
+          <strong>Branch: </strong>
+          <span class="ellipsis">{{ metadata?.branch }}</span>
+        </p>
+        <p>
+          <strong>Revision: </strong>
+          <span class="ellipsis commit" matTooltip="{{ metadata?.commit }}"
+            matTooltipPosition="above">{{ metadata?.commit }}</span>
+        </p>
+        <p>
+          <a class="helper_instruction" [attr.href]="metadata?.release_notes" target="_blank">
+            <i class="material-icons">link</i>Release notes </a>
+        </p>
       </div>
     </bubble-up>
-    <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span class="user-name">{{currentUserName}}</span></button>
+    <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span
+        class="user-name">{{currentUserName}}</span></button>
   </div>
-</div>
 
-<key-upload-dialog #keyUploadModal
-  (generateUserKey)="generateUserKey($event)"
-  (checkInfrastructureCreationProgress)="checkCreationProgress($event)"
-  [primaryUploading]="true"></key-upload-dialog>
+</div>
+<mat-sidenav-container class="example-container" autosize>
+  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '80px'">
+    <mat-nav-list>
+      <nav>
+        <a class="nav-item" 
+          [routerLink]="['/resources_list']"
+          [routerLinkActive]="['active']"
+          [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
+        <a class="nav-item has-children">Administration
+          <a class="sub-nav-item"
+             [routerLink]="['/projects']"
+             [routerLinkActive]="['active']"
+             [routerLinkActiveOptions]="{exact:true}">Projects</a>
+          <a class="sub-nav-item"
+             [routerLink]="['/environment_management']"
+             [routerLinkActive]="['active']"
+             [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
+        </a>
+        <a *ngIf="healthStatus?.billingEnabled" class="nav-item"
+          [routerLink]="['/billing_report']"
+          [routerLinkActive]="['active']"
+          [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
+      </nav>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content [style.margin-left]="isExpanded ? '220px' : '80px'">
+
+    <router-outlet></router-outlet>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)"
+  (checkInfrastructureCreationProgress)="checkCreationProgress($event)" [primaryUploading]="true"></key-upload-dialog>
 <progress-dialog #preloaderModal></progress-dialog>

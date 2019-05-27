@@ -29,7 +29,7 @@ import { ApplicationSecurityService,
   UserAccessKeyService,
   SchedulerService,
   StorageService} from '../../core/services';
-import { GeneralEnvironmentStatus } from '../../management/management.model';
+import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
@@ -53,6 +53,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   quotesLimit: number = 70;
   isLoggedIn: boolean = false;
   metadata: any;
+  isExpanded: boolean = false;
 
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
@@ -112,6 +113,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
       },
       error => console.error(error));
+  }
+
+  collapse() {
+    this.isExpanded = !this.isExpanded;
   }
 
   public emitQuotes(alert, user_quota?, total_quota?): void {
@@ -184,7 +189,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private refreshSchedulerData(): void {
       this.schedulerService.getActiveSchcedulersData(this.CHECK_ACTIVE_SCHEDULE_PERIOD).subscribe((list: Array<any>) => {
         if (list.length) {
-          if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
+          if (this.dialog.openDialogs.length > 0) return;
           const filteredData = this.groupSchedulerData(list);
           const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
             data: { template: filteredData, type: 'list' },
@@ -204,7 +209,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   public checkVersionData(): void {
     this.healthStatusService.getAppMetaData().subscribe(
       result => this.metadata = result || null,
-      error => this.toastr.error('Metadata loading failed!', 'Oops!'));
+      error => {
+        console.log('Metadata loading failed!');
+        // this.toastr.error('Metadata loading failed!', 'Oops!');
+      });
   }
 
   private selectQuotesAlert(type: string, user_quota?: number, total_quota?: number): string {

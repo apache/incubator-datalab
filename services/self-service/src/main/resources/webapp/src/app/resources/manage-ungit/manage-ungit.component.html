@@ -17,11 +17,12 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="manage-ungit modal-xxl">
-  <modal-header>
-    <h4 class="modal-title" id="myModalLabel">Manage Git Credentials</h4>
-  </modal-header>
-  <modal-content class="manage-ungit">
+<div class="manage-ungit" id="dialog-box">
+  <header class="dialog-header">
+    <h4 class="modal-title">Manage Git Credentials</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="manage-ungit dialog-content">
     <mat-tab-group mat-stretch-tabs #tabGroup class="content-box">
       <mat-tab label="LIST">
         <button mat-raised-button class="butt add-creds" (click)="tabGroup.selectedIndex = 1">
@@ -139,5 +140,5 @@
         </form>
       </mat-tab>
     </mat-tab-group>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

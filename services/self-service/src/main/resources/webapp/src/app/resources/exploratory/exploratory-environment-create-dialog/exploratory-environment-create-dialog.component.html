@@ -17,11 +17,12 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="modal-lg">
-  <modal-header>
-    <h4 class="modal-title" id="myModalLabel">Create analytical tool</h4>
-  </modal-header>
-  <modal-content>
+<div class="create-environment" id="dialog-box">
+  <header class="dialog-header">
+    <h4 class="modal-title">Create analytical tool</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
     <div class="content-box">
       <form [formGroup]="createExploratoryEnvironmentForm"
             (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value)"
@@ -84,10 +85,10 @@
         </ng-template>
         
         <div class="text-center m-top-30">
-          <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
+          <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!createExploratoryEnvironmentForm?.valid || !this.environment_shape" class="butt butt-success action">Create</button>
         </div>
       </form>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

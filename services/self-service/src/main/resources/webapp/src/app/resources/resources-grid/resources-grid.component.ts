@@ -20,14 +20,21 @@
 
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material';
 
 import { UserResourceService } from '../../core/services';
 import { CreateResourceModel } from './create-resource.model';
 import { ResourcesGridRowModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
-import { GeneralEnvironmentStatus } from '../../management/management.model';
+import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
+import { DetailDialogComponent } from '../exploratory/detail-dialog';
+import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
+import { InstallLibrariesComponent } from '../exploratory/install-libraries';
+import { ComputationalResourceCreateDialogComponent } from '../computational/computational-resource-create-dialog/computational-resource-create-dialog.component';
+import { CostDetailsDialogComponent } from '../billing/cost-details-dialog';
+import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
@@ -53,14 +60,11 @@ export class ResourcesGridComponent implements OnInit {
   healthStatus: GeneralEnvironmentStatus;
   delimitersRegex = /[-_]?/g;
 
-  @ViewChild('computationalResourceModal') computationalResourceModal;
+  // @ViewChild('computationalResourceModal') computationalResourceModal;
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
-  @ViewChild('installLibs') installLibraries;
-  @ViewChild('envScheduler') scheduler;
-  @ViewChild('createAmi') createAMI;
-
+  // @ViewChild('envScheduler') scheduler;
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
@@ -72,8 +76,9 @@ export class ResourcesGridComponent implements OnInit {
   ];
 
   constructor(
+    public toastr: ToastrService,
     private userResourceService: UserResourceService,
-    public toastr: ToastrService
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -276,17 +281,24 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   printDetailEnvironmentModal(data): void {
-    this.detailDialog.open({ isFooter: false }, data);
+    // this.detailDialog.open({ isFooter: false }, data);
+    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
+               .afterClosed().subscribe(() => this.buildGrid());
   }
 
   printCostDetails(data): void {
-    this.costDetailsDialog.open({ isFooter: false }, data);
+    // this.costDetailsDialog.open({ isFooter: false }, data);
+    this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-lg' })
+               .afterClosed().subscribe(() => this.buildGrid());
   }
 
   exploratoryAction(data, action: string) {
     if (action === 'deploy') {
       this.notebookName = data.name;
-      this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
+      // this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
+
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments}, panelClass: 'modal-xxl'})
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name })
@@ -298,11 +310,15 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'terminate') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
     } else if (action === 'install') {
-      this.installLibraries.open({ isFooter: false }, data);
+      this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'schedule') {
-      this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
+      // this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
+      this.dialog.open(SchedulerComponent, { data: {notebook: data, type: 'EXPLORATORY'}, panelClass: 'modal-xl-s' })
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'ami') {
-      this.createAMI.open({ isFooter: false }, data);
+      this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
+                 .afterClosed().subscribe(() => this.buildGrid());
     }
   }
 }

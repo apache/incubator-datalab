@@ -35,6 +35,7 @@ export * from './ami-create-dialog.component';
     ReactiveFormsModule
   ],
   declarations: [AmiCreateDialogComponent],
+  entryComponents: [AmiCreateDialogComponent],
   exports: [AmiCreateDialogComponent]
 })
 export class AmiCreateDialogModule {}

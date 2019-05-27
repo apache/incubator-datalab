@@ -35,3 +35,5 @@ export * from './managementEnvironments.service';
 export * from './rolesManagement.service';
 export * from './dataengineConfiguration.service';
 export * from './storage.service';
+export * from './project.service';
+export * from './endpoint.service';

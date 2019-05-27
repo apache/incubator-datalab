@@ -36,8 +36,6 @@ import { LibrariesInstallationService} from '../../../core/services';
 import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 
-
-
 @Component({
   selector: 'install-libraries',
   templateUrl: './install-libraries.component.html',
@@ -77,17 +75,16 @@ export class InstallLibrariesComponent implements OnInit {
   private clear: number;
   private clearCheckInstalling = undefined;
 
-  @ViewChild('bindDialog') bindDialog;
   @ViewChild('groupSelect') group_select;
   @ViewChild('resourceSelect') resource_select;
 
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
     public dialog: MatDialog,
+    public dialogRef: MatDialogRef<InstallLibrariesComponent>,
     private librariesInstallationService: LibrariesInstallationService,
-    private changeDetector: ChangeDetectorRef,
-    public toastr: ToastrService
+    private changeDetector: ChangeDetectorRef
   ) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
   }
@@ -100,10 +97,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.query = newValue || '';
         this.filterList();
       });
-    this.bindDialog.onClosing = () => {
-      this.resetDialog();
-      this.buildGrid.emit();
-    };
+    this.open(this.data);
   }
 
   uploadLibGroups(): void {
@@ -196,33 +190,22 @@ export class InstallLibrariesComponent implements OnInit {
     this.model.selectedLibs.splice(this.model.selectedLibs.indexOf(item), 1);
   }
 
-  public open(param, notebook): void {
-    if (!this.bindDialog.isOpened)
-      this.notebook = notebook;
-      this.model = new InstallLibrariesModel(notebook,
-        response => {
-          if (response.status === HTTP_STATUS_CODES.OK) {
-            this.getInstalledLibrariesList();
-            this.resetDialog();
-          }
-        },
-        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
-        () => {
-          this.bindDialog.open(param);
-
-          this.getInstalledLibrariesList(true);
-          this.changeDetector.detectChanges();
-          this.selectorsReset();
-        },
-       this.librariesInstallationService);
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
-
-    this.buildGrid.emit();
-    this.resetDialog();
+  public open(notebook): void {
+    this.notebook = notebook;
+    this.model = new InstallLibrariesModel(notebook,
+      response => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.getInstalledLibrariesList();
+          this.resetDialog();
+        }
+      },
+      error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
+      () => {
+        this.getInstalledLibrariesList(true);
+        this.changeDetector.detectChanges();
+        this.selectorsReset();
+      },
+      this.librariesInstallationService);
   }
 
   public showErrorMessage(item): void {

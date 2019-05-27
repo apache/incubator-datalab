@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { ExploratoryEnvironmentCreateModel } from './exploratory-environment-create.model';
@@ -33,7 +34,7 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
   styleUrls: ['./create-environment.component.scss']
 })
 
-export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
+export class ExploratoryEnvironmentCreateComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   model: ExploratoryEnvironmentCreateModel;
@@ -45,7 +46,6 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
 
   public createExploratoryEnvironmentForm: FormGroup;
 
-  @ViewChild('bindDialog') bindDialog;
   @ViewChild('environment_name') environment_name;
   @ViewChild('templatesList') templates_list;
   @ViewChild('shapesList') shapes_list;
@@ -55,17 +55,21 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
     private changeDetector: ChangeDetectorRef,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    public dialogRef: MatDialogRef<ExploratoryEnvironmentCreateComponent>,
   ) {
     this.model = ExploratoryEnvironmentCreateModel.getDefault(userResourceService);
+    this.resourceGrid = data;
   }
 
   ngOnInit() {
     this.initFormModel();
-    this.bindDialog.onClosing = () => this.resetDialog();
+    // this.bindDialog.onClosing = () => this.resetDialog();
+    this.open();
   }
 
   initFormModel(): void {
@@ -139,25 +143,19 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public open(params): void {
-    if (!this.bindDialog.isOpened) {
-      this.model = new ExploratoryEnvironmentCreateModel('', '', '', '', '',
-      response => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          this.close();
-          this.buildGrid.emit();
-        }
-      },
-      error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'),
-      () => this.templateDescription = this.model.selectedItem.description,
-      () => {
-        this.initFormModel();
-        this.bindDialog.open(params);
-        this.setDefaultParams();
-        this.getImagesList();
-      },
-      this.userResourceService);
-    }
+  public open(params?): void {
+    this.model = new ExploratoryEnvironmentCreateModel('', '', '', '', '',
+    response => {
+      if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
+    },
+    error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'),
+    () => this.templateDescription = this.model.selectedItem.description,
+    () => {
+      this.initFormModel();
+      this.setDefaultParams();
+      this.getImagesList();
+    },
+    this.userResourceService);
   }
 
   getImagesList() {
@@ -179,11 +177,6 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
     } else {
       this.createExploratoryEnvironmentForm.controls['configuration_parameters'].setValue('');
     }
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
   }
 
   private resetDialog(): void {

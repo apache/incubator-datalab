@@ -20,12 +20,12 @@
 import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
 import { ValidatorFn, FormControl, NgModel } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-manage-roles-groups',
   templateUrl: './manage-roles-groups.component.html',
-  styleUrls: ['../../resources/resources-grid/resources-grid.component.css', './manage-roles-groups.component.scss']
+  styleUrls: ['../../../resources/resources-grid/resources-grid.component.css', './manage-roles-groups.component.scss']
 })
 export class ManageRolesGroupsComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;

@@ -17,11 +17,12 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="create-cluster modal-xxl">
-  <modal-header>
+<div modalClass="create-cluster" id="dialog-box">
+ <header class="dialog-header">
     <h4 class="modal-title">Add computational resources</h4>
-  </modal-header>
-  <modal-content>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
     <div class="content-box">
       <form [formGroup]="resourceForm"
             (submit)="createComputationalResource($event, resourceForm.value, shapes.master_shape, shapes.slave_shape)"
@@ -35,9 +36,6 @@
                 <div class="control">
                   <dropdown-list #clusterType (selectedItem)="onUpdate($event)"></dropdown-list>
                 </div>
-                <!-- <div class="mt-5" *ngIf="model.resourceImages">
-                  <small *ngIf="model.selectedImage">{{ model.selectedImage.description }}</small>
-                </div> -->
               </div>
 
               <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!model.templates.length">
@@ -154,7 +152,7 @@
           </small>
         </div>
         <div class="text-center m-top-30">
-          <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
+          <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!resourceForm?.valid"
                   class="butt butt-success action" [ngClass]="{'not-allowed': !resourceForm?.valid}">Create</button>
         </div>
@@ -162,5 +160,5 @@
 
       <div *ngIf="!model.availableTemplates" class="info message">Computational resource creations are not available.<br>Please, check your permissions.</div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

@@ -17,11 +17,11 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="backup-dialog modal-sm">
-  <modal-header>
+<div modalClass="backup-dialog modal-sm">
+  <header>
     <h4 class="modal-title">Backup options</h4>
-  </modal-header>
-  <modal-content>
+  </header>
+  <div class="modal-content">
     <div class="content-box" *ngIf="backupOptions">
       <div class="hold-block">
         <mat-slide-toggle
@@ -72,11 +72,11 @@
         </mat-slide-toggle>
       </div>
       <div class="text-center m-top-30 m-bott-10">
-        <button mat-raised-button type="button" class="butt" (click)="bindDialog.close(); backupOptions.setDegault()">
+        <button mat-raised-button type="button" class="butt" (click)="dialogRef.close(); backupOptions.setDegault()">
           Cancel
         </button>
         <button mat-raised-button type="button" (click)="applyOptions()" class="butt butt-success" [disabled]="!valid">Apply</button>
       </div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

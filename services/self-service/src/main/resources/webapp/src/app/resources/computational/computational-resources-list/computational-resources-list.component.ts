@@ -18,10 +18,12 @@
  */
 
 import { Component, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { DetailComputationalResourcesComponent } from '../cluster-details';
+import { SchedulerComponent } from '../../scheduler';
 
 @Component({
   selector: 'computational-resources-list',
@@ -41,9 +43,9 @@ export class ComputationalResourcesListComponent {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
-    private userResourceService: UserResourceService,
     public dialog: MatDialog,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    private userResourceService: UserResourceService
   ) { }
 
   toggleResourceAction(resource, action: string) {
@@ -79,11 +81,15 @@ export class ComputationalResourcesListComponent {
   }
 
   detailComputationalResources(environment, resource): void {
-    this.detailComputationalResource.open({ isFooter: false }, environment, resource);
+    // this.detailComputationalResource.open({ isFooter: false }, environment, resource);
+    this.dialog.open(DetailComputationalResourcesComponent, { data: { environment, resource }, panelClass: 'modal-sm'})
+               .afterClosed().subscribe(() => this.rebuildGrid());
   };
 
   openScheduleDialog(resource) {
-    this.clusterScheduler.open({ isFooter: false }, this.environment, 'СOMPUTATIONAL', resource);
+    // this.clusterScheduler.open({ isFooter: false }, this.environment, 'СOMPUTATIONAL', resource);
+    this.dialog.open(SchedulerComponent, { data: {notebook: this.environment, type: 'СOMPUTATIONAL', resource}, panelClass: 'modal-xl-s' })
+               .afterClosed().subscribe(() => this.rebuildGrid());
   }
 }
 

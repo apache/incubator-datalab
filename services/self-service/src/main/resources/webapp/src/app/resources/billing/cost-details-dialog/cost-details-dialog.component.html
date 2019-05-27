@@ -17,9 +17,9 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="billing-detail-dialog header-white modal-xl">
-  <modal-header></modal-header>
-  <modal-content>
+<div modalClass="billing-detail-dialog header-white modal-xl">
+  <header></header>
+  <div class="modal-content">
     <div *ngIf="notebook">
       <table class="detail-header">
         <tr>
@@ -58,5 +58,5 @@
           <strong>Total: </strong>{{ notebook.cost }} {{ notebook.currency_code }}</div>
       </div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

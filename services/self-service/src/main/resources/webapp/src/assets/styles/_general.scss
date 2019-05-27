@@ -17,9 +17,10 @@
  * under the License.
  */
 
+html, body { height: 100%; }
 body {
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   overflow-x: hidden;
   font-weight: 300;
 }
@@ -99,6 +100,7 @@ textarea::placeholder {
   font-weight: 600;
   align-self: center;
   text-align: left;
+  font-family: 'Open Sans', sans-serif;
 }
 .control-group .control {
   width: 65%;

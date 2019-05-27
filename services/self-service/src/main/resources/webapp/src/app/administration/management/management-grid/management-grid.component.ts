@@ -21,9 +21,9 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } fro
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
-import { HealthStatusService, UserAccessKeyService } from '../../core/services';
-import { ConfirmationDialogType } from '../../shared';
-import { FileUtils } from '../../core/util';
+import { HealthStatusService, UserAccessKeyService } from '../../../core/services';
+import { ConfirmationDialogType } from '../../../shared';
+import { FileUtils } from '../../../core/util';
 
 export interface ManageAction {
   action: string;
@@ -36,8 +36,8 @@ export interface ManageAction {
   templateUrl: 'management-grid.component.html',
   styleUrls: [
     './management-grid.component.scss',
-    '../../resources/resources-grid/resources-grid.component.css',
-    '../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
+    '../../../resources/resources-grid/resources-grid.component.css',
+    '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
   ]
 })
 export class ManagementGridComponent implements OnInit {

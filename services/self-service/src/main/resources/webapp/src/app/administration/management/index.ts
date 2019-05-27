@@ -27,31 +27,23 @@ import {
   ProgressDialogModule,
   BubbleModule,
   ConfirmationDialogModule
-} from '../shared';
-import { MaterialModule } from '../shared/material.module';
+} from '../../shared';
+import { MaterialModule } from '../../shared/material.module';
 
 import { ManagementComponent } from './management.component';
-import {
-  ManagementGridComponent,
-  ConfirmationDialogComponent
-} from './management-grid/management-grid.component';
-import { ComputationalResourcesModule } from '../resources/computational/computational-resources-list';
+import { ManagementGridComponent, ConfirmationDialogComponent } from './management-grid/management-grid.component';
+import { ComputationalResourcesModule } from '../../resources/computational/computational-resources-list';
 
-
-
-
-import { FormControlsModule } from '../shared/form-controls';
+import { FormControlsModule } from '../../shared/form-controls';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
-import {
-  ManageEnvironmentComponent,
-  ConfirmActionDialogComponent
-} from './manage-environment/manage-environment-dilog.component';
+import { ManageEnvironmentComponent, ConfirmActionDialogComponent } from './manage-environment/manage-environment-dilog.component';
 
 import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
-import { DirectivesModule } from '../core/directives';
+import { DirectivesModule } from '../../core/directives';
 
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialogComponent } from './manage-roles-groups/manage-roles-groups.component';
+import { ProjectModule } from '../project';
 
 export * from './management.component';
 
@@ -60,6 +52,7 @@ export * from './management.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    ProjectModule,
     ModalModule,
     UploadKeyDialogModule,
     ProgressDialogModule,
@@ -83,7 +76,11 @@ export * from './management.component';
     SsnMonitorComponent,
     ManageRolesGroupsComponent
   ],
-  entryComponents: [ConfirmationDialogComponent, ConfirmActionDialogComponent, ConfirmDeleteUserAccountDialogComponent],
+  entryComponents: [
+    ConfirmationDialogComponent,
+    ConfirmActionDialogComponent,
+    ConfirmDeleteUserAccountDialogComponent,
+    BackupDilogComponent],
   exports: [ManagementComponent]
 })
-export class ManagenementModule {}
+export class ManagenementModule { }

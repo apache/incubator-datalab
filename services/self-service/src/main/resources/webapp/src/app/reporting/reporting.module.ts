@@ -22,7 +22,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgDateRangePickerModule } from 'ng-daterangepicker';
 
-import { NgxMatDrpModule } from 'ngx-mat-daterange-picker';
 import { MaterialModule } from '../shared/material.module';
 import { FormControlsModule } from '../shared/form-controls';
 import { ReportingComponent } from './reporting.component';
@@ -39,7 +38,6 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     FormControlsModule,
     KeysPipeModule,
     LineBreaksPipeModule,
-    NgxMatDrpModule,
     NgDateRangePickerModule,
     UploadKeyDialogModule,
     ProgressDialogModule,

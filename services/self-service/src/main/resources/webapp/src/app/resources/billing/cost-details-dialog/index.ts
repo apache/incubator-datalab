@@ -29,6 +29,7 @@ export * from './cost-details-dialog.component';
 @NgModule({
   imports: [CommonModule, ModalModule, MaterialModule],
   declarations: [CostDetailsDialogComponent],
+  entryComponents: [CostDetailsDialogComponent],
   exports: [CostDetailsDialogComponent]
 })
 export class CostDetailsDialogModule {}

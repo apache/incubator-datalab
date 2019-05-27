@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { DICTIONARY } from './../../../dictionary/global.dictionary';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-ssn-monitor',
