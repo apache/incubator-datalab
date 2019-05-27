@@ -19,7 +19,7 @@ public class EndpointServiceImpl implements EndpointService {
 
 	@Override
 	public List<EndpointDTO> getEndpoints() {
-		return null;
+		return endpointDAO.getEndpoints();
 	}
 
 	@Override
