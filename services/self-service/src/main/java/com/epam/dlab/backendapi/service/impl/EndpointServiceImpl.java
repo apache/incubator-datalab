@@ -7,12 +7,19 @@ import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 
+import java.util.List;
+
 public class EndpointServiceImpl implements EndpointService {
 	private final EndpointDAO endpointDAO;
 
 	@Inject
 	public EndpointServiceImpl(EndpointDAO endpointDAO) {
 		this.endpointDAO = endpointDAO;
+	}
+
+	@Override
+	public List<EndpointDTO> getEndpoints() {
+		return null;
 	}
 
 	@Override

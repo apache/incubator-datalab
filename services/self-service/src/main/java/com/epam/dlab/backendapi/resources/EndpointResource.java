@@ -77,6 +77,18 @@ public class EndpointResource {
 		return Response.ok(endpointService.get(name)).build();
 	}
 
+	@Operation(summary = "Get endpoints available in system", tags = "endpoint")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about endpoints",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = EndpointDTO.class)))
+	})
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getEndpoints(@Parameter(hidden = true) @Auth UserInfo userInfo) {
+		return Response.ok(endpointService.getEndpoints()).build();
+	}
+
 
 	@Operation(summary = "Remove endpoint", tags = "endpoint")
 	@ApiResponses({
