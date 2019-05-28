@@ -18,9 +18,8 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Http, Response, RequestOptions, RequestMethod, Headers } from '@angular/http';
+import { RequestMethod } from '@angular/http';
 import { Observable } from 'rxjs';
-
 import { HttpClient } from '@angular/common/http';
 
 import { Dictionary } from '../collections';
@@ -81,8 +80,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LOGIN),
       body,
-      { responseType: 'text', observe: 'response' }
-      );
+      { responseType: 'text', observe: 'response' });
   }
 
   public buildLogoutRequest(): Observable<any> {
@@ -454,43 +452,37 @@ export class ApplicationServiceFacade {
   public buildSetupNewGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildUpdateGroupData(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildSetupRolesForGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_ROLE),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildSetupUsersForGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildRemoveUsersForGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildRemoveGroupById(data): Observable<any> {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildGetClusterConfiguration(param): Observable<any> {
@@ -551,6 +543,12 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
       null);
+  }
+
+  public buildCreateEndpoint(data): Observable<any> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
+      data);
   }
 
   private setupRegistry(): void {
@@ -639,15 +637,5 @@ export class ApplicationServiceFacade {
     } else if (method === RequestMethod.Put) {
       return this.http.put(url, body, opt);
     } else return this.http.get(body ? (url + body) : url, opt);
-  }
-
-  private getRequestOptions(json: boolean, auth: boolean) {
-    // const headers = new Headers();
-    // if (json)
-    //   headers.append('Content-type', 'application/json; charset=utf-8');
-    // if (auth)
-    //   headers.append('Authorization', 'Bearer ' + localStorage.getItem(this.accessTokenKey));
-    // const reqOpt = new RequestOptions({ headers: headers });
-    // return reqOpt;
   }
 }

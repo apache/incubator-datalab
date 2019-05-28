@@ -38,5 +38,13 @@ export class EndpointService {
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
+
+  public createEndpoint(data): Observable<any> {
+    return this.applicationServiceFacade
+      .buildCreateEndpoint(data)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
 }
 
