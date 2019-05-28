@@ -107,12 +107,12 @@ export class ManagementComponent implements OnInit, OnDestroy {
 
   showBackupDialog() {
     this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' })
-      .afterClosed().subscribe(() => this.buildGrid());
+      .afterClosed().subscribe(result => result && this.createBackup(result));
   }
 
   showEndpointsDialog() {
     this.dialog.open(EndpointsComponent, { panelClass: 'modal-sm' })
-      .afterClosed().subscribe(() => this.buildGrid());
+      .afterClosed().subscribe(result => result && this.buildGrid());
   }
 
   getActiveUsersList() {

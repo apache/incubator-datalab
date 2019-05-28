@@ -20,6 +20,15 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ToastrService } from 'ngx-toastr';
+
+import { EndpointService } from '../../../core/services';
+
+export interface Endpoint {
+  name: string;
+  url: string;
+  account: string;
+}
 
 @Component({
   selector: 'endpoints',
@@ -29,19 +38,25 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
   namePattern = '[-_a-zA-Z0-9]+';
-
+  endpoints: Endpoint[] = [];
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
     public dialogRef: MatDialogRef<EndpointsComponent>,
-    private _fb: FormBuilder,
+    private endpointService: EndpointService,
+    private _fb: FormBuilder
   ) { }
 
   ngOnInit() {
     this.initFormModel();
+    this.getEndpointList();
   }
 
   public assignChanges(data) {
-   console.log('Create', data);
+    this.endpointService.createEndpoint(data).subscribe(() => {
+      this.toastr.success('Endpoint created successfully!', 'Success!');
+      this.dialogRef.close(true);
+    }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
   }
 
   private initFormModel(): void {
@@ -50,5 +65,9 @@ export class EndpointsComponent implements OnInit {
       url: ['', Validators.required],
       account: ['', Validators.required]
     });
+  }
+
+  private getEndpointList() {
+    this.endpointService.getEndpointsData().subscribe((endpoints: any) => this.endpoints = endpoints);
   }
 }

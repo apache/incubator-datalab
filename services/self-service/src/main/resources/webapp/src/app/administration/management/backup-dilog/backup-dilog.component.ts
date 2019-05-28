@@ -20,6 +20,7 @@
 import { Component, OnInit, ViewChild, Output, Inject } from '@angular/core';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+
 import { BackupOptionsModel } from '../management.model';
 
 @Component({
@@ -34,7 +35,7 @@ export class BackupDilogComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    public dialogRef: MatDialogRef<BackupDilogComponent>,
+    public dialogRef: MatDialogRef<BackupDilogComponent>
   ) { }
 
   ngOnInit() {
@@ -51,8 +52,8 @@ export class BackupDilogComponent implements OnInit {
   }
 
   public applyOptions(): void {
+    this.dialogRef.close(this.backupOptions);
     this.backupOptions.setDegault();
-    this.dialogRef.close();
   }
 
   private checkValidity(): void {
