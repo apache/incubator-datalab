@@ -193,10 +193,10 @@
 .scheduler-dialog .mat-slide-toggle {
   width: 100%;
 }
-.backup-dialog mat-slide-toggle {
+#backup-options .hold-block mat-slide-toggle {
   display: initial;
 }
-.backup-dialog .mat-slide-toggle-label {
+#backup-options .hold-block mat-slide-toggle .mat-slide-toggle-label {
   justify-content: space-between;
 }
 .scheduler-dialog .mat-slide-toggle-label-before .mat-slide-toggle-label {
