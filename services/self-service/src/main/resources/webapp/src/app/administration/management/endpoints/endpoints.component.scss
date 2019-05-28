@@ -17,35 +17,3 @@
  * under the License.
  */
 
-.ssn-monitor-dialog {
-  .content-box {
-    padding-top: 10px !important;
-    position: relative;
-  }
-  .ssn-info {
-    min-height: 400px;
-    max-height: 500px;
-    .scrolling-content {
-      max-height: 310px;
-      overflow-y: auto;
-    }
-    .text-center {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      right: 0;
-    }
-  }
-  .mat-list-item-content {
-    display: flex;
-    justify-content: initial;
-    color: #577289;
-    padding: 15px 5px;
-    border-bottom: 1px solid #f3f2f2;
-    font-size: 15px;
-    .col {
-      width: 50%;
-      font-weight: 300;
-     }
-  }
-}

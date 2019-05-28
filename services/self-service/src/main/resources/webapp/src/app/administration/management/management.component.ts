@@ -36,6 +36,7 @@ import { EnvironmentModel, GeneralEnvironmentStatus } from './management.model';
 import { HTTP_STATUS_CODES } from '../../core/util';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
+import { ManageEnvironmentComponent } from './manage-environment/manage-environment-dilog.component';
 
 @Component({
   selector: 'environments-management',
@@ -70,7 +71,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     private userResourceService: UserResourceService,
     private rolesService: RolesGroupsService,
     private storageService: StorageService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.buildGrid();
@@ -105,7 +106,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
 
   showBackupDialog() {
     this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' })
-                 .afterClosed().subscribe(() => this.buildGrid());
+      .afterClosed().subscribe(() => this.buildGrid());
   }
 
   getActiveUsersList() {
@@ -118,23 +119,27 @@ export class ManagementComponent implements OnInit, OnDestroy {
 
   openManageEnvironmentDialog() {
     this.getActiveUsersList().subscribe(usersList => {
-      this.getTotalBudgetData().subscribe(total => this.manageEnvironmentDialog.open({ isFooter: false }, usersList, total));
-    },
-    () => this.toastr.error('Failed users list loading!', 'Oops!'));
+      this.getTotalBudgetData().subscribe(
+        total => {
+          const dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { usersList, total }, panelClass: 'modal-xl-s'});
+          dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
+          dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
+        }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
+    });
   }
 
   openSsnMonitorDialog() {
     this.healthStatusService.getSsnMonitorData().subscribe(
-      data => this.dialog.open(SsnMonitorComponent, {data: data, panelClass: 'modal-lg' }),
+      data => this.dialog.open(SsnMonitorComponent, { data: data, panelClass: 'modal-lg' }),
       () => this.toastr.error('Failed ssn data loading!', 'Oops!'));
   }
 
   openManageRolesDialog() {
     this.rolesService.getGroupsData().subscribe(group => {
-        this.rolesService.getRolesData().subscribe(
-          roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
-          error => this.toastr.error(error.message, 'Oops!'));
-      },
+      this.rolesService.getRolesData().subscribe(
+        roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
+        error => this.toastr.error(error.message, 'Oops!'));
+    },
       error => this.toastr.error(error.message, 'Oops!'));
   }
 
@@ -155,7 +160,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
       this.toastr.success('Backup configuration is processing!', 'Processing!');
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
     },
-    error => this.toastr.error(error.message, 'Oops!'));
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   manageRolesGroups($event) {
@@ -194,8 +199,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
     this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
       this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
         result.status === HTTP_STATUS_CODES.OK
-        && res.status === HTTP_STATUS_CODES.NO_CONTENT
-        && this.toastr.success('Budget limits updated!', 'Success!');
+          && res.status === HTTP_STATUS_CODES.NO_CONTENT
+          && this.toastr.success('Budget limits updated!', 'Success!');
         this.buildGrid();
       });
     }, error => this.toastr.error(error.message, 'Oops!'));
@@ -207,17 +212,17 @@ export class ManagementComponent implements OnInit, OnDestroy {
       error => this.toastr.error(error.message, 'Oops!'));
   }
 
-  manageEnvironment(event: {action: string, user: string}) {
+  manageEnvironment(event: { action: string, user: string }) {
     this.healthStatusService
       .manageEnvironment(event.action, event.user)
       .subscribe(res => {
-          this.getActiveUsersList().subscribe(usersList => {
-            this.manageEnvironmentDialog.usersList = usersList;
-            this.toastr.success(`Action ${ event.action } is processing!`, 'Processing!');
-            this.buildGrid();
-          });
-        },
-      error => this.toastr.error(error.message, 'Oops!'));
+        this.getActiveUsersList().subscribe(usersList => {
+          this.manageEnvironmentDialog.usersList = usersList;
+          this.toastr.success(`Action ${event.action} is processing!`, 'Processing!');
+          this.buildGrid();
+        });
+      },
+        error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private getExploratoryList() {
@@ -234,8 +239,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
       .subscribe((backupStatus: any) => {
         if (!this.creatingBackup) {
           backupStatus.status === 'FAILED'
-          ? this.toastr.error('Backup configuration failed!', 'Oops!')
-          : this.toastr.success('Backup configuration completed!', 'Success!');
+            ? this.toastr.error('Backup configuration failed!', 'Oops!')
+            : this.toastr.success('Backup configuration completed!', 'Success!');
           clearInterval(this.clear);
         }
       }, () => {
@@ -257,14 +262,14 @@ export class ManagementComponent implements OnInit, OnDestroy {
   private loadEnvironmentList(data): Array<EnvironmentModel> {
     if (data)
       return data.map(value => new EnvironmentModel(
-          value.resource_name || value.resource_type,
-          value.status,
-          value.shape,
-          value.computational_resources,
-          value.user,
-          value.public_ip,
-          value.resource_type
-        ));
+        value.resource_name || value.resource_type,
+        value.status,
+        value.shape,
+        value.computational_resources,
+        value.user,
+        value.public_ip,
+        value.resource_type
+      ));
   }
 
   private getEnvironmentHealthStatus() {

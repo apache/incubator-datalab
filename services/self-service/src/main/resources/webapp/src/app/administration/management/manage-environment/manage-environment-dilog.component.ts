@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, ViewChild, Output, EventEmitter, ViewEncapsulation, Inject } from '@angular/core';
+import { Component, Output, EventEmitter, ViewEncapsulation, Inject, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
@@ -28,40 +28,38 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   styleUrls: ['./manage-environment-dilog.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class ManageEnvironmentComponent {
+export class ManageEnvironmentComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  public usersList: Array<string> = [];
+  // public usersList: Array<string> = [];
   public manageUsersForm: FormGroup;
   public manageTotalsForm: FormGroup;
 
-  @ViewChild('bindDialog') bindDialog;
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
-  @Output() setBudget: EventEmitter<{}> = new EventEmitter();
+  // @Output() setBudget: EventEmitter<{}> = new EventEmitter();
 
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private _fb: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public dialogRef: MatDialogRef<ManageEnvironmentComponent>
   ) { }
+
+  ngOnInit() {
+    !this.manageUsersForm && this.initForm();
+
+    this.manageUsersForm.setControl('users',
+    this._fb.array((this.data.usersList || []).map((x: any) => this._fb.group({
+      name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
+    }))));
+    this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || null);
+  }
 
   get usersEnvironments(): FormArray {
     return <FormArray>this.manageUsersForm.get('users');
   }
 
-  public open(param, data, settings): void {
-    this.usersList = data;
-    !this.manageUsersForm && this.initForm();
-
-    this.manageUsersForm.setControl('users',
-    this._fb.array((this.usersList || []).map((x: any) => this._fb.group({
-      name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
-    }))));
-    this.manageUsersForm.controls['total'].setValue(settings.conf_max_budget || null);
-    this.bindDialog.open(param);
-  }
-
   public setBudgetLimits(value) {
-    this.setBudget.emit(value);
-    this.bindDialog.close();
+    this.dialogRef.close(value);
   }
 
   public applyAction(action, user) {

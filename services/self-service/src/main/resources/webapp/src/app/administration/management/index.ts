@@ -81,7 +81,8 @@ export * from './management.component';
     ConfirmActionDialogComponent,
     ConfirmDeleteUserAccountDialogComponent,
     BackupDilogComponent,
-    SsnMonitorComponent],
+    SsnMonitorComponent,
+    ManageEnvironmentComponent],
   exports: [ManagementComponent]
 })
 export class ManagenementModule { }
