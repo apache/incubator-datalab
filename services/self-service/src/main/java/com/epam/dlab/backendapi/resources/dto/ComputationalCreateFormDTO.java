@@ -46,6 +46,10 @@ public class ComputationalCreateFormDTO {
 	private String name;
 
 	@NotBlank
+	@JsonProperty
+	private String project;
+
+	@NotBlank
 	@JsonProperty("notebook_name")
 	private String notebookName;
 

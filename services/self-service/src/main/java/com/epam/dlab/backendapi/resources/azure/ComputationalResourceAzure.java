@@ -95,12 +95,12 @@ public class ComputationalResourceAzure {
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
+		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage(), userInfo.getRoles())) {
 			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
 		}
 
-		return computationalService.createSparkCluster(userInfo, form)
+		return computationalService.createSparkCluster(userInfo, form, form.getProject())
 				? Response.ok().build()
 				: Response.status(Response.Status.FOUND).build();
 
@@ -165,17 +165,19 @@ public class ComputationalResourceAzure {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@PUT
-	@Path("/{exploratoryName}/{computationalName}/start")
+	@Path("/{project}/{exploratoryName}/{computationalName}/start")
 	@ApiOperation("Starts Spark cluster on Azure")
 	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on Azure successfully started"))
 	public Response start(@ApiParam(hidden = true) @Auth UserInfo userInfo,
 						  @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
 						  @PathParam("exploratoryName") String exploratoryName,
 						  @ApiParam(value = "Spark cluster's name for starting", required = true)
-						  @PathParam("computationalName") String computationalName) {
+						  @PathParam("computationalName") String computationalName,
+						  @ApiParam(value = "Project name", required = true)
+						  @PathParam("project") String project) {
 		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
+		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project);
 
 		return Response.ok().build();
 	}

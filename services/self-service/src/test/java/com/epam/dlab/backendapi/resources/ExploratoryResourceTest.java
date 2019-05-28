@@ -74,7 +74,7 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()), "");
+		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()), "project");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -111,7 +111,7 @@ public class ExploratoryResourceTest extends TestBase {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()), anyString());
+		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()), "project");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -303,6 +303,7 @@ public class ExploratoryResourceTest extends TestBase {
 		ecfDto.setShape("someShape");
 		ecfDto.setVersion("someVersion");
 		ecfDto.setImageName("someImageName");
+		ecfDto.setProject("project");
 		return ecfDto;
 	}
 

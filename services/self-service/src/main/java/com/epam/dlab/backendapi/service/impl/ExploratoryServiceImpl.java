@@ -95,7 +95,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	public String create(UserInfo userInfo, Exploratory exploratory, @Project String project) {
 		boolean isAdded = false;
 		try {
-			exploratoryDAO.insertExploratory(getUserInstanceDTO(userInfo, exploratory));
+			exploratoryDAO.insertExploratory(getUserInstanceDTO(userInfo, exploratory, project));
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
@@ -310,7 +310,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withStatus(status);
 	}
 
-	private UserInstanceDTO getUserInstanceDTO(UserInfo userInfo, Exploratory exploratory) {
+	private UserInstanceDTO getUserInstanceDTO(UserInfo userInfo, Exploratory exploratory, String project) {
 		final UserInstanceDTO userInstance = new UserInstanceDTO()
 				.withUser(userInfo.getName())
 				.withExploratoryName(exploratory.getName())
@@ -319,7 +319,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withImageVersion(exploratory.getVersion())
 				.withTemplateName(exploratory.getTemplateName())
 				.withClusterConfig(exploratory.getClusterConfig())
-				.withShape(exploratory.getShape());
+				.withShape(exploratory.getShape())
+				.withProject(project);
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {
 			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory
 					.getImageName());

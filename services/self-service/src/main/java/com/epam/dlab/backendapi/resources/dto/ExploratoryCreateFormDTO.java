@@ -44,6 +44,10 @@ public class ExploratoryCreateFormDTO {
 
 	@NotBlank
 	@JsonProperty
+	private String project;
+
+	@NotBlank
+	@JsonProperty
 	private String shape;
 
 	@NotBlank
@@ -142,6 +146,14 @@ public class ExploratoryCreateFormDTO {
 
 	public List<ClusterConfig> getClusterConfig() {
 		return clusterConfig;
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public void setProject(String project) {
+		this.project = project;
 	}
 
 	@Override

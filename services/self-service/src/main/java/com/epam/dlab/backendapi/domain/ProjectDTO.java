@@ -12,7 +12,7 @@ public class ProjectDTO {
 	@NotNull
 	private final String name;
 	@NotNull
-	private final Set<String>endpoints;
+	private final Set<String> endpoints;
 	@NotNull
 	private final Set<String> groups;
 	private final Integer budget;

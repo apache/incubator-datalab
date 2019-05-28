@@ -51,6 +51,8 @@ public class UserInstanceDTO {
 	private String imageName;
 	@JsonProperty("version")
 	private String imageVersion;
+	@JsonProperty("version")
+	private String project;
 	@JsonProperty("template_name")
 	private String templateName;
 	@JsonProperty
@@ -142,6 +144,11 @@ public class UserInstanceDTO {
 	 */
 	public UserInstanceDTO withShape(String shape) {
 		setShape(shape);
+		return this;
+	}
+
+	public UserInstanceDTO withProject(String project) {
+		setProject(project);
 		return this;
 	}
 
