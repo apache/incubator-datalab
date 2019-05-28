@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, OnDestroy, Inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subscription } from 'rxjs';
 
@@ -38,7 +38,7 @@ export interface Project {
   styleUrls: ['./project.component.scss']
 })
 export class ProjectComponent implements OnInit, OnDestroy {
-  projects: Project[] = [];
+  projectList: Project[] = [];
   healthStatus: any;
 
   private subscriptions: Subscription = new Subscription();
@@ -47,18 +47,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
-    private healthStatusService: HealthStatusService,
-    private ref: ChangeDetectorRef,
+    private healthStatusService: HealthStatusService
   ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.subscriptions.add(this.projectDataService._projects.subscribe(
       (value: Project[]) => {
-        if (value) {
-          this.projects = value;
-          this.ref.detectChanges();
-        }
+        if (value) this.projectList = value;
       }));
   }
 
@@ -73,7 +69,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   createProject() {
     console.log('create');
 
-    if (this.projects.length)
+    if (this.projectList.length)
       this.dialog.open(EditProjectComponent, { data: { action: 'create', item: null }, panelClass: 'modal-xl-s' })
         .afterClosed().subscribe(() => {
           console.log('Create project');

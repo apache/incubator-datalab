@@ -32,10 +32,6 @@ export class ProjectDataService {
     this.getProjectsList();
   }
 
-  public getProjects() {
-    this._projects.asObservable();
-  }
-
   public updateProjects() {
     this.getProjectsList();
   }

@@ -17,24 +17,26 @@
   ~ under the License.
   -->
 
-<div class="sub-nav base-retreat">
-  <div>
-    <button mat-raised-button class="butt butt-create"
-      (click)="createProject()" [disabled]="projects?.lenght < 1">
-      <i class="material-icons">add</i>Create new
-    </button>
-  </div>
-  <div>
-    <button mat-raised-button class="butt" (click)="refreshGrid()" [hidden]="projects?.lenght < 1">
-      <i class="material-icons">autorenew</i>Refresh
-    </button>
-  </div>
-</div>
 
-<mat-card class="base-retreat project-form" *ngIf="projects?.lenght < 1">
-  <project-form></project-form>
-</mat-card>
+<div *ngIf="projectList">
+  <div class="sub-nav base-retreat">
+    <div>
+      <button mat-raised-button class="butt butt-create" (click)="createProject()" [disabled]="!projectList.length">
+        <i class="material-icons">add</i>Create new
+      </button>
+    </div>
+    <div>
+      <button mat-raised-button class="butt" (click)="refreshGrid()" [hidden]="!projectList.length">
+        <i class="material-icons">autorenew</i>Refresh
+      </button>
+    </div>
+  </div>
 
-<div [hidden]="projects?.lenght < 1">
-  <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
+  <mat-card class="base-retreat project-form" *ngIf="!projectList.length">
+    <project-form></project-form>
+  </mat-card>
+
+  <div [hidden]="!projectList.length">
+    <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
+  </div>
 </div>
