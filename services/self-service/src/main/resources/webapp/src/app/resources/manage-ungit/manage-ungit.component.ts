@@ -29,7 +29,7 @@ import { ManageUngitService } from '../../core/services';
   selector: 'dlab-manage-ungit',
   templateUrl: './manage-ungit.component.html',
   styleUrls: ['./manage-ungit.component.scss',
-              '../exploratory/install-libraries/install-libraries.component.scss']
+    '../exploratory/install-libraries/install-libraries.component.scss']
 })
 export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
@@ -57,21 +57,22 @@ export class ManageUngitComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this.bindDialog.onClosing = () => this.cancelAllModifyings();
-    this.open();
-
     this.initFormModel();
-    this.getGitCredentials();
+    this.model.getGitCredentials().subscribe(
+      (credentials: any) => {
+        this.gitCredentials = credentials.git_creds || [];
+        this.open();
+      }, () => this.open());
   }
 
   public open(): void {
-    this.model = new MangeUngitModel(response => { },
-    error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!'),
-    () => {
-      if (!this.gitCredentials.length)
-        this.tabGroup.selectedIndex = 1;
-    },
-    this.manageUngitService);
+    this.model = new MangeUngitModel(() => {},
+      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!'),
+      () => {
+        if (!this.gitCredentials.length)
+          this.tabGroup.selectedIndex = 1;
+      },
+      this.manageUngitService);
   }
 
   public resetForm(): void {
