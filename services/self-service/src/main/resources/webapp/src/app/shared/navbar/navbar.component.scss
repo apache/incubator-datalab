@@ -159,14 +159,13 @@ a.nav-item {
   .sub-nav-item {
     display: block;
     transition: all .45s ease-in-out;
-    margin-left: 30px;
     i {
       vertical-align: middle;
       padding-left: 12px;
     }
     &:hover {
       background: none !important;
-      color: #36afd5;
+      color: #36afd5 !important;
     }
   }
  }
