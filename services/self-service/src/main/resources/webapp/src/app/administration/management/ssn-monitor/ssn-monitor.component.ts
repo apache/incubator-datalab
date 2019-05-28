@@ -17,7 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
@@ -32,17 +34,13 @@ export class SsnMonitorComponent implements OnInit {
   public errorMessage: string = '';
   public monitorData = {};
 
-  @ViewChild('bindDialog') bindDialog;
-  @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<SsnMonitorComponent>,
+  ) { }
 
-  ngOnInit() {}
-
-  public open(param, data): void {
-    this.monitorData = data || {};
-    this.bindDialog.open(param);
-  }
-  public close(param, data): void {
-    this.bindDialog.close();
+  ngOnInit() {
+    this.monitorData = this.data || {};
   }
 
   public isEmpty(obj) {

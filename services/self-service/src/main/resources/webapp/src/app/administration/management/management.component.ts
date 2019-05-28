@@ -35,6 +35,7 @@ import {
 import { EnvironmentModel, GeneralEnvironmentStatus } from './management.model';
 import { HTTP_STATUS_CODES } from '../../core/util';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
+import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 
 @Component({
   selector: 'environments-management',
@@ -103,7 +104,6 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
 
   showBackupDialog() {
-    // if (!this.backupDialog.isOpened) this.backupDialog.open({ isFooter: false });
     this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' })
                  .afterClosed().subscribe(() => this.buildGrid());
   }
@@ -124,8 +124,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
 
   openSsnMonitorDialog() {
-    this.healthStatusService.getSsnMonitorData()
-      .subscribe(data => this.ssnMonitorDialog.open({ isFooter: false }, data),
+    this.healthStatusService.getSsnMonitorData().subscribe(
+      data => this.dialog.open(SsnMonitorComponent, {data: data, panelClass: 'modal-lg' }),
       () => this.toastr.error('Failed ssn data loading!', 'Oops!'));
   }
 

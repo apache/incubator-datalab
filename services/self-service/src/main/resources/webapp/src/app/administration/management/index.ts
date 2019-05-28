@@ -80,7 +80,8 @@ export * from './management.component';
     ConfirmationDialogComponent,
     ConfirmActionDialogComponent,
     ConfirmDeleteUserAccountDialogComponent,
-    BackupDilogComponent],
+    BackupDilogComponent,
+    SsnMonitorComponent],
   exports: [ManagementComponent]
 })
 export class ManagenementModule { }
