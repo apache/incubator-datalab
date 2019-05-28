@@ -19,7 +19,10 @@
 
 <div class="sub-nav base-retreat">
     <div *ngIf="healthStatus?.admin" class="admin-group">
-        <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()">
+      <button mat-raised-button class="butt ssn" (click)="showEndpointsDialog()">
+        <i class="material-icons"></i>Endpoints
+      </button>
+      <button mat-raised-button class="butt ssn" (click)="openManageRolesDialog()">
         <i class="material-icons"></i>Manage roles
       </button>
         <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()">

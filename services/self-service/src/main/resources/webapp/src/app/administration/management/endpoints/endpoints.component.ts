@@ -27,7 +27,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
   styleUrls: ['./endpoints.component.scss']
 })
 export class EndpointsComponent implements OnInit {
-  public createAMIForm: FormGroup;
+  public createEndpointForm: FormGroup;
   namePattern = '[-_a-zA-Z0-9]+';
 
   constructor(
@@ -37,17 +37,18 @@ export class EndpointsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
+    this.initFormModel();
   }
 
   public assignChanges(data) {
-   console.log('Create', data); 
+   console.log('Create', data);
   }
 
   private initFormModel(): void {
-    this.createAMIForm = this._fb.group({
+    this.createEndpointForm = this._fb.group({
       name: ['', Validators.required],
-      description: ['']
+      url: ['', Validators.required],
+      account: ['', Validators.required]
     });
   }
 }

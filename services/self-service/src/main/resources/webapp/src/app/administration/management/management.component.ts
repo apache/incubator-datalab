@@ -37,6 +37,7 @@ import { HTTP_STATUS_CODES } from '../../core/util';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageEnvironmentComponent } from './manage-environment/manage-environment-dilog.component';
+import { EndpointsComponent } from './endpoints/endpoints.component';
 
 @Component({
   selector: 'environments-management',
@@ -106,6 +107,11 @@ export class ManagementComponent implements OnInit, OnDestroy {
 
   showBackupDialog() {
     this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' })
+      .afterClosed().subscribe(() => this.buildGrid());
+  }
+
+  showEndpointsDialog() {
+    this.dialog.open(EndpointsComponent, { panelClass: 'modal-sm' })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
