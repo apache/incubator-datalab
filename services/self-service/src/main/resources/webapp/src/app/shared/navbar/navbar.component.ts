@@ -53,7 +53,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   quotesLimit: number = 70;
   isLoggedIn: boolean = false;
   metadata: any;
-  isExpanded: boolean = false;
+  isExpanded: boolean = true;
 
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();

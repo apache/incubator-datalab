@@ -123,15 +123,19 @@ a.nav-item {
   display: block;
   position: relative;
   height: 56px;
-  padding: 5px;
+  padding: 5px 10px;
   line-height: 48px;
   font-family: "Open Sans", sans-serif;
   transition: all .45s ease-in-out;
   text-decoration: none;
   font-size: 14px;
   overflow: hidden;
-  color: #577289;
+  color: #577289 !important;
   outline: none;
+  i {
+    vertical-align: middle;
+    padding-left: 12px;
+  }
   &:not(.has-children):hover {
     background: none !important;
     color: #36afd5;
@@ -155,6 +159,11 @@ a.nav-item {
   .sub-nav-item {
     display: block;
     transition: all .45s ease-in-out;
+    margin-left: 30px;
+    i {
+      vertical-align: middle;
+      padding-left: 12px;
+    }
     &:hover {
       background: none !important;
       color: #36afd5;
@@ -171,7 +180,7 @@ a.nav-item {
   padding: 0px;
   background: none;
   outline: none;
-  width: 56px;
+  width: 60px;
   height: 46px;
   cursor: pointer;
   border-radius: 0;
