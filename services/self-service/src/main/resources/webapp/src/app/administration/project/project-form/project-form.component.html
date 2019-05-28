@@ -29,18 +29,18 @@
               <label class="label">Project name</label>
               <div class="control">
                 <input type="text" formControlName="name" placeholder="Enter project name"
-                  (blur)="generateProjectTag($event)">
+                  (blur)="generateProjectTag($event)" [ngClass]="{ 'not-allowed' : item }">
               </div>
             </div>
             <div class="control-group">
               <label class="label">Project tag</label>
               <div class="control">
-                <input type="text" formControlName="tag" placeholder="dlab-{ project name }">
+                <input type="text" formControlName="tag" placeholder="dlab-{ project name }" [ngClass]="{ 'not-allowed' : item }">
               </div>
             </div>
             <div class="control-group">
                 <div class="selector-wrapper">
-                  <mat-form-field>
+                  <mat-form-field [ngClass]="{ 'not-allowed' : item }">
                     <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
                       <mat-option class="multiple-select" disabled>
                         <a class="select ani" (click)="selectOptions(list, 'all')">

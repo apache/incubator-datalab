@@ -17,7 +17,7 @@
  * under the License.
  */
 
- import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+ import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
  import { FormGroup, FormBuilder, Validators } from '@angular/forms';
  import { ToastrService } from 'ngx-toastr';
 
@@ -38,6 +38,7 @@ export class ProjectFormComponent implements OnInit {
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
+  @ViewChild('stepper') stepper;
 
   constructor(
     public toastr: ToastrService,
@@ -53,13 +54,16 @@ export class ProjectFormComponent implements OnInit {
     this.getGroupsData();
     this.getEndpointsData();
 
-    this.item && this.editSpecificProject(this.item);
+    if (this.item) {
+      this.editSpecificProject(this.item);
+      this.stepper.selectedIndex = 1;
+    }
   }
 
   public confirm(data) {
     if (this.item) {
       this.projectService.updateProject(data).subscribe(() => {
-        this.toastr.success('Project creupdatedated successfully!', 'Success!');
+        this.toastr.success('Project updated successfully!', 'Success!');
         this.update.emit();
       }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
     } else {
