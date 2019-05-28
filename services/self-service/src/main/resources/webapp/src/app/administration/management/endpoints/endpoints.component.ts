@@ -39,6 +39,7 @@ export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
   namePattern = '[-_a-zA-Z0-9]+';
   endpoints: Endpoint[] = [];
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
@@ -61,9 +62,9 @@ export class EndpointsComponent implements OnInit {
 
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
-      name: ['', Validators.required],
-      url: ['', Validators.required],
-      account: ['', Validators.required]
+      name: ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
+      url: ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
+      account: ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])]
     });
   }
 

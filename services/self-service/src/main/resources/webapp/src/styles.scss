@@ -119,11 +119,14 @@ mat-chip.mat-chip strong {
 
 .terminated,
 .terminating,
-.failed,
-.error {
+.failed {
   color: #f1696e;
 }
 
+.error {
+  color: #f1696e;
+  font-size: 12px;
+}
 .not-allowed {
   cursor: not-allowed !important;
   user-select: none;
