@@ -31,6 +31,7 @@
   styleUrls: ['./project-form.component.scss']
 })
 export class ProjectFormComponent implements OnInit {
+  namePattern = '[-_a-zA-Z0-9]+';
 
   public projectForm: FormGroup;
   public groupsList: any = [];
@@ -91,9 +92,9 @@ export class ProjectFormComponent implements OnInit {
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
-      'name': ['', Validators.required],
-      'endpoints': [[]],
-      'tag': ['', Validators.required],
+      'name': ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
+      'endpoints': [[], Validators.required],
+      'tag': ['',Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
       'groups': [[], Validators.required]
     });
   }

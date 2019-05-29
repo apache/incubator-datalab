@@ -18,18 +18,11 @@
  */
 
 
-import {debounceTime} from 'rxjs/operators';
-import { Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  ViewEncapsulation,
-  ChangeDetectorRef,
-  Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime } from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService} from '../../../core/services';

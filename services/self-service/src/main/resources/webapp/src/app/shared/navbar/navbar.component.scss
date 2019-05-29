@@ -134,7 +134,7 @@ a.nav-item {
   outline: none;
   i {
     vertical-align: middle;
-    padding-left: 12px;
+    padding-left: 8px;
   }
   &:not(.has-children):hover {
     background: none !important;
@@ -161,7 +161,7 @@ a.nav-item {
     transition: all .45s ease-in-out;
     i {
       vertical-align: middle;
-      padding-left: 12px;
+      padding-left: 8px;
     }
     &:hover {
       background: none !important;
@@ -227,4 +227,10 @@ a.nav-item {
   -ms-transform: translateY(-4px) translateX(6px) rotate(-45deg);
   -o-transform: translateY(-4px) translateX(6px) rotate(-45deg);
   transform: translateY(-4px) translateX(6px) rotate(-45deg);
+}
+
+mat-sidenav-content {
+  &.mat-drawer-content {
+    transition: all 0.35s ease-out;
+  }
 }
