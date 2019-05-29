@@ -29,7 +29,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
       <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
     </header>
     <div mat-dialog-content class="content message">
-      <div *ngIf="data.type === 'list'; else info" class="info">
+      <div *ngIf="data.type === 'list'" class="info">
         <div *ngIf="data.template.notebook.length > 0">
           Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
           <span *ngFor="let item of data.template.notebook">

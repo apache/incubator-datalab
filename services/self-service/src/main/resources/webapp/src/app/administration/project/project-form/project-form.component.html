@@ -43,10 +43,10 @@
                   <mat-form-field [ngClass]="{ 'not-allowed' : item }">
                     <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
                       <mat-option class="multiple-select" disabled>
-                        <a class="select ani" (click)="selectOptions(list, 'all')">
+                        <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
                           <i class="material-icons">playlist_add_check</i>&nbsp;All
                         </a>
-                        <a class="deselect ani" (click)="selectOptions(list)">
+                        <a class="deselect ani" (click)="selectOptions(endpointsList, 'endpoints')">
                           <i class="material-icons">clear</i>&nbsp;None
                         </a>
                       </mat-option>

@@ -34,7 +34,7 @@
         <input type="password" class="input-with-icon" placeholder="Password" name="password" [(ngModel)]="model.password" #password="ngModel" required />
       </div>
 
-      <div *ngIf="failed" class="warning-alert"><span class="material-icons">priority_high</span>{{ error }}</div>
+      <div *ngIf="error" class="warning-alert"><span class="material-icons">priority_high</span>{{ error }}</div>
       <div class="form-group" [ngClass]="{'flex': DICTIONARY.cloud_provider === 'azure'}">
         <button mat-raised-button [disabled]="loading || !username.valid || !password.valid"
                 (click)="login_btnClick();"
