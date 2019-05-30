@@ -38,12 +38,10 @@ import { FormControlsModule } from '../../shared/form-controls';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import { ManageEnvironmentComponent, ConfirmActionDialogComponent } from './manage-environment/manage-environment-dilog.component';
 
-import { GroupNameValidationDirective } from './manage-roles-groups/group-name-validarion.directive';
 import { DirectivesModule } from '../../core/directives';
 
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { EndpointsComponent } from './endpoints/endpoints.component';
-import { ManageRolesGroupsComponent, ConfirmDeleteUserAccountDialogComponent } from './manage-roles-groups/manage-roles-groups.component';
 import { ProjectModule } from '../project';
 
 export * from './management.component';
@@ -67,21 +65,16 @@ export * from './management.component';
   declarations: [
     ManagementComponent,
     ManagementGridComponent,
-
-    GroupNameValidationDirective,
     BackupDilogComponent,
     ManageEnvironmentComponent,
     ConfirmationDialogComponent,
     ConfirmActionDialogComponent,
-    ConfirmDeleteUserAccountDialogComponent,
     SsnMonitorComponent,
-    ManageRolesGroupsComponent,
     EndpointsComponent
   ],
   entryComponents: [
     ConfirmationDialogComponent,
     ConfirmActionDialogComponent,
-    ConfirmDeleteUserAccountDialogComponent,
     BackupDilogComponent,
     SsnMonitorComponent,
     EndpointsComponent,

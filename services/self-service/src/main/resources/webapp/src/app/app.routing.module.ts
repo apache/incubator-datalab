@@ -30,8 +30,9 @@ import { ReportingComponent } from './reporting/reporting.component';
 import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './administration/management/management.component';
 import { ProjectComponent } from './administration/project/project.component';
+import { RolesComponent } from './administration/roles/roles.component';
 
-import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard } from './core/services';
+import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard } from './core/services';
 
 const routes: Routes = [{
     path: 'login',
@@ -56,11 +57,15 @@ const routes: Routes = [{
     }, {
       path: 'projects',
       component: ProjectComponent,
-      canActivate: [AuthorizationGuard],
+      canActivate: [AuthorizationGuard, AdminGuard],
+    }, {
+      path: 'roles',
+      component: RolesComponent,
+      canActivate: [AuthorizationGuard, AdminGuard],
     }, {
       path: 'environment_management',
       component: ManagementComponent,
-      canActivate: [AuthorizationGuard]
+      canActivate: [AuthorizationGuard, AdminGuard]
     }, {
       path: 'terminal/:id',
       component: WebterminalComponent

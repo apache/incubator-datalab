@@ -60,7 +60,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
   @ViewChild('keyUploadModal') keyUploadDialog;
   @ViewChild('preloaderModal') preloaderDialog;
   @ViewChild('ssnMonitor') ssnMonitorDialog;
-  @ViewChild('rolesGroupsModal') rolesGroupsDialog;
+  // @ViewChild('rolesGroupsModal') rolesGroupsDialog;
 
   constructor(
     public toastr: ToastrService,
@@ -111,7 +111,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
 
   showEndpointsDialog() {
-    this.dialog.open(EndpointsComponent, { panelClass: 'modal-sm' })
+    this.dialog.open(EndpointsComponent, { panelClass: 'modal-xl-s' })
       .afterClosed().subscribe(result => result && this.buildGrid());
   }
 
@@ -140,14 +140,14 @@ export class ManagementComponent implements OnInit, OnDestroy {
       () => this.toastr.error('Failed ssn data loading!', 'Oops!'));
   }
 
-  openManageRolesDialog() {
-    this.rolesService.getGroupsData().subscribe(group => {
-      this.rolesService.getRolesData().subscribe(
-        roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
-        error => this.toastr.error(error.message, 'Oops!'));
-    },
-      error => this.toastr.error(error.message, 'Oops!'));
-  }
+  // openManageRolesDialog() {
+  //   this.rolesService.getGroupsData().subscribe(group => {
+  //     this.rolesService.getRolesData().subscribe(
+  //       roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
+  //       error => this.toastr.error(error.message, 'Oops!'));
+  //   },
+  //     error => this.toastr.error(error.message, 'Oops!'));
+  // }
 
   isEnvironmentsInProgress(data): boolean {
     return data.exploratory.some(el => {
@@ -169,37 +169,37 @@ export class ManagementComponent implements OnInit, OnDestroy {
       error => this.toastr.error(error.message, 'Oops!'));
   }
 
-  manageRolesGroups($event) {
-    switch ($event.action) {
-      case 'create':
-        this.rolesService.setupNewGroup($event.value).subscribe(res => {
-          this.toastr.success('Group creation success!', 'Created!');
-          this.getGroupsData();
-        }, () => this.toastr.error('Group creation failed!', 'Oops!'));
-        break;
-      case 'update':
-        this.rolesService.updateGroup($event.value).subscribe(res => {
-          this.toastr.success('Group data successfully updated!', 'Success!');
-          this.getGroupsData();
-        }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
-        break;
-      case 'delete':
-        if ($event.type === 'users') {
-          this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
-            this.toastr.success('Users was successfully deleted!', 'Success!');
-            this.getGroupsData();
-          }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
-        } else if ($event.type === 'group') {
-          console.log('delete group');
-          this.rolesService.removeGroupById($event.value).subscribe(res => {
-            this.toastr.success('Group was successfully deleted!', 'Success!');
-            this.getGroupsData();
-          }, () => this.toastr.error('Failed group deleting!', 'Oops!'));
-        }
-        break;
-      default:
-    }
-  }
+  // manageRolesGroups($event) {
+  //   switch ($event.action) {
+  //     case 'create':
+  //       this.rolesService.setupNewGroup($event.value).subscribe(res => {
+  //         this.toastr.success('Group creation success!', 'Created!');
+  //         this.getGroupsData();
+  //       }, () => this.toastr.error('Group creation failed!', 'Oops!'));
+  //       break;
+  //     case 'update':
+  //       this.rolesService.updateGroup($event.value).subscribe(res => {
+  //         this.toastr.success('Group data successfully updated!', 'Success!');
+  //         this.getGroupsData();
+  //       }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
+  //       break;
+  //     case 'delete':
+  //       if ($event.type === 'users') {
+  //         this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
+  //           this.toastr.success('Users was successfully deleted!', 'Success!');
+  //           this.getGroupsData();
+  //         }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
+  //       } else if ($event.type === 'group') {
+  //         console.log('delete group');
+  //         this.rolesService.removeGroupById($event.value).subscribe(res => {
+  //           this.toastr.success('Group was successfully deleted!', 'Success!');
+  //           this.getGroupsData();
+  //         }, () => this.toastr.error('Failed group deleting!', 'Oops!'));
+  //       }
+  //       break;
+  //     default:
+  //   }
+  // }
 
   setBudgetLimits($event) {
     this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
@@ -212,11 +212,11 @@ export class ManagementComponent implements OnInit, OnDestroy {
     }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
-  getGroupsData() {
-    this.rolesService.getGroupsData().subscribe(
-      list => this.rolesGroupsDialog.updateGroupData(list),
-      error => this.toastr.error(error.message, 'Oops!'));
-  }
+  // getGroupsData() {
+  //   this.rolesService.getGroupsData().subscribe(
+  //     list => this.rolesGroupsDialog.updateGroupData(list),
+  //     error => this.toastr.error(error.message, 'Oops!'));
+  // }
 
   manageEnvironment(event: { action: string, user: string }) {
     this.healthStatusService

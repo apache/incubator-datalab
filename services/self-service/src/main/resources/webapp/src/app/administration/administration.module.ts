@@ -22,10 +22,11 @@ import { CommonModule } from '@angular/common';
 
 import { ManagenementModule } from './management';
 import { ProjectModule } from './project';
+import { RolesModule } from './roles';
 
 @NgModule({
-  imports: [CommonModule, ManagenementModule, ProjectModule],
+  imports: [CommonModule, ManagenementModule, ProjectModule, RolesModule],
   declarations: [],
-  exports: [ManagenementModule, ProjectModule]
+  exports: [ManagenementModule, ProjectModule, RolesModule]
 })
 export class AdministrationModule { }
