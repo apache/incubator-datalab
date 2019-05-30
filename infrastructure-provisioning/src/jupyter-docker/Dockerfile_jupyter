@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM legionplatformtest/python-toolchain:1.0.0-rc12
+FROM nexus.cc.epm.kharlamov.biz:443/legion/python-toolchain:1.0.0-20190530133321.323.c63f688
 
 ARG NB_USER="nb_user"
 
@@ -36,6 +36,10 @@ RUN  sed -i 's|CONF_PATH|/etc/jupyter/jupyter_notebook_config.py|' /jupyter_run.
   && chown -R 1001:1001 /etc/jupyter \
   && chown -R 1001:1001 /opt/legion
 
+RUN jupyter labextension disable jupyter.extensions.legion:local
+
 USER $NB_USER
+
+RUN jupyter serverextension enable --py jupyter_legion
 
 ENTRYPOINT ["/jupyter_run.sh", "-d"]
