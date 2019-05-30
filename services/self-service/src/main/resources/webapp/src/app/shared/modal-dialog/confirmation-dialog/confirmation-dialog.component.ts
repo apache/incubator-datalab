@@ -22,7 +22,6 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
-import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 import { HTTP_STATUS_CODES } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
@@ -30,7 +29,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 @Component({
   selector: 'confirmation-dialog',
   templateUrl: 'confirmation-dialog.component.html',
-  styleUrls: ['./confirmation-dialog.component.scss', '../modal.component.scss'],
+  styleUrls: ['./confirmation-dialog.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 

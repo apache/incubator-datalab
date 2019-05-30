@@ -20,14 +20,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ModalModule } from '..';
 import { UploadKeyDialogComponent } from './key-upload-dialog.component';
 import { MaterialModule } from '../../material.module';
 
 export * from './key-upload-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, MaterialModule],
+  imports: [CommonModule, MaterialModule],
   declarations: [UploadKeyDialogComponent],
   entryComponents: [UploadKeyDialogComponent],
   exports: [UploadKeyDialogComponent]

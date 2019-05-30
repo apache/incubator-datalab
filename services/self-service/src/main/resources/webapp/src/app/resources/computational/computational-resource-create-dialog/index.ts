@@ -21,7 +21,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ModalModule } from '../../../shared/modal-dialog';
 import { MaterialModule } from '../../../shared/material.module';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ComputationalResourceCreateDialogComponent } from './computational-resource-create-dialog.component';
@@ -29,7 +28,6 @@ import { ComputationalResourceCreateDialogComponent } from './computational-reso
 @NgModule({
   imports: [
     CommonModule,
-    ModalModule,
     FormsModule,
     ReactiveFormsModule,
     FormControlsModule,

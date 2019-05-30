@@ -59,8 +59,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
 
-  @ViewChild('keyUploadModal') keyUploadDialog;
-
   constructor(
     public toastr: ToastrService,
     private applicationSecurityService: ApplicationSecurityService,
@@ -162,7 +160,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (status === HTTP_STATUS_CODES.NOT_FOUND || status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
       !this.dialog.openDialogs.length && this.dialog.closeAll();
 
-      this.keyUploadDialog.open({ isFooter: false });
+      // this.keyUploadDialog.open({ isFooter: false });
       this.alive = false;
       this.lastStatus = status;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
@@ -183,7 +181,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
       this.alive = false;
       this.dialog.closeAll();
-      this.keyUploadDialog.close();
+      // this.keyUploadDialog.close();
     }
   }
 

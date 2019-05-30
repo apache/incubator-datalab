@@ -27,21 +27,13 @@ import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateModule } from './exploratory/exploratory-environment-create-dialog';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
-import {
-  ModalModule,
-  ProgressDialogModule,
-  UploadKeyDialogModule
-} from '../shared';
 
 @NgModule({
   imports: [
     CommonModule,
-    ModalModule,
     FormsModule,
     ReactiveFormsModule,
     ResourcesGridModule,
-    ProgressDialogModule,
-    UploadKeyDialogModule,
     ExploratoryEnvironmentCreateModule,
     MaterialModule
   ],

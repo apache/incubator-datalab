@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../../shared/material.module';
-import { ModalModule, BubbleModule } from '../../shared';
+import { BubbleModule } from '../../shared';
 import { FormControlsModule } from '../../shared/form-controls';
 import { SchedulerComponent } from './scheduler.component';
 import { TimePickerModule } from '../../shared/time-picker';
@@ -35,7 +35,6 @@ export * from './scheduler.model';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ModalModule,
     FormControlsModule,
     MaterialModule,
     BubbleModule,

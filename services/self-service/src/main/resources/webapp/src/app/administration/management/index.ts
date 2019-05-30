@@ -21,12 +21,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import {
-  ModalModule,
-  UploadKeyDialogModule,
-  BubbleModule,
-  ConfirmationDialogModule
-} from '../../shared';
+import { UploadKeyDialogModule, BubbleModule, ConfirmationDialogModule } from '../../shared';
 import { MaterialModule } from '../../shared/material.module';
 
 import { ManagementComponent } from './management.component';
@@ -51,7 +46,6 @@ export * from './management.component';
     FormsModule,
     ReactiveFormsModule,
     ProjectModule,
-    ModalModule,
     UploadKeyDialogModule,
     BubbleModule,
     ConfirmationDialogModule,
