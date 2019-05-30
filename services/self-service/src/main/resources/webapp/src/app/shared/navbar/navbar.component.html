@@ -26,13 +26,6 @@
       <span class="line"></span>
     </button>
 
-    <nav role="navigation">
-      <!-- <mat-menu #menu="matMenu" [overlapTrigger]="false">
-        <a class="nav-item" mat-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
-        <a class="nav-item" mat-menu-item [routerLink]="['/administration']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
-        <a *ngIf="healthStatus.billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/billing_report']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
-      </mat-menu> -->
-    </nav>
     <a [routerLink]="['/resources_list']" class="navbar-logo">
       <img src="assets/img/logo-nav.png" alt="">
     </a>
@@ -127,4 +120,3 @@
 
 <key-upload-dialog #keyUploadModal (generateUserKey)="generateUserKey($event)"
   (checkInfrastructureCreationProgress)="checkCreationProgress($event)" [primaryUploading]="true"></key-upload-dialog>
-<progress-dialog #preloaderModal></progress-dialog>

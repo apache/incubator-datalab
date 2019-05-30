@@ -27,20 +27,8 @@ import { Component, OnInit, ViewChild, Input } from '@angular/core';
 export class ProgressDialogComponent implements OnInit {
   @Input() theBoundCallback: Function;
 
-  @ViewChild('bindDialog') bindDialog;
-
   ngOnInit() {
     if (this.theBoundCallback)
       this.theBoundCallback();
-  }
-
-  open(params) {
-    if (!this.bindDialog.isOpened)
-      this.bindDialog.open(params);
-  }
-
-  close() {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
   }
 }

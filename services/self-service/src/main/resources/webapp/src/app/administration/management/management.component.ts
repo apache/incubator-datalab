@@ -58,7 +58,6 @@ export class ManagementComponent implements OnInit, OnDestroy {
   @ViewChild('backupDialog') backupDialog;
   @ViewChild('manageEnvDialog') manageEnvironmentDialog;
   @ViewChild('keyUploadModal') keyUploadDialog;
-  @ViewChild('preloaderModal') preloaderDialog;
   @ViewChild('ssnMonitor') ssnMonitorDialog;
   // @ViewChild('rolesGroupsModal') rolesGroupsDialog;
 

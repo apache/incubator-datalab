@@ -24,7 +24,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   ModalModule,
   UploadKeyDialogModule,
-  ProgressDialogModule,
   BubbleModule,
   ConfirmationDialogModule
 } from '../../shared';
@@ -54,7 +53,6 @@ export * from './management.component';
     ProjectModule,
     ModalModule,
     UploadKeyDialogModule,
-    ProgressDialogModule,
     BubbleModule,
     ConfirmationDialogModule,
     ComputationalResourcesModule,

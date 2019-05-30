@@ -33,6 +33,7 @@ import { GeneralEnvironmentStatus } from '../../administration/management/manage
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
+import { ProgressDialogComponent } from '../modal-dialog/progress-dialog';
 
 @Component({
   selector: 'dlab-navbar',
@@ -59,7 +60,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
 
   @ViewChild('keyUploadModal') keyUploadDialog;
-  @ViewChild('preloaderModal') preloaderDialog;
 
   constructor(
     public toastr: ToastrService,
@@ -159,13 +159,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private processAccessKeyStatus(status: number): void {
+    debugger;
     if (status === HTTP_STATUS_CODES.NOT_FOUND || status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
-      this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.close();
+      !this.dialog.openDialogs.length && this.dialog.closeAll();
+
       this.keyUploadDialog.open({ isFooter: false });
       this.alive = false;
       this.lastStatus = status;
     } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      !this.preloaderDialog.bindDialog.isOpened && this.preloaderDialog.open({ isHeader: false, isFooter: false });
+      !this.dialog.openDialogs.length && this.dialog.open(ProgressDialogComponent, {panelClass: 'modal-xs'});
 
       if (!this.alive) {
         this.alive = true;
@@ -181,7 +183,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.lastStatus = false;
       }
       this.alive = false;
-      this.preloaderDialog.close();
+      this.dialog.closeAll();
       this.keyUploadDialog.close();
     }
   }
@@ -191,7 +193,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         if (list.length) {
           if (this.dialog.openDialogs.length > 0) return;
           const filteredData = this.groupSchedulerData(list);
-          const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
+          this.dialog.open(NotificationDialogComponent, {
             data: { template: filteredData, type: 'list' },
             width: '550px'
           });
