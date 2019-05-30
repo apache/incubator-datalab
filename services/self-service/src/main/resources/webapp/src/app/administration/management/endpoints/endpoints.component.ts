@@ -19,10 +19,11 @@
 
 import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { EndpointService } from '../../../core/services';
+import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 
 export interface Endpoint {
   name: string;
@@ -39,11 +40,13 @@ export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
   namePattern = '[-_a-zA-Z0-9]+';
   endpoints: Endpoint[] = [];
+  displayedColumns: string[] = ['name', 'url', 'account', 'actions'];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
     public dialogRef: MatDialogRef<EndpointsComponent>,
+    public dialog: MatDialog,
     private endpointService: EndpointService,
     private _fb: FormBuilder
   ) { }
@@ -58,6 +61,16 @@ export class EndpointsComponent implements OnInit {
       this.toastr.success('Endpoint created successfully!', 'Success!');
       this.dialogRef.close(true);
     }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+  }
+
+  public deleteEndpoint(data) {
+    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data }, panelClass: 'modal-sm' })
+      .afterClosed().subscribe(result => {
+        result && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
+          this.toastr.success('Endpoint successfully deleted!', 'Success!');
+          this.getEndpointList();
+        }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+      });
   }
 
   private initFormModel(): void {
