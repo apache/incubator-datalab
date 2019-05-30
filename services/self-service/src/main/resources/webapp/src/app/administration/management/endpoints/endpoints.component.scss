@@ -17,3 +17,45 @@
  * under the License.
  */
 
+.content-box {
+  padding: 10px 30px 30px;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  form {
+    padding: 20px 10px;
+    .control-group {
+      .error {
+        position: absolute;
+        right: 0;
+        bottom: 5px;
+      }
+    }
+  }
+  .action-group {
+    text-align: center;
+  }
+  .endpoints {
+    height: 265px;
+    table {
+      width: 100%;
+      .actions {
+        color: #607d8b;
+        width: 10%;
+        text-align: center;
+        span {
+          transition: all .5s ease-in-out;
+          cursor: pointer;
+          .mat-icon {
+            font-size: 18px;
+            padding-top: 5px;
+          }
+          &:hover {
+            color: darken(#607d8b, 10%);
+          }
+        }
+      }
+    }
+  }
+}
