@@ -65,10 +65,10 @@ public class SecurityResource implements SecurityAPI {
 	private SelfServiceApplicationConfiguration configuration;
 
 	@Inject
-	public SecurityResource(SecurityDAO dao, @Named(ServiceConsts.SECURITY_SERVICE_NAME) RESTService securityService,
+	public SecurityResource(SecurityDAO dao,
 							EnvStatusListener envStatusListener, SelfServiceApplicationConfiguration configuration) {
 		this.dao = dao;
-		this.securityService = securityService;
+		this.securityService = null;
 		this.envStatusListener = envStatusListener;
 		this.configuration = configuration;
 	}

@@ -54,7 +54,7 @@ public class SecurityResourceTest extends TestBase {
 
 	@Rule
 	public final ResourceTestRule resources = getResourceTestRuleInstance(
-			new SecurityResource(securityDAO, securityService, envStatusListener, configuration));
+			new SecurityResource(securityDAO, envStatusListener, configuration));
 
 	@Before
 	public void setup() throws AuthenticationException {

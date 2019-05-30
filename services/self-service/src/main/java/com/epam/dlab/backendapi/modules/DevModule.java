@@ -66,8 +66,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 	protected void configure() {
 		bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
 		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
-		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
-				.toInstance(createAuthenticationService());
+		/*bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
+				.toInstance(createAuthenticationService());*/
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
 				.toInstance(configuration.getProvisioningFactory()
 						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));

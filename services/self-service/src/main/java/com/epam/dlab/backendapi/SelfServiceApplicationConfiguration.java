@@ -28,16 +28,20 @@ import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
 import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.ahus1.keycloak.dropwizard.KeycloakConfiguration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.group.GroupSequenceProvider;
+import org.keycloak.representations.adapters.config.AdapterConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -124,6 +128,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@Valid
 	@NotNull
 	private Map<String, String> guacamole;
+
+	private KeycloakConfiguration keycloakConfiguration = new KeycloakConfiguration();
 
 	public Map<String, String> getGuacamole() {
 		return guacamole;
@@ -256,5 +262,13 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@NotNull
 	public RESTServiceFactory getMavenApiFactory() {
 		return mavenApiFactory;
+	}
+
+	public KeycloakConfiguration getKeycloakConfiguration() {
+		return keycloakConfiguration;
+	}
+
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		KeyFactory kf = KeyFactory.getInstance("ECDSA");
 	}
 }
