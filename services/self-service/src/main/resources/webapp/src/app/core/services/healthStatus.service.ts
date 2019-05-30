@@ -108,15 +108,19 @@ export class HealthStatusService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public isBillingEnabled(): Observable<boolean> {
+  public isPassageway(parameter: string): Observable<boolean> {
     return this.applicationServiceFacade
       .buildGetEnvironmentHealthStatus()
       .pipe(
         map(response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
             const data = response.body;
-            if (!data.billingEnabled) {
+            if (parameter === 'billing' && !data.billingEnabled) {
               this.appRoutingService.redirectToHomePage();
+              return false;
+            }
+            if (parameter === 'administration' && !data.admin) {
+              this.appRoutingService.redirectToNoAccessPage();
               return false;
             }
           }
