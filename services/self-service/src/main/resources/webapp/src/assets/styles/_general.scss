@@ -84,6 +84,7 @@ textarea::placeholder {
   display: flex;
   flex-flow: row wrap;
   padding-bottom: 20px;
+  position: relative;
 }
 .row-wrap {
   padding-bottom: 0;
