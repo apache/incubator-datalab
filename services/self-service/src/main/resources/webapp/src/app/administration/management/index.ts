@@ -30,7 +30,7 @@ import {
 import { MaterialModule } from '../../shared/material.module';
 
 import { ManagementComponent } from './management.component';
-import { ManagementGridComponent, ConfirmationDialogComponent } from './management-grid/management-grid.component';
+import { ManagementGridComponent, ReconfirmationDialogComponent } from './management-grid/management-grid.component';
 import { ComputationalResourcesModule } from '../../resources/computational/computational-resources-list';
 
 import { FormControlsModule } from '../../shared/form-controls';
@@ -65,13 +65,13 @@ export * from './management.component';
     ManagementGridComponent,
     BackupDilogComponent,
     ManageEnvironmentComponent,
-    ConfirmationDialogComponent,
+    ReconfirmationDialogComponent,
     ConfirmActionDialogComponent,
     SsnMonitorComponent,
     EndpointsComponent
   ],
   entryComponents: [
-    ConfirmationDialogComponent,
+    ReconfirmationDialogComponent,
     ConfirmActionDialogComponent,
     BackupDilogComponent,
     SsnMonitorComponent,

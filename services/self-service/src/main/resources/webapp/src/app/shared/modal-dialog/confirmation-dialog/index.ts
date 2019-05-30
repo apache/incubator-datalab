@@ -30,6 +30,7 @@ export * from './confirmation-dialog-type.enum';
 @NgModule({
   imports: [CommonModule, ModalModule, MaterialModule],
   declarations: [ConfirmationDialogComponent],
+  entryComponents: [ConfirmationDialogComponent],
   exports: [ConfirmationDialogComponent]
 })
 export class ConfirmationDialogModule {}

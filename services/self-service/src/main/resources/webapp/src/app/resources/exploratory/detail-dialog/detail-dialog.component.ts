@@ -56,7 +56,6 @@ export class DetailDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this.dialogRef.beforeClosed().subscribe(() => this.resetDialog());
     this.notebook;
 
     if (this.notebook) {

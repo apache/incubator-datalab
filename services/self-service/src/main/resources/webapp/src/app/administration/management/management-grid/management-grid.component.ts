@@ -24,6 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { HealthStatusService, UserAccessKeyService } from '../../../core/services';
 import { ConfirmationDialogType } from '../../../shared';
 import { FileUtils } from '../../../core/util';
+import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog/confirmation-dialog.component';
 
 export interface ManageAction {
   action: string;
@@ -51,7 +52,6 @@ export class ManagementGridComponent implements OnInit {
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
-  @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('keyReuploadDialog') keyReuploadDialog;
 
   constructor(
@@ -71,7 +71,7 @@ export class ManagementGridComponent implements OnInit {
   toggleResourceAction(environment, action: string, resource?) {
     if (resource) {
       const resource_name = resource ? resource.computational_name : environment.name;
-      const dialogRef: MatDialogRef<ConfirmationDialogComponent> = this.dialog.open(ConfirmationDialogComponent, {
+      const dialogRef: MatDialogRef<ReconfirmationDialogComponent> = this.dialog.open(ReconfirmationDialogComponent, {
         data: { action, resource_name, user: environment.user },
         width: '550px',
         panelClass: 'error-modalbox'
@@ -80,16 +80,17 @@ export class ManagementGridComponent implements OnInit {
         result && this.actionToggle.emit({ action, environment, resource });
       });
     } else {
+      const type = (environment.name === 'edge node' || environment.type.toLowerCase() === 'edge node')
+                    ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
+
       if (action === 'stop') {
-        this.confirmationDialog.open(
-          { isFooter: false },
-          environment,
-          (environment.name === 'edge node' || environment.type.toLowerCase() === 'edge node')
-            ? ConfirmationDialogType.StopEdgeNode
-            : ConfirmationDialogType.StopExploratory,
-          );
+        this.dialog.open(ConfirmationDialogComponent, {
+          data: { notebook: environment, type: type, manageAction: this.isAdmin }, panelClass: 'modal-md'
+        });
       } else if (action === 'terminate') {
-        this.confirmationDialog.open({ isFooter: false }, environment, ConfirmationDialogType.TerminateExploratory);
+        this.dialog.open(ConfirmationDialogComponent, {
+          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: this.isAdmin }
+        });
       } else if (action === 'run') {
         this.healthStatusService
           .runEdgeNode()
@@ -164,9 +165,9 @@ export class ManagementGridComponent implements OnInit {
   styles: [
   ]
 })
-export class ConfirmationDialogComponent {
+export class ReconfirmationDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
+    public dialogRef: MatDialogRef<ReconfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 }

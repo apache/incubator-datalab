@@ -18,7 +18,7 @@
  */
 /* tslint:disable:no-empty */
 
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material';
 
@@ -34,6 +34,7 @@ import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 import { InstallLibrariesComponent } from '../exploratory/install-libraries';
 import { ComputationalResourceCreateDialogComponent } from '../computational/computational-resource-create-dialog/computational-resource-create-dialog.component';
 import { CostDetailsDialogComponent } from '../exploratory/cost-details-dialog';
+import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmation-dialog';
 import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
@@ -52,19 +53,12 @@ export class ResourcesGridComponent implements OnInit {
   filterConfiguration: FilterConfigurationModel;
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
   model = new CreateResourceModel('', '');
-  notebookName: string;
   isOutscreenDropdown: boolean;
   collapseFilterRow: boolean = false;
   filtering: boolean = false;
   activeFiltering: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
   delimitersRegex = /[-_]?/g;
-
-  // @ViewChild('computationalResourceModal') computationalResourceModal;
-  @ViewChild('confirmationDialog') confirmationDialog;
-  @ViewChild('detailDialog') detailDialog;
-  @ViewChild('costDetailsDialog') costDetailsDialog;
-  // @ViewChild('envScheduler') scheduler;
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
@@ -281,7 +275,6 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   printDetailEnvironmentModal(data): void {
-    // this.detailDialog.open({ isFooter: false }, data);
     this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
                .afterClosed().subscribe(() => this.buildGrid());
   }
@@ -293,9 +286,6 @@ export class ResourcesGridComponent implements OnInit {
 
   exploratoryAction(data, action: string) {
     if (action === 'deploy') {
-      this.notebookName = data.name;
-      // this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
-
       this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments}, panelClass: 'modal-xxl'})
                  .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'run') {
@@ -305,14 +295,15 @@ export class ResourcesGridComponent implements OnInit {
           () => this.buildGrid(),
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
-      this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
+      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm'})
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'terminate') {
-      this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
+      this.dialog.open(ConfirmationDialogComponent, {data: { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm'})
+                 .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'install') {
       this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
                  .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'schedule') {
-      // this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
       this.dialog.open(SchedulerComponent, { data: {notebook: data, type: 'EXPLORATORY'}, panelClass: 'modal-xl-s' })
                  .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'ami') {
