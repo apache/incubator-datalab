@@ -17,17 +17,20 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
-import { ValidatorFn, FormControl, NgModel } from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { ToastrService } from 'ngx-toastr';
+
+import { RolesGroupsService } from '../../core/services';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
-  selector: 'dlab-manage-roles-groups',
-  templateUrl: './manage-roles-groups.component.html',
-  styleUrls: ['../../../resources/resources-grid/resources-grid.component.css', './manage-roles-groups.component.scss']
+  selector: 'dlab-roles',
+  templateUrl: './roles.component.html',
+  styleUrls: ['../../resources/resources-grid/resources-grid.component.css', './roles.component.scss']
 })
-export class ManageRolesGroupsComponent implements OnInit {
+export class RolesComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   public groupsData: Array<any> = [];
@@ -41,23 +44,40 @@ export class ManageRolesGroupsComponent implements OnInit {
   public delimitersRegex = /[-_]?/g;
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
 
-  @ViewChild('bindDialog') bindDialog;
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
   stepperView: boolean = false;
 
-  constructor(public dialog: MatDialog) { }
+  constructor(
+    public toastr: ToastrService,
+    public dialog: MatDialog,
+    private rolesService: RolesGroupsService
+  ) { }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.resetDialog();
+  this.openManageRolesDialog()
   }
 
-  public open(param, groups, roles): void {
+  openManageRolesDialog() {
+    this.rolesService.getGroupsData().subscribe(group => {
+      this.rolesService.getRolesData().subscribe(
+        roles => this.open(group, roles),
+        error => this.toastr.error(error.message, 'Oops!'));
+    },
+    error => this.toastr.error(error.message, 'Oops!'));
+  }
+
+  getGroupsData() {
+    this.rolesService.getGroupsData().subscribe(
+      list => this.updateGroupData(list),
+      error => this.toastr.error(error.message, 'Oops!'));
+  }
+
+  public open(groups, roles): void {
     this.roles = roles;
     this.rolesList = roles.map(role => role.description);
     this.updateGroupData(groups);
 
     this.stepperView = false;
-    this.bindDialog.open(param);
   }
 
   public onUpdate($event) {
@@ -75,7 +95,7 @@ export class ManageRolesGroupsComponent implements OnInit {
 
   public manageAction(action: string, type: string, item?: any, value?) {
     if (action === 'create') {
-      this.manageRolesGroupAction.emit(
+      this.manageRolesGroups(
         { action, type, value: {
           name: this.setupGroup,
           users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()) : [],
@@ -95,11 +115,11 @@ export class ManageRolesGroupsComponent implements OnInit {
           const emitValue = (type === 'users')
             ? {action, type, id: item.name, value: { user: value, group: item.group }}
             : {action, type, id: item.name, value: item.group} ;
-          this.manageRolesGroupAction.emit(emitValue);
+          this.manageRolesGroups(emitValue);
         }
       });
     } else if (action === 'update') {
-      this.manageRolesGroupAction.emit({action, type, value: {
+      this.manageRolesGroups({action, type, value: {
         name: item.group,
         roleIds: this.extractIds(this.roles, item.selected_roles),
         users: item.users || [] }});
@@ -107,6 +127,38 @@ export class ManageRolesGroupsComponent implements OnInit {
     this.resetDialog();
   }
 
+  manageRolesGroups($event) {
+    switch ($event.action) {
+      case 'create':
+        this.rolesService.setupNewGroup($event.value).subscribe(res => {
+          this.toastr.success('Group creation success!', 'Created!');
+          this.getGroupsData();
+        }, () => this.toastr.error('Group creation failed!', 'Oops!'));
+        break;
+      case 'update':
+        this.rolesService.updateGroup($event.value).subscribe(res => {
+          this.toastr.success('Group data successfully updated!', 'Success!');
+          this.getGroupsData();
+        }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
+        break;
+      case 'delete':
+        if ($event.type === 'users') {
+          this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
+            this.toastr.success('Users was successfully deleted!', 'Success!');
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
+        } else if ($event.type === 'group') {
+          console.log('delete group');
+          this.rolesService.removeGroupById($event.value).subscribe(res => {
+            this.toastr.success('Group was successfully deleted!', 'Success!');
+            this.getGroupsData();
+          }, () => this.toastr.error('Failed group deleting!', 'Oops!'));
+        }
+        break;
+      default:
+    }
+  }
+  
   public extractIds(sourceList, target) {
     return sourceList.reduce((acc, item) => {
       target.includes(item.description) && acc.push(item._id);
