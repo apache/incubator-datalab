@@ -551,6 +551,12 @@ export class ApplicationServiceFacade {
       data);
   }
 
+  public buildDeleteEndpoint(param): Observable<any> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + param,
+      null);
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
