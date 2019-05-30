@@ -27,6 +27,7 @@ import { UserAccessKeyService } from './services/userAccessKey.service';
 import { UserResourceService } from './services/userResource.service';
 import { AuthorizationGuard } from './services/authorization.guard';
 import { CloudProviderGuard } from './services/cloudProvider.guard';
+import { AdminGuard } from './services/admin.quard';
 import { CheckParamsGuard } from './services/checkParams.guard';
 import { LibrariesInstallationService } from './services/librariesInstallation.service';
 import { ManageUngitService } from './services/manageUngit.service';
@@ -57,6 +58,7 @@ export class CoreModule {
       providers: [
         ApplicationSecurityService,
         AuthorizationGuard,
+        AdminGuard,
         CloudProviderGuard,
         CheckParamsGuard,
         UserAccessKeyService,
