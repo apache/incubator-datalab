@@ -27,7 +27,7 @@ import { ModalModule, ConfirmationDialogModule, BubbleModule } from '../../share
 import { ComputationalResourceCreateDialogModule } from '../computational/computational-resource-create-dialog';
 import { DetailDialogModule } from '../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
-import { CostDetailsDialogModule } from '../billing/cost-details-dialog';
+import { CostDetailsDialogModule } from '../exploratory/cost-details-dialog';
 import { InstallLibrariesModule } from '../exploratory/install-libraries';
 import { AmiCreateDialogModule } from '../exploratory/ami-create-dialog';
 import { SchedulerModule } from '../scheduler';

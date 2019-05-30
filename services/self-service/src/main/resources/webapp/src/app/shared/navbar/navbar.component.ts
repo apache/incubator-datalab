@@ -159,7 +159,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private processAccessKeyStatus(status: number): void {
-    debugger;
     if (status === HTTP_STATUS_CODES.NOT_FOUND || status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
       !this.dialog.openDialogs.length && this.dialog.closeAll();
 

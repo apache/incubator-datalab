@@ -33,7 +33,7 @@ import { DetailDialogComponent } from '../exploratory/detail-dialog';
 import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 import { InstallLibrariesComponent } from '../exploratory/install-libraries';
 import { ComputationalResourceCreateDialogComponent } from '../computational/computational-resource-create-dialog/computational-resource-create-dialog.component';
-import { CostDetailsDialogComponent } from '../billing/cost-details-dialog';
+import { CostDetailsDialogComponent } from '../exploratory/cost-details-dialog';
 import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
@@ -287,8 +287,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   printCostDetails(data): void {
-    // this.costDetailsDialog.open({ isFooter: false }, data);
-    this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-lg' })
+    this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-xl' })
                .afterClosed().subscribe(() => this.buildGrid());
   }
 

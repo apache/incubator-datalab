@@ -22,12 +22,11 @@ import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from '../../../shared/material.module';
 import { CostDetailsDialogComponent } from './cost-details-dialog.component';
-import { ModalModule } from '../../../shared';
 
 export * from './cost-details-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, MaterialModule],
+  imports: [CommonModule, MaterialModule],
   declarations: [CostDetailsDialogComponent],
   entryComponents: [CostDetailsDialogComponent],
   exports: [CostDetailsDialogComponent]
