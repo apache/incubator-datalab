@@ -29,6 +29,7 @@ export * from './key-upload-dialog.component';
 @NgModule({
   imports: [CommonModule, ModalModule, MaterialModule],
   declarations: [UploadKeyDialogComponent],
+  entryComponents: [UploadKeyDialogComponent],
   exports: [UploadKeyDialogComponent]
 })
 export class UploadKeyDialogModule {}
