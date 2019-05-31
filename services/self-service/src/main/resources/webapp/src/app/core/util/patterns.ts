@@ -1,4 +1,4 @@
-/*!
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,41 +17,6 @@
  * under the License.
  */
 
-.checkbox-group {
-  .config-details {
-    height: 0;
-    opacity: 0;
-    visibility: hidden;
-    text-align: left;
-    &.show {
-      height: 200px;
-      visibility: visible;
-      opacity: 1;
-      position: relative;
-      margin-top: 10px;
-    }
-    textarea {
-      height: 100%;
-      background: #f8f8f8 !important;
-      resize: none;
-      font-size: 14px;
-      line-height: 1.5;
-      font-family: Consolas, monospace;
-    }
-    span {
-      &.danger_color {
-        position: absolute;
-        bottom: -20px;
-        left: 0;
-      }
-    }
-  }
-}
-
-.control-group {
-  .error {
-    position: absolute;
-    right: 0;
-    bottom: 3px;
-  }
+export const PATTERNS = {
+  
 }

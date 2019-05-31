@@ -88,6 +88,7 @@
     }
     .caret {
       width: 40px;
+      height: 40px;
       color: #4ab8dc;
       border: none;
       border-left: 1px solid #ececec;
@@ -95,7 +96,6 @@
       position: absolute;
       right: 0;
       top: 0px;
-      height: 36px;
       cursor: pointer;
       &.not-allowed {
         background-color: #dcdcdc;
@@ -144,6 +144,10 @@
 
 .mat-option {
   font-family: 'Open Sans', sans-serif;
+  .mat-option-text {
+    color: #607D8B;
+    font-size: 15px;
+  }
 }
 
 .mat-option.mat-selected {
@@ -256,7 +260,7 @@
   .mat-reset {
     .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
       .mat-form-field-flex {
-        line-height: 20px;
+        line-height: 18px;
       }
     }
     .mat-form-field {
@@ -266,7 +270,7 @@
           width: 275px;
           border: 0;
           font-family: 'Open Sans', sans-serif;
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 300;
           .mat-select-value-text {
             span {

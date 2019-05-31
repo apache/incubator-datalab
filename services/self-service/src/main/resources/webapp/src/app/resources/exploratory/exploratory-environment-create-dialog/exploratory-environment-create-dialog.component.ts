@@ -77,7 +77,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     this.getProjects();
 
     this.initFormModel();
-    // this.open();
   }
 
   initFormModel(): void {
@@ -104,7 +103,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     this.currentTemplate = template;
     this.shapes = template.exploratory_environment_shapes;
     this.getImagesList();
-    debugger;
   }
 
   providerMaxLength(control) {
@@ -156,8 +154,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   //     this.environment_shape = $event.model.value.type;
   // }
 
-  selectImage($event): void {
-    this.model.notebookImage = $event.model.value ? $event.model.value.fullName : null;
+  public selectImage($event): void {
+    debugger;
+    // this.model.notebookImage = $event.model.value ? $event.model.value.fullName : null;
   }
 
   createExploratoryEnvironment_btnClick($event, data) {
@@ -186,22 +185,15 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   // }
 
   public selectConfiguration() {
-    if (this.configuration.nativeElement.checked && this.createExploratoryForm) {
-      this.createExploratoryForm.controls['configuration_parameters']
-        .setValue(JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2));
-    } else {
-      this.createExploratoryForm.controls['configuration_parameters'].setValue('');
-    }
+    const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
+      ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
+
+    this.createExploratoryForm.controls['configuration_parameters'].setValue(value);
   }
 
   private getImagesList() {
     this.userResourceService.getUserImages(this.currentTemplate.image)
-      .subscribe((res: any) => {
-        this.images = res.filter(el => el.status === 'CREATED');
-
-        // this.changeDetector.detectChanges();
-        // this.setDefaultParams();
-      },
+      .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
       error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
 }

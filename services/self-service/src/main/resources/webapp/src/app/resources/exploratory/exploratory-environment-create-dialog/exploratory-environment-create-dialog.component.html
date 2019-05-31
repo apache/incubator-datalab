@@ -45,10 +45,10 @@
 
         <div class="control-group">
           <label class="label">Select template</label>
-          <div class="control selector-wrapper">
+          <div class="control selector-wrapper"  [ngClass]="{ 'not-active' : !templates.length }">
             <mat-form-field>
               <mat-label>Select template</mat-label>
-              <mat-select formControlName="template_name" disableOptionCentering>
+              <mat-select formControlName="template_name" disableOptionCentering [disabled]="!templates.length">
                 <mat-option *ngFor="let template of templates"
                   [value]="template.exploratory_environment_versions[0].version"
                   (click)="getShapes($event, template)">
@@ -65,10 +65,10 @@
         <div class="control-group" *ngIf="images && images.length > 0">
           <label class="label">Select {{ DICTIONARY.image }}</label>
           <div class="control selector-wrapper">
-            <!-- <dropdown-list #imagesList (selectedItem)="selectImage($event)"></dropdown-list> -->
             <mat-form-field>
               <mat-label>Select {{ DICTIONARY.image }}</mat-label>
               <mat-select formControlName="image" (selectionChange)="selectImage($event)" disableOptionCentering>
+                <mat-option [value]="null">None</mat-option>
                 <mat-option *ngFor="let image of images" [value]="image.name">{{ image.name }}</mat-option>
               </mat-select>
               <button class="caret">
@@ -85,8 +85,8 @@
                     && createExploratoryForm?.controls['environment_name'].dirty
                     && createExploratoryForm?.controls['environment_name'].hasError('duplication')" type="text"
                   class="form-control" placeholder="Enter Name" formControlName="environment_name">
-            <span class="danger_color" *ngIf="createExploratoryForm?.controls['environment_name'].hasError('duplication')">This name already exists.</span>
-            <span class="danger_color" *ngIf="!createExploratoryForm?.controls.environment_name.valid
+            <span class="error" *ngIf="createExploratoryForm?.controls['environment_name'].hasError('duplication')">This name already exists.</span>
+            <span class="error" *ngIf="!createExploratoryForm?.controls.environment_name.valid
                                         && createExploratoryForm?.controls['environment_name'].dirty
                                         && !createExploratoryForm?.controls['environment_name'].hasError('duplication')">Name
               <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can not end with special characters
@@ -96,13 +96,13 @@
 
         <div class="control-group">
           <label class="label">{{ DICTIONARY.notebook_instance_size }}</label>
-          <div class="control selector-wrapper">
+          <div class="control selector-wrapper" [ngClass]="{ 'not-active': !currentTemplate }">
             <mat-form-field>
               <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
-              <mat-select formControlName="shape" disableOptionCentering>
+              <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate">
                 <mat-optgroup *ngFor="let item of (shapes | keys)" [label]="item.key | underscoreless">
                   <mat-option *ngFor="let list_item of item.value" [value]="item.value">
-                    <strong>{{ list_item.Size }}</strong> {{ list_item.Type }}
+                    <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Type }}
                   </mat-option>
                 </mat-optgroup>
               </mat-select>
@@ -119,7 +119,7 @@
           </label>
           <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
             <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
-            <span class="danger_color" *ngIf="!createExploratoryForm?.controls.configuration_parameters.valid && createExploratoryForm?.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
+            <span class="error" *ngIf="!createExploratoryForm?.controls.configuration_parameters.valid && createExploratoryForm?.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
           </div>
         </div>
         <ng-template #not_support>
@@ -130,7 +130,7 @@
         
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
-          <button mat-raised-button type="submit" [disabled]="!createExploratoryForm?.valid || !this.environment_shape" class="butt butt-success action">Create</button>
+          <button mat-raised-button type="submit" [disabled]="!createExploratoryForm?.valid" class="butt butt-success action">Create</button>
         </div>
       </form>
     </div>
