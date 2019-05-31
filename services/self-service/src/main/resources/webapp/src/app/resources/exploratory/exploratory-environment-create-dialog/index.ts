@@ -24,6 +24,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../shared/material.module';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory-environment-create-dialog.component';
+import { KeysPipeModule, UnderscorelessPipeModule } from './../../../core/pipes';
 
 @NgModule({
   imports: [
@@ -31,7 +32,9 @@ import { ExploratoryEnvironmentCreateComponent } from './exploratory-environment
     FormsModule,
     ReactiveFormsModule,
     FormControlsModule,
-    MaterialModule
+    MaterialModule,
+    KeysPipeModule,
+    UnderscorelessPipeModule
   ],
   declarations: [ExploratoryEnvironmentCreateComponent],
   entryComponents: [ExploratoryEnvironmentCreateComponent],
