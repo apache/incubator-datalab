@@ -64,7 +64,7 @@
           </div>
 
           <div class="text-center m-bott-10">
-            <button mat-raised-button type="button" class="butt" (click)="reset()">Clear</button>
+            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i
                 class="material-icons">keyboard_arrow_right</i></button>
           </div>
@@ -81,10 +81,10 @@
               <mat-form-field>
                 <mat-select multiple formControlName="groups" placeholder="Select user groups">
                   <mat-option class="multiple-select" disabled>
-                    <a class="select ani" (click)="selectOptions(groupsList, 'users_group', 'all')">
+                    <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All
                     </a>
-                    <a class="deselect ani" (click)="selectOptions(groupsList, 'users_group')">
+                    <a class="deselect ani" (click)="selectOptions(groupsList, 'groups')">
                       <i class="material-icons">clear</i>&nbsp;None
                     </a>
                   </mat-option>
@@ -100,7 +100,7 @@
             </div>
           </div>
           <div class="text-center m-bott-10">
-            <button mat-raised-button type="button" class="butt" (click)="reset()">Clear</button>
+            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt"><i
                 class="material-icons">keyboard_arrow_left</i>Back</button>
             <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
