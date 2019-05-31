@@ -22,8 +22,10 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
+import { Project } from '../../../administration/project/project.component';
+
 import { ExploratoryEnvironmentCreateModel } from './exploratory-environment-create.model';
-import { UserResourceService } from '../../../core/services';
+import { UserResourceService, ProjectService } from '../../../core/services';
 import { CheckUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
@@ -36,48 +38,73 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class ExploratoryEnvironmentCreateComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  projects: Project[] =[];
+  templates = [];
+  currentTemplate: any;
+  shapes: Array<any> = [];
 
   model: ExploratoryEnvironmentCreateModel;
   templateDescription: string;
   namePattern = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   resourceGrid: any;
-  userImages: Array<any>;
+  images: Array<any>;
   environment_shape: string;
 
-  public createExploratoryEnvironmentForm: FormGroup;
+  public createExploratoryForm: FormGroup;
 
-  @ViewChild('environment_name') environment_name;
-  @ViewChild('templatesList') templates_list;
-  @ViewChild('shapesList') shapes_list;
-  @ViewChild('imagesList') userImagesList;
+  // @ViewChild('environment_name') environment_name;
+  // @ViewChild('templatesList') templates_list;
+  // @ViewChild('shapesList') shapes_list;
+  // @ViewChild('imagesList') userImagesList;
   @ViewChild('configurationNode') configuration;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
+    public dialogRef: MatDialogRef<ExploratoryEnvironmentCreateComponent>,
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
     private changeDetector: ChangeDetectorRef,
-    public toastr: ToastrService,
-    public dialogRef: MatDialogRef<ExploratoryEnvironmentCreateComponent>,
+    private projectService: ProjectService
   ) {
     this.model = ExploratoryEnvironmentCreateModel.getDefault(userResourceService);
     this.resourceGrid = data;
   }
 
   ngOnInit() {
+    this.getProjects();
+
     this.initFormModel();
-    // this.bindDialog.onClosing = () => this.resetDialog();
-    this.open();
+    // this.open();
   }
 
   initFormModel(): void {
-    this.createExploratoryEnvironmentForm = this._fb.group({
+    this.createExploratoryForm = this._fb.group({
+      project: [''],
+      template_name: [''],
+      image: [''],
+      shape: [''],
       environment_name: ['', [Validators.required, Validators.pattern(this.namePattern),
                               this.providerMaxLength, this.checkDuplication.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]]
     });
+  }
+
+  public getProjects() {
+    this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
+  }
+
+  public getTemplates($event) {
+    this.userResourceService.getExploratoryTemplates($event.value).subscribe(templates => this.templates = templates);
+  }
+
+  public getShapes($event, template) {
+    this.currentTemplate = template;
+    this.shapes = template.exploratory_environment_shapes;
+    this.getImagesList();
+    debugger;
   }
 
   providerMaxLength(control) {
@@ -102,32 +129,32 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       return resourceShapes[index][0][byField];
   }
 
-  setDefaultParams(): void {
-    this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+  // setDefaultParams(): void {
+  //   this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
 
-    this.templates_list.setDefaultOptions(this.model.exploratoryEnvironmentTemplates,
-      this.model.selectedItem.template_name, 'template', 'template_name', 'array');
-    this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
+  //   this.templates_list.setDefaultOptions(this.model.exploratoryEnvironmentTemplates,
+  //     this.model.selectedItem.template_name, 'template', 'template_name', 'array');
+  //   this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
+  //     this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
 
-    if (this.userImages && this.userImages.length > 0) {
-      this.userImagesList.setDefaultOptions(this.userImages, 'Select existing ' + DICTIONARY.image, 'ami', 'name', 'array', null, true);
-    }
-  }
+    // if (this.userImages && this.userImages.length > 0) {
+    //   this.userImagesList.setDefaultOptions(this.userImages, 'Select existing ' + DICTIONARY.image, 'ami', 'name', 'array', null, true);
+    // }
+  // }
 
-  onUpdate($event): void {
-    if ($event.model.type === 'template') {
-      this.model.setSelectedTemplate($event.model.index);
-      this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
-      this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+  // onUpdate($event): void {
+  //   if ($event.model.type === 'template') {
+  //     this.model.setSelectedTemplate($event.model.index);
+  //     this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
+  //       this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
+  //     this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
 
-      this.getImagesList();
-    }
+  //     this.getImagesList();
+  //   }
 
-    if ($event.model.type === 'shape')
-      this.environment_shape = $event.model.value.type;
-  }
+  //   if ($event.model.type === 'shape')
+  //     this.environment_shape = $event.model.value.type;
+  // }
 
   selectImage($event): void {
     this.model.notebookImage = $event.model.value ? $event.model.value.fullName : null;
@@ -143,46 +170,38 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     return false;
   }
 
-  public open(params?): void {
-    this.model = new ExploratoryEnvironmentCreateModel('', '', '', '', '',
-    response => {
-      if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
-    },
-    error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'),
-    () => this.templateDescription = this.model.selectedItem.description,
-    () => {
-      this.initFormModel();
-      this.setDefaultParams();
-      this.getImagesList();
-    },
-    this.userResourceService);
-  }
-
-  getImagesList() {
-    const image = this.model.selectedItem.image;
-    this.userResourceService.getUserImages(image)
-      .subscribe((res: any) => {
-        this.userImages = res.filter(el => el.status === 'CREATED');
-
-        this.changeDetector.detectChanges();
-        this.setDefaultParams();
-      },
-      error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
-  }
+  // public open(params?): void {
+  //   this.model = new ExploratoryEnvironmentCreateModel('', '', '', '', '',
+  //   response => {
+  //     if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
+  //   },
+  //   error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'),
+  //   () => this.templateDescription = this.model.selectedItem.description,
+  //   () => {
+  //     this.initFormModel();
+  //     // this.setDefaultParams();
+  //     this.getImagesList();
+  //   },
+  //   this.userResourceService);
+  // }
 
   public selectConfiguration() {
-    if (this.configuration.nativeElement.checked && this.createExploratoryEnvironmentForm) {
-      this.createExploratoryEnvironmentForm.controls['configuration_parameters']
+    if (this.configuration.nativeElement.checked && this.createExploratoryForm) {
+      this.createExploratoryForm.controls['configuration_parameters']
         .setValue(JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2));
     } else {
-      this.createExploratoryEnvironmentForm.controls['configuration_parameters'].setValue('');
+      this.createExploratoryForm.controls['configuration_parameters'].setValue('');
     }
   }
 
-  private resetDialog(): void {
-    this.initFormModel();
-    this.model.resetModel();
+  private getImagesList() {
+    this.userResourceService.getUserImages(this.currentTemplate.image)
+      .subscribe((res: any) => {
+        this.images = res.filter(el => el.status === 'CREATED');
 
-    if (this.configuration) this.configuration.nativeElement['checked'] = false;
+        // this.changeDetector.detectChanges();
+        // this.setDefaultParams();
+      },
+      error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
 }

@@ -70,7 +70,6 @@ export class ExploratoryEnvironmentCreateModel {
       environment_shape,
       fnProcessResults,
       fnProcessErrors);
-    this.loadTemplates();
   }
 
   public setSelectedItem(item: ExploratoryEnvironmentVersionModel): void {
@@ -94,32 +93,32 @@ export class ExploratoryEnvironmentCreateModel {
     this.config = config;
   }
 
-  public loadTemplates(): void {
-    if (this.exploratoryEnvironmentTemplates.length === 0)
-      this.userResourceService.getExploratoryEnvironmentTemplates()
-        .subscribe(
-        data => {
-          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
+  // public loadTemplates(): void {
+  //   if (this.exploratoryEnvironmentTemplates.length === 0)
+  //     this.userResourceService.getExploratoryEnvironmentTemplates()
+  //       .subscribe(
+  //       data => {
+  //         for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
 
-            const shapeJson = data[parentIndex].exploratory_environment_shapes;
-            const exploratoryJson = data[parentIndex].exploratory_environment_versions;
-            const shapeObj: ResourceShapeTypesModel = new ResourceShapeTypesModel(SortUtil.shapesSort(shapeJson));
+  //           const shapeJson = data[parentIndex].exploratory_environment_shapes;
+  //           const exploratoryJson = data[parentIndex].exploratory_environment_versions;
+  //           const shapeObj: ResourceShapeTypesModel = new ResourceShapeTypesModel(SortUtil.shapesSort(shapeJson));
 
-            for (let index = 0; index < exploratoryJson.length; index++)
-              this.exploratoryEnvironmentTemplates.push(
-                new ExploratoryEnvironmentVersionModel(data[parentIndex].image, exploratoryJson[index], shapeObj));
-          }
-          if (this.exploratoryEnvironmentTemplates.length > 0) {
-            this.exploratoryEnvironmentTemplates.sort(function(t1, t2) {
-              return ((t1.template_name < t2.template_name) ? -1 : ((t1.template_name > t2.template_name) ? 1 : 0));
-            });
-            this.setSelectedTemplate(0);
-          }
+  //           for (let index = 0; index < exploratoryJson.length; index++)
+  //             this.exploratoryEnvironmentTemplates.push(
+  //               new ExploratoryEnvironmentVersionModel(data[parentIndex].image, exploratoryJson[index], shapeObj));
+  //         }
+  //         if (this.exploratoryEnvironmentTemplates.length > 0) {
+  //           this.exploratoryEnvironmentTemplates.sort(function(t1, t2) {
+  //             return ((t1.template_name < t2.template_name) ? -1 : ((t1.template_name > t2.template_name) ? 1 : 0));
+  //           });
+  //           this.setSelectedTemplate(0);
+  //         }
 
-          if (this.continueWith)
-            this.continueWith();
-        });
-  }
+  //         if (this.continueWith)
+  //           this.continueWith();
+  //       });
+  // }
 
   public resetModel(): void {
     this.setSelectedTemplate(0);
