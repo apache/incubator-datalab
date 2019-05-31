@@ -152,9 +152,9 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildGetExploratoryEnvironmentTemplatesRequest(): Observable<any> {
+  public buildGetExploratoryEnvironmentTemplatesRequest(params): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES),
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES) + params,
       null);
   }
 
@@ -578,7 +578,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
-      '/api/infrastructure_templates/exploratory_templates');
+      '/api/infrastructure_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
       '/api/infrastructure_provision/exploratory_environment/image');
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,

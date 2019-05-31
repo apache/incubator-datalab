@@ -28,9 +28,10 @@ import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 export class UserResourceService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public getExploratoryEnvironmentTemplates(): Observable<any> {
+  public getExploratoryTemplates(project): Observable<any> {
+    const url = `/${ project }/exploratory_templates`;
     return this.applicationServiceFacade
-      .buildGetExploratoryEnvironmentTemplatesRequest()
+      .buildGetExploratoryEnvironmentTemplatesRequest(url)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
