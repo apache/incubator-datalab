@@ -178,3 +178,65 @@ mat-dialog-container {
 .content-box {
   padding: 25px 30px 35px;
 }
+
+
+.detail-header {
+  border-bottom: 0;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  td {
+    border: 1px solid #edf1f5;
+    text-align: center;
+    padding: 20px;
+    text-align: center !important;
+    background: #fff;
+    &:first-child {
+      background: #f6fafe;
+      font-size: 16px;
+      font-weight: 600;
+      color: #455c74;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      cursor: default;
+    }
+    &.tooltip-wrap {
+      .hint-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #455c74;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+.detail-info {
+  p {
+    font-weight: 400;
+    margin-bottom: 10px;
+    small {
+      font-size: 12px;
+      font-weight: 400;
+    }
+  }
+  span {
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .links_block {
+    padding-left: 25px;
+  }
+  .time_info {
+    margin-top: 15px;
+  }
+}
+
+.create-cluster {
+  .dialog-header {
+    padding-left: 45px !important;
+  }
+}
