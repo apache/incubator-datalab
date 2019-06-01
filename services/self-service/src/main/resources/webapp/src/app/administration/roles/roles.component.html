@@ -17,11 +17,17 @@
   ~ under the License.
   -->
 
-<div class="manage-roles">
-  <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView">
-    <i class="material-icons">people_outline</i>Add group
-  </button>
-  <mat-horizontal-stepper #stepper *ngIf="stepperView" class="stepper roles ani">
+<div class="manage-roles base-retreat">
+  <div class="sub-nav">
+    <div>
+      <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView">
+        <i class="material-icons">people_outline</i>Add group
+      </button>
+    </div>
+    <div></div>
+  </div>
+
+  <mat-horizontal-stepper #stepper *ngIf="stepperView" class="stepper ani">
     <mat-step>
       <ng-template matStepLabel>Groups</ng-template>
       <div class="inner-step mat-reset">
