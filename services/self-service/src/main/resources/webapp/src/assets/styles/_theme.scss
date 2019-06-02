@@ -260,7 +260,7 @@
   .mat-reset {
     .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
       .mat-form-field-flex {
-        line-height: 18px;
+        line-height: 1;
       }
     }
     .mat-form-field {
@@ -272,6 +272,7 @@
           font-family: 'Open Sans', sans-serif;
           font-size: 15px;
           font-weight: 300;
+          padding-top: 10px;
           .mat-select-value-text {
             span {
               color: #607d8b;
