@@ -17,14 +17,13 @@
  * under the License.
  */
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
 
-import { ExploratoryEnvironmentCreateModel } from './exploratory-environment-create.model';
 import { UserResourceService, ProjectService } from '../../../core/services';
 import { CheckUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
@@ -38,27 +37,16 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class ExploratoryEnvironmentCreateComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  projects: Project[] =[];
+  projects: Project[] = [];
   templates = [];
   currentTemplate: any;
   shapes: Array<any> = [];
-
-  model: ExploratoryEnvironmentCreateModel;
-  templateDescription: string;
   namePattern = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   resourceGrid: any;
   images: Array<any>;
-  environment_shape: string;
-
   public createExploratoryForm: FormGroup;
 
-  // @ViewChild('environment_name') environment_name;
-  // @ViewChild('templatesList') templates_list;
-  // @ViewChild('shapesList') shapes_list;
-  // @ViewChild('imagesList') userImagesList;
   @ViewChild('configurationNode') configuration;
-
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -69,26 +57,12 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     private changeDetector: ChangeDetectorRef,
     private projectService: ProjectService
   ) {
-    this.model = ExploratoryEnvironmentCreateModel.getDefault(userResourceService);
     this.resourceGrid = data;
   }
 
   ngOnInit() {
     this.getProjects();
-
     this.initFormModel();
-  }
-
-  initFormModel(): void {
-    this.createExploratoryForm = this._fb.group({
-      project: [''],
-      template_name: [''],
-      image: [''],
-      shape: [''],
-      environment_name: ['', [Validators.required, Validators.pattern(this.namePattern),
-                              this.providerMaxLength, this.checkDuplication.bind(this)]],
-      configuration_parameters: ['', [this.validConfiguration.bind(this)]]
-    });
   }
 
   public getProjects() {
@@ -99,13 +73,57 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     this.userResourceService.getExploratoryTemplates($event.value).subscribe(templates => this.templates = templates);
   }
 
-  public getShapes($event, template) {
+  public getShapes(template) {
     this.currentTemplate = template;
     this.shapes = template.exploratory_environment_shapes;
     this.getImagesList();
   }
 
-  providerMaxLength(control) {
+  public createExploratoryEnvironment(data) {
+    const parameters: any = {
+      image: this.currentTemplate.image,
+      template_name: this.currentTemplate.exploratory_environment_versions[0].template_name
+    };
+
+    data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null
+    this.userResourceService.createExploratoryEnvironment({...parameters, ...data}).subscribe((response: any) => {
+      if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
+    }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
+  }
+
+
+  public selectConfiguration() {
+    const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
+      ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
+
+    this.createExploratoryForm.controls['configuration_parameters'].setValue(value);
+  }
+
+  private initFormModel(): void {
+    
+    this.createExploratoryForm = this._fb.group({
+      project: ['', Validators.required],
+      version: ['', Validators.required],
+      notebook_image_name: [''],
+      shape: ['', Validators.required],
+      name: ['', [Validators.required, Validators.pattern(this.namePattern),
+                              this.providerMaxLength, this.checkDuplication.bind(this)]],
+      cluster_config: ['', [this.validConfiguration.bind(this)]]
+    });
+  }
+
+  private getImagesList() {
+    this.userResourceService.getUserImages(this.currentTemplate.image)
+      .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
+      error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
+  }
+
+  private checkDuplication(control) {
+    if (this.resourceGrid.containsNotebook(control.value))
+      return { duplication: true };
+  }
+
+  private providerMaxLength(control) {
     if (DICTIONARY.cloud_provider !== 'aws')
       return control.value.length <= 10 ? null : { valid: false };
   }
@@ -115,85 +133,5 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       return this.configuration.nativeElement['checked']
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
-  }
-
-  checkDuplication(control) {
-    if (this.resourceGrid.containsNotebook(control.value))
-      return { duplication: true };
-  }
-
-  shapePlaceholder(resourceShapes, byField: string): string {
-    for (const index in resourceShapes)
-      return resourceShapes[index][0][byField];
-  }
-
-  // setDefaultParams(): void {
-  //   this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
-
-  //   this.templates_list.setDefaultOptions(this.model.exploratoryEnvironmentTemplates,
-  //     this.model.selectedItem.template_name, 'template', 'template_name', 'array');
-  //   this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-  //     this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
-
-    // if (this.userImages && this.userImages.length > 0) {
-    //   this.userImagesList.setDefaultOptions(this.userImages, 'Select existing ' + DICTIONARY.image, 'ami', 'name', 'array', null, true);
-    // }
-  // }
-
-  // onUpdate($event): void {
-  //   if ($event.model.type === 'template') {
-  //     this.model.setSelectedTemplate($event.model.index);
-  //     this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-  //       this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
-  //     this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
-
-  //     this.getImagesList();
-  //   }
-
-  //   if ($event.model.type === 'shape')
-  //     this.environment_shape = $event.model.value.type;
-  // }
-
-  public selectImage($event): void {
-    debugger;
-    // this.model.notebookImage = $event.model.value ? $event.model.value.fullName : null;
-  }
-
-  createExploratoryEnvironment_btnClick($event, data) {
-    this.model.setCreatingParams(
-      data.environment_name,
-      this.environment_shape,
-      data.configuration_parameters ? JSON.parse(data.configuration_parameters) : null);
-    this.model.confirmAction();
-    $event.preventDefault();
-    return false;
-  }
-
-  // public open(params?): void {
-  //   this.model = new ExploratoryEnvironmentCreateModel('', '', '', '', '',
-  //   response => {
-  //     if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
-  //   },
-  //   error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'),
-  //   () => this.templateDescription = this.model.selectedItem.description,
-  //   () => {
-  //     this.initFormModel();
-  //     // this.setDefaultParams();
-  //     this.getImagesList();
-  //   },
-  //   this.userResourceService);
-  // }
-
-  public selectConfiguration() {
-    const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
-      ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
-
-    this.createExploratoryForm.controls['configuration_parameters'].setValue(value);
-  }
-
-  private getImagesList() {
-    this.userResourceService.getUserImages(this.currentTemplate.image)
-      .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
-      error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
 }
