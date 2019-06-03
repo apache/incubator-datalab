@@ -51,7 +51,7 @@ public class UserInstanceDTO {
 	private String imageName;
 	@JsonProperty("version")
 	private String imageVersion;
-	@JsonProperty("version")
+	@JsonProperty("project")
 	private String project;
 	@JsonProperty("template_name")
 	private String templateName;
