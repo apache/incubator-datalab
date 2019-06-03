@@ -30,8 +30,23 @@
           <div class="control selector-wrapper">
             <mat-form-field>
               <mat-label>Select project</mat-label>
-              <mat-select (selectionChange)="getTemplates($event)" formControlName="project" disableOptionCentering>
-                <mat-option *ngFor="let project of projects" [value]="project.name">{{ project.name }}</mat-option>
+              <mat-select formControlName="project" disableOptionCentering>
+                <mat-option *ngFor="let project of projects" [value]="project.name" (click)="getTemplates($event, project)">{{ project.name }}</mat-option>
+              </mat-select>
+              <button class="caret">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="label">Select endpoint</label>
+          <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !endpoints.length }">
+            <mat-form-field>
+              <mat-label>Select endpoint</mat-label>
+              <mat-select formControlName="endpoint" disableOptionCentering>
+                <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">{{ endpoint }}</mat-option>
               </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
@@ -42,7 +57,7 @@
 
         <div class="control-group">
           <label class="label">Select template</label>
-          <div class="control selector-wrapper"  [ngClass]="{ 'not-active' : !templates.length }">
+          <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !templates.length }">
             <mat-form-field>
               <mat-label>Select template</mat-label>
               <mat-select formControlName="version" disableOptionCentering [disabled]="!templates.length">

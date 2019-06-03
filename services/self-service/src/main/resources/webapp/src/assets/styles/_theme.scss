@@ -260,7 +260,8 @@
   .mat-reset {
     .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
       .mat-form-field-flex {
-        line-height: 1;
+        // line-height: 1;
+        // padding-top: 2px;
       }
     }
     .mat-form-field {

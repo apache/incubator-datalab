@@ -17,15 +17,14 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, ChangeDetectorRef, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
-
 import { UserResourceService, ProjectService } from '../../../core/services';
-import { CheckUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { CheckUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 
@@ -37,14 +36,15 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class ExploratoryEnvironmentCreateComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  public createExploratoryForm: FormGroup;
+
   projects: Project[] = [];
   templates = [];
+  endpoints: Array<String> = [];
   currentTemplate: any;
   shapes: Array<any> = [];
-  namePattern = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
   resourceGrid: any;
   images: Array<any>;
-  public createExploratoryForm: FormGroup;
 
   @ViewChild('configurationNode') configuration;
 
@@ -54,7 +54,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     public dialogRef: MatDialogRef<ExploratoryEnvironmentCreateComponent>,
     private userResourceService: UserResourceService,
     private _fb: FormBuilder,
-    private changeDetector: ChangeDetectorRef,
     private projectService: ProjectService
   ) {
     this.resourceGrid = data;
@@ -69,7 +68,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
-  public getTemplates($event) {
+  public getTemplates($event, project) {
+    this.endpoints = project.endpoints;
     this.userResourceService.getExploratoryTemplates($event.value).subscribe(templates => this.templates = templates);
   }
 
@@ -96,6 +96,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
       ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
 
+    document.querySelector('#configurationNode').scrollIntoView({ block: 'start', behavior: 'smooth' });
     this.createExploratoryForm.controls['configuration_parameters'].setValue(value);
   }
 
@@ -103,10 +104,11 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     
     this.createExploratoryForm = this._fb.group({
       project: ['', Validators.required],
+      endpoint: ['', Validators.required],
       version: ['', Validators.required],
       notebook_image_name: [''],
       shape: ['', Validators.required],
-      name: ['', [Validators.required, Validators.pattern(this.namePattern),
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern),
                               this.providerMaxLength, this.checkDuplication.bind(this)]],
       cluster_config: ['', [this.validConfiguration.bind(this)]]
     });

@@ -23,3 +23,4 @@ export * from './errorUtils';
 export * from './dateUtils';
 export * from './fileUtils';
 export * from './checkUtils';
+export * from './patterns';
