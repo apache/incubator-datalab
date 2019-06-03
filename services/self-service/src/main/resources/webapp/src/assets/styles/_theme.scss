@@ -289,6 +289,9 @@
         .mat-form-field-label {
           padding-top: 0;
           color: #607d8b;
+          mat-label {
+            vertical-align: middle;
+          }
         }
         .mat-select {
           &:focus {
@@ -484,5 +487,12 @@ mat-horizontal-stepper {
     .text-center button {
       margin-bottom: 25px;
     }
+  }
+}
+
+.mat-table {
+  .mat-cell {
+    word-break: break-all;
+    padding: 5px 10px;
   }
 }
