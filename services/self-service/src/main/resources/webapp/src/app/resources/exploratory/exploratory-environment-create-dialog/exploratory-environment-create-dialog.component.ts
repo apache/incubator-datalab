@@ -96,7 +96,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
       ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
 
-    document.querySelector('#configurationNode').scrollIntoView({ block: 'start', behavior: 'smooth' });
+    document.querySelector('#config').scrollIntoView({ block: 'start', behavior: 'smooth' });
     this.createExploratoryForm.controls['configuration_parameters'].setValue(value);
   }
 
