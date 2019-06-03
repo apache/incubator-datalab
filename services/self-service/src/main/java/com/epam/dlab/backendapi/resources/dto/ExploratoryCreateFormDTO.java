@@ -48,6 +48,10 @@ public class ExploratoryCreateFormDTO {
 
 	@NotBlank
 	@JsonProperty
+	private String endpoint;
+
+	@NotBlank
+	@JsonProperty
 	private String shape;
 
 	@NotBlank
@@ -154,6 +158,14 @@ public class ExploratoryCreateFormDTO {
 
 	public void setProject(String project) {
 		this.project = project;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
+	}
+
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 	}
 
 	@Override
