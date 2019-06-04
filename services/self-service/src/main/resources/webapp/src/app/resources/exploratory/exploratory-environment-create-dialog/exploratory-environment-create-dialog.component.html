@@ -32,7 +32,7 @@
               <mat-label>Select project</mat-label>
               <mat-select formControlName="project" disableOptionCentering>
                 <mat-option *ngFor="let project of projects" [value]="project.name" (click)="getTemplates($event, project)">{{ project.name }}</mat-option>
-                <mat-option *ngIf="!projects.length" class="multiple-select" disabled>Projects list is empty</mat-option>
+                <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty</mat-option>
               </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
@@ -48,7 +48,7 @@
               <mat-label>Select endpoint</mat-label>
               <mat-select formControlName="endpoint" disableOptionCentering>
                 <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">{{ endpoint }}</mat-option>
-                <mat-option *ngIf="!endpoints.length" class="multiple-select" disabled>Endpoints list is empty</mat-option>
+                <mat-option *ngIf="!endpoints.length" class="multiple-select ml-10" disabled>Endpoints list is empty</mat-option>
               </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
@@ -68,7 +68,7 @@
                   (click)="getShapes(template)">
                   {{ template.exploratory_environment_versions[0].template_name }}
                 </mat-option>
-                <mat-option *ngIf="!templates.length" class="multiple-select" disabled>Templates list is empty</mat-option>
+                <mat-option *ngIf="!templates.length" class="multiple-select ml-10" disabled>Templates list is empty</mat-option>
               </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
@@ -85,7 +85,7 @@
               <mat-select formControlName="notebook_image_name" disableOptionCentering>
                 <mat-option [value]="null">None</mat-option>
                 <mat-option *ngFor="let image of images" [value]="image.name">{{ image.name }}</mat-option>
-                <mat-option *ngIf="!images.length" class="multiple-select" disabled>Images list is empty</mat-option>
+                <mat-option *ngIf="!images.length" class="multiple-select ml-10" disabled>Images list is empty</mat-option>
               </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>

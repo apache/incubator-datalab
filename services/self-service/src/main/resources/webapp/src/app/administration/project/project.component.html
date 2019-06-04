@@ -18,8 +18,8 @@
   -->
 
 
-<div *ngIf="projectList">
-  <div class="sub-nav base-retreat">
+<div *ngIf="projectList" class="base-retreat">
+  <div class="sub-nav">
     <div>
       <button mat-raised-button class="butt butt-create" (click)="createProject()" [disabled]="!projectList.length">
         <i class="material-icons">add</i>Create new
@@ -32,10 +32,9 @@
     </div>
   </div>
   <mat-card class="base-retreat project-form" *ngIf="!projectList.length">
-    <mat-divider></mat-divider>
     <project-form></project-form>
   </mat-card>
-
+  <mat-divider></mat-divider>
   <div [hidden]="!projectList.length">
     <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
   </div>
