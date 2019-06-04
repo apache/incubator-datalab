@@ -27,45 +27,47 @@
     <div class="content-box">
       <mat-tab-group>
         <mat-tab label="CREATE ENDPOINT">
-          <form [formGroup]="createEndpointForm" novalidate>
-            <div class="control-group">
-              <label class="label">Name</label>
-              <div class="control">
-                <input type="text" formControlName="name" placeholder="Enter endpoint name">
-                <span class="error"
-                  *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm.controls.name.touched">
-                  Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
-                  characters
-                </span>
+          <div class="split">
+            <form [formGroup]="createEndpointForm" novalidate>
+              <div class="control-group">
+                <label class="label">Name</label>
+                <div class="control">
+                  <input type="text" formControlName="name" placeholder="Enter endpoint name">
+                  <span class="error"
+                    *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm.controls.name.touched">
+                    Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
+                    characters
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="control-group">
-              <label class="label">Endpoint url</label>
-              <div class="control">
-                <input type="text" formControlName="url" placeholder="Enter endpoint url">
-                <span class="error"
-                  *ngIf="!createEndpointForm?.controls.url.valid && createEndpointForm.controls.url.touched">
-                  Endpoint url can only contain letters, numbers, hyphens and '_' but can not end with special
-                  characters
-                </span>
+              <div class="control-group">
+                <label class="label">Endpoint url</label>
+                <div class="control">
+                  <input type="text" formControlName="url" placeholder="Enter endpoint url">
+                  <span class="error"
+                    *ngIf="!createEndpointForm?.controls.url.valid && createEndpointForm.controls.url.touched">
+                    Endpoint url can only contain letters, numbers, hyphens and '_' but can not end with special
+                    characters
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="control-group">
-              <label class="label">Account</label>
-              <div class="control">
-                <input type="text" formControlName="account" placeholder="Enter account">
-                <span class="error"
-                  *ngIf="!createEndpointForm?.controls.account.valid && createEndpointForm.controls.account.touched">
-                  Endpoint account can only contain letters, numbers, hyphens and '_' but can not end with special
-                  characters
-                </span>
+              <div class="control-group">
+                <label class="label">Account</label>
+                <div class="control">
+                  <input type="text" formControlName="account" placeholder="Enter account">
+                  <span class="error"
+                    *ngIf="!createEndpointForm?.controls.account.valid && createEndpointForm.controls.account.touched">
+                    Endpoint account can only contain letters, numbers, hyphens and '_' but can not end with special
+                    characters
+                  </span>
+                </div>
               </div>
+            </form>
+            <div class="action-group m-bott-10">
+              <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
+              <button mat-raised-button type="button" [disabled]="!createEndpointForm.valid"
+                (click)="assignChanges(createEndpointForm.value)" class="butt butt-success action">Create</button>
             </div>
-          </form>
-          <div class="action-group">
-            <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
-            <button mat-raised-button type="button" [disabled]="!createEndpointForm.valid"
-              (click)="assignChanges(createEndpointForm.value)" class="butt butt-success action">Create</button>
           </div>
         </mat-tab>
         <mat-tab label="ENDPOINTS LIST">

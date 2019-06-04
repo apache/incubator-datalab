@@ -502,3 +502,10 @@ mat-horizontal-stepper {
     padding: 5px 10px;
   }
 }
+
+mat-tab-group.mat-tab-group {
+  height: 100%;
+  .mat-tab-body-wrapper {
+    height: 100%;
+  }
+}

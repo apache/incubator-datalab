@@ -20,16 +20,19 @@
 .content-box {
   padding: 10px 30px 30px;
   height: 380px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  form {
-    padding: 20px 10px;
-    .control-group {
-      .error {
-        position: absolute;
-        right: 0;
-        bottom: 5px;
+  .split {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    form {
+      padding: 20px 10px;
+      .control-group {
+        .error {
+          position: absolute;
+          right: 0;
+          bottom: 5px;
+        }
       }
     }
   }
