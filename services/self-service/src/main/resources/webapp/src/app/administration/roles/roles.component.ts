@@ -22,7 +22,7 @@ import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
-import { RolesGroupsService } from '../../core/services';
+import { RolesGroupsService, HealthStatusService } from '../../core/services';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
@@ -41,27 +41,36 @@ export class RolesComponent implements OnInit {
   public manageUser: string = '';
   public setupRoles: Array<string> = [];
   public updatedRoles: Array<string> = [];
+  public healthStatus: any;
   public delimitersRegex = /[-_]?/g;
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
-
+  
+  stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
-  stepperView: boolean = false;
 
   constructor(
     public toastr: ToastrService,
     public dialog: MatDialog,
-    private rolesService: RolesGroupsService
+    private rolesService: RolesGroupsService,
+    private healthStatusService: HealthStatusService
   ) { }
 
   ngOnInit() {
-  this.openManageRolesDialog()
+  this.openManageRolesDialog();
+  this.getEnvironmentHealthStatus();
   }
 
   openManageRolesDialog() {
-    this.rolesService.getGroupsData().subscribe(group => {
+    this.rolesService.getGroupsData().subscribe(groups => {
       this.rolesService.getRolesData().subscribe(
-        roles => this.open(group, roles),
+        (roles: any) => {
+          this.roles = roles;
+          this.rolesList = roles.map(role => role.description);
+          this.updateGroupData(groups);
+      
+          this.stepperView = false;
+        },
         error => this.toastr.error(error.message, 'Oops!'));
     },
     error => this.toastr.error(error.message, 'Oops!'));
@@ -71,23 +80,6 @@ export class RolesComponent implements OnInit {
     this.rolesService.getGroupsData().subscribe(
       list => this.updateGroupData(list),
       error => this.toastr.error(error.message, 'Oops!'));
-  }
-
-  public open(groups, roles): void {
-    this.roles = roles;
-    this.rolesList = roles.map(role => role.description);
-    this.updateGroupData(groups);
-
-    this.stepperView = false;
-  }
-
-  public onUpdate($event) {
-    if ($event.type === 'role') {
-      this.setupRoles = $event.model;
-    } else {
-      this.updatedRoles = $event.model;
-    }
-    $event.$event.preventDefault();
   }
 
   public selectAllOptions(item, values, byKey?) {
@@ -128,7 +120,7 @@ export class RolesComponent implements OnInit {
     this.resetDialog();
   }
 
-  manageRolesGroups($event) {
+  public manageRolesGroups($event) {
     switch ($event.action) {
       case 'create':
         this.rolesService.setupNewGroup($event.value).subscribe(res => {
@@ -214,6 +206,11 @@ export class RolesComponent implements OnInit {
     if (value && value.trim()) {
       item.users instanceof Array ? item.users.push(value.trim()) : item.users = [value.trim()];
     }
+  }
+
+  private getEnvironmentHealthStatus() {
+    this.healthStatusService.getEnvironmentHealthStatus()
+      .subscribe((result: any) => this.healthStatus = result);
   }
 }
 

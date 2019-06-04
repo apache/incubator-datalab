@@ -48,7 +48,6 @@
       <ng-template matStepLabel>Roles</ng-template>
       <div class="inner-step mat-reset">
         <div class="selector-wrapper">
-          <!-- <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'role'" [items]="rolesList" [model]="setupRoles"></multi-select-dropdown> -->
           <mat-form-field>
             <mat-select multiple [compareWith]="compareObjects" name="roles" [(value)]="setupRoles"
               placeholder="Select roles">
