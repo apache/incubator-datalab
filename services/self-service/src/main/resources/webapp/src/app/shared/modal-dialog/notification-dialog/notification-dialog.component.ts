@@ -49,7 +49,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
       </div>
       <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
       <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
-        <p><strong>{{ data.item.name }}</strong> will be decommissioned.</p>
+        <p>
+          <strong class="ellipsis label-name" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
+          {{ data.item.name }}</strong> will be decommissioned.
+        </p>
         <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
       
         <div class="text-center m-top-30 m-bott-10">
@@ -69,6 +72,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
     .plur { font-style: normal; }
+    .label-name { display: inline-block; width: 100% }
   `]
 })
 export class NotificationDialogComponent {

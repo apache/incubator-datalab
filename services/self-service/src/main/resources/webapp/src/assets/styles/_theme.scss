@@ -253,7 +253,7 @@
     .mat-chip-list {
       .mat-chip-list-wrapper {
         overflow-y: auto;
-        max-height: 115px;
+        max-height: 130px;
       }
     }
   }
@@ -491,6 +491,12 @@ mat-horizontal-stepper {
 }
 
 .mat-table {
+  th.mat-header-cell {
+    font-size: 15px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    color: #607D8B;
+  }
   .mat-cell {
     word-break: break-all;
     padding: 5px 10px;
