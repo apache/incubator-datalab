@@ -19,9 +19,6 @@
 
 .form-block {
   width: 600px;
-  .next {
-    // margin-left: 25px;
-  }
   &.split {
     flex-direction: column;
     display: flex;
@@ -34,5 +31,13 @@
         margin: 0;
       }
     }
+  }
+
+  .error {
+    font-family: 'Open Sans', sans-serif;
+    position: absolute;
+    right: 0;
+    bottom: 2px;
+    font-weight: 300;
   }
 }

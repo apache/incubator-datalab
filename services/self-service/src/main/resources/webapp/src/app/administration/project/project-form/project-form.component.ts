@@ -17,13 +17,15 @@
  * under the License.
  */
 
- import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
- import { FormGroup, FormBuilder, Validators } from '@angular/forms';
- import { ToastrService } from 'ngx-toastr';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 
- import { ProjectService,RolesGroupsService, EndpointService } from '../../../core/services';
- import { ProjectDataService } from '../project-data.service';
- import { Project } from '../project.component';
+import { ProjectService, RolesGroupsService, EndpointService } from '../../../core/services';
+import { ProjectDataService } from '../project-data.service';
+import { CheckUtils, PATTERNS } from '../../../core/util';
+import { Project } from '../project.component';
 
 @Component({
   selector: 'project-form',
@@ -31,15 +33,17 @@
   styleUrls: ['./project-form.component.scss']
 })
 export class ProjectFormComponent implements OnInit {
-  namePattern = '[-_a-zA-Z0-9]+';
 
   public projectForm: FormGroup;
   public groupsList: any = [];
   public endpointsList: any = [];
+  public projectList: Project[] = [];
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
   @ViewChild('stepper') stepper;
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     public toastr: ToastrService,
@@ -55,6 +59,10 @@ export class ProjectFormComponent implements OnInit {
     this.getGroupsData();
     this.getEndpointsData();
 
+    this.subscriptions.add(this.projectDataService._projects.subscribe(
+      (value: Project[]) => {
+        if (value) this.projectList = value;
+      }));
     if (this.item) {
       this.editSpecificProject(this.item);
       this.stepper.selectedIndex = 1;
@@ -82,7 +90,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public generateProjectTag($event) {
-    let user_tag = `dlab-${ $event.target.value }`;
+    let user_tag = `dlab-${$event.target.value}`;
     this.projectForm.controls.tag.setValue(user_tag.toLowerCase());
   }
 
@@ -93,9 +101,9 @@ export class ProjectFormComponent implements OnInit {
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
-      'name': ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
+      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)])],
       'endpoints': [[], Validators.required],
-      'tag': ['',Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
+      'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       'groups': [[], Validators.required]
     });
   }
@@ -120,5 +128,14 @@ export class ProjectFormComponent implements OnInit {
     this.endpointService.getEndpointsData().subscribe(
       list => this.endpointsList = list,
       error => this.toastr.error(error.message, 'Oops!'));
+  }
+
+  private checkDuplication(control) {
+    if (control.value) {
+      for (let index = 0; index < this.projectList.length; index++) {
+        if (CheckUtils.delimitersFiltering(control.value) === CheckUtils.delimitersFiltering(this.projectList[index].name))
+          return { duplication: true };
+      }
+    }
   }
 }

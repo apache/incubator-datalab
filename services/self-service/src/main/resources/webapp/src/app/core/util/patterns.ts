@@ -19,4 +19,5 @@
 
 export const PATTERNS = {
   namePattern: '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+',
+  delimitersRegex: '/[-_]?/g'
 }

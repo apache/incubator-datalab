@@ -30,6 +30,7 @@
               <div class="control">
                 <input type="text" formControlName="name" placeholder="Enter project name"
                   (blur)="generateProjectTag($event)" [ngClass]="{ 'not-allowed' : item }">
+                <span class="error" *ngIf="projectForm?.controls.name.hasError('duplication')">This project name already exists.</span>
               </div>
             </div>
             <div class="control-group">
