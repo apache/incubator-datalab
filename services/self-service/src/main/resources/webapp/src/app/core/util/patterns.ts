@@ -5,7 +5,7 @@
  * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License.  You may obtain a copy  of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -19,5 +19,6 @@
 
 export const PATTERNS = {
   namePattern: '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+',
-  delimitersRegex: '/[-_]?/g'
+  delimitersRegex: '/[-_]?/g',
+  url: '^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
 }

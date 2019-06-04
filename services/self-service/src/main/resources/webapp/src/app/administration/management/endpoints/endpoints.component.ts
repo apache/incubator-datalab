@@ -24,6 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { EndpointService } from '../../../core/services';
 import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
+import { PATTERNS } from '../../../core/util';
 
 export interface Endpoint {
   name: string;
@@ -38,7 +39,6 @@ export interface Endpoint {
 })
 export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
-  namePattern = '[-_a-zA-Z0-9]+';
   endpoints: Endpoint[] = [];
   displayedColumns: string[] = ['name', 'url', 'account', 'actions'];
 
@@ -75,9 +75,9 @@ export class EndpointsComponent implements OnInit {
 
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
-      name: ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
-      url: ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])],
-      account: ['', Validators.compose([Validators.required, Validators.pattern(this.namePattern)])]
+      name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
+      url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.url)])],
+      account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
     });
   }
 
