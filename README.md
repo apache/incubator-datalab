@@ -250,7 +250,7 @@ If you want to deploy DLab from inside of your AWS account, you can use the foll
 
 - Create an EC2 instance with the following settings:
     - Shape of the instance shouldn't be less than t2.medium
-    - The instance should have access to Internet in order to install required prerequisites 
+    - The instance should have access to Internet in order to install required prerequisites
     - The instance should have access to further DLab installation
     - AMI - Ubuntu 16.04
     - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
@@ -264,6 +264,7 @@ If you want to deploy DLab from inside of your AWS account, you can use the foll
     apt-cache policy docker-ce
     apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
     usermod -a -G docker ubuntu
+    apt-get install python-pip
     pip install fabric==1.14.0
 ```
 - Clone DLab repository and run deploy script.
@@ -314,11 +315,78 @@ These directories contain the log files for each template and for DLab back-end 
 
 ### Create
 
-Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud. 
+Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
 For each cloud provider, prerequisites are different.
 
 #### In Amazon cloud
 
+<<<<<<< HEAD
+=======
+Prerequisites:
+
+ - SSH key for EC2 instances. This key could be created through Amazon Console.
+ - IAM user
+ - AWS access key ID and secret access key
+ - The following permissions should be assigned for IAM user:
+ <a name="AWS_SSN_policy"></a>
+```
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Action": [
+				"iam:ListRoles",
+				"iam:CreateRole",
+				"iam:CreateInstanceProfile",
+				"iam:PutRolePolicy",
+				"iam:AddRoleToInstanceProfile",
+				"iam:PassRole",
+				"iam:GetInstanceProfile",
+				"iam:ListInstanceProfilesForRole",
+				"iam:RemoveRoleFromInstanceProfile",
+				"iam:DeleteInstanceProfile"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"ec2:DescribeImages",
+				"ec2:CreateTags",
+				"ec2:DescribeRouteTables",
+				"ec2:CreateRouteTable",
+				"ec2:AssociateRouteTable",
+				"ec2:DescribeVpcEndpoints",
+				"ec2:CreateVpcEndpoint",
+				"ec2:ModifyVpcEndpoint",
+				"ec2:DescribeInstances",
+				"ec2:RunInstances",
+				"ec2:DescribeAddresses",
+				"ec2:AllocateAddress",
+				"ec2:DescribeInstances",
+				"ec2:AssociateAddress",
+				"ec2:DisassociateAddress",
+				"ec2:ReleaseAddress",
+				"ec2:TerminateInstances"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"s3:ListAllMyBuckets",
+				"s3:CreateBucket",
+				"s3:PutBucketTagging",
+				"s3:GetBucketTagging"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		}
+	]
+}
+```
+
+>>>>>>> eb92433f3... README.md edited
 To build SSN node, following steps should be executed:
 
 1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
@@ -339,7 +407,7 @@ List of parameters for SSN node deployment:
 | aws\_secret\_access\_key  | AWS user secret access key                                                              |
 | aws\_region               | AWS region                                                                              |
 | conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS) 
+| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)
 | conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
 | aws\_vpc\_id              | ID of the VPC                                                   |
 | aws\_subnet\_id           | ID of the public subnet                                                                 |
@@ -375,6 +443,20 @@ After SSN node deployment following AWS resources will be created:
 
 #### In Azure cloud
 
+<<<<<<< HEAD
+=======
+Prerequisites:
+
+- IAM user with Contributor permissions.
+- Service principal and JSON based auth file with clientId, clientSecret and tenantId.
+
+**Note:** The following permissions should be assigned to the service principal:
+
+- Windows Azure Active Directory
+- Microsoft Graph
+- Windows Azure Service Management API
+
+>>>>>>> eb92433f3... README.md edited
 To build SSN node, following steps should be executed:
 
 1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed
@@ -435,9 +517,9 @@ azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties
 - Open *Azure Active Directory* tab, then *App registrations* and click *New application registration*
 - Fill in ui form with the following parameters *Name* - put name of the new application, *Application type* - select Native, *Sign-on URL* put any valid url as it will be updated later
 - Grant proper permissions to the application. Select the application you just created on *App registration* view, then click *Required permissions*, then *Add->Select an API-> In search field type MicrosoftAzureQueryService* and press *Select*, then check the box *Have full access to the Azure Data Lake service* and save the changes. Repeat the same actions for *Windows Azure Active Directory* API (available on *Required permissions->Add->Select an API*) and the box *Sign in and read user profile*
-- Get *Application ID* from application properties  it will be used as azure_application_id for deploy_dlap.py script 
+- Get *Application ID* from application properties  it will be used as azure_application_id for deploy_dlap.py script
 2. Usage of Data Lake resource predicts shared folder where all users can write or read any data. To manage access to this folder please create ot use existing group in Active Directory. All users from this group will have RW access to the shared folder. Put ID(in Active Directory) of the group as *azure_ad_group_id* parameter to deploy_dlab.py script
-3. After execution of deploy_dlab.py script go to the application created in step 1 and change *Redirect URIs* value to the https://SSN_HOSTNAME/ where SSN_HOSTNAME - SSN node hostname 
+3. After execution of deploy_dlab.py script go to the application created in step 1 and change *Redirect URIs* value to the https://SSN_HOSTNAME/ where SSN_HOSTNAME - SSN node hostname
 
 After SSN node deployment following Azure resources will be created:
 
@@ -449,10 +531,18 @@ After SSN node deployment following Azure resources will be created:
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
--   If support of Data Lake is enabled: Data Lake and shared directory will be created 
+-   If support of Data Lake is enabled: Data Lake and shared directory will be created
 
 #### In Google cloud (GCP)
 
+<<<<<<< HEAD
+=======
+Prerequisites:
+
+- IAM user
+- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
+
+>>>>>>> eb92433f3... README.md edited
 To build SSN node, following steps should be executed:
 
 1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
@@ -608,7 +698,7 @@ The following Azure resources will be created:
 -   Security Groups for all further user's master nodes of data engine cluster
 -   Security Groups for all further user's slave nodes of data engine cluster
 -   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
--   User's storage account and blob container 
+-   User's storage account and blob container
 
 List of parameters for Edge node creation:
 
@@ -635,7 +725,7 @@ The following GCP resources will be created:
 -   Security Groups for all further user's master nodes of data engine cluster
 -   Security Groups for all further user's slave nodes of data engine cluster
 -   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
--   User's bucket 
+-   User's bucket
 
 List of parameters for Edge node creation:
 
@@ -993,7 +1083,7 @@ List of parameters for Notebook node to **get list** of available libraries:
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
-  "others": {"Keras": "N/A"} 
+  "others": {"Keras": "N/A"}
 }
 ```
 
@@ -1269,7 +1359,7 @@ List of parameters for Dataengine-service node to **get list** of available libr
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
-  "others": {"Keras": "N/A"} 
+  "others": {"Keras": "N/A"}
 }
 ```
 
@@ -1475,7 +1565,7 @@ List of parameters for Dataengine node to **get list** of available libraries:
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
-  "others": {"Keras": "N/A"} 
+  "others": {"Keras": "N/A"}
 }
 ```
 
@@ -1708,7 +1798,7 @@ To deploy Gitlab server, set all needed parameters in ```gitlab.ini``` and run s
 
 **Note:** Terminate process uses ```node_name``` to find instance.
 
-**Note:** GitLab wouldn't be terminated with all environment termination process. 
+**Note:** GitLab wouldn't be terminated with all environment termination process.
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
@@ -1843,12 +1933,12 @@ Some class names may have endings like Aws or Azure(e.g. ComputationalResourceAw
 
 #### Security service
 
-Security service is REST based service for user authentication against LDAP/LDAP + AWS/Azure OAuth2 depending on module configuration and cloud provider. 
-LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. 
+Security service is REST based service for user authentication against LDAP/LDAP + AWS/Azure OAuth2 depending on module configuration and cloud provider.
+LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance.
 If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
 
 DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP or OAuth2
-If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure). 
+If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure).
 If Data Lake is enabled default permission scope(can be configured manually after deploy DLab) is Data Lake Store account so only if user has any role in scope of Data Lake Store Account resource he/she will be allowed to log in
 If Data Lake is disabled but Azure OAuth2 is in use default permission scope will be Resource Group where DLab is created and only users who have any roles in the resource group will be allowed to log in.
 
@@ -1867,7 +1957,7 @@ Sources are located in dlab/services/self-service/src/main/resources/webapp
 | Home page (list of resources) | HomeComponent<br>nested several main components like ResourcesGrid for notebooks data rendering and filtering, using custom MultiSelectDropdown component;<br>multiple modal dialogs components used for new instances creation, displaying detailed info and actions confirmation. |
 | Health Status page            | HealthStatusComponent<br>*HealthStatusGridComponent* displays list of instances, their types, statutes, ID’s and uses *healthStatusService* for handling main actions. |
 | Help pages                    | Static pages that contains information and instructions on how to access Notebook Server and generate SSH key pair. Includes only *NavbarComponent*. |
-| Error page                    | Simple static page letting users know that opened page does not exist. Includes only *NavbarComponent*. | 
+| Error page                    | Simple static page letting users know that opened page does not exist. Includes only *NavbarComponent*. |
 | Reporting page                | ReportingComponent<br>ReportingGridComponent displays billing detailed info with built-in filtering and DateRangePicker component for custom range filtering;<br>uses *BillingReportService* for handling main actions and exports report data to .csv file. |
 
 ## How to setup local development environment <a name="setup_local_environment"></a>
@@ -1931,7 +2021,7 @@ mongo:
 *Unix*
 
 ```
-ln -s ../../infrastructure-provisioning/src/ssn/templates/ssn.yml ssn.yml 
+ln -s ../../infrastructure-provisioning/src/ssn/templates/ssn.yml ssn.yml
 ```
 
 *Windows*
@@ -1978,7 +2068,7 @@ export * from './(aws|azure).dictionary';
 npm run build.prod
 ```
 
-### Prepare HTTPS prerequisites 
+### Prepare HTTPS prerequisites
 
 To enable a SSL connection the web server should have a Digital Certificate.
 To create a server certificate, follow these steps:
@@ -1993,7 +2083,7 @@ To create a server certificate, follow these steps:
 
 Please find below set of commands to create certificate, depending on OS.
 
-#### Create Unix/Ubuntu server certificate 
+#### Create Unix/Ubuntu server certificate
 
 Pay attention that the last command has to be executed with administrative permissions.
 ```
@@ -2387,7 +2477,7 @@ Also depending on customization, there might be differences in attributes config
 
 **CN** vs **UID**.
 
-The relation between users and groups also varies from vendor to vendor. 
+The relation between users and groups also varies from vendor to vendor.
 
 For example, in Open LDAP the group object may contain set (from 0 to many) attributes **"memberuid"** with values equal to user`s attribute **“uid”**.
 
@@ -2396,8 +2486,8 @@ On a group size there is attribute **"member"** (from 0 to many values) and its 
 
 
 To fit the unified way of LDAP usage, we introduced configuration file with set of properties and customized scripts (python and JavaScript based).
-On backend side, all valuable attributes are further collected and passed to these scripts. 
-To apply some customization it is required to update a few properties in **security.yml** and customize the scripts. 
+On backend side, all valuable attributes are further collected and passed to these scripts.
+To apply some customization it is required to update a few properties in **security.yml** and customize the scripts.
 
 
 ### Properties overview
@@ -2417,14 +2507,14 @@ Additional parameters that are populated during deployment and may be changed in
 - **ldapConnectionConfig.ldapHost: ldap host**
 - **ldapConnectionConfig.ldapPort: ldap port**
 - **ldapConnectionConfig.credentials: ldap credentials**
- 
+
 ### Scripts overview
 
 There are 3 scripts in security.yml:
-- **userLookUp** (python based)    - responsible for user lookup in LDap and returns additional user`s attributes; 
+- **userLookUp** (python based)    - responsible for user lookup in LDap and returns additional user`s attributes;
 - **userInfo** (python based)      - enriches user with additional data;
 - **groupInfo** (javascript based) – responsible for mapping between users and groups;
- 
+
 ### Script structure
 
 The scripts above were created to flexibly manage user`s security configuration. They all are part of **security.yml** configuration. All scripts have following structure:
@@ -2439,14 +2529,14 @@ The scripts above were created to flexibly manage user`s security configuration.
     - **searchResultProcessor:**
       - **language**
       - **code**
-     
-Major properties are: 
+
+Major properties are:
 - **attributes**             - list of attributes that will be retrieved from LDAP (-name, -cn, -uid, -member, etc);
-- **filter**               - the filter, based on which the object will be retrieved from LDAP; 
+- **filter**               - the filter, based on which the object will be retrieved from LDAP;
 - **searchResultProcessor**    - optional. If only LDAP object attributes retrieving is required, this property should be empty. For example, “userLookup” script only retrieves list of "attributes". Otherwise, code customization (like user enrichment, user to groups matching, etc.) should be added into sub-properties below:
-  - **language**                - the script language - "python" or "JavaScript" 
+  - **language**                - the script language - "python" or "JavaScript"
   - **code**                    - the script code.
-     
+
 
 ### "userLookUp" script
 
@@ -2463,34 +2553,34 @@ Script code:
     expirationTimeMsec: 600000
     scope: SUBTREE
     attributes:
-      - cn 
+      - cn
       - gidNumber
       - mail
       - memberOf
     timeLimit: 0
     base: ou=users,ou=alxn,dc=alexion,dc=cloud
     filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))"
-    
+
 In the example above, the user login passed from GUI is a mail (**ldapSearchAttribute: mail**) and based on the filer (**filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))")** so, the service would search user by its **“mail”**.
 If corresponding users are found - the script will return additional user`s attributes:
   - cn
   - gidNumber
   - mail
   - memberOf
-   
+
 User`s authentication into LDAP would be done for DN with following template **ldapBindTemplate: 'cn=%s,ou=users,ou=alxn,dc=alexion,dc=cloud'**, where CN is attribute retrieved by  **“userLookUp”** script.
 
 ## Azure OAuth2 Authentication <a name="Azure_OAuth2_Authentication"></a>
-DLab supports OAuth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment. 
-Please see explanation details about configuration parameters for Self Service and Security Service below. 
-DLab supports client credentials(username + password) and authorization code flow for authentication. 
+DLab supports OAuth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment.
+Please see explanation details about configuration parameters for Self Service and Security Service below.
+DLab supports client credentials(username + password) and authorization code flow for authentication.
 
 
 ### Azure OAuth2 Self Service configuration
 
     azureLoginConfiguration:
         useLdap: false
-        tenant: xxxx-xxxx-xxxx-xxxx 
+        tenant: xxxx-xxxx-xxxx-xxxx
         authority: https://login.microsoftonline.com/
         clientId: xxxx-xxxx-xxxx-xxxx
         redirectUrl: https://dlab.azure.cloudapp.azure.com/
@@ -2499,7 +2589,7 @@ DLab supports client credentials(username + password) and authorization code flo
         silent: true
         loginPage: https://dlab.azure.cloudapp.azure.com/
         maxSessionDurabilityMilliseconds: 288000000
-        
+
 where:
 - **useLdap** - defines if LDAP authentication is enabled(true/false). If false Azure OAuth2 takes place with configuration properties below
 - **tenant** - tenant id of your company
@@ -2508,25 +2598,25 @@ where:
 - **redirectUrl** - redirect URL to DLab application after try to login to Azure using OAuth2
 - **responseMode** - defines how Azure sends authorization code or error information to DLab during log in procedure
 - **prompt** - defines kind of prompt during Oauth2 login
-- **silent** - defines if DLab tries to log in user without interaction(true/false), if false DLab tries to login user with configured prompt 
+- **silent** - defines if DLab tries to log in user without interaction(true/false), if false DLab tries to login user with configured prompt
 - **loginPage** - start page of DLab application
-- **maxSessionDurabilityMilliseconds** - max user session durability. user will be asked to login after this period of time and when he/she creates ot starts notebook/cluster. This operation is needed to update refresh_token that is used by notebooks to access Data Lake Store 
-        
+- **maxSessionDurabilityMilliseconds** - max user session durability. user will be asked to login after this period of time and when he/she creates ot starts notebook/cluster. This operation is needed to update refresh_token that is used by notebooks to access Data Lake Store
+
 To get more info about *responseMode*, *prompt* parameters please visit [Authorize access to web applications using OAuth 2.0 and Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code)
-        
-   
+
+
 ### Azure OAuth2 Security Service configuration
 
     azureLoginConfiguration:
         useLdap: false
-        tenant: xxxx-xxxx-xxxx-xxxx 
+        tenant: xxxx-xxxx-xxxx-xxxx
         authority: https://login.microsoftonline.com/
         clientId: xxxx-xxxx-xxxx-xxxx
         redirectUrl: https://dlab.azure.cloudapp.azure.com/
-        validatePermissionScope: true 
+        validatePermissionScope: true
         permissionScope: subscriptions/xxxx-xxxx-xxxx-xxxx/resourceGroups/xxxx-xxxx/providers/Microsoft.DataLakeStore/accounts/xxxx/providers/Microsoft.Authorization/
         managementApiAuthFile: /dlab/keys/azure_authentication.json
-        
+
 where:
 - **useLdap** - defines if LDAP authentication is enabled(true/false). If false Azure OAuth2 takes place with configuration properties below
 - **tenant** - tenant id of your company
@@ -2536,4 +2626,3 @@ where:
 - **validatePermissionScope** - defines(true/false) if user's permissions should be validated to resource that is provided in permissionScope parameter. User will be logged in onlu in case he/she has any role in resource IAM described with permissionScope parameter
 - **permissionScope** - describes Azure resource where user should have any role to pass authentication. If user has no role in resource IAM he/she will not be logged in  
 - **managementApiAuthFile** - authentication file that is used to query Microsoft Graph API to check user roles in resource described in permissionScope  
-
