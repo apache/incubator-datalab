@@ -87,7 +87,8 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public selectOptions(list, key, select?) {
-    this.projectForm.controls[key].setValue(select ? list : []);
+    let filter = key === 'endpoints' ? list.map(el => el.name) : list;
+    this.projectForm.controls[key].setValue(select ? filter : []);
   }
 
   private initFormModel(): void {
