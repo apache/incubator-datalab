@@ -53,6 +53,8 @@ public class UserInstanceDTO {
 	private String imageVersion;
 	@JsonProperty("project")
 	private String project;
+	@JsonProperty("endpoint")
+	private String endpoint;
 	@JsonProperty("template_name")
 	private String templateName;
 	@JsonProperty
@@ -165,6 +167,11 @@ public class UserInstanceDTO {
 	 */
 	public UserInstanceDTO withLibs(List<LibInstallDTO> libs) {
 		setLibs(libs);
+		return this;
+	}
+
+	public UserInstanceDTO withEndpoint(String endpoint) {
+		setEndpoint(endpoint);
 		return this;
 	}
 }

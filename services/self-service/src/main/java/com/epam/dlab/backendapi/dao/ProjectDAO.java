@@ -4,6 +4,7 @@ import com.epam.dlab.backendapi.domain.ProjectDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ProjectDAO {
 	List<ProjectDTO> getProjects();
@@ -19,4 +20,6 @@ public interface ProjectDAO {
 	Optional<Integer> getAllowedBudget(String project);
 
 	void updateBudget(String project, Integer budget);
+
+	boolean anyProjectAssigned(Set<String> groups);
 }

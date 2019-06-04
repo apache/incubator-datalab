@@ -320,7 +320,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withTemplateName(exploratory.getTemplateName())
 				.withClusterConfig(exploratory.getClusterConfig())
 				.withShape(exploratory.getShape())
-				.withProject(project);
+				.withProject(project)
+				.withEndpoint(exploratory.getEndpoint());
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {
 			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory
 					.getImageName());
