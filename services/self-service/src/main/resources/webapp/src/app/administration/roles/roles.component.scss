@@ -29,6 +29,7 @@
   right: 0;
   top: 0px;
   height: 36px;
+  line-height: 1;
   cursor: pointer;
   &.not-allowed {
     background-color: #dcdcdc;
@@ -164,7 +165,7 @@
     margin-top: 50px;
     height: inherit;
     min-height: 0;
-    overflow-y: hidden;
+    overflow: hidden;
   }
 }
 .expanded-panel {
@@ -242,7 +243,6 @@ mat-expansion-panel-header {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin: 2px !important;
 }
 mat-chip.mat-chip a {
   position: absolute;
@@ -286,6 +286,35 @@ mat-form-field.chip-list {
     &.deselect {
       &:hover {
         color: #f1696e;
+      }
+    }
+  }
+}
+
+table {
+  width: 100%;
+  .name {
+    width: 15%;
+  }
+  .roles {
+    width: 30%;
+  }
+  .users {
+    width: 40%;
+  }
+  .actions {
+    color: #607d8b;
+    width: 10%;
+    text-align: center;
+    span {
+      transition: all .5s ease-in-out;
+      cursor: pointer;
+      .mat-icon {
+        font-size: 18px;
+        padding-top: 5px;
+      }
+      &:hover {
+        color: darken(#607d8b, 10%);
       }
     }
   }

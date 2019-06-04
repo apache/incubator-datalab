@@ -44,6 +44,7 @@ export class RolesComponent implements OnInit {
   public delimitersRegex = /[-_]?/g;
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
 
+  displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
   stepperView: boolean = false;
 
