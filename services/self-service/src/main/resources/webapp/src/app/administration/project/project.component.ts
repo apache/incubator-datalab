@@ -34,8 +34,7 @@ export interface Project {
 
 @Component({
   selector: 'dlab-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+  templateUrl: './project.component.html'
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   projectList: Project[] = [];
