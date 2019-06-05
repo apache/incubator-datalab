@@ -23,8 +23,8 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material';
 
 import { UserResourceService } from '../../core/services';
-import { CreateResourceModel } from './create-resource.model';
-import { ResourcesGridRowModel } from './resources-grid.model';
+
+import { ExploratoryModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
@@ -48,17 +48,16 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
-  environments: Array<ResourcesGridRowModel>;
-  filteredEnvironments: Array<ResourcesGridRowModel> = [];
+  environments: Array<ExploratoryModel>;
+  filteredEnvironments: Array<ExploratoryModel> = [];
   filterConfiguration: FilterConfigurationModel;
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
-  model = new CreateResourceModel('', '');
+
   isOutscreenDropdown: boolean;
   collapseFilterRow: boolean = false;
   filtering: boolean = false;
   activeFiltering: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
-  delimitersRegex = /[-_]?/g;
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
@@ -84,7 +83,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   getDefaultFilterConfiguration(): void {
-    const data: Array<ResourcesGridRowModel> = this.environments;
+    const data: Array<ExploratoryModel> = this.environments;
     const shapes = [], statuses = [], resources = [];
 
     data.forEach((item: any) => {
@@ -107,8 +106,8 @@ export class ResourcesGridComponent implements OnInit {
   applyFilter_btnClick(config: FilterConfigurationModel) {
     this.filtering = true;
 
-    // let filteredData: Array<ResourcesGridRowModel> = this.environments.map(env => (<any>Object).assign({}, env));
-    let filteredData: Array<ResourcesGridRowModel> = this.environments.map(env => (<any>Object).create(env));
+    // let filteredData: Array<ExploratoryModel> = this.environments.map(env => (<any>Object).assign({}, env));
+    let filteredData: Array<ExploratoryModel> = this.environments.map(env => (<any>Object).create(env));
     const containsStatus = (list, selectedItems) => {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
@@ -199,7 +198,7 @@ export class ResourcesGridComponent implements OnInit {
   buildGrid(): void {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
-        this.environments = this.loadEnvironments(result.exploratory, result.shared);
+        this.environments = ExploratoryModel.loadEnvironments(result.exploratory, result.shared);
         this.getDefaultFilterConfiguration();
 
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
@@ -213,37 +212,6 @@ export class ResourcesGridComponent implements OnInit {
           return true;
 
     return false;
-  }
-
-  loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ResourcesGridRowModel> {
-    if (exploratoryList && sharedDataList) {
-      return exploratoryList.map((value) => {
-        return new ResourcesGridRowModel(value.exploratory_name,
-          value.template_name,
-          value.image,
-          value.status,
-          value.shape,
-          value.computational_resources,
-          value.up_time,
-          value.exploratory_url,
-          sharedDataList.edge_node_ip,
-          value.exploratory_user,
-          value.exploratory_pass,
-          sharedDataList[DICTIONARY.bucket_name],
-          sharedDataList[DICTIONARY.shared_bucket_name],
-          value.error_message,
-          value[DICTIONARY.billing.cost],
-          value[DICTIONARY.billing.currencyCode],
-          value.billing,
-          value.libs,
-          sharedDataList[DICTIONARY.user_storage_account_name],
-          sharedDataList[DICTIONARY.shared_storage_account_name],
-          sharedDataList[DICTIONARY.datalake_name],
-          sharedDataList[DICTIONARY.datalake_user_directory_name],
-          sharedDataList[DICTIONARY.datalake_shared_directory_name],
-        );
-      });
-    }
   }
 
   getUserPreferences(): void {
