@@ -131,6 +131,7 @@ Creation of self-service node – is the first step for deploying DLab. SSN is a
 Elastic(Static) IP address is assigned to an SSN Node, so you are free to stop|start it and and SSN node's IP address won’t change.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Edge node
 
 Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a Squid HTTP web proxy pre-installed.
@@ -271,6 +272,9 @@ If you want to deploy DLab from inside of your AWS account, you can use the foll
 - Clone DLab repository and run deploy script.
 
 ## Structure of main DLab directory <a name="DLab_directory"></a>
+=======
+### Structure of main DLab directory <a name="DLab_directory"></a>
+>>>>>>> 84ff8aad0... README.md updated
 =======
 ### Structure of main DLab directory <a name="DLab_directory"></a>
 >>>>>>> 84ff8aad0... README.md updated
@@ -418,8 +422,11 @@ Prerequisites:
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> eb92433f3... README.md edited
 =======
+=======
+>>>>>>> 84ff8aad0... README.md updated
 Preparation steps for deployment:
 
 - Create an EC2 instance with the following settings:
@@ -461,6 +468,9 @@ Preparation steps for deployment:
 
 ### Executing deployment script
 
+<<<<<<< HEAD
+>>>>>>> 84ff8aad0... README.md updated
+=======
 >>>>>>> 84ff8aad0... README.md updated
 To build SSN node, following steps should be executed:
 
@@ -536,6 +546,7 @@ After SSN node deployment following AWS resources will be created:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 Prerequisites:
 
@@ -556,6 +567,8 @@ To build SSN node, following steps should be executed:
 3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
 4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
 5.  Execute following deploy_dlab.py script:
+=======
+>>>>>>> 84ff8aad0... README.md updated
 =======
 >>>>>>> 84ff8aad0... README.md updated
 ```
@@ -632,6 +645,7 @@ After SSN node deployment following Azure resources will be created:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 Prerequisites:
 
@@ -644,6 +658,8 @@ To build SSN node, following steps should be executed:
 1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
 2.  Go to *dlab* directory.
 3.  Execute following script:
+=======
+>>>>>>> 84ff8aad0... README.md updated
 =======
 >>>>>>> 84ff8aad0... README.md updated
 ```
