@@ -36,7 +36,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--mongo_parameters', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
-parser.add_argument('--kuber', type=str, default=False)
+parser.add_argument('--kuber', type=str, default=True)
 args = parser.parse_args()
 
 
