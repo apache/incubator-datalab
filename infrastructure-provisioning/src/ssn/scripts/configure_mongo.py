@@ -82,7 +82,7 @@ if __name__ == "__main__":
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
     pass_upd = True
     if args.kuber:
-        local("cd {}infrastructure-provisioning/src/; docker build --build-arg CLOUD_PROVIDER={} --file ssn/files/os/mongo_Dockerfile -t docker.dlab-mongo ."
+        local("cd {}sources/infrastructure-provisioning/src/; docker build --build-arg CLOUD_PROVIDER={} --file ssn/files/os/mongo_Dockerfile -t docker.dlab-mongo ."
              .format(args.dlab_path, args.cloud_provider))
         local("mkdir -p /opt/mongo-vol")
         local("docker run --name dlab-mongo -p 27017:27017 -v -d docker.dlab-mongo")
