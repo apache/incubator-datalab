@@ -81,7 +81,7 @@ if __name__ == "__main__":
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
     pass_upd = True
-    if kuber:
+    if args.kuber:
         local("cd {}; docker build --build-arg CLOUD_PROVIDER={} --file ssn/files/os/mongo_Dockerfile -t docker.dlab-mongo ."
              .format(args.dlab_path, args.cloud_provider))
         local("mkdir -p /opt/mongo-vol")
