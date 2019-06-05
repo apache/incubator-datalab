@@ -20,7 +20,6 @@
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { Subscription, timer, interval } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import { ApplicationSecurityService,
@@ -31,9 +30,8 @@ import { ApplicationSecurityService,
   StorageService} from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import { HTTP_STATUS_CODES, FileUtils } from '../../core/util';
+import { FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
-import { ProgressDialogComponent } from '../modal-dialog/progress-dialog';
 
 @Component({
   selector: 'dlab-navbar',
@@ -44,9 +42,6 @@ import { ProgressDialogComponent } from '../modal-dialog/progress-dialog';
 export class NavbarComponent implements OnInit, OnDestroy {
   readonly PROVIDER = DICTIONARY.cloud_provider;
 
-  private alive: boolean = false;
-  private lastStatus: number | boolean = false;
-  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 30000;
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
@@ -74,7 +69,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;
-      this.alive = false;
 
       this.isLoggedIn = response;
 
@@ -82,9 +76,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
           this.healthStatus = result;
           result.status && this.checkQuoteUsed(this.healthStatus);
-        }));
-        this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(result => {
-          result && this.processAccessKeyStatus(result.status);
         }));
         this.subscriptions.add(timer(0, this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
         this.currentUserName = this.getUserName();
@@ -95,7 +86,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-    this.alive = false;
   }
 
   getUserName(): string {
@@ -138,10 +128,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       });
   }
 
-  public checkCreationProgress($event): void {
-    this.userAccessKeyService.initialUserAccessKeyCheck();
-  }
-
   private checkQuoteUsed(params): void {
     if (!this.storage.getBillingQuoteUsed() && params) {
       let checkQuotaAlert = '';
@@ -153,35 +139,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
       checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.billingUserQuoteUsed, params.billingQuoteUsed);
-    }
-  }
-
-  private processAccessKeyStatus(status: number): void {
-    if (status === HTTP_STATUS_CODES.NOT_FOUND || status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
-      !this.dialog.openDialogs.length && this.dialog.closeAll();
-
-      // this.keyUploadDialog.open({ isFooter: false });
-      this.alive = false;
-      this.lastStatus = status;
-    } else if (status === HTTP_STATUS_CODES.ACCEPTED) {
-      !this.dialog.openDialogs.length && this.dialog.open(ProgressDialogComponent, {panelClass: 'modal-xs'});
-
-      if (!this.alive) {
-        this.alive = true;
-        this.subscriptions.add(
-          interval(this.CHECK_ACCESS_KEY_TIMEOUT)
-            .pipe(takeWhile(() => this.alive))
-            .subscribe(() => this.userAccessKeyService.initialUserAccessKeyCheck()));
-      }
-      this.lastStatus = status;
-    } else if (status === HTTP_STATUS_CODES.OK) {
-      if (this.lastStatus) {
-        this.userAccessKeyService.emitActionOnKeyUploadComplete();
-        this.lastStatus = false;
-      }
-      this.alive = false;
-      this.dialog.closeAll();
-      // this.keyUploadDialog.close();
     }
   }
 

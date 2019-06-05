@@ -65,7 +65,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
-  healthStatus: any;
   billingEnabled: boolean;
   admin: boolean;
 
@@ -191,7 +190,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
-        this.healthStatus = result.status;
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
 
