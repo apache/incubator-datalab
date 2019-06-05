@@ -23,8 +23,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { HealthStatusService, UserAccessKeyService } from '../../../core/services';
 import { ConfirmationDialogType } from '../../../shared';
-import { FileUtils } from '../../../core/util';
-import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
 
 export interface ManageAction {
   action: string;
@@ -55,10 +54,9 @@ export class ManagementGridComponent implements OnInit {
 
   constructor(
     private healthStatusService: HealthStatusService,
-    private userAccessKeyService: UserAccessKeyService,
     public toastr: ToastrService,
     public dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit() {
   }
@@ -70,41 +68,35 @@ export class ManagementGridComponent implements OnInit {
   toggleResourceAction(environment, action: string, resource?) {
     if (resource) {
       const resource_name = resource ? resource.computational_name : environment.name;
-      const dialogRef: MatDialogRef<ReconfirmationDialogComponent> = this.dialog.open(ReconfirmationDialogComponent, {
+      this.dialog.open(ReconfirmationDialogComponent, {
         data: { action, resource_name, user: environment.user },
-        width: '550px',
-        panelClass: 'error-modalbox'
-      });
-      dialogRef.afterClosed().subscribe(result => {
+        width: '550px', panelClass: 'error-modalbox'
+      }).afterClosed().subscribe(result => {
         result && this.actionToggle.emit({ action, environment, resource });
       });
     } else {
       const type = (environment.name === 'edge node' || environment.type.toLowerCase() === 'edge node')
-                    ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
+        ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
 
       if (action === 'stop') {
         this.dialog.open(ConfirmationDialogComponent, {
           data: { notebook: environment, type: type, manageAction: this.isAdmin }, panelClass: 'modal-md'
-        });
+        }).afterClosed().subscribe(() => this.buildGrid());
       } else if (action === 'terminate') {
         this.dialog.open(ConfirmationDialogComponent, {
           data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: this.isAdmin }
-        });
+        }).afterClosed().subscribe(() => this.buildGrid());
       } else if (action === 'run') {
-        this.healthStatusService
-          .runEdgeNode()
-          .subscribe(() => {
-            this.buildGrid();
-            this.toastr.success('Edge node is starting!', 'Processing!');
-          }, error => this.toastr.error('Edge Node running failed!', 'Oops!'));
-        } else if (action === 'recreate') {
-          this.healthStatusService
-            .recreateEdgeNode()
-            .subscribe(() => {
-              this.buildGrid();
-              this.toastr.success('Edge Node recreation is processing!', 'Processing!');
-            }, error => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
-        }
+        this.healthStatusService.runEdgeNode().subscribe(() => {
+          this.buildGrid();
+          this.toastr.success('Edge node is starting!', 'Processing!');
+        }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
+      } else if (action === 'recreate') {
+        this.healthStatusService.recreateEdgeNode().subscribe(() => {
+          this.buildGrid();
+          this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+        }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
+      }
     }
   }
 
@@ -131,13 +123,6 @@ export class ManagementGridComponent implements OnInit {
 
   showReuploaKeydDialog() {
     this.keyReuploadDialog.open({ isFooter: false });
-  }
-
-  public generateUserKey() {
-    this.userAccessKeyService.regenerateAccessKey().subscribe(data => {
-      FileUtils.downloadFile(data);
-      this.buildGrid();
-    });
   }
 }
 
@@ -168,5 +153,5 @@ export class ReconfirmationDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ReconfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) { }
 }
