@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
@@ -27,6 +28,7 @@ import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import org.bson.Document;
@@ -57,6 +59,8 @@ public class InfrastructureInfoServiceBaseTest {
 	private SelfServiceApplicationConfiguration configuration;
 	@Mock
 	private BillingDAO billingDAO;
+	@Mock
+	private ProjectService projectService;
 
 	@InjectMocks
 	private InfrastructureInfoServiceBase infrastructureInfoServiceBase = spy(InfrastructureInfoServiceBase.class);
@@ -109,11 +113,12 @@ public class InfrastructureInfoServiceBaseTest {
 		when(billingDAO.getBillingQuoteUsed()).thenReturn(10);
 
 		HealthStatusPageDTO actualHealthStatusPageDTO =
-				infrastructureInfoServiceBase.getHeathStatus(USER, false, true);
+				infrastructureInfoServiceBase.getHeathStatus(new UserInfo(USER, "token"), false, true);
 		assertNotNull(actualHealthStatusPageDTO);
 		assertEquals(HealthStatusEnum.OK.toString(), actualHealthStatusPageDTO.getStatus());
 		assertFalse(actualHealthStatusPageDTO.isBillingEnabled());
 		assertTrue(actualHealthStatusPageDTO.isAdmin());
+		assertFalse(actualHealthStatusPageDTO.isProjectAssigned());
 		assertEquals(10, actualHealthStatusPageDTO.getBillingQuoteUsed());
 
 		verify(envDAO).getHealthStatusPageDTO(USER, false);
@@ -126,7 +131,7 @@ public class InfrastructureInfoServiceBaseTest {
 		doThrow(new DlabException("Cannot fetch health status!"))
 				.when(envDAO).getHealthStatusPageDTO(anyString(), anyBoolean());
 		try {
-			infrastructureInfoServiceBase.getHeathStatus(USER, false, false);
+			infrastructureInfoServiceBase.getHeathStatus(new UserInfo(USER, null), false, false);
 		} catch (DlabException e) {
 			assertEquals("Cannot fetch health status!", e.getMessage());
 		}

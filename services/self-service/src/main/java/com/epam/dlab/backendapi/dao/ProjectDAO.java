@@ -21,5 +21,5 @@ public interface ProjectDAO {
 
 	void updateBudget(String project, Integer budget);
 
-	boolean anyProjectAssigned(Set<String> groups);
+	boolean isAnyProjectAssigned(Set<String> groups);
 }

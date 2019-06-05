@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
@@ -27,6 +28,7 @@ import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
@@ -52,6 +54,8 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	private SelfServiceApplicationConfiguration configuration;
 	@Inject
 	private BillingDAO billingDAO;
+	@Inject
+	private ProjectService projectService;
 
 
 	@SuppressWarnings("unchecked")
@@ -73,12 +77,15 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	}
 
 	@Override
-	public HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean isAdmin) {
+	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport, boolean isAdmin) {
+		final String user = userInfo.getName();
 		log.debug("Request the status of resources for user {}, report type {}", user, fullReport);
 		try {
+
 			return envDAO.getHealthStatusPageDTO(user, fullReport)
 					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
 					.withAdmin(isAdmin)
+					.withProjectAssinged(projectService.isAnyProjectAssigned(userInfo))
 					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed())
 					.withBillingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user));
 		} catch (Exception e) {

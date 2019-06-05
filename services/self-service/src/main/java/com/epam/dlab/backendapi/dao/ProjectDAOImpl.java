@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.google.common.collect.Iterables;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -53,8 +54,8 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public boolean anyProjectAssigned(Set<String> groups) {
-		return false;
+	public boolean isAnyProjectAssigned(Set<String> groups) {
+		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, in(GROUPS, groups)));
 	}
 
 	private Bson projectCondition(String name) {
