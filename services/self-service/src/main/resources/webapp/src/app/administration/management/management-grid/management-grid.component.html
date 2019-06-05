@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<table class="dashboard_table" *ngIf="isAdmin; else users">
+<!-- <table class="dashboard_table" *ngIf="isAdmin; else users">
   <tr>
     <th class="th_user">User</th>
     <th class="th_name">Name</th>
@@ -52,7 +52,7 @@
               </a>
 
               <a class="remove_butt" (click)="toggleResourceAction(env, 'terminate', resource)"
-                  [ngClass]="{ 'disabled' : env.status !== 'running' || resource.status !== 'running'
+                [ngClass]="{ 'disabled' : env.status !== 'running' || resource.status !== 'running'
                               && resource.status !== 'stopped' || env.user.toLowerCase() === currentUser && healthStatus !== 'ok' }">
                 <i class="material-icons">highlight_off</i>
               </a>
@@ -153,8 +153,115 @@
       </td>
     </tr>
   </table>
-</ng-template>
-<!-- 
-<key-upload-dialog #keyReuploadDialog [primaryUploading]="false" (checkInfrastructureCreationProgress)="buildGrid()"
-  (generateUserKey)="generateUserKey()">
-</key-upload-dialog> -->
+</ng-template> -->
+
+<div class="ani">
+  <table mat-table [dataSource]="allEnvironmentData" class="data-grid mat-elevation-z6">
+    <ng-container matColumnDef="user">
+      <th mat-header-cell *matHeaderCellDef class="user"> User </th>
+      <td mat-cell *matCellDef="let element">{{ element.user }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef class="type"> Type </th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="shape">
+      <th mat-header-cell *matHeaderCellDef class="shape"> Shape / Resource id </th>
+      <td mat-cell *matCellDef="let element" class="shape">{{ element.shape || element.ip }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef class="status"> Status </th>
+      <td mat-cell *matCellDef="let element" class="ani status" ngClass="{{element.status || ''}}">{{ element.status }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="resources">
+      <th mat-header-cell *matHeaderCellDef class="resources"> Computational resources </th>
+      <td mat-cell *matCellDef="let element" class="ani resources">
+        <div class="source" *ngIf="element.resources">
+          <div *ngIf="!element.resources?.length">
+            <span *ngIf="!element.resources.length" class="no-details">no details</span>
+          </div>
+          <div *ngIf="element.resources?.length">
+            <div *ngFor="let resource of element.resources" class="resource-wrap">
+              <div class="resource-name">
+                <a class="detailed-link">
+                  {{ resource.computational_name }}
+                </a>
+              </div>
+              <span ngClass="{{resource.status || ''}}" class="resource-status">{{ resource.status }}</span>
+              <div class="resource-actions">
+                <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine'">
+                  <i class="material-icons" (click)="toggleResourceAction(element, 'stop', resource)"
+                    [ngClass]="{'not-allowed' : resource.status !== 'running' || element.user.toLowerCase() === currentUser && healthStatus !== 'ok' }">pause_circle_outline</i>
+                </a>
+
+                <a class="remove_butt" (click)="toggleResourceAction(element, 'terminate', resource)"
+                  [ngClass]="{ 'disabled' : element.status !== 'running' || resource.status !== 'running'
+                                    && resource.status !== 'stopped' || element.user.toLowerCase() === currentUser && healthStatus !== 'ok' }">
+                  <i class="material-icons">highlight_off</i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef class="actions"></th>
+      <td mat-cell *matCellDef="let element" class="actions settings">
+        <span #settings class="actions" (click)="actions.toggle($event, settings)" [ngClass]="{ 'disabled'
+            : (!uploadKey && element.type === 'notebook' && element.user.toLowerCase() === currentUser)
+            || (element.status !== 'running' && element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'failed' )
+            || (element.type === 'edge node' && element.user.toLowerCase() === currentUser && element.status === 'stopping')
+            || element.type === 'edge node' && element.user.toLowerCase() !== currentUser && element.status !== 'running'
+            || element.user.toLowerCase() === currentUser && healthStatus !== 'ok' && element.type !== 'edge node' }"></span>
+        <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+          <ul class="list-unstyled">
+            <li
+              matTooltip="{{ element.type !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
+              matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)"
+              [hidden]="element.name === 'edge node' && element.status === 'stopped'">
+              <div (click)="toggleResourceAction(element, 'stop')"
+                [ngClass]="{'not-allowed' : element.status === 'stopped' || element.status === 'stopping' || element.status === 'starting' || element.status === 'creating image' || element.status === 'failed' || isResourcesInProgress(element)}">
+                <i class="material-icons">pause_circle_outline</i>
+                <span>Stop</span>
+              </div>
+            </li>
+            <li *ngIf="element.name !== 'edge node'"
+              matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+              matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
+              <div (click)="toggleResourceAction(element, 'terminate')"
+                [ngClass]="{'not-allowed' : element.status !== 'running' && element.status !== 'stopped' || isResourcesInProgress(element)}">
+                <i class="material-icons">phonelink_off</i>
+                <span>Terminate</span>
+              </div>
+            </li>
+
+            <div *ngIf="element.name === 'edge node' && element.user.toLowerCase() === currentUser">
+              <li (click)="toggleResourceAction(element, 'run')" *ngIf="element.status === 'stopped'">
+                <i class="material-icons">play_circle_outline</i>
+                <span>Start</span>
+              </li>
+              <li (click)="toggleResourceAction(element, 'recreate')" *ngIf="element.status === 'terminated'">
+                <i class="material-icons">refresh</i>
+                <span>Recreate</span>
+              </li>
+              <li *ngIf="!isResourcesInProgress(element)" (click)="showReuploaKeydDialog()">
+                <i class="material-icons">sync_problem</i>
+                <span>Reupload key</span>
+              </li>
+            </div>
+          </ul>
+        </bubble-up>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

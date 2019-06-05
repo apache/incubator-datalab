@@ -56,7 +56,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   public editProject(item: Project[]) {
-    ;
     this.editItem.emit(item);
   }
 

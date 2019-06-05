@@ -52,6 +52,7 @@ export class ManagementGridComponent implements OnInit {
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
+  displayedColumns: string[] = ['user', 'type', 'shape', 'status', 'resources', 'actions'];
   @ViewChild('keyReuploadDialog') keyReuploadDialog;
 
   constructor(

@@ -34,7 +34,7 @@
                 <div class="control">
                   <input type="text" formControlName="name" placeholder="Enter endpoint name">
                   <span class="error"
-                    *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm.controls.name.touched">
+                    *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm?.controls.name.touched">
                     Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
                     characters
                   </span>
