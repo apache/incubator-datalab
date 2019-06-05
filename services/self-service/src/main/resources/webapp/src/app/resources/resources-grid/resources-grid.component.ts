@@ -28,7 +28,7 @@ import { ResourcesGridRowModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
-import { SortUtil } from '../../core/util';
+import { SortUtil, CheckUtils } from '../../core/util';
 import { DetailDialogComponent } from '../exploratory/detail-dialog';
 import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 import { InstallLibrariesComponent } from '../exploratory/install-libraries';
@@ -197,7 +197,6 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   buildGrid(): void {
-
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
         this.environments = this.loadEnvironments(result.exploratory, result.shared);
@@ -210,14 +209,10 @@ export class ResourcesGridComponent implements OnInit {
   containsNotebook(notebook_name: string): boolean {
     if (notebook_name)
       for (let index = 0; index < this.environments.length; index++)
-        if (this.delimitersFiltering(notebook_name) === this.delimitersFiltering(this.environments[index].name))
+        if (CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(this.environments[index].name))
           return true;
 
     return false;
-  }
-
-  public delimitersFiltering(notebook_name): string {
-    return notebook_name.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 
   loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ResourcesGridRowModel> {
