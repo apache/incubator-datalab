@@ -117,17 +117,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  public generateUserKey($event): void {
-    console.log('generate key', $event);
-    this.userAccessKeyService.generateAccessKey().subscribe(
-      data => {
-        FileUtils.downloadFile(data);
-        this.userAccessKeyService.initialUserAccessKeyCheck();
-      }, error => {
-        this.toastr.error(error.message || 'Access key generation failed!', 'Oops!');
-      });
-  }
-
   private checkQuoteUsed(params): void {
     if (!this.storage.getBillingQuoteUsed() && params) {
       let checkQuotaAlert = '';
