@@ -17,11 +17,13 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Output, Inject } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ToastrService } from 'ngx-toastr';
 
 import { BackupOptionsModel } from '../management.model';
+import { BackupService } from '../../../core/services';
 
 @Component({
   selector: 'dlab-backup-dilog',
@@ -33,9 +35,14 @@ export class BackupDilogComponent implements OnInit {
   public backupOptions: BackupOptionsModel = new BackupOptionsModel([], [], [], [], false, false);
   public valid: boolean = true;
 
+  private clear = undefined;
+  @Output() preventbackup: EventEmitter<{}> = new EventEmitter();
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    public dialogRef: MatDialogRef<BackupDilogComponent>
+    public dialogRef: MatDialogRef<BackupDilogComponent>,
+    public toastr: ToastrService,
+    private backupService: BackupService,
   ) { }
 
   ngOnInit() {
@@ -52,8 +59,13 @@ export class BackupDilogComponent implements OnInit {
   }
 
   public applyOptions(): void {
-    this.dialogRef.close(this.backupOptions);
-    this.backupOptions.setDegault();
+    this.backupService.createBackup(this.backupOptions).subscribe(result => {
+      this.getBackupStatus(result);
+      this.toastr.success('Backup configuration is processing!', 'Processing!');
+      this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
+      this.dialogRef.close(this.backupOptions);
+    },
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private checkValidity(): void {
@@ -68,5 +80,26 @@ export class BackupDilogComponent implements OnInit {
     });
 
     this.valid = items.length > 0;
+  }
+
+  private getBackupStatus(result) {
+    debugger;
+    const uuid = result.body;
+    this.backupService.getBackupStatus(uuid)
+      .subscribe((backupStatus: any) => {
+        if (!this.creatingBackup) {
+          backupStatus.status === 'FAILED'
+            ? this.toastr.error('Backup configuration failed!', 'Oops!')
+            : this.toastr.success('Backup configuration completed!', 'Success!');
+          clearInterval(this.clear);
+        }
+      }, () => {
+        clearInterval(this.clear);
+        this.toastr.error('Backup configuration failed!', 'Oops!');
+      });
+  }
+
+  get creatingBackup(): boolean {
+    return this.backupService.inProgress;
   }
 }
