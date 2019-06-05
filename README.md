@@ -128,6 +128,48 @@ Creation of self-service node – is the first step for deploying DLab. SSN is a
 
 Elastic(Static) IP address is assigned to an SSN Node, so you are free to stop|start it and and SSN node's IP address won’t change.
 
+### Structure of main DLab directory <a name="DLab_directory"></a>
+
+DLab’s SSN node main directory structure is as follows:
+
+    /opt  
+     └───dlab  
+         ├───conf  
+         ├───sources  
+         ├───template  
+         ├───tmp  
+         │   └───result  
+         └───webapp  
+
+-   conf – contains configuration for DLab Web UI and back-end services;
+-   sources – contains all Docker/Python scripts, templates and files for provisioning;
+-   template – docker’s templates;
+-   tmp –temporary directory of DLab;
+-   tmp/result – temporary directory for Docker’s response files;
+-   webapp – contains all .jar files for DLab Web UI and back-end
+    services.
+
+### Structure of log directory <a name="log_directory"></a>
+
+SSN node structure of log directory is as follows:
+
+    /var
+     └───opt
+         └───dlab
+             └───log
+                 ├───dataengine
+                 ├───dateengine-service
+                 ├───edge
+                 ├───notebook
+                 └───ssn
+
+These directories contain the log files for each template and for DLab back-end services.
+-   ssn – contains logs of back-end services;
+-   provisioning.log – Provisioning Service log file;
+-   security.log – Security Service log file;
+-   selfservice.log – Self-Service log file;
+-   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
+
 ## Edge node
 
 Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a Squid HTTP web proxy pre-installed.
@@ -155,77 +197,9 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
 
-## Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
-
-#### In Amazon cloud
-If you want to deploy DLab from inside of your AWS account, you can use the following instruction:
-
-- Create an EC2 instance with the following settings:
-    - Shape of the instance shouldn't be less than t2.medium
-    - The instance should have access to Internet in order to install required prerequisites
-    - The instance should have access to further DLab installation
-    - AMI - Ubuntu 16.04
-    - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
-- Connect to the instance via SSH and run the following commands:
-```
-    sudo su
-    apt-get update
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    apt-get update
-    apt-cache policy docker-ce
-    apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
-    usermod -a -G docker ubuntu
-    apt-get install python-pip
-    pip install fabric==1.14.0
-```
-- Clone DLab repository and run deploy script.
-
-## Structure of main DLab directory <a name="DLab_directory"></a>
-
-DLab’s SSN node main directory structure is as follows:
-
-    /opt  
-     └───dlab  
-         ├───conf  
-         ├───sources  
-         ├───template  
-         ├───tmp  
-         │   └───result  
-         └───webapp  
-
--   conf – contains configuration for DLab Web UI and back-end services;
--   sources – contains all Docker/Python scripts, templates and files for provisioning;
--   template – docker’s templates;
--   tmp –temporary directory of DLab;
--   tmp/result – temporary directory for Docker’s response files;
--   webapp – contains all .jar files for DLab Web UI and back-end
-    services.
-
-## Structure of log directory <a name="log_directory"></a>
-
-SSN node structure of log directory is as follows:
-
-    /var
-     └───opt
-         └───dlab
-             └───log
-                 ├───dataengine
-                 ├───dateengine-service
-                 ├───edge
-                 ├───notebook
-                 └───ssn
-
-These directories contain the log files for each template and for DLab back-end services.
--   ssn – contains logs of back-end services;
--   provisioning.log – Provisioning Service log file;
--   security.log – Security Service log file;
--   selfservice.log – Self-Service log file;
--   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
-
 ## Self-Service Node <a name="Self_Service_Node"></a>
 
-### Create
+### Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
 
 Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
 For each cloud provider, prerequisites are different.
@@ -296,16 +270,73 @@ Prerequisites:
 }
 ```
 
+Preparation steps for deployment:
+
+- Create an EC2 instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - The instance should have access to further DLab installation
+    - AMI - Ubuntu 16.04
+    - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
+- Put SSH key file created through Amazon Console on the instance
+- Install Git and clone DLab repository
+
+#### In Azure cloud
+
+Prerequisites:
+
+- IAM user with Contributor permissions.
+- Service principal and JSON based auth file with clientId, clientSecret and tenantId.
+
+**Note:** The following permissions should be assigned to the service principal:
+
+- Windows Azure Active Directory
+- Microsoft Graph
+- Windows Azure Service Management API
+
+#### In Google cloud (GCP)
+
+Prerequisites:
+
+- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
+- Google Cloud Storage JSON API should be enabled
+
+Preparation steps for deployment:
+
+- Create an VM instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - Boot disk OS Image - Ubuntu 16.04
+- Generate SSH key pair and rename private key with .pem extension
+- Put JSON auth file created through Google cloud console to users home directory
+- Install Git and clone DLab repository
+
+### Executing deployment script
+
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
-2.  Go to *dlab* directory.
-3.  Execute following script:
+- Connect to the instance via SSH and run the following commands:
+
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region us-west-2 --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /root/ --conf_key_name Test --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+sudo su
+apt-get update
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-cache policy docker-ce
+apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
+usermod -a -G docker *username*
+apt-get install python-pip
+pip install fabric==1.14.0
 ```
+- Go to *dlab* directory
+- Run deployment script:
 
 This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
+
+#### In Amazon cloud
+
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name XXXXXX --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+```
 
 List of parameters for SSN node deployment:
 
@@ -352,29 +383,9 @@ After SSN node deployment following AWS resources will be created:
 
 #### In Azure cloud
 
-Prerequisites:
-
-- IAM user with Contributor permissions.
-- Service principal and JSON based auth file with clientId, clientSecret and tenantId.
-
-**Note:** The following permissions should be assigned to the service principal:
-
-- Windows Azure Active Directory
-- Microsoft Graph
-- Windows Azure Service Management API
-
-To build SSN node, following steps should be executed:
-
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed
-2.  Go to *dlab* directory
-3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
-4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
-5.  Execute following deploy_dlab.py script:
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
 ```
-
-This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
 List of parameters for SSN node deployment:
 
@@ -417,6 +428,9 @@ To know azure\_offer\_number open [Azure Portal](https://portal.azure.com), go t
 Please see [RateCard API](https://msdn.microsoft.com/en-us/library/mt219004.aspx) to get more details about azure\_offer\_number,
 azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties correspond to RateCard API request parameters.
 
+To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
+To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
+
 **Note:** Azure Data Lake usage pre-requisites:
 
 1. Configure application in Azure portal and grant proper permissions to it.
@@ -441,21 +455,9 @@ After SSN node deployment following Azure resources will be created:
 
 #### In Google cloud (GCP)
 
-Prerequisites:
-
-- IAM user
-- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
-
-To build SSN node, following steps should be executed:
-
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
-2.  Go to *dlab* directory.
-3.  Execute following script:
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --conf_os_family debian --conf_cloud_provider gcp --key_path /key/path/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
 ```
-
-This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
 List of parameters for SSN node deployment:
 
@@ -489,14 +491,14 @@ After SSN node deployment following GCP resources will be created:
 -   Bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
 
-### Terminate
+### Terminating Self-Service Node
 
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
 Example of command for terminating DLab environment:
 
 #### In Amazon
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region us-west-2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider aws --action terminate
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
 ```
 List of parameters for SSN node termination:
 
@@ -533,7 +535,7 @@ List of parameters for SSN node termination:
 
 #### In Google cloud
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --key_path /root/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
 ```
 List of parameters for SSN node termination:
 
