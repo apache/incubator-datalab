@@ -23,7 +23,7 @@
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
-    <div class="content-box" *ngIf="data">
+    <div class="content-box" *ngIf="data; else empty">
       <div class="ssn-info">
         <mat-tab-group *ngIf="data?.processorInfo" [dynamicHeight]="true">
           <mat-tab label="CPU">
@@ -114,5 +114,8 @@
         No ssn monitor data available
       </div>
     </div>
+    <ng-template #empty>
+      <p class="info message">Monitor data are not available</p>
+    </ng-template>
   </div>
 </div>
