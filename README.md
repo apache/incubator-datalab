@@ -130,154 +130,7 @@ Creation of self-service node – is the first step for deploying DLab. SSN is a
 
 Elastic(Static) IP address is assigned to an SSN Node, so you are free to stop|start it and and SSN node's IP address won’t change.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-## Edge node
-
-Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a Squid HTTP web proxy pre-installed.
-
-## Notebook node
-
-The next step is setting up a Notebook node (or a Notebook server). It is a server with pre-installed applications and libraries for data processing, data cleaning and transformations, numerical simulations, statistical modeling, machine learning, etc. Following analytical tools are currently supported in DLab and can be installed on a Notebook node:
-
--   Jupyter
--   RStudio
--   Apache Zeppelin
--   TensorFlow + Jupyter
--   Deep Learning + Jupyter
-
-Apache Spark is also installed for each of the analytical tools above.
-
-**Note:** terms 'Apache Zeppelin' and 'Apache Spark' hereinafter may be referred to as 'Zeppelin' and 'Spark' respectively or may have original reference.
-
-## Data engine cluster
-
-After deploying Notebook node, user can create one of the cluster for it:
--   Data engine - Spark standalone cluster
--   Data engine service - cloud managed cluster platform (EMR for AWS or Dataproc for GCP)
-That simplifies running big data frameworks, such as Apache Hadoop and Apache Spark to process and analyze vast amounts of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for job execution.
-----------------------
-# DLab Deployment <a name="DLab_Deployment"></a>
-
-## Prerequisites<a name="Prerequisites"></a>
-#### In Amazon cloud
-Prerequisites:
- 
- - SSH key for EC2 instances. This key could be created through Amazon Console.
- - IAM user
- - AWS access key ID and secret access key
- - The following permissions should be assigned for IAM user:
- <a name="AWS_SSN_policy"></a>
-```
-{
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Action": [
-				"iam:ListRoles",
-				"iam:CreateRole",
-				"iam:CreateInstanceProfile",
-				"iam:PutRolePolicy",
-				"iam:AddRoleToInstanceProfile",
-				"iam:PassRole",
-				"iam:GetInstanceProfile",
-				"iam:ListInstanceProfilesForRole"
-				"iam:RemoveRoleFromInstanceProfile",
-				"iam:DeleteInstanceProfile",
-				"iam:TagRole"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"ec2:DescribeImages",
-				"ec2:CreateTags",
-				"ec2:DescribeRouteTables",
-				"ec2:CreateRouteTable",
-				"ec2:AssociateRouteTable",
-				"ec2:DescribeVpcEndpoints",
-				"ec2:CreateVpcEndpoint",
-				"ec2:ModifyVpcEndpoint",
-				"ec2:DescribeInstances",
-				"ec2:RunInstances",
-				"ec2:DescribeAddresses",
-				"ec2:AllocateAddress",
-				"ec2:DescribeInstances",
-				"ec2:AssociateAddress",
-				"ec2:DisassociateAddress",
-				"ec2:ReleaseAddress",
-				"ec2:TerminateInstances"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"s3:ListAllMyBuckets",
-				"s3:CreateBucket",
-				"s3:PutBucketTagging",
-				"s3:GetBucketTagging"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		}
-	]
-}
-```
-
-#### In Azure cloud
-
-Prerequisites:
-
-- IAM user with Contributor permissions.
-- Service principal and JSON based auth file with clientId, clientSecret and tenantId. 
-
-**Note:** The following permissions should be assigned to the service principal:
-
-- Windows Azure Active Directory
-- Microsoft Graph
-- Windows Azure Service Management API
-
-#### In Google cloud (GCP)
-
-Prerequisites:
-
-- IAM user
-- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
-## Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
-
-#### In Amazon cloud
-If you want to deploy DLab from inside of your AWS account, you can use the following instruction:
-
-- Create an EC2 instance with the following settings:
-    - Shape of the instance shouldn't be less than t2.medium
-    - The instance should have access to Internet in order to install required prerequisites
-    - The instance should have access to further DLab installation
-    - AMI - Ubuntu 16.04
-    - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
-- Connect to the instance via SSH and run the following commands:
-```
-    sudo su
-    apt-get update
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    apt-get update
-    apt-cache policy docker-ce
-    apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
-    usermod -a -G docker ubuntu
-    apt-get install python-pip
-    pip install fabric==1.14.0
-```
-- Clone DLab repository and run deploy script.
-
-## Structure of main DLab directory <a name="DLab_directory"></a>
-=======
 ### Structure of main DLab directory <a name="DLab_directory"></a>
->>>>>>> 84ff8aad0... README.md updated
-=======
-### Structure of main DLab directory <a name="DLab_directory"></a>
->>>>>>> 84ff8aad0... README.md updated
 
 DLab’s SSN node main directory structure is as follows:
 
@@ -355,8 +208,6 @@ For each cloud provider, prerequisites are different.
 
 #### In Amazon cloud
 
-<<<<<<< HEAD
-=======
 Prerequisites:
 
  - SSH key for EC2 instances. This key could be created through Amazon Console.
@@ -421,12 +272,6 @@ Prerequisites:
 }
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> eb92433f3... README.md edited
-=======
-=======
->>>>>>> 84ff8aad0... README.md updated
 Preparation steps for deployment:
 
 - Create an EC2 instance with the following settings:
@@ -468,10 +313,6 @@ Preparation steps for deployment:
 
 ### Executing deployment script
 
-<<<<<<< HEAD
->>>>>>> 84ff8aad0... README.md updated
-=======
->>>>>>> 84ff8aad0... README.md updated
 To build SSN node, following steps should be executed:
 
 - Connect to the instance via SSH and run the following commands:
@@ -544,33 +385,6 @@ After SSN node deployment following AWS resources will be created:
 
 #### In Azure cloud
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-Prerequisites:
-
-- IAM user with Contributor permissions.
-- Service principal and JSON based auth file with clientId, clientSecret and tenantId.
-
-**Note:** The following permissions should be assigned to the service principal:
-
-- Windows Azure Active Directory
-- Microsoft Graph
-- Windows Azure Service Management API
-
->>>>>>> eb92433f3... README.md edited
-To build SSN node, following steps should be executed:
-
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed
-2.  Go to *dlab* directory
-3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
-4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
-5.  Execute following deploy_dlab.py script:
-=======
->>>>>>> 84ff8aad0... README.md updated
-=======
->>>>>>> 84ff8aad0... README.md updated
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
 ```
@@ -644,25 +458,6 @@ After SSN node deployment following Azure resources will be created:
 
 #### In Google cloud (GCP)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-Prerequisites:
-
-- IAM user
-- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
-
->>>>>>> eb92433f3... README.md edited
-To build SSN node, following steps should be executed:
-
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
-2.  Go to *dlab* directory.
-3.  Execute following script:
-=======
->>>>>>> 84ff8aad0... README.md updated
-=======
->>>>>>> 84ff8aad0... README.md updated
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
 ```
@@ -759,7 +554,6 @@ List of parameters for SSN node termination:
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
-
 
 ## Edge Node <a name="Edge_Node"></a>
 
