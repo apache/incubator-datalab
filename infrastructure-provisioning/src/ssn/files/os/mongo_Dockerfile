@@ -24,6 +24,7 @@ FROM mongo:4.0-xenial
 ARG CLOUD_PROVIDER
 
 COPY ssn/files/os/create_db.js /root/
+COPY ssn/files/os/mongodb.conf /root/
 COPY ssn/files/${CLOUD_PROVIDER}/mongo_roles.json /root/
 RUN mv /root/mongodb.conf /etc/mongodb.conf
 
