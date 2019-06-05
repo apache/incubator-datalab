@@ -44,9 +44,7 @@ export interface ManageAction {
 export class ManagementGridComponent implements OnInit {
   @Input() allEnvironmentData: Array<any>;
   @Input() environmentsHealthStatuses: Array<any>;
-  @Input() healthStatus: string;
   @Input() resources: Array<any>;
-  @Input() uploadKey: boolean;
   @Input() isAdmin: boolean;
   @Input() currentUser: string = '';
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
