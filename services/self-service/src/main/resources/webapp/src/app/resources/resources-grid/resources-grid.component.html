@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<table class="dashboard_table">
+<table class="dashboard_table data-grid">
   <tr>
     <th *ngFor="let column of filteringColumns"
         ngClass="{{column.className || ''}}" [hidden]="column.name === 'cost' && !healthStatus?.billingEnabled">

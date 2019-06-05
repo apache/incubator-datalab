@@ -131,11 +131,11 @@
   font-size: 12px;
 }
 
-.dashboard_table .status {
+.data-grid .status {
   text-transform: capitalize;
 }
 
-.dashboard_table .list-menu {
+.data-grid .list-menu {
   left: auto;
   margin-left: 0;
   right: 15px;
@@ -165,7 +165,7 @@
   cursor: pointer;
 }
 
-.dashboard_table .list-menu li {
+.data-grid .list-menu li {
   font-size: 14px;
   border-bottom: 1px solid #edf1f5;
   padding: 12px 15px;
@@ -174,44 +174,44 @@
   color: #577289;
   transition: all 0.45s ease-in-out;
 }
-.dashboard_table .list-menu a.navigate {  
+.data-grid .list-menu a.navigate {
   text-decoration: none;
   color: #577289;
   transition: all 0.45s ease-in-out;
 }
 
-.dashboard_table .list-menu li i {
+.data-grid .list-menu li i {
   font-size: 18px;
   padding-right: 5px;
   vertical-align: bottom;
 }
 
-.dashboard_table .list-menu li:hover,
-.dashboard_table .list-menu li:hover a {
+.data-grid .list-menu li:hover,
+.data-grid .list-menu li:hover a {
   background: none !important;
   color: #36afd5;
 }
 
-.dashboard_table .list-menu li:last-child {
+.data-grid .list-menu li:last-child {
   border-bottom: 0;
 }
 
-.dashboard_table .list-menu ul {
+.data-grid .list-menu ul {
   margin-bottom: 0;
 }
 
-.dashboard_table .list-menu .active-items li {
+.data-grid .list-menu .active-items li {
   border-bottom: 1px solid #edf1f5;
 }
 
-.dashboard_table .message_block {
+.data-grid .message_block {
   background: #edf6f9;
 }
 .message_block td {
   text-align: left !important;
 }
 
-.dashboard_table .total_cost {
+.data-grid .total_cost {
   display: inline-block;
   width: 70%;
   color: #455c74;
