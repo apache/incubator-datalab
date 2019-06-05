@@ -277,7 +277,7 @@ Preparation steps for deployment:
     - The instance should have access to further DLab installation
     - AMI - Ubuntu 16.04
     - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
-- Put SSH key file created through Amazon Console on the instance
+- Put SSH key file created through Amazon Console on the instance with the same name
 - Install Git and clone DLab repository
 
 #### In Azure cloud
