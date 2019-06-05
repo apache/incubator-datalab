@@ -73,7 +73,7 @@ public class InfrastructureInfoResource {
 									  @ApiParam(value = "Full version of report required", defaultValue = "0")
 									  @QueryParam("full") @DefaultValue("0") int fullReport) {
 		return infrastructureInfoService
-				.getHeathStatus(userInfo.getName(), fullReport != 0, UserRoles.isAdmin(userInfo));
+				.getHeathStatus(userInfo, fullReport != 0, UserRoles.isAdmin(userInfo));
 	}
 
 	/**

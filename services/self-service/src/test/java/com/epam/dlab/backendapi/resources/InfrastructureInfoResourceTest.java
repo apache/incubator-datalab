@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
@@ -85,7 +86,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 	@Test
 	public void healthStatus() {
 		HealthStatusPageDTO hspDto = getHealthStatusPageDTO();
-		when(infrastructureInfoService.getHeathStatus(anyString(), anyBoolean(), anyBoolean())).thenReturn(hspDto);
+		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean())).thenReturn(hspDto);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.queryParam("full", "1")
@@ -97,7 +98,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(true), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(true), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
@@ -105,7 +106,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 	public void healthStatusWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
 		HealthStatusPageDTO hspDto = getHealthStatusPageDTO();
-		when(infrastructureInfoService.getHeathStatus(anyString(), anyBoolean(), anyBoolean())).thenReturn(hspDto);
+		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean())).thenReturn(hspDto);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.queryParam("full", "1")
@@ -117,14 +118,14 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(true), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(true), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
 	@Test
 	public void healthStatusWithDefaultQueryParam() {
 		HealthStatusPageDTO hspDto = getHealthStatusPageDTO();
-		when(infrastructureInfoService.getHeathStatus(anyString(), anyBoolean(), anyBoolean())).thenReturn(hspDto);
+		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean())).thenReturn(hspDto);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.request()
@@ -135,14 +136,14 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(false), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(false), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
 	@Test
 	public void healthStatusWithException() {
 		doThrow(new DlabException("Could not return status of resources for user"))
-				.when(infrastructureInfoService).getHeathStatus(anyString(), anyBoolean(), anyBoolean());
+				.when(infrastructureInfoService).getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.request()
@@ -152,7 +153,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(eq(USER.toLowerCase()), eq(false), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(false), anyBoolean());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
