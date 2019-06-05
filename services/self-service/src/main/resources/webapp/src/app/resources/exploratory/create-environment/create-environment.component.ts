@@ -29,8 +29,8 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 
 @Component({
-  selector: 'exploratory-environment-create-dialog',
-  templateUrl: 'exploratory-environment-create-dialog.component.html',
+  selector: 'create-environment',
+  templateUrl: 'create-environment.component.html',
   styleUrls: ['./create-environment.component.scss']
 })
 
