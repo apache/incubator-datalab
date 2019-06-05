@@ -292,9 +292,9 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     sudo("cp -r {0}webapp/provisioning-service/lib/*.jar {1}".format(dlab_path, k8s_dir))
                     sudo("cp -r {0}webapp/billing/lib/*.jar {1}".format(dlab_path, k8s_dir))
                     sudo('sed -i "s|ssn.yml|/root/ssn.yml|g" {}self-service.yml'.format(k8s_dir))
-                    sudo("cd {}; docker build --file general/files/aws/webui_Dockerfile -t docker.dlab-ui ."
+                    sudo("cd {}; docker build --file ssn/files/os/webui_Dockerfile -t docker.dlab-ui ."
                             .format(dlab_source_dir))
-                    sudo("cd {}; docker build --file general/files/aws/billing_Dockerfile -t docker.dlab-billing ."
+                    sudo("cd {}; docker build --file ssn/files/os/billing_Dockerfile -t docker.dlab-billing ."
                             .format(dlab_source_dir))
                     sudo("rm -rf {}".format(k8s_dir))
                 except Exception as err:

@@ -122,8 +122,8 @@ def configure_mongo(mongo_passwd):
                                                                                           env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
         mongo_parameters = json.loads(args.mongo_parameters)
-        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} --mongo_parameters '{}'".format(
-            args.dlab_path, json.dumps(mongo_parameters)))
+        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} --mongo_parameters '{}' --cloud_provider {}".format(
+            args.dlab_path, json.dumps(mongo_parameters), args.cloud_provider))
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure MongoDB: ', str(err))
