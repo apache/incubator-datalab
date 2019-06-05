@@ -71,7 +71,7 @@
     <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{ env.status | underscoreless }}</td>
     <td>{{env.shape}}</td>
     <td>
-      <computational-resources-list [resources]="env.resources" [environment]="env" [healthStatus]="healthStatus?.status" (buildGrid)="buildGrid($event)"></computational-resources-list>
+      <computational-resources-list [resources]="env.resources" [environment]="env" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
     <td *ngIf="healthStatus?.billingEnabled">
       <span class="total_cost">{{ env.cost || 'N/A' }} {{ env.currency_code || '' }}</span>
@@ -81,7 +81,7 @@
     </td>
     <td class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"
-            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus?.status === 'error'}">
+            [ngClass]="{ 'disabled': env.status.toLowerCase() === 'creating' }">
       </span>
 
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
