@@ -496,7 +496,7 @@ This python script will build front-end and back-end part of DLab, create SSN do
 #### In Amazon cloud
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name XXXXXX --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
 ```
 
 List of parameters for SSN node deployment:
@@ -616,8 +616,9 @@ To know azure\_offer\_number open [Azure Portal](https://portal.azure.com), go t
 Please see [RateCard API](https://msdn.microsoft.com/en-us/library/mt219004.aspx) to get more details about azure\_offer\_number,
 azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties correspond to RateCard API request parameters.
 
-To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
-To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
+To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment.
+
+To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment.
 
 **Note:** Azure Data Lake usage pre-requisites:
 
