@@ -35,7 +35,6 @@ export class ReportingGridComponent implements OnInit {
   collapseFilterRow: boolean = false;
   reportData: any;
   isFiltered: boolean = false;
-  full_report: boolean = false;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
@@ -56,6 +55,13 @@ export class ReportingGridComponent implements OnInit {
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
+  }
+
+  setFullReport(data): void {
+    if (!data) {
+      this.displayedColumns = this.displayedColumns.filter(el => el !== 'user');
+      this.displayedFilterColumns = this.displayedFilterColumns.filter(el => el !== 'user-filter');
+    }
   }
 
   toggleFilterRow(): void {
