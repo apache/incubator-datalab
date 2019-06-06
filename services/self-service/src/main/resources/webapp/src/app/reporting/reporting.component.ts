@@ -89,7 +89,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.data = data;
         this.reportingGrid.reportData = this.data;
-        this.reportingGrid.full_report = this.data.full_report;
+        this.reportingGrid.setFullReport(this.data.full_report);
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
