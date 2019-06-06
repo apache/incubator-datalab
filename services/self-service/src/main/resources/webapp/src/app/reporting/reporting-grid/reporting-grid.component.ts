@@ -33,12 +33,14 @@ export class ReportingGridComponent implements OnInit {
   filterConfiguration: ReportingConfigModel;
   filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '');
   collapseFilterRow: boolean = false;
-  reportData: ReportingConfigModel[];
+  reportData: any;
   isFiltered: boolean = false;
   full_report: boolean = false;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
+  displayedColumns: string[] = ['name', 'user', 'type', 'status', 'shape', 'service', 'charge'];
+  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
 
   public filteringColumns: Array<any> = [
     { title: 'User', name: 'user', className: 'th_user', filtering: true, role: 'admin'},

@@ -17,15 +17,16 @@
   ~ under the License.
   -->
 
-<table class="dashboard_table reporting">
+<!-- <table class="dashboard_table reporting">
   <tr>
-    <th *ngFor="let column of filteringColumns"
-        ngClass="{{column.className || ''}}"
-        [hidden]="column.role && !full_report">{{ column.title }}
+    <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}"
+      [hidden]="column.role && !full_report">{{ column.title }}
       <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
         <i class="material-icons">
-          <span *ngIf="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">filter_list</span>
-          <span [hidden]="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">more_vert</span>
+          <span
+            *ngIf="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">filter_list</span>
+          <span
+            [hidden]="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">more_vert</span>
         </i>
       </button>
     </th>
@@ -33,22 +34,30 @@
 
   <tr *ngIf="collapseFilterRow" class="filter-row">
     <td *ngIf="full_report">
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'user'" [items]="filterConfiguration.user" [model]="filteredReportData.user"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'user'" [items]="filterConfiguration.user"
+        [model]="filteredReportData.user"></multi-select-dropdown>
     </td>
     <td>
-      <input type="text" placeholder="Filter by environment name" class="form-control filter-field" [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
+      <input type="text" placeholder="Filter by environment name" class="form-control filter-field"
+        [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resource_type'" [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resource_type'"
+        [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'status'" [items]="filterConfiguration.status" [model]="filteredReportData.status"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'status'" [items]="filterConfiguration.status"
+        [model]="filteredReportData.status"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.instance_size]" [items]="filterConfiguration[DICTIONARY.billing.instance_size]" [model]="filteredReportData[DICTIONARY.billing.instance_size]"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.instance_size]"
+        [items]="filterConfiguration[DICTIONARY.billing.instance_size]"
+        [model]="filteredReportData[DICTIONARY.billing.instance_size]"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.service_filter_key]" [items]="filterConfiguration[DICTIONARY.billing.service_filter_key]" [model]="filteredReportData[DICTIONARY.billing.service_filter_key]"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.service_filter_key]"
+        [items]="filterConfiguration[DICTIONARY.billing.service_filter_key]"
+        [model]="filteredReportData[DICTIONARY.billing.service_filter_key]"></multi-select-dropdown>
     </td>
     <td>
       <div class="actions">
@@ -69,7 +78,8 @@
       <td class="env_name">{{ line[DICTIONARY.billing.dlabId] }}</td>
       <td>{{ line[DICTIONARY.billing.resourceType] }}</td>
       <td>
-        <span class="status" ngClass="{{ line.status.toLowerCase() || '' }}" *ngIf="line.status">{{ line.status.toLowerCase() }}</span>
+        <span class="status" ngClass="{{ line.status.toLowerCase() || '' }}"
+          *ngIf="line.status">{{ line.status.toLowerCase() }}</span>
         <span *ngIf="!line.status">N/A</span>
       </td>
       <td><span [outerHTML]="line[DICTIONARY.billing.instance_size] | lineBreak"></span></td>
@@ -79,11 +89,140 @@
       <td>{{ line[DICTIONARY.billing.cost] }} {{ line[DICTIONARY.billing.currencyCode] }}</td>
     </tr>
   </ng-template>
-</table>
+</table> -->
+<!--  *ngIf="full_report" -->
+
+<section class="table-wrapper">
+  <table mat-table [dataSource]="reportData?.lines" class="data-grid reporting mat-elevation-z6">
+
+    <ng-container matColumnDef="name" sticky>
+      <th mat-header-cell *matHeaderCellDef class="env_name"> Environment name </th>
+      <td mat-cell *matCellDef="let element"> {{element[DICTIONARY.billing.dlabId]}} </td>
+      <td mat-footer-cell *matFooterCellDef> Total </td>
+    </ng-container>
+
+    <ng-container matColumnDef="user">
+      <th mat-header-cell *matHeaderCellDef class="th_user"> User </th>
+      <td mat-cell *matCellDef="let element"> {{element.user}} </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef class="th_type"> Resource Type </th>
+      <td mat-cell *matCellDef="let element"> {{element[DICTIONARY.billing.resourceType]}} </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef class="th_status"> Status </th>
+      <td mat-cell *matCellDef="let element">
+        <span class="status" ngClass="{{ element.status.toLowerCase() || '' }}"
+          *ngIf="element.status">{{ element.status.toLowerCase() }}</span>
+        <span *ngIf="!element.status">N/A</span>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="shape">
+      <th mat-header-cell *matHeaderCellDef class="th_shape"> {{ DICTIONARY.instance_size}} </th>
+      <td mat-cell *matCellDef="let element">
+        <span [outerHTML]="element[DICTIONARY.billing.instance_size] | lineBreak"></span>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="service">
+      <th mat-header-cell *matHeaderCellDef class="service">{{ DICTIONARY.service}}</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element[DICTIONARY.billing.service] }}
+        <span *ngIf="element.resource_type">({{ element.resource_type }})</span>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="charge" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef class="th_charges"> Service Charges </th>
+
+      <td mat-cell *matCellDef="let element">
+        {{ element[DICTIONARY.billing.cost] }} {{ element[DICTIONARY.billing.currencyCode] }}
+      </td>
+      <td mat-footer-cell *matFooterCellDef>{{ reportData[DICTIONARY.billing.costTotal] }}
+        {{ reportData[DICTIONARY.billing.currencyCode] }}</td>
+    </ng-container>
+
+    <!-- ----------------FILTER -->
+    <ng-container matColumnDef="name-filter" sticky>
+      <th mat-header-cell *matHeaderCellDef>
+        <input type="text" placeholder="Filter by environment name" class="form-control filter-field"
+          [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="user-filter">
+      <th mat-header-cell *matHeaderCellDef>
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'user'" [items]="filterConfiguration.user"
+          [model]="filteredReportData.user"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="type-filter">
+      <th mat-header-cell *matHeaderCellDef>
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'resource_type'"
+          [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type">
+        </multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="status-filter">
+      <th mat-header-cell *matHeaderCellDef>
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'status'"
+          [items]="filterConfiguration.status" [model]="filteredReportData.status"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="shape-filter">
+      <th mat-header-cell *matHeaderCellDef>
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.instance_size]"
+          [items]="filterConfiguration[DICTIONARY.billing.instance_size]"
+          [model]="filteredReportData[DICTIONARY.billing.instance_size]"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="service-filter">
+      <th mat-header-cell *matHeaderCellDef>
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.service_filter_key]"
+          [items]="filterConfiguration[DICTIONARY.billing.service_filter_key]"
+          [model]="filteredReportData[DICTIONARY.billing.service_filter_key]"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="actions" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="actions">
+          <button mat-icon-button class="btn reset" (click)="resetFiltering(); isFiltered = !isFiltered">
+            <i class="material-icons">close</i>
+          </button>
+
+          <button mat-icon-button class="btn apply" (click)="filter_btnClick()">
+            <i class="material-icons">done</i>
+          </button>
+        </div>
+      </th>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true" class="filter-row"></tr>
+
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
+  </table>
+</section>
+<!-- 
+
+
+<footer *ngIf="data">
+Total {{ reportData[DICTIONARY.billing.costTotal] }} {{ reportData[DICTIONARY.billing.currencyCode] }}
+</footer>
+
 
 <div *ngIf="!reportData" class="message_block message info">
   <span>To start working, please, create new environment</span>
 </div>
 <div *ngIf="reportData && reportData.length == 0" class="message_block message info">
   <span>No matches found</span>
-</div>
+</div> -->
