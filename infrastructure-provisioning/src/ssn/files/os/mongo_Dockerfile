@@ -29,7 +29,7 @@ COPY ssn/files/${CLOUD_PROVIDER}/mongo_roles.json /root/
 RUN mv /root/mongodb.conf /etc/mongodb.conf
 
 RUN mkdir -p /data/logs \
-    chown -R mongodb:mongodb /data/logs
+    && chown -R mongodb:mongodb /data/logs
 
 CMD ["mongod", "--config", "/etc/mongodb.conf"]
 
