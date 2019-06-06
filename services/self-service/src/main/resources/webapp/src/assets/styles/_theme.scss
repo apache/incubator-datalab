@@ -502,6 +502,13 @@ mat-horizontal-stepper {
     vertical-align: top;
     padding: 10px 5px;
   }
+  tr.mat-footer-row {
+    font-weight: bold;
+  }
+  
+  // .mat-table-sticky {
+  //   border-top: 1px solid #e0e0e0;
+  // }
 }
 
 mat-tab-group.mat-tab-group {
