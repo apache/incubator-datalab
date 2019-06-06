@@ -36,7 +36,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--mongo_parameters', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
-parser.add_argument('--kuber', type=str, default=True)
+parser.add_argument('--k8s', type=str, default=False)
 args = parser.parse_args()
 
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
     pass_upd = True
-    if args.kuber:
+    if args.k8s:
         local("cd {}sources/infrastructure-provisioning/src/; docker build --build-arg CLOUD_PROVIDER={} --file ssn/files/os/mongo_Dockerfile -t docker.dlab-mongo ."
              .format(args.dlab_path, args.cloud_provider))
         local("mkdir -p /opt/mongo_vol")

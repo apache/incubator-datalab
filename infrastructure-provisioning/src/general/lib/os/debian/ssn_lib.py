@@ -175,7 +175,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              locale, region_info, ldap_login, tenant_id,
              application_id, hostname, data_lake_name, subscription_id,
              validate_permission_scope, dlab_id, usage_date, product,
-             usage_type, usage, cost, resource_id, tags, report_path=''):
+             usage_type, usage, cost, resource_id, tags, report_path='', k8s=False):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -281,7 +281,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
-            if kuber_enabled:
+            if k8s:
                 try:
                     dlab_source_dir = '{}sources/infrastructure-provisioning/src/'.format(dlab_path)
                     k8s_dir = '{}tmp-kuber/'.format(dlab_source_dir)
