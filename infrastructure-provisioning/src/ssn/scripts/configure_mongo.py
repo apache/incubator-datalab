@@ -86,7 +86,7 @@ if __name__ == "__main__":
              .format(args.dlab_path, args.cloud_provider))
         local("mkdir -p /opt/mongo_vol")
         local("docker run --name dlab-mongo -p 27017:27017 -v /opt/mongo_vol:/data/db -d docker.dlab-mongo --smallfiles")
-        local("docker exec dlab-mongo sh -c 'mongo < /root/create_db.js'")
+        local("sleep 10; docker exec dlab-mongo sh -c 'mongo < /root/create_db.js'")
         local("docker exec dlab-mongo sh -c 'mongoimport --jsonArray --db dlabdb --collection roles --file /root/mongo_roles.json'")
     else:
         try:
