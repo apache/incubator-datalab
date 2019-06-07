@@ -23,7 +23,6 @@ import { ApplicationServiceFacade } from './services/applicationServiceFacade.se
 import { AppRoutingService } from './services/appRouting.service';
 import { ApplicationSecurityService } from './services/applicationSecurity.service';
 import { HealthStatusService } from './services/healthStatus.service';
-import { UserAccessKeyService } from './services/userAccessKey.service';
 import { UserResourceService } from './services/userResource.service';
 import { AuthorizationGuard } from './services/authorization.guard';
 import { CloudProviderGuard } from './services/cloudProvider.guard';
@@ -61,7 +60,6 @@ export class CoreModule {
         AdminGuard,
         CloudProviderGuard,
         CheckParamsGuard,
-        UserAccessKeyService,
         AppRoutingService,
         UserResourceService,
         HealthStatusService,

@@ -21,7 +21,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
-import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
+import { BillingReportService, HealthStatusService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -71,7 +71,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
-    private userAccessKeyService: UserAccessKeyService,
     public toastr: ToastrService
   ) {}
 
@@ -192,8 +191,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
-
-        this.userAccessKeyService.initialUserAccessKeyCheck();
       });
   }
 }

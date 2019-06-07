@@ -22,12 +22,7 @@ import { MatDialog, MatDialogRef } from '@angular/material';
 import { Subscription, timer, interval } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
-import { ApplicationSecurityService,
-  HealthStatusService,
-  AppRoutingService,
-  UserAccessKeyService,
-  SchedulerService,
-  StorageService} from '../../core/services';
+import { ApplicationSecurityService, HealthStatusService, AppRoutingService, SchedulerService, StorageService } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { FileUtils } from '../../core/util';
@@ -59,7 +54,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
     private healthStatusService: HealthStatusService,
-    private userAccessKeyService: UserAccessKeyService,
     private schedulerService: SchedulerService,
     private storage: StorageService,
     private dialog: MatDialog
@@ -94,7 +88,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   logout_btnClick(): void {
     this.healthStatusService.resetStatusValue();
-    this.userAccessKeyService.resetUserAccessKey();
     this.applicationSecurityService.logout().subscribe(
       () => {
         this.appRoutingService.redirectToLoginPage();
