@@ -24,7 +24,6 @@ import { ToastrService } from 'ngx-toastr';
 import {
   HealthStatusService,
   ManageEnvironmentsService,
-  UserAccessKeyService,
   BackupService,
   UserResourceService,
   StorageService
@@ -55,7 +54,6 @@ export class ManagementComponent implements OnInit {
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
     private manageEnvironmentsService: ManageEnvironmentsService,
-    private userAccessKeyService: UserAccessKeyService,
     private userResourceService: UserResourceService,
     private storageService: StorageService
   ) { }
@@ -176,7 +174,6 @@ export class ManagementComponent implements OnInit {
       .subscribe((status: GeneralEnvironmentStatus) => {
         this.healthStatus = status;
         this.healthStatus.admin && this.getAllEnvironmentData();
-        this.userAccessKeyService.initialUserAccessKeyCheck();
         this.getExploratoryList();
       });
   }

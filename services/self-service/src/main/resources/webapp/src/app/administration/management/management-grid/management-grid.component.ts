@@ -21,7 +21,7 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } fro
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
-import { HealthStatusService, UserAccessKeyService } from '../../../core/services';
+import { HealthStatusService } from '../../../core/services';
 import { ConfirmationDialogType } from '../../../shared';
 import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
 
@@ -50,7 +50,6 @@ export class ManagementGridComponent implements OnInit {
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
   displayedColumns: string[] = ['user', 'type', 'shape', 'status', 'resources', 'actions'];
-  @ViewChild('keyReuploadDialog') keyReuploadDialog;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -84,7 +83,7 @@ export class ManagementGridComponent implements OnInit {
         }).afterClosed().subscribe(() => this.buildGrid());
       } else if (action === 'terminate') {
         this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: this.isAdmin }
+          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: this.isAdmin }, panelClass: 'modal-md'
         }).afterClosed().subscribe(() => this.buildGrid());
       } else if (action === 'run') {
         this.healthStatusService.runEdgeNode().subscribe(() => {
@@ -119,10 +118,6 @@ export class ManagementGridComponent implements OnInit {
       && resource.status !== 'terminated'
       && resource.status !== 'running'
       && resource.status !== 'stopped')).length > 0;
-  }
-
-  showReuploaKeydDialog() {
-    this.keyReuploadDialog.open({ isFooter: false });
   }
 }
 

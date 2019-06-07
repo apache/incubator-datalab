@@ -289,6 +289,17 @@ input[type='number'] {
   transition: all .35s ease-in-out;
 }
 
+.empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  .content {
+    text-align: center;
+  }
+}
+
 #scrolling::-webkit-scrollbar,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
   width: 6px;

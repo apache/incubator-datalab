@@ -40,7 +40,7 @@ export interface Endpoint {
 export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
   endpoints: Endpoint[] = [];
-  displayedColumns: string[] = ['name', 'url', 'account', 'actions'];
+  displayedColumns: string[] = ['name', 'url', 'account', 'endpoint_tag', 'actions'];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -77,7 +77,8 @@ export class EndpointsComponent implements OnInit {
     this.createEndpointForm = this._fb.group({
       name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.url)])],
-      account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
+      account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
+      endpoint_tag: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
     });
   }
 

@@ -105,14 +105,6 @@
                 <i class="material-icons">play_circle_outline</i>
                 <span>Start</span>
               </li>
-              <li (click)="toggleResourceAction(element, 'recreate')" *ngIf="element.status === 'terminated'">
-                <i class="material-icons">refresh</i>
-                <span>Recreate</span>
-              </li>
-              <li *ngIf="!isResourcesInProgress(element)" (click)="showReuploaKeydDialog()">
-                <i class="material-icons">sync_problem</i>
-                <span>Reupload key</span>
-              </li>
             </div>
           </ul>
         </bubble-up>
