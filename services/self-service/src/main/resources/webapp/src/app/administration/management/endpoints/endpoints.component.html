@@ -101,6 +101,7 @@
               <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
+            <div *ngIf="!endpoints?.lenght" class="info message">You have no related endpoints</div>
           </div>
         </mat-tab>
       </mat-tab-group>
