@@ -29,6 +29,7 @@ import { ProjectListComponent } from './project-list/project-list.component';
 
 import { ProjectComponent, EditProjectComponent } from './project.component';
 import { ProjectDataService } from './project-data.service';
+import { DirectivesModule } from '../../core/directives';
 
 @NgModule({
   imports: [
@@ -36,7 +37,8 @@ import { ProjectDataService } from './project-data.service';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    FormControlsModule
+    FormControlsModule,
+    DirectivesModule
   ],
   declarations: [ProjectComponent, EditProjectComponent, ProjectFormComponent, ProjectListComponent],
   entryComponents: [EditProjectComponent],

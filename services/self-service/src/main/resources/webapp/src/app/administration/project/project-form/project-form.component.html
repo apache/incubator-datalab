@@ -22,69 +22,128 @@
     <mat-step>
       <ng-template matStepLabel>Project</ng-template>
       <section class="inner-step mat-reset">
-
-        <div class="form-block">
+        <div class="form-block split">
           <div>
             <div class="control-group">
               <label class="label">Project name</label>
               <div class="control">
                 <input type="text" formControlName="name" placeholder="Enter project name"
                   (blur)="generateProjectTag($event)" [ngClass]="{ 'not-allowed' : item }">
-                <span class="error" *ngIf="projectForm?.controls.name.hasError('duplication')">This project name already exists.</span>
+                <span class="error" *ngIf="projectForm?.controls.name.hasError('duplication')">This project name already
+                  exists.</span>
                 <span class="error" *ngIf="!projectForm?.controls.name.valid
                   && !projectForm?.controls.name.hasError('duplication')
-                  && projectForm?.controls.name.dirty">Project name can only contain letters, numbers, hyphens and '_' but can not end with special characters
+                  && projectForm?.controls.name.dirty">Project name can only contain letters, numbers, hyphens and '_'
+                  but can not end with special characters
                 </span>
               </div>
             </div>
             <div class="control-group">
               <label class="label">Project tag</label>
               <div class="control">
-                <input type="text" formControlName="tag" placeholder="dlab-{ project name }" [ngClass]="{ 'not-allowed' : item }">
+                <input type="text" formControlName="tag" placeholder="dlab-{ project name }"
+                  [ngClass]="{ 'not-allowed' : item }">
               </div>
-            </div>
-            <div class="control-group">
-                <div class="selector-wrapper">
-                  <mat-form-field [ngClass]="{ 'not-allowed' : item }">
-                    <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
-                      <mat-option class="multiple-select" disabled>
-                        <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
-                          <i class="material-icons">playlist_add_check</i>&nbsp;All
-                        </a>
-                        <a class="deselect ani" (click)="selectOptions(endpointsList, 'endpoints')">
-                          <i class="material-icons">clear</i>&nbsp;None
-                        </a>
-                      </mat-option>
-                      <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name">
-                        {{ endpoint.name }}
-                      </mat-option>
-                      <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>Endpoints list is empty</mat-option>
-                    </mat-select>
-                    <button class="caret">
-                      <i class="material-icons">keyboard_arrow_down</i>
-                    </button>
-                  </mat-form-field>
-                </div>
             </div>
           </div>
 
           <div class="text-center m-bott-10">
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
-            <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i
-                class="material-icons">keyboard_arrow_right</i></button>
+            <button mat-raised-button type="button" class="butt next" matStepperNext>Next
+              <i class="material-icons">keyboard_arrow_right</i></button>
           </div>
         </div>
-
       </section>
     </mat-step>
+
     <mat-step>
-      <ng-template matStepLabel>Groups</ng-template>
-      <div class="inner-step mat-reset">
+      <ng-template matStepLabel>Endpoint</ng-template>
+      <section class="inner-step mat-reset">
         <div class="form-block split">
           <div class="control-group">
-            <div class="selector-wrapper">
+            <label class="label">Select existing endpoint</label>
+            <div class="selector-wrapper control">
+              <mat-form-field [ngClass]="{ 'not-allowed' : item }">
+                <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
+                  <mat-option class="multiple-select" disabled>
+                    <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
+                      <i class="material-icons">playlist_add_check</i>&nbsp;All
+                    </a>
+                    <a class="deselect ani" (click)="selectOptions(endpointsList, 'endpoints')">
+                      <i class="material-icons">clear</i>&nbsp;None
+                    </a>
+                  </mat-option>
+                  <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name">
+                    {{ endpoint.name }}
+                  </mat-option>
+                  <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>Endpoints list
+                    is
+                    empty</mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </div>
+
+            <div>
+              <div class="control-group">
+                <label class="label">Name</label>
+                <div class="control">
+                  <input type="text" formControlName="endpoint_name" placeholder="Enter endpoint name">
+                  <span class="error"
+                    *ngIf="!projectForm?.controls.endpoint_name.valid && projectForm?.controls.endpoint_name.touched">
+                    Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
+                    characters
+                  </span>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="label">Endpoint url</label>
+                <div class="control">
+                  <input type="text" formControlName="endpoint_url" placeholder="Enter endpoint url">
+                  <span class="error"
+                    *ngIf="!projectForm?.controls.endpoint_url.valid && projectForm.controls.endpoint_url.touched">
+                    Endpoint url can only contain letters, numbers, hyphens and '_' but can not end with special
+                    characters
+                  </span>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="label">Account ID</label>
+                <div class="control">
+                  <input type="text" formControlName="endpoint_account" placeholder="Enter account">
+                  <span class="error"
+                    *ngIf="!projectForm?.controls.endpoint_account.valid && projectForm.controls.endpoint_account.touched">
+                    Endpoint account can only contain letters, numbers, hyphens and '_' but can not end with special
+                    characters
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center m-bott-10">
+            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
+            <button mat-raised-button matStepperPrevious class="butt">
+              <i class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button type="button" class="butt next" matStepperNext>
+              Next <i class="material-icons">keyboard_arrow_right</i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Groups</ng-template>
+      <section class="inner-step mat-reset">
+        <div class="form-block split">
+          <div class="control-group">
+            <label class="label">Users group</label>
+            <div class="control selector-wrapper">
               <mat-form-field>
-                <mat-select multiple formControlName="groups" placeholder="Select user groups">
+                <mat-select multiple formControlName="groups" placeholder="Select existing user groups">
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -96,12 +155,64 @@
                   <mat-option *ngFor="let group of groupsList" [value]="group">
                     {{ group }}
                   </mat-option>
-                  <mat-option *ngIf="!groupsList.length" class="multiple-select ml-10" disabled>Groups list is empty</mat-option>
+                  <mat-option *ngIf="!groupsList.length" class="multiple-select ml-10" disabled>Groups list is empty
+                  </mat-option>
                 </mat-select>
                 <button class="caret">
                   <i class="material-icons">keyboard_arrow_down</i>
                 </button>
               </mat-form-field>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="label">Group name</label>
+            <div class="control">
+              <!-- <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" formControlName="group_name"> -->
+              <input type="text" placeholder="Enter group name" formControlName="group_name">
+            </div>
+
+          </div>
+
+          <div class="control-group">
+            <label class="label">Select roles</label>
+            <div class="selector-wrapper control">
+              <mat-form-field>
+                <mat-select multiple formControlName="group_roles" name="roles" [(value)]="setupRoles"
+                  placeholder="Select roles">
+                  <mat-option class="multiple-select" disabled>
+                    <a class="select ani" (click)="selectOptions(rolesList, 'group_roles', 'all')">
+                      <i class="material-icons">playlist_add_check</i>&nbsp;All
+                    </a>
+                    <a class="deselect ani" (click)="selectOptions(rolesList, 'group_roles')">
+                      <i class="material-icons">clear</i>&nbsp;None
+                    </a>
+                  </mat-option>
+                  <mat-option *ngFor="let role of rolesList" [value]="role">{{ role }}</mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- <mat-form-field class="chip-list">
+            <input #user matInput placeholder="Enter user login" pattern="[@.-_0-9a-zA-Z]"
+              (keydown.enter)="addUser(user.value, element); user.value = ''">
+            <button mat-icon-button matSuffix (click)="addUser(user.value, element); user.value = ''">
+              <mat-icon>person_add</mat-icon>
+            </button>
+          </mat-form-field> -->
+          <div class="control-group">
+            <label class="label">Users list</label>
+            <div class="list-selected list-container ani control">
+              <mat-chip-list>
+                <!-- <mat-chip *ngFor="let user of element.users">
+                      {{ user }}
+                      <a class="material-icons" (click)="removeUser(element.users, user)">clear</a>
+                    </mat-chip> -->
+              </mat-chip-list>
             </div>
           </div>
           <div class="text-center m-bott-10">
@@ -110,11 +221,12 @@
                 class="material-icons">keyboard_arrow_left</i>Back</button>
             <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
               (click)="confirm(projectForm.value)">
-              <span *ngIf="item; else update">Update</span><ng-template #update>Create</ng-template>
+              <span *ngIf="item; else update">Update</span>
+              <ng-template #update>Create</ng-template>
             </button>
           </div>
         </div>
-      </div>
+      </section>
     </mat-step>
   </mat-horizontal-stepper>
 </form>

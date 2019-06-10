@@ -37,6 +37,8 @@ export class ProjectFormComponent implements OnInit {
   public projectForm: FormGroup;
   public groupsList: any = [];
   public endpointsList: any = [];
+  public roles: any = [];
+  public rolesList: any = [];
   public projectList: Project[] = [];
 
   @Input() item: any;
@@ -67,6 +69,17 @@ export class ProjectFormComponent implements OnInit {
       this.editSpecificProject(this.item);
       this.stepper.selectedIndex = 1;
     }
+
+    this.rolesService.getGroupsData().subscribe(groups => {
+      this.rolesService.getRolesData().subscribe(
+        (roles: any) => {
+          this.roles = roles;
+          this.rolesList = roles.map(role => role.description);
+      
+        },
+        error => this.toastr.error(error.message, 'Oops!'));
+    },
+    error => this.toastr.error(error.message, 'Oops!'));
   }
 
   public confirm(data) {
@@ -76,12 +89,13 @@ export class ProjectFormComponent implements OnInit {
         this.update.emit();
       }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
     } else {
-      this.projectService.createProject(data).subscribe(() => {
-        this.toastr.success('Project created successfully!', 'Success!');
-        this.projectDataService.updateProjects();
-        this.update.emit();
-        this.reset();
-      }, error => this.toastr.error(error.message || 'Project creation failed!', 'Oops!'));
+        debugger;
+      // this.projectService.createProject(data).subscribe(() => {
+      //   this.toastr.success('Project created successfully!', 'Success!');
+      //   this.projectDataService.updateProjects();
+      //   this.update.emit();
+      //   this.reset();
+      // }, error => this.toastr.error(error.message || 'Project creation failed!', 'Oops!'));
     }
   }
 
@@ -104,7 +118,13 @@ export class ProjectFormComponent implements OnInit {
       'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
-      'groups': [[], Validators.required]
+      'endpoint_name': [[]],
+      'endpoint_url': [[]],
+      'endpoint_account': [[]],
+      'groups': [[], Validators.required],
+      'group_name': ['', Validators.required],
+      'group_roles': [[], Validators.required],
+      'group_users': [[], Validators.required],
     });
   }
 
