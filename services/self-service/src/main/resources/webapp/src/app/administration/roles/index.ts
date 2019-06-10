@@ -24,7 +24,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
 import { RolesComponent, ConfirmDeleteUserAccountDialogComponent } from './roles.component';
-import { GroupNameValidationDirective } from './group-name-validarion.directive';
+import { DirectivesModule } from '../../core/directives';
 
 @NgModule({
   imports: [
@@ -32,9 +32,10 @@ import { GroupNameValidationDirective } from './group-name-validarion.directive'
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
+    DirectivesModule,
     FormControlsModule
   ],
-  declarations: [RolesComponent, ConfirmDeleteUserAccountDialogComponent, GroupNameValidationDirective],
+  declarations: [RolesComponent, ConfirmDeleteUserAccountDialogComponent],
   entryComponents: [ConfirmDeleteUserAccountDialogComponent],
   exports: [RolesComponent]
 })
