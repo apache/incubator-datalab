@@ -520,6 +520,9 @@ mat-tab-group.mat-tab-group {
 mat-divider.mat-divider {
   margin: 10px 0;
 }
+mat-card.mat-card {
+  border-radius: 0;
+}
 
 mat-progress-bar {
   .mat-progress-bar-fill::after {

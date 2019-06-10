@@ -85,44 +85,43 @@
                 </button>
               </mat-form-field>
             </div>
-
-            <div>
-              <div class="control-group">
-                <label class="label">Name</label>
-                <div class="control">
-                  <input type="text" formControlName="endpoint_name" placeholder="Enter endpoint name">
-                  <span class="error"
-                    *ngIf="!projectForm?.controls.endpoint_name.valid && projectForm?.controls.endpoint_name.touched">
-                    Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
-                  </span>
-                </div>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="endpoint-creation-form">
+            <div class="control-group">
+              <label class="label">Name</label>
+              <div class="control">
+                <input type="text" formControlName="endpoint_name" placeholder="Enter endpoint name">
+                <span class="error"
+                  *ngIf="!projectForm?.controls.endpoint_name.valid && projectForm?.controls.endpoint_name.touched">
+                  Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
+                  characters
+                </span>
               </div>
-              <div class="control-group">
-                <label class="label">Endpoint url</label>
-                <div class="control">
-                  <input type="text" formControlName="endpoint_url" placeholder="Enter endpoint url">
-                  <span class="error"
-                    *ngIf="!projectForm?.controls.endpoint_url.valid && projectForm.controls.endpoint_url.touched">
-                    Endpoint url can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
-                  </span>
-                </div>
+            </div>
+            <div class="control-group">
+              <label class="label">Endpoint url</label>
+              <div class="control">
+                <input type="text" formControlName="endpoint_url" placeholder="Enter endpoint url">
+                <span class="error"
+                  *ngIf="!projectForm?.controls.endpoint_url.valid && projectForm.controls.endpoint_url.touched">
+                  Endpoint url can only contain letters, numbers, hyphens and '_' but can not end with special
+                  characters
+                </span>
               </div>
-              <div class="control-group">
-                <label class="label">Account ID</label>
-                <div class="control">
-                  <input type="text" formControlName="endpoint_account" placeholder="Enter account">
-                  <span class="error"
-                    *ngIf="!projectForm?.controls.endpoint_account.valid && projectForm.controls.endpoint_account.touched">
-                    Endpoint account can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
-                  </span>
-                </div>
+            </div>
+            <div class="control-group">
+              <label class="label">Account ID</label>
+              <div class="control">
+                <input type="text" formControlName="endpoint_account" placeholder="Enter account">
+                <span class="error"
+                  *ngIf="!projectForm?.controls.endpoint_account.valid && projectForm.controls.endpoint_account.touched">
+                  Endpoint account can only contain letters, numbers, hyphens and '_' but can not end with special
+                  characters
+                </span>
               </div>
             </div>
           </div>
-
           <div class="text-center m-bott-10">
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt">
@@ -164,7 +163,7 @@
               </mat-form-field>
             </div>
           </div>
-
+          <mat-divider></mat-divider>
           <div class="control-group">
             <label class="label">Group name</label>
             <div class="control">
