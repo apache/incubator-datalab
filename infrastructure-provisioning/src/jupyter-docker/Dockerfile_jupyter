@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM nexus.cc.epm.kharlamov.biz:443/legion/python-toolchain:1.0.0-20190530133321.323.c63f688
+FROM nexus.cc.epm.kharlamov.biz:443/legion/python-toolchain:1.0.0-20190610131523.402.da560a8
 
 ARG NB_USER="nb_user"
 
