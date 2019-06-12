@@ -44,7 +44,7 @@ if __name__ == "__main__":
     project_conf['region'] = os.environ['aws_region']
     project_conf['tag_name'] = '{}-Tag'.format(project_conf['service_base_name'])
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-    project_conf['private_subnet_name'] = '{0}-subnet'.format(project_conf['service_base_name']
+    project_conf['private_subnet_name'] = '{0}-subnet'.format(project_conf['service_base_name'])
     project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
 
     try:
