@@ -39,12 +39,13 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     project_conf = dict()
     project_conf['service_base_name'] = os.environ['conf_service_base_name']
+    project_conf['project_name'] = os.environ['project_name']
     project_conf['vpc_id'] = os.environ['aws_vpc_id']
     project_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     project_conf['region'] = os.environ['aws_region']
-    project_conf['tag_name'] = '{}-Tag'.format(project_conf['service_base_name'])
+    project_conf['tag_name'] = '{}-{}-Tag'.format(project_conf['service_base_name'], project_conf['project_name'])
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-    project_conf['private_subnet_name'] = '{0}-subnet'.format(project_conf['service_base_name'])
+    project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_name'])
     project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
 
     try:
@@ -76,6 +77,6 @@ if __name__ == "__main__":
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
-    tag = {"Key": project_conf['tag_name'], "Value": "{}-subnet".format(project_conf['service_base_name'])}
+    tag = {"Key": project_conf['tag_name'], "Value": "{0}-{1}-subnet".format(project_conf['service_base_name'], project_conf['project_name'])}
     project_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
