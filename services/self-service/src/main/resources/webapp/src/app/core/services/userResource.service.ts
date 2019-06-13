@@ -31,15 +31,16 @@ export class UserResourceService {
   public getExploratoryTemplates(project): Observable<any> {
     const url = `/${ project }/exploratory_templates`;
     return this.applicationServiceFacade
-      .buildGetExploratoryEnvironmentTemplatesRequest(url)
+      .buildGetTemplatesRequest(url)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalResourcesTemplates(): Observable<any> {
+  public getComputationalTemplates(project): Observable<any> {
+    const url = `/${ project }/computational_templates`;
     return this.applicationServiceFacade
-      .buildGetComputationalResourcesTemplatesRequest()
+      .buildGetTemplatesRequest(url)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

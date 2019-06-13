@@ -40,7 +40,7 @@ export class ApplicationServiceFacade {
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
   private static readonly IMAGE = 'image';
   private static readonly SCHEDULER = 'scheduler';
-  private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
+  private static readonly TEMPLATES = 'templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
@@ -152,15 +152,9 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildGetExploratoryEnvironmentTemplatesRequest(params): Observable<any> {
+  public buildGetTemplatesRequest(params): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES) + params,
-      null);
-  }
-
-  public buildGetComputationalResourcesTemplatesRequest(): Observable<any> {
-    return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES),
+      this.requestRegistry.Item(ApplicationServiceFacade.TEMPLATES) + params,
       null);
   }
 
@@ -577,7 +571,7 @@ export class ApplicationServiceFacade {
       '/api/infrastructure/info');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
-    this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
+    this.requestRegistry.Add(ApplicationServiceFacade.TEMPLATES,
       '/api/infrastructure_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
       '/api/infrastructure_provision/exploratory_environment/image');
