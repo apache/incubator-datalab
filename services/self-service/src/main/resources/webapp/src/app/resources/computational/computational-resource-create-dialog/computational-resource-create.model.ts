@@ -72,7 +72,7 @@ export class ComputationalResourceCreateModel {
     this.selectedItemChanged = selectedItemChanged;
     this.continueWith = continueWith;
     this.prepareModel(fnProcessResults, fnProcessErrors);
-    this.loadTemplates();
+    // this.loadTemplates();
   }
 
   public setSelectedItem(item: ComputationalResourceApplicationTemplate) {
@@ -101,7 +101,7 @@ export class ComputationalResourceCreateModel {
 
   public loadTemplates(): void {
     if (this.resourceImages.length === 0)
-      this.userResourceService.getComputationalResourcesTemplates()
+      this.userResourceService.getComputationalTemplates('project-2')
         .subscribe(
         data => {
           let computationalResourceImage;
