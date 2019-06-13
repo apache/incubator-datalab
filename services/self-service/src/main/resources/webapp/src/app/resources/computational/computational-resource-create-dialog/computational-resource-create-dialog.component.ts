@@ -87,7 +87,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   ngOnInit() {
     this.initFormModel();
-    this.open(this.data.notebook, this.data.full_list);
+    this.notebook_instance = this.data.notebook;
+    this.full_list = this.data.full_list;
+    this.getTemplates(this.notebook_instance.project);
   }
 
 
@@ -211,31 +213,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public open(notebook_instance, full_list): void {
-    this.notebook_instance = notebook_instance;
-    this.full_list = full_list;
-    this.getTemplates(this.notebook_instance.project);
-    // this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name,
-    //   response => {
-    //     if (response.status === HTTP_STATUS_CODES.OK) {
-    //       this.dialogRef.close();
-    //       this.buildGrid.emit();
-    //     }
-    //   },
-    //   error => this.toastr.error(error.message || 'Computational resource creation failed!', 'Oops!'),
-    //   () => {},
-    //   () => {
-    //     // this.bindDialog.modalClass += !this.model.availableTemplates ? 'reset' : '';
-    //     // this.dialogRef.updateSize('40%', '80%');
-
-    //     this.ref.detectChanges();
-
-    //     this.setDefaultParams();
-        this.getComputationalResourceLimits();
-    //   },
-    //   this.userResourceService);
-  }
-
   public preemptibleCounter($event, action): void {
     $event.preventDefault();
 
@@ -264,7 +241,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    if (this.cluster_types.length && this.selectedImage && this.selectedImage.image) {
+    if (this.selectedImage && this.selectedImage.image) {
       const activeImage = DICTIONARY[this.selectedImage.image];
 
       this.minInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_min];
@@ -282,7 +259,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.spotInstancesSelect.nativeElement['checked'] = true;
         this.selectSpotInstances();
       }
-      debugger;
+
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
     }
@@ -389,14 +366,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       cluster_types => {
         this.cluster_types = cluster_types;
         this.selectedImage = cluster_types[0];
+        this.getComputationalResourceLimits();
         this.filterShapes();
         this.resourceForm.get('template_name').setValue(this.selectedImage.template_name)
       });
   }
-
-
-
-
-
-
 }
