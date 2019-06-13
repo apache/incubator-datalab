@@ -24,56 +24,71 @@
   </header>
   <div class="dialog-content selection">
     <div class="content-box mat-reset">
-      <form [formGroup]="resourceForm" *ngIf="templates.length && resourceForm; else empty">
+      <form [formGroup]="resourceForm" *ngIf="cluster_types.length && resourceForm; else empty">
 
         <div class="form-wrapper" [ngClass]="{ compress: selectedImage.image === 'docker.dlab-dataengine' }">
           <div class="col">
 
-              <!-- <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="model.resourceImages.length === 1">
-                <label class="label">Select cluster type</label>
-                <div class="control">
-                  <dropdown-list #clusterType (selectedItem)="onUpdate($event)"></dropdown-list>
-                </div>
-              </div> -->
-
-              <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="templates.length === 1">
-                <label class="label">Select cluster type</label>
-                <div class="control selector-wrapper">
-                  <mat-form-field>
-                    <mat-label>Select project</mat-label>
-                    <mat-select formControlName="template_name" disableOptionCentering>
-                      <mat-option *ngFor="let template of templates" [value]="template.template_name" (click)="selectedImage = template">{{ template.template_name }}</mat-option>
-                      <mat-option *ngIf="!templates.length" class="multiple-select ml-10" disabled>Templates list is empty</mat-option>
-                    </mat-select>
-                    <button class="caret">
-                      <i class="material-icons">keyboard_arrow_down</i>
-                    </button>
-                  </mat-form-field>
-                </div>
+      <!-- <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="model.resourceImages.length === 1">
+              <label class="label">Select cluster type</label>
+              <div class="control">
+                <dropdown-list #clusterType (selectedItem)="onUpdate($event)"></dropdown-list>
               </div>
+            </div> 
 
-              <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!selectedImage.templates.length">
-                <label class="label">Select template</label>
-                <div class="control">
-                  <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
-                </div>
+            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!selectedImage.templates.length">
+              <label class="label">Select template</label>
+              <div class="control">
+                <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
               </div>
+            </div> -->
 
-              <div class="control-group alias-name" *ngIf="selectedImage?.image">
-                <label class="label">Cluster alias</label>
-                <div class="control">
-                    <input [class.danger_field]="computationalResourceExist || !resourceForm?.controls['cluster_alias_name'].valid
-                          && resourceForm?.controls['cluster_alias_name'].dirty && resourceForm?.controls['cluster_alias_name'].hasError('duplication')"
-                          type="text" class="form-control" placeholder="Enter cluster alias" formControlName="cluster_alias_name" />
-                    <span class="danger_color" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('duplication')">This cluster name already exists.</span>
-                    <span class="danger_color" *ngIf="!resourceForm?.controls.cluster_alias_name.valid
-                                              && resourceForm?.controls['cluster_alias_name'].dirty
-                                              && !resourceForm?.controls['cluster_alias_name'].hasError('duplication')">
-                      Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can not end with special characters
-                    </span>
-                </div>
+            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="cluster_types.length === 1">
+              <label class="label">Select cluster type</label>
+              <div class="control selector-wrapper">
+                <mat-form-field>
+                  <mat-label>Select cluster type</mat-label>
+                  <mat-select formControlName="template_name" disableOptionCentering>
+                    <mat-option *ngFor="let type of cluster_types" [value]="type.template_name" (click)="selectedImage = type">{{ type.template_name }}</mat-option>
+                    <mat-option *ngIf="!cluster_types.length" class="multiple-select ml-10" disabled>Clusters types list is empty</mat-option>
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
               </div>
+            </div>
 
+            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!selectedImage.templates.length">
+              <label class="label">Select template</label>
+              <div class="control selector-wrapper">
+                <mat-form-field>
+                  <mat-label>Select template</mat-label>
+                  <mat-select formControlName="version" disableOptionCentering>
+                    <mat-option *ngFor="let template of selectedImage.templates" [value]="template.version">{{ template.version }}</mat-option>
+                    <mat-option *ngIf="!selectedImage.templates" class="multiple-select ml-10" disabled>Templates list is empty</mat-option>
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="control-group alias-name" *ngIf="selectedImage?.image">
+              <label class="label">Cluster alias</label>
+              <div class="control">
+                  <input [class.danger_field]="computationalResourceExist || !resourceForm?.controls['cluster_alias_name'].valid
+                        && resourceForm?.controls['cluster_alias_name'].dirty && resourceForm?.controls['cluster_alias_name'].hasError('duplication')"
+                        type="text" class="form-control" placeholder="Enter cluster alias" formControlName="cluster_alias_name" />
+                  <span class="danger_color" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('duplication')">This cluster name already exists.</span>
+                  <span class="danger_color" *ngIf="!resourceForm?.controls.cluster_alias_name.valid
+                                            && resourceForm?.controls['cluster_alias_name'].dirty
+                                            && !resourceForm?.controls['cluster_alias_name'].hasError('duplication')">
+                    Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_' but can not end with special characters
+                  </span>
+              </div>
+            </div>
           </div>
 
           <div class="col">
@@ -87,19 +102,58 @@
                 </span>
               </div>
             </div>
-            <div class="control-group" *ngIf="selectedImage?.image">
-              <label class="label" *ngIf="selectedImage">{{ DICTIONARY[selectedImage.image].data_engine_master_instance_size}}</label>
+            <!-- <div class="control-group" *ngIf="selectedImage?.image">
+              <label class="label" *ngIf="selectedImage">{{ DICTIONARY[selectedImage.image].data_engine_master_instance_size }}</label>
               <div class="control">
                 <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
               </div>
-            </div>
+            </div> -->
 
-            <div class="control-group" *ngIf="selectedImage?.image" [hidden]="selectedImage?.image === 'docker.dlab-dataengine'">
+            <!-- <div class="control-group" *ngIf="selectedImage?.image" [hidden]="selectedImage?.image === 'docker.dlab-dataengine'">
               <label class="label">{{ DICTIONARY[selectedImage.image].data_engine_slave_instance_size }}</label>
               <div class="control">
                 <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
               </div>
+            </div> -->
+
+            <div class="control-group" *ngIf="selectedImage?.image">
+              <label class="label">{{ DICTIONARY[selectedImage.image].data_engine_master_instance_size }}</label>
+              <div class="control selector-wrapper">
+                <mat-form-field>
+                  <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
+                  <mat-select formControlName="shape_master" disableOptionCentering>
+                    <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)" [label]="item.key | underscoreless">
+                      <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
+                        <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Type }}
+                      </mat-option>
+                    </mat-optgroup>
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+              </div>
             </div>
+
+            <div class="control-group" *ngIf="selectedImage?.image" [hidden]="selectedImage?.image === 'docker.dlab-dataengine'">
+              <label class="label">{{ DICTIONARY.notebook_instance_size }}</label>
+              <div class="control selector-wrapper">
+                <mat-form-field>
+                  <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
+                  <mat-select formControlName="shape_slave" disableOptionCentering>
+                    <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)" [label]="item.key | underscoreless">
+                      <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
+                        <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Type }}
+                      </mat-option>
+                    </mat-optgroup>
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -127,7 +181,7 @@
         </div>
 
         <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'"
-            [hidden]="!model.templates.length || !isAvailableSpots()">
+            [hidden]="!selectedImage.templates.length || !isAvailableSpots()">
           <label class="spot-label label">
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />
             <span>Spot instance</span>

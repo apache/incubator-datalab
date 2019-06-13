@@ -45,7 +45,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   notebook_instance: any;
   full_list: any;
 
-  templates = [];
+  cluster_types = [];
   selectedImage: any;
 
   shapes: any;
@@ -64,7 +64,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public resourceForm: FormGroup;
 
   @ViewChild('name') name;
-  @ViewChild('clusterType') cluster_type;
+  // @ViewChild('clusterType') cluster_type;
   @ViewChild('templatesList') templates_list;
   @ViewChild('masterShapesList') master_shapes_list;
   @ViewChild('shapesSlaveList') slave_shapes_list;
@@ -247,6 +247,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private initFormModel(): void {
     this.resourceForm = this._fb.group({
       template_name: ['', [Validators.required]],
+      version: [''],
+      shape_master: [''],
+      shape_slave: [''],
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern),
                                 this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
@@ -261,7 +264,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    if (this.templates.length && this.selectedImage && this.selectedImage.image) {
+    if (this.cluster_types.length && this.selectedImage && this.selectedImage.image) {
       const activeImage = DICTIONARY[this.selectedImage.image];
 
       this.minInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_min];
@@ -279,7 +282,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.spotInstancesSelect.nativeElement['checked'] = true;
         this.selectSpotInstances();
       }
-
+      debugger;
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
     }
@@ -373,8 +376,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         }, {});
 
       if (DICTIONARY.cloud_provider !== 'azure') {
-        const images = this.templates.filter(image => image.image === 'docker.dlab-dataengine');
-        this.templates = images;
+        const images = this.cluster_types.filter(image => image.image === 'docker.dlab-dataengine');
+        this.cluster_types = images;
         // (images.length > 0) ? this.model.setSelectedClusterType(0) : this.model.availableTemplates = false;
       }
       this.selectedImage.shapes.resourcesShapeTypes = filtered;
@@ -383,9 +386,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private getTemplates(project) {
     this.userResourceService.getComputationalTemplates(project).subscribe(
-      templates => {
-        this.templates = templates;
-        this.selectedImage = templates[0];
+      cluster_types => {
+        this.cluster_types = cluster_types;
+        this.selectedImage = cluster_types[0];
         this.filterShapes();
         this.resourceForm.get('template_name').setValue(this.selectedImage.template_name)
       });
