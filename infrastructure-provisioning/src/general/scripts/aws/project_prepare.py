@@ -44,9 +44,11 @@ if __name__ == "__main__":
     project_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     project_conf['region'] = os.environ['aws_region']
     project_conf['tag_name'] = '{}-{}-Tag'.format(project_conf['service_base_name'], project_conf['project_name'])
+    project_conf['tag_name_value'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_name'])
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_name'])
     project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
+    project_conf['secondary'] = 'false'
 
     try:
         if os.environ['conf_user_subnets_range'] == '':
@@ -68,6 +70,7 @@ if __name__ == "__main__":
             project_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'], project_conf['private_subnet_name'],
             project_conf['zone'])
         try:
+            create_rt(project_conf['vpc2_id'], project_conf['tag_name'], project_conf['tag_name_value'], )
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
             traceback.print_exc()
