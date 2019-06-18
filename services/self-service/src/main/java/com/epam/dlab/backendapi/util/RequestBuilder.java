@@ -68,6 +68,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.epam.dlab.cloud.CloudProvider.*;
@@ -196,7 +197,8 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(Exploratory exploratory, UserInfo userInfo,
-																	  ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
+																	  ExploratoryGitCredsDTO exploratoryGitCredsDTO,
+																	  Map<String, String> tags) {
 
 		T exploratoryCreate;
 
@@ -220,7 +222,6 @@ public class RequestBuilder {
 				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateGcp.class)
 						.withNotebookInstanceType(exploratory.getShape());
 				break;
-
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
 		}
@@ -230,7 +231,10 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 				.withImageName(exploratory.getImageName())
-				.withClusterConfig(exploratory.getClusterConfig());
+				.withClusterConfig(exploratory.getClusterConfig())
+				.withProject(exploratory.getProject())
+				.withEndpoint(exploratory.getEndpoint())
+				.withTags(tags);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -586,7 +590,7 @@ public class RequestBuilder {
 		return dto;
 
 
-    }
+	}
 
 	public ExploratoryCheckInactivityAction newExploratoryCheckInactivityAction(UserInfo userInfo,
 																				UserInstanceDTO userInstance) {

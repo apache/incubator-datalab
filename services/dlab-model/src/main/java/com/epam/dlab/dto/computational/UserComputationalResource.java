@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -63,11 +64,12 @@ public class UserComputationalResource {
 	@JsonProperty("instance_id")
 	private String instanceId;
 	protected List<ClusterConfig> config;
+	private Map<String,String> tags;
 
 	public UserComputationalResource(String computationalName, String computationalId, String imageName,
 									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
 									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl,
-									 LocalDateTime lastActivity) {
+									 LocalDateTime lastActivity, Map<String,String> tags) {
 		this.computationalName = computationalName;
 		this.computationalId = computationalId;
 		this.imageName = imageName;
@@ -78,6 +80,7 @@ public class UserComputationalResource {
 		this.reuploadKeyRequired = reuploadKeyRequired;
 		this.resourceUrl = resourceUrl;
 		this.lastActivity = lastActivity;
+		this.tags = tags;
 	}
 
 	public DataEngineType getDataEngineType() {

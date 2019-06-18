@@ -31,6 +31,7 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stores info about the user's computational resources for notebook.
@@ -61,9 +62,10 @@ public class GcpComputationalResource extends UserComputationalResource {
 									SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
 									String masterNumber, String preemptibleNumber, String version,
-									List<ResourceURL> resourceURL, LocalDateTime lastActivity) {
+									List<ResourceURL> resourceURL, LocalDateTime lastActivity,
+									Map<String, String> tags) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity);
+				reuploadKeyRequired, resourceURL, lastActivity, tags);
 		this.instanceId = instanceId;
 		this.masterShape = masterShape;
 		this.slaveShape = slaveShape;
