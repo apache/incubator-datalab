@@ -44,7 +44,7 @@ export class ManageUngitComponent implements OnInit {
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
-  @ViewChild('tabGroup') tabGroup;
+  @ViewChild('tabGroupGit') tabGroupGit;
 
   constructor(
     public toastr: ToastrService,
@@ -66,11 +66,11 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public open(): void {
-    this.model = new MangeUngitModel(() => {},
+    this.model = new MangeUngitModel(() => { },
       error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!'),
       () => {
-        if (!this.gitCredentials.length)
-          this.tabGroup.selectedIndex = 1;
+        // if (!this.gitCredentials.length)
+        //   this.tabGroupGit.selectedIndex = 1;
       },
       this.manageUngitService);
   }
@@ -87,7 +87,7 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public editSpecificAccount(item: AccountCredentials) {
-    this.tabGroup.selectedIndex = 1;
+    this.tabGroupGit.selectedIndex = 1;
     this.currentEditableItem = item;
 
     this.updateAccountCredentialsForm = this._fb.group({
@@ -122,13 +122,13 @@ export class ManageUngitComponent implements OnInit {
 
     this.gitCredentials = modifiedCredentials;
     this.editableForm = true;
-    this.tabGroup.selectedIndex = 0;
+    this.tabGroupGit.selectedIndex = 0;
     this.resetForm();
   }
 
   public editAccounts_btnClick() {
     this.model.confirmAction(this.gitCredentials);
-    this.tabGroup.selectedIndex = 0;
+    this.tabGroupGit.selectedIndex = 0;
     this.editableForm = false;
     this.toastr.success('Git credentials updated successfully!', 'Success!');
   }
