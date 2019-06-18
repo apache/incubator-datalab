@@ -15,5 +15,7 @@ public class ProjectDTO {
 	private final Set<String> endpoints;
 	@NotNull
 	private final Set<String> groups;
+	@NotNull
+	private final String tag;
 	private final Integer budget;
 }

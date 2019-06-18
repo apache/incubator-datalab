@@ -63,7 +63,8 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void create() {
-		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class), anyString())).thenReturn(
+				"someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
@@ -74,14 +75,16 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).create(getUserInfo(), getExploratory(getExploratoryCreateFormDTO()), "project");
+		verify(exploratoryService).create(refEq(getUserInfo()), refEq(getExploratory(getExploratoryCreateFormDTO())),
+				eq("project"));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void createWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class), anyString())).thenReturn(
+				"someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
@@ -304,6 +307,7 @@ public class ExploratoryResourceTest extends TestBase {
 		ecfDto.setVersion("someVersion");
 		ecfDto.setImageName("someImageName");
 		ecfDto.setProject("project");
+		ecfDto.setEndpoint("endpoint");
 		return ecfDto;
 	}
 
@@ -318,6 +322,8 @@ public class ExploratoryResourceTest extends TestBase {
 				.imageName(formDTO.getImageName())
 				.templateName(formDTO.getTemplateName())
 				.version(formDTO.getVersion())
-				.shape(formDTO.getShape()).build();
+				.shape(formDTO.getShape())
+				.endpoint(formDTO.getEndpoint())
+				.project(formDTO.getProject()).build();
 	}
 }

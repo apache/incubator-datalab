@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
@@ -73,6 +74,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private TagService tagService;
 
 	@BudgetLimited
 	@Override
@@ -95,12 +98,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	public String create(UserInfo userInfo, Exploratory exploratory, @Project String project) {
 		boolean isAdded = false;
 		try {
-			exploratoryDAO.insertExploratory(getUserInstanceDTO(userInfo, exploratory, project));
+			final UserInstanceDTO userInstanceDTO = getUserInstanceDTO(userInfo, exploratory, project);
+			exploratoryDAO.insertExploratory(userInstanceDTO);
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
 			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(),
-					requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds), String.class);
+					requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds, userInstanceDTO.getTags()),
+					String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
@@ -321,7 +326,9 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withClusterConfig(exploratory.getClusterConfig())
 				.withShape(exploratory.getShape())
 				.withProject(project)
-				.withEndpoint(exploratory.getEndpoint());
+				.withEndpoint(exploratory.getEndpoint())
+				.withTags(tagService.getResourceTags(userInfo, exploratory.getEndpoint(), project,
+						exploratory.getExploratoryTag()));
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {
 			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory
 					.getImageName());

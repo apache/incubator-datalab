@@ -45,6 +45,8 @@ public class ExploratoryCreateFormDTO {
 	@NotBlank
 	@JsonProperty
 	private String project;
+	@JsonProperty
+	private String exploratoryTag;
 
 	@NotBlank
 	@JsonProperty
@@ -166,6 +168,10 @@ public class ExploratoryCreateFormDTO {
 
 	public void setEndpoint(String endpoint) {
 		this.endpoint = endpoint;
+	}
+
+	public String getExploratoryTag() {
+		return exploratoryTag;
 	}
 
 	@Override

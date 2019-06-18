@@ -10,4 +10,5 @@ public class EndpointDTO {
 	private final String name;
 	private final String url;
 	private final String account;
+	private final String tag;
 }
