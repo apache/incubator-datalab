@@ -97,7 +97,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
 
     document.querySelector('#config').scrollIntoView({ block: 'start', behavior: 'smooth' });
-    this.createExploratoryForm.controls['configuration_parameters'].setValue(value);
+    this.createExploratoryForm.controls['cluster_config'].setValue(value);
   }
 
   private initFormModel(): void {
