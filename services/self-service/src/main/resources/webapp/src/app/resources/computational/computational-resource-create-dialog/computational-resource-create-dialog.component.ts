@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef, Inject } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
-import { ComputationalResourceCreateModel } from './computational-resource-create.model';
+import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
 
@@ -41,7 +41,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly CLUSTER_CONFIGURATION = CLUSTER_CONFIGURATION;
   readonly CheckUtils = CheckUtils;
 
-  // model: ComputationalResourceCreateModel;
   notebook_instance: any;
   full_list: any;
 
@@ -64,7 +63,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public resourceForm: FormGroup;
 
   @ViewChild('name') name;
-  // @ViewChild('clusterType') cluster_type;
   @ViewChild('templatesList') templates_list;
   @ViewChild('masterShapesList') master_shapes_list;
   @ViewChild('shapesSlaveList') slave_shapes_list;
@@ -78,12 +76,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
     private userResourceService: UserResourceService,
+    private model: ComputationalResourceModel,
     private _fb: FormBuilder,
-    private ref: ChangeDetectorRef,
     public dialogRef: MatDialogRef<ComputationalResourceCreateDialogComponent>,
-  ) {
-    // this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
-  }
+  ) { }
 
   ngOnInit() {
     this.initFormModel();
@@ -91,11 +87,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.full_list = this.data.full_list;
     this.getTemplates(this.notebook_instance.project);
   }
-
-
-
-
-
 
   // public onUpdate($event): void {
   //   if ($event.model.type === 'template') {
@@ -124,21 +115,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   //     }
   // }
 
-  public createComputationalResource(data, shape_master: string, shape_slave: string) {
-    // this.model.setCreatingParams(
-    //   data.cluster_alias_name,
-    //   data.instance_number,
-    //   shape_master, shape_slave,
-    //   this.spotInstance,
-    //   data.instance_price,
-    //   data.preemptible_instance_number,
-    //   data.configuration_parameters ? JSON.parse(data.configuration_parameters) : null);
-    // this.model.confirmAction();
-    // $event.preventDefault();
-
-    console.log(data);
-    
-    return false;
+  public createComputationalResource(data) {
+    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance)
+      .subscribe((response: any) => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.dialogRef.close();
+          this.buildGrid.emit();
+        }
+      });
   }
 
   public containsComputationalResource(conputational_resource_name: string): boolean {
@@ -163,9 +147,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if ($event ? $event.target.checked : this.spotInstancesSelect.nativeElement['checked']) {
       const filtered = this.filterAvailableSpots();
 
-      this.slave_shapes_list.setDefaultOptions(filtered, this.shapePlaceholder(filtered, 'description'),
-        'slave_shape', 'description', 'json');
-      this.shapes.slave_shape = this.shapePlaceholder(filtered, 'type');
+      // this.slave_shapes_list.setDefaultOptions(filtered, this.shapePlaceholder(filtered, 'description'),
+      //   'slave_shape', 'description', 'json');
+      // this.shapes.slave_shape = this.shapePlaceholder(filtered, 'type');
 
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
       this.resourceForm.controls['instance_price'].setValue(50);
@@ -196,8 +180,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private filterAvailableSpots() {
-    const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
-    for (const item in this.slave_shapes_list.items) {
+    const filtered = JSON.parse(JSON.stringify(this.selectedImage.computation_resources_shapes));
+    for (const item in this.selectedImage.computation_resources_shapes) {
         filtered[item] = filtered[item].filter(el => el.spot);
         if (filtered[item].length <= 0) {
           delete filtered[item];
@@ -207,7 +191,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public isAvailableSpots(): boolean {
-    if (this.slave_shapes_list && this.slave_shapes_list.items)
+    if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service')
       return !!Object.keys(this.filterAvailableSpots()).length;
 
     return false;
@@ -225,7 +209,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.resourceForm = this._fb.group({
       template_name: ['', [Validators.required]],
       version: [''],
-      shape_master: [''],
+      shape_master: ['', Validators.required],
       shape_slave: [''],
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern),
                                 this.providerMaxLength, this.checkDuplication.bind(this)]],
