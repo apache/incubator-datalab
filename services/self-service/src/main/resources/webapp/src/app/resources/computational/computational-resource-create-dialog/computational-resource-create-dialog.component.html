@@ -136,7 +136,7 @@
             </div>
 
             <div class="control-group" *ngIf="selectedImage?.image" [hidden]="selectedImage?.image === 'docker.dlab-dataengine'">
-              <label class="label">{{ DICTIONARY.notebook_instance_size }}</label>
+              <label class="label">{{ DICTIONARY[selectedImage.image].data_engine_slave_instance_size }}</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
                   <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
@@ -222,7 +222,7 @@
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="button" [disabled]="!resourceForm?.valid"
-                  (click)="createComputationalResource(resourceForm.value, shapes.master_shape, shapes.slave_shape)"
+                  (click)="createComputationalResource(resourceForm.value)"
                   class="butt butt-success action" [ngClass]="{'not-allowed': !resourceForm?.valid}">Create</button>
         </div>
       </form>
