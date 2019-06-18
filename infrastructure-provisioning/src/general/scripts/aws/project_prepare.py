@@ -29,7 +29,7 @@ from dlab.actions_lib import *
 import traceback
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_tag'], os.environ['request_id'])
     local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -39,16 +39,17 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     project_conf = dict()
     project_conf['service_base_name'] = os.environ['conf_service_base_name']
-    project_conf['project_name'] = os.environ['project_name']
+    project_conf['project_tag_value'] = os.environ['project_tag']
     project_conf['vpc_id'] = os.environ['aws_vpc_id']
     project_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     project_conf['region'] = os.environ['aws_region']
-    project_conf['tag_name'] = '{}-{}-Tag'.format(project_conf['service_base_name'], project_conf['project_name'])
-    project_conf['tag_name_value'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_name'])
-    project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-    project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_name'])
     project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
-    project_conf['secondary'] = 'false'
+    project_conf['tag_name'] = '{}-Tag'.format(project_conf['service_base_name'])
+    project_conf['tag_name_value'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_tag_value'])
+    project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_tag_value'])
+
+
 
     try:
         if os.environ['conf_user_subnets_range'] == '':
@@ -70,7 +71,7 @@ if __name__ == "__main__":
             project_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'], project_conf['private_subnet_name'],
             project_conf['zone'])
         try:
-            create_rt(project_conf['vpc2_id'], project_conf['tag_name'], project_conf['tag_name_value'], )
+            create_rt(project_conf['vpc2_id'], project_conf['tag_name'], project_conf['service_base_name'], os.environ['secondary'])
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
             traceback.print_exc()
