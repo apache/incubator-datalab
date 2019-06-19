@@ -62,10 +62,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
 
-  @ViewChild('name') name;
-  @ViewChild('templatesList') templates_list;
-  @ViewChild('masterShapesList') master_shapes_list;
-  @ViewChild('shapesSlaveList') slave_shapes_list;
+  // @ViewChild('name') name;
+  // @ViewChild('templatesList') templates_list;
+  // @ViewChild('masterShapesList') master_shapes_list;
+  // @ViewChild('shapesSlaveList') slave_shapes_list;
   @ViewChild('spotInstancesCheck') spotInstancesSelect;
   @ViewChild('preemptibleNode') preemptible;
   @ViewChild('configurationNode') configuration;
@@ -158,6 +158,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (DICTIONARY.cloud_provider === 'aws') this.spotInstancesSelect.nativeElement['checked'];
   }
 
+  public selectImage($event) {
+    this.selectedImage = $event;
+    this.getComputationalResourceLimits();
+  }
+
   public selectPreemptibleNodes($event) {
     if ($event.target.checked)
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
@@ -177,10 +182,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private filterAvailableSpots() {
     const filtered = JSON.parse(JSON.stringify(this.selectedImage.computation_resources_shapes));
     for (const item in this.selectedImage.computation_resources_shapes) {
-        filtered[item] = filtered[item].filter(el => el.spot);
-        if (filtered[item].length <= 0) {
-          delete filtered[item];
-        }
+      filtered[item] = filtered[item].filter(el => el.spot);
+      if (filtered[item].length <= 0) {
+        delete filtered[item];
+      }
     }
     return filtered;
   }
@@ -207,7 +212,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       shape_master: ['', Validators.required],
       shape_slave: [''],
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern),
-                                this.providerMaxLength, this.checkDuplication.bind(this)]],
+      this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0, Validators.compose([Validators.pattern(this.integerRegex), this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
@@ -324,10 +329,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
       || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
       const allowed: any = ['GPU optimized'];
-      const filtered = Object.keys(this.selectedImage.shapes.resourcesShapeTypes)
+      const filtered = Object.keys(this.selectedImage.computation_resources_shapes)
         .filter(key => allowed.includes(key))
         .reduce((obj, key) => {
-          obj[key] = this.selectedImage.shapes.resourcesShapeTypes[key];
+          obj[key] = this.selectedImage.computation_resources_shapes[key];
           return obj;
         }, {});
 
@@ -336,7 +341,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.cluster_types = images;
         // (images.length > 0) ? this.model.setSelectedClusterType(0) : this.model.availableTemplates = false;
       }
-      this.selectedImage.shapes.resourcesShapeTypes = filtered;
+      this.selectedImage.computation_resources_shapes = filtered;
     }
   }
 
