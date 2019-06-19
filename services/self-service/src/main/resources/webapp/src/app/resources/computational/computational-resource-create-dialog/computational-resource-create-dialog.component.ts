@@ -81,7 +81,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectSpotInstances($event?): void {
-    if ($event ? $event.target.checked : this.spotInstancesSelect.nativeElement['checked']) {
+    if ($event ? $event.target.checked : (this.spotInstancesSelect && this.spotInstancesSelect.nativeElement['checked'])) {
       const filtered = this.filterAvailableSpots();
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
       this.resourceForm.controls['instance_price'].setValue(50);
@@ -141,7 +141,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       preemptible_instance_number: [0, Validators.compose([Validators.pattern(PATTERNS.integerRegex), this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
-      custom_tag: [this.notebook_instance.custom_tag]
+      custom_tag: [this.notebook_instance.tags.custom_tag]
     });
   }
 
@@ -165,7 +165,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
-        this.spotInstancesSelect.nativeElement['checked'] = true;
+        if (this.spotInstancesSelect) this.spotInstancesSelect.nativeElement['checked'] = true;
         this.selectSpotInstances();
       }
 

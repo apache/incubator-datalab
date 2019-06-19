@@ -47,6 +47,7 @@ export class ExploratoryModel {
     public datalake_shared_directory: string,
     public project: string,
     public endpoint: string,
+    public tags: any,
   ) { }
 
   public static loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ExploratoryModel> {
@@ -76,7 +77,8 @@ export class ExploratoryModel {
           sharedDataList[DICTIONARY.datalake_user_directory_name],
           sharedDataList[DICTIONARY.datalake_shared_directory_name],
           value.project,
-          value.endpoint
+          value.endpoint,
+          value.tags
         );
       });
     }
