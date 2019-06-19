@@ -45,7 +45,7 @@ public class ExploratoryCreateFormDTO {
 	@NotBlank
 	@JsonProperty
 	private String project;
-	@JsonProperty
+	@JsonProperty("custom_tag")
 	private String exploratoryTag;
 
 	@NotBlank
