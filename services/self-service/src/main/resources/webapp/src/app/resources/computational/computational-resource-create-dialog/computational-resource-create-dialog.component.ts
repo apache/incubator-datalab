@@ -69,9 +69,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.initFormModel();
     this.notebook_instance = this.data.notebook;
-    this.resourcesList = this.data.resourcesList;
+    this.resourcesList = this.data.full_list;
+    this.initFormModel();
     this.getTemplates(this.notebook_instance.project);
   }
 
@@ -140,7 +140,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0, Validators.compose([Validators.pattern(PATTERNS.integerRegex), this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
-      configuration_parameters: ['', [this.validConfiguration.bind(this)]]
+      configuration_parameters: ['', [this.validConfiguration.bind(this)]],
+      custom_tag: [this.notebook_instance.custom_tag]
     });
   }
 

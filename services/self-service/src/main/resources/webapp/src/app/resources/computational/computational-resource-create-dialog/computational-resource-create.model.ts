@@ -32,7 +32,6 @@ export class ComputationalResourceModel {
   public createComputationalResource(parameters, image, env, spot): Observable<{}> {
     const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
 
-    debugger;
     if (DICTIONARY.cloud_provider === 'aws' && image.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: parameters.cluster_alias_name,
@@ -46,7 +45,8 @@ export class ComputationalResourceModel {
         emr_slave_instance_spot: spot,
         emr_slave_instance_spot_pct_price: parameters.emr_slave_instance_price,
         config: config,
-        project: env.project
+        project: env.project,
+        custom_tag: parameters.custom_tag
       });
     } else if (DICTIONARY.cloud_provider === 'gcp' && image.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
@@ -55,13 +55,14 @@ export class ComputationalResourceModel {
         template_name: image.template_name,
         notebook_name: env.name,
         image: image.image,
-        dataproc_master_instance_type:  parameters.shape_master,
+        dataproc_master_instance_type: parameters.shape_master,
         dataproc_slave_instance_type: parameters.shape_slave,
         dataproc_version: image.version,
         dataproc_master_count: 1,
         dataproc_preemptible_count: parameters.preemptible_instance_number,
         config: config,
-        project: env.project
+        project: env.project,
+        custom_tag: parameters.custom_tag
       });
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
@@ -72,7 +73,8 @@ export class ComputationalResourceModel {
         image: image.image,
         template_name: image.template_name,
         config: config,
-        project: env.project
+        project: env.project,
+        custom_tag: parameters.custom_tag
       });
     }
   }
