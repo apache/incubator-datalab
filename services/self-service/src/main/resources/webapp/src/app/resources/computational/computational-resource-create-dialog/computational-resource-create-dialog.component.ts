@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import { Component, OnInit, EventEmitter, Output, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES, CheckUtils } from '../../../core/util';
+import { HTTP_STATUS_CODES, PATTERNS, CheckUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
@@ -42,17 +42,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly CheckUtils = CheckUtils;
 
   notebook_instance: any;
-  full_list: any;
-
-  cluster_types = [];
+  resourcesList: any;
+  clusterTypes = [];
   selectedImage: any;
-
-  shapes: any;
   spotInstance: boolean = true;
-  clusterNamePattern: string = '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+';
-  nodeCountPattern: string = '^[1-9]\\d*$';
-  delimitersRegex = /[-_]?/g;
-  integerRegex = '^[0-9]*$';
 
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
@@ -62,85 +55,29 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
 
-  // @ViewChild('name') name;
-  // @ViewChild('templatesList') templates_list;
-  // @ViewChild('masterShapesList') master_shapes_list;
-  // @ViewChild('shapesSlaveList') slave_shapes_list;
   @ViewChild('spotInstancesCheck') spotInstancesSelect;
   @ViewChild('preemptibleNode') preemptible;
   @ViewChild('configurationNode') configuration;
 
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
+    public dialogRef: MatDialogRef<ComputationalResourceCreateDialogComponent>,
     private userResourceService: UserResourceService,
     private model: ComputationalResourceModel,
-    private _fb: FormBuilder,
-    public dialogRef: MatDialogRef<ComputationalResourceCreateDialogComponent>,
+    private _fb: FormBuilder
   ) { }
 
   ngOnInit() {
     this.initFormModel();
     this.notebook_instance = this.data.notebook;
-    this.full_list = this.data.full_list;
+    this.resourcesList = this.data.resourcesList;
     this.getTemplates(this.notebook_instance.project);
   }
 
-  // public onUpdate($event): void {
-  //   if ($event.model.type === 'template') {
-  //     this.model.setSelectedTemplate($event.model.index);
-  //     this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-  //       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-  //     this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-  //       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
-
-  //     this.shapes.master_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
-  //     this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
-  //   }
-  //   if ($event.model.type === 'cluster_type') {
-  //     this.model.setSelectedClusterType($event.model.index);
-  //     this.setDefaultParams();
-  //     this.getComputationalResourceLimits();
-  //     this.selectConfiguration();
-  //   }
-
-  //   if (this.shapes[$event.model.type])
-  //     this.shapes[$event.model.type] = $event.model.value.type;
-
-  //   if (DICTIONARY.cloud_provider === 'aws')
-  //     if ($event.model.type === 'slave_shape' && this.spotInstancesSelect.nativeElement['checked']) {
-  //       this.spotInstance = $event.model.value.spot;
-  //     }
-  // }
-
-  public createComputationalResource(data) {
-    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance)
-      .subscribe((response: any) => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          this.dialogRef.close();
-          this.buildGrid.emit();
-        }
-      });
-  }
-
-  public containsComputationalResource(conputational_resource_name: string): boolean {
-    if (conputational_resource_name)
-      for (let index = 0; index < this.full_list.length; index++) {
-        if (this.notebook_instance.name === this.full_list[index].name) {
-          for (let iindex = 0; iindex < this.full_list[index].resources.length; iindex++) {
-            const computational_name = this.full_list[index].resources[iindex].computational_name.toString().toLowerCase();
-            if (this.delimitersFiltering(conputational_resource_name) === this.delimitersFiltering(computational_name))
-              return true;
-          }
-        }
-      }
-    return false;
-  }
-
-  public delimitersFiltering(resource): string {
-    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
+  public selectImage($event) {
+    this.selectedImage = $event;
+    this.getComputationalResourceLimits();
   }
 
   public selectSpotInstances($event?): void {
@@ -152,15 +89,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.spotInstance = false;
       this.resourceForm.controls['instance_price'].setValue(0);
     }
-  }
-
-  public selectTemplate($event) {
-    if (DICTIONARY.cloud_provider === 'aws') this.spotInstancesSelect.nativeElement['checked'];
-  }
-
-  public selectImage($event) {
-    this.selectedImage = $event;
-    this.getComputationalResourceLimits();
   }
 
   public selectPreemptibleNodes($event) {
@@ -179,15 +107,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  private filterAvailableSpots() {
-    const filtered = JSON.parse(JSON.stringify(this.selectedImage.computation_resources_shapes));
-    for (const item in this.selectedImage.computation_resources_shapes) {
-      filtered[item] = filtered[item].filter(el => el.spot);
-      if (filtered[item].length <= 0) {
-        delete filtered[item];
-      }
-    }
-    return filtered;
+  public preemptibleCounter($event, action): void {
+    $event.preventDefault();
+
+    const value = this.resourceForm.controls['preemptible_instance_number'].value;
+    const newValue = (action === 'increment' ? Number(value) + 1 : Number(value) - 1);
+    this.resourceForm.controls.preemptible_instance_number.setValue(newValue);
   }
 
   public isAvailableSpots(): boolean {
@@ -197,12 +122,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public preemptibleCounter($event, action): void {
-    $event.preventDefault();
-
-    const value = this.resourceForm.controls['preemptible_instance_number'].value;
-    const newValue = (action === 'increment' ? Number(value) + 1 : Number(value) - 1);
-    this.resourceForm.controls.preemptible_instance_number.setValue(newValue);
+  public createComputationalResource(data) {
+    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance)
+      .subscribe((response: any) => {
+        if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
+      });
   }
 
   private initFormModel(): void {
@@ -211,10 +135,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       version: [''],
       shape_master: ['', Validators.required],
       shape_slave: [''],
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern),
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern),
       this.providerMaxLength, this.checkDuplication.bind(this)]],
-      instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
-      preemptible_instance_number: [0, Validators.compose([Validators.pattern(this.integerRegex), this.validPreemptibleRange.bind(this)])],
+      instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
+      preemptible_instance_number: [0, Validators.compose([Validators.pattern(PATTERNS.integerRegex), this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]]
     });
@@ -249,6 +173,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
+  //  Validation
   private validInstanceNumberRange(control) {
     if (control && control.value)
       if (DICTIONARY.cloud_provider === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
@@ -304,25 +229,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       return control.value.length <= 10 ? null : { valid: false };
   }
 
-  private setDefaultParams(): void {
-    // if (this.model.selectedImage && this.model.selectedImage.shapes) {
-    //   this.filterShapes();
-    //   this.shapes = {
-    //     master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
-    //     slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
-    //   };
-    //   if (DICTIONARY.cloud_provider !== 'azure' && this.cluster_type) {
-    //     this.cluster_type.setDefaultOptions(this.model.resourceImages,
-    //       this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
-    //       // if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
-    //       //   this.templates_list.setDefaultOptions(this.model.templates,
-    //       //     this.model.selectedItem.version, 'template', 'version', 'array');
-    //   }
-    //   this.master_shapes_list && this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-    //     this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-    //     this.slave_shapes_list && this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-    //     this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
-    // }
+  private getTemplates(project) {
+    this.userResourceService.getComputationalTemplates(project).subscribe(
+      clusterTypes => {
+        this.clusterTypes = clusterTypes;
+        this.selectedImage = clusterTypes[0];
+        this.getComputationalResourceLimits();
+        this.filterShapes();
+        this.resourceForm.get('template_name').setValue(this.selectedImage.template_name)
+      });
   }
 
   private filterShapes(): void {
@@ -337,22 +252,35 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         }, {});
 
       if (DICTIONARY.cloud_provider !== 'azure') {
-        const images = this.cluster_types.filter(image => image.image === 'docker.dlab-dataengine');
-        this.cluster_types = images;
-        // (images.length > 0) ? this.model.setSelectedClusterType(0) : this.model.availableTemplates = false;
+        const images = this.clusterTypes.filter(image => image.image === 'docker.dlab-dataengine');
+        this.clusterTypes = images;
       }
       this.selectedImage.computation_resources_shapes = filtered;
     }
   }
 
-  private getTemplates(project) {
-    this.userResourceService.getComputationalTemplates(project).subscribe(
-      cluster_types => {
-        this.cluster_types = cluster_types;
-        this.selectedImage = cluster_types[0];
-        this.getComputationalResourceLimits();
-        this.filterShapes();
-        this.resourceForm.get('template_name').setValue(this.selectedImage.template_name)
-      });
+  private filterAvailableSpots() {
+    const filtered = JSON.parse(JSON.stringify(this.selectedImage.computation_resources_shapes));
+    for (const item in this.selectedImage.computation_resources_shapes) {
+      filtered[item] = filtered[item].filter(el => el.spot);
+      if (filtered[item].length <= 0) {
+        delete filtered[item];
+      }
+    }
+    return filtered;
+  }
+
+  private containsComputationalResource(conputational_resource_name: string): boolean {
+    if (conputational_resource_name)
+      for (let index = 0; index < this.resourcesList.length; index++) {
+        if (this.notebook_instance.name === this.resourcesList[index].name) {
+          for (let iindex = 0; iindex < this.resourcesList[index].resources.length; iindex++) {
+            const computational_name = this.resourcesList[index].resources[iindex].computational_name.toString().toLowerCase();
+            if (CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(computational_name))
+              return true;
+          }
+        }
+      }
+    return false;
   }
 }
