@@ -181,7 +181,7 @@
         </div>
 
         <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'"
-            [hidden]="!selectedImage.templates.length || !isAvailableSpots()">
+            [hidden]="!selectedImage.templates.length">
           <label class="spot-label label">
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />
             <span>Spot instance</span>

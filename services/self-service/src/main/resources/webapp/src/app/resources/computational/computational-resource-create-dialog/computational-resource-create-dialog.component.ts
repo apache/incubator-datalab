@@ -146,21 +146,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public selectSpotInstances($event?): void {
     if ($event ? $event.target.checked : this.spotInstancesSelect.nativeElement['checked']) {
       const filtered = this.filterAvailableSpots();
-
-      // this.slave_shapes_list.setDefaultOptions(filtered, this.shapePlaceholder(filtered, 'description'),
-      //   'slave_shape', 'description', 'json');
-      // this.shapes.slave_shape = this.shapePlaceholder(filtered, 'type');
-
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
       this.resourceForm.controls['instance_price'].setValue(50);
     } else {
-      // this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
-      //   this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
-      // this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
-
       this.spotInstance = false;
       this.resourceForm.controls['instance_price'].setValue(0);
     }
+  }
+
+  public selectTemplate($event) {
+    if (DICTIONARY.cloud_provider === 'aws') this.spotInstancesSelect.nativeElement['checked'];
   }
 
   public selectPreemptibleNodes($event) {
