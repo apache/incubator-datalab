@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
@@ -38,6 +38,8 @@ export class ProjectFormComponent implements OnInit {
   public groupsList: any = [];
   public endpointsList: any = [];
   public projectList: Project[] = [];
+  public accessKeyValid: boolean;
+  public keyLabel: string = '';
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
@@ -51,7 +53,8 @@ export class ProjectFormComponent implements OnInit {
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
     private rolesService: RolesGroupsService,
-    private endpointService: EndpointService
+    private endpointService: EndpointService,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -94,6 +97,25 @@ export class ProjectFormComponent implements OnInit {
     this.projectForm.controls.tag.setValue(user_tag.toLowerCase());
   }
 
+  public onFileChange($event) {
+    const reader = new FileReader();
+
+    if($event.target.files && $event.target.files.length) {
+      const [file] = $event.target.files;
+      reader.readAsDataURL(file);
+
+      reader.onload = () => {
+        this.projectForm.patchValue({
+          key: reader.result
+        });
+
+        this.accessKeyValid = this.isValidKey(file.name);
+        this.keyLabel = this.getLabel(file);
+        this.cd.markForCheck();
+      };
+    }
+  }
+
   public selectOptions(list, key, select?) {
     let filter = key === 'endpoints' ? list.map(el => el.name) : list;
     this.projectForm.controls[key].setValue(select ? filter : []);
@@ -111,11 +133,21 @@ export class ProjectFormComponent implements OnInit {
   public editSpecificProject(item: Project) {
 
     this.projectForm = this._fb.group({
+      'key': [''],
       'name': [item.name, Validators.required],
       'endpoints': [item.endpoints],
       'tag': [item.tag, Validators.required],
       'groups': [item.groups, Validators.required]
     });
+  }
+
+  private getLabel(file: File): string {
+    debugger;
+    return file ? !this.accessKeyValid ? 'Public key is required.' : file.name : '';
+  }
+
+  private isValidKey(value): boolean {
+    return value.toLowerCase().endsWith('.pub');
   }
 
   private getGroupsData() {
