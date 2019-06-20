@@ -38,6 +38,9 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     project_conf = dict()
+
+# Subnet creation
+
     project_conf['service_base_name'] = os.environ['conf_service_base_name']
     project_conf['project_tag_value'] = os.environ['project_tag']
     project_conf['vpc_id'] = os.environ['aws_vpc_id']
@@ -48,40 +51,11 @@ if __name__ == "__main__":
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'], project_conf['project_tag_value'])
 
-    project_conf['vpc2_cidr'] = os.environ['conf_vpc2_cidr']
-    project_conf['tag2_name'] = project_conf['service_base_name'] + '-secondary-Tag'
-    project_conf['vpc2_name'] = '{}-secondary-VPC'.format(project_conf['service_base_name'])
-
     try:
-        if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
-            try:
-                pre_defined_vpc2 = True
-                logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
-                print('[CREATE SECONDARY VPC AND ROUTE TABLE]')
-                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary " \
-                         "--vpc_name {}".format(project_conf['vpc2_cidr'], project_conf['region'], project_conf['tag2_name'], project_conf['service_base_name'], project_conf['vpc2_name'])
-                try:
-                    local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
-                except:
-                    traceback.print_exc()
-                    raise Exception
-                os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
-            except Exception as err:
-                print('Error: {0}'.format(err))
-                append_result("Failed to create secondary VPC. Exception:" + str(err))
-                if pre_defined_vpc:
-                    remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-                    remove_route_tables(tag_name, True)
-                    remove_vpc(os.environ['aws_vpc_id'])
-                sys.exit(1)
-        else:
-            try:
-                 project_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
-            except KeyError:
-                project_conf['vpc2_id'] = project_conf['vpc_id']
-    except:
-        traceback.print_exc()
-        sys.exit(1)
+        project_conf['vpc2_id'] = os.environ['aws_vpc2_id']
+        project_conf['tag_name'] = '{}-secondary-Tag'.format(project_conf['service_base_name'])
+    except KeyError:
+        project_conf['vpc2_id'] = project_conf['vpc_id']
 
     try:
         if os.environ['conf_user_subnets_range'] == '':
@@ -93,6 +67,7 @@ if __name__ == "__main__":
     print("Will create exploratory environment as following: {}".
           format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(project_conf))
+
 
     try:
         logging.info('[CREATE SUBNET]')
@@ -119,3 +94,213 @@ if __name__ == "__main__":
     print('subnet id: {}'.format(subnet_id))
     create_tag(subnet_id, project_tag)
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
+
+#End of subnet creation
+
+#Project roles creation
+
+    project_conf['role_name'] = '{0}-{1}-project-Role'.format(edge_conf['service_base_name'].lower().replace('-', '_'),
+                                                      os.environ['project_tag'])
+    project_conf['role_profile_name'] = '{0}-{1}-project-Profile'.format(project_conf['service_base_name'].lower().replace('-',
+                                                                                                                '_'),
+                                                                 os.environ['project_tag'])
+    project_conf['policy_name'] = '{0}-{1}-project-Policy'.format(project_conf['service_base_name'].lower().replace('-', '_'),
+                                                          os.environ['project_tag'])
+
+    try:
+        logging.info('[CREATE PROJECT ROLES]')
+        print('[CREATE PROJECT ROLES]')
+        params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
+                 "--infra_tag_value {}" \
+                 .format(project_conf['role_name'], project_conf['role_profile_name'],
+                         project_conf['policy_name'], os.environ['aws_region'], project_conf['tag_name'],
+                         project_conf['service_base_name'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to creating roles.", str(err))
+        sys.exit(1)
+
+#End of project roles creation
+
+#Creating security group for EDGE node
+
+    project_conf['edge_instance_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'], os.environ['project_tag'])
+    project_conf['edge_security_group_name'] = '{}-SG'.format(edge_conf['instance_name'])
+    project_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'],
+                                                            os.environ['project_tag'])
+
+    project_conf['allowed_ip_cidr'] = list()
+    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+        project_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ','')})
+
+    try:
+        logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
+        print('[CREATE SECURITY GROUPS FOR EDGE]')
+        edge_sg_ingress = format_sg([
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "UserIdGroupPairs": [], "PrefixListIds": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 22,
+                "IpRanges": project_conf['allowed_ip_cidr'],
+                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 3128,
+                "IpRanges": project_conf['allowed_ip_cidr'],
+                "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 80,
+                "IpRanges": project_conf['allowed_ip_cidr'],
+                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{}-ssn'.format(
+                    project_conf['service_base_name'])).get('Private') + "/32"}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
+            }
+        ])
+        edge_sg_egress = format_sg([
+            {
+                "PrefixListIds": [],
+                "FromPort": 22,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8888,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 8888, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8080,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8787,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 8787, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 6006,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 6006, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 20888,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8042,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 8042, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8088,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8081,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 8081, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 4040,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 4140, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 18080,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 18080, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 50070,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 50070, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 53,
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 80,
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 123,
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                "ToPort": 123, "IpProtocol": "udp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 443,
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8085,
+                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 389,
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            }
+        ])
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
+            --egress '{}' --force {} --nb_sg_name {} --resource {}".\
+            format(project_conf['edge_security_group_name'], project_conf['vpc_id'], json.dumps(edge_sg_ingress),
+                   project_conf['service_base_name'], project_conf['edge_instance_name'], json.dumps(edge_sg_egress),
+                   True, project_conf['notebook_instance_name'], 'edge')
+        try:
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+        except Exception as err:
+            traceback.print_exc()
+            append_result("Failed creating security group for edge node.", str(err))
+            raise Exception
+
+        with hide('stderr', 'running', 'warnings'):
+            print('Waiting for changes to propagate')
+            time.sleep(10)
+    except:
+        remove_all_iam_resources('notebook', os.environ['project_tag'])
+        remove_all_iam_resources('edge', os.environ['project_tag'])
+        sys.exit(1)
+
+#End of security groupe for EDGE node creating
