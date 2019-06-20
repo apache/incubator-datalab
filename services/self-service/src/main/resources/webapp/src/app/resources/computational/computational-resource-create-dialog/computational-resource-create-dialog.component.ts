@@ -234,10 +234,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       clusterTypes => {
         this.clusterTypes = clusterTypes;
         this.selectedImage = clusterTypes[0];
-        this.getComputationalResourceLimits();
-        this.filterShapes();
-        this.resourceForm.get('template_name').setValue(this.selectedImage.template_name)
-      });
+
+        if (this.selectedImage) {
+          this.getComputationalResourceLimits();
+          this.filterShapes(); 
+          this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
+        }
+      }, error => {});
   }
 
   private filterShapes(): void {
