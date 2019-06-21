@@ -37,7 +37,7 @@
             <div class="col txt-r">
               <span mat-raised-button class="butt butt-file">
                 <span class="upload-icon"></span> Upload
-                <input (change)="onFileChange($event)" type="file" name="file" accept=".pub" />
+                <input (change)="onFileChange($event)" type="file" name="file" accept=".pub" [ngClass]="{ 'not-allowed' : item }" />
               </span>
     
               <div *ngIf="keyLabel" class="m-bott-10 m-top-10 ellipsis" [class.danger_color]="!accessKeyValid">{{ keyLabel }}</div>
@@ -45,8 +45,8 @@
           </div>
           <div class="text-center m-bott-10">
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
-            <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i
-                class="material-icons">keyboard_arrow_right</i></button>
+            <button mat-raised-button type="button" class="butt next" matStepperNext>Next
+              <i class="material-icons">keyboard_arrow_right</i></button>
           </div>
         </div>
       </section>
