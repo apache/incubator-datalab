@@ -69,7 +69,11 @@ if __name__ == "__main__":
             'Private')
         edge_conf['edge_public_ip'] = edge_conf['edge_private_ip']
     edge_conf['vpc1_cidrs'] = get_vpc_cidr_by_id(os.environ['aws_vpc_id'])
-    edge_conf['vpc2_cidrs'] = get_vpc_cidr_by_id(os.environ['aws_notebook_vpc_id'])
+    try:
+        edge_conf['vpc2_cidrs'] = get_vpc_cidr_by_id(os.environ['aws_notebook_vpc_id'])
+        edge_conf['vpc_cidrs'] = list(set(edge_conf['vpc1_cidrs'] + edge_conf['vpc2_cidrs']))
+    except KeyError:
+        edge_conf['vpc_cidrs'] = list(set(edge_conf['vpc1_cidrs']))
     edge_conf['vpc_cidrs'] = list(set(edge_conf['vpc1_cidrs'] + edge_conf['vpc2_cidrs']))
     edge_conf['allowed_ip_cidr'] = list()
     for cidr in os.environ['conf_allowed_ip_cidr'].split(','):

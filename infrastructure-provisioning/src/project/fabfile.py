@@ -31,7 +31,8 @@ import traceback
 
 
 def run():
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                            os.environ['request_id'])
     local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -60,7 +61,8 @@ def run():
 
 # Main function for terminating EDGE node and exploratory environment if exists
 def terminate():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,

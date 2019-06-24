@@ -97,12 +97,12 @@ if __name__ == "__main__":
     project_conf['project_tag'] = os.environ['project_name']
     project_conf['tag_name'] = project_conf['service_base_name'] + '-Tag'
     project_conf['tag_value'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-*'
-    project_conf['edge_sg'] = edge_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
-    project_conf['nb_sg'] = edge_conf['service_base_name'] + "-" + os.environ['project_name'] + '-nb'
-    project_conf['edge_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
-    project_conf['de_sg'] = edge_conf['service_base_name'] + "-" + project_conf['project_tag'] + \
+    project_conf['edge_sg'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+    project_conf['nb_sg'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-nb'
+    project_conf['edge_instance_name'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+    project_conf['de_sg'] = project_conf['service_base_name'] + "-" + project_conf['project_tag'] + \
                                              '-dataengine*'
-    project_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + project_conf['project_tag'] + '-des-*'
+    project_conf['emr_sg'] = project_conf['service_base_name'] + "-" + project_conf['project_tag'] + '-des-*'
 
     try:
         logging.info('[TERMINATE PROJECT]')
