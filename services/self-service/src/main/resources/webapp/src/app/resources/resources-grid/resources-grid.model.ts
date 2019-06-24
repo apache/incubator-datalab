@@ -30,7 +30,8 @@ export class ExploratoryModel {
     public resources: Array<any>,
     public time: string,
     public url: Array<any>,
-    public ip: string,
+    public node_ip: string,
+    public private_ip: string,
     public username: string,
     public password: string,
     public bucket_name: string,
@@ -47,6 +48,7 @@ export class ExploratoryModel {
     public datalake_shared_directory: string,
     public project: string,
     public endpoint: string,
+    public tags: any,
   ) { }
 
   public static loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ExploratoryModel> {
@@ -61,6 +63,7 @@ export class ExploratoryModel {
           value.up_time,
           value.exploratory_url,
           sharedDataList.edge_node_ip,
+          value.private_ip,
           value.exploratory_user,
           value.exploratory_pass,
           sharedDataList[DICTIONARY.bucket_name],
@@ -76,7 +79,8 @@ export class ExploratoryModel {
           sharedDataList[DICTIONARY.datalake_user_directory_name],
           sharedDataList[DICTIONARY.datalake_shared_directory_name],
           value.project,
-          value.endpoint
+          value.endpoint,
+          value.tags
         );
       });
     }

@@ -69,19 +69,22 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.initFormModel();
     this.notebook_instance = this.data.notebook;
-    this.resourcesList = this.data.resourcesList;
+    this.resourcesList = this.data.full_list;
+    this.initFormModel();
     this.getTemplates(this.notebook_instance.project);
   }
 
   public selectImage($event) {
     this.selectedImage = $event;
     this.getComputationalResourceLimits();
+
+    if ($event.templates)
+      this.resourceForm.controls['version'].setValue($event.templates[0].version)
   }
 
   public selectSpotInstances($event?): void {
-    if ($event ? $event.target.checked : this.spotInstancesSelect.nativeElement['checked']) {
+    if ($event ? $event.target.checked : (this.spotInstancesSelect && this.spotInstancesSelect.nativeElement['checked'])) {
       const filtered = this.filterAvailableSpots();
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
       this.resourceForm.controls['instance_price'].setValue(50);
@@ -140,7 +143,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0, Validators.compose([Validators.pattern(PATTERNS.integerRegex), this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
-      configuration_parameters: ['', [this.validConfiguration.bind(this)]]
+      configuration_parameters: ['', [this.validConfiguration.bind(this)]],
+      custom_tag: [this.notebook_instance.tags.custom_tag]
     });
   }
 
@@ -164,7 +168,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
-        this.spotInstancesSelect.nativeElement['checked'] = true;
+        if (this.spotInstancesSelect) this.spotInstancesSelect.nativeElement['checked'] = true;
         this.selectSpotInstances();
       }
 
@@ -237,10 +241,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
         if (this.selectedImage) {
           this.getComputationalResourceLimits();
-          this.filterShapes(); 
+          this.filterShapes();
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
         }
-      }, error => {});
+      }, error => { });
   }
 
   private filterShapes(): void {

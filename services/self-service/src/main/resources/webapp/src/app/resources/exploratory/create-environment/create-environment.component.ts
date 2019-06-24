@@ -86,7 +86,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     };
 
     data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null
-    this.userResourceService.createExploratoryEnvironment({...parameters, ...data}).subscribe((response: any) => {
+    this.userResourceService.createExploratoryEnvironment({ ...parameters, ...data }).subscribe((response: any) => {
       if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
   }
@@ -101,23 +101,23 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private initFormModel(): void {
-    
+
     this.createExploratoryForm = this._fb.group({
       project: ['', Validators.required],
       endpoint: ['', Validators.required],
       version: ['', Validators.required],
       notebook_image_name: [''],
       shape: ['', Validators.required],
-      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern),
-                              this.providerMaxLength, this.checkDuplication.bind(this)]],
-      cluster_config: ['', [this.validConfiguration.bind(this)]]
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      cluster_config: ['', [this.validConfiguration.bind(this)]],
+      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]]
     });
   }
 
   private getImagesList() {
     this.userResourceService.getUserImages(this.currentTemplate.image)
       .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
-      error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
+        error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
 
   private checkDuplication(control) {
