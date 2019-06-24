@@ -152,7 +152,7 @@
             <span>Manage libraries</span>
           </li>
           <li>
-            <a target="_blank" [routerLink]="['/terminal', env.ip]" class="navigate">
+            <a target="_blank" [attr.href]="'/#/terminal/' + env.private_ip" class="navigate">
               <i class="material-icons">laptop</i>
               <span>Open terminal</span>
             </a>

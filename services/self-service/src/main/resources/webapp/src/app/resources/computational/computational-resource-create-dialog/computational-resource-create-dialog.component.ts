@@ -78,6 +78,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public selectImage($event) {
     this.selectedImage = $event;
     this.getComputationalResourceLimits();
+
+    if ($event.templates)
+      this.resourceForm.controls['version'].setValue($event.templates[0].version)
   }
 
   public selectSpotInstances($event?): void {
@@ -238,10 +241,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
         if (this.selectedImage) {
           this.getComputationalResourceLimits();
-          this.filterShapes(); 
+          this.filterShapes();
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
         }
-      }, error => {});
+      }, error => { });
   }
 
   private filterShapes(): void {
