@@ -16,6 +16,16 @@ public class ProjectDTO {
 	@NotNull
 	private final Set<String> groups;
 	@NotNull
+	private final String key;
+	@NotNull
 	private final String tag;
 	private final Integer budget;
+	private final Status status = Status.CREATING;
+
+
+	public enum Status {
+		CREATING,
+		CREATED,
+		FAILED
+	}
 }

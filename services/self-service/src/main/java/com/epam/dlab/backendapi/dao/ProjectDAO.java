@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.dto.base.project.ProjectEdgeInfo;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,10 @@ public interface ProjectDAO {
 	List<ProjectDTO> getProjects();
 
 	void create(ProjectDTO projectDTO);
+
+	void updateStatus(String projectName, ProjectDTO.Status status);
+
+	void updateEdgeInfoAndStatus(String projectName, ProjectEdgeInfo edgeInfo, ProjectDTO.Status status);
 
 	Optional<ProjectDTO> get(String name);
 
