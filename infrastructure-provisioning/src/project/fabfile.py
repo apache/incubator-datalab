@@ -51,12 +51,12 @@ def run():
 #        append_result("Failed preparing Edge node.", str(err))
 #        sys.exit(1)
 
-#    try:
-#        local("~/scripts/{}.py".format('edge_configure'))
-#    except Exception as err:
-#        traceback.print_exc()
-#        append_result("Failed configuring Edge node.", str(err))
-#        sys.exit(1)
+    try:
+        local("~/scripts/{}.py".format('edge_configure'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed configuring Edge node.", str(err))
+        sys.exit(1)
 
 # Main function for terminating EDGE node and exploratory environment if exists
 def terminate():
