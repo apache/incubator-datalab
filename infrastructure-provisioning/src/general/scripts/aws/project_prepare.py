@@ -44,7 +44,6 @@ if __name__ == "__main__":
     project_conf['project_tag'] = os.environ['project_name']
     project_conf['custom_tag'] = os.environ['project_tag']
     project_conf['key_name'] = os.environ['conf_key_name']
-    project_conf['user_keyname'] = os.environ['project_name']
     project_conf['public_subnet_id'] = os.environ['aws_subnet_id']
     project_conf['vpc_id'] = os.environ['aws_vpc_id']
     project_conf['region'] = os.environ['aws_region']
@@ -104,10 +103,10 @@ if __name__ == "__main__":
         os.environ['conf_user_subnets_range'] = ''
 
     # FUSE in case of absence of user's key
-    fname = "{}{}.pub".format(os.environ['conf_key_dir'], project_conf['user_keyname'])
-    print(fname)
-    if not os.path.isfile(fname):
-        print("ADMINSs PUBLIC KEY DOES NOT EXIST in {}".format(fname))
+    try
+        project_conf['user_key'] = os.environ['key']
+    except KeyError:
+        print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
         sys.exit(1)
 
     print("Will create exploratory environment with edge node as access point as following: {}".

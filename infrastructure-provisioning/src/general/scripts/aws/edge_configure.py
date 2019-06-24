@@ -39,7 +39,7 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
-    edge_conf['user_keyname'] = os.environ['project_name']
+    edge_conf['user_key'] = os.environ['key']
     edge_conf['instance_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'], os.environ['project_name'])
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
     edge_conf['bucket_name'] = '{}-{}-bucket'.format(edge_conf['service_base_name'],
@@ -167,8 +167,9 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
-        additional_config = {"user_keyname": edge_conf['user_keyname'],
-                             "user_keydir": os.environ['conf_key_dir']}
+        additional_config = {"user_keyname": os.environ['project_name'],
+                             "user_keydir": os.environ['conf_key_dir'],
+                             "user_key": edge_conf['user_key']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
