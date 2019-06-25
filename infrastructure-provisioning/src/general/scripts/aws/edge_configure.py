@@ -74,7 +74,7 @@ if __name__ == "__main__":
         edge_conf['vpc_cidrs'] = list(set(edge_conf['vpc1_cidrs'] + edge_conf['vpc2_cidrs']))
     except KeyError:
         edge_conf['vpc_cidrs'] = list(set(edge_conf['vpc1_cidrs']))
-    edge_conf['vpc_cidrs'] = list(set(edge_conf['vpc1_cidrs'] + edge_conf['vpc2_cidrs']))
+
     edge_conf['allowed_ip_cidr'] = list()
     for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
         edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
-#                             "edge_user_name": os.environ['aws_iam_user'],
+                             "project_name": os.environ['project_name'],
                              "ldap_host": os.environ['ldap_hostname'],
                              "ldap_dn": os.environ['ldap_dn'],
                              "ldap_user": os.environ['ldap_service_username'],

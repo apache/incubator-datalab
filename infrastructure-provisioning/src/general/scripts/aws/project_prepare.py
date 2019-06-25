@@ -103,7 +103,7 @@ if __name__ == "__main__":
         os.environ['conf_user_subnets_range'] = ''
 
     # FUSE in case of absence of user's key
-    try
+    try:
         project_conf['user_key'] = os.environ['key']
     except KeyError:
         print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
@@ -485,8 +485,6 @@ if __name__ == "__main__":
                          project_conf['region'], project_conf['bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
-            bucket = get_bucket_by_name(project_conf['bucket_name'])
-            create_tag(bucket, project_tag)
         except:
             traceback.print_exc()
             raise Exception
