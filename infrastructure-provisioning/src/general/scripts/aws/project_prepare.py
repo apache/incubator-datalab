@@ -448,10 +448,10 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to create sg.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['edge_instance_name'])
+        remove_all_iam_resources('notebook', os.environ['project_name'])
+        remove_all_iam_resources('edge', os.environ['project_name'])
+        remove_sgroups(project_conf['notebook_instance_name'])
+        remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
@@ -470,11 +470,11 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to create bucket.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['dataengine_instances_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['edge_instance_name'])
+        remove_all_iam_resources('notebook', os.environ['project_name'])
+        remove_all_iam_resources('edge', os.environ['project_name'])
+        remove_sgroups(project_conf['dataengine_instances_name'])
+        remove_sgroups(project_conf['notebook_instance_name'])
+        remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     try:
@@ -485,21 +485,23 @@ if __name__ == "__main__":
                          project_conf['region'], project_conf['bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            bucket = get_bucket_by_name(project_conf['bucket_name'])
+            create_tag(bucket, project_tag)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to create bucket.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_all_iam_resources('notebook', os.environ['project_name'])
+        remove_all_iam_resources('edge', os.environ['project_name'])
         remove_sgroups(project_conf['dataengine_instances_name'])
         remove_sgroups(project_conf['notebook_instance_name'])
         remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     try:
-        logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
+        logging.info('[CREATING BUCKET POLICY FOR PROJECT INSTANCES]')
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
                  '--notebook_role_name {} --service_base_name {} --region {} ' \
@@ -535,6 +537,8 @@ if __name__ == "__main__":
                     project_conf['tag_name'], project_conf['edge_instance_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
+            edge_instance = get_instance_by_name(project_conf['tag_name'], project_conf['edge_instance_name'])
+            create_tag(edge_instance, project_tag)
         except:
             traceback.print_exc()
             raise Exception

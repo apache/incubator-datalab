@@ -28,7 +28,7 @@ import sys, time, os
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
+def terminate_edge_node(tag_name, project_tag, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
     print('Terminating EMR cluster')
     try:
         clusters_list = get_emr_list(tag_name)
@@ -55,14 +55,14 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
 
     print("Removing s3 bucket")
     try:
-        remove_s3('edge', user_name)
+        remove_s3('edge', project_name)
     except:
         sys.exit(1)
 
     print("Removing IAM roles and profiles")
     try:
-        remove_all_iam_resources('notebook', user_name)
-        remove_all_iam_resources('edge', user_name)
+        remove_all_iam_resources('notebook', project_tag)
+        remove_all_iam_resources('edge', project_tag)
     except:
         sys.exit(1)
 
