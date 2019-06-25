@@ -44,7 +44,7 @@ export class RolesComponent implements OnInit {
   public healthStatus: any;
   public delimitersRegex = /[-_]?/g;
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
-  
+
   stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
@@ -57,8 +57,8 @@ export class RolesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-  this.openManageRolesDialog();
-  this.getEnvironmentHealthStatus();
+    this.openManageRolesDialog();
+    this.getEnvironmentHealthStatus();
   }
 
   openManageRolesDialog() {
@@ -68,12 +68,12 @@ export class RolesComponent implements OnInit {
           this.roles = roles;
           this.rolesList = roles.map(role => role.description);
           this.updateGroupData(groups);
-      
+
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
     },
-    error => this.toastr.error(error.message, 'Oops!'));
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   getGroupsData() {
@@ -89,15 +89,16 @@ export class RolesComponent implements OnInit {
   public manageAction(action: string, type: string, item?: any, value?) {
     if (action === 'create') {
       this.manageRolesGroups(
-        { action, type, value: {
-          name: this.setupGroup,
-          users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()) : [],
-          roleIds: this.extractIds(this.roles, this.setupRoles)
-        }
-      });
+        {
+          action, type, value: {
+            name: this.setupGroup,
+            users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()) : [],
+            roleIds: this.extractIds(this.roles, this.setupRoles)
+          }
+        });
       this.stepperView = false;
     } else if (action === 'delete') {
-      const data = (type === 'users') ? {group: item.group, user: value} : {group: item.group, id: item};
+      const data = (type === 'users') ? { group: item.group, user: value } : { group: item.group, id: item };
       const dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialogComponent> = this.dialog.open(
         ConfirmDeleteUserAccountDialogComponent,
         { data: data, width: '550px', panelClass: 'error-modalbox' }
@@ -106,17 +107,21 @@ export class RolesComponent implements OnInit {
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           const emitValue = (type === 'users')
-            ? {action, type, id: item.name, value: { user: value, group: item.group }}
-            : {action, type, id: item.name, value: item.group} ;
+            ? { action, type, id: item.name, value: { user: value, group: item.group } }
+            : { action, type, id: item.name, value: item.group };
           this.manageRolesGroups(emitValue);
         }
       });
     } else if (action === 'update') {
-      this.manageRolesGroups({action, type, value: {
-        name: item.group,
-        roleIds: this.extractIds(this.roles, item.selected_roles),
-        users: item.users || [] }});
+      this.manageRolesGroups({
+        action, type, value: {
+          name: item.group,
+          roleIds: this.extractIds(this.roles, item.selected_roles),
+          users: item.users || []
+        }
+      });
     }
+    this.getEnvironmentHealthStatus();
     this.resetDialog();
   }
 
@@ -151,7 +156,7 @@ export class RolesComponent implements OnInit {
       default:
     }
   }
-  
+
   public extractIds(sourceList, target) {
     return sourceList.reduce((acc, item) => {
       target.includes(item.description) && acc.push(item._id);
