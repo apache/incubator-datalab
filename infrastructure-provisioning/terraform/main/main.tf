@@ -33,6 +33,7 @@ module "notebook" {
   product          = "${var.product_name}"
   ami              = "${var.ami}"
   instance_type    = "${var.instance_type}"
+  key_name         = "${var.key_name}"
 }
 
 module "data_engine" {
@@ -48,6 +49,8 @@ module "data_engine" {
   product          = "${var.product_name}"
   ami              = "${var.ami}"
   instance_type    = "${var.instance_type}"
+  key_name         = "${var.key_name}"
+  cluster_name     = "${var.cluster_name}"
   slave_count      = "${var.slave_count}"
 }
 

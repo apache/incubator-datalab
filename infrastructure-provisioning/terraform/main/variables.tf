@@ -34,6 +34,10 @@ variable "ami" {}
 
 variable "instance_type" {}
 
+variable "key_name" {}
+
+variable "cluster_name" {}
+
 variable "slave_count" {}
 
 variable "source_instance_id" {}

@@ -5,6 +5,7 @@ locals {
 resource "aws_instance" "notebook" {
   ami                  = "${var.ami}"
   instance_type        = "${var.instance_type}"
+  key_name             = "${var.key_name}"
   subnet_id            = "${var.aws_subnet_id}"
   security_groups      = ["${var.nb-sg_id}"]
   iam_instance_profile = "${var.iam_profile_name}"
