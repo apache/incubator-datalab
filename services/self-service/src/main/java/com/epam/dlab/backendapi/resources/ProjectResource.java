@@ -98,6 +98,23 @@ public class ProjectResource {
 				.build();
 	}
 
+	@Operation(summary = "Get projects assigned to user", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about projects",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = ProjectDTO.class))),
+	})
+	@Path("/me")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								@Parameter(description = "Project name")
+								@PathParam("name") String name) {
+		return Response
+				.ok(projectService.getUserProjects(userInfo))
+				.build();
+	}
+
 	@Operation(summary = "Update project", tags = "project")
 	@ApiResponses({
 			@ApiResponse(responseCode = "200", description = "Project is successfully updated"),

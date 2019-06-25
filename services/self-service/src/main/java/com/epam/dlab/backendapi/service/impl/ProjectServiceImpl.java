@@ -51,6 +51,11 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+		return projectDAO.getUserProjects(userInfo);
+	}
+
+	@Override
 	public void create(UserInfo user, ProjectDTO projectDTO) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);

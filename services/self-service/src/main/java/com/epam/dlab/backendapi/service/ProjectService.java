@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ProjectService {
 	List<ProjectDTO> getProjects();
+	List<ProjectDTO> getUserProjects(UserInfo userInfo);
 
 	void create(UserInfo userInfo, ProjectDTO projectDTO);
 

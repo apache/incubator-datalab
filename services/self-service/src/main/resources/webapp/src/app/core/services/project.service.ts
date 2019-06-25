@@ -52,6 +52,14 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+ public getUserProjectsList(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetUserProjectsList()
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public deleteProject(data): Observable<{}> {
     const url = `/${data}`;
     return this.applicationServiceFacade

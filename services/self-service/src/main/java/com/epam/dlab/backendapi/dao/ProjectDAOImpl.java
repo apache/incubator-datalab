@@ -1,8 +1,11 @@
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.base.project.ProjectEdgeInfo;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
@@ -22,9 +25,23 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String STATUS_FIELD = "status";
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 
+	private final UserGroupDao userGroupDao;
+
+	@Inject
+	public ProjectDAOImpl(UserGroupDao userGroupDao) {
+		this.userGroupDao = userGroupDao;
+	}
+
+
 	@Override
 	public List<ProjectDTO> getProjects() {
 		return find(PROJECTS_COLLECTION, ProjectDTO.class);
+	}
+
+	@Override
+	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+			return find(PROJECTS_COLLECTION, in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
+					userInfo.getRoles())), ProjectDTO.class);
 	}
 
 	@Override

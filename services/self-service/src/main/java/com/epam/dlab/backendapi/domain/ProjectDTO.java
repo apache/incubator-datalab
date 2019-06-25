@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.Set;
 
 @Data
@@ -16,6 +17,7 @@ public class ProjectDTO {
 	@NotNull
 	private final Set<String> groups;
 	@NotNull
+	@Pattern(regexp = "^ssh-", message = "Wrong key format. Key should be in openSSH format")
 	private final String key;
 	@NotNull
 	private final String tag;
