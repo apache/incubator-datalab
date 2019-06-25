@@ -55,7 +55,7 @@ def terminate_edge_node(tag_name, project_tag, tag_value, nb_sg, edge_sg, de_sg,
 
     print("Removing s3 bucket")
     try:
-        remove_s3('edge', project_name)
+        remove_s3('edge', project_tag)
     except:
         sys.exit(1)
 
