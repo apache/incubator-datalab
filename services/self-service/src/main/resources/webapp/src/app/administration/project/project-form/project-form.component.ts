@@ -100,7 +100,7 @@ export class ProjectFormComponent implements OnInit {
   public onFileChange($event) {
     const reader = new FileReader();
 
-    if($event.target.files && $event.target.files.length) {
+    if ($event.target.files && $event.target.files.length) {
       const [file] = $event.target.files;
       reader.readAsDataURL(file);
 
@@ -123,6 +123,7 @@ export class ProjectFormComponent implements OnInit {
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
+      'key': ['', Validators.required],
       'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
@@ -142,7 +143,6 @@ export class ProjectFormComponent implements OnInit {
   }
 
   private getLabel(file: File): string {
-    debugger;
     return file ? !this.accessKeyValid ? 'Public key is required.' : file.name : '';
   }
 
