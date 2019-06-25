@@ -19,7 +19,8 @@
 
 <div class="sub-nav base-retreat">
   <div>
-    <button mat-raised-button class="butt butt-create" (click)="createEnvironment()">
+    <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
+      [disabled]="!healthStatus?.projectAssigned">
       <i class="material-icons">add</i>Create new
     </button>
   </div>
