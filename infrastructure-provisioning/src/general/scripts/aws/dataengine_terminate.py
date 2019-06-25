@@ -48,7 +48,7 @@ def terminate_data_engine(tag_name, notebook_name,
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'],
-                                               os.environ['edge_user_name'],
+                                               os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + \
                          os.environ['conf_resource'] + "/" + local_log_filename
@@ -70,10 +70,10 @@ if __name__ == "__main__":
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-    data_engine['user_name'] = os.environ['edge_user_name']
+    data_engine['project_tag'] = os.environ['project_name']
     data_engine['cluster_name'] = \
         data_engine['service_base_name'] + '-' + \
-        data_engine['user_name'] + '-de-' + \
+        data_engine['project_tag'] + '-de-' + \
         data_engine['exploratory_name'] + '-' +\
         data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']

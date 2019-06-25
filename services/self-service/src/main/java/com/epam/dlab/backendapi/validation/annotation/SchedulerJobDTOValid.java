@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
 public @interface SchedulerJobDTOValid {
 
 
-	String message() default "Start days or stop days should be filled for scheduler";
+	String message() default "Start/stop days or termination date is required for scheduler";
 
 	Class<?>[] groups() default {};
 
