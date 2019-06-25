@@ -100,7 +100,8 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 
 		/*bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
 			@Override
-			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration configuration) {
+			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration
+			configuration) {
 				return configuration.getSwaggerConfiguration();
 			}
 		});*/
@@ -181,6 +182,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(ApplicationSettingResource.class));
 		jersey.register(injector.getInstance(EndpointResource.class));
 		jersey.register(injector.getInstance(ProjectResource.class));
+		jersey.register(injector.getInstance(ProjectCallback.class));
 		OpenAPI oas = new OpenAPI();
 		Info info = new Info()
 				.title("Hello World API")

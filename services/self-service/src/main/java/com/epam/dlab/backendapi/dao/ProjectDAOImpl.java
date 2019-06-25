@@ -1,7 +1,13 @@
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.dto.base.project.ProjectEdgeInfo;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -16,6 +22,16 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	private static final String PROJECTS_COLLECTION = "Projects";
 	private static final String GROUPS = "groups";
+	private static final String STATUS_FIELD = "status";
+	private static final String EDGE_INFO_FIELD = "edgeInfo";
+
+	private final UserGroupDao userGroupDao;
+
+	@Inject
+	public ProjectDAOImpl(UserGroupDao userGroupDao) {
+		this.userGroupDao = userGroupDao;
+	}
+
 
 	@Override
 	public List<ProjectDTO> getProjects() {
@@ -23,8 +39,30 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
+	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+			return find(PROJECTS_COLLECTION, in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
+					userInfo.getRoles())), ProjectDTO.class);
+	}
+
+	@Override
 	public void create(ProjectDTO projectDTO) {
 		insertOne(PROJECTS_COLLECTION, projectDTO);
+	}
+
+	@Override
+	public void updateStatus(String projectName, ProjectDTO.Status status) {
+		updateOne(PROJECTS_COLLECTION, projectCondition(projectName),
+				new Document(SET, new Document(STATUS_FIELD, status.toString())));
+	}
+
+	@Override
+	public void updateEdgeInfoAndStatus(String projectName, ProjectEdgeInfo edgeInfo, ProjectDTO.Status status) {
+		BasicDBObject dbObject = new BasicDBObject();
+		dbObject.put(STATUS_FIELD, status.toString());
+		dbObject.put(EDGE_INFO_FIELD, convertToBson(edgeInfo));
+		final UpdateResult updateResult = updateOne(PROJECTS_COLLECTION, projectCondition(projectName),
+				new Document(SET, dbObject));
+		System.out.println(updateResult);
 	}
 
 	@Override

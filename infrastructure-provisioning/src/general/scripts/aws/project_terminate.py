@@ -28,7 +28,7 @@ import sys, time, os
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
+def terminate_edge_node(tag_name, project_tag, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
     print('Terminating EMR cluster')
     try:
         clusters_list = get_emr_list(tag_name)
@@ -55,14 +55,14 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
 
     print("Removing s3 bucket")
     try:
-        remove_s3('edge', user_name)
+        remove_s3('edge', project_tag)
     except:
         sys.exit(1)
 
     print("Removing IAM roles and profiles")
     try:
-        remove_all_iam_resources('notebook', user_name)
-        remove_all_iam_resources('edge', user_name)
+        remove_all_iam_resources('notebook', project_tag)
+        remove_all_iam_resources('edge', project_tag)
     except:
         sys.exit(1)
 
@@ -83,8 +83,8 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
@@ -92,35 +92,35 @@ if __name__ == "__main__":
     # generating variables dictionary
     create_aws_config_files()
     print('Generating infrastructure names and tags')
-    edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
-    edge_conf['user_name'] = os.environ['edge_user_name']
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
-    edge_conf['tag_value'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-*'
-    edge_conf['edge_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['nb_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['edge_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['de_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
+    project_conf = dict()
+    project_conf['service_base_name'] = os.environ['conf_service_base_name']
+    project_conf['project_tag'] = os.environ['project_name']
+    project_conf['tag_name'] = project_conf['service_base_name'] + '-Tag'
+    project_conf['tag_value'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-*'
+    project_conf['edge_sg'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+    project_conf['nb_sg'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-nb'
+    project_conf['edge_instance_name'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+    project_conf['de_sg'] = project_conf['service_base_name'] + "-" + project_conf['project_tag'] + \
                                              '-dataengine*'
-    edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-des-*'
+    project_conf['emr_sg'] = project_conf['service_base_name'] + "-" + project_conf['project_tag'] + '-des-*'
 
     try:
-        logging.info('[TERMINATE EDGE]')
-        print('[TERMINATE EDGE]')
+        logging.info('[TERMINATE PROJECT]')
+        print('[TERMINATE PROJECT]')
         try:
-            terminate_edge_node(edge_conf['tag_name'], edge_conf['user_name'], edge_conf['tag_value'],
-                                edge_conf['nb_sg'], edge_conf['edge_sg'], edge_conf['de_sg'], edge_conf['emr_sg'])
+            terminate_edge_node(project_conf['tag_name'], project_conf['project_tag'], project_conf['tag_value'],
+                                project_conf['nb_sg'], project_conf['edge_sg'], project_conf['de_sg'], project_conf['emr_sg'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate edge.", str(err))
+            append_result("Failed to terminate project.", str(err))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"service_base_name": edge_conf['service_base_name'],
-                   "user_name": edge_conf['user_name'],
+            res = {"service_base_name": project_conf['service_base_name'],
+                   "project_tag": project_conf['project_tag'],
                    "Action": "Terminate edge node"}
             print(json.dumps(res))
             result.write(json.dumps(res))

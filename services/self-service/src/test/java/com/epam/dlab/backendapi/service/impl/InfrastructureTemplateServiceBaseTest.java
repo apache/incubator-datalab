@@ -77,7 +77,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		emDto2.setExploratoryEnvironmentShapes(shapes2);
 		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				Collections.singleton("project"), null, null)));
+				Collections.singleton("project"), null, null, null)));
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
@@ -116,7 +116,7 @@ public class InfrastructureTemplateServiceBaseTest {
 				computationalMetadataDTO
 		);
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				Collections.singleton("project"), null, null)));
+				Collections.singleton("project"), null, null, null)));
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
@@ -158,7 +158,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				Collections.singleton("project"), null, null)));
+				Collections.singleton("project"), null, null,null)));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {

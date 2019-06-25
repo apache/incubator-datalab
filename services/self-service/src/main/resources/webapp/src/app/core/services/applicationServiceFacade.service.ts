@@ -68,6 +68,7 @@ export class ApplicationServiceFacade {
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
+  private static readonly USER_PROJECT = 'project/me';
   private static readonly ENDPOINT = 'endpoint';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
@@ -527,6 +528,12 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public buildGetUserProjectsList(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.USER_PROJECT),
+      null);
+  }
+
   public buildDeleteProject(param): Observable<any> {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
@@ -627,6 +634,7 @@ export class ApplicationServiceFacade {
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
+    this.requestRegistry.Add(ApplicationServiceFacade.USER_PROJECT, '/api/project/me');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt?) {

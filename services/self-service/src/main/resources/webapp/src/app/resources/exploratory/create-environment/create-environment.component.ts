@@ -60,12 +60,16 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getProjects();
+    this.getUserProjects();
     this.initFormModel();
   }
 
   public getProjects() {
     this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
+  }
+
+  public getUserProjects() {
+    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
   public getTemplates($event, project) {

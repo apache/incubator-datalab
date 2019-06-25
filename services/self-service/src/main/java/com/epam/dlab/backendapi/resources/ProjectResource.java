@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -51,8 +52,8 @@ public class ProjectResource {
 	})
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo, ProjectDTO projectDTO) {
-		projectService.create(projectDTO);
+	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo, @Valid ProjectDTO projectDTO) {
+		projectService.create(userInfo, projectDTO);
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
 				.ok()
@@ -94,6 +95,23 @@ public class ProjectResource {
 								@PathParam("name") String name) {
 		return Response
 				.ok(projectService.getProjects())
+				.build();
+	}
+
+	@Operation(summary = "Get projects assigned to user", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about projects",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = ProjectDTO.class))),
+	})
+	@Path("/me")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								@Parameter(description = "Project name")
+								@PathParam("name") String name) {
+		return Response
+				.ok(projectService.getUserProjects(userInfo))
 				.build();
 	}
 
