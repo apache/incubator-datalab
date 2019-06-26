@@ -170,7 +170,7 @@
           <label class="spot-label label">
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />
             <span>Spot instance</span>
-            <span *ngIf="spotInstancesSelect?.nativeElement['checked'] || false"> bit, %</span>
+            <span *ngIf="spotInstancesSelect?.nativeElement['checked'] || false"> bid, %</span>
           </label>
           <div class="control spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] || false }"
             *ngIf="spotInstancesSelect?.nativeElement['checked'] || false">
