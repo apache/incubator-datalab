@@ -6,7 +6,7 @@ import org.bson.conversions.Bson;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.regex;
 
 public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 
@@ -33,6 +33,6 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	}
 
 	private Bson endpointCondition(String name) {
-		return eq("name", name);
+		return regex("name", "^" + name, "i");
 	}
 }
