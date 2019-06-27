@@ -7,7 +7,7 @@ resource "aws_instance" "master" {
   ami                  = "${var.ami}"
   instance_type        = "${var.instance_type}"
   key_name             = "${var.key_name}"
-  subnet_id            = "${var.aws_subnet_id}"
+  subnet_id            = "${var.subnet_id}"
   security_groups      = ["${var.nb-sg_id}"]
   iam_instance_profile = "${var.iam_profile_name}"
   tags = {
@@ -24,11 +24,11 @@ resource "aws_instance" "master" {
 
 
 resource "aws_instance" "slave" {
-  count = "${var.slave_count}"
+  count                = "${var.slave_count}"
   ami                  = "${var.ami}"
   instance_type        = "${var.instance_type}"
   key_name             = "${var.key_name}"
-  subnet_id            = "${var.aws_subnet_id}"
+  subnet_id            = "${var.subnet_id}"
   security_groups      = ["${var.nb-sg_id}"]
   iam_instance_profile = "${var.iam_profile_name}"
   tags = {

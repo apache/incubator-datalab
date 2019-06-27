@@ -40,4 +40,14 @@ variable "cluster_name" {}
 
 variable "slave_count" {}
 
+variable "emr_template" {}
+
+variable "master_shape" {}
+
+variable "slave_shape" {}
+
+variable "instance_count" {}
+
+variable "bid_price" {}
+
 variable "source_instance_id" {}

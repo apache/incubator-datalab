@@ -12,7 +12,11 @@ variable "product" {}
 
 variable "ami" {}
 
-variable "instance_type" {}
+variable "emr_template" {}
+
+variable "master_shape" {}
+
+variable "slave_shape" {}
 
 variable "key_name" {}
 
@@ -24,4 +28,7 @@ variable "iam_profile_name" {}
 
 variable "cluster_name" {}
 
-variable "slave_count" {}
+variable "instance_count" {}
+
+variable "bid_price" {}
+
