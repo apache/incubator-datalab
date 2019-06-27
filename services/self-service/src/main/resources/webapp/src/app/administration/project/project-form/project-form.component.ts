@@ -102,7 +102,7 @@ export class ProjectFormComponent implements OnInit {
 
     if ($event.target.files && $event.target.files.length) {
       const [file] = $event.target.files;
-      reader.readAsDataURL(file);
+      reader.readAsBinaryString(file);
 
       reader.onload = () => {
         this.projectForm.patchValue({

@@ -103,7 +103,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
-			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(),
+				final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(),
 					requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds, userInstanceDTO.getTags()),
 					String.class);
 			requestId.put(userInfo.getName(), uuid);
