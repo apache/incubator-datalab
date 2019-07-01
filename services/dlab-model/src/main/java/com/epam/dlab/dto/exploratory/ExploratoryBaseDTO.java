@@ -28,7 +28,7 @@ public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends Resourc
 	private final T self = (T) this;
 	@JsonProperty("notebook_image")
 	private String notebookImage;
-	@JsonProperty("project")
+	@JsonProperty("project_name")
 	private String project;
 
 	public String getNotebookImage() {

@@ -39,9 +39,7 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 	private List<ClusterConfig> clusterConfig;
 	@JsonProperty("tags")
 	private Map<String, String> tags;
-	@JsonProperty("project")
-	private String project;
-	@JsonProperty("endpoint")
+	@JsonProperty("endpoint_name")
 	private String endpoint;
 
 	/**
@@ -84,11 +82,6 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 		return self;
 	}
 
-	public T withProject(String project) {
-		this.project = project;
-		return self;
-	}
-
 	public String getImageName() {
 		return imageName;
 	}
@@ -100,6 +93,14 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 	public T withClusterConfig(List<ClusterConfig> config) {
 		this.clusterConfig = config;
 		return self;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
+	}
+
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 	}
 
 	public List<ClusterConfig> getClusterConfig() {

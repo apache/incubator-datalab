@@ -245,6 +245,7 @@ if __name__ == "__main__":
                    "edge_sg": edge_conf['edge_security_group_name'],
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
+                   "project_name": os.environ['project_name'],
                    "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
