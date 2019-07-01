@@ -52,13 +52,13 @@ if __name__ == "__main__":
         print("Failed establish connection. Excpeption: " + str(err))
         sys.exit(1)
 
-#    try:
-#        install_nginx_ldap(args.hostname, os.environ['reverse_proxy_nginx_version'],
-#                           os.environ['ldap_hostname'], os.environ['ldap_dn'],
-#                           os.environ['ldap_ou'], os.environ['ldap_service_password'],
-#                           os.environ['ldap_service_username'], os.environ['{}_iam_user'.format(
-#                           os.environ['conf_cloud_provider'])])
-#    except Exception as err:
-#        print("Failed install nginx reverse proxy: " + str(err))
-#        sys.exit(1)
+    try:
+        install_nginx_ldap(args.hostname, os.environ['reverse_proxy_nginx_version'],
+                           os.environ['ldap_hostname'], os.environ['ldap_dn'],
+                           os.environ['ldap_ou'], os.environ['ldap_service_password'],
+                           os.environ['ldap_service_username'], os.environ['{}_iam_user'.format(
+                           os.environ['conf_cloud_provider'])])
+    except Exception as err:
+        print("Failed install nginx reverse proxy: " + str(err))
+        sys.exit(1)
 
