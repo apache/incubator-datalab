@@ -1,3 +1,7 @@
+variable "access_key_var" {}
+
+variable "secret_key_var" {}
+
 variable "region" {
   default = "us-west-2"
 }
@@ -69,3 +73,45 @@ variable "workers_shape" {
 variable "os-user" {
   default = "dlab-user"
 }
+
+variable "project_tag" {
+  default = ""
+}
+
+variable "endpoint_tag" {}
+
+variable "user_tag" {}
+
+variable "custom_tag" {}
+
+variable "notebook_name" {}
+
+variable "product_name" {}
+
+variable "nb-sg_id" {}
+
+variable "note_profile_name" {}
+
+variable "note_cidr_range" {}
+
+variable "traefik_cidr" {}
+
+variable "note_ami" {}
+
+variable "instance_type" {}
+
+variable "cluster_name" {}
+
+variable "slave_count" {}
+
+variable "emr_template" {}
+
+variable "master_shape" {}
+
+variable "slave_shape" {}
+
+variable "instance_count" {}
+
+variable "bid_price" {}
+
+variable "source_instance_id" {}
