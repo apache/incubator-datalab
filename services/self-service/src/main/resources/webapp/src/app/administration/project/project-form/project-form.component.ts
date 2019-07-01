@@ -89,6 +89,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public reset() {
+    this.keyLabel = '';
     this.initFormModel();
   }
 
