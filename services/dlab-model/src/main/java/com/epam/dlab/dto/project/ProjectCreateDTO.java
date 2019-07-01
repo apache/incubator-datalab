@@ -1,5 +1,6 @@
-package com.epam.dlab.dto;
+package com.epam.dlab.dto.project;
 
+import com.epam.dlab.dto.ResourceBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;

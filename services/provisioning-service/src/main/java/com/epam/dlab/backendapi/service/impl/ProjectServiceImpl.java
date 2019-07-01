@@ -7,7 +7,9 @@ import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ProjectCallbackHandler;
 import com.epam.dlab.backendapi.service.ProjectService;
-import com.epam.dlab.dto.ProjectCreateDTO;
+import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.project.ProjectCreateDTO;
+import com.epam.dlab.dto.project.ProjectTerminateDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ProjectServiceImpl implements ProjectService {
+	private static final String PROJECT_IMAGE = "docker.dlab-project";
 	@Inject
 	protected RESTService selfService;
 	@Inject
@@ -30,24 +33,33 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
+		return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName());
+	}
+
+	@Override
+	public String terminate(UserInfo userInfo, ProjectTerminateDTO dto) {
+		return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName());
+	}
+
+	private String executeDocker(UserInfo userInfo, ResourceBaseDTO dto, DockerAction action, String projectName) {
 		String uuid = DockerCommands.generateUUID();
 
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
 				new ProjectCallbackHandler(systemUserInfoService, selfService, userInfo.getName(), uuid,
-						DockerAction.CREATE, "/api/project/status"));
+						action, "/api/project/status", projectName));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
-				.withName(String.join("_", dto.getName(), "project"))
+				.withName(String.join("_", projectName, "project"))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
 				.withVolumeForLog(configuration.getDockerLogDirectory(), "project")
 				.withResource("project")
 				.withRequestId(uuid)
 				.withConfKeyName(configuration.getAdminKey())
-				.withImage("docker.dlab-project")
-				.withAction(DockerAction.CREATE);
+				.withImage(PROJECT_IMAGE)
+				.withAction(action);
 
 		try {
 			commandExecutor.executeAsync(userInfo.getName(), uuid, commandBuilder.buildCommand(runDockerCommand, dto));

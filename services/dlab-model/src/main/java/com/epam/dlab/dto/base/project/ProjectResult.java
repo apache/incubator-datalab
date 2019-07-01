@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateProjectResult extends StatusBaseDTO<CreateProjectResult> {
+public class ProjectResult extends StatusBaseDTO<ProjectResult> {
 	private ProjectEdgeInfo edgeInfo;
 	@JsonProperty("project_name")
 	private String projectName;

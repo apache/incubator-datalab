@@ -8,7 +8,8 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.ProjectCreateDTO;
+import com.epam.dlab.dto.project.ProjectCreateDTO;
+import com.epam.dlab.dto.project.ProjectTerminateDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -26,7 +27,8 @@ import static java.util.stream.Stream.concat;
 @Slf4j
 public class ProjectServiceImpl implements ProjectService {
 
-	private static final String CREATE_PRJ_API = "infrastructure/project";
+	private static final String CREATE_PRJ_API = "infrastructure/project/create";
+	private static final String TERMINATE_PRJ_API = "infrastructure/project/terminate";
 	private final ProjectDAO projectDAO;
 	private final EnvironmentService environmentService;
 	private final UserGroupDao userGroupDao;
@@ -52,7 +54,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
-		return projectDAO.getUserProjects(userInfo);
+		return projectDAO.getUserProjectsWithStatus(userInfo, ProjectDTO.Status.ACTIVE);
 	}
 
 	@Override
@@ -72,9 +74,10 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public void remove(String name) {
+	public void terminate(UserInfo userInfo, String name) {
+		terminateProjectOnCloud(userInfo, name);
 		environmentService.terminateProjectEnvironment(name);
-		projectDAO.remove(name);
+		projectDAO.updateStatus(name, ProjectDTO.Status.TERMINATING);
 	}
 
 	@Override
@@ -109,6 +112,18 @@ public class ProjectServiceImpl implements ProjectService {
 		} catch (Exception e) {
 			log.error("Can not create project due to: {}", e.getMessage());
 			projectDAO.updateStatus(projectDTO.getName(), ProjectDTO.Status.FAILED);
+		}
+	}
+
+
+	private void terminateProjectOnCloud(UserInfo user, String projectName) {
+		try {
+			String uuid = provisioningService.post(TERMINATE_PRJ_API, user.getAccessToken(),
+					new ProjectTerminateDTO(projectName), String.class);
+			requestId.put(user.getName(), uuid);
+		} catch (Exception e) {
+			log.error("Can not terminate project due to: {}", e.getMessage());
+			projectDAO.updateStatus(projectName, ProjectDTO.Status.FAILED);
 		}
 	}
 

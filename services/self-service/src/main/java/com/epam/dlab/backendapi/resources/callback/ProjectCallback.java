@@ -5,7 +5,7 @@ import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.base.project.CreateProjectResult;
+import com.epam.dlab.dto.base.project.ProjectResult;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -33,13 +32,14 @@ public class ProjectCallback {
 
 
 	@POST
-	public Response updateProjectStatus(@Auth UserInfo userInfo, CreateProjectResult projectResult) {
+	public Response updateProjectStatus(@Auth UserInfo userInfo, ProjectResult projectResult) {
 		requestId.checkAndRemove(projectResult.getRequestId());
-		if (UserInstanceStatus.of(projectResult.getStatus()) == UserInstanceStatus.FAILED) {
-			projectDAO.updateStatus(projectResult.getProjectName(), ProjectDTO.Status.FAILED);
+		final String projectName = projectResult.getProjectName();
+		final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
+		if (UserInstanceStatus.CREATED == status) {
+			projectDAO.updateEdgeInfoAndStatus(projectName, projectResult.getEdgeInfo(), ProjectDTO.Status.ACTIVE);
 		} else {
-			projectDAO.updateEdgeInfoAndStatus(projectResult.getProjectName(), projectResult.getEdgeInfo(),
-					ProjectDTO.Status.CREATED);
+			projectDAO.updateStatus(projectName, ProjectDTO.Status.from(status));
 		}
 		return Response.ok().build();
 	}

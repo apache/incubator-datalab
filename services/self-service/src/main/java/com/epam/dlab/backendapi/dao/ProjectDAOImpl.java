@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.*;
 
 public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
@@ -39,9 +38,9 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
-			return find(PROJECTS_COLLECTION, in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
-					userInfo.getRoles())), ProjectDTO.class);
+	public List<ProjectDTO> getUserProjectsWithStatus(UserInfo userInfo, ProjectDTO.Status status) {
+		return find(PROJECTS_COLLECTION, and(in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
+				userInfo.getRoles())), eq(STATUS_FIELD, status.toString())), ProjectDTO.class);
 	}
 
 	@Override
