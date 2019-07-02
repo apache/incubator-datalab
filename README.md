@@ -560,6 +560,7 @@ List of parameters for SSN node termination:
 | conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (AWS)                       |
 | action                     | terminate                                                                          |
 </details>
+
 <details><summary>In Azure</summary>
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
@@ -598,6 +599,7 @@ List of parameters for SSN node termination:
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
 </details>
+
 ## Edge Node <a name="Edge_Node"></a>
 
 Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a public subnet. It serves as an entry point for accessing user’s personal analytical environment. It is created by an end-user, whose public key will be uploaded there. Only via Edge node, DLab user can access such application resources as notebook servers and dataengine clusters. Also, Edge Node is used to setup SOCKS proxy to access notebook servers via Web UI and SSH. Elastic(Static) IP address is assigned to an Edge Node. In case Edge node instance has been removed by mistake, there is an option to re-create it and Edge node IP address won’t change.
