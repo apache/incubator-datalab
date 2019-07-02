@@ -111,7 +111,7 @@ variable "cluster_name" {
 }
 
 variable "slave_count" {
-  default = ""
+  default = 1
 }
 
 variable "emr_template" {
@@ -127,7 +127,7 @@ variable "slave_shape" {
 }
 
 variable "instance_count" {
-  default = ""
+  default = 1
 }
 
 variable "bid_price" {
