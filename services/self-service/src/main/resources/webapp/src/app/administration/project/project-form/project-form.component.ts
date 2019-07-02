@@ -100,8 +100,9 @@ export class ProjectFormComponent implements OnInit {
 
   public onFileChange($event) {
     const reader = new FileReader();
+    const files = $event.target.files;
 
-    if ($event.target.files && $event.target.files.length) {
+    if (files && files.length) {
       const [file] = $event.target.files;
       reader.readAsBinaryString(file);
 
@@ -112,6 +113,7 @@ export class ProjectFormComponent implements OnInit {
 
         this.accessKeyValid = this.isValidKey(file.name);
         this.keyLabel = this.getLabel(file);
+        $event.target.value = '';
         this.cd.markForCheck();
       };
     }
