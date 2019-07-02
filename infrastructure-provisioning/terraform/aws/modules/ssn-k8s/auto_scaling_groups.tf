@@ -1,7 +1,7 @@
 data "template_file" "ssn_k8s_masters_user_data" {
   template = file("../modules/ssn-k8s/files/masters-user-data.sh")
   vars = {
-    k8s-asg = "${var.service_base_name}-master"
+    k8s-asg = "${var.service_base_name}-ssn-masters"
     k8s-region = var.region
     k8s-bucket-name = aws_s3_bucket.ssn_k8s_bucket.id
     k8s-eip = aws_eip.k8s-lb-eip.public_ip
