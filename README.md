@@ -130,6 +130,33 @@ Creation of self-service node – is the first step for deploying DLab. SSN is a
 
 Elastic(Static) IP address is assigned to an SSN Node, so you are free to stop|start it and and SSN node's IP address won’t change.
 
+## Edge node
+
+Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a Squid HTTP web proxy pre-installed.
+
+## Notebook node
+
+The next step is setting up a Notebook node (or a Notebook server). It is a server with pre-installed applications and libraries for data processing, data cleaning and transformations, numerical simulations, statistical modeling, machine learning, etc. Following analytical tools are currently supported in DLab and can be installed on a Notebook node:
+
+-   Jupyter
+-   RStudio
+-   Apache Zeppelin
+-   TensorFlow + Jupyter
+-   Deep Learning + Jupyter
+
+Apache Spark is also installed for each of the analytical tools above.
+
+**Note:** terms 'Apache Zeppelin' and 'Apache Spark' hereinafter may be referred to as 'Zeppelin' and 'Spark' respectively or may have original reference.
+
+## Data engine cluster
+
+After deploying Notebook node, user can create one of the cluster for it:
+-   Data engine - Spark standalone cluster
+-   Data engine service - cloud managed cluster platform (EMR for AWS or Dataproc for GCP)
+That simplifies running big data frameworks, such as Apache Hadoop and Apache Spark to process and analyze vast amounts of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for job execution.
+----------------------
+# DLab Deployment <a name="DLab_Deployment"></a>
+
 ### Structure of main DLab directory <a name="DLab_directory"></a>
 
 DLab’s SSN node main directory structure is as follows:
@@ -172,33 +199,6 @@ These directories contain the log files for each template and for DLab back-end 
 -   selfservice.log – Self-Service log file;
 -   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
 
-## Edge node
-
-Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a Squid HTTP web proxy pre-installed.
-
-## Notebook node
-
-The next step is setting up a Notebook node (or a Notebook server). It is a server with pre-installed applications and libraries for data processing, data cleaning and transformations, numerical simulations, statistical modeling, machine learning, etc. Following analytical tools are currently supported in DLab and can be installed on a Notebook node:
-
--   Jupyter
--   RStudio
--   Apache Zeppelin
--   TensorFlow + Jupyter
--   Deep Learning + Jupyter
-
-Apache Spark is also installed for each of the analytical tools above.
-
-**Note:** terms 'Apache Zeppelin' and 'Apache Spark' hereinafter may be referred to as 'Zeppelin' and 'Spark' respectively or may have original reference.
-
-## Data engine cluster
-
-After deploying Notebook node, user can create one of the cluster for it:
--   Data engine - Spark standalone cluster
--   Data engine service - cloud managed cluster platform (EMR for AWS or Dataproc for GCP)
-That simplifies running big data frameworks, such as Apache Hadoop and Apache Spark to process and analyze vast amounts of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for job execution.
-----------------------
-# DLab Deployment <a name="DLab_Deployment"></a>
-
 ## Self-Service Node <a name="Self_Service_Node"></a>
 
 ### Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
@@ -206,69 +206,112 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
 For each cloud provider, prerequisites are different.
 
-#### In Amazon cloud
+<details><summary>#### In Amazon cloud</summary>
 
 Prerequisites:
 
  - SSH key for EC2 instances. This key could be created through Amazon Console.
  - IAM user
  - AWS access key ID and secret access key
+ - VPC ID
+ - Subnet ID
  - The following permissions should be assigned for IAM user:
  <a name="AWS_SSN_policy"></a>
 ```
 {
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Action": [
-				"iam:ListRoles",
-				"iam:CreateRole",
-				"iam:CreateInstanceProfile",
-				"iam:PutRolePolicy",
-				"iam:AddRoleToInstanceProfile",
-				"iam:PassRole",
-				"iam:GetInstanceProfile",
-				"iam:ListInstanceProfilesForRole",
-				"iam:RemoveRoleFromInstanceProfile",
-				"iam:DeleteInstanceProfile"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"ec2:DescribeImages",
-				"ec2:CreateTags",
-				"ec2:DescribeRouteTables",
-				"ec2:CreateRouteTable",
-				"ec2:AssociateRouteTable",
-				"ec2:DescribeVpcEndpoints",
-				"ec2:CreateVpcEndpoint",
-				"ec2:ModifyVpcEndpoint",
-				"ec2:DescribeInstances",
-				"ec2:RunInstances",
-				"ec2:DescribeAddresses",
-				"ec2:AllocateAddress",
-				"ec2:DescribeInstances",
-				"ec2:AssociateAddress",
-				"ec2:DisassociateAddress",
-				"ec2:ReleaseAddress",
-				"ec2:TerminateInstances"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"s3:ListAllMyBuckets",
-				"s3:CreateBucket",
-				"s3:PutBucketTagging",
-				"s3:GetBucketTagging"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		}
-	]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "iam:CreatePolicy",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:DeletePolicy",
+                "iam:DeleteRolePolicy",
+                "iam:GetRolePolicy",
+                "iam:GetPolicy",
+                "iam:GetUser",
+                "iam:ListUsers",
+                "iam:ListAccessKeys",
+                "iam:ListUserPolicies",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListPolicies",
+                "iam:ListRolePolicies",
+                "iam:ListRoles",
+                "iam:CreateRole",
+                "iam:CreateInstanceProfile",
+                "iam:PutRolePolicy",
+                "iam:AddRoleToInstanceProfile",
+                "iam:PassRole",
+                "iam:GetInstanceProfile",
+                "iam:ListInstanceProfilesForRole",
+                "iam:RemoveRoleFromInstanceProfile",
+                "iam:DeleteInstanceProfile",
+                "iam:ListInstanceProfiles",
+                "iam:DeleteRole",
+                "iam:GetRole"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "ec2:AuthorizeSecurityGroupEgress",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:DeleteRouteTable",
+                "ec2:DeleteSubnet",
+                "ec2:DeleteTags",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeInstanceStatus",
+                "ec2:ModifyInstanceAttribute",
+                "ec2:RevokeSecurityGroupIngress",
+                "ec2:DescribeImages",
+                "ec2:CreateTags",
+                "ec2:DescribeRouteTables",
+                "ec2:CreateRouteTable",
+                "ec2:AssociateRouteTable",
+                "ec2:DescribeVpcEndpoints",
+                "ec2:CreateVpcEndpoint",
+                "ec2:ModifyVpcEndpoint",
+                "ec2:DescribeInstances",
+                "ec2:RunInstances",
+                "ec2:DescribeAddresses",
+                "ec2:AllocateAddress",
+                "ec2:AssociateAddress",
+                "ec2:DisassociateAddress",
+                "ec2:ReleaseAddress",
+                "ec2:TerminateInstances",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:AuthorizeSecurityGroupEgress",
+                "ec2:DescribeSecurityGroups",
+                "ec2:CreateSecurityGroup",
+                "ec2:DeleteSecurityGroup",
+                "ec2:RevokeSecurityGroupEgress"
+                
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:PutBucketPolicy",
+                "s3:GetBucketPolicy",
+                "s3:DeleteBucket",
+                "s3:DeleteObject",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutEncryptionConfiguration"
+                "s3:ListAllMyBuckets",
+                "s3:CreateBucket",
+                "s3:PutBucketTagging",
+                "s3:GetBucketTagging"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
 }
 ```
 
@@ -280,7 +323,7 @@ Preparation steps for deployment:
     - AMI - Ubuntu 16.04
     - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
 - Put SSH key file created through Amazon Console on the instance with the same name
-- Install Git and clone DLab repository
+- Install Git and clone DLab repository</details>
 
 #### In Azure cloud
 
