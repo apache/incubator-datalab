@@ -206,7 +206,7 @@ These directories contain the log files for each template and for DLab back-end 
 Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
 For each cloud provider, prerequisites are different.
 
-<details><summary>#### In Amazon cloud</summary>
+<details><summary>In Amazon cloud</summary>
 
 Prerequisites:
 
@@ -325,7 +325,7 @@ Preparation steps for deployment:
 - Put SSH key file created through Amazon Console on the instance with the same name
 - Install Git and clone DLab repository</details>
 
-#### In Azure cloud
+<details><summary>In Azure cloud</summary>
 
 Prerequisites:
 
@@ -336,9 +336,9 @@ Prerequisites:
 
 - Windows Azure Active Directory
 - Microsoft Graph
-- Windows Azure Service Management API
+- Windows Azure Service Management API</details>
 
-#### In Google cloud (GCP)
+<details><summary>In Google cloud (GCP)
 
 Prerequisites:
 
@@ -352,7 +352,7 @@ Preparation steps for deployment:
     - Boot disk OS Image - Ubuntu 16.04
 - Generate SSH key pair and rename private key with .pem extension
 - Put JSON auth file created through Google cloud console to users home directory
-- Install Git and clone DLab repository
+- Install Git and clone DLab repository</summary>
 
 ### Executing deployment script
 
