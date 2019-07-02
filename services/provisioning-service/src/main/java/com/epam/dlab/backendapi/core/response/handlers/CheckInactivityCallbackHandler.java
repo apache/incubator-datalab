@@ -18,7 +18,6 @@
  */
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.CheckInactivityStatusDTO;
@@ -56,11 +55,9 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 	private final String exploratoryName;
 	@JsonProperty
 	private final String computationalName;
-	private SystemUserInfoService systemUserInfoService;
 
 	@JsonCreator
 	public CheckInactivityCallbackHandler(@JacksonInject RESTService selfService,
-										  @JacksonInject SystemUserInfoService systemUserInfoService,
 										  @JsonProperty("callbackUrl") String callbackUrl,
 										  @JsonProperty("user") String user, String uuid, String exploratoryName,
 										  String computationalName) {
@@ -70,12 +67,11 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 		this.user = user;
 		this.exploratoryName = exploratoryName;
 		this.computationalName = computationalName;
-		this.systemUserInfoService = systemUserInfoService;
 	}
 
-	public CheckInactivityCallbackHandler(RESTService selfService, SystemUserInfoService systemUserInfoService,
+	public CheckInactivityCallbackHandler(RESTService selfService,
 										  String callbackUrl, String user, String uuid, String exploratoryName) {
-		this(selfService, systemUserInfoService, callbackUrl, user, uuid, exploratoryName, null);
+		this(selfService, callbackUrl, user, uuid, exploratoryName, null);
 	}
 
 	@Override
@@ -133,8 +129,7 @@ public class CheckInactivityCallbackHandler implements FileHandlerCallback {
 	private void selfServicePost(CheckInactivityStatusDTO statusDTO) {
 		log.debug("Send post request to self service for UUID {}, object is {}", uuid, statusDTO);
 		try {
-			selfService.post(callbackUrl, systemUserInfoService.create(user).getAccessToken(), statusDTO,
-					Response.class);
+			selfService.post(callbackUrl, statusDTO, Response.class);
 		} catch (Exception e) {
 			log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
 			throw new DlabException("Send request or response error for UUID " + uuid + ": "

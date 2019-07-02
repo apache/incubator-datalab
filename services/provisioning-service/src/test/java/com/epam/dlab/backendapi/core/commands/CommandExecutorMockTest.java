@@ -69,7 +69,7 @@ public class CommandExecutorMockTest {
 		exec.getResultSync();
 
 		RESTServiceMock selfService = new RESTServiceMock();
-		ExploratoryCallbackHandler handler = new ExploratoryCallbackHandler(null, selfService, action,
+		ExploratoryCallbackHandler handler = new ExploratoryCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
 		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
 
@@ -97,7 +97,7 @@ public class CommandExecutorMockTest {
 				new LibListCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
 		*/
-		ResourceCallbackHandler<?> handler = new LibListCallbackHandler(null, selfService, action, getRequestId(exec),
+		ResourceCallbackHandler<?> handler = new LibListCallbackHandler(selfService, action, getRequestId(exec),
 				getEdgeUserName(exec), getExploratoryName(exec));
 
 		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));

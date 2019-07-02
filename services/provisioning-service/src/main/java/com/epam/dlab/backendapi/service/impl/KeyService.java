@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
@@ -47,12 +46,10 @@ public class KeyService extends DockerService implements DockerCommands {
 
 	private static final String REUPLOAD_KEY_ACTION = "reupload_key";
 
-	private final SystemUserInfoService systemUserInfoService;
 	private final ProvisioningServiceApplicationConfiguration conf;
 
 	@Inject
-	public KeyService(SystemUserInfoService systemUserInfoService, ProvisioningServiceApplicationConfiguration conf) {
-		this.systemUserInfoService = systemUserInfoService;
+	public KeyService(ProvisioningServiceApplicationConfiguration conf) {
 		this.conf = conf;
 	}
 
@@ -99,7 +96,7 @@ public class KeyService extends DockerService implements DockerCommands {
 	private void startCallbackListener(String userName, ReuploadKeyCallbackDTO dto) {
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
-				new ReuploadKeyCallbackHandler(selfService, systemUserInfoService, ApiCallbacks.REUPLOAD_KEY_URI,
+				new ReuploadKeyCallbackHandler(selfService, ApiCallbacks.REUPLOAD_KEY_URI,
 						userName, dto));
 	}
 

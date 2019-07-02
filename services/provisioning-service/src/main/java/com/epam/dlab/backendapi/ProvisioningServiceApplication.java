@@ -20,8 +20,7 @@
 
 package com.epam.dlab.backendapi;
 
-import com.epam.dlab.auth.SecurityFactory;
-import com.epam.dlab.auth.SystemUserInfoService;
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.DirectoriesCreator;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
@@ -40,12 +39,21 @@ import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.ahus1.keycloak.dropwizard.AbstractKeycloakAuthenticator;
+import de.ahus1.keycloak.dropwizard.KeycloakBundle;
+import de.ahus1.keycloak.dropwizard.KeycloakConfiguration;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
+import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.keycloak.KeycloakSecurityContext;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 
 public class ProvisioningServiceApplication extends Application<ProvisioningServiceApplicationConfiguration> {
 
@@ -61,6 +69,41 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 		bootstrap.addBundle(new TemplateConfigBundle(
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
+		bootstrap.addBundle(new KeycloakBundle<ProvisioningServiceApplicationConfiguration>() {
+			@Override
+			protected KeycloakConfiguration getKeycloakConfiguration(ProvisioningServiceApplicationConfiguration configuration) {
+				return configuration.getKeycloakConfiguration();
+			}
+
+			@Override
+			protected Class<? extends Principal> getUserClass() {
+				return UserInfo.class;
+			}
+
+			@Override
+			protected Authorizer createAuthorizer() {
+				return (Authorizer<UserInfo>) (principal, role) -> principal.getRoles().contains(role);
+			}
+
+			@Override
+			protected Authenticator createAuthenticator(KeycloakConfiguration configuration) {
+				class KeycloakAuthenticator extends AbstractKeycloakAuthenticator<UserInfo> {
+
+					private KeycloakAuthenticator(KeycloakConfiguration keycloakConfiguration) {
+						super(keycloakConfiguration);
+					}
+
+					@Override
+					protected UserInfo prepareAuthentication(KeycloakSecurityContext keycloakSecurityContext,
+															 HttpServletRequest httpServletRequest,
+															 KeycloakConfiguration keycloakConfiguration) {
+						return new UserInfo(keycloakSecurityContext.getToken().getPreferredUsername(),
+								keycloakSecurityContext.getIdTokenString());
+					}
+				}
+				return new KeycloakAuthenticator(configuration);
+			}
+		});
 	}
 
 	@Override
@@ -73,13 +116,11 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 		Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
 		cloudModule.init(environment, injector);
 
-		injector.getInstance(SecurityFactory.class).configure(injector, environment);
 
 		final ObjectMapper mapper = injector.getInstance(ObjectMapper.class);
 		final InjectableValues.Std injectableValues = new InjectableValues.Std();
 		injectableValues.addValue(RESTService.class, injector.getInstance(RESTService.class));
 		injectableValues.addValue(ComputationalConfigure.class, injector.getInstance(ComputationalConfigure.class));
-		injectableValues.addValue(SystemUserInfoService.class, injector.getInstance(SystemUserInfoService.class));
 		mapper.setInjectableValues(injectableValues);
 
 		environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));

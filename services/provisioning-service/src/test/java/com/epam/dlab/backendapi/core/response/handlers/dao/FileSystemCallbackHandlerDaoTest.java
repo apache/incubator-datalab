@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers.dao;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
@@ -56,8 +55,6 @@ public class FileSystemCallbackHandlerDaoTest {
 	private ProvisioningServiceApplicationConfiguration configuration;
 	@Mock
 	private CallbackHandlerDao dao;
-	@Mock
-	private SystemUserInfoService systemUserInfoService;
 	@InjectMocks
 	private FileSystemCallbackHandlerDao fileSystemCallbackHandlerDao;
 
@@ -78,7 +75,7 @@ public class FileSystemCallbackHandlerDaoTest {
 		when(configuration.getHandlerDirectory()).thenReturn(handlersFolders);
 		when(mapper.writeValueAsBytes(any())).thenReturn("{'test': 'test'}".getBytes());
 		final PersistentFileHandler persistentFileHandler =
-				new PersistentFileHandler(new LibListCallbackHandler(systemUserInfoService, null,
+				new PersistentFileHandler(new LibListCallbackHandler(null,
 						DockerAction.LIB_LIST, "uuid", "test", "das"), 1L, "/opt/test");
 
 		fileSystemCallbackHandlerDao.upsert(persistentFileHandler);
@@ -97,10 +94,10 @@ public class FileSystemCallbackHandlerDaoTest {
 		final PersistentFileHandler persistentFileHandler1 = new PersistentFileHandler(new DockerWarmuper()
 				.new DockerFileHandlerCallback("sameUUID"), 1L, "/opt/test");
 		final PersistentFileHandler persistentFileHandler2 =
-				new PersistentFileHandler(new LibListCallbackHandler(systemUserInfoService, null,
+				new PersistentFileHandler(new LibListCallbackHandler(null,
 						DockerAction.LIB_LIST, "sameUUID", "test", "das1"), 1L, "/opt/test");
 		final PersistentFileHandler persistentFileHandler3 =
-				new PersistentFileHandler(new LibListCallbackHandler(systemUserInfoService, null,
+				new PersistentFileHandler(new LibListCallbackHandler(null,
 						DockerAction.LIB_LIST, "anotherUUID", "test", "das2"), 1L, "/opt/test");
 
 

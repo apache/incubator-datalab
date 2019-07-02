@@ -24,16 +24,18 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.util.UsernameUtils;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Projections;
 import org.bson.Document;
+import org.keycloak.representations.AccessTokenResponse;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.LOGIN_ATTEMPTS;
 import static com.epam.dlab.backendapi.dao.MongoCollections.ROLES;
+import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.ne;
-import static com.mongodb.client.model.Projections.exclude;
-import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.*;
 
 /**
  * DAO write the attempt of user login into DLab.
@@ -66,6 +68,19 @@ public class SecurityDAO extends BaseDAO {
 		return stream(find("userGroups"))
 				.collect(Collectors.toMap(d -> d.getString(ID).toLowerCase(), this::toUsers));
 
+	}
+
+	public void saveUser(String userName, AccessTokenResponse accessTokenResponse) {
+		updateOne("security", eq(ID, userName),
+				new Document(SET,
+						new Document().append(ID, userName).append("created", new Date()).append("tokenResponse",
+								convertToBson(accessTokenResponse))),
+				true);
+	}
+
+	public Optional<AccessTokenResponse> getTokenResponse(String user) {
+		return findOne("security", eq(ID, user), Projections.fields(include("tokenResponse")))
+				.map(d -> convertFromDocument((Document) d.get("tokenResponse"), AccessTokenResponse.class));
 	}
 
 	@SuppressWarnings("unchecked")

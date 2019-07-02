@@ -19,13 +19,11 @@
 
 package com.epam.dlab.backendapi.resources.callback.gcp;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.KeyUploaderCallback;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -59,7 +57,7 @@ public class KeyUploaderCallbackGcp {
 	 */
 	@POST
 	@Path("/callback")
-	public Response loadKeyResponse(@Auth UserInfo ui, UploadFileResult<EdgeInfoGcp> dto) {
+	public Response loadKeyResponse(UploadFileResult<EdgeInfoGcp> dto) {
 		log.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
 		keyUploaderCallback.handleCallback(dto.getStatus(), dto.getUser(), dto.getEdgeInfo());

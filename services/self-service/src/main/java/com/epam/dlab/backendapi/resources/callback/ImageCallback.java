@@ -52,7 +52,7 @@ public class ImageCallback {
 
 	@POST
 	@Path("/image_status")
-	public Response imageCreateStatus(@Auth UserInfo userInfo, ImageCreateStatusDTO dto) {
+	public Response imageCreateStatus(ImageCreateStatusDTO dto) {
 		log.debug("Updating status of image {} for user {} to {}", dto.getName(), dto.getUser(), dto);
 		requestId.remove(dto.getRequestId());
 		imageExploratoryService.finishImageCreate(getImage(dto), dto.getExploratoryName(), dto.getImageCreateDTO()

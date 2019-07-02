@@ -34,7 +34,6 @@ import io.dropwizard.util.Duration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.group.GroupSequenceProvider;
-import org.keycloak.representations.adapters.config.AdapterConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -118,6 +117,7 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	@Valid
 	@NotNull
+	@JsonProperty("jerseyClient")
 	private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
 
 	@Valid
@@ -143,7 +143,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 		return Integer.valueOf(guacamole.get("serverPort"));
 	}
 
-	@JsonProperty("jerseyClient")
 	public JerseyClientConfiguration getJerseyClientConfiguration() {
 		return jerseyClient;
 	}

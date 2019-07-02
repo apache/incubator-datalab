@@ -23,7 +23,6 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.InactivityService;
 import com.epam.dlab.dto.computational.CheckInactivityStatusDTO;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -48,18 +47,19 @@ public class CheckInactivityCallback {
 
 	@POST
 	@Path("exploratory")
-	public Response updateExploratoryLastActivity(@Auth UserInfo userInfo, CheckInactivityStatusDTO dto) {
+	public Response updateExploratoryLastActivity(CheckInactivityStatusDTO dto) {
 		requestId.checkAndRemove(dto.getRequestId());
-		inactivityService.updateLastActivityForExploratory(userInfo, dto.getExploratoryName(),
+		inactivityService.updateLastActivityForExploratory(new UserInfo(dto.getUser(), null), dto.getExploratoryName(),
 				toLocalDateTime(dto.getLastActivityUnixTime()));
 		return Response.ok().build();
 	}
 
 	@POST
 	@Path("computational")
-	public Response updateComputationalLastActivity(@Auth UserInfo userInfo, CheckInactivityStatusDTO dto) {
+	public Response updateComputationalLastActivity(CheckInactivityStatusDTO dto) {
 		requestId.checkAndRemove(dto.getRequestId());
-		inactivityService.updateLastActivityForComputational(userInfo, dto.getExploratoryName(),
+		inactivityService.updateLastActivityForComputational(new UserInfo(dto.getUser(), null),
+				dto.getExploratoryName(),
 				dto.getComputationalName(), toLocalDateTime(dto.getLastActivityUnixTime()));
 		return Response.ok().build();
 	}

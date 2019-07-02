@@ -24,7 +24,6 @@ import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
-import com.epam.dlab.backendapi.healthcheck.ProvisioningServiceHealthCheck;
 import com.epam.dlab.backendapi.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
@@ -139,8 +138,8 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 															 KeycloakConfiguration keycloakConfiguration) {
 						final AccessToken token = keycloakSecurityContext.getToken();
 						final UserInfo userInfo = new UserInfo(token.getPreferredUsername(),
-								keycloakSecurityContext.getIdTokenString());
-						userInfo.addRoles(token.getResourceAccess(keycloakConfiguration.getResource()).getRoles());
+								keycloakSecurityContext.getTokenString());
+							userInfo.addRoles(token.getResourceAccess(keycloakConfiguration.getResource()).getRoles());
 						return userInfo;
 					}
 				}
@@ -170,8 +169,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
 		environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
-		environment.healthChecks().register(
-				ServiceConsts.PROVISIONING_SERVICE_NAME, injector.getInstance(ProvisioningServiceHealthCheck.class));
 
 		final String guacamoleServletName = "GuacamoleServlet";
 		environment.servlets().addServlet(guacamoleServletName, injector.getInstance(GuacamoleServlet.class))
@@ -223,6 +220,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(UserGroupResource.class));
 		jersey.register(injector.getInstance(UserRoleResource.class));
 		jersey.register(injector.getInstance(ApplicationSettingResource.class));
+		jersey.register(injector.getInstance(KeycloakResource.class));
 	}
 
 	private void disableGzipHandlerForGuacamoleServlet(Server server) {
