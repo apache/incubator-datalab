@@ -1,0 +1,4 @@
+{
+  "template_name": "Edge node service.",
+  "description": "Edge node start/stop/status."
+}
