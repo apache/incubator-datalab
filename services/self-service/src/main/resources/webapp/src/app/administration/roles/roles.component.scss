@@ -17,7 +17,9 @@
  * under the License.
  */
 
-::ng-deep .mat-option:first-child .mat-pseudo-checkbox { display: none; }
+::ng-deep .mat-option:first-child .mat-pseudo-checkbox {
+  display: none;
+}
 
 .caret {
   width: 40px;
@@ -31,6 +33,7 @@
   height: 36px;
   line-height: 1;
   cursor: pointer;
+
   &.not-allowed {
     background-color: #dcdcdc;
   }
@@ -41,12 +44,15 @@
   height: 85vh;
   overflow-y: auto;
 }
+
 .no-details {
   color: #d8d8d8;
 }
+
 .stepper {
   height: 190px;
   margin-top: 10px;
+
   .inner-step {
     height: 70px;
     padding: 5px;
@@ -54,16 +60,19 @@
     justify-content: center;
     flex-direction: column;
     text-align: center;
+
     input {
       width: 490px;
       align-self: center;
     }
+
     .caret {
       i {
         margin-top: 3px;
       }
     }
   }
+
   .text-center {
     button {
       &:not(:last-child) {
@@ -72,6 +81,7 @@
     }
   }
 }
+
 .selector-wrapper {
   display: flex;
   align-self: center;
@@ -82,37 +92,47 @@
   font-size: 15px;
   font-weight: 300;
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
   mat-form-field {
     width: 100%;
+
     .mat-form-field-wrapper {
       padding-bottom: 0;
     }
+
     .mat-icon {
       font-size: 20px;
     }
   }
+
   .dropdown-multiselect {
     width: 100% !important;
-    > button {
+
+    >button {
       padding: 6px 22px;
     }
   }
 }
+
 .list-header {
   padding: 0 15px;
 }
+
 .scrolling-content {
   max-height: 450px;
   overflow-x: hidden;
   overflow-y: auto;
   display: block;
   padding: 15px 5px;
+
   &.stepper-opened {
     height: 250px;
   }
 }
+
 .roles {
   width: 30%;
+
   .selector-wrapper-edit {
     position: relative;
     display: flex;
@@ -121,14 +141,17 @@
     padding-left: 10px;
     background: #fff;
     box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
     multi-select-dropdown {
       width: 100%;
+
       .dropdown-multiselect {
-        > button {
+        >button {
           padding: 8px 22px 5px;
         }
       }
     }
+
     .caret {
       &:hover {
         box-shadow: 0 3px 1px -10px rgba(0, 0, 0, 0.2), 0 2px 1px 0 rgba(0, 0, 0, 0.17), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
@@ -136,13 +159,16 @@
     }
   }
 }
+
 .groups {
   width: 20%;
 }
+
 .users {
   width: 30%;
   padding: 0 10px;
 }
+
 .users-list {
   padding: 5px 10px;
   font-family: 'Open Sans', sans-serif;
@@ -150,11 +176,13 @@
   font-weight: 300;
   color: #577289;
   position: relative;
+
   i {
     color: #FF5722;
     font-size: 18px;
     cursor: pointer;
   }
+
   .list-selected {
     width: 100%;
     margin-top: 50px;
@@ -163,21 +191,25 @@
     overflow: hidden;
   }
 }
+
 .expanded-panel {
   display: flex;
   align-items: flex-end;
+
   .add-input-block {
     display: flex;
     height: 36px;
     padding-right: 0;
     outline: none;
     box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
     input {
       height: 36px;
       padding: 0;
       padding-left: 10px;
       width: 170px;
     }
+
     .caret {
       width: 50px;
     }
@@ -198,6 +230,7 @@ mat-expansion-panel-header {
   .mat-step-icon {
     background-color: #36afd5 !important;
   }
+
   .mat-step-label {
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
@@ -210,10 +243,12 @@ mat-expansion-panel-header {
     .actions {
       padding: 10px 0;
     }
+
     &.filter-row {
       .actions {
         button {
           background: none;
+
           .mid {
             vertical-align: sub;
           }
@@ -221,13 +256,14 @@ mat-expansion-panel-header {
       }
     }
   }
+
   .th_actions {
     width: 10%;
   }
 }
 
 .mat-chip:not(.mat-basic-chip) {
-  transition: box-shadow 280ms cubic-bezier(.4,0,.2,1);
+  transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1);
   padding: 7px 0 7px 10px;
   border-radius: 24px;
   cursor: default;
@@ -239,10 +275,12 @@ mat-expansion-panel-header {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 mat-chip.mat-chip a {
   position: absolute;
   right: 15px;
 }
+
 mat-form-field.chip-list {
   &.mat-form-field {
     position: absolute;
@@ -260,9 +298,11 @@ mat-form-field.chip-list {
     }
   }
 }
+
 .multiple-select {
   border-bottom: 1px solid #dedbdb;
   padding: 0;
+
   a {
     display: inline-block;
     width: 50%;
@@ -270,14 +310,17 @@ mat-form-field.chip-list {
     vertical-align: middle;
     color: #575757;
     cursor: pointer;
+
     i {
       vertical-align: sub;
       font-size: 20px;
     }
+
     &:hover {
       color: #4eaf3e;
       background: #f9fafb;
     }
+
     &.deselect {
       &:hover {
         color: #f1696e;
@@ -288,26 +331,33 @@ mat-form-field.chip-list {
 
 table {
   width: 100%;
+
   .name {
     width: 15%;
   }
+
   .roles {
     width: 30%;
   }
+
   .users {
     width: 40%;
   }
+
   .actions {
     color: #607d8b;
     width: 10%;
     text-align: center;
+
     span {
       transition: all .5s ease-in-out;
       cursor: pointer;
+
       .mat-icon {
         font-size: 18px;
         padding-top: 12px;
       }
+
       &:hover {
         color: darken(#607d8b, 10%);
       }
