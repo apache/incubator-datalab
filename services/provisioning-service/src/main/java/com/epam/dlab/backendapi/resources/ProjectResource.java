@@ -2,7 +2,8 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.ProjectService;
-import com.epam.dlab.dto.ProjectCreateDTO;
+import com.epam.dlab.dto.project.ProjectCreateDTO;
+import com.epam.dlab.dto.project.ProjectTerminateDTO;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
@@ -22,10 +23,19 @@ public class ProjectResource {
 		this.projectService = projectService;
 	}
 
+	@Path("/create")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createProject(@Auth UserInfo userInfo, ProjectCreateDTO dto) {
 		return Response.ok(projectService.create(userInfo, dto)).build();
+	}
+
+	@Path("/terminate")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response terminateProject(@Auth UserInfo userInfo, ProjectTerminateDTO dto) {
+		return Response.ok(projectService.terminate(userInfo, dto)).build();
 	}
 }

@@ -107,9 +107,7 @@ public class ProjectResource {
 	@Path("/me")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Parameter(description = "Project name")
-								@PathParam("name") String name) {
+	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo) {
 		return Response
 				.ok(projectService.getUserProjects(userInfo))
 				.build();
@@ -144,7 +142,7 @@ public class ProjectResource {
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
 			@Parameter(description = "Project name")
 			@PathParam("name") String name) {
-		projectService.remove(name);
+		projectService.terminate(userInfo, name);
 		return Response.ok().build();
 	}
 

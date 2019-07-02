@@ -484,6 +484,12 @@ if __name__ == "__main__":
                  .format(project_conf['bucket_name'], project_conf['tag_name'], project_conf['bucket_name'],
                          project_conf['region'], project_conf['bucket_name_tag'])
         try:
+            os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{}'.format(
+                project_conf['project_tag'])
+        except KeyError:
+            os.environ['conf_additional_tags'] = 'project_tag:{}'.format(project_conf['project_tag'])
+        print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+        try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
             traceback.print_exc()

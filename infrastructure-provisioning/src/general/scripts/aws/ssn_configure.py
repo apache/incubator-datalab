@@ -261,6 +261,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURING DOCKER AT SSN INSTANCE]')
         print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
+                             {"name": "edge", "tag": "latest"},
                              {"name": "project", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},

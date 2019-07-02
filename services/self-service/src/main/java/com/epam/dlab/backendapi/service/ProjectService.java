@@ -7,13 +7,14 @@ import java.util.List;
 
 public interface ProjectService {
 	List<ProjectDTO> getProjects();
+
 	List<ProjectDTO> getUserProjects(UserInfo userInfo);
 
 	void create(UserInfo userInfo, ProjectDTO projectDTO);
 
 	ProjectDTO get(String name);
 
-	void remove(String name);
+	void terminate(UserInfo userInfo, String name);
 
 	void update(ProjectDTO projectDTO);
 

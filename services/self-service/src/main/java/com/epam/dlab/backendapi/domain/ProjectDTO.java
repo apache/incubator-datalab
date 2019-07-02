@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.domain;
 
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -27,7 +28,14 @@ public class ProjectDTO {
 
 	public enum Status {
 		CREATING,
-		CREATED,
-		FAILED
+		ACTIVE,
+		FAILED, TERMINATED, TERMINATING;
+
+		public static Status from(UserInstanceStatus userInstanceStatus) {
+			if (userInstanceStatus == UserInstanceStatus.RUNNING) {
+				return ACTIVE;
+			}
+			return Status.valueOf(userInstanceStatus.name());
+		}
 	}
 }
