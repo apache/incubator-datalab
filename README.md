@@ -206,7 +206,7 @@ These directories contain the log files for each template and for DLab back-end 
 Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
 For each cloud provider, prerequisites are different.
 
-<details><summary>In Amazon cloud</summary>
+<details><summary>In Amazon cloud (*click to expand*)</summary>
 
 Prerequisites:
 
