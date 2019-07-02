@@ -20,14 +20,14 @@ data "template_file" "ssn_k8s_workers_user_data" {
 
 resource "aws_launch_configuration" "ssn_k8s_launch_conf_masters" {
   name                 = "${var.service_base_name}-ssn-launch-conf-masters"
-  image_id             = var.ami[var.env_os]
-  instance_type        = var.masters_shape
+  image_id             = var.ami
+  instance_type        = var.ssn_k8s_masters_shape
   key_name             = var.key_name
   security_groups      = [aws_security_group.ssn_k8s_sg.id]
   iam_instance_profile = aws_iam_instance_profile.k8s-profile.name
   root_block_device {
     volume_type           = "gp2"
-    volume_size           = var.root_volume_size
+    volume_size           = var.ssn_root_volume_size
     delete_on_termination = true
   }
 
@@ -39,14 +39,14 @@ resource "aws_launch_configuration" "ssn_k8s_launch_conf_masters" {
 
 resource "aws_launch_configuration" "ssn_k8s_launch_conf_workers" {
   name                 = "${var.service_base_name}-ssn-launch-conf-workers"
-  image_id             = var.ami[var.env_os]
-  instance_type        = var.workers_shape
+  image_id             = var.ami
+  instance_type        = var.ssn_k8s_workers_shape
   key_name             = var.key_name
   security_groups      = [aws_security_group.ssn_k8s_sg.id]
   iam_instance_profile = aws_iam_instance_profile.k8s-profile.name
   root_block_device {
     volume_type           = "gp2"
-    volume_size           = var.root_volume_size
+    volume_size           = var.ssn_root_volume_size
     delete_on_termination = true
   }
 
@@ -59,8 +59,8 @@ resource "aws_launch_configuration" "ssn_k8s_launch_conf_workers" {
 resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
   name                 = "${var.service_base_name}-ssn-masters"
   launch_configuration = aws_launch_configuration.ssn_k8s_launch_conf_masters.name
-  min_size             = var.masters_count
-  max_size             = var.masters_count
+  min_size             = var.ssn_k8s_masters_count
+  max_size             = var.ssn_k8s_masters_count
   vpc_zone_identifier  = [data.aws_subnet.k8s-subnet-data.id]
   target_group_arns    = [aws_lb_target_group.ssn_k8s_lb_target_group.arn]
 
@@ -79,8 +79,8 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
 resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
   name                 = "${var.service_base_name}-ssn-workers"
   launch_configuration = aws_launch_configuration.ssn_k8s_launch_conf_workers.name
-  min_size             = var.workers_count
-  max_size             = var.workers_count
+  min_size             = var.ssn_k8s_workers_count
+  max_size             = var.ssn_k8s_workers_count
   vpc_zone_identifier  = [data.aws_subnet.k8s-subnet-data.id]
 
   lifecycle {

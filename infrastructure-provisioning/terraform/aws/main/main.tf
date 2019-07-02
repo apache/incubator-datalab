@@ -73,6 +73,7 @@ module "data_engine" {
   key_name          = "${var.key_name}"
   cluster_name      = "${var.cluster_name}"
   slave_count       = "${var.slave_count}"
+  ami               = "${var.ami}"
 }
 
 module "emr" {

@@ -25,3 +25,5 @@ variable "note_profile_name" {}
 variable "cluster_name" {}
 
 variable "slave_count" {}
+
+variable "ami" {}

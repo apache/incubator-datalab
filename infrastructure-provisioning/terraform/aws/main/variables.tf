@@ -43,11 +43,7 @@ variable "subnet_cidr" {
   default = "172.31.0.0/24"
 }
 variable "ami" {
-  type = "map"
-  default = {
-    "debian" = "ami-08692d171e3cf02d6",
-    "redhat" = ""
-  }
+  default = "ami-08692d171e3cf02d6"
 }
 variable "ssn_k8s_masters_count" {
   default = 3
@@ -66,40 +62,78 @@ variable "ssn_k8s_workers_shape" {
   default = "t2.medium"
 }
 
-variable "endpoint_tag" {}
+variable "endpoint_tag" {
+  default = ""
+}
 
-variable "user_tag" {}
+variable "user_tag" {
+  default = ""
+}
 
-variable "custom_tag" {}
+variable "custom_tag" {
+  default = ""
+}
 
-variable "notebook_name" {}
+variable "notebook_name" {
+  default = ""
+}
 
-variable "product_name" {}
+variable "product_name" {
+  default = ""
+}
 
-variable "nb-sg_id" {}
+variable "nb-sg_id" {
+  default = ""
+}
 
-variable "note_profile_name" {}
+variable "note_profile_name" {
+  default = ""
+}
 
-variable "note_cidr_range" {}
+variable "note_cidr_range" {
+  default = ""
+}
 
-variable "traefik_cidr" {}
+variable "traefik_cidr" {
+  default = ""
+}
 
-variable "note_ami" {}
+variable "note_ami" {
+  default = ""
+}
 
-variable "instance_type" {}
+variable "instance_type" {
+  default = ""
+}
 
-variable "cluster_name" {}
+variable "cluster_name" {
+  default = ""
+}
 
-variable "slave_count" {}
+variable "slave_count" {
+  default = ""
+}
 
-variable "emr_template" {}
+variable "emr_template" {
+  default = ""
+}
 
-variable "master_shape" {}
+variable "master_shape" {
+  default = ""
+}
 
-variable "slave_shape" {}
+variable "slave_shape" {
+  default = ""
+}
 
-variable "instance_count" {}
+variable "instance_count" {
+  default = ""
+}
 
-variable "bid_price" {}
+variable "bid_price" {
+  default = ""
+}
 
-variable "source_instance_id" {}
+variable "source_instance_id" {
+  default = ""
+}
