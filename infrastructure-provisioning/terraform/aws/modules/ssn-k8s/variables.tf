@@ -18,16 +18,16 @@ variable "region" {}
 
 variable "zone" {}
 
-variable "masters_count" {}
+variable "ssn_k8s_masters_count" {}
 
-variable "workers_count" {}
+variable "ssn_k8s_workers_count" {}
 
-variable "root_volume_size" {}
+variable "ssn_root_volume_size" {}
 
 variable "allowed_cidrs" {}
 
-variable "masters_shape" {}
+variable "ssn_k8s_masters_shape" {}
 
-variable "workers_shape" {}
+variable "ssn_k8s_workers_shape" {}
 
 variable "os-user" {}
