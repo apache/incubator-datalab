@@ -23,6 +23,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { RolesGroupsService, HealthStatusService } from '../../core/services';
+import { CheckUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
@@ -173,11 +174,11 @@ export class RolesComponent implements OnInit {
   }
 
   public groupValidarion(): ValidatorFn {
-
     const duplicateList: any = this.groupsData.map(item => item.group);
     return <ValidatorFn>((control: FormControl) => {
-      if (control.value && duplicateList.includes(this.delimitersFiltering(control.value)))
+      if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value))) {
         return { duplicate: true };
+      }
 
       if (control.value && !this.groupnamePattern.test(control.value))
         return { patterns: true };
@@ -188,10 +189,6 @@ export class RolesComponent implements OnInit {
 
   public compareObjects(o1: any, o2: any): boolean {
     return o1.toLowerCase() === o2.toLowerCase();
-  }
-
-  public delimitersFiltering(resource): string {
-    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 
   public resetDialog() {
@@ -229,7 +226,7 @@ export class RolesComponent implements OnInit {
   </div>
   <div mat-dialog-content class="content">
     <p *ngIf="data.user">User <strong>{{ data.user }}</strong> will be deleted from <strong>{{ data.group }}</strong> group.</p>
-    <p *ngIf="data.id">Group <strong>{{ data.group }}</strong> will be decommissioned.</p>
+    <p *ngIf="data.id">Group <strong class="ellipsis group-name">{{ data.group }}</strong> will be decommissioned.</p>
     <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
   </div>
   <div class="text-center">
@@ -237,7 +234,7 @@ export class RolesComponent implements OnInit {
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
-  styles: []
+  styles: [`.group-name { max-width: 96%; display: inline-block; }`]
 })
 export class ConfirmDeleteUserAccountDialogComponent {
   constructor(
