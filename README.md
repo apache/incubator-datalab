@@ -542,7 +542,7 @@ After SSN node deployment following GCP resources will be created:
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
 Example of command for terminating DLab environment:
 
-#### In Amazon
+<details><summary>In Amazon</summary>
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
 ```
@@ -559,8 +559,8 @@ List of parameters for SSN node termination:
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
 | conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (AWS)                       |
 | action                     | terminate                                                                          |
-
-#### In Azure
+</details>
+<details><summary>In Azure</summary>
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
 ```
@@ -578,8 +578,8 @@ List of parameters for SSN node termination:
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
 
-
-#### In Google cloud
+</details>
+<details><summary>In Google cloud</summary>
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
 ```
@@ -597,7 +597,7 @@ List of parameters for SSN node termination:
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
-
+</details>
 ## Edge Node <a name="Edge_Node"></a>
 
 Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a public subnet. It serves as an entry point for accessing user’s personal analytical environment. It is created by an end-user, whose public key will be uploaded there. Only via Edge node, DLab user can access such application resources as notebook servers and dataengine clusters. Also, Edge Node is used to setup SOCKS proxy to access notebook servers via Web UI and SSH. Elastic(Static) IP address is assigned to an Edge Node. In case Edge node instance has been removed by mistake, there is an option to re-create it and Edge node IP address won’t change.
