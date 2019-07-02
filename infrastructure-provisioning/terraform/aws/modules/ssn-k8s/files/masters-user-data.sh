@@ -74,6 +74,29 @@ sudo kubeadm token create --print-join-command > /tmp/join_command
 sudo kubeadm init phase upload-certs --upload-certs | grep -v "upload-certs" > /tmp/cert_key
 sudo -i -u ${k8s-os-user} kubectl apply -f \
      "https://cloud.weave.works/k8s/net?k8s-version=$(sudo -i -u ${k8s-os-user} kubectl version | base64 | tr -d '\n')"
+sudo -i -u ${k8s-os-user} bash -c 'curl -L https://git.io/get_helm.sh | bash'
+cat <<EOF > /tmp/rbac-config.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tiller
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tiller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: tiller
+    namespace: kube-system
+EOF
+sudo -i -u ${k8s-os-user} kubectl create -f /tmp/rbac-config.yaml
+sudo -i -u ${k8s-os-user} helm init --service-account tiller --history-max 200
 sleep 60
 aws s3 cp /tmp/join_command s3://${k8s-bucket-name}/k8s/masters/join_command
 aws s3 cp /tmp/cert_key s3://${k8s-bucket-name}/k8s/masters/cert_key
@@ -98,6 +121,8 @@ sudo $join_command --control-plane --certificate-key $cert_key
 sudo mkdir -p /home/${k8s-os-user}/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/${k8s-os-user}/.kube/config
 sudo chown -R ${k8s-os-user}:${k8s-os-user} /home/${k8s-os-user}/.kube
+sudo -i -u ${k8s-os-user} bash -c 'curl -L https://git.io/get_helm.sh | bash'
+sudo -i -u ${k8s-os-user} helm init --client-only --history-max 200
 fi
 cat <<EOF > /tmp/update_files.sh
 #!/bin/bash
@@ -135,4 +160,5 @@ EOF
 sudo mv /tmp/remove-etcd-member.sh /usr/local/bin/remove-etcd-member.sh
 sudo chmod 755 /usr/local/bin/remove-etcd-member.sh
 sleep 600
+sudo -i -u ${k8s-os-user} helm repo update
 sudo bash -c 'echo "* * * * * root /usr/local/bin/remove-etcd-member.sh >> /var/log/cron_k8s.log 2>&1" >> /etc/crontab'

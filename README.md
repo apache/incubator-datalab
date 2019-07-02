@@ -162,27 +162,27 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 Prerequisites:
 
 DLab can be deployed using the following two methods:
- - IAM user: DLab deployment script can be executed on local machine and will use IAM user permissions to create resources in AWS.
- - EC2 instance: DLab deployment script can be executed on previously prepared EC2 instance with attached IAM role. Deployment script will use the attached role to create resources in AWS.
+ - IAM user: DLab deployment script is executed on local machine and uses IAM user permissions to create resources in AWS.
+ - EC2 instance: DLab deployment script is executed on EC2 instance prepared in advance and with attached IAM role. Deployment script uses the attached IAM role to create resources in AWS.
 
 **'IAM user' method prerequisites:**  
  
- - IAM user with created AWS access key ID and secret access key. These keys will be provided as arguments for deployment script and will be used for getting permissions to create resources in AWS.
- - Amazon EC2 Key Pair. This key will be used for accessing all DLab instances.
- - All actions in this [policy](#AWS_SSN_policy) should be assigned to IAM user in order to deploy DLab:
+ - IAM user with created AWS access key ID and secret access key. These keys are provided as arguments for the deployment script and are used to create resources in AWS.
+ - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
+ - The following IAM [policy](#AWS_SSN_policy) should be attached to the IAM user in order to deploy DLab.
  
  **'EC2 instance' method prerequisites:**
  
- - Amazon EC2 Key Pair. This key will be used for accessing all DLab instances. 
- - EC2 instance where DLab deployment script will be executed. 
- - IAM role with such [policy](#AWS_SSN_policy) attached should be assigned to the EC2 instance.
+ - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
+ - EC2 instance where DLab deployment script is executed. 
+ - IAM role with the following IAM [policy](#AWS_SSN_policy) should be attached to the EC2 instance. 
  
  **Optional prerequisites for both methods:**
   
-  - VPC ID. If you already have VPC created, you can provide VPC ID for deployment script and all DLab instances will be deployed in this VPC.
-  - Subnet ID. DLab will deploy SSN node and user's Edge nodes in this subnet. This parameter also can be provided for deployment script. 
+  - VPC ID. If VPC where DLab should be deployed is already in place, then "VPC ID" should be provided for deployment script. DLab instances are deployed in this VPC.
+  - Subnet ID. If Subnet where DLab should be deployed is already in place, then "Subnet ID" should be provided for deployment script. DLab SSN node and users' Edge nodes are deployed in this Subnet. 
  
- DLab Policy
+ DLab IAM Policy
  <a name="AWS_SSN_policy"></a>
 ```
 {
