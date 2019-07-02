@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "k8s-bucket" {
+resource "aws_s3_bucket" "ssn_k8s_bucket" {
   bucket = "${var.service_base_name}-ssn-bucket"
   acl    = "private"
   tags = {
@@ -6,3 +6,4 @@ resource "aws_s3_bucket" "k8s-bucket" {
   }
   # force_destroy = true
 }
+

@@ -1,6 +1,6 @@
-variable "access_key_var" {}
+variable "access_key_id" {}
 
-variable "secret_key_var" {}
+variable "secret_access_key" {}
 
 variable "region" {
   default = "us-west-2"

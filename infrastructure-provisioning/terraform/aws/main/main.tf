@@ -1,7 +1,7 @@
 provider "aws" {
   region     = var.region
-  access_key = var.access_key_var
-  secret_key = var.secret_key_var
+  access_key = var.access_key_id
+  secret_key = var.secret_access_key
 }
 
 module "ssn-k8s" {
