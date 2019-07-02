@@ -338,7 +338,7 @@ Prerequisites:
 - Microsoft Graph
 - Windows Azure Service Management API</details>
 
-<details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
+<details><summary>In Google cloud (GCP) <i style="color: grey">(click to expand)</i></summary>
 
 Prerequisites:
 
