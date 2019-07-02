@@ -160,67 +160,125 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 ## Prerequisites<a name="Prerequisites"></a>
 #### In Amazon cloud
 Prerequisites:
+
+DLab can be deployed using the following two methods:
+ - IAM user: DLab deployment script can be executed on local machine and will use IAM user permissions to create resources in AWS.
+ - EC2 instance: DLab deployment script can be executed on previously prepared EC2 instance with attached IAM role. Deployment script will use the attached role to create resources in AWS.
+
+**'IAM user' method prerequisites:**  
  
- - SSH key for EC2 instances. This key could be created through Amazon Console.
- - IAM user
- - AWS access key ID and secret access key
- - The following permissions should be assigned for IAM user:
+ - IAM user with created AWS access key ID and secret access key. These keys will be provided as arguments for deployment script and will be used for getting permissions to create resources in AWS.
+ - Amazon EC2 Key Pair. This key will be used for accessing all DLab instances.
+ - All actions in this [policy](#AWS_SSN_policy) should be assigned to IAM user in order to deploy DLab:
+ 
+ **'EC2 instance' method prerequisites:**
+ 
+ - Amazon EC2 Key Pair. This key will be used for accessing all DLab instances. 
+ - EC2 instance where DLab deployment script will be executed. 
+ - IAM role with such [policy](#AWS_SSN_policy) attached should be assigned to the EC2 instance.
+ 
+ **Optional prerequisites for both methods:**
+  
+  - VPC ID. If you already have VPC created, you can provide VPC ID for deployment script and all DLab instances will be deployed in this VPC.
+  - Subnet ID. DLab will deploy SSN node and user's Edge nodes in this subnet. This parameter also can be provided for deployment script. 
+ 
+ DLab Policy
  <a name="AWS_SSN_policy"></a>
 ```
 {
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Action": [
-				"iam:ListRoles",
-				"iam:CreateRole",
-				"iam:CreateInstanceProfile",
-				"iam:PutRolePolicy",
-				"iam:AddRoleToInstanceProfile",
-				"iam:PassRole",
-				"iam:GetInstanceProfile",
-				"iam:ListInstanceProfilesForRole"
-				"iam:RemoveRoleFromInstanceProfile",
-				"iam:DeleteInstanceProfile",
-				"iam:TagRole"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"ec2:DescribeImages",
-				"ec2:CreateTags",
-				"ec2:DescribeRouteTables",
-				"ec2:CreateRouteTable",
-				"ec2:AssociateRouteTable",
-				"ec2:DescribeVpcEndpoints",
-				"ec2:CreateVpcEndpoint",
-				"ec2:ModifyVpcEndpoint",
-				"ec2:DescribeInstances",
-				"ec2:RunInstances",
-				"ec2:DescribeAddresses",
-				"ec2:AllocateAddress",
-				"ec2:DescribeInstances",
-				"ec2:AssociateAddress",
-				"ec2:DisassociateAddress",
-				"ec2:ReleaseAddress",
-				"ec2:TerminateInstances"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"s3:ListAllMyBuckets",
-				"s3:CreateBucket",
-				"s3:PutBucketTagging",
-				"s3:GetBucketTagging"
-			],
-			"Effect": "Allow",
-			"Resource": "*"
-		}
-	]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "iam:CreatePolicy",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:DeletePolicy",
+                "iam:DeleteRolePolicy",
+                "iam:GetRolePolicy",
+                "iam:GetPolicy",
+                "iam:GetUser",
+                "iam:ListUsers",
+                "iam:ListAccessKeys",
+                "iam:ListUserPolicies",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListPolicies",
+                "iam:ListRolePolicies",
+                "iam:ListRoles",
+                "iam:CreateRole",
+                "iam:CreateInstanceProfile",
+                "iam:PutRolePolicy",
+                "iam:AddRoleToInstanceProfile",
+                "iam:PassRole",
+                "iam:GetInstanceProfile",
+                "iam:ListInstanceProfilesForRole",
+                "iam:RemoveRoleFromInstanceProfile",
+                "iam:DeleteInstanceProfile",
+                "iam:ListInstanceProfiles",
+                "iam:DeleteRole",
+                "iam:GetRole"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "ec2:AuthorizeSecurityGroupEgress",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:DeleteRouteTable",
+                "ec2:DeleteSubnet",
+                "ec2:DeleteTags",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeInstanceStatus",
+                "ec2:ModifyInstanceAttribute",
+                "ec2:RevokeSecurityGroupIngress",
+                "ec2:DescribeImages",
+                "ec2:CreateTags",
+                "ec2:DescribeRouteTables",
+                "ec2:CreateRouteTable",
+                "ec2:AssociateRouteTable",
+                "ec2:DescribeVpcEndpoints",
+                "ec2:CreateVpcEndpoint",
+                "ec2:ModifyVpcEndpoint",
+                "ec2:DescribeInstances",
+                "ec2:RunInstances",
+                "ec2:DescribeAddresses",
+                "ec2:AllocateAddress",
+                "ec2:AssociateAddress",
+                "ec2:DisassociateAddress",
+                "ec2:ReleaseAddress",
+                "ec2:TerminateInstances",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:AuthorizeSecurityGroupEgress",
+                "ec2:DescribeSecurityGroups",
+                "ec2:CreateSecurityGroup",
+                "ec2:DeleteSecurityGroup",
+                "ec2:RevokeSecurityGroupEgress"
+                
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:PutBucketPolicy",
+                "s3:GetBucketPolicy",
+                "s3:DeleteBucket",
+                "s3:DeleteObject",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutEncryptionConfiguration"
+                "s3:ListAllMyBuckets",
+                "s3:CreateBucket",
+                "s3:PutBucketTagging",
+                "s3:GetBucketTagging"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
 }
 ```
 
