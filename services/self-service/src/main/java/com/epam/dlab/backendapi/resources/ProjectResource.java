@@ -3,6 +3,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
+import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
@@ -58,6 +59,42 @@ public class ProjectResource {
 		return Response
 				.ok()
 				.location(uri)
+				.build();
+	}
+
+	@Operation(summary = "Start project", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "202", description = "Project is starting"),
+			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+					MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
+	})
+	@Path("start")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								 @Valid ProjectActionFormDTO startProjectDto) {
+		projectService.start(userInfo, startProjectDto.getProjectName());
+		return Response
+				.accepted()
+				.build();
+	}
+
+	@Operation(summary = "Stop project", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "202", description = "Project is stopping"),
+			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+					MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
+	})
+	@Path("stop")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								@Valid ProjectActionFormDTO startProjectDto) {
+		projectService.stop(userInfo, startProjectDto.getProjectName());
+		return Response
+				.accepted()
 				.build();
 	}
 

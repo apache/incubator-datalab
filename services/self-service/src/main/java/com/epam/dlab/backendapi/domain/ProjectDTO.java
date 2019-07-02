@@ -29,7 +29,12 @@ public class ProjectDTO {
 	public enum Status {
 		CREATING,
 		ACTIVE,
-		FAILED, TERMINATED, TERMINATING;
+		FAILED,
+		TERMINATED,
+		TERMINATING,
+		STOPPING,
+		STARTING,
+		STOPPED;
 
 		public static Status from(UserInstanceStatus userInstanceStatus) {
 			if (userInstanceStatus == UserInstanceStatus.RUNNING) {
