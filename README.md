@@ -338,7 +338,7 @@ Prerequisites:
 - Microsoft Graph
 - Windows Azure Service Management API</details>
 
-<details><summary>In Google cloud (GCP)
+<details><summary>In Google cloud (GCP)</summary>
 
 Prerequisites:
 
@@ -352,7 +352,7 @@ Preparation steps for deployment:
     - Boot disk OS Image - Ubuntu 16.04
 - Generate SSH key pair and rename private key with .pem extension
 - Put JSON auth file created through Google cloud console to users home directory
-- Install Git and clone DLab repository</summary>
+- Install Git and clone DLab repository</details>
 
 ### Executing deployment script
 
@@ -377,7 +377,7 @@ pip install fabric==1.14.0
 
 This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
-#### In Amazon cloud
+<details><summary>In Amazon cloud</summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
@@ -424,9 +424,9 @@ After SSN node deployment following AWS resources will be created:
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   S3 bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
+-   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket</details>
 
-#### In Azure cloud
+<details><summary>In Azure cloud</summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
@@ -497,9 +497,9 @@ After SSN node deployment following Azure resources will be created:
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
--   If support of Data Lake is enabled: Data Lake and shared directory will be created
+-   If support of Data Lake is enabled: Data Lake and shared directory will be created</details>
 
-#### In Google cloud (GCP)
+<details><summary>In Google cloud (GCP)</summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
@@ -535,7 +535,7 @@ After SSN node deployment following GCP resources will be created:
 -   Security Groups for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
+-   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket</details>
 
 ### Terminating Self-Service Node
 
