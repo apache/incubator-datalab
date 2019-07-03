@@ -206,7 +206,7 @@ These directories contain the log files for each template and for DLab back-end 
 Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
 For each cloud provider, prerequisites are different.
 
-<details><summary color="#FF7F50">In Amazon cloud</summary>
+<details><summary>In Amazon cloud <i>(click to expand)</i></summary>
 
 Prerequisites:
 
@@ -325,7 +325,7 @@ Preparation steps for deployment:
 - Put SSH key file created through Amazon Console on the instance with the same name
 - Install Git and clone DLab repository</details>
 
-<details><summary color="#87CEEB">In Azure cloud</i></summary>
+<details><summary>In Azure cloud</i></summary>
 
 Prerequisites:
 
@@ -338,7 +338,7 @@ Prerequisites:
 - Microsoft Graph
 - Windows Azure Service Management API</details>
 
-<details><summary color="#4169E1">In Google cloud (GCP)</i></summary>
+<details><summary>In Google cloud (GCP)</i></summary>
 
 Prerequisites:
 
@@ -543,6 +543,7 @@ Terminating SSN node will also remove all nodes and components related to it. Ba
 Example of command for terminating DLab environment:
 
 <details><summary>In Amazon</summary>
+
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
 ```
@@ -578,9 +579,10 @@ List of parameters for SSN node termination:
 | conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
-
 </details>
+
 <details><summary>In Google cloud</summary>
+
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
 ```
