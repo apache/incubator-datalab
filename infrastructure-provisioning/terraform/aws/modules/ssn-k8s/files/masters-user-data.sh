@@ -23,7 +23,7 @@ sudo chmod 700 /home/${k8s-os-user}/.ssh
 sudo chmod 600 /home/${k8s-os-user}/.ssh/authorized_keys
 
 sudo apt-get update
-sudo apt-get install -y python-pip jq
+sudo apt-get install -y python-pip jq unzip
 sudo pip install -U pip
 sudo pip install awscli
 
@@ -162,3 +162,6 @@ sudo chmod 755 /usr/local/bin/remove-etcd-member.sh
 sleep 600
 sudo -i -u ${k8s-os-user} helm repo update
 sudo bash -c 'echo "* * * * * root /usr/local/bin/remove-etcd-member.sh >> /var/log/cron_k8s.log 2>&1" >> /etc/crontab'
+wget https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip -O /tmp/terraform_0.12.3_linux_amd64.zip
+unzip /tmp/terraform_0.12.3_linux_amd64.zip -d /tmp/
+sudo mv /tmp/terraform /usr/local/bin/
