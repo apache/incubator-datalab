@@ -15,13 +15,11 @@ CONTENTS
 
 [DLab Deployment](#DLab_Deployment)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Prerequisites](#Prerequisites)
-
-&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
-
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of main DLab directory](#DLab_directory)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of log directory](#log_directory)
+
+&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Self-Service Node](#Self_Service_Node)
 
