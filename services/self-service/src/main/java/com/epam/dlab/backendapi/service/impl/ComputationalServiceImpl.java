@@ -131,13 +131,15 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 			updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, TERMINATING);
 
-			String exploratoryId = exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
+			final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+					exploratoryName);
 			UserComputationalResource compResource = computationalDAO.fetchComputationalFields(userInfo
 					.getName(), exploratoryName, computationalName);
 
 			final DataEngineType dataEngineType = compResource.getDataEngineType();
 			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, exploratoryName,
-					exploratoryId, computationalName, compResource.getComputationalId(), dataEngineType);
+					userInstanceDTO.getExploratoryId(), computationalName, compResource.getComputationalId(),
+					dataEngineType, userInstanceDTO.getProject());
 
 			final String provisioningUrl = Optional.ofNullable(DATA_ENGINE_TYPE_TERMINATE_URLS.get(dataEngineType))
 					.orElseThrow(UnsupportedOperationException::new);
