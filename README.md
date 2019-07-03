@@ -325,7 +325,7 @@ Preparation steps for deployment:
 - Put SSH key file created through Amazon Console on the instance with the same name
 - Install Git and clone DLab repository</details>
 
-<details><summary>In Azure cloud</i></summary>
+<details><summary>In Azure cloud <i>(click to expand)</i></summary>
 
 Prerequisites:
 
@@ -338,7 +338,7 @@ Prerequisites:
 - Microsoft Graph
 - Windows Azure Service Management API</details>
 
-<details><summary>In Google cloud (GCP)</i></summary>
+<details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
 
 Prerequisites:
 
@@ -377,7 +377,7 @@ pip install fabric==1.14.0
 
 This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
-<details><summary>In Amazon cloud</summary>
+<details><summary>In Amazon cloud <i>(click to expand)</i></summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
@@ -426,7 +426,7 @@ After SSN node deployment following AWS resources will be created:
 -   S3 bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket</details>
 
-<details><summary>In Azure cloud</summary>
+<details><summary>In Azure cloud <i>(click to expand)</i></summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
@@ -499,7 +499,7 @@ After SSN node deployment following Azure resources will be created:
 -   Storage account and blob container for collaboration between Dlab users
 -   If support of Data Lake is enabled: Data Lake and shared directory will be created</details>
 
-<details><summary>In Google cloud (GCP)</summary>
+<details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
@@ -542,7 +542,7 @@ After SSN node deployment following GCP resources will be created:
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
 Example of command for terminating DLab environment:
 
-<details><summary>In Amazon</summary>
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
@@ -562,7 +562,7 @@ List of parameters for SSN node termination:
 | action                     | terminate                                                                          |
 </details>
 
-<details><summary>In Azure</summary>
+<details><summary>In Azure <i>(click to expand)</i></summary>
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
 ```
@@ -581,7 +581,7 @@ List of parameters for SSN node termination:
 | action                     | terminate                                                                          |
 </details>
 
-<details><summary>In Google cloud</summary>
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
@@ -610,7 +610,7 @@ Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a 
 
 In order to create Edge node using DLab Web UI – login and, click on the button “Upload” (Depending on authorization provider that was chosen on deployment stage, user may be taken from [LDAP](#LDAP_Authentication) or from [Azure AD (Oauth2)](#Azure_OAuth2_Authentication)). Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 The following AWS resources will be created:
 -   Edge EC2 instance
@@ -640,8 +640,9 @@ List of parameters for Edge node creation:
 | aws\_private\_subnet\_prefix   | Prefix of the private subnet                                                      |
 | conf\_tag\_resource\_id        | The name of tag for billing reports                                               |
 | action                         | create                                                                            |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 The following Azure resources will be created:
 -   Edge virtual machine
@@ -668,8 +669,9 @@ List of parameters for Edge node creation:
 | azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
 | azure\_subnet\_name            | Name of the Azure public subnet where Edge will be deployed                       |
 | action                         | create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 The following GCP resources will be created:
 -   Edge VM instance
@@ -696,12 +698,13 @@ List of parameters for Edge node creation:
 | gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
 | gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | create                                                                            |
+</details>
 
 ### Start/Stop <a name=""></a>
 
 To start/stop Edge node, click on the button which looks like a cycle on the top right corner, then click on the button which is located in “Action” field and in the drop-down menu click on the appropriate action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Edge node starting/stopping:
 
@@ -712,8 +715,9 @@ List of parameters for Edge node starting/stopping:
 | edge\_user\_name          | Name of the user                                             |
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | start/stop                                                   |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 List of parameters for Edge node starting:
 
@@ -735,8 +739,9 @@ List of parameters for Edge node stopping:
 | edge\_user\_name             | Name of the user                                                          |
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
 | action                       | stop                                                                      |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Edge node starting/stopping:
 
@@ -749,6 +754,7 @@ List of parameters for Edge node starting/stopping:
 | gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
 | gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | start/stop                                                                        |
+</details>
 
 ### Recreate <a name=""></a>
 
@@ -758,7 +764,7 @@ If Edge node was removed for some reason, to re-create it, click on the status b
 
 List of parameters for Edge node recreation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                  | Description/Value                                                                 |
 |----------------------------|-----------------------------------------------------------------------------------|
@@ -774,8 +780,9 @@ List of parameters for Edge node recreation:
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
 | conf\_tag\_resource\_id    | The name of tag for billing reports                                               |
 | action                     | Create                                                                            |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                                 |
 |------------------------------|-----------------------------------------------------------------------------------|
@@ -789,8 +796,10 @@ List of parameters for Edge node recreation:
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
 | action                       | Create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
+
 | Parameter                  | Description/Value                                                                     |
 |--------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                 | edge                                                                              |
@@ -804,6 +813,7 @@ List of parameters for Edge node recreation:
 | gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
 | gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | create                                                                            |
+</details>
 
 ## Notebook node <a name="Notebook_node"></a>
 
@@ -815,7 +825,7 @@ To create Notebook node, click on the “Create new” button. Then, in drop-dow
 
 List of parameters for Notebook node creation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -833,8 +843,9 @@ List of parameters for Notebook node creation:
 | action                        | Create                                                                            |
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -850,8 +861,9 @@ List of parameters for Notebook node creation:
 | application                     | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | Create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -868,6 +880,7 @@ List of parameters for Notebook node creation:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | Create                                                                            |
+</details>
 
 ### Stop
 
@@ -875,7 +888,7 @@ In order to stop Notebook node, click on the “gear” button in Actions column
 
 List of parameters for Notebook node stopping:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -886,8 +899,9 @@ List of parameters for Notebook node stopping:
 | notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | Stop                                                         |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -898,8 +912,9 @@ List of parameters for Notebook node stopping:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | Stop                                                                              |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -912,6 +927,7 @@ List of parameters for Notebook node stopping:
 | gcp\_zone                 | GCP zone where infrastructure was deployed                   |
 | gcp\_project\_id          | ID of GCP project                                            |
 | action                    | Stop                                                         |
+</details>
 
 ### Start
 
@@ -919,7 +935,7 @@ In order to start Notebook node, click on the button, which looks like gear in �
 
 List of parameters for Notebook node start:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -933,8 +949,9 @@ List of parameters for Notebook node start:
 | action                    | start                                                        |
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -947,8 +964,9 @@ List of parameters for Notebook node start:
 | azure\_region                   | Azure region where infrastructure was deployed                                    |
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | start                                                                             |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -962,6 +980,7 @@ List of parameters for Notebook node start:
 | gcp\_project\_id          | ID of GCP project                                            |
 | git\_creds                | User git credentials in JSON format                          |
 | action                    | Stop                                                         |
+</details>
 
 ### Terminate
 
@@ -969,7 +988,7 @@ In order to terminate Notebook node, click on the button, which looks like gear 
 
 List of parameters for Notebook node termination:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -982,8 +1001,9 @@ List of parameters for Notebook node termination:
 | action                    | terminate                                                         |
 
 **Note:** If terminate action is called, all connected data engine clusters will be removed.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -993,8 +1013,9 @@ List of parameters for Notebook node termination:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | terminate                                                                         |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -1007,12 +1028,13 @@ List of parameters for Notebook node termination:
 | gcp\_project\_id          | ID of GCP project                                            |
 | git\_creds                | User git credentials in JSON format                          |
 | action                    | Stop                                                         |
+</details>
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -1072,8 +1094,9 @@ List of parameters for Notebook node to **install** additional libraries:
   ...
 }
 ```
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -1101,9 +1124,9 @@ List of parameters for Notebook node to **install** additional libraries:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
+</details>
 
-
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -1133,12 +1156,13 @@ List of parameters for Notebook node to **install** additional libraries:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
+</details>
 
 ### Manage git credentials
 
 In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **manage git credentials**:
 
@@ -1170,8 +1194,9 @@ List of parameters for Notebook node to **manage git credentials**:
 **Note:** Leave "hostname" field empty to apply login/password by default for all services.
 
 **Note:** Also your can use "Personal access tokens" against passwords.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -1183,8 +1208,9 @@ List of parameters for Notebook node to **manage git credentials**:
 | azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | git\_creds                                                                        |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -1198,6 +1224,7 @@ List of parameters for Notebook node to **manage git credentials**:
 | notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | git\_creds                                                                        |
+</details>
 
 ## Dataengine-service cluster <a name="Dataengine-service cluster"></a>
 
@@ -1209,7 +1236,7 @@ To create dataengine-service cluster click on the “gear” button in Actions c
 
 List of parameters for dataengine-service cluster creation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                   | Description/Value                                                        |
 |-----------------------------|--------------------------------------------------------------------------|
@@ -1228,8 +1255,9 @@ List of parameters for dataengine-service cluster creation:
 | action                      | create                                                                   |
 
 **Note:** If “Spot instances” is enabled, dataengine-service Slave nodes will be created as EC2 Spot instances.
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                        |
 |---------------------------------|--------------------------------------------------------------------------|
@@ -1250,6 +1278,7 @@ List of parameters for dataengine-service cluster creation:
 | gcp\_zone                       | GCP zone name                                                            |
 | conf\_tag\_resource\_id         | The name of tag for billing reports                                      |
 | action                          | create                                                                   |
+</details>
 
 ### Terminate
 
@@ -1257,7 +1286,7 @@ In order to terminate dataengine-service cluster, click on “x” button which 
 
 List of parameters for dataengine-service cluster termination:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                                   |
 |---------------------------|---------------------------------------------------------------------|
@@ -1269,8 +1298,9 @@ List of parameters for dataengine-service cluster termination:
 | notebook\_instance\_name  | Name of the Notebook instance which dataengine-service is linked to |
 | aws\_region               | AWS region where infrastructure was deployed                        |
 | action                    | Terminate                                                           |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                                   |
 |---------------------------|---------------------------------------------------------------------|
@@ -1284,12 +1314,13 @@ List of parameters for dataengine-service cluster termination:
 | gcp\_zone                 | GCP zone name                                                       |
 | dataproc\_cluster\_name   | Dataproc cluster name                                               |
 | action                    | Terminate                                                           |
+</details>
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine-service, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine-service node to **get list** of available libraries:
 
@@ -1347,8 +1378,9 @@ List of parameters for Dataengine-service to **install** additional libraries:
   ...
 }
 ```
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine-service node to **get list** of available libraries:
 
@@ -1375,7 +1407,7 @@ List of parameters for Dataengine-service node to **install** additional librari
 | gcp\_region                   | GCP region name                                                                   |
 | gcp\_zone                     | GCP zone name                                                                     |
 | action                        | lib_install                                                                       |
-
+</details>
 
 ## Dataengine cluster <a name="Dataengine cluster"></a>
 
@@ -1387,7 +1419,7 @@ To create Spark standalone cluster click on the “gear” button in Actions col
 
 List of parameters for dataengine cluster creation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                      | Description/Value                                                                 |
 |--------------------------------|-----------------------------------------------------------------------------------|
@@ -1402,8 +1434,9 @@ List of parameters for dataengine cluster creation:
 | aws\_dataengine\_master\_size  | Size of master node                                                               |
 | aws\_dataengine\_slave\_size   | Size of slave node                                                                |
 | action                         | create                                                                            |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                      | Description/Value                                                                 |
 |--------------------------------|-----------------------------------------------------------------------------------|
@@ -1421,8 +1454,9 @@ List of parameters for dataengine cluster creation:
 | azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_subnet\_name            | Name of the Azure public subnet where Edge was deployed                           |
 | action                         | create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                                 |
 |------------------------------|-----------------------------------------------------------------------------------|
@@ -1441,7 +1475,7 @@ List of parameters for dataengine cluster creation:
 | gcp\_zone                    | GCP zone name                                                                     |
 | edge\_user\_name             | Value that previously was used when Edge being provisioned                        |
 | action                       | create                                                                            |
-
+</details>
 
 ### Terminate
 
@@ -1449,7 +1483,7 @@ In order to terminate dataengine cluster, click on “x” button which is locat
 
 List of parameters for dataengine cluster termination:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -1461,8 +1495,9 @@ List of parameters for dataengine cluster termination:
 | computational\_name          | Name of cluster                                                          |
 | aws\_region                  | AWS region where infrastructure was deployed                             |
 | action                       | Terminate                                                                |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -1475,8 +1510,9 @@ List of parameters for dataengine cluster termination:
 | azure\_region                | Azure region where infrastructure was deployed                           |
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned|
 | action                       | Terminate                                                                |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -1490,12 +1526,13 @@ List of parameters for dataengine cluster termination:
 | gcp\_region                  | GCP region where infrastructure was deployed                             |
 | gcp\_zone                    | GCP zone name                                                            |
 | action                       | Terminate                                                                |
+</details>
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine node to **get list** of available libraries:
 
@@ -1552,8 +1589,9 @@ List of parameters for Dataengine node to **install** additional libraries:
   ...
 }
 ```
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine node to **get list** of available libraries:
 
@@ -1580,9 +1618,9 @@ List of parameters for Dataengine node to **install** additional libraries:
 | computational\_id             | Name of cluster                                                                   |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | action                        | lib_install                                                                       |
+</details>
 
-
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine node to **get list** of available libraries:
 
@@ -1611,7 +1649,7 @@ List of parameters for Dataengine node to **install** additional libraries:
 | gcp\_zone                     | GCP zone name                                                                     |
 | computational\_id             | Name of cluster                                                                   |
 | action                        | lib_install                                                                       |
-
+</details>
 
 ## Configuration files <a name="Configuration_files"></a>
 
@@ -1656,7 +1694,7 @@ To use your own certificate please do the following:
 
 ## Billing report <a name="Billing_Report"></a>
 
-### AWS
+<details><summary>AWS <i>(click to expand)</i></summary>
 
 Billing module is implemented as a separate jar file and can be running in the follow modes:
 
@@ -1686,8 +1724,9 @@ If you want billing to work as a separate process from the Self-Service use foll
 ```
 java -cp /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
 ```
+</details>
 
-### Azure
+<details><summary>Azure <i>(click to expand)</i></summary>
 
 Billing module is implemented as a separate jar file and can be running in the follow modes:
 
@@ -1698,6 +1737,7 @@ If you want to start billing module as a separate process use the following comm
 ```
 java -jar /opt/dlab/webapp/lib/billing/billing-azure.x.y.jar /opt/dlab/conf/billing.yml
 ```
+</details>
 
 ## Backup and Restore <a name="Backup_and_Restore"></a>
 
