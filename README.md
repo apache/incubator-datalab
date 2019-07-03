@@ -27,9 +27,9 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Notebook node](#Notebook_node)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine-service cluster](#Dataengine-service cluster)
+&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine-service cluster](#Dataengine-service_cluster)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine cluster](#Dataengine cluster)
+&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine cluster](#Dataengine_cluster)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Configuration files](#Configuration_files)
 
@@ -1226,7 +1226,7 @@ List of parameters for Notebook node to **manage git credentials**:
 | action                        | git\_creds                                                                        |
 </details>
 
-## Dataengine-service cluster <a name="Dataengine-service cluster"></a>
+## Dataengine-service cluster <a name="Dataengine-service_cluster"></a>
 
 Dataengine-service is a cluster provided by cloud as a service (EMR on AWS) can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
 
@@ -1409,7 +1409,7 @@ List of parameters for Dataengine-service node to **install** additional librari
 | action                        | lib_install                                                                       |
 </details>
 
-## Dataengine cluster <a name="Dataengine cluster"></a>
+## Dataengine cluster <a name="Dataengine_cluster"></a>
 
 Dataengine is cluster based on Standalone Spark framework can be created if more computational resources are needed for executing analytical algorithms, but without additional expenses for cloud provided service.
 
