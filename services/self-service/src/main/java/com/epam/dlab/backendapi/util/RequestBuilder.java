@@ -251,14 +251,16 @@ public class RequestBuilder {
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
 						.withExploratoryName(userInstance.getExploratoryName())
-						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+						.withProject(userInstance.getProject());
 			case AZURE:
 				T exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionStartAzure.class)
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
 						.withExploratoryName(userInstance.getExploratoryName())
-						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+						.withProject(userInstance.getProject());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryActionStartAzure) exploratoryStart)
@@ -296,7 +298,8 @@ public class RequestBuilder {
 				.withNotebookImage(userInstance.getImageName())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withNotebookImage(userInstance.getImageName())
-				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+				.withProject(userInstance.getProject());
 	}
 
 	public ExploratoryGitCredsUpdateDTO newGitCredentialsUpdate(UserInfo userInfo, UserInstanceDTO instanceDTO,
@@ -400,7 +403,8 @@ public class RequestBuilder {
 				.withComputationalName(form.getName())
 				.withNotebookTemplateName(userInstance.getTemplateName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withNotebookInstanceName(userInstance.getExploratoryId());
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withProject(userInstance.getProject());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -449,7 +453,8 @@ public class RequestBuilder {
 				.withComputationalName(form.getName())
 				.withNotebookTemplateName(userInstance.getTemplateName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withNotebookInstanceName(userInstance.getExploratoryId());
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withProject(userInstance.getProject());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -458,7 +463,7 @@ public class RequestBuilder {
 																		String exploratoryId,
 																		String computationalName,
 																		String computationalId,
-																		DataEngineType dataEngineType) {
+																		DataEngineType dataEngineType, String project) {
 		T computationalTerminate;
 
 		switch (cloudProvider()) {
@@ -489,7 +494,8 @@ public class RequestBuilder {
 		return computationalTerminate
 				.withExploratoryName(exploratoryName)
 				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratoryId);
+				.withNotebookInstanceName(exploratoryId)
+				.withProject(project);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -500,7 +506,8 @@ public class RequestBuilder {
 				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
-				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()));
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+				.withProject(exploratory.getProject());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -510,7 +517,8 @@ public class RequestBuilder {
 				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
-				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()));
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+				.withProject(exploratory.getProject());
 	}
 
 	@SuppressWarnings("unchecked")
