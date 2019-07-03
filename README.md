@@ -27,7 +27,9 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Notebook node](#Notebook_node)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [EMR cluster](#EMR_cluster)
+&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine-service cluster](#Dataengine-service cluster)
+
+&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine cluster](#Dataengine cluster)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Configuration files](#Configuration_files)
 
