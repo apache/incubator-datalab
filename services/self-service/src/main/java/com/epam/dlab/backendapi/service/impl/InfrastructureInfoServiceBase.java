@@ -33,7 +33,6 @@ import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
-import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
@@ -96,13 +95,14 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 
 	@Override
 	public InfrastructureMetaInfoDTO getInfrastructureMetaInfo() {
-		final String branch = Manifests.read("GIT-Branch");
+		/*final String branch = Manifests.read("GIT-Branch");
 		return InfrastructureMetaInfoDTO.builder()
 				.branch(branch)
 				.commit(Manifests.read("GIT-Commit"))
 				.version(Manifests.read("DLab-Version"))
 				.releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
-				.build();
+				.build();*/
+		return InfrastructureMetaInfoDTO.builder().build();
 	}
 
 	protected abstract Map<String, String> getSharedInfo(T sharedInfo);

@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ProjectTerminateDTO extends ResourceBaseDTO<ProjectTerminateDTO> {
+public class ProjectActionDTO extends ResourceBaseDTO<ProjectActionDTO> {
 	@JsonProperty("project_name")
 	private final String name;
 }
