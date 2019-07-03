@@ -104,7 +104,8 @@ mat-chip.mat-chip strong {
 
 .running,
 .starting,
-.installed {
+.installed,
+.active {
   color: #49af38;
 }
 
@@ -141,7 +142,7 @@ mat-chip.mat-chip strong {
 }
 
 .not-active {
-  cursor: not-allowed;
+  cursor: not-allowed !important;
   opacity: .6;
 }
 

@@ -149,6 +149,7 @@
 .settings {
   position: relative;
 }
+
 .settings .disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -168,12 +169,13 @@
 .data-grid .list-menu li {
   font-size: 14px;
   border-bottom: 1px solid #edf1f5;
-  padding: 12px 15px;
+  padding: 8px 15px;
   cursor: pointer;
   margin: 5px -5px;
   color: #577289;
   transition: all 0.45s ease-in-out;
 }
+
 .data-grid .list-menu a.navigate {
   text-decoration: none;
   color: #577289;
@@ -207,6 +209,7 @@
 .data-grid .message_block {
   background: #edf6f9;
 }
+
 .message_block td {
   text-align: left !important;
 }
