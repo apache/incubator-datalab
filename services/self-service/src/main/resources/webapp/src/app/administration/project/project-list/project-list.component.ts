@@ -23,6 +23,7 @@ import { MatTableDataSource } from '@angular/material';
 import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from '../project-data.service';
+import { ProjectService } from '../../../core/services';
 import { Project } from '../project.component';
 
 @Component({
@@ -36,12 +37,14 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   dataSource: Project[] | any = [];
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
   @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
+  @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
 
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     public toastr: ToastrService,
-    private projectDataService: ProjectDataService
+    private projectDataService: ProjectDataService,
+    private projectService: ProjectService
   ) { }
 
 
@@ -53,6 +56,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  public toggleProjectStatus(project, action) {
+    this.toggleStatus.emit({ project, action });
   }
 
   public editProject(item: Project[]) {

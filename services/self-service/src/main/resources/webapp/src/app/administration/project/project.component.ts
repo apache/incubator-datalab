@@ -91,6 +91,23 @@ export class ProjectComponent implements OnInit, OnDestroy {
       });
   }
 
+  public toggleStatus($event) {
+    const data = { 'project_name': $event.project.name };
+
+    if ($event.action === 'stop') {
+      this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event.project, action: 'stopped' }, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(result => {
+          result && this.toggleStatusRequest(data, $event.action);
+        });
+    } else {
+      this.toggleStatusRequest(data, $event.action);
+    }
+  }
+
+  private toggleStatusRequest(data, action) {
+    this.projectService.toggleProjectStatus(data, action).subscribe(res => this.refreshGrid());
+  }
+
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => this.healthStatus = result);

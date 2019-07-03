@@ -51,9 +51,19 @@
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef class="project-actions"></th>
     <td mat-cell *matCellDef="let element" class="project-actions">
-      <span [ngClass]="{'not-active' : element.status.toLowerCase() !== 'active' }">
-        <a [ngClass]="{'not-allowed' : element.status.toLowerCase() !== 'active' }"
-          (click)="element.status.toLowerCase() === 'active' && editProject(element)">
+      <span>
+        <a class="start-stop-action">
+          <mat-icon *ngIf="element.status === 'ACTIVE'" (click)="toggleProjectStatus(element, 'stop')">
+            pause_circle_outline
+          </mat-icon>
+          <mat-icon *ngIf="element.status === 'STOPPED'" (click)="toggleProjectStatus(element, 'start')">
+            play_circle_outline
+          </mat-icon>
+        </a>
+      </span>
+      <span [ngClass]="{'not-active' : element.status !== 'ACTIVE' }">
+        <a [ngClass]="{'not-allowed' : element.status !== 'ACTIVE' }"
+          (click)="element.status === 'ACTIVE' && editProject(element)">
           <mat-icon>mode_edit</mat-icon>
         </a>
       </span>

@@ -39,6 +39,8 @@
   </mat-card>
 
   <div [hidden]="!projectList.length">
-    <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
+    <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"
+      (toggleStatus)="toggleStatus($event)">
+    </project-list>
   </div>
 </div>
