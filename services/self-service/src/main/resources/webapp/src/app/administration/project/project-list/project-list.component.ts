@@ -32,7 +32,7 @@ import { Project } from '../project.component';
 })
 export class ProjectListComponent implements OnInit, OnDestroy {
 
-  displayedColumns: string[] = ['name', 'endpoints', 'groups', 'actions'];
+  displayedColumns: string[] = ['name', 'status', 'endpoints', 'groups', 'actions'];
   dataSource: Project[] | any = [];
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
   @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
