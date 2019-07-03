@@ -51,7 +51,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
       <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
         <p>
           <strong class="ellipsis label-name" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
-          {{ data.item.name }}</strong> will be decommissioned.
+          {{ data.item.name }}</strong> will be {{ data.action || 'decommissioned' }}.
         </p>
         <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
       
@@ -81,6 +81,6 @@ export class NotificationDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     console.log(data);
-    
+
   }
 }

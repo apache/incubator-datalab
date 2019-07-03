@@ -95,8 +95,9 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
       body,
-      { responseType: 'text',
-        headers: { 'Content-Type': 'text/plain'},
+      {
+        responseType: 'text',
+        headers: { 'Content-Type': 'text/plain' },
         observe: 'response'
       });
   }
@@ -112,7 +113,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
       null,
-      { observe: 'response'});
+      { observe: 'response' });
   }
 
   public buildGenerateAccessKey(): Observable<any> {
@@ -133,8 +134,9 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
       body,
-      { observe: 'response',
-        headers: { 'Upload': 'true'}
+      {
+        observe: 'response',
+        headers: { 'Upload': 'true' }
       });
   }
 
@@ -142,8 +144,9 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY) + option,
       body,
-      { observe: 'response',
-        headers: { 'Upload': 'true'}
+      {
+        observe: 'response',
+        headers: { 'Upload': 'true' }
       });
   }
 
@@ -183,14 +186,14 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
       data,
-      { observe: 'response'});
+      { observe: 'response' });
   }
 
   public buildCreateComputationalResources_DataengineRequest(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
       data,
-      { observe: 'response'});
+      { observe: 'response' });
   }
 
   public buildDeleteComputationalResourcesRequest(data): Observable<any> {
@@ -236,21 +239,21 @@ export class ApplicationServiceFacade {
       data);
   }
 
-  public buildRunEdgeNodeRequest(): Observable<any>  {
+  public buildRunEdgeNodeRequest(): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_START),
       null,
       { responseType: 'text' });
   }
 
-  public buildSuspendEdgeNodeRequest(): Observable<any>  {
+  public buildSuspendEdgeNodeRequest(): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_STOP),
       null,
       { responseType: 'text', observe: 'response' });
   }
 
-  public buildRecreateEdgeNodeRequest(): Observable<any>  {
+  public buildRecreateEdgeNodeRequest(): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_RECREATE),
       null,
@@ -279,7 +282,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
       data,
-      { observe: 'response', responseType: 'text'});
+      { observe: 'response', responseType: 'text' });
   }
 
   public buildGetInstalledLibrariesList(data): Observable<any> {
@@ -360,7 +363,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
       data,
-      { observe: 'response'});
+      { observe: 'response' });
   }
 
   public buildResetScheduleSettings(data): Observable<any> {
@@ -379,29 +382,31 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
       null);
-    }
+  }
 
   public buildManageEnvironment(action, data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
       data,
-      { observe: 'response',
-        headers: { 'Content-Type': 'text/plain'}
+      {
+        observe: 'response',
+        headers: { 'Content-Type': 'text/plain' }
       });
-    }
+  }
 
   public buildGetAllEnvironmentData(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.FULL_ACTIVE_LIST),
       null);
-    }
+  }
 
   public buildEnvironmentManagement(param, data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + param,
       data,
-      { observe: 'response',
-        headers: { 'Content-Type': 'text/plain'}
+      {
+        observe: 'response',
+        headers: { 'Content-Type': 'text/plain' }
       });
   }
 
@@ -409,7 +414,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.BUDGET),
       data,
-      { observe: 'response'});
+      { observe: 'response' });
   }
 
   public buildGetSsnMonitorData(): Observable<any> {
@@ -429,7 +434,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(method,
       this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS) + param,
       null,
-      { observe: 'response'});
+      { observe: 'response' });
   }
 
   public buildGetGroupsData(): Observable<any> {
@@ -538,6 +543,12 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
       null);
+  }
+
+  public buildToggleProjectStatus(param, data): Observable<any> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      data);
   }
 
   public buildGetEndpointsData(): Observable<any> {

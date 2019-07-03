@@ -43,7 +43,7 @@ export class ProjectService {
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
-  
+
   public getProjectsList(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetProjectsList()
@@ -52,7 +52,7 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
- public getUserProjectsList(): Observable<{}> {
+  public getUserProjectsList(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetUserProjectsList()
       .pipe(
@@ -64,6 +64,15 @@ export class ProjectService {
     const url = `/${data}`;
     return this.applicationServiceFacade
       .buildDeleteProject(url)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
+  public toggleProjectStatus(data, action): Observable<{}> {
+    const url = `/${action}`;
+    return this.applicationServiceFacade
+      .buildToggleProjectStatus(url, data)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
