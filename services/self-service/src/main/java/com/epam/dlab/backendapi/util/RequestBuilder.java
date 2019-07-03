@@ -251,14 +251,16 @@ public class RequestBuilder {
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
 						.withExploratoryName(userInstance.getExploratoryName())
-						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+						.withProject(userInstance.getProject());
 			case AZURE:
 				T exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionStartAzure.class)
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
 						.withExploratoryName(userInstance.getExploratoryName())
-						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+						.withProject(userInstance.getProject());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryActionStartAzure) exploratoryStart)
@@ -296,7 +298,8 @@ public class RequestBuilder {
 				.withNotebookImage(userInstance.getImageName())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withNotebookImage(userInstance.getImageName())
-				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+				.withProject(userInstance.getProject());
 	}
 
 	public ExploratoryGitCredsUpdateDTO newGitCredentialsUpdate(UserInfo userInfo, UserInstanceDTO instanceDTO,
