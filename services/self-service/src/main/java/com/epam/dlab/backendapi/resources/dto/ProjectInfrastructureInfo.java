@@ -28,7 +28,9 @@ import java.util.Map;
 
 @AllArgsConstructor
 @ToString
-public class InfrastructureInfo {
+public class ProjectInfrastructureInfo {
+    @JsonProperty
+    private String project;
     @JsonProperty
     private Map<String, String> shared;
     @JsonProperty

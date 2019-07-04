@@ -48,7 +48,8 @@
       "user_own_bucket_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-bucket",
       "socks_port": "1080",
       "notebook_subnet": "10.10.16.0/24",
-      "project_name" : "${PROJECT_NAME}"
+      "project_name": "${PROJECT_NAME}",
+      "@class": "com.epam.dlab.dto.gcp.edge.EdgeInfoGcp"
     },
     "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },

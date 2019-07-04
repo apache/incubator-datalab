@@ -36,7 +36,7 @@ public class ProjectCallback {
 		requestId.checkAndRemove(projectResult.getRequestId());
 		final String projectName = projectResult.getProjectName();
 		final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
-		if (UserInstanceStatus.CREATED == status) {
+		if (UserInstanceStatus.RUNNING == status) {
 			projectDAO.updateEdgeInfoAndStatus(projectName, projectResult.getEdgeInfo(), ProjectDTO.Status.ACTIVE);
 		} else {
 			projectDAO.updateStatus(projectName, ProjectDTO.Status.from(status));
