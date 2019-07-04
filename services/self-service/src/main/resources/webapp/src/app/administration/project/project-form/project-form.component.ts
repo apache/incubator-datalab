@@ -80,7 +80,7 @@ export class ProjectFormComponent implements OnInit {
       }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
     } else {
       this.projectService.createProject(data).subscribe(() => {
-        this.toastr.success('Project created successfully!', 'Success!');
+        this.toastr.success('Project creation is processing!', 'Success!');
         this.projectDataService.updateProjects();
         this.update.emit();
         this.reset();
