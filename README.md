@@ -563,6 +563,7 @@ List of parameters for SSN node termination:
 </details>
 
 <details><summary>In Azure <i>(click to expand)</i></summary>
+
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
 ```
