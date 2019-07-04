@@ -35,6 +35,7 @@ public interface DockerCommands {
             .pipe(UnixCommand.grep("base", "-v"))
             .pipe(UnixCommand.grep("ssn", "-v"))
             .pipe(UnixCommand.grep("edge", "-v"))
+            .pipe(UnixCommand.grep("project", "-v"))
             .toCMD();
 
     String GET_RUNNING_CONTAINERS_FOR_USER = "docker ps --format \"{{.Names}}\" -f name=%s";
