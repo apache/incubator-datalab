@@ -64,7 +64,7 @@ variable "subnet_cidr" {
   default = "172.31.0.0/24"
 }
 variable "ami" {
-  default = "ami-08692d171e3cf02d6"
+  default = "ami-08692d171e3cf02d6" #258751437250/ami-ubuntu-18.04-1.13.0-00-1543963388
 }
 variable "ssn_k8s_masters_count" {
   default = 3
@@ -157,4 +157,12 @@ variable "bid_price" {
 
 variable "source_instance_id" {
   default = ""
+}
+
+variable "endpoint_instance_shape" {
+  default = ""
+}
+
+variable "network_type" {
+  default = "public"
 }
