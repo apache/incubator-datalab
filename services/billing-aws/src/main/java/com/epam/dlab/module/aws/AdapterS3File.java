@@ -43,8 +43,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * The adapter for S3 file system of Amazon.
@@ -222,12 +220,6 @@ public class AdapterS3File extends AdapterBase {
 	private InputStream fileInputStream = null;
 
 	/**
-	 * Zip input stream.
-	 */
-	@JsonIgnore
-	private ZipInputStream zipInputStream;
-
-	/**
 	 * Reader for adapter.
 	 */
 	@JsonIgnore
@@ -239,7 +231,7 @@ public class AdapterS3File extends AdapterBase {
 		if (getMode() == Mode.READ) {
 			setLastModificationDate();
 			clientS3 = getAmazonClient();
-			S3FileList s3files = new S3FileList(awsJobEnabled,bucket, getModuleData());
+			S3FileList s3files = new S3FileList(awsJobEnabled, bucket, getModuleData());
 			filelist = s3files.getFiles(clientS3);
 			currentFileIndex = (filelist.isEmpty() ? -1 : 0);
 			fileInputStream = null;
@@ -271,29 +263,18 @@ public class AdapterS3File extends AdapterBase {
 		}
 		entryName = filename;
 		LOGGER.debug("Open a next entry in file {}", filename);
-
-		if (fileInputStream == null) {
-			openZipFile(filename);
+		reader = new BufferedReader(new InputStreamReader(getFileStream()));
+		try {
+			getModuleData().setId(filename);
+			getModuleData().setModificationDate(lastModificationDate);
+			getModuleData().set(DATA_KEY_LAST_LOADED_FILE, filename);
+			getModuleData().set(DATA_KEY_LAST_MODIFICATION_DATE, lastModificationDate);
+			getModuleData().store();
+		} catch (Exception e) {
+			throw new AdapterException(e.getLocalizedMessage(), e);
 		}
-		if (openZipEntry(filename)) {
-			return true;
-		}
-
-		if (reader != null) {
-			try {
-				getModuleData().setId(filename);
-				getModuleData().setModificationDate(lastModificationDate);
-				getModuleData().set(DATA_KEY_LAST_LOADED_FILE, filename);
-				getModuleData().set(DATA_KEY_LAST_MODIFICATION_DATE, lastModificationDate);
-				getModuleData().store();
-			} catch (Exception e) {
-				throw new AdapterException(e.getLocalizedMessage(), e);
-			}
-		}
-
-		reader = null;
 		currentFileIndex++;
-		return openNextEntry();
+		return false;
 	}
 
 	@Override
@@ -303,7 +284,7 @@ public class AdapterS3File extends AdapterBase {
 
 	@Override
 	public void close() throws AdapterException {
-		closeZipFile(getCurrentFileName());
+		closeFile(getCurrentFileName());
 	}
 
 	@Override
@@ -389,60 +370,12 @@ public class AdapterS3File extends AdapterBase {
 	}
 
 	/**
-	 * Open a zip file.
-	 *
-	 * @param filename file name.
-	 * @throws AdapterException
-	 */
-	private void openZipFile(String filename) throws AdapterException {
-		LOGGER.debug("Open a zip file {}", filename);
-		try {
-			fileInputStream = getFileStream();
-		} catch (Exception e) {
-			throw new AdapterException("Cannot open file " + filename + ". " + e.getLocalizedMessage(), e);
-		}
-
-		try {
-			zipInputStream = new ZipInputStream(fileInputStream);
-		} catch (Exception e) {
-			throw new AdapterException(String.format(CANNOT_READ_FILE_FORMAT, filename, e.getLocalizedMessage()), e);
-		}
-	}
-
-	/**
-	 * Open a next entry in zip file.
-	 *
-	 * @param filename file name.
-	 * @return <b>true</b> if a next entry has been opened.
-	 * @throws AdapterException
-	 */
-	private boolean openZipEntry(String filename) throws AdapterException {
-		ZipEntry entry;
-		try {
-			entry = zipInputStream.getNextEntry();
-			if (entry != null) {
-				entryName = filename + ":" + entry.getName();
-				LOGGER.debug("Next the zip entry {}", entry.getName());
-				reader = new BufferedReader(new InputStreamReader(zipInputStream));
-			} else {
-				LOGGER.debug("Zip file have no more entries");
-			}
-		} catch (Exception e) {
-			throw new AdapterException(String.format(CANNOT_READ_FILE_FORMAT, filename, e.getLocalizedMessage()), e);
-		}
-		if (entry == null) {
-			closeZipFile(filename);
-		}
-		return (entry != null);
-	}
-
-	/**
 	 * Close a zip file.
 	 *
 	 * @param filename file name.
 	 * @throws AdapterException
 	 */
-	private void closeZipFile(String filename) throws AdapterException {
+	private void closeFile(String filename) throws AdapterException {
 		if (fileInputStream != null) {
 			try {
 				fileInputStream.close();
