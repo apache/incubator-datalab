@@ -532,6 +532,7 @@ public class RequestBuilder {
 																	   String imageName) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, ExploratoryImageDTO.class)
+				.withProject(userInstance.getProject())
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
