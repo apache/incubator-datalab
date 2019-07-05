@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public interface ProjectDAO {
 
 	Optional<ProjectDTO> get(String name);
 
-	boolean update(ProjectDTO projectDTO);
+	boolean update(UpdateProjectDTO projectDTO);
 
 	void remove(String name);
 

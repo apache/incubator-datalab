@@ -5,6 +5,7 @@ import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.constants.ServiceConsts;
@@ -95,7 +96,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public void update(ProjectDTO projectDTO) {
+	public void update(UpdateProjectDTO projectDTO) {
 		if (!projectDAO.update(projectDTO)) {
 			throw projectNotFound().get();
 		}
