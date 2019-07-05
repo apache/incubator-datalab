@@ -105,12 +105,15 @@ mat-chip.mat-chip strong {
 .running,
 .starting,
 .installed,
-.active {
+.active,
+.activating {
   color: #49af38;
 }
 
 .stopped,
-.stopping {
+.stopping,
+.deactivating,
+.not_active {
   color: #f7b500;
 }
 
@@ -125,7 +128,9 @@ mat-chip.mat-chip strong {
 
 .terminated,
 .terminating,
-.failed {
+.failed,
+.deleting,
+.deleted {
   color: #f1696e;
 }
 
