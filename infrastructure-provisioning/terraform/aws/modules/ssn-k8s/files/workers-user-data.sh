@@ -28,13 +28,13 @@ sleep 5
 }
 
 # Creating DLab user
-sudo useradd -m -G sudo -s /bin/bash ${k8s-os-user}
-sudo bash -c 'echo "${k8s-os-user} ALL = NOPASSWD:ALL" >> /etc/sudoers'
-sudo mkdir /home/${k8s-os-user}/.ssh
-sudo bash -c 'cat /home/ubuntu/.ssh/authorized_keys > /home/${k8s-os-user}/.ssh/authorized_keys'
-sudo chown -R ${k8s-os-user}:${k8s-os-user} /home/${k8s-os-user}/
-sudo chmod 700 /home/${k8s-os-user}/.ssh
-sudo chmod 600 /home/${k8s-os-user}/.ssh/authorized_keys
+sudo useradd -m -G sudo -s /bin/bash ${k8s_os_user}
+sudo bash -c 'echo "${k8s_os_user} ALL = NOPASSWD:ALL" >> /etc/sudoers'
+sudo mkdir /home/${k8s-os-_ser}/.ssh
+sudo bash -c 'cat /home/ubuntu/.ssh/authorized_keys > /home/${k8s_os_user}/.ssh/authorized_keys'
+sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/
+sudo chmod 700 /home/${k8s_os_user}/.ssh
+sudo chmod 600 /home/${k8s_os_user}/.ssh/authorized_keys
 
 sudo apt-get update
 sudo apt-get install -y python-pip

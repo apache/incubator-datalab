@@ -39,7 +39,7 @@ variable "key_name" {
 variable "allowed_cidrs" {
   default = ["0.0.0.0/0"]
 }
-variable "os-user" {
+variable "os_user" {
   default = "dlab-user"
 }
 
@@ -49,7 +49,7 @@ variable "project_tag" {
 
 // SSN
 variable "service_base_name" {
-  default = "k8s"
+  default = "dlab-k8s"
 }
 variable "vpc_id" {
   default = ""
