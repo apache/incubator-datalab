@@ -151,7 +151,7 @@
             <i class="material-icons">developer_board</i>
             <span>Manage libraries</span>
           </li>
-          <li>
+          <li *ngIf="env.status === 'running'">
             <a target="_blank" [attr.href]="'/#/terminal/' + env.private_ip" class="navigate">
               <i class="material-icons">laptop</i>
               <span>Open terminal</span>
