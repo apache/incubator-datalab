@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -35,7 +34,6 @@ import org.junit.Test;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -157,42 +155,6 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
-	@Test
-	public void getUserResources() {
-		InfrastructureInfo info = getInfrastructureInfo();
-		when(infrastructureInfoService.getUserResources(anyString())).thenReturn(info);
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure/info")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.get();
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(info.toString(), response.readEntity(InfrastructureInfo.class).toString());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(infrastructureInfoService).getUserResources(USER.toLowerCase());
-		verifyNoMoreInteractions(infrastructureInfoService);
-	}
-
-	@Test
-	public void getUserResourcesWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		InfrastructureInfo info = getInfrastructureInfo();
-		when(infrastructureInfoService.getUserResources(anyString())).thenReturn(info);
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure/info")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.get();
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(info.toString(), response.readEntity(InfrastructureInfo.class).toString());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(infrastructureInfoService).getUserResources(USER.toLowerCase());
-		verifyNoMoreInteractions(infrastructureInfoService);
-	}
 
 	@Test
 	public void getUserResourcesWithException() {
@@ -223,7 +185,8 @@ public class InfrastructureInfoResourceTest extends TestBase {
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
 
-		final InfrastructureMetaInfoDTO infrastructureMetaInfoDTO = response.readEntity(InfrastructureMetaInfoDTO.class);
+		final InfrastructureMetaInfoDTO infrastructureMetaInfoDTO =
+				response.readEntity(InfrastructureMetaInfoDTO.class);
 		assertEquals("1.0", infrastructureMetaInfoDTO.getVersion());
 	}
 
@@ -231,9 +194,5 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		HealthStatusPageDTO hspdto = new HealthStatusPageDTO();
 		hspdto.setStatus("someStatus");
 		return hspdto;
-	}
-
-	private InfrastructureInfo getInfrastructureInfo() {
-		return new InfrastructureInfo(Collections.emptyMap(), Collections.emptyList());
 	}
 }

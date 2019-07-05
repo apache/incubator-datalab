@@ -8,6 +8,7 @@ import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecu
 import com.epam.dlab.backendapi.core.response.handlers.ProjectCallbackHandler;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.rest.client.RESTService;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ProjectServiceImpl implements ProjectService {
 	private static final String PROJECT_IMAGE = "docker.dlab-project";
 	private static final String EDGE_IMAGE = "docker.dlab-edge";
+	private static final String CALLBACK_URI = "/api/project/status";
 	@Inject
 	protected RESTService selfService;
 	@Inject
@@ -59,7 +61,7 @@ public class ProjectServiceImpl implements ProjectService {
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
 				new ProjectCallbackHandler(systemUserInfoService, selfService, userInfo.getName(), uuid,
-						action, "/api/project/status", projectName));
+						action, CALLBACK_URI, projectName, EdgeInfoGcp.class));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()

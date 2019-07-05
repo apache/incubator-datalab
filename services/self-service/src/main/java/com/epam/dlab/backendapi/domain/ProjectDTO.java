@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -24,21 +25,32 @@ public class ProjectDTO {
 	private final String tag;
 	private final Integer budget;
 	private final Status status = Status.CREATING;
+	private EdgeInfo edgeInfo;
 
 
 	public enum Status {
 		CREATING,
 		ACTIVE,
 		FAILED,
-		TERMINATED,
-		TERMINATING,
-		STOPPING,
-		STARTING,
-		STOPPED;
+		DELETED,
+		DELETING,
+		DEACTIVATING,
+		ACTIVATING,
+		NOT_ACTIVE;
 
 		public static Status from(UserInstanceStatus userInstanceStatus) {
 			if (userInstanceStatus == UserInstanceStatus.RUNNING) {
 				return ACTIVE;
+			} else if (userInstanceStatus == UserInstanceStatus.TERMINATED) {
+				return DELETED;
+			} else if (userInstanceStatus == UserInstanceStatus.TERMINATING) {
+				return DELETING;
+			} else if (userInstanceStatus == UserInstanceStatus.STOPPING) {
+				return DEACTIVATING;
+			} else if (userInstanceStatus == UserInstanceStatus.STOPPED) {
+				return NOT_ACTIVE;
+			} else if (userInstanceStatus == UserInstanceStatus.STARTING) {
+				return ACTIVATING;
 			}
 			return Status.valueOf(userInstanceStatus.name());
 		}
