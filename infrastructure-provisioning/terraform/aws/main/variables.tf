@@ -64,7 +64,7 @@ variable "subnet_cidr" {
   default = "172.31.0.0/24"
 }
 variable "ami" {
-  default = "ami-0c579621aaac8bade"
+  default = "ami-07b4f3c02c7f83d59"
 }
 variable "ssn_k8s_masters_count" {
   default = 3
