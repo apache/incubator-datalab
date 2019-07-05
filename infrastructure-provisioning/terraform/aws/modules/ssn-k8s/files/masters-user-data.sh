@@ -35,13 +35,13 @@ sleep 5
 }
 
 # Creating DLab user
-sudo useradd -m -G sudo -s /bin/bash ${k8s-os-user}
-sudo bash -c 'echo "${k8s-os-user} ALL = NOPASSWD:ALL" >> /etc/sudoers'
-sudo mkdir /home/${k8s-os-user}/.ssh
-sudo bash -c 'cat /home/ubuntu/.ssh/authorized_keys > /home/${k8s-os-user}/.ssh/authorized_keys'
-sudo chown -R ${k8s-os-user}:${k8s-os-user} /home/${k8s-os-user}/
-sudo chmod 700 /home/${k8s-os-user}/.ssh
-sudo chmod 600 /home/${k8s-os-user}/.ssh/authorized_keys
+sudo useradd -m -G sudo -s /bin/bash ${k8s_os_user}
+sudo bash -c 'echo "${k8s_os_user} ALL = NOPASSWD:ALL" >> /etc/sudoers'
+sudo mkdir /home/${k8s_os_user}/.ssh
+sudo bash -c 'cat /home/ubuntu/.ssh/authorized_keys > /home/${k8s_os_user}/.ssh/authorized_keys'
+sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/
+sudo chmod 700 /home/${k8s_os_user}/.ssh
+sudo chmod 600 /home/${k8s_os_user}/.ssh/authorized_keys
 
 sudo apt-get update
 sudo apt-get install -y python-pip jq unzip
@@ -88,14 +88,14 @@ do
         break
     fi
 done
-sudo mkdir -p /home/${k8s-os-user}/.kube
-sudo cp -i /etc/kubernetes/admin.conf /home/${k8s-os-user}/.kube/config
-sudo chown -R ${k8s-os-user}:${k8s-os-user} /home/${k8s-os-user}/.kube
+sudo mkdir -p /home/${k8s_os_user}/.kube
+sudo cp -i /etc/kubernetes/admin.conf /home/${k8s_os_user}/.kube/config
+sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/.kube
 sudo kubeadm token create --print-join-command > /tmp/join_command
 sudo kubeadm init phase upload-certs --upload-certs | grep -v "upload-certs" > /tmp/cert_key
-sudo -i -u ${k8s-os-user} kubectl apply -f \
-     "https://cloud.weave.works/k8s/net?k8s-version=$(sudo -i -u ${k8s-os-user} kubectl version | base64 | tr -d '\n')"
-sudo -i -u ${k8s-os-user} bash -c 'curl -L https://git.io/get_helm.sh | bash'
+sudo -i -u ${k8s_os_user} kubectl apply -f \
+     "https://cloud.weave.works/k8s/net?k8s-version=$(sudo -i -u ${k8s_os_user} kubectl version | base64 | tr -d '\n')"
+sudo -i -u ${k8s_os_user} bash -c 'curl -L https://git.io/get_helm.sh | bash'
 cat <<EOF > /tmp/rbac-config.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -116,8 +116,8 @@ subjects:
     name: tiller
     namespace: kube-system
 EOF
-sudo -i -u ${k8s-os-user} kubectl create -f /tmp/rbac-config.yaml
-sudo -i -u ${k8s-os-user} helm init --service-account tiller --history-max 200
+sudo -i -u ${k8s_os_user} kubectl create -f /tmp/rbac-config.yaml
+sudo -i -u ${k8s_os_user} helm init --service-account tiller --history-max 200
 sleep 60
 aws s3 cp /tmp/join_command s3://${k8s-bucket-name}/k8s/masters/join_command
 aws s3 cp /tmp/cert_key s3://${k8s-bucket-name}/k8s/masters/cert_key
@@ -139,11 +139,11 @@ aws s3 cp s3://${k8s-bucket-name}/k8s/masters/cert_key /tmp/cert_key
 join_command=`cat /tmp/join_command`
 cert_key=`cat /tmp/cert_key`
 sudo $join_command --control-plane --certificate-key $cert_key
-sudo mkdir -p /home/${k8s-os-user}/.kube
-sudo cp -i /etc/kubernetes/admin.conf /home/${k8s-os-user}/.kube/config
-sudo chown -R ${k8s-os-user}:${k8s-os-user} /home/${k8s-os-user}/.kube
-sudo -i -u ${k8s-os-user} bash -c 'curl -L https://git.io/get_helm.sh | bash'
-sudo -i -u ${k8s-os-user} helm init --client-only --history-max 200
+sudo mkdir -p /home/${k8s_os_user}/.kube
+sudo cp -i /etc/kubernetes/admin.conf /home/${k8s_os_user}/.kube/config
+sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/.kube
+sudo -i -u ${k8s_os_user} bash -c 'curl -L https://git.io/get_helm.sh | bash'
+sudo -i -u ${k8s_os_user} helm init --client-only --history-max 200
 fi
 cat <<EOF > /tmp/update_files.sh
 #!/bin/bash
@@ -161,19 +161,19 @@ sudo bash -c 'echo "0 0 * * * root /usr/local/bin/update_files.sh" >> /etc/cront
 cat <<EOF > /tmp/remove-etcd-member.sh
 #!/bin/bash
 hostname=\$(/bin/hostname)
-not_ready_node=\$(/usr/bin/sudo -i -u ${k8s-os-user} /usr/bin/kubectl get nodes | grep NotReady | grep master | awk '{print \$1}')
+not_ready_node=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl get nodes | grep NotReady | grep master | awk '{print \$1}')
 if [[ \$not_ready_node != "" ]]; then
-etcd_pod_name=\$(/usr/bin/sudo -i -u ${k8s-os-user} /usr/bin/kubectl get pods -n kube-system | /bin/grep etcd \
+etcd_pod_name=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl get pods -n kube-system | /bin/grep etcd \
     | /bin/grep "\$hostname" | /usr/bin/awk '{print \$1}')
-etcd_member_id=\$(/usr/bin/sudo -i -u ${k8s-os-user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
+etcd_member_id=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
     -- /bin/sh -c "ETCDCTL_API=3 etcdctl member list --endpoints=https://[127.0.0.1]:2379 \
     --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt \
     --key=/etc/kubernetes/pki/etcd/healthcheck-client.key"  | /bin/grep ", \$not_ready_node" | /usr/bin/awk -F',' '{print \$1}')
-/usr/bin/sudo -i -u ${k8s-os-user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
+/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
     -- /bin/sh -c "ETCDCTL_API=3 etcdctl member remove \$etcd_member_id --endpoints=https://[127.0.0.1]:2379 \
     --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt \
     --key=/etc/kubernetes/pki/etcd/healthcheck-client.key"
-/usr/bin/sudo -i -u ${k8s-os-user} /usr/bin/kubectl delete node \$not_ready_node
+/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl delete node \$not_ready_node
 
 fi
 
@@ -181,7 +181,7 @@ EOF
 sudo mv /tmp/remove-etcd-member.sh /usr/local/bin/remove-etcd-member.sh
 sudo chmod 755 /usr/local/bin/remove-etcd-member.sh
 sleep 600
-sudo -i -u ${k8s-os-user} helm repo update
+sudo -i -u ${k8s_os_user} helm repo update
 sudo bash -c 'echo "* * * * * root /usr/local/bin/remove-etcd-member.sh >> /var/log/cron_k8s.log 2>&1" >> /etc/crontab'
 wget https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip -O /tmp/terraform_0.12.3_linux_amd64.zip
 unzip /tmp/terraform_0.12.3_linux_amd64.zip -d /tmp/

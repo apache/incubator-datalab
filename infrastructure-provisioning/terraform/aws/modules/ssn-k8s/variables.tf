@@ -51,4 +51,4 @@ variable "ssn_k8s_masters_shape" {}
 
 variable "ssn_k8s_workers_shape" {}
 
-variable "os-user" {}
+variable "os_user" {}

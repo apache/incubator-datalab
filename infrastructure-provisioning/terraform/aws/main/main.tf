@@ -43,7 +43,7 @@ module "ssn-k8s" {
   subnet_cidr           = var.subnet_cidr
   ssn_k8s_masters_shape = var.ssn_k8s_masters_shape
   ssn_k8s_workers_shape = var.ssn_k8s_workers_shape
-  os-user               = var.os-user
+  os_user               = var.os_user
 }
 
 module "common" {
