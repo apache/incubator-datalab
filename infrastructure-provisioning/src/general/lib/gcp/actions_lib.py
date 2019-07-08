@@ -564,7 +564,7 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def undelete_role(self, role_name, permissions):
+    def undelete_role(self, role_name):
         request = self.service_iam.projects().roles().undelete(
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
         try:
