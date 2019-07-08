@@ -568,9 +568,7 @@ class GCPActions:
         request = self.service_iam.projects().roles().undelete(
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')),
                                                              body=
-                                                             {
-                                                                 "title": role_name
-                                                                 })
+                                                             { })
         try:
             result = request.execute()
             role = meta_lib.GCPMeta().get_role(role_name)
