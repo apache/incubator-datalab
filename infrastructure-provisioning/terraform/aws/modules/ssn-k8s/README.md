@@ -10,8 +10,8 @@ List of variables which should be provided:
 | subnet\_id               | string | ID of AWS Subnet if you already have subnet created.                                                      |
 | subnet\_cidr             | string | CIDR for Subnet creation. Conflicts with _subnet\_id_. Default: 172.31.0.0/24                             |
 | env\_os                  | string | OS type. Available options: debian, redhat. Default: debian                                               |
-| ami                      | string | ID of EC2 AMI.                                                                                            |
-| key\_name                | string | Name of EC2 Key pair.                                                                                     |
+| ami                      | string | **Required.** ID of EC2 AMI.                                                                                            |
+| key\_name                | string | **Required.** Name of EC2 Key pair.                                                                                     |
 | region                   | string | Name of AWS region. Default: us-west-2                                                                    |
 | zone                     | string | Name of AWS zone. Default: a                                                                              |
 | ssn\_k8s\_masters\_count | int    | Count of K8S masters. Default: 3                                                                          |
