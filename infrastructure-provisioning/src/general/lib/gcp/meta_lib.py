@@ -264,13 +264,14 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
 
     def get_role_status(self, role_name):
-        request = self.service_iam.projects().roles().list(name='projects/{}/roles/{}'.format(self.project,
-                                                                                             role_name.replace('-',
-                                                                                                               '_')))
+        request = self.service_iam.projects().roles().list(parent='projects/{}'.format(self.project,))
+
         try:
-            return request['showDeleted']
-            print('Deleted roles:')
-            print(request['showDeleted'])
+            for name in request['name']:
+                if request['name'] == role_name.replace('-','_'):
+                    return request['deleted']
+                    print('Deleted roles:')
+                    print(request['deleted'])
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
