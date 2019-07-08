@@ -264,7 +264,7 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
 
     def get_role_status(self, role_name):
-        request = self.service_iam.projects().roles().list(parent='projects/{}'.format(self.project,))
+        request = self.service_iam.projects().roles().list(parent='projects/{}'.format(self.project,),showDeleted='true').execute()
         print(request)
         rn = 'projects/{}/roles/{}'.format(self.project,role_name.replace('-','_'))
         try:
