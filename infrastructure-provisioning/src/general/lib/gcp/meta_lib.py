@@ -265,15 +265,11 @@ class GCPMeta:
 
     def get_role_status(self, role_name):
         request = self.service_iam.projects().roles().list(parent='projects/{}'.format(self.project,),showDeleted='true').execute()
-
         rn = 'projects/{}/roles/{}'.format(self.project,role_name.replace('-','_'))
         try:
             for role in request['roles']:
                 if role['name'] == rn:
-                    print('Deleted roles: ', role['name'], role['deleted'])
                     return role['deleted']
-
-
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
