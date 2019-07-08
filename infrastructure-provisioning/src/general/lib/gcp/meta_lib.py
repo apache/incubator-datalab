@@ -270,7 +270,7 @@ class GCPMeta:
         try:
             for role in request['roles']:
                 if role['name'] == rn:
-                    print('Deleted roles: ', role['name'])
+                    print('Deleted roles: ', role['name'], role['deleted'])
                     return role['deleted']
 
 
