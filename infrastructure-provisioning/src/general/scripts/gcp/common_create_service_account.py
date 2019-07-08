@@ -42,16 +42,11 @@ if __name__ == "__main__":
             print("Creating Service account {}".format(args.service_account_name))
             GCPActions().create_service_account(args.service_account_name)
             if GCPMeta().get_role(args.role_name):
-                print("REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name))
-                role_status = GCPMeta().get_role_status(args.role_name)
-                print('Status: ', role_status)
-                if role_status == True:
-                    print('Yes, true')
+                if GCPMeta().get_role_status(args.role_name) == True:
+                    print('Restoring deleted role')
                     GCPActions().undelete_role(args.role_name)
-                    sys.exit(1)
                 else:
-                    print('No, false')
-                    sys.exit(1)
+                    print("REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name))
             else:
                 if args.policy_path == '':
                     permissions = []
