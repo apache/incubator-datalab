@@ -45,7 +45,7 @@ if __name__ == "__main__":
                 print("REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name))
                 role_status = GCPMeta().get_role_status(args.role_name)
                 print('Status: ', role_status)
-                if role_status == 'True':
+                if role_status == True:
                     print('Yes, true')
                     GCPActions().undelete_role(args.role_name)
                     sys.exit(1)
