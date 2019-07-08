@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
+import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * Provides the REST API for the basic information about infrastructure.
@@ -85,7 +84,7 @@ public class InfrastructureInfoResource {
 	@GET
 	@Path("/info")
 	@ApiOperation("Returns list of user's resources")
-	public List<ProjectInfrastructureInfo> getUserResources(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+	public InfrastructureInfo getUserResources(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		return infrastructureInfoService.getUserResources(userInfo.getName());
 
 	}

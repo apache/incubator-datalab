@@ -4,6 +4,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.base.project.ProjectEdgeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
@@ -57,7 +58,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public void updateEdgeInfoAndStatus(String projectName, EdgeInfo edgeInfo, ProjectDTO.Status status) {
+	public void updateEdgeInfoAndStatus(String projectName, ProjectEdgeInfo edgeInfo, ProjectDTO.Status status) {
 		BasicDBObject dbObject = new BasicDBObject();
 		dbObject.put(STATUS_FIELD, status.toString());
 		dbObject.put(EDGE_INFO_FIELD, convertToBson(edgeInfo));

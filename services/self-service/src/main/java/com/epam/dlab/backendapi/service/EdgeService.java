@@ -30,6 +30,4 @@ public interface EdgeService {
 	String terminate(UserInfo userInfo);
 
 	void updateReuploadKeyFlag(String user, boolean reuploadKeyRequired, UserInstanceStatus... edgeStatuses);
-
-	String getEdgeInfo(UserInfo userInfo, String projectName);
 }

@@ -80,19 +80,19 @@ public class ProjectServiceImpl implements ProjectService {
 	public void terminate(UserInfo userInfo, String name) {
 		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API);
 		environmentService.terminateProjectEnvironment(name);
-		projectDAO.updateStatus(name, ProjectDTO.Status.DELETING);
+		projectDAO.updateStatus(name, ProjectDTO.Status.TERMINATING);
 	}
 
 	@Override
 	public void start(UserInfo userInfo, String name) {
 		projectActionOnCloud(userInfo, name, START_PRJ_API);
-		projectDAO.updateStatus(name, ProjectDTO.Status.ACTIVATING);
+		projectDAO.updateStatus(name, ProjectDTO.Status.STARTING);
 	}
 
 	@Override
 	public void stop(UserInfo userInfo, String name) {
 		projectActionOnCloud(userInfo, name, STOP_PRJ_API);
-		projectDAO.updateStatus(name, ProjectDTO.Status.DEACTIVATING);
+		projectDAO.updateStatus(name, ProjectDTO.Status.STOPPING);
 	}
 
 	@Override

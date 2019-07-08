@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.KeyDAO;
-import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -45,8 +44,6 @@ public class EdgeServiceImpl implements EdgeService {
 
 	@Inject
 	private KeyDAO keyDAO;
-	@Inject
-	private ProjectDAO projectDAO;
 
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
@@ -123,11 +120,6 @@ public class EdgeServiceImpl implements EdgeService {
 	@Override
 	public void updateReuploadKeyFlag(String user, boolean reuploadKeyRequired, UserInstanceStatus... edgeStatuses) {
 		keyDAO.updateEdgeReuploadKey(user, reuploadKeyRequired, edgeStatuses);
-	}
-
-	@Override
-	public String getEdgeInfo(UserInfo userInfo, String projectName) {
-		return null;
 	}
 
 	/**

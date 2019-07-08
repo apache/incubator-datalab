@@ -22,49 +22,47 @@ package com.epam.dlab.dto.base.edge;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class EdgeInfo {
-	@JsonProperty("_id")
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	private String id;
+    @JsonProperty("_id")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String id;
 
-	@JsonProperty("instance_id")
-	private String instanceId;
+    @JsonProperty("instance_id")
+    private String instanceId;
 
 	@JsonProperty
-	private String hostname;
+    private String hostname;
 
 	@JsonProperty("public_ip")
-	private String publicIp;
+    private String publicIp;
 
 	@JsonProperty
-	private String ip;
+    private String ip;
 
 	@JsonProperty("key_name")
-	private String keyName;
+    private String keyName;
 
 	@JsonProperty("tunnel_port")
-	private String tunnelPort;
+    private String tunnelPort;
 
 	@JsonProperty("socks_port")
-	private String socksPort;
+    private String socksPort;
 
 	@JsonProperty("notebook_sg")
-	private String notebookSg;
+    private String notebookSg;
 
 	@JsonProperty("edge_sg")
-	private String edgeSg;
+    private String edgeSg;
 
 	@JsonProperty("notebook_subnet")
-	private String notebookSubnet;
+    private String notebookSubnet;
 
 	@JsonProperty("edge_status")
-	private String edgeStatus;
+    private String edgeStatus;
 
 	@JsonProperty("reupload_key_required")
 	private boolean reuploadKeyRequired = false;

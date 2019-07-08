@@ -26,7 +26,7 @@ import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
+import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
@@ -36,10 +36,7 @@ import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 public abstract class InfrastructureInfoServiceBase<T> implements InfrastructureInfoService {
@@ -66,20 +63,12 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	}
 
 	@Override
-	public List<ProjectInfrastructureInfo> getUserResources(String user) {
+	public InfrastructureInfo getUserResources(String user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
 			Iterable<Document> documents = expDAO.findExploratory(user);
-
-			return StreamSupport.stream(documents.spliterator(),
-					false)
-					.collect(Collectors.groupingBy(d -> d.getString("project")))
-					.entrySet()
-					.stream()
-					.map(e -> new ProjectInfrastructureInfo(e.getKey(),
-							getSharedInfo(projectService.get(e.getKey()).getEdgeInfo()),
-							e.getValue()))
-					.collect(Collectors.toList());
+			EdgeInfo edgeInfo = keyDAO.getEdgeInfo(user);
+			return new InfrastructureInfo(getSharedInfo(edgeInfo), documents);
 		} catch (Exception e) {
 			log.error("Could not load list of provisioned resources for user: {}", user, e);
 			throw new DlabException("Could not load list of provisioned resources for user: ");
