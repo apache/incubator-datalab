@@ -28,6 +28,15 @@ class AbstractDeployBuilder:
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def install(self):
+        """Post terraform execution
+
+        Returns:
+            None
+        """
+        raise NotImplementedError
+
     def parse_args(self):
         """Get dict of arguments
 
@@ -39,37 +48,57 @@ class AbstractDeployBuilder:
             parser.add_argument(argument, **props)
         return vars(parser.parse_args())
 
+    def tf_init(self):
+        """Initialize terraform
+
+        Returns:
+             bool: init successful
+        """
+        terraform_success_init = 'Terraform has been successfully initialized!'
+        terraform_init_result = self.console_execute('terraform init')
+        return terraform_success_init in terraform_init_result
+
+    def tf_validate(self):
+        """Validate terraform
+
+        Returns:
+             bool: validation successful
+        """
+        terraform_success_validate = 'Success! The configuration is valid.'
+        terraform_validate_result = self.console_execute('terraform validate')
+        return terraform_success_validate in terraform_validate_result
+
+    def tf_apply(self, cli_args):
+        """Run terraform
+
+        Args:
+            cli_args: dict of parameters
+        Returns:
+             None
+        """
+        args = ['-var {0}={1}'.format(key, value) for key, value
+                in cli_args.items() if value]
+        args_str = ' '.join(args)
+        print('terraform apply {}'.format(args_str))
+
     def run_tf(self):
         """Execute terraform script
 
         Returns:
             None
         """
-
-        terraform_success_init = 'Terraform has been successfully initialized!'
-        terraform_success_validate = 'Success! The configuration is valid.'
-
         tf_location = self.terraform_location
         cli_args = self.parse_args()
 
         os.chdir(tf_location)
-        terraform_init_result = os.popen('terraform init').read()
-        if terraform_success_init in terraform_init_result:
-            terraform_validate_result = os.popen('terraform validate').read()
-            if terraform_success_validate in terraform_validate_result:
-                args = ['-var {0}={1}'.format(key, value) for key, value
-                        in cli_args.items() if value]
-                args_str = ' '.join(args)
-                print('terraform apply {}'.format(args_str))
 
-    @abc.abstractmethod
-    def install(self):
-        """Post terraform execution
+        if self.tf_init() and self.tf_validate():
+            self.tf_apply(cli_args)
 
-        Returns:
-            None
-        """
-        raise NotImplementedError
+
+    @staticmethod
+    def console_execute(command):
+        return os.popen(command).read()
 
 
 class DeployDirector:
@@ -94,7 +123,7 @@ class DeployDirector:
         return 0
 
 
-class K8SSourceBuilder(AbstractDeployBuilder):
+class AWSSourceBuilder(AbstractDeployBuilder):
 
     @property
     def terraform_location(self):
@@ -214,7 +243,7 @@ class K8SSourceBuilder(AbstractDeployBuilder):
 def main():
     # TODO switch case depend on TF file name
     deploy_director = DeployDirector()
-    builder = K8SSourceBuilder()
+    builder = AWSSourceBuilder()
     deploy_director.build(builder)
 
 
