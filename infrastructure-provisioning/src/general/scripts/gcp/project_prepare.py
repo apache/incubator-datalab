@@ -94,9 +94,10 @@ if __name__ == "__main__":
     project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     # FUSE in case of absence of user's key
-    fname = "/root/keys/{}.pub".format(project_conf['user_keyname'])
-    if not os.path.isfile(fname):
-        print("USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname))
+    try:
+        project_conf['user_key'] = os.environ['key']
+    except KeyError:
+        print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
         sys.exit(1)
 
     print("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(

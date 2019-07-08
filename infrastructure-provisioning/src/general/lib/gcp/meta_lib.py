@@ -270,9 +270,10 @@ class GCPMeta:
         try:
             for role in request['roles']:
                 if role['name'] == rn:
+                    print('Deleted roles: ', role['name'])
                     return role['deleted']
-                    print('Deleted roles:')
-                    print(role['deleted'])
+
+
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
