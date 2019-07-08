@@ -268,7 +268,7 @@ class GCPMeta:
 
         try:
             for name in request['name']:
-                if request['name'] == role_name.replace('-','_'):
+                if name == role_name.replace('-','_'):
                     return request['deleted']
                     print('Deleted roles:')
                     print(request['deleted'])
