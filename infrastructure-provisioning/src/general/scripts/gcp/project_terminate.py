@@ -28,12 +28,12 @@ import sys, time, os
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(user_name, service_base_name, region, zone):
+def terminate_edge_node(project_name, service_base_name, region, zone):
     print("Terminating Dataengine-service clusters")
     try:
         labels = [
             {'sbn': service_base_name},
-            {'user': user_name}
+            {'project_name': project_name}
         ]
         clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
         if clusters_list:
@@ -47,14 +47,14 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
-    base = '{}-{}'.format(service_base_name, user_name)
+    base = '{}-{}'.format(service_base_name, project_name)
     keys = ['edge', 'ps', 'ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
     try:
         instances = GCPMeta().get_list_instances(zone, base)
         if 'items' in instances:
             for i in instances['items']:
-                if 'user' in i['labels'] and user_name == i['labels']['user']:
+                if 'project_name' in i['labels'] and project_name == i['labels']['project_name']:
                     GCPActions().remove_instance(i['name'], zone)
     except Exception as err:
         print('Error: {0}'.format(err))
@@ -121,26 +121,26 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
     # generating variables dictionary
     print('Generating infrastructure names and tags')
-    edge_conf = dict()
-    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-    edge_conf['region'] = os.environ['gcp_region']
-    edge_conf['zone'] = os.environ['gcp_zone']
+    project_conf = dict()
+    project_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
+    project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    project_conf['region'] = os.environ['gcp_region']
+    project_conf['zone'] = os.environ['gcp_zone']
 
     try:
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(edge_conf['edge_user_name'], edge_conf['service_base_name'],
-                                edge_conf['region'], edge_conf['zone'])
+            terminate_edge_node(project_conf['project_name'], project_conf['service_base_name'],
+                                project_conf['region'], project_conf['zone'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
@@ -151,8 +151,8 @@ if __name__ == "__main__":
     try:
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": edge_conf['service_base_name'],
-                   "user_name": edge_conf['edge_user_name'],
-                   "Action": "Terminate edge node"}
+                   "project_name": edge_conf['project_name'],
+                   "Action": "Terminate project"}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:

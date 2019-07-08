@@ -566,7 +566,13 @@ class GCPActions:
 
     def undelete_role(self, role_name):
         request = self.service_iam.projects().roles().undelete(
-            name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
+            name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')),
+                                                             body=
+                                                             {
+                                                                 "roleId": role_name.replace('-', '_'),
+                                                                 "role": {
+                                                                     "title": role_name,
+                                                                 }})
         try:
             result = request.execute()
             role = meta_lib.GCPMeta().get_role(role_name)
