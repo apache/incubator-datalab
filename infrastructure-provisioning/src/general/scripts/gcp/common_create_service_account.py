@@ -43,8 +43,12 @@ if __name__ == "__main__":
             GCPActions().create_service_account(args.service_account_name)
             if GCPMeta().get_role(args.role_name):
                 print("REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name))
+                print(GCPMeta().get_role_status(args.role_name))
                 if GCPMeta().get_role_status(args.role_name) == 'true':
-                    GCPActions().create_role(args.role_name)
+                    GCPActions().undelete_role(args.role_name)
+                    sys.exit(1)
+                else:
+                    sys.exit(1)
             else:
                 if args.policy_path == '':
                     permissions = []
