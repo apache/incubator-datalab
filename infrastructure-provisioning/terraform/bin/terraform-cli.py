@@ -45,9 +45,22 @@ class AbstractDeployBuilder:
         Returns:
             None
         """
-        # location = self.terraform_location
-        args = self.parse_args()
-        print(args)
+
+        terraform_success_init = 'Terraform has been successfully initialized!'
+        terraform_success_validate = 'Success! The configuration is valid.'
+
+        tf_location = self.terraform_location
+        cli_args = self.parse_args()
+
+        os.chdir(tf_location)
+        terraform_init_result = os.popen('terraform init').read()
+        if terraform_success_init in terraform_init_result:
+            terraform_validate_result = os.popen('terraform validate').read()
+            if terraform_success_validate in terraform_validate_result:
+                args = ['-var {0}={1}'.format(key, value) for key, value
+                        in cli_args.items() if value]
+                args_str = ' '.join(args)
+                print('terraform apply {}'.format(args_str))
 
     @abc.abstractmethod
     def install(self):
@@ -85,8 +98,8 @@ class K8SSourceBuilder(AbstractDeployBuilder):
 
     @property
     def terraform_location(self):
-        # TODO: get terraform location
-        return 'terraform location'
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
+        return os.path.join(tf_dir, 'aws/main')
 
     @property
     def cli_args(self):
@@ -100,6 +113,7 @@ class K8SSourceBuilder(AbstractDeployBuilder):
             },
             'vpc_id': {
                 'type': str,
+                'nargs': '?',
                 'help': 'ID of AWS VPC if you already have VPC created.',
             },
             'vpc_cidr': {
@@ -110,6 +124,7 @@ class K8SSourceBuilder(AbstractDeployBuilder):
             },
             'subnet_id': {
                 'type': str,
+                'nargs': '?',
                 'help': 'ID of AWS Subnet if you already have subnet created.',
             },
             'subnet_cidr': {
@@ -125,13 +140,15 @@ class K8SSourceBuilder(AbstractDeployBuilder):
                 'default': 'debian',
                 'choices': ('debian', 'redhat'),
             },
-            'ami': {
+            'ami': {  # from python
                 'type': str,
                 'help': 'ID of EC2 AMI.',
+                'nargs': '?',
             },
-            'key_name': {
+            'key_name': {  # from python
                 'type': str,
                 'help': 'Name of EC2 Key pair.',
+                'nargs': '?',
             },
             'region': {
                 'type': str,
