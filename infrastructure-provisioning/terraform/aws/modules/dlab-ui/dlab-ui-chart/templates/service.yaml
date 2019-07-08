@@ -19,36 +19,19 @@
 #
 # ******************************************************************************
 
-variable "service_base_name" {}
-
-variable "vpc_id" {}
-
-variable "vpc_cidr" {}
-
-variable "subnet_id" {}
-
-variable "subnet_cidr" {}
-
-variable "env_os" {}
-
-variable "ami" {}
-
-variable "key_name" {}
-
-variable "region" {}
-
-variable "zone" {}
-
-variable "ssn_k8s_masters_count" {}
-
-variable "ssn_k8s_workers_count" {}
-
-variable "ssn_root_volume_size" {}
-
-variable "allowed_cidrs" {}
-
-variable "ssn_k8s_masters_shape" {}
-
-variable "ssn_k8s_workers_shape" {}
-
-variable "os_user" {}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dlab-ui.fullname" . }}
+  labels:
+{{ include "dlab-ui.labels" . | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 58443
+      protocol: TCP
+      name: https
+  selector:
+    app.kubernetes.io/name: {{ include "dlab-ui.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

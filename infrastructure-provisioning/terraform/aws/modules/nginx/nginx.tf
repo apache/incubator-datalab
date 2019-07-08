@@ -18,37 +18,31 @@
 # under the License.
 #
 # ******************************************************************************
+provider "helm" {
+    install_tiller  = true
+    namespace       = "kube-system"
+    service_account = "tiller"
+    tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
+}
 
-variable "service_base_name" {}
 
-variable "vpc_id" {}
+resource "helm_release" "my_mongo" {
+    name      = "nginx-ingress"
+    chart     = "stable/nginx-ingress"
 
-variable "vpc_cidr" {}
+    set {
+        name = "controller.service.nodePorts.http"
+        value = "${var.mongo_root_pwd}"
+    }
 
-variable "subnet_id" {}
+    set {
+        name = "controller.service.nodePorts.https"
+        value = "${var.mongo_db_username}"
+    }
 
-variable "subnet_cidr" {}
+    set {
+        name = "controller.service.type"
+        value = "NodePort"
+    }
 
-variable "env_os" {}
-
-variable "ami" {}
-
-variable "key_name" {}
-
-variable "region" {}
-
-variable "zone" {}
-
-variable "ssn_k8s_masters_count" {}
-
-variable "ssn_k8s_workers_count" {}
-
-variable "ssn_root_volume_size" {}
-
-variable "allowed_cidrs" {}
-
-variable "ssn_k8s_masters_shape" {}
-
-variable "ssn_k8s_workers_shape" {}
-
-variable "os_user" {}
+}

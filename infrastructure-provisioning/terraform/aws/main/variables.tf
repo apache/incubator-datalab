@@ -39,7 +39,7 @@ variable "key_name" {
 variable "allowed_cidrs" {
   default = ["0.0.0.0/0"]
 }
-variable "os-user" {
+variable "os_user" {
   default = "dlab-user"
 }
 
@@ -49,7 +49,7 @@ variable "project_tag" {
 
 // SSN
 variable "service_base_name" {
-  default = "k8s"
+  default = "dlab-k8s"
 }
 variable "vpc_id" {
   default = ""
@@ -64,7 +64,7 @@ variable "subnet_cidr" {
   default = "172.31.0.0/24"
 }
 variable "ami" {
-  default = "ami-08692d171e3cf02d6"
+  default = "ami-07b4f3c02c7f83d59"
 }
 variable "ssn_k8s_masters_count" {
   default = 3

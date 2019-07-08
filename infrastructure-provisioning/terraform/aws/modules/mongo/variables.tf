@@ -18,37 +18,23 @@
 # under the License.
 #
 # ******************************************************************************
-
-variable "service_base_name" {}
-
-variable "vpc_id" {}
-
-variable "vpc_cidr" {}
-
-variable "subnet_id" {}
-
-variable "subnet_cidr" {}
-
-variable "env_os" {}
-
-variable "ami" {}
-
-variable "key_name" {}
-
-variable "region" {}
-
-variable "zone" {}
-
-variable "ssn_k8s_masters_count" {}
-
-variable "ssn_k8s_workers_count" {}
-
-variable "ssn_root_volume_size" {}
-
-variable "allowed_cidrs" {}
-
-variable "ssn_k8s_masters_shape" {}
-
-variable "ssn_k8s_workers_shape" {}
-
-variable "os_user" {}
+variable "mongo_root_pwd" {
+    default = "$tr0ng_r00T-passworI)"
+    description = "Password for MongoDB root user"
+}
+variable "mongo_db_username" {
+    default = "admin"
+    description = "Password for MongoDB root user"
+}
+variable "mongo_db_pwd" {
+    default = "$tr0ng_N0N=r00T-passworI)"
+    description = "Password for MongoDB root user"
+}
+variable "mongo_dbname" {
+    default = "dlabdb"
+    description = "Password for MongoDB root user"
+}
+variable "image_tag" {
+    default = "4.0.10-debian-9-r13"
+    description = "MongoDB Image tag"
+}
