@@ -35,6 +35,12 @@ class TerraformProvider:
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)
 
+    def get_args_string(self, cli_args):
+        args = ['-var {0}={1}'.format(key, value) for
+                key, value
+                in cli_args.items() if value]
+        return' '.join(args)
+
     def apply(self, cli_args):
         """Run terraform
 
@@ -43,10 +49,19 @@ class TerraformProvider:
         Returns:
              None
         """
-        args = ['-var {0}={1}'.format(key.replace('--',''), value) for key, value
-                in cli_args.items() if value]
-        args_str = ' '.join(args)
-        print('terraform apply {}'.format(args_str))
+        args_str = self.get_args_string(cli_args)
+        self.console_execute('terraform apply {}'.format(args_str))
+
+    def destroy(self, cli_args):
+        """Run terraform
+
+        Args:
+            cli_args: dict of parameters
+        Returns:
+             None
+        """
+        args_str = self.get_args_string(cli_args)
+        self.console_execute('terraform destroy {}'.format(args_str))
 
     @staticmethod
     def console_execute(command):
@@ -110,7 +125,12 @@ class AbstractDeployBuilder:
         try:
             terraform.initialize()
             terraform.validate()
-            terraform.apply(cli_args)
+
+            action = cli_args.pop('action')
+            if action == 'deploy':
+                terraform.apply(cli_args)
+            elif action == 'destroy':
+                terraform.destroy(cli_args)
         except TerraformProviderError as error:
             print(error)
 
@@ -119,6 +139,9 @@ class AbstractDeployBuilder:
 
     def build_int_arg_param(self, name, desc, **kwargs):
         return self.build_arg_param(int, name, desc, **kwargs)
+
+    def build_list_arg_param(self, name, desc, **kwargs):
+        return self.build_arg_param(list, name, desc, **kwargs)
 
     @staticmethod
     def build_arg_param(arg_type, name, desc, **kwargs):
@@ -129,6 +152,8 @@ class AbstractDeployBuilder:
                 'type': arg_type,
                 'default': kwargs.get('default'),
                 'choices': kwargs.get('choices'),
+                'nargs': kwargs.get('nargs'),
+                'action': kwargs.get('action'),
             }
         }
 
@@ -165,6 +190,8 @@ class AWSSourceBuilder(AbstractDeployBuilder):
     @property
     def cli_args(self):
         return [
+            self.build_str_arg_param('--action', 'Action', default='deploy'),
+            self.build_str_arg_param('--target', 'Target', default='module.ssn-k8s'),
             self.build_str_arg_param('--access_key_id',
                                      'AWS Access Key ID'),
             self.build_str_arg_param('--secret_access_key',
@@ -198,7 +225,7 @@ class AWSSourceBuilder(AbstractDeployBuilder):
             self.build_str_arg_param('--zone', 'Name of AWS zone', default='a'),
             self.build_str_arg_param('--allowed_cidrs',
                                      'CIDR to allow acces to SSN K8S cluster.',
-                                     default='0.0.0.0/0'),
+                                     default=['0.0.0.0/0'], action='append'),
             self.build_str_arg_param('--ssn_k8s_masters_shape',
                                      'Shape for SSN K8S masters.',
                                      default='t2.medium'),
