@@ -12,15 +12,23 @@ class TerraformProviderError(Exception):
     pass
 
 
+class Console:
+    @staticmethod
+    def execute(command):
+        return os.popen(command).read()
+
+
 class TerraformProvider:
     def initialize(self):
         """Initialize terraform
 
         Returns:
              bool: init successful
+        Raises:
+            TerraformProviderError: if initialization was not succeed
         """
         terraform_success_init = 'Terraform has been successfully initialized!'
-        terraform_init_result = self.console_execute('terraform init')
+        terraform_init_result = Console.execute('terraform init')
         if terraform_success_init not in terraform_init_result:
             raise TerraformProviderError(terraform_init_result)
 
@@ -29,22 +37,14 @@ class TerraformProvider:
 
         Returns:
              bool: validation successful
+        Raises:
+            TerraformProviderError: if validation status was not succeed
+
         """
         terraform_success_validate = 'Success!'
-        terraform_validate_result = self.console_execute('terraform validate')
+        terraform_validate_result = Console.execute('terraform validate')
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)
-
-    def get_args_string(self, cli_args):
-        args = []
-        for key, value in cli_args.items():
-            if not value:
-                continue
-            if type(value) == list:
-                joined_values = ', '.join(['"{}"'.format(item) for item in value])
-                value = '[{}]'.format(joined_values)
-            args.append("-var '{0}={1}'".format(key, value))
-        return' '.join(args)
 
     def apply(self, cli_args):
         """Run terraform
@@ -56,10 +56,10 @@ class TerraformProvider:
         """
         args_str = self.get_args_string(cli_args)
         command = 'terraform apply -auto-approve -target module.ssn-k8s {}'
-        print(command.format(args_str))
+        Console.execute(command.format(args_str))
 
     def destroy(self, cli_args):
-        """Run terraform
+        """Destroy terraform
 
         Args:
             cli_args: dict of parameters
@@ -68,11 +68,36 @@ class TerraformProvider:
         """
         args_str = self.get_args_string(cli_args)
         command = 'terraform destroy -auto-approve -target module.ssn-k8s {}'
-        self.console_execute(command.format(args_str))
+        Console.execute(command.format(args_str))
+
+    def output(self):
+        """
+
+        Returns:
+            str: terraform output result
+
+        """
+        return Console.execute('terraform output')
 
     @staticmethod
-    def console_execute(command):
-        return os.popen(command).read()
+    def get_args_string(cli_args):
+        """Convert dict of cli argument into string
+
+        Args:
+            cli_args: dict of cli arguments
+        Returns:
+            str: string of joined key=values
+        """
+        args = []
+        for key, value in cli_args.items():
+            if not value:
+                continue
+            if type(value) == list:
+                quoted_list = ['"{}"'.format(item) for item in value]
+                joined_values = ', '.join(quoted_list)
+                value = '[{}]'.format(joined_values)
+            args.append("-var '{0}={1}'".format(key, value))
+        return ' '.join(args)
 
 
 class AbstractDeployBuilder:
@@ -123,6 +148,8 @@ class AbstractDeployBuilder:
 
         Returns:
             None
+        Raises:
+            TerraformProviderError: if init or validate fails
         """
         tf_location = self.terraform_location
         cli_args = self.parse_args()
@@ -130,39 +157,51 @@ class AbstractDeployBuilder:
 
         os.chdir(tf_location)
         try:
-            # terraform.initialize()
-            # terraform.validate()
+            terraform.initialize()
+            terraform.validate()
 
             action = cli_args.pop('action')
             if action == 'deploy':
                 terraform.apply(cli_args)
             elif action == 'destroy':
                 terraform.destroy(cli_args)
-        except TerraformProviderError as error:
-            print(error)
+        except TerraformProviderError as ex:
+            raise Exception('Error while provisioning {}'.format(ex))
 
-    def build_str_arg_param(self, name, desc, **kwargs):
-        return self.build_arg_param(str, name, desc, **kwargs)
+    def get_node_ip(self, output):
+        """Extract ip
 
-    def build_int_arg_param(self, name, desc, **kwargs):
-        return self.build_arg_param(int, name, desc, **kwargs)
+        Args:
+            output: str of terraform output
+        Returns:
+            str: extracted ip
 
-    def build_list_arg_param(self, name, desc, **kwargs):
-        return self.build_arg_param(list, name, desc, **kwargs)
+        """
+        # TODO: extract ip address from tf output
+        return 'ip'
 
-    @staticmethod
-    def build_arg_param(arg_type, name, desc, **kwargs):
-        return {
-            'name': name,
-            'props': {
-                'help': desc,
-                'type': arg_type,
-                'default': kwargs.get('default'),
-                'choices': kwargs.get('choices'),
-                'nargs': kwargs.get('nargs'),
-                'action': kwargs.get('action'),
-            }
-        }
+    def check_k8s_cluster_status(self):
+        """ Check for kubernetes status
+
+        Returns:
+            None
+        Raises:
+            TerraformProviderError: if master or kubeDNS is not running
+
+        """
+        terraform = TerraformProvider()
+        output = terraform.output()
+        ip = self.get_node_ip(output)
+        user_name = 'user'
+
+        Console.execute('ssh {}@{}'.format(user_name, ip))
+        k8c_info = Console.execute('kubectl cluster-info')
+        kubernetes_success_status = 'Kubernetes master is running'
+        kubernetes_dns_success_status = 'KubeDNS is running'
+        if kubernetes_success_status not in k8c_info:
+            raise TerraformProviderError('Master issue: {}'.format(k8c_info))
+        if kubernetes_dns_success_status not in k8c_info:
+            raise TerraformProviderError('KubeDNS issue: {}'.format(k8c_info))
 
 
 class DeployDirector:
@@ -175,8 +214,12 @@ class DeployDirector:
         Returns:
             None
         """
-        builder.provision()
-        builder.deploy()
+        try:
+            builder.provision()
+            builder.check_k8s_cluster_status()
+            builder.deploy()
+        except Exception as ex:
+            print(ex)
 
     def get_status(self):
         """ Get execution status
@@ -184,7 +227,38 @@ class DeployDirector:
         Returns:
             int: Execution error status (0 if success)
         """
+
         return 0
+
+
+class ParamsBuilder:
+
+    def __init__(self):
+        self.__params = []
+
+    def add(self, arg_type, name, desc, **kwargs):
+        parameter = {
+            'name': name,
+            'props': {
+                'help': desc,
+                'type': arg_type,
+                'default': kwargs.get('default'),
+                'choices': kwargs.get('choices'),
+                'nargs': kwargs.get('nargs'),
+                'action': kwargs.get('action'),
+            }
+        }
+        self.__params.append(parameter)
+        return self
+
+    def add_str(self, name, desc, **kwargs):
+        return self.add(str, name, desc, **kwargs)
+
+    def add_int(self, name, desc, **kwargs):
+        return self.add(int, name, desc, **kwargs)
+
+    def build(self):
+        return self.__params
 
 
 class AWSSourceBuilder(AbstractDeployBuilder):
@@ -196,57 +270,42 @@ class AWSSourceBuilder(AbstractDeployBuilder):
 
     @property
     def cli_args(self):
-        return [
-            self.build_str_arg_param('--action', 'Action', default='deploy'),
-            self.build_str_arg_param('--access_key_id',
-                                     'AWS Access Key ID'),
-            self.build_str_arg_param('--secret_access_key',
-                                     'AWS Secret Access Key'),
-            self.build_str_arg_param('--service_base_name',
-                                     'Any infrastructure value (should be '
-                                     'unique if multiple SSN\'s have been '
-                                     'deployed before).',
-                                     default='dlab-k8s'),
-            self.build_str_arg_param('--vpc_id',
-                                     'ID of AWS VPC if you already have VPC '
-                                     'created.'),
-            self.build_str_arg_param('--vpc_cidr',
-                                     'CIDR for VPC creation. '
-                                     'Conflicts with vpc_id',
-                                     default='172.31.0.0/16'),
-            self.build_str_arg_param('--subnet_id',
-                                     'ID of AWS Subnet if you already have '
-                                     'subnet created.'),
-            self.build_str_arg_param('--subnet_cidr',
-                                     'CIDR for Subnet creation. Conflicts with '
-                                     'subnet_id.',
-                                     default='172.31.0.0/24'),
-            self.build_str_arg_param('--env_os',
-                                     'OS type.',
-                                     default='debian'),
-            self.build_str_arg_param('--ami', 'ID of EC2 AMI.'),
-            self.build_str_arg_param('--key_name', 'Name of EC2 Key pair.'),
-            self.build_str_arg_param('--region', 'Name of AWS region.',
-                                     default='us-west-2'),
-            self.build_str_arg_param('--zone', 'Name of AWS zone', default='a'),
-            self.build_str_arg_param('--allowed_cidrs',
-                                     'CIDR to allow acces to SSN K8S cluster.',
-                                     default=["0.0.0.0/0"], action='append'),
-            self.build_str_arg_param('--ssn_k8s_masters_shape',
-                                     'Shape for SSN K8S masters.',
-                                     default='t2.medium'),
-            self.build_str_arg_param('--ssn_k8s_workers_shape',
-                                     'Shape for SSN K8S workers.',
-                                     default='t2.medium'),
-            self.build_str_arg_param('--os_user', 'Name of DLab service user.',
-                                     default='dlab-user'),
-            self.build_int_arg_param('--ssn_k8s_masters_count',
-                                     'Count of K8S masters.', default=3),
-            self.build_int_arg_param('--ssn_k8s_workers_count',
-                                     'Count of K8S workers', default=2),
-            self.build_int_arg_param('--ssn_root_volume_size',
-                                     'Size of root volume in GB.', default=30),
-        ]
+        params = ParamsBuilder()
+        (params
+         .add_str('--action', 'Action', default='deploy')
+         .add_str('--access_key_id', 'AWS Access Key ID')
+         .add_str('--allowed_cidrs',
+                  'CIDR to allow acces to SSN K8S cluster.',
+                  default=["0.0.0.0/0"], action='append')
+         .add_str('--ami', 'ID of EC2 AMI.')
+         .add_str('--env_os', 'OS type.', default='debian')
+         .add_str('--key_name', 'Name of EC2 Key pair.')
+         .add_str('--os_user', 'Name of DLab service user.',
+                  default='dlab-user')
+         .add_str('--region', 'Name of AWS region.', default='us-west-2')
+         .add_str('--secret_access_key', 'AWS Secret Access Key')
+         .add_str('--service_base_name',
+                  'Any infrastructure value (should be unique if '
+                  'multiple SSN\'s have been deployed before).',
+                  default='dlab-k8s')
+         .add_int('--ssn_k8s_masters_count', 'Count of K8S masters.', default=3)
+         .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2)
+         .add_str('--ssn_k8s_masters_shape', 'Shape for SSN K8S masters.',
+                  default='t2.medium')
+         .add_str('--ssn_k8s_workers_shape', 'Shape for SSN K8S workers.',
+                  default='t2.medium')
+         .add_int('--ssn_root_volume_size', 'Size of root volume in GB.',
+                  default=30)
+         .add_str('--subnet_cidr',
+                  'CIDR for Subnet creation. Conflicts with  subnet_id.',
+                  default='172.31.0.0/24')
+         .add_str('--subnet_id',
+                  'ID of AWS Subnet if you already have subnet created.')
+         .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id',
+                  default='172.31.0.0/16')
+         .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.')
+         .add_str('--zone', 'Name of AWS zone', default='a'))
+        return params.build()
 
     def deploy(self):
         # os.system('ls -l')
