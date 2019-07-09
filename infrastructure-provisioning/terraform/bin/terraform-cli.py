@@ -30,7 +30,7 @@ class TerraformProvider:
         Returns:
              bool: validation successful
         """
-        terraform_success_validate = 'Success! The configuration is valid.'
+        terraform_success_validate = 'Success!'
         terraform_validate_result = self.console_execute('terraform validate')
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)
@@ -167,11 +167,9 @@ class AWSSourceBuilder(AbstractDeployBuilder):
     def cli_args(self):
         return [
             self.build_str_arg_param('access_key_id',
-                                     'AWS Access Key ID.',
-                                     nargs=None),
+                                     'AWS Access Key ID.'),
             self.build_str_arg_param('secret_access_key',
-                                     'AWS Secret Access Key.',
-                                     nargs=None),
+                                     'AWS Secret Access Key.'),
             self.build_str_arg_param('service_base_name',
                                      'Any infrastructure value (should be '
                                      'unique if multiple SSN\'s have been '
@@ -193,12 +191,9 @@ class AWSSourceBuilder(AbstractDeployBuilder):
                                      default='172.31.0.0/24'),
             self.build_str_arg_param('env_os',
                                      'OS type.',
-                                     default='debian',
-                                     choices=('debian', 'redhat')),
-            self.build_str_arg_param('ami', 'ID of EC2 AMI.',
-                                     nargs=None),
-            self.build_str_arg_param('key_name', 'Name of EC2 Key pair.',
-                                     nargs=None),
+                                     default='debian'),
+            self.build_str_arg_param('ami', 'ID of EC2 AMI.'),
+            self.build_str_arg_param('key_name', 'Name of EC2 Key pair.'),
             self.build_str_arg_param('region', 'Name of AWS region.',
                                      default='us-west-2'),
             self.build_str_arg_param('zone', 'Name of AWS zone', default='a'),
