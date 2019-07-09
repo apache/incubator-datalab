@@ -124,3 +124,20 @@ module "ami" {
   project_tag        = "${var.project_tag}"
   notebook_name      = "${var.notebook_name}"
 }
+
+module "endpoint" {
+  source                  = "../modules/endpoint"
+  service_base_name       = var.service_base_name
+  region                  = var.region
+  zone                    = var.zone
+  product                 = var.product_name
+  subnet_cidr             = var.subnet_cidr
+  endpoint_instance_shape = var.endpoint_instance_shape
+  key_name                = var.key_name
+  ami                     = var.ami
+  vpc_id                  = var.vpc_id
+  subnet_id               = var.subnet_id
+  network_type            = var.network_type
+  vpc_cidr                = var.vpc_cidr
+  endpoint_volume_size    = var.endpoint_volume_size
+}

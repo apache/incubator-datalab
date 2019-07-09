@@ -158,3 +158,15 @@ variable "bid_price" {
 variable "source_instance_id" {
   default = ""
 }
+
+variable "endpoint_instance_shape" {
+  default = "t2.medium"
+}
+
+variable "network_type" {
+  default = "public"
+}
+
+variable "endpoint_volume_size" {
+  default = "30"
+}
