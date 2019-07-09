@@ -43,7 +43,7 @@ class TerraformProvider:
         Returns:
              None
         """
-        args = ['-var {0}={1}'.format(key, value) for key, value
+        args = ['-var {0}={1}'.format(key.replace('--',''), value) for key, value
                 in cli_args.items() if value]
         args_str = ' '.join(args)
         print('terraform apply {}'.format(args_str))
@@ -127,7 +127,6 @@ class AbstractDeployBuilder:
             'props': {
                 'help': desc,
                 'type': arg_type,
-                'nargs': kwargs.get('nargs', '?'),
                 'default': kwargs.get('default'),
                 'choices': kwargs.get('choices'),
             }
@@ -166,53 +165,53 @@ class AWSSourceBuilder(AbstractDeployBuilder):
     @property
     def cli_args(self):
         return [
-            self.build_str_arg_param('access_key_id',
-                                     'AWS Access Key ID.'),
-            self.build_str_arg_param('secret_access_key',
-                                     'AWS Secret Access Key.'),
-            self.build_str_arg_param('service_base_name',
+            self.build_str_arg_param('--access_key_id',
+                                     'AWS Access Key ID'),
+            self.build_str_arg_param('--secret_access_key',
+                                     'AWS Secret Access Key'),
+            self.build_str_arg_param('--service_base_name',
                                      'Any infrastructure value (should be '
                                      'unique if multiple SSN\'s have been '
                                      'deployed before).',
                                      default='dlab-k8s'),
-            self.build_str_arg_param('vpc_id',
+            self.build_str_arg_param('--vpc_id',
                                      'ID of AWS VPC if you already have VPC '
                                      'created.'),
-            self.build_str_arg_param('vpc_cidr',
+            self.build_str_arg_param('--vpc_cidr',
                                      'CIDR for VPC creation. '
                                      'Conflicts with vpc_id',
                                      default='172.31.0.0/16'),
-            self.build_str_arg_param('subnet_id',
+            self.build_str_arg_param('--subnet_id',
                                      'ID of AWS Subnet if you already have '
                                      'subnet created.'),
-            self.build_str_arg_param('subnet_cidr',
+            self.build_str_arg_param('--subnet_cidr',
                                      'CIDR for Subnet creation. Conflicts with '
                                      'subnet_id.',
                                      default='172.31.0.0/24'),
-            self.build_str_arg_param('env_os',
+            self.build_str_arg_param('--env_os',
                                      'OS type.',
                                      default='debian'),
-            self.build_str_arg_param('ami', 'ID of EC2 AMI.'),
-            self.build_str_arg_param('key_name', 'Name of EC2 Key pair.'),
-            self.build_str_arg_param('region', 'Name of AWS region.',
+            self.build_str_arg_param('--ami', 'ID of EC2 AMI.'),
+            self.build_str_arg_param('--key_name', 'Name of EC2 Key pair.'),
+            self.build_str_arg_param('--region', 'Name of AWS region.',
                                      default='us-west-2'),
-            self.build_str_arg_param('zone', 'Name of AWS zone', default='a'),
-            self.build_str_arg_param('allowed_cidrs',
+            self.build_str_arg_param('--zone', 'Name of AWS zone', default='a'),
+            self.build_str_arg_param('--allowed_cidrs',
                                      'CIDR to allow acces to SSN K8S cluster.',
                                      default='0.0.0.0/0'),
-            self.build_str_arg_param('ssn_k8s_masters_shape',
+            self.build_str_arg_param('--ssn_k8s_masters_shape',
                                      'Shape for SSN K8S masters.',
                                      default='t2.medium'),
-            self.build_str_arg_param('ssn_k8s_workers_shape',
+            self.build_str_arg_param('--ssn_k8s_workers_shape',
                                      'Shape for SSN K8S workers.',
                                      default='t2.medium'),
-            self.build_str_arg_param('os_user', 'Name of DLab service user.',
+            self.build_str_arg_param('--os_user', 'Name of DLab service user.',
                                      default='dlab-user'),
-            self.build_int_arg_param('ssn_k8s_masters_count',
+            self.build_int_arg_param('--ssn_k8s_masters_count',
                                      'Count of K8S masters.', default=3),
-            self.build_int_arg_param('ssn_k8s_workers_count',
+            self.build_int_arg_param('--ssn_k8s_workers_count',
                                      'Count of K8S workers', default=2),
-            self.build_int_arg_param('ssn_root_volume_size',
+            self.build_int_arg_param('--ssn_root_volume_size',
                                      'Size of root volume in GB.', default=30),
         ]
 
