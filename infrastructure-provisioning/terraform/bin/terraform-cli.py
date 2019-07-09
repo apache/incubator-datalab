@@ -38,6 +38,8 @@ class TerraformProvider:
     def get_args_string(self, cli_args):
         args = []
         for key, value in cli_args.items():
+            if not value:
+                continue
             if type(value) == list:
                 joined_values = ', '.join(['"{}"'.format(item) for item in value])
                 value = '[{}]'.format(joined_values)
