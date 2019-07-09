@@ -50,7 +50,7 @@ class TerraformProvider:
              None
         """
         args_str = self.get_args_string(cli_args)
-        self.console_execute('terraform apply {}'.format(args_str))
+        self.console_execute('terraform apply -target module.ssn-k8s {}'.format(args_str))
 
     def destroy(self, cli_args):
         """Run terraform
@@ -61,7 +61,7 @@ class TerraformProvider:
              None
         """
         args_str = self.get_args_string(cli_args)
-        self.console_execute('terraform destroy {}'.format(args_str))
+        self.console_execute('terraform destroy -target module.ssn-k8s {}'.format(args_str))
 
     @staticmethod
     def console_execute(command):
@@ -191,7 +191,6 @@ class AWSSourceBuilder(AbstractDeployBuilder):
     def cli_args(self):
         return [
             self.build_str_arg_param('--action', 'Action', default='deploy'),
-            self.build_str_arg_param('--target', 'Target', default='module.ssn-k8s'),
             self.build_str_arg_param('--access_key_id',
                                      'AWS Access Key ID'),
             self.build_str_arg_param('--secret_access_key',
