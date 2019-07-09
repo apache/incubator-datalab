@@ -61,6 +61,11 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status) {
+		return projectDAO.getProjectsWithStatus(status);
+	}
+
+	@Override
 	public void create(UserInfo user, ProjectDTO projectDTO) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);

@@ -98,7 +98,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public List<UserResourceInfo> getAllEnv() {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-		return projectService.getProjects().stream().map(projectDTO -> getProjectEnv(projectDTO, expList)).flatMap(Collection::stream)
+		return projectService.getProjectsWithStatus(ProjectDTO.Status.ACTIVE)
+				.stream()
+				.map(projectDTO -> getProjectEnv(projectDTO, expList)).flatMap(Collection::stream)
 				.collect(toList());
 	}
 

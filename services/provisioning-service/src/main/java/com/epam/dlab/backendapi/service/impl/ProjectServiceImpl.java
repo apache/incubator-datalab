@@ -63,7 +63,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
-				.withName(String.join("_", projectName, resourceType))
+				.withName(String.join("_", projectName, resourceType, action.toString()))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
 				.withVolumeForLog(configuration.getDockerLogDirectory(), resourceType)

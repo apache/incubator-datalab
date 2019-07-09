@@ -145,7 +145,7 @@ public class EnvironmentServiceImplTest {
 				"key", "tag", null);
 		project.setEdgeInfo(new EdgeInfo());
 		when(exploratoryDAO.getInstances()).thenReturn(instances);
-		doReturn(Collections.singletonList(project)).when(projectService).getProjects();
+		doReturn(Collections.singletonList(project)).when(projectService).getProjectsWithStatus(ProjectDTO.Status.ACTIVE);
 
 		EdgeInfo edgeInfo = new EdgeInfo();
 		edgeInfo.setEdgeStatus("running");
@@ -168,7 +168,7 @@ public class EnvironmentServiceImplTest {
 		assertEquals(3, actualEnv.size());
 
 		verify(exploratoryDAO).getInstances();
-		verify(projectService).getProjects();
+		verify(projectService).getProjectsWithStatus(ProjectDTO.Status.ACTIVE);
 		verifyNoMoreInteractions(exploratoryDAO, envDAO, keyDAO);
 	}
 
