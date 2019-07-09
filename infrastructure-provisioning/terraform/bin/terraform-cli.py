@@ -30,7 +30,7 @@ class TerraformProvider:
         Returns:
              bool: validation successful
         """
-        terraform_success_validate = 'Success! The configuration is valid.'
+        terraform_success_validate = 'Success!'
         terraform_validate_result = self.console_execute('terraform validate')
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)

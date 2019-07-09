@@ -4,14 +4,16 @@ List of variables which should be provided:
 
 | Variable                 | Type   | Description/Value                                                                                         |
 |--------------------------|--------|-----------------------------------------------------------------------------------------------------------|
+| access\_key\_id          | string | **Required.** AWS Access Key ID.                                                                          |
+| secret\_access\_key      | string | **Required.** AWS Secret Access Key.                                                                      |
 | service\_base\_name      | string | Any infrastructure value (should be unique if multiple SSN’s have been deployed before). Default: dlab-k8s|
 | vpc\_id                  | string | ID of AWS VPC if you already have VPC created.                                                            | 
 | vpc\_cidr                | string | CIDR for VPC creation. Conflicts with _vpc\_id_. Default: 172.31.0.0/16                                   |
 | subnet\_id               | string | ID of AWS Subnet if you already have subnet created.                                                      |
 | subnet\_cidr             | string | CIDR for Subnet creation. Conflicts with _subnet\_id_. Default: 172.31.0.0/24                             |
 | env\_os                  | string | OS type. Available options: debian, redhat. Default: debian                                               |
-| ami                      | string | ID of EC2 AMI.                                                                                            |
-| key\_name                | string | Name of EC2 Key pair.                                                                                     |
+| ami                      | string | **Required.** ID of EC2 AMI.                                                                              |
+| key\_name                | string | **Required.** Name of EC2 Key pair.                                                                       |
 | region                   | string | Name of AWS region. Default: us-west-2                                                                    |
 | zone                     | string | Name of AWS zone. Default: a                                                                              |
 | ssn\_k8s\_masters\_count | int    | Count of K8S masters. Default: 3                                                                          |
