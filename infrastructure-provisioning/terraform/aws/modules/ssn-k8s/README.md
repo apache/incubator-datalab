@@ -19,7 +19,7 @@ List of variables which should be provided:
 | ssn\_k8s\_masters\_count | int    | Count of K8S masters. Default: 3                                                                          |
 | ssn\_k8s\_workers\_count | int    | Count of K8S workers. Default: 2                                                                          |
 | ssn\_root\_volume\_size  | int    | Size of root volume in GB. Default: 30                                                                    |
-| allowed\_cidrs           | string | CIDR to allow acces to SSN K8S cluster. Default: 0.0.0.0/0                                                |
+| allowed\_cidrs           | list   | CIDR to allow acces to SSN K8S cluster. Default: 0.0.0.0/0                                                |
 | ssn\_k8s\_masters\_shape | string | Shape for SSN K8S masters. Default: t2.medium                                                             |
 | ssn\_k8s\_workers\_shape | string | Shape for SSN K8S workers. Default: t2.medium                                                             |
 | os\_user                 | string | Name of DLab service user. Default: dlab-user                                                             |
