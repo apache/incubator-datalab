@@ -166,6 +166,12 @@ class AWSSourceBuilder(AbstractDeployBuilder):
     @property
     def cli_args(self):
         return [
+            self.build_str_arg_param('access_key_id',
+                                     'AWS Access Key ID.',
+                                     nargs=None),
+            self.build_str_arg_param('secret_access_key',
+                                     'AWS Secret Access Key.',
+                                     nargs=None),
             self.build_str_arg_param('service_base_name',
                                      'Any infrastructure value (should be '
                                      'unique if multiple SSN\'s have been '
@@ -189,8 +195,10 @@ class AWSSourceBuilder(AbstractDeployBuilder):
                                      'OS type.',
                                      default='debian',
                                      choices=('debian', 'redhat')),
-            self.build_str_arg_param('ami', 'ID of EC2 AMI.'),
-            self.build_str_arg_param('key_name', 'Name of EC2 Key pair.'),
+            self.build_str_arg_param('ami', 'ID of EC2 AMI.',
+                                     nargs=None),
+            self.build_str_arg_param('key_name', 'Name of EC2 Key pair.',
+                                     nargs=None),
             self.build_str_arg_param('region', 'Name of AWS region.',
                                      default='us-west-2'),
             self.build_str_arg_param('zone', 'Name of AWS zone', default='a'),
