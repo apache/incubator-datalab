@@ -38,9 +38,8 @@
     </button>
   </div>
   <mat-divider></mat-divider>
-  <management-grid
-    [currentUser]="user.toLowerCase()" [isAdmin]="healthStatus?.admin"
-    [allEnvironmentData]="allEnvironmentData" [environmentsHealthStatuses]="healthStatus?.list_resources"
-    (refreshGrid)="buildGrid()" (actionToggle)="manageEnvironmentAction($event)">
+  <management-grid [currentUser]="user.toLowerCase()" [isAdmin]="healthStatus?.admin"
+    [environmentsHealthStatuses]="healthStatus?.list_resources" (refreshGrid)="buildGrid()"
+    (actionToggle)="manageEnvironmentAction($event)">
   </management-grid>
 </div>

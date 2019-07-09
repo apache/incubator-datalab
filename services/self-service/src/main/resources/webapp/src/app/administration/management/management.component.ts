@@ -36,6 +36,8 @@ import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageEnvironmentComponent } from './manage-environment/manage-environment-dilog.component';
 import { EndpointsComponent } from './endpoints/endpoints.component';
 
+import { EnvironmentsDataService } from './management-data.service';
+
 @Component({
   selector: 'environments-management',
   templateUrl: './management.component.html',
@@ -55,7 +57,8 @@ export class ManagementComponent implements OnInit {
     private backupService: BackupService,
     private manageEnvironmentsService: ManageEnvironmentsService,
     private userResourceService: UserResourceService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private environmentsDataService: EnvironmentsDataService
   ) { }
 
   ngOnInit() {
@@ -65,6 +68,7 @@ export class ManagementComponent implements OnInit {
 
   public buildGrid() {
     this.getEnvironmentHealthStatus();
+    this.environmentsDataService.updateEnvironmentData();
   }
 
   public manageEnvironmentAction($event) {
@@ -72,8 +76,8 @@ export class ManagementComponent implements OnInit {
       .environmentManagement(
         $event.environment.user,
         $event.action,
-        $event.environment.name === 'edge node' ? 'edge' : $event.environment.name,
-        $event.resource ? $event.resource.computational_name : null
+        $event.environment.resource_type === 'edge node' ? 'edge' : $event.environment.resource_name,
+        $event.computational_resources ? $event.computational_resources.computational_name : null
       ).subscribe(
         () => this.buildGrid(),
         error => this.toastr.error('Environment management failed!', 'Oops!'));
@@ -92,7 +96,7 @@ export class ManagementComponent implements OnInit {
     this.getActiveUsersList().subscribe(usersList => {
       this.getTotalBudgetData().subscribe(
         total => {
-          const dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { usersList, total }, panelClass: 'modal-xl-s'});
+          const dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { usersList, total }, panelClass: 'modal-xl-s' });
           dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
           dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
         }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
@@ -104,14 +108,14 @@ export class ManagementComponent implements OnInit {
   }
 
   isEnvironmentsInProgress(data): boolean {
-    return data.exploratory.some(el => {
+    return data.some(el => {
       return el.status === 'creating' || el.status === 'starting' ||
         el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring');
     });
   }
 
   isNotebookInProgress(data): boolean {
-    return data.exploratory.some(el => el.status === 'creating');
+    return data.some(el => el.status === 'creating');
   }
 
   setBudgetLimits($event) {
@@ -144,36 +148,24 @@ export class ManagementComponent implements OnInit {
   private getExploratoryList() {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
+        debugger;
         this.anyEnvInProgress = this.isEnvironmentsInProgress(result);
         this.notebookInProgress = this.isNotebookInProgress(result);
       });
   }
 
-  private getAllEnvironmentData() {
-    this.manageEnvironmentsService
-      .getAllEnvironmentData()
-      .subscribe((result: Array<EnvironmentModel>) => this.allEnvironmentData = this.loadEnvironmentList(result));
-  }
-
-  private loadEnvironmentList(data): Array<EnvironmentModel> {
-    if (data)
-      return data.map(value => new EnvironmentModel(
-        value.resource_name || value.resource_type,
-        value.status,
-        value.shape,
-        value.computational_resources,
-        value.user,
-        value.public_ip,
-        value.resource_type
-      ));
-  }
+  // private getAllEnvironmentData() {
+  //   this.manageEnvironmentsService
+  //     .getAllEnvironmentData()
+  //     .subscribe((result: Array<EnvironmentModel>) => this.allEnvironmentData = result);
+  // }
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService
       .getEnvironmentStatuses()
       .subscribe((status: GeneralEnvironmentStatus) => {
         this.healthStatus = status;
-        this.healthStatus.admin && this.getAllEnvironmentData();
+        // this.healthStatus.admin && this.getAllEnvironmentData();
         this.getExploratoryList();
       });
   }

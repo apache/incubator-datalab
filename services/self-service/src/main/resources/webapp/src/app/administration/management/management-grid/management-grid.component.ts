@@ -24,6 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { HealthStatusService } from '../../../core/services';
 import { ConfirmationDialogType } from '../../../shared';
 import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
+import { EnvironmentsDataService } from '../management-data.service';
 
 export interface ManageAction {
   action: string;
@@ -41,7 +42,11 @@ export interface ManageAction {
   ]
 })
 export class ManagementGridComponent implements OnInit {
-  @Input() allEnvironmentData: Array<any>;
+  // @Input() allEnvironmentData: Array<any>;
+
+  allEnvironmentData: Array<any>;
+  loading: boolean = false;
+
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
   @Input() isAdmin: boolean;
@@ -49,15 +54,17 @@ export class ManagementGridComponent implements OnInit {
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
-  displayedColumns: string[] = ['user', 'type', 'shape', 'status', 'resources', 'actions'];
+  displayedColumns: string[] = ['user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
 
   constructor(
     private healthStatusService: HealthStatusService,
+    private environmentsDataService: EnvironmentsDataService,
     public toastr: ToastrService,
     public dialog: MatDialog
   ) { }
 
   ngOnInit() {
+    this.environmentsDataService._data.subscribe(data => this.allEnvironmentData = data);
   }
 
   buildGrid(): void {
@@ -74,7 +81,7 @@ export class ManagementGridComponent implements OnInit {
         result && this.actionToggle.emit({ action, environment, resource });
       });
     } else {
-      const type = (environment.name === 'edge node' || environment.type.toLowerCase() === 'edge node')
+      const type = (environment.resource_type.toLowerCase() === 'edge node')
         ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
 
       if (action === 'stop') {
@@ -104,9 +111,9 @@ export class ManagementGridComponent implements OnInit {
       if (notebook.name === 'edge node') {
         return this.allEnvironmentData
           .filter(env => env.user === notebook.user)
-          .some(el => this.inProgress([el]) || this.inProgress(el.resources));
-      } else if (notebook.resources.length) {
-        return this.inProgress(notebook.resources);
+          .some(el => this.inProgress([el]) || this.inProgress(el.computational_resources));
+      } else if (notebook.computational_resources.length) {
+        return this.inProgress(notebook.computational_resources);
       }
     }
     return false;
