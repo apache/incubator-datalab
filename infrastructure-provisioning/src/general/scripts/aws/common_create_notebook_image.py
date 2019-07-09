@@ -34,18 +34,18 @@ if __name__ == "__main__":
         image_conf = dict()
         create_aws_config_files()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
-        image_conf['project_tag'] = os.environ['project_name']
+        image_conf['project_name'] = os.environ['project_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['instance_tag'] = '{}-Tag'.format(image_conf['service_base_name'])
         image_conf['application'] = os.environ['application']
         image_conf['image_name'] = os.environ['notebook_image_name'].lower().replace('_', '-')
         image_conf['full_image_name'] = '{}-{}-{}-{}'.format(image_conf['service_base_name'],
-                                                             image_conf['project_tag'],
+                                                             image_conf['project_name'],
                                                              image_conf['application'],
                                                              image_conf['image_name']).lower()
         image_conf['tags'] = {"Name": image_conf['service_base_name'],
                               "SBN": image_conf['service_base_name'],
-                              "Project": image_conf['project_tag'],
+                              "Project": image_conf['project_name'],
                               "Image": image_conf['image_name'],
                               "FIN": image_conf['full_image_name'],
                               os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
@@ -61,7 +61,7 @@ if __name__ == "__main__":
             with open("/root/result.json", 'w') as result:
                 res = {"notebook_image_name": image_conf['image_name'],
                        "full_image_name": image_conf['full_image_name'],
-                       "project_tag": image_conf['project_tag'],
+                       "project_name": image_conf['project_name'],
                        "application": image_conf['application'],
                        "status": "created",
                        "Action": "Create image from notebook"}

@@ -108,9 +108,8 @@ if __name__ == "__main__":
                     os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-            notebook_instance = get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])
-            project_tag = {"Key": 'project_tag', "Value": os.environ['project_name']}
-            create_tag(notebook_instance, project_tag)
+#            notebook_instance = get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])
+#            create_tag(notebook_instance, os.environ['tag'])
         except:
             traceback.print_exc()
             raise Exception
