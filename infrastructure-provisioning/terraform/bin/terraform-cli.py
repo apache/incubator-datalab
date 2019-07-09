@@ -36,9 +36,12 @@ class TerraformProvider:
             raise TerraformProviderError(terraform_validate_result)
 
     def get_args_string(self, cli_args):
-        args = ['-var {0}={1}'.format(key, value) for
-                key, value
-                in cli_args.items() if value]
+        args = []
+        for key, value in cli_args.items():
+            if type(value) == list:
+                joined_values = ', '.join(['"{}"'.format(item) for item in value])
+                value = '[{}]'.format(joined_values)
+            args.append("-var '{0}={1}'".format(key, value))
         return' '.join(args)
 
     def apply(self, cli_args):
@@ -50,7 +53,8 @@ class TerraformProvider:
              None
         """
         args_str = self.get_args_string(cli_args)
-        self.console_execute('terraform apply -target module.ssn-k8s {}'.format(args_str))
+        command = 'terraform apply -auto-approve -target module.ssn-k8s {}'
+        print(command.format(args_str))
 
     def destroy(self, cli_args):
         """Run terraform
@@ -61,7 +65,8 @@ class TerraformProvider:
              None
         """
         args_str = self.get_args_string(cli_args)
-        self.console_execute('terraform destroy -target module.ssn-k8s {}'.format(args_str))
+        command = 'terraform destroy -auto-approve -target module.ssn-k8s {}'
+        self.console_execute(command.format(args_str))
 
     @staticmethod
     def console_execute(command):
@@ -123,8 +128,8 @@ class AbstractDeployBuilder:
 
         os.chdir(tf_location)
         try:
-            terraform.initialize()
-            terraform.validate()
+            # terraform.initialize()
+            # terraform.validate()
 
             action = cli_args.pop('action')
             if action == 'deploy':
@@ -224,7 +229,7 @@ class AWSSourceBuilder(AbstractDeployBuilder):
             self.build_str_arg_param('--zone', 'Name of AWS zone', default='a'),
             self.build_str_arg_param('--allowed_cidrs',
                                      'CIDR to allow acces to SSN K8S cluster.',
-                                     default=['0.0.0.0/0'], action='append'),
+                                     default=["0.0.0.0/0"], action='append'),
             self.build_str_arg_param('--ssn_k8s_masters_shape',
                                      'Shape for SSN K8S masters.',
                                      default='t2.medium'),
