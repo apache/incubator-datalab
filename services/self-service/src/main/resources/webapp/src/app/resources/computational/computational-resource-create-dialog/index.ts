@@ -24,6 +24,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../shared/material.module';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ComputationalResourceCreateDialogComponent } from './computational-resource-create-dialog.component';
+import { ComputationalResourceModel } from './computational-resource-create.model';
+import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
 
 @NgModule({
   imports: [
@@ -31,9 +33,12 @@ import { ComputationalResourceCreateDialogComponent } from './computational-reso
     FormsModule,
     ReactiveFormsModule,
     FormControlsModule,
+    KeysPipeModule,
+    UnderscorelessPipeModule,
     MaterialModule
   ],
   declarations: [ComputationalResourceCreateDialogComponent],
+  providers: [ComputationalResourceModel],
   entryComponents: [ComputationalResourceCreateDialogComponent],
   exports: [ComputationalResourceCreateDialogComponent]
 })

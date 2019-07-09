@@ -25,15 +25,12 @@ import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
-import com.epam.dlab.backendapi.service.ComputationalService;
-import com.epam.dlab.backendapi.service.EdgeService;
-import com.epam.dlab.backendapi.service.EnvironmentService;
-import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.model.ResourceEnum;
 import com.google.inject.Inject;
@@ -71,6 +68,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Inject
 	private EdgeService edgeService;
 	@Inject
+	private ProjectService projectService;
+	@Inject
 	private UserSettingsDAO settingsDAO;
 
 	@Override
@@ -99,7 +98,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public List<UserResourceInfo> getAllEnv() {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-		return getUserNames().stream().map(user -> getUserEnv(user, expList)).flatMap(Collection::stream)
+		return projectService.getProjects().stream().map(projectDTO -> getProjectEnv(projectDTO, expList)).flatMap(Collection::stream)
 				.collect(toList());
 	}
 
@@ -225,14 +224,13 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 	}
 
-	private List<UserResourceInfo> getUserEnv(String user, List<UserInstanceDTO> allInstances) {
-		EdgeInfo edgeInfo = keyDAO.getEdgeInfo(user);
+	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-				.withResourceStatus(edgeInfo.getEdgeStatus())
-				.withUser(user)
-				.withIp(edgeInfo.getPublicIp());
+				.withResourceStatus("running")
+				.withProject(projectDTO.getName())
+				.withIp(projectDTO.getEdgeInfo().getPublicIp());
 		return Stream.concat(Stream.of(edgeResource), allInstances.stream()
-				.filter(instance -> instance.getUser().equals(user)).map(this::toUserResourceInfo))
+				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo))
 				.collect(toList());
 	}
 
@@ -242,7 +240,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.withResourceShape(userInstance.getShape())
 				.withResourceStatus(userInstance.getStatus())
 				.withCompResources(userInstance.getResources())
-				.withUser(userInstance.getUser());
+				.withUser(userInstance.getUser())
+				.withProject(userInstance.getProject());
 	}
 
 	private void checkProjectResourceConditions(String project, String action) {

@@ -16,8 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
-export class ResourcesGridRowModel {
+export class ExploratoryModel {
+  readonly DICTIONARY = DICTIONARY;
+
   constructor(
     public name: Array<any>,
     public template_name: string,
@@ -27,7 +30,8 @@ export class ResourcesGridRowModel {
     public resources: Array<any>,
     public time: string,
     public url: Array<any>,
-    public ip: string,
+    public node_ip: string,
+    public private_ip: string,
     public username: string,
     public password: string,
     public bucket_name: string,
@@ -41,6 +45,44 @@ export class ResourcesGridRowModel {
     public shared_account_name: string,
     public datalake_name: string,
     public datalake_directory: string,
-    public datalake_shared_directory: string
+    public datalake_shared_directory: string,
+    public project: string,
+    public endpoint: string,
+    public tags: any,
   ) { }
+
+  public static loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ExploratoryModel> {
+    if (exploratoryList && sharedDataList) {
+      return exploratoryList.map((value) => {
+        return new ExploratoryModel(value.exploratory_name,
+          value.template_name,
+          value.image,
+          value.status,
+          value.shape,
+          value.computational_resources,
+          value.up_time,
+          value.exploratory_url,
+          sharedDataList.edge_node_ip,
+          value.private_ip,
+          value.exploratory_user,
+          value.exploratory_pass,
+          sharedDataList[DICTIONARY.bucket_name],
+          sharedDataList[DICTIONARY.shared_bucket_name],
+          value.error_message,
+          value[DICTIONARY.billing.cost],
+          value[DICTIONARY.billing.currencyCode],
+          value.billing,
+          value.libs,
+          sharedDataList[DICTIONARY.user_storage_account_name],
+          sharedDataList[DICTIONARY.shared_storage_account_name],
+          sharedDataList[DICTIONARY.datalake_name],
+          sharedDataList[DICTIONARY.datalake_user_directory_name],
+          sharedDataList[DICTIONARY.datalake_shared_directory_name],
+          value.project,
+          value.endpoint,
+          value.tags
+        );
+      });
+    }
+  }
 }

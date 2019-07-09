@@ -38,3 +38,10 @@
 .source .resource-wrap .resource-name .detailed-link {
   cursor: default !important;
 }
+
+table {
+  width: 100%;
+  .actions {
+    text-align: right;
+  }
+}

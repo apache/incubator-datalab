@@ -29,8 +29,8 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 
 @Component({
-  selector: 'exploratory-environment-create-dialog',
-  templateUrl: 'exploratory-environment-create-dialog.component.html',
+  selector: 'create-environment',
+  templateUrl: 'create-environment.component.html',
   styleUrls: ['./create-environment.component.scss']
 })
 
@@ -60,12 +60,16 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getProjects();
+    this.getUserProjects();
     this.initFormModel();
   }
 
   public getProjects() {
     this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
+  }
+
+  public getUserProjects() {
+    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
   public getTemplates($event, project) {
@@ -86,7 +90,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     };
 
     data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null
-    this.userResourceService.createExploratoryEnvironment({...parameters, ...data}).subscribe((response: any) => {
+    this.userResourceService.createExploratoryEnvironment({ ...parameters, ...data }).subscribe((response: any) => {
       if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
   }
@@ -97,27 +101,27 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
 
     document.querySelector('#config').scrollIntoView({ block: 'start', behavior: 'smooth' });
-    this.createExploratoryForm.controls['configuration_parameters'].setValue(value);
+    this.createExploratoryForm.controls['cluster_config'].setValue(value);
   }
 
   private initFormModel(): void {
-    
+
     this.createExploratoryForm = this._fb.group({
       project: ['', Validators.required],
       endpoint: ['', Validators.required],
       version: ['', Validators.required],
       notebook_image_name: [''],
       shape: ['', Validators.required],
-      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern),
-                              this.providerMaxLength, this.checkDuplication.bind(this)]],
-      cluster_config: ['', [this.validConfiguration.bind(this)]]
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      cluster_config: ['', [this.validConfiguration.bind(this)]],
+      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]]
     });
   }
 
   private getImagesList() {
     this.userResourceService.getUserImages(this.currentTemplate.image)
       .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
-      error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
+        error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
 
   private checkDuplication(control) {

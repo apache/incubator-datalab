@@ -19,7 +19,7 @@
 
 .content-box {
   padding: 10px 30px 30px;
-  height: 380px;
+  height: 400px;
   .split {
     display: flex;
     flex-direction: column;
@@ -32,6 +32,8 @@
           position: absolute;
           right: 0;
           bottom: 5px;
+          font-family: 'Open Sans', sans-serif;
+          font-weight: 300;
         }
       }
     }
@@ -58,6 +60,11 @@
             color: darken(#607d8b, 10%);
           }
         }
+      }
+    }
+    .content {
+      p {
+        margin-bottom: 30px;
       }
     }
   }

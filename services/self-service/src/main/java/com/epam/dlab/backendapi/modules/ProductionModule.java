@@ -91,5 +91,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(EndpointDAO.class).to(EndpointDAOImpl.class);
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
 		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
+		bind(TagService.class).to(TagServiceImpl.class);
 	}
 }

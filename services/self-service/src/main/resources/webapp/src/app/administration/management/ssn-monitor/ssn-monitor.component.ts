@@ -17,10 +17,12 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewEncapsulation, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { MatDialogRef } from '@angular/material';
+import { ToastrService } from 'ngx-toastr';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { HealthStatusService } from '../../../core/services';
 
 @Component({
   selector: 'dlab-ssn-monitor',
@@ -32,15 +34,18 @@ export class SsnMonitorComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   public errorMessage: string = '';
-  public monitorData = {};
+  public data: any = null;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
     public dialogRef: MatDialogRef<SsnMonitorComponent>,
+    private healthStatusService: HealthStatusService,
   ) { }
 
   ngOnInit() {
-    this.monitorData = this.data || {};
+    this.healthStatusService.getSsnMonitorData().subscribe(
+      monitorData => this.data = monitorData,
+      () => this.toastr.error('Failed ssn data loading!', 'Oops!'));
   }
 
   public isEmpty(obj) {

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 import java.util.List;
+import java.util.Map;
 
 public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends ExploratoryBaseDTO<T> {
 
@@ -36,6 +37,10 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 	private String imageName;
 	@JsonProperty("spark_configurations")
 	private List<ClusterConfig> clusterConfig;
+	@JsonProperty("tags")
+	private Map<String, String> tags;
+	@JsonProperty("endpoint_name")
+	private String endpoint;
 
 	/**
 	 * Return the list of GIT credentials.
@@ -67,6 +72,16 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 		return self;
 	}
 
+	public T withTags(Map<String, String> tags) {
+		this.tags = tags;
+		return self;
+	}
+
+	public T withEndpoint(String endpoint) {
+		this.endpoint = endpoint;
+		return self;
+	}
+
 	public String getImageName() {
 		return imageName;
 	}
@@ -78,6 +93,14 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 	public T withClusterConfig(List<ClusterConfig> config) {
 		this.clusterConfig = config;
 		return self;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
+	}
+
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 	}
 
 	public List<ClusterConfig> getClusterConfig() {

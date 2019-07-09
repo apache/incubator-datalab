@@ -38,7 +38,6 @@ export class ComputationalResourcesListComponent {
 
   @Input() resources: any[];
   @Input() environment: any[];
-  @Input() healthStatus: string;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 

@@ -76,6 +76,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(BackupService.class).to(BackupServiceImpl.class);
 		bind(BackupDao.class).to(BackupDaoImpl.class);
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
+		bind(TagService.class).to(TagServiceImpl.class);
 		bind(InactivityService.class).to(InactivityServiceImpl.class);
 		bind(SystemUserInfoService.class).toInstance(new SystemUserInfoService() {
 			@Override

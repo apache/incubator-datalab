@@ -3,6 +3,8 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
@@ -16,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -51,12 +54,48 @@ public class ProjectResource {
 	})
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo, ProjectDTO projectDTO) {
-		projectService.create(projectDTO);
+	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo, @Valid ProjectDTO projectDTO) {
+		projectService.create(userInfo, projectDTO);
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
 				.ok()
 				.location(uri)
+				.build();
+	}
+
+	@Operation(summary = "Start project", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "202", description = "Project is starting"),
+			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+					MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
+	})
+	@Path("start")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								 @Valid ProjectActionFormDTO startProjectDto) {
+		projectService.start(userInfo, startProjectDto.getProjectName());
+		return Response
+				.accepted()
+				.build();
+	}
+
+	@Operation(summary = "Stop project", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "202", description = "Project is stopping"),
+			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+					MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
+	})
+	@Path("stop")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								@Valid ProjectActionFormDTO startProjectDto) {
+		projectService.stop(userInfo, startProjectDto.getProjectName());
+		return Response
+				.accepted()
 				.build();
 	}
 
@@ -97,6 +136,21 @@ public class ProjectResource {
 				.build();
 	}
 
+	@Operation(summary = "Get projects assigned to user", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about projects",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = ProjectDTO.class))),
+	})
+	@Path("/me")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo) {
+		return Response
+				.ok(projectService.getUserProjects(userInfo))
+				.build();
+	}
+
 	@Operation(summary = "Update project", tags = "project")
 	@ApiResponses({
 			@ApiResponse(responseCode = "200", description = "Project is successfully updated"),
@@ -108,7 +162,7 @@ public class ProjectResource {
 							schema = @Schema(implementation = ErrorDTO.class)))
 	})
 	@PUT
-	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, ProjectDTO projectDTO) {
+	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, UpdateProjectDTO projectDTO) {
 		projectService.update(projectDTO);
 		return Response.ok().build();
 	}
@@ -126,7 +180,7 @@ public class ProjectResource {
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
 			@Parameter(description = "Project name")
 			@PathParam("name") String name) {
-		projectService.remove(name);
+		projectService.terminate(userInfo, name);
 		return Response.ok().build();
 	}
 

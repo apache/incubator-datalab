@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
@@ -38,6 +38,8 @@ export class ProjectFormComponent implements OnInit {
   public groupsList: any = [];
   public endpointsList: any = [];
   public projectList: Project[] = [];
+  public accessKeyValid: boolean;
+  public keyLabel: string = '';
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
@@ -51,7 +53,8 @@ export class ProjectFormComponent implements OnInit {
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
     private rolesService: RolesGroupsService,
-    private endpointService: EndpointService
+    private endpointService: EndpointService,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -65,7 +68,7 @@ export class ProjectFormComponent implements OnInit {
       }));
     if (this.item) {
       this.editSpecificProject(this.item);
-      this.stepper.selectedIndex = 1;
+      this.stepper.selectedIndex = 2;
     }
   }
 
@@ -86,12 +89,34 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public reset() {
+    this.keyLabel = '';
     this.initFormModel();
   }
 
   public generateProjectTag($event) {
     let user_tag = `dlab-${$event.target.value}`;
     this.projectForm.controls.tag.setValue(user_tag.toLowerCase());
+  }
+
+  public onFileChange($event) {
+    const reader = new FileReader();
+    const files = $event.target.files;
+
+    if (files && files.length) {
+      const [file] = $event.target.files;
+      reader.readAsBinaryString(file);
+
+      reader.onload = () => {
+        this.projectForm.patchValue({
+          key: reader.result
+        });
+
+        this.accessKeyValid = this.isValidKey(file.name);
+        this.keyLabel = this.getLabel(file);
+        $event.target.value = '';
+        this.cd.markForCheck();
+      };
+    }
   }
 
   public selectOptions(list, key, select?) {
@@ -101,6 +126,7 @@ export class ProjectFormComponent implements OnInit {
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
+      'key': ['', Validators.required],
       'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
@@ -111,11 +137,20 @@ export class ProjectFormComponent implements OnInit {
   public editSpecificProject(item: Project) {
 
     this.projectForm = this._fb.group({
+      'key': [''],
       'name': [item.name, Validators.required],
       'endpoints': [item.endpoints],
       'tag': [item.tag, Validators.required],
       'groups': [item.groups, Validators.required]
     });
+  }
+
+  private getLabel(file: File): string {
+    return file ? !this.accessKeyValid ? 'Public key is required.' : file.name : '';
+  }
+
+  private isValidKey(value): boolean {
+    return value.toLowerCase().endsWith('.pub');
   }
 
   private getGroupsData() {

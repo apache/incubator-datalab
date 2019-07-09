@@ -17,18 +17,15 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
 
 import {
   HealthStatusService,
   ManageEnvironmentsService,
-  UserAccessKeyService,
   BackupService,
   UserResourceService,
-  RolesGroupsService,
   StorageService
 } from '../../core/services';
 
@@ -44,22 +41,12 @@ import { EndpointsComponent } from './endpoints/endpoints.component';
   templateUrl: './management.component.html',
   styleUrls: ['./management.component.scss']
 })
-export class ManagementComponent implements OnInit, OnDestroy {
+export class ManagementComponent implements OnInit {
   public user: string = '';
   public healthStatus: GeneralEnvironmentStatus;
   public allEnvironmentData: Array<EnvironmentModel>;
-  public uploadKey: boolean = true;
   public anyEnvInProgress: boolean = false;
   public notebookInProgress: boolean = false;
-
-  private subscriptions: Subscription = new Subscription();
-  private clear = undefined;
-
-  @ViewChild('backupDialog') backupDialog;
-  @ViewChild('manageEnvDialog') manageEnvironmentDialog;
-  @ViewChild('keyUploadModal') keyUploadDialog;
-  @ViewChild('ssnMonitor') ssnMonitorDialog;
-  // @ViewChild('rolesGroupsModal') rolesGroupsDialog;
 
   constructor(
     public toastr: ToastrService,
@@ -67,25 +54,13 @@ export class ManagementComponent implements OnInit, OnDestroy {
     private healthStatusService: HealthStatusService,
     private backupService: BackupService,
     private manageEnvironmentsService: ManageEnvironmentsService,
-    private userAccessKeyService: UserAccessKeyService,
     private userResourceService: UserResourceService,
-    private rolesService: RolesGroupsService,
     private storageService: StorageService
   ) { }
 
   ngOnInit() {
     this.buildGrid();
     this.user = this.storageService.getUserName();
-    this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter
-      .subscribe(result => this.uploadKey = (result && result.status === 200)));
-
-    this.subscriptions.add(this.userAccessKeyService.keyUploadProccessEmitter.subscribe(response => {
-      if (response) this.buildGrid();
-    }));
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 
   public buildGrid() {
@@ -105,21 +80,12 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
 
   showBackupDialog() {
-    this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' })
-      .afterClosed().subscribe(result => result && this.createBackup(result));
+    this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' });
   }
 
   showEndpointsDialog() {
     this.dialog.open(EndpointsComponent, { panelClass: 'modal-xl-s' })
       .afterClosed().subscribe(result => result && this.buildGrid());
-  }
-
-  getActiveUsersList() {
-    return this.healthStatusService.getActiveUsers();
-  }
-
-  getTotalBudgetData() {
-    return this.healthStatusService.getTotalBudgetData();
   }
 
   openManageEnvironmentDialog() {
@@ -134,19 +100,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
 
   openSsnMonitorDialog() {
-    this.healthStatusService.getSsnMonitorData().subscribe(
-      data => this.dialog.open(SsnMonitorComponent, { data: data, panelClass: 'modal-lg' }),
-      () => this.toastr.error('Failed ssn data loading!', 'Oops!'));
+    this.dialog.open(SsnMonitorComponent, { panelClass: 'modal-lg' });
   }
-
-  // openManageRolesDialog() {
-  //   this.rolesService.getGroupsData().subscribe(group => {
-  //     this.rolesService.getRolesData().subscribe(
-  //       roles => this.rolesGroupsDialog.open({ isFooter: false }, group, roles),
-  //       error => this.toastr.error(error.message, 'Oops!'));
-  //   },
-  //     error => this.toastr.error(error.message, 'Oops!'));
-  // }
 
   isEnvironmentsInProgress(data): boolean {
     return data.exploratory.some(el => {
@@ -159,47 +114,6 @@ export class ManagementComponent implements OnInit, OnDestroy {
     return data.exploratory.some(el => el.status === 'creating');
   }
 
-  createBackup($event) {
-    this.backupService.createBackup($event).subscribe(result => {
-      this.getBackupStatus(result);
-      this.toastr.success('Backup configuration is processing!', 'Processing!');
-      this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
-    },
-      error => this.toastr.error(error.message, 'Oops!'));
-  }
-
-  // manageRolesGroups($event) {
-  //   switch ($event.action) {
-  //     case 'create':
-  //       this.rolesService.setupNewGroup($event.value).subscribe(res => {
-  //         this.toastr.success('Group creation success!', 'Created!');
-  //         this.getGroupsData();
-  //       }, () => this.toastr.error('Group creation failed!', 'Oops!'));
-  //       break;
-  //     case 'update':
-  //       this.rolesService.updateGroup($event.value).subscribe(res => {
-  //         this.toastr.success('Group data successfully updated!', 'Success!');
-  //         this.getGroupsData();
-  //       }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
-  //       break;
-  //     case 'delete':
-  //       if ($event.type === 'users') {
-  //         this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
-  //           this.toastr.success('Users was successfully deleted!', 'Success!');
-  //           this.getGroupsData();
-  //         }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
-  //       } else if ($event.type === 'group') {
-  //         console.log('delete group');
-  //         this.rolesService.removeGroupById($event.value).subscribe(res => {
-  //           this.toastr.success('Group was successfully deleted!', 'Success!');
-  //           this.getGroupsData();
-  //         }, () => this.toastr.error('Failed group deleting!', 'Oops!'));
-  //       }
-  //       break;
-  //     default:
-  //   }
-  // }
-
   setBudgetLimits($event) {
     this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
       this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
@@ -211,23 +125,20 @@ export class ManagementComponent implements OnInit, OnDestroy {
     }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
-  // getGroupsData() {
-  //   this.rolesService.getGroupsData().subscribe(
-  //     list => this.rolesGroupsDialog.updateGroupData(list),
-  //     error => this.toastr.error(error.message, 'Oops!'));
-  // }
-
   manageEnvironment(event: { action: string, user: string }) {
-    this.healthStatusService
-      .manageEnvironment(event.action, event.user)
+    this.healthStatusService.manageEnvironment(event.action, event.user)
       .subscribe(res => {
         this.getActiveUsersList().subscribe(usersList => {
-          this.manageEnvironmentDialog.usersList = usersList;
+          // this.manageEnvironmentDialog.usersList = usersList;
           this.toastr.success(`Action ${event.action} is processing!`, 'Processing!');
           this.buildGrid();
         });
       },
         error => this.toastr.error(error.message, 'Oops!'));
+  }
+
+  get creatingBackup(): boolean {
+    return this.backupService.inProgress;
   }
 
   private getExploratoryList() {
@@ -236,26 +147,6 @@ export class ManagementComponent implements OnInit, OnDestroy {
         this.anyEnvInProgress = this.isEnvironmentsInProgress(result);
         this.notebookInProgress = this.isNotebookInProgress(result);
       });
-  }
-
-  private getBackupStatus(result) {
-    const uuid = result.body;
-    this.backupService.getBackupStatus(uuid)
-      .subscribe((backupStatus: any) => {
-        if (!this.creatingBackup) {
-          backupStatus.status === 'FAILED'
-            ? this.toastr.error('Backup configuration failed!', 'Oops!')
-            : this.toastr.success('Backup configuration completed!', 'Success!');
-          clearInterval(this.clear);
-        }
-      }, () => {
-        clearInterval(this.clear);
-        this.toastr.error('Backup configuration failed!', 'Oops!');
-      });
-  }
-
-  get creatingBackup(): boolean {
-    return this.backupService.inProgress;
   }
 
   private getAllEnvironmentData() {
@@ -283,8 +174,15 @@ export class ManagementComponent implements OnInit, OnDestroy {
       .subscribe((status: GeneralEnvironmentStatus) => {
         this.healthStatus = status;
         this.healthStatus.admin && this.getAllEnvironmentData();
-        this.userAccessKeyService.initialUserAccessKeyCheck();
         this.getExploratoryList();
       });
+  }
+
+  private getActiveUsersList() {
+    return this.healthStatusService.getActiveUsers();
+  }
+
+  private getTotalBudgetData() {
+    return this.healthStatusService.getTotalBudgetData();
   }
 }

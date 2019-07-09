@@ -169,6 +169,8 @@ public class ExploratoryResource implements ExploratoryAPI {
 				.clusterConfig(formDTO.getClusterConfig())
 				.shape(formDTO.getShape())
 				.endpoint(formDTO.getEndpoint())
+				.project(formDTO.getProject())
+				.exploratoryTag(formDTO.getExploratoryTag())
 				.build();
 	}
 }

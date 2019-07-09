@@ -19,7 +19,8 @@
 
 <div class="sub-nav base-retreat">
   <div>
-    <button mat-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus?.status === 'error'" (click)="createNotebook_btnClick()">
+    <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
+      [disabled]="!healthStatus?.projectAssigned">
       <i class="material-icons">add</i>Create new
     </button>
   </div>
@@ -41,12 +42,4 @@
   </div>
 </div>
 
-<div *ngIf="userUploadAccessKeyState == 500" class="warning-alert base-retreat">
-  <span class="material-icons">priority_high</span>
-  Error happened during user access key upload. Please try to reupload the key.
-</div>
-
 <resources-grid></resources-grid>
-
-<!-- <exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid()"></exploratory-environment-create-dialog> -->
-<!-- <dlab-manage-ungit #manageUngitDialog></dlab-manage-ungit> -->

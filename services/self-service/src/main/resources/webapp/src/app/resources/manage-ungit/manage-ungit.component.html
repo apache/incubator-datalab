@@ -23,9 +23,9 @@
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content tabs">
-    <mat-tab-group mat-stretch-tabs #tabGroup class="content-box">
+    <mat-tab-group mat-stretch-tabs #tabGroupGit class="content-box">
       <mat-tab label="LIST">
-        <button mat-raised-button class="butt add-creds" (click)="tabGroup.selectedIndex = 1">
+        <button mat-raised-button class="butt add-creds" (click)="tabGroupGit.selectedIndex = 1">
           <i class="material-icons">people_outline</i>Add account
         </button>
         <mat-divider></mat-divider>
@@ -63,7 +63,8 @@
 
         <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm && gitCredentials?.length">
           <button mat-raised-button type="button" class="butt action" (click)="cancelAllModifyings()">Cancel</button>
-          <button mat-raised-button type="button" class="butt butt-success action" (click)="editAccounts_btnClick()">Apply changes</button>
+          <button mat-raised-button type="button" class="butt butt-success action"
+            (click)="editAccounts_btnClick()">Apply changes</button>
         </div>
       </mat-tab>
       <mat-tab label="MANAGE ACCOUNT">
@@ -73,13 +74,16 @@
               <div class="control-group">
                 <label class="label">Host name</label>
                 <div class="control">
-                  <input type="text" formControlName="hostname" placeholder="Enter host name ( without http:// or https:// )">
+                  <input type="text" formControlName="hostname"
+                    placeholder="Enter host name ( without http:// or https:// )">
                 </div>
-                <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['hostname'].valid
+                <span class="danger_color"
+                  *ngIf="!updateAccountCredentialsForm.controls['hostname'].valid
                   && updateAccountCredentialsForm.controls['hostname'].touched && !updateAccountCredentialsForm.controls['hostname'].hasError('duplicate')">
                   Hostname field is required. Please provide a qualified domain name (e.g. gitlab.com or github.com)
                 </span>
-                <span class="danger_color" *ngIf="updateAccountCredentialsForm.controls['hostname'].hasError('duplicate') && updateAccountCredentialsForm.controls['hostname'].dirty">
+                <span class="danger_color"
+                  *ngIf="updateAccountCredentialsForm.controls['hostname'].hasError('duplicate') && updateAccountCredentialsForm.controls['hostname'].dirty">
                   The Host name is already in use
                 </span>
               </div>
@@ -88,7 +92,8 @@
                 <div class="control">
                   <input type="text" formControlName="username" placeholder="Enter user name">
                 </div>
-                <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['username'].valid && updateAccountCredentialsForm.controls['username'].touched">
+                <span class="danger_color"
+                  *ngIf="!updateAccountCredentialsForm.controls['username'].valid && updateAccountCredentialsForm.controls['username'].touched">
                   Username field is required. Please provide a valid username
                 </span>
               </div>
@@ -97,7 +102,8 @@
                 <div class="control">
                   <input type="email" formControlName="email" placeholder="Enter email">
                 </div>
-                <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['email'].valid && updateAccountCredentialsForm.controls['email'].touched">
+                <span class="danger_color"
+                  *ngIf="!updateAccountCredentialsForm.controls['email'].valid && updateAccountCredentialsForm.controls['email'].touched">
                   Email field is required. Please provide a valid email
                 </span>
               </div>
@@ -108,7 +114,8 @@
                 <div class="control">
                   <input type="text" formControlName="login" placeholder="Enter login">
                 </div>
-                <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['login'].valid && updateAccountCredentialsForm.controls['login'].touched">
+                <span class="danger_color"
+                  *ngIf="!updateAccountCredentialsForm.controls['login'].valid && updateAccountCredentialsForm.controls['login'].touched">
                   Login field is required. Please provide a valid login
                 </span>
               </div>
@@ -117,7 +124,8 @@
                 <div class="control">
                   <input type="password" formControlName="password" placeholder="Enter Password">
                 </div>
-                <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched">
+                <span class="danger_color"
+                  *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched">
                   Field is required. Password must be at least 6 characters
                 </span>
               </div>
@@ -126,7 +134,8 @@
                 <div class="control">
                   <input type="password" formControlName="confirmPassword" placeholder="Enter Password">
                 </div>
-                <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['confirmPassword'].valid && updateAccountCredentialsForm.controls['confirmPassword'].touched">
+                <span class="danger_color"
+                  *ngIf="!updateAccountCredentialsForm.controls['confirmPassword'].valid && updateAccountCredentialsForm.controls['confirmPassword'].touched">
                   Field is required. Please confirm a password
                 </span>
               </div>
@@ -134,7 +143,8 @@
           </div>
           <div class="text-center submit m-bott-10">
             <button mat-raised-button type="button" class="butt action" (click)="resetForm()">Clear</button>
-            <button mat-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid" (click)="assignChanges(updateAccountCredentialsForm.value)"
+            <button mat-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid"
+              (click)="assignChanges(updateAccountCredentialsForm.value)"
               class="butt butt-success action">Assign</button>
           </div>
         </form>

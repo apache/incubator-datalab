@@ -22,9 +22,11 @@ import com.google.inject.Singleton;
 import org.bson.Document;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
 
 @Singleton
 public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
@@ -49,5 +51,12 @@ public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
 	@Override
 	public void removeGroup(String groupId) {
 		deleteOne(USER_GROUPS, eq(ID, groupId));
+	}
+
+	@Override
+	public Set<String> getUserGroups(String user) {
+		return stream(find(USER_GROUPS, in(USERS_FIELD, user)))
+				.map(document -> document.getString(ID))
+				.collect(Collectors.toSet());
 	}
 }

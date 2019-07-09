@@ -32,13 +32,15 @@
     </div>
   </div>
 
-  <mat-card class="base-retreat project-form" *ngIf="!projectList.length">
+  <mat-divider></mat-divider>
+
+  <mat-card class="project-form" *ngIf="!projectList.length">
     <project-form></project-form>
   </mat-card>
 
-  <mat-divider></mat-divider>
-
   <div [hidden]="!projectList.length">
-    <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"></project-list>
+    <project-list (editItem)="editProject($event)" (deleteItem)="deleteProject($event)"
+      (toggleStatus)="toggleStatus($event)">
+    </project-list>
   </div>
 </div>

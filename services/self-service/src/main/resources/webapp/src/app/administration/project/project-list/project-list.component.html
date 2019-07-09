@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6">
+<table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6 selection">
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef class="name"> Project name </th>
     <td mat-cell *matCellDef="let element"> {{element.name}} </td>
@@ -25,19 +25,47 @@
 
   <ng-container matColumnDef="endpoints">
     <th mat-header-cell *matHeaderCellDef class="endpoints"> Endpoints </th>
-    <td mat-cell *matCellDef="let element"> {{element.endpoints}} </td>
+    <td mat-cell *matCellDef="let element">
+      <mat-chip-list>
+        <mat-chip *ngFor="let endpoint of element.endpoints">{{ endpoint }}</mat-chip>
+      </mat-chip-list>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef class="status"> Status </th>
+    <td mat-cell *matCellDef="let element" class="status" ngClass="{{ element.status.toLowerCase() || '' }}">
+      {{ element.status.toLowerCase() }}
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="groups">
     <th mat-header-cell *matHeaderCellDef class="groups"> Groups </th>
-    <td mat-cell *matCellDef="let element"> {{element.groups}} </td>
+    <td mat-cell *matCellDef="let element">
+      <mat-chip-list>
+        <mat-chip *ngFor="let group of element.groups">{{ group }}</mat-chip>
+      </mat-chip-list>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef class="project-actions"></th>
     <td mat-cell *matCellDef="let element" class="project-actions">
-      <span (click)="editProject(element)">
-        <mat-icon>mode_edit</mat-icon>
+      <span>
+        <a class="start-stop-action">
+          <mat-icon *ngIf="element.status === 'ACTIVE'" (click)="toggleProjectStatus(element, 'stop')">
+            pause_circle_outline
+          </mat-icon>
+          <mat-icon *ngIf="element.status === 'STOPPED'" (click)="toggleProjectStatus(element, 'start')">
+            play_circle_outline
+          </mat-icon>
+        </a>
+      </span>
+      <span [ngClass]="{'not-active' : element.status !== 'ACTIVE' }">
+        <a [ngClass]="{'not-allowed' : element.status !== 'ACTIVE' }"
+          (click)="element.status === 'ACTIVE' && editProject(element)">
+          <mat-icon>mode_edit</mat-icon>
+        </a>
       </span>
       <span (click)="deleteProject(element)">
         <mat-icon>delete_forever</mat-icon>

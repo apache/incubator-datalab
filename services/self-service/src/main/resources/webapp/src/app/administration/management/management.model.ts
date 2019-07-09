@@ -32,9 +32,9 @@ export class EnvironmentModel {
 export class BackupOptionsModel {
   constructor(
     public configFiles: Array<string>,
-    public keys:  Array<string>,
-    public certificates:  Array<string>,
-    public jars:  Array<string>,
+    public keys: Array<string>,
+    public certificates: Array<string>,
+    public jars: Array<string>,
     public databaseBackup: boolean,
     public logsBackup: boolean
   ) { }
@@ -55,4 +55,5 @@ export interface GeneralEnvironmentStatus {
   billingQuoteUsed: number;
   list_resources: any;
   status: string;
+  projectAssigned: boolean;
 }

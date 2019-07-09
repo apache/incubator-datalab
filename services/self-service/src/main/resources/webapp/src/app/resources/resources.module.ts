@@ -24,7 +24,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../shared/material.module';
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
-import { ExploratoryEnvironmentCreateModule } from './exploratory/exploratory-environment-create-dialog';
+import { ExploratoryEnvironmentCreateModule } from './exploratory/create-environment';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
 
