@@ -40,6 +40,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
+	public List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status) {
+		return find(PROJECTS_COLLECTION, eq(STATUS_FIELD, status.toString()), ProjectDTO.class);
+	}
+
+	@Override
 	public List<ProjectDTO> getUserProjectsWithStatus(UserInfo userInfo, ProjectDTO.Status status) {
 		return find(PROJECTS_COLLECTION, and(in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
 				userInfo.getRoles())), eq(STATUS_FIELD, status.toString())), ProjectDTO.class);

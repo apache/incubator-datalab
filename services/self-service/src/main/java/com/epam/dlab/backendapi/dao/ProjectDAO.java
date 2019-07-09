@@ -12,6 +12,8 @@ import java.util.Set;
 public interface ProjectDAO {
 	List<ProjectDTO> getProjects();
 
+	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
+
 	List<ProjectDTO> getUserProjectsWithStatus(UserInfo userInfo, ProjectDTO.Status status);
 
 	void create(ProjectDTO projectDTO);

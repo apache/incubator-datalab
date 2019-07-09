@@ -11,12 +11,16 @@ public interface ProjectService {
 
 	List<ProjectDTO> getUserProjects(UserInfo userInfo);
 
+	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
+
 	void create(UserInfo userInfo, ProjectDTO projectDTO);
 
 	ProjectDTO get(String name);
 
 	void terminate(UserInfo userInfo, String name);
+
 	void start(UserInfo userInfo, String name);
+
 	void stop(UserInfo userInfo, String name);
 
 	void update(UpdateProjectDTO projectDTO);
