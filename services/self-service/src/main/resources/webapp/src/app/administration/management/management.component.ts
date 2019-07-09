@@ -154,18 +154,11 @@ export class ManagementComponent implements OnInit {
       });
   }
 
-  // private getAllEnvironmentData() {
-  //   this.manageEnvironmentsService
-  //     .getAllEnvironmentData()
-  //     .subscribe((result: Array<EnvironmentModel>) => this.allEnvironmentData = result);
-  // }
-
   private getEnvironmentHealthStatus() {
     this.healthStatusService
       .getEnvironmentStatuses()
       .subscribe((status: GeneralEnvironmentStatus) => {
         this.healthStatus = status;
-        // this.healthStatus.admin && this.getAllEnvironmentData();
         this.getExploratoryList();
       });
   }
