@@ -37,6 +37,7 @@ variable "key_name" {
   default = "BDCC-DSS-POC"
 }
 variable "allowed_cidrs" {
+  type = list
   default = ["0.0.0.0/0"]
 }
 variable "os_user" {

@@ -141,3 +141,7 @@ module "endpoint" {
   vpc_cidr                = var.vpc_cidr
   endpoint_volume_size    = var.endpoint_volume_size
 }
+
+output "ssn_k8s_masters_ip_addresses" {
+  value = module.ssn-k8s.ssn_k8s_masters_ip_addresses
+}

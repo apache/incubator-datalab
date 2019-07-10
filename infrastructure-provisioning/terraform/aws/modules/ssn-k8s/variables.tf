@@ -45,7 +45,9 @@ variable "ssn_k8s_workers_count" {}
 
 variable "ssn_root_volume_size" {}
 
-variable "allowed_cidrs" {}
+variable "allowed_cidrs" {
+  type = list
+}
 
 variable "ssn_k8s_masters_shape" {}
 
