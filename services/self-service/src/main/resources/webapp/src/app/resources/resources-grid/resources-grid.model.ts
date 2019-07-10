@@ -51,38 +51,46 @@ export class ExploratoryModel {
     public tags: any,
   ) { }
 
-  public static loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ExploratoryModel> {
-    if (exploratoryList && sharedDataList) {
-      return exploratoryList.map((value) => {
-        return new ExploratoryModel(value.exploratory_name,
-          value.template_name,
-          value.image,
-          value.status,
-          value.shape,
-          value.computational_resources,
-          value.up_time,
-          value.exploratory_url,
-          sharedDataList.edge_node_ip,
-          value.private_ip,
-          value.exploratory_user,
-          value.exploratory_pass,
-          sharedDataList[DICTIONARY.bucket_name],
-          sharedDataList[DICTIONARY.shared_bucket_name],
-          value.error_message,
-          value[DICTIONARY.billing.cost],
-          value[DICTIONARY.billing.currencyCode],
-          value.billing,
-          value.libs,
-          sharedDataList[DICTIONARY.user_storage_account_name],
-          sharedDataList[DICTIONARY.shared_storage_account_name],
-          sharedDataList[DICTIONARY.datalake_name],
-          sharedDataList[DICTIONARY.datalake_user_directory_name],
-          sharedDataList[DICTIONARY.datalake_shared_directory_name],
-          value.project,
-          value.endpoint,
-          value.tags
-        );
+  public static loadEnvironments(data: Array<any>) {
+    if (data) {
+      return data.map((value) => {
+        return {
+          project: value.project,
+          exploratory: value.exploratory.map(el => new ExploratoryModel(el.exploratory_name,
+            el.template_name,
+            el.image,
+            el.status,
+            el.shape,
+            el.computational_resources,
+            el.up_time,
+            el.exploratory_url,
+            value.shared.edge_node_ip,
+            el.private_ip,
+            el.exploratory_user,
+            el.exploratory_pass,
+            value.shared[DICTIONARY.bucket_name],
+            value.shared[DICTIONARY.shared_bucket_name],
+            el.error_message,
+            el[DICTIONARY.billing.cost],
+            el[DICTIONARY.billing.currencyCode],
+            el.billing,
+            el.libs,
+            value.shared[DICTIONARY.user_storage_account_name],
+            value.shared[DICTIONARY.shared_storage_account_name],
+            value.shared[DICTIONARY.datalake_name],
+            value.shared[DICTIONARY.datalake_user_directory_name],
+            value.shared[DICTIONARY.datalake_shared_directory_name],
+            el.project,
+            el.endpoint,
+            el.tags
+          ))
+        }
       });
     }
   }
+}
+
+export interface Exploratory {
+  project: string;
+  exploratory: ExploratoryModel[]
 }
