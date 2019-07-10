@@ -17,29 +17,31 @@
   ~ under the License.
   -->
 
-<div class="sub-nav base-retreat">
-  <div>
-    <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
-      [disabled]="!healthStatus?.projectAssigned">
-      <i class="material-icons">add</i>Create new
-    </button>
+<section class="base-retreat">
+  <div class="sub-nav">
+    <div>
+      <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
+        [disabled]="!healthStatus?.projectAssigned">
+        <i class="material-icons">add</i>Create new
+      </button>
+    </div>
+    <div>
+      <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
+        <i class="material-icons"></i>Git credentials
+      </button>
+      <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()">
+        <span *ngIf="!resourcesGrid.activeFiltering">
+          <i class="material-icons">visibility_off</i> Show active
+        </span>
+        <span *ngIf="resourcesGrid.activeFiltering">
+          <i class="material-icons">visibility</i> Show all
+        </span>
+      </button>
+      <button mat-raised-button class="butt" (click)="refreshGrid()">
+        <i class="material-icons">autorenew</i>Refresh
+      </button>
+    </div>
   </div>
-  <div>
-    <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
-      <i class="material-icons"></i>Git credentials
-    </button>
-    <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()">
-      <span *ngIf="!resourcesGrid.activeFiltering">
-        <i class="material-icons">visibility_off</i> Show active
-      </span>
-      <span *ngIf="resourcesGrid.activeFiltering">
-        <i class="material-icons">visibility</i> Show all
-      </span>
-    </button>
-    <button mat-raised-button class="butt" (click)="refreshGrid()">
-      <i class="material-icons">autorenew</i>Refresh
-    </button>
-  </div>
-</div>
-
-<resources-grid></resources-grid>
+  <mat-divider></mat-divider>
+  <resources-grid></resources-grid>
+</section>

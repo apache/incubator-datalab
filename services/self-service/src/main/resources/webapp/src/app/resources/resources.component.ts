@@ -24,7 +24,7 @@ import { MatDialog } from '@angular/material';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
-import { ExploratoryModel } from './resources-grid/resources-grid.model';
+import { ExploratoryModel, Exploratory } from './resources-grid/resources-grid.model';
 import { HealthStatusService } from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 
@@ -35,7 +35,7 @@ import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 })
 
 export class ResourcesComponent implements OnInit {
-  public exploratoryEnvironments: Array<ExploratoryModel> = [];
+  public exploratoryEnvironments: Exploratory[] = [];
   public healthStatus: any;
 
   @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
