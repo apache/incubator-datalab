@@ -96,6 +96,16 @@ if __name__ == "__main__":
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
+    print(os.environ['tags'])
+
+    try:
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + notebook_config['additiona_tags']
+    except KeyError:
+        os.environ['conf_additional_tags'] = notebook_config['additiona_tags']
+
+    print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+
+
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')

@@ -114,11 +114,10 @@ if __name__ == "__main__":
     logging.info(json.dumps(project_conf))
 
     try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{}'.format(
-            project_conf['project_tag'] + ';project_name:{}'.format(
-                project_conf['project_name'])
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};project_name:{1}'.format(
+            project_conf['project_tag'], project_conf['project_name'])
     except KeyError:
-        os.environ['conf_additional_tags'] = 'project_tag:{0}; project_name:{1}'.format(project_conf['project_tag'],
+        os.environ['conf_additional_tags'] = 'project_tag:{0};project_name:{1}'.format(project_conf['project_tag'],
                                                                                         project_conf['project_name'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
@@ -150,12 +149,9 @@ if __name__ == "__main__":
     tag = {"Key": project_conf['tag_name'],
            "Value": "{0}-{1}-subnet".format(project_conf['service_base_name'], project_conf['project_name'])}
     project_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-#    project_tag = {"Key": 'project_tag', "Value": project_conf['project_tag']}
-#    project_name = {"Key": 'project_name', "Value": project_conf['project_name']}
     subnet_id = get_subnet_by_cidr(project_conf['private_subnet_cidr'])
     print('subnet id: {}'.format(subnet_id))
-#    create_tag(subnet_id, project_tag)
-#    create_tag(subnet_id, project_name)
+
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
     try:
@@ -547,8 +543,6 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
             edge_instance = get_instance_by_name(project_conf['tag_name'], project_conf['edge_instance_name'])
-#            create_tag(edge_instance, project_tag)
-#            create_tag(edge_instance, project_name)
         except:
             traceback.print_exc()
             raise Exception
