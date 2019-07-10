@@ -97,11 +97,12 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     print(os.environ['tags'])
-
+    tegy = json.dumps(os.environ['tags'])
+    print(tegy)
     try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + notebook_config['additiona_tags']
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + tegy
     except KeyError:
-        os.environ['conf_additional_tags'] = notebook_config['additiona_tags']
+        os.environ['conf_additional_tags'] = tegy
 
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
