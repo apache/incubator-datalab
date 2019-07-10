@@ -279,16 +279,18 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					".");
 		}
 
-		int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
-		if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct()
-				|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
-			log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value " +
-							"out of the boundaries. Minimum is {}, maximum is {}",
-					formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
-					configuration.getMaxEmrSpotInstanceBidPct());
-			throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
-					configuration.getMinEmrSpotInstanceBidPct() + ", maximum is " +
-					configuration.getMaxEmrSpotInstanceBidPct() + ".");
+		if (formDTO.getSlaveInstanceSpotPctPrice() != null){
+			int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
+			if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct()
+					|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
+				log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value " +
+								"out of the boundaries. Minimum is {}, maximum is {}",
+						formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
+						configuration.getMaxEmrSpotInstanceBidPct());
+				throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
+						configuration.getMinEmrSpotInstanceBidPct() + ", maximum is " +
+						configuration.getMaxEmrSpotInstanceBidPct() + ".");
+			}
 		}
 	}
 }

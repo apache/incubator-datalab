@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -21,6 +22,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	private static final String PROJECTS_COLLECTION = "Projects";
 	private static final String GROUPS = "groups";
+	private static final String ENDPOINTS = "endpoints";
 	private static final String STATUS_FIELD = "status";
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 
@@ -35,6 +37,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	@Override
 	public List<ProjectDTO> getProjects() {
 		return find(PROJECTS_COLLECTION, ProjectDTO.class);
+	}
+
+	@Override
+	public List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status) {
+		return find(PROJECTS_COLLECTION, eq(STATUS_FIELD, status.toString()), ProjectDTO.class);
 	}
 
 	@Override
@@ -70,9 +77,12 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public boolean update(ProjectDTO projectDTO) {
+	public boolean update(UpdateProjectDTO projectDTO) {
+		BasicDBObject updateProject = new BasicDBObject();
+		updateProject.put(GROUPS, projectDTO.getGroups());
+		updateProject.put(ENDPOINTS, projectDTO.getEndpoints());
 		return updateOne(PROJECTS_COLLECTION, projectCondition(projectDTO.getName()),
-				new Document(SET, convertToBson(projectDTO))).getMatchedCount() > 0L;
+				new Document(SET, updateProject)).getMatchedCount() > 0L;
 	}
 
 	@Override

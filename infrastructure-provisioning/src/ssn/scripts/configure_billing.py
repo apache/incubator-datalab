@@ -68,8 +68,6 @@ def yml_billing(path):
         if args.cloud_provider == 'aws':
             if args.aws_job_enabled == 'true':
                 args.tag_resource_id =  'resourceTags' + ':' + args.tag_resource_id
-            elif args.aws_job_enabled == 'false':
-                args.tag_resource_id = 'user' + ':' + args.tag_resource_id
             config_orig = config_orig.replace('<BILLING_BUCKET_NAME>', args.billing_bucket)
             config_orig = config_orig.replace('<AWS_JOB_ENABLED>', args.aws_job_enabled)
             config_orig = config_orig.replace('<REPORT_PATH>', args.report_path)

@@ -3,6 +3,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.rest.dto.ErrorDTO;
@@ -161,7 +162,7 @@ public class ProjectResource {
 							schema = @Schema(implementation = ErrorDTO.class)))
 	})
 	@PUT
-	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, ProjectDTO projectDTO) {
+	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, UpdateProjectDTO projectDTO) {
 		projectService.update(projectDTO);
 		return Response.ok().build();
 	}

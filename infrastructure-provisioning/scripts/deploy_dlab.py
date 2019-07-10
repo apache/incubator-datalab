@@ -103,18 +103,18 @@ parser.add_argument('--azure_source_vpc_name', type=str, default='', help='Azure
 parser.add_argument('--azure_source_resource_group_name', type=str, default='', help='Azure source resource group')
 parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
-parser.add_argument('--dlab_id', type=str, default="'user:user:tag'", help='Column name in report file that contains '
+parser.add_argument('--dlab_id', type=str, default="'resource_tags_user_user_tag'", help='Column name in report file that contains '
                                                                            'dlab id tag')
-parser.add_argument('--usage_date', type=str, default='UsageStartDate', help='Column name in report file that contains '
+parser.add_argument('--usage_date', type=str, default='line_item_usage_start_date', help='Column name in report file that contains '
                                                                              'usage date tag')
-parser.add_argument('--product', type=str, default='ProductName', help='Column name in report file that contains '
+parser.add_argument('--product', type=str, default='product_product_name', help='Column name in report file that contains '
                                                                        'product name tag')
-parser.add_argument('--usage_type', type=str, default='UsageType', help='Column name in report file that contains '
+parser.add_argument('--usage_type', type=str, default='line_item_usage_type', help='Column name in report file that contains '
                                                                         'usage type tag')
-parser.add_argument('--usage', type=str, default='UsageQuantity', help='Column name in report file that contains '
+parser.add_argument('--usage', type=str, default='line_item_usage_amount', help='Column name in report file that contains '
                                                                        'usage tag')
-parser.add_argument('--cost', type=str, default='BlendedCost', help='Column name in report file that contains cost tag')
-parser.add_argument('--resource_id', type=str, default='ResourceId', help='Column name in report file that contains '
+parser.add_argument('--cost', type=str, default='line_item_blended_cost', help='Column name in report file that contains cost tag')
+parser.add_argument('--resource_id', type=str, default='line_item_resource_id', help='Column name in report file that contains '
                                                                           'dlab resource id tag')
 parser.add_argument('--ldap_hostname', type=str, default='localhost', help='Ldap instance hostname')
 parser.add_argument('--ldap_dn', type=str, default='dc=example,dc=com',
@@ -123,7 +123,7 @@ parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organ
 parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
 parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
                     help='Ldap password for admin user')
-parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
+parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description', help='Column name in report file that '
                                                                                   'contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
