@@ -148,7 +148,6 @@ export class ManagementComponent implements OnInit {
   private getExploratoryList() {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
-        debugger;
         this.anyEnvInProgress = this.isEnvironmentsInProgress(result);
         this.notebookInProgress = this.isNotebookInProgress(result);
       });

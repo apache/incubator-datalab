@@ -37,13 +37,11 @@ export interface ManageAction {
   templateUrl: 'management-grid.component.html',
   styleUrls: [
     './management-grid.component.scss',
-    '../../../resources/resources-grid/resources-grid.component.css',
+    '../../../resources/resources-grid/resources-grid.component.scss',
     '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
   ]
 })
 export class ManagementGridComponent implements OnInit {
-  // @Input() allEnvironmentData: Array<any>;
-
   allEnvironmentData: Array<any>;
   loading: boolean = false;
 
