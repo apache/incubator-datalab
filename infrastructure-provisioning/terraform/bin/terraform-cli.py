@@ -3,6 +3,8 @@ import json
 import os
 import abc
 import argparse
+import re
+
 import paramiko
 import time
 
@@ -245,20 +247,19 @@ class AbstractDeployBuilder:
                                                          'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"')
             outlines = stdout.readlines()
             k8c_info_status = ''.join(outlines)
-            if not k8c_info_status:
-                if (time.time() - start_time) >= 600:
-                    raise TimeoutError
-                time.sleep(120)
 
             kubernetes_success_status = 'Kubernetes master is running'
             kubernetes_dns_success_status = 'KubeDNS is running'
-            if kubernetes_success_status not in k8c_info_status:
-                raise TerraformProviderError(
-                    'Master issue: {}'.format(k8c_info_status))
-            if kubernetes_dns_success_status not in k8c_info_status:
-                raise TerraformProviderError(
-                    'KubeDNS issue: {}'.format(k8c_info_status))
-            break
+
+            kubernetes_succeed = kubernetes_success_status in k8c_info_status
+            kube_dns_succeed = kubernetes_dns_success_status in k8c_info_status
+
+            if kubernetes_succeed and kube_dns_succeed:
+                break
+            if (time.time() - start_time) >= 600:
+                raise TimeoutError
+            time.sleep(60)
+
 
 
 class DeployDirector:
