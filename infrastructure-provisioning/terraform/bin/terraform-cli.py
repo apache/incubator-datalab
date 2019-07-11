@@ -38,7 +38,7 @@ class Console:
         Returns:
             SSHClient: remoter cli
         """
-        pkey = paramiko.RSAKey.from_private_key_file('path') if pkey else None
+        pkey = paramiko.RSAKey.from_private_key_file(pkey) if pkey else None
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ip, username=user, pkey=pkey, password=passwd)
@@ -83,7 +83,7 @@ class TerraformProvider:
         """
         args_str = self.get_args_string(cli_args)
         command = 'terraform apply -auto-approve -target module.ssn-k8s {}'
-        Console.execute(command.format(args_str))
+        Console.exec_command(command.format(args_str))
 
     def destroy(self, cli_args):
         """Destroy terraform
@@ -175,8 +175,8 @@ class AbstractDeployBuilder:
             parser.add_argument(argument.get('name'), **argument.get('props'))
 
         return {
-            'terraform_args': vars(terraform_args_parser.parse_args()),
-            'service_args': vars(client_args_parser.parse_args()),
+            'terraform_args': vars(terraform_args_parser.parse_known_args()[0]),
+            'service_args': vars(client_args_parser.parse_known_args()[0]),
         }
 
     def provision(self):
@@ -298,6 +298,7 @@ class ParamsBuilder:
                 'choices': kwargs.get('choices'),
                 'nargs': kwargs.get('nargs'),
                 'action': kwargs.get('action'),
+                'required': kwargs.get('required'),
             }
         }
         self.__params.append(parameter)
@@ -324,20 +325,22 @@ class AWSSourceBuilder(AbstractDeployBuilder):
     def cli_args(self):
         params = ParamsBuilder()
         (params
-         .add_str('--pkey', 'path to key', is_terraform_param=False)
          .add_str('--action', 'Action', default='deploy',
                   is_terraform_param=False)
-         .add_str('--access_key_id', 'AWS Access Key ID')
+         .add_str('--access_key_id', 'AWS Access Key ID', required=True)
          .add_str('--allowed_cidrs',
                   'CIDR to allow acces to SSN K8S cluster.',
                   default=["0.0.0.0/0"], action='append')
-         .add_str('--ami', 'ID of EC2 AMI.')
-         .add_str('--env_os', 'OS type.', default='debian')
-         .add_str('--key_name', 'Name of EC2 Key pair.')
+         .add_str('--ami', 'ID of EC2 AMI.', required=True)
+         .add_str('--env_os', 'OS type.', default='debian',
+                  choices=['debian', 'redhat'])
+         .add_str('--key_name', 'Name of EC2 Key pair.', required=True)
          .add_str('--os_user', 'Name of DLab service user.',
                   default='dlab-user')
+         .add_str('--pkey', 'path to key',
+                  is_terraform_param=False, required=True)
          .add_str('--region', 'Name of AWS region.', default='us-west-2')
-         .add_str('--secret_access_key', 'AWS Secret Access Key')
+         .add_str('--secret_access_key', 'AWS Secret Access Key', required=True)
          .add_str('--service_base_name',
                   'Any infrastructure value (should be unique if '
                   'multiple SSN\'s have been deployed before).',
