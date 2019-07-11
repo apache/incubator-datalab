@@ -20,8 +20,12 @@
 # ******************************************************************************
 
 // AWS info
-variable "access_key_id" {}
-variable "secret_access_key" {}
+variable "access_key_id" {
+  default = ""
+}
+variable "secret_access_key" {
+  default = ""
+}
 variable "region" {
   default = "us-west-2"
 }
