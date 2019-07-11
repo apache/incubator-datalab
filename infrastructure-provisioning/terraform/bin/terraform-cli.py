@@ -27,7 +27,7 @@ class Console:
         return os.popen(command).read()
 
     @staticmethod
-    def remote(ip, user, pkey=None, passwd=None):
+    def remote(ip, user, pkey=None):
         """ Get remote console\
 
         Args:
@@ -38,10 +38,10 @@ class Console:
         Returns:
             SSHClient: remoter cli
         """
-        pkey = paramiko.RSAKey.from_private_key_file(pkey) if pkey else None
+        pkey = paramiko.RSAKey.from_private_key_file(pkey)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ip, username=user, pkey=pkey, password=passwd)
+        ssh.connect(ip, username=user, pkey=pkey)
         return ssh
 
 
@@ -105,7 +105,7 @@ class TerraformProvider:
         Returns:
             str: terraform output result
         """
-        return Console.exec_command('terraform output '.format(' '.join(args)))
+        return Console.exec_command('terraform output {}'.format(' '.join(args)))
 
     @staticmethod
     def get_args_string(cli_args):
@@ -215,7 +215,11 @@ class AbstractDeployBuilder:
             str: extracted ip
 
         """
-        return json.loads(output)
+
+        ips = json.loads(output)
+        if not ips:
+            raise TerraformProviderError('no ips')
+        return ips[0]
 
     def check_k8s_cluster_status(self):
         """ Check for kubernetes status
@@ -231,13 +235,14 @@ class AbstractDeployBuilder:
         args = self.parse_args()
 
         ip = self.get_node_ip(output)
-        user_name = args.get('terraform').get('os_user')
-        pkey_path = args.get('cli').get('pkey')
+        user_name = args.get('terraform_args').get('os_user')
+        pkey_path = args.get('service_args').get('pkey')
 
         console = Console.remote(ip, user_name, pkey=pkey_path)
         start_time = time.time()
         while True:
-            stdin, stdout, stderr = console.exec_command('kubectl cluster-info')
+            stdin, stdout, stderr = console.exec_command('kubectl cluster-info | '
+                                                         'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"')
             outlines = stdout.readlines()
             k8c_info_status = ''.join(outlines)
             if not k8c_info_status:

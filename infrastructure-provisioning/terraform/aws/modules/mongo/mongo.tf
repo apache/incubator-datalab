@@ -58,4 +58,9 @@ resource "helm_release" "my_mongo" {
         name = "image.tag"
         value = "${var.image_tag}"
     }
+    set {
+        # temporary. PV should be implemented
+        name = "persistence.enabled"
+        value = "false"
+    }
 }
