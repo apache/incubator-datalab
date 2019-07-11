@@ -31,7 +31,7 @@ import os
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -42,11 +42,13 @@ if __name__ == "__main__":
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['project_tag'] = (os.environ['project_tag']).lower().replace('_', '-')
     notebook_config['region'] = os.environ['gcp_region']
     notebook_config['zone'] = os.environ['gcp_zone']
 
     edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['edge_user_name']))
+                                                                      notebook_config['project_name']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
@@ -68,11 +70,11 @@ if __name__ == "__main__":
     except:
         notebook_config['exploratory_name'] = ''
     notebook_config['subnet_name'] = '{0}-{1}-subnet'.format(notebook_config['service_base_name'],
-                                                             notebook_config['edge_user_name'])
+                                                             notebook_config['project_name'])
     notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['notebook_service_account_name'] = '{}-{}-ps'.format(notebook_config['service_base_name'],
-                                                                         notebook_config['edge_user_name']).replace('_', '-')
+                                                                         notebook_config['project_name']).replace('_', '-')
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
@@ -81,7 +83,7 @@ if __name__ == "__main__":
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
-                                                               notebook_config['edge_user_name'],
+                                                               notebook_config['project_name'],
                                                                notebook_config['exploratory_name'])
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
@@ -114,9 +116,11 @@ if __name__ == "__main__":
         notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
 
     notebook_config['network_tag'] = '{0}-{1}-ps'.format(notebook_config['service_base_name'],
-                                                         notebook_config['edge_user_name'])
+                                                         notebook_config['project_name'])
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
+                                 "project_name": notebook_config['project_name'],
+                                 "project_tag": notebook_config['project_tag'],
                                  "user": notebook_config['edge_user_name'],
                                  "product": "dlab"}
     # launching instance for notebook server
