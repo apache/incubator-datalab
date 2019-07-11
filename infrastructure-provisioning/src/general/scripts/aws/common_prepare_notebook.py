@@ -96,13 +96,10 @@ if __name__ == "__main__":
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
-    print(os.environ['tags'])
-    tegy = json.dumps(os.environ['tags'])
-    print(tegy)
     try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + tegy
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{1}'.format(project_conf['project_name'])
     except KeyError:
-        os.environ['conf_additional_tags'] = tegy
+        os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{1}'.format(project_conf['project_name'])
 
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
@@ -119,8 +116,7 @@ if __name__ == "__main__":
                     os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-#            notebook_instance = get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])
-#            create_tag(notebook_instance, os.environ['tag'])
+
         except:
             traceback.print_exc()
             raise Exception

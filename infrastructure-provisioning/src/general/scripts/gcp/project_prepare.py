@@ -98,6 +98,10 @@ if __name__ == "__main__":
     # FUSE in case of absence of user's key
     try:
         project_conf['user_key'] = os.environ['key']
+        try:
+            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'], project_conf['project_name']))
+        except:
+            print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
     except KeyError:
         print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
         sys.exit(1)
