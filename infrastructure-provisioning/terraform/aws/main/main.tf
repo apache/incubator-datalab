@@ -146,6 +146,10 @@ module "nginx" {
   source             = "../modules/nginx"
 }
 
+module "mongo" {
+  source             = "../modules/mongo"
+}
+
 output "ssn_k8s_masters_ip_addresses" {
   value = module.ssn-k8s.ssn_k8s_masters_ip_addresses
 }
