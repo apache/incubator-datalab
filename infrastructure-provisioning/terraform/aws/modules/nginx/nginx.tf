@@ -32,12 +32,12 @@ resource "helm_release" "my_mongo" {
 
     set {
         name = "controller.service.nodePorts.http"
-        value = "${var.mongo_root_pwd}"
+        value = "${var.nginx_http_port}"
     }
 
     set {
         name = "controller.service.nodePorts.https"
-        value = "${var.mongo_db_username}"
+        value = "${var.nginx_https_port}"
     }
 
     set {
