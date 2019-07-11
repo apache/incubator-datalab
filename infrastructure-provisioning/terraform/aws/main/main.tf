@@ -142,6 +142,10 @@ module "endpoint" {
   endpoint_volume_size    = var.endpoint_volume_size
 }
 
+module "nginx" {
+  source             = "../modules/nginx"
+}
+
 output "ssn_k8s_masters_ip_addresses" {
   value = module.ssn-k8s.ssn_k8s_masters_ip_addresses
 }
