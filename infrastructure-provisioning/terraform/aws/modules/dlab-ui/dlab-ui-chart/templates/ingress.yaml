@@ -18,7 +18,7 @@
 # under the License.
 #
 # ******************************************************************************
-{- if .Values.ingress.enabled -}}
+{{- if .Values.ingress.enabled -}}
 {{- $fullName := include "dlab-ui.fullname" . -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
