@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-keycloak
+  #annotations:
+  #  ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+        - path: /keycloak
+          backend:
+            serviceName: keycloak
+            servicePort: 31088
