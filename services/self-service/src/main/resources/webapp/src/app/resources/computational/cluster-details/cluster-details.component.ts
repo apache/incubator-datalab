@@ -52,10 +52,9 @@ export class DetailComputationalResourcesComponent implements OnInit {
     public dialogRef: MatDialogRef<DetailComputationalResourcesComponent>,
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder
-  ) {}
+  ) { }
 
   ngOnInit() {
-    // this.bindDialog.onClosing = () => this.resetDialog();
     this.open(this.data.environment, this.data.resource)
   }
 
@@ -90,7 +89,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
     this.dataengineConfigurationService
       .getClusterConfiguration(this.environment.name, this.resource.computational_name)
       .subscribe((result: any) => this.config = result,
-      error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
+        error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
   }
 
   public editClusterConfiguration(data): void {
@@ -99,13 +98,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
       .subscribe(result => {
         this.dialogRef.close();
       },
-      error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
-  }
-
-  public resetDialog() {
-    this.initFormModel();
-
-    if (this.configuration) this.configuration.nativeElement['checked'] = false;
+        error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
   }
 
   private initFormModel(): void {
