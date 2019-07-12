@@ -96,6 +96,14 @@ if __name__ == "__main__":
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
+    try:
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+    except KeyError:
+        os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+
+    print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+
+
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
@@ -108,9 +116,7 @@ if __name__ == "__main__":
                     os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-            notebook_instance = get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])
-            project_tag = {"Key": 'project_tag', "Value": os.environ['project_name']}
-            create_tag(notebook_instance, project_tag)
+
         except:
             traceback.print_exc()
             raise Exception
