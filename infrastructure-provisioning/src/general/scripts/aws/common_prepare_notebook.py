@@ -97,9 +97,9 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{1}'.format(project_conf['project_name'])
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
     except KeyError:
-        os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{1}'.format(project_conf['project_name'])
+        os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
 
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
