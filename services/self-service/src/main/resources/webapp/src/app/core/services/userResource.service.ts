@@ -29,7 +29,7 @@ export class UserResourceService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public getExploratoryTemplates(project): Observable<any> {
-    const url = `/${ project }/exploratory_templates`;
+    const url = `/${project}/exploratory_templates`;
     return this.applicationServiceFacade
       .buildGetTemplatesRequest(url)
       .pipe(
@@ -38,7 +38,7 @@ export class UserResourceService {
   }
 
   public getComputationalTemplates(project): Observable<any> {
-    const url = `/${ project }/computational_templates`;
+    const url = `/${project}/computational_templates`;
     return this.applicationServiceFacade
       .buildGetTemplatesRequest(url)
       .pipe(
@@ -109,8 +109,8 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public toggleStopStartAction(notebook: string, resource: string, action): Observable<{}> {
-    const url = `/${notebook}/${resource}/${action}`;
+  public toggleStopStartAction(project, notebook: string, resource: string, action): Observable<{}> {
+    const url = `/${project}/${notebook}/${resource}/${action}`;
     if (action === 'stop') {
       return this.applicationServiceFacade
         .buildStopSparkClusterAction(JSON.stringify(url))
