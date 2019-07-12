@@ -29,7 +29,7 @@ import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
-import { SortUtil, CheckUtils } from '../../core/util';
+import { SortUtils, CheckUtils } from '../../core/util';
 import { DetailDialogComponent } from '../exploratory/detail-dialog';
 import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 import { InstallLibrariesComponent } from '../exploratory/install-libraries';

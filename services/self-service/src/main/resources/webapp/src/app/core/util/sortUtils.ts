@@ -17,7 +17,7 @@
  * under the License.
  */
 
-export class SortUtil {
+export class SortUtils {
   public static statusSort(arg1: string, arg2: string): number {
     const order = ['creating', 'running', 'stopping', 'stopped', 'terminating', 'terminated', 'failed'];
 
