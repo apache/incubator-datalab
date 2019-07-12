@@ -223,20 +223,23 @@ def configure_docker(os_user, http_file, https_file):
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
 
-def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_jupyter_conf, exploratory_name):
+def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_jupyter_conf, exploratory_name, edge_ip):
     if not exists(jupyter_dir):
         try:
             sudo('mkdir {}'.format(jupyter_dir))
 #            put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
 #            put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
             put('/root/Dockerfile_jupyter', '/tmp/Dockerfile_jupyter')
-            put('/root/jupyter_run.sh', '/tmp/jupyter_run.sh')
+            put('/root/scripts/jupyter_run.sh', '/tmp/jupyter_run.sh')
 #            sudo('\cp /tmp/pyspark_local_template.json ' + jupyter_dir + 'pyspark_local_template.json')
 #            sudo('\cp /tmp/py3spark_local_template.json ' + jupyter_dir + 'py3spark_local_template.json')
 #            sudo('sed -i \'s/3.5/3.6/g\' {}py3spark_local_template.json'.format(jupyter_dir))
             sudo('mv /tmp/jupyter_run.sh {}jupyter_run.sh'.format(jupyter_dir))
             sudo('mv /tmp/Dockerfile_jupyter {}Dockerfile_jupyter'.format(jupyter_dir))
+            sudo('mv /tmp/build.sh {}build.sh'.format(jupyter_dir))
+            sudo('mv /tmp/start.sh {}start.sh'.format(jupyter_dir))
             sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyter'.format(os_user, jupyter_dir))
+            sudo('sed -i \'s/nb_user/{}/g\' {}start.sh'.format(os_user, jupyter_dir))
 #            sudo('sed -i \'s/jup_version/{}/g\' {}Dockerfile_jupyter'.format(jupyter_version, jupyter_dir))
 #            sudo('sed -i \'s/hadoop_version/{}/g\' {}Dockerfile_jupyter'.format(os.environ['notebook_hadoop_version'], jupyter_dir))
 #            sudo('sed -i \'s/tornado_version/{}/g\' {}Dockerfile_jupyter'.format(os.environ['notebook_tornado_version'], jupyter_dir))
@@ -253,6 +256,8 @@ def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_
             sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
             sudo('chown dlab-user:dlab-user /opt')
+            sudo('echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(edge_ip, os_user))
+            sudo('echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(edge_ip, os_user))
 #            sudo('touch {}'.format(spark_script))
 #            sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
 #            sudo(

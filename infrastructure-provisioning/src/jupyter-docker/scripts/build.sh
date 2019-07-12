@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -19,31 +21,4 @@
 #
 # ******************************************************************************
 
-FROM nexus.cc.epm.kharlamov.biz:443/legion/python-toolchain:1.0.0-20190709105425.523.e22cd7d
-
-ARG NB_USER="dlab-user"
-
-RUN useradd -u 1001 -ms /bin/bash $NB_USER
-
-EXPOSE 8888
-
-COPY jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
-
-#Prepearing Start script
-COPY jupyter_run.sh /jupyter_run.sh
-RUN  sed -i 's|CONF_PATH|/etc/jupyter/jupyter_notebook_config.py|' /jupyter_run.sh \
-  && chmod +x /jupyter_run.sh \
-  && chown -R 1001:1001 /etc/jupyter \
-  && chown -R 1001:1001 /opt/legion
-
-RUN apt update && apt install -y vim netcat-openbsd
-
-USER $NB_USER
-
-RUN jupyter serverextension enable --py jupyterlab_git && \
-    jupyter serverextension enable --py legion.jupyterlab && \
-    echo "ENABLED PLUGINS:" && \
-    jupyter serverextension list
-
-
-ENTRYPOINT ["/jupyter_run.sh", "-d"]
+docker build -t jupyter-lab -f Dockerfile_jupyter .

@@ -76,6 +76,7 @@ if __name__ == "__main__":
     else:
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Public')
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    edge_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -143,6 +144,7 @@ if __name__ == "__main__":
         print('[CONFIGURE JUPYTER-DOCKER NOTEBOOK INSTANCE]')
         params = "--hostname {} " \
                  "--keyfile {} " \
+                 "--edge_ip {}" \
                  "--region {} " \
                  "--spark_version {} " \
                  "--hadoop_version {} " \
@@ -152,6 +154,7 @@ if __name__ == "__main__":
                  "--exploratory_name {}".\
             format(instance_hostname,
                    keyfile_name,
+                   edge_ip,
                    os.environ['aws_region'],
                    os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'],
