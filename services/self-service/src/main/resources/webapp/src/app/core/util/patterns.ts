@@ -20,7 +20,7 @@
 export const PATTERNS = {
   namePattern: '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+',
   delimitersRegex: '/[-_]?/g',
-  url: '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?',
+  url: '[a-zA-Z0-9.://%#&\\.@:%-_\+~#=]*\.[^\s]*[a-zA-Z0-9]+',
   nodeCountPattern: '^[1-9]\\d*$',
   integerRegex: '^[0-9]*$'
 }
