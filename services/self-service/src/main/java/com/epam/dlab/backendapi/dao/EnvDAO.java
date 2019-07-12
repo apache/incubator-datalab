@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.status.EnvResource;
@@ -105,10 +106,10 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<EnvResource> findRunningResourcesForCheckInactivity() {
+	public List<UserInstanceDTO> findRunningResourcesForCheckInactivity() {
 		return stream(find(USER_INSTANCES, or(eq(STATUS, RUNNING.toString()),
 				elemMatch(COMPUTATIONAL_RESOURCES, eq(STATUS, RUNNING.toString())))))
-				.flatMap(ui -> getRunningEnvResources(ui).stream())
+				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
 				.collect(Collectors.toList());
 	}
 

@@ -50,6 +50,7 @@ parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--endpoint_url', type=str, default='')
+parser.add_argument('--ip_adress', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
@@ -247,6 +248,10 @@ if __name__ == "__main__":
         install_gitlab_cert(args.os_user, gitlab_certfile)
     # COPY PRE-COMMIT SCRIPT TO ZEPPELIN
     sudo('cp /home/{}/.git/templates/hooks/pre-commit /opt/zeppelin/notebook/.git/hooks/'.format(args.os_user))
+
+    # INSTALL INACTIVITY CHECKER
+    print("Install inactivity checker")
+    install_inactivity_checker(args.os_user, args.ip_adress)
 
     # INSTALL OPTIONAL PACKAGES
     if os.environ['notebook_r_enabled'] == 'true':

@@ -20,7 +20,8 @@
 package com.epam.dlab.rest.contracts;
 
 public class KeyAPI {
-	public static final String REUPLOAD_KEY = "/reupload_key";
+	public static final String REUPLOAD_KEY = "/key/reupload";
+	public static final String GET_ADMIN_KEY = "/key";
 	public static final String KEY_EXTENTION = ".pub";
 
 	private KeyAPI() {

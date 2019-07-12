@@ -266,7 +266,7 @@ if __name__ == "__main__":
                 "PrefixListIds": [],
                 "FromPort": 4040,
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 4045, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                "ToPort": 4140, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],

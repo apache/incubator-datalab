@@ -40,6 +40,8 @@ import java.util.Map;
 @Slf4j
 public abstract class InfrastructureInfoServiceBase<T> implements InfrastructureInfoService {
 
+	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s" +
+			"/RELEASE_NOTES.md";
 	@Inject
 	private ExploratoryDAO expDAO;
 	@Inject
@@ -87,10 +89,12 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 
 	@Override
 	public InfrastructureMetaInfoDTO getInfrastructureMetaInfo() {
+		final String branch = Manifests.read("GIT-Branch");
 		return InfrastructureMetaInfoDTO.builder()
-				.branch(Manifests.read("GIT-Branch"))
+				.branch(branch)
 				.commit(Manifests.read("GIT-Commit"))
-				.version(Manifests.read("Implementation-Version"))
+				.version(Manifests.read("DLab-Version"))
+				.releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
 				.build();
 	}
 

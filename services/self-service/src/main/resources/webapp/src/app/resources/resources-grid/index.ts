@@ -19,7 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../shared/material.module';
 import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from '../computational/computational-resources-list';
@@ -36,6 +36,7 @@ import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 @NgModule({
   imports: [
     CommonModule,
+    RouterModule,
     ComputationalResourcesModule,
     ModalModule,
     ConfirmationDialogModule,

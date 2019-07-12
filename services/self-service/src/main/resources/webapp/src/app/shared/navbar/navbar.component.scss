@@ -45,7 +45,7 @@
 
     .statusbar {
       display: flex;
-      width: 60px;
+      width: 50px;
       height: 46px;
       text-decoration: none;
       justify-content: center;
@@ -70,9 +70,9 @@
         }
       }
       .meta {
-        color: #fff;
+        color: #c7d4d6;
         &:hover {
-          color: #c7d4d6;
+          color: #fff;
         }
       }
     }
@@ -98,9 +98,25 @@
   p {
     strong {
       color: #455c74;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
+      width: 120px;
+      display: inline-block;
     }
+    .helper_instruction {
+      font-size: 14px;
+      i {
+        vertical-align: bottom;
+      }
+    }
+    span {
+      width: 180px;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+  }
+  .commit {
+    cursor: pointer;
   }
 }
 a.nav-item {

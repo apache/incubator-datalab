@@ -178,3 +178,7 @@ if __name__ == "__main__":
     elif args.action == 'reconfigure_spark':
         with hide('running'):
             local("/bin/reconfigure_spark.py")
+
+    elif args.action == 'check_inactivity':
+        with hide('running'):
+            local("/bin/check_inactivity.py")

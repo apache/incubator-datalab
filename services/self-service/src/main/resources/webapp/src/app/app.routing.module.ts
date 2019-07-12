@@ -26,6 +26,7 @@ import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AccessDeniedComponent } from './access-denied/access-denied.component';
 import { ReportingComponent } from './reporting/reporting.component';
+import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './management/management.component';
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard } from './core/services';
 
@@ -44,6 +45,9 @@ const routes: Routes = [{
     path: 'environment_management',
     component: ManagementComponent,
     canActivate: [AuthorizationGuard]
+  }, {
+    path: 'terminal/:id',
+    component: WebterminalComponent
   }, {
     path: 'help/publickeyguide',
     component: PublicKeyGuideComponent,

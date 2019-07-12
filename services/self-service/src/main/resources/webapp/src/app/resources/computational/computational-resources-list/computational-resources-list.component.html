@@ -33,8 +33,7 @@
   
         <div class="resource-actions">
           <a class="schedule" [ngClass]="{'active': resource.scheduler_data,
-              'not-allowed': resource.image === 'docker.dlab-dataengine-service'
-              || environment.status !== 'running' && environment.status !== 'stopped'
+              'not-allowed': environment.status !== 'running' && environment.status !== 'stopped'
               || resource.status !== 'running' && resource.status !== 'stopped'
               || healthStatus === 'error' }">
             <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>

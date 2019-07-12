@@ -78,6 +78,28 @@ if __name__ == "__main__":
             raise Exception
     except:
         sys.exit(1)
+
+    try:
+        logging.info('[UPDATE LAST ACTIVITY TIME]')
+        print('[UPDATE LAST ACTIVITY TIME]')
+        data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+        data_engine['notebook_ip'] = GCPMeta().get_private_ip_address(os.environ['notebook_instance_name'])
+        data_engine['computational_ip'] = GCPMeta().get_private_ip_address(data_engine['computational_id'])
+        data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
+            .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
+                    data_engine['computational_ip'])
+        try:
+            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+        except Exception as err:
+            traceback.print_exc()
+            append_result("Failed to update last activity time.", str(err))
+            raise Exception
+    except:
+        sys.exit(1)
+
+
     try:
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": data_engine['service_base_name'],
