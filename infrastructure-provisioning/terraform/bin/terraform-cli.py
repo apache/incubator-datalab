@@ -62,7 +62,7 @@ class TerraformProvider:
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)
 
-    def apply(self, target, cli_args):
+    def apply(self, cli_args):
         """Run terraform
 
         Args:
@@ -72,10 +72,10 @@ class TerraformProvider:
              None
         """
         args_str = self.get_args_string(cli_args)
-        command = 'terraform apply -auto-approve -target {} {}'
-        Console.execute(command.format(target, args_str))
+        command = 'terraform apply -auto-approve {}'
+        Console.execute(command.format(args_str))
 
-    def destroy(self, target, cli_args):
+    def destroy(self, cli_args):
         """Destroy terraform
 
         Args:
@@ -85,8 +85,8 @@ class TerraformProvider:
              None
         """
         args_str = self.get_args_string(cli_args)
-        command = 'terraform destroy -auto-approve -target {} {}'
-        Console.execute(command.format(target, args_str))
+        command = 'terraform destroy -auto-approve {}'
+        Console.execute(command.format(args_str))
 
     def output(self, *args):
         """Get terraform output
