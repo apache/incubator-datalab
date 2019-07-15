@@ -26,24 +26,27 @@ provider "aws" {
 }
 
 module "ssn-k8s" {
-  source                = "../modules/ssn-k8s"
-  service_base_name     = var.service_base_name
-  vpc_id                = var.vpc_id
-  vpc_cidr              = var.vpc_cidr
-  subnet_id             = var.subnet_id
-  env_os                = var.env_os
-  ami                   = var.ami
-  key_name              = var.key_name
-  region                = var.region
-  zone                  = var.zone
-  ssn_k8s_masters_count = var.ssn_k8s_masters_count
-  ssn_k8s_workers_count = var.ssn_k8s_workers_count
-  ssn_root_volume_size  = var.ssn_root_volume_size
-  allowed_cidrs         = var.allowed_cidrs
-  subnet_cidr           = var.subnet_cidr
-  ssn_k8s_masters_shape = var.ssn_k8s_masters_shape
-  ssn_k8s_workers_shape = var.ssn_k8s_workers_shape
-  os_user               = var.os_user
+  source                  = "../modules/ssn-k8s"
+  service_base_name       = var.service_base_name
+  vpc_id                  = var.vpc_id
+  vpc_cidr                = var.vpc_cidr
+  subnet_id_a             = var.subnet_id_a
+  subnet_id_b             = var.subnet_id_b
+  env_os                  = var.env_os
+  ami                     = var.ami
+  key_name                = var.key_name
+  region                  = var.region
+  zone                    = var.zone
+  ssn_k8s_masters_count   = var.ssn_k8s_masters_count
+  ssn_k8s_workers_count   = var.ssn_k8s_workers_count
+  ssn_root_volume_size    = var.ssn_root_volume_size
+  allowed_cidrs           = var.allowed_cidrs
+  subnet_cidr_a           = var.subnet_cidr_a
+  subnet_cidr_b           = var.subnet_cidr_b
+  subnet_cidr_c           = var.subnet_cidr_c
+  ssn_k8s_masters_shape   = var.ssn_k8s_masters_shape
+  ssn_k8s_workers_shape   = var.ssn_k8s_workers_shape
+  os_user                 = var.os_user
 }
 
 module "common" {
@@ -69,7 +72,7 @@ module "notebook" {
   user_tag          = "${var.user_tag}"
   custom_tag        = "${var.custom_tag}"
   notebook_name     = "${var.notebook_name}"
-  subnet_id         = "${var.subnet_id}"
+  subnet_id         = "${var.subnet_id_a}"
   nb-sg_id          = "${var.nb-sg_id}"
   note_profile_name = "${var.note_profile_name}"
   product           = "${var.product_name}"
@@ -85,7 +88,7 @@ module "data_engine" {
   user_tag          = "${var.user_tag}"
   custom_tag        = "${var.custom_tag}"
   notebook_name     = "${var.notebook_name}"
-  subnet_id         = "${var.subnet_id}"
+  subnet_id         = "${var.subnet_id_a}"
   nb-sg_id          = "${var.nb-sg_id}"
   note_profile_name = "${var.note_profile_name}"
   product           = "${var.product_name}"
@@ -104,7 +107,7 @@ module "emr" {
   user_tag          = "${var.user_tag}"
   custom_tag        = "${var.custom_tag}"
   notebook_name     = "${var.notebook_name}"
-  subnet_id         = "${var.subnet_id}"
+  subnet_id         = "${var.subnet_id_a}"
   nb-sg_id          = "${var.nb-sg_id}"
   note_profile_name = "${var.note_profile_name}"
   product           = "${var.product_name}"
@@ -131,12 +134,12 @@ module "endpoint" {
   region                  = var.region
   zone                    = var.zone
   product                 = var.product_name
-  subnet_cidr             = var.subnet_cidr
+  subnet_cidr             = var.subnet_cidr_a
   endpoint_instance_shape = var.endpoint_instance_shape
   key_name                = var.key_name
   ami                     = var.ami
   vpc_id                  = var.vpc_id
-  subnet_id               = var.subnet_id
+  subnet_id               = var.subnet_id_a
   network_type            = var.network_type
   vpc_cidr                = var.vpc_cidr
   endpoint_volume_size    = var.endpoint_volume_size

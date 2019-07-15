@@ -74,15 +74,15 @@ apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: stable
 apiServerCertSANs:
-  - ${k8s-eip}
-controlPlaneEndpoint: "${k8s-eip}:6443"
+  - ${k8s-nlb-dns-name}
+controlPlaneEndpoint: "${k8s-nlb-dns-name}:6443"
 EOF
 sudo kubeadm init --config=/tmp/kubeadm-config.yaml --upload-certs
 while check_elb_status
 do
     if [[ $RUN == "false" ]];
     then
-        echo "Waiting for LB healthy status..."
+        echo "Waiting for NLB healthy status..."
     else
         echo "LB status is healthy!"
         break

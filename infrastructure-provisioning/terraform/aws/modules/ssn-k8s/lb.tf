@@ -19,36 +19,65 @@
 #
 # ******************************************************************************
 
-resource "aws_lb" "ssn_k8s_lb" {
-  name               = "${var.service_base_name}-ssn-lb"
+resource "aws_lb" "ssn_k8s_nlb" {
+  name               = "${var.service_base_name}-ssn-nlb"
   load_balancer_type = "network"
-
-  subnet_mapping {
-    subnet_id     = data.aws_subnet.k8s-subnet-data.id
-    allocation_id = aws_eip.k8s-lb-eip.id
-  }
+  subnets            = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
   tags = {
-    Name = "${var.service_base_name}-ssn-lb"
+    Name = "${var.service_base_name}-ssn-nlb"
   }
 }
 
-resource "aws_lb_target_group" "ssn_k8s_lb_target_group" {
-  name     = "${var.service_base_name}-ssn-lb-target-group"
+resource "aws_lb" "ssn_k8s_alb" {
+  name               = "${var.service_base_name}-ssn-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ssn_k8s_sg.id]
+  subnets            = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+
+  tags = {
+    Name = "${var.service_base_name}-ssn-alb"
+  }
+}
+
+resource "aws_lb_target_group" "ssn_k8s_nlb_target_group" {
+  name     = "${var.service_base_name}-ssn-nlb-target-group"
   port     = 6443
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags = {
-    Name = "${var.service_base_name}-ssn-lb-target-group"
+    Name = "${var.service_base_name}-ssn-nlb-target-group"
   }
 }
 
-resource "aws_lb_listener" "ssn_k8s_lb_listener" {
-  load_balancer_arn = aws_lb.ssn_k8s_lb.arn
+resource "aws_lb_target_group" "ssn_k8s_alb_target_group" {
+  name     = "${var.service_base_name}-ssn-alb-target-group"
+  port     = 31080
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
+  tags = {
+    Name = "${var.service_base_name}-ssn-alb-target-group"
+  }
+}
+
+resource "aws_lb_listener" "ssn_k8s_alb_listener" {
+  load_balancer_arn = aws_lb.ssn_k8s_alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ssn_k8s_alb_target_group.arn
+  }
+}
+
+resource "aws_lb_listener" "ssn_k8s_nlb_listener" {
+  load_balancer_arn = aws_lb.ssn_k8s_nlb.arn
   port              = "6443"
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ssn_k8s_lb_target_group.arn
+    target_group_arn = aws_lb_target_group.ssn_k8s_nlb_target_group.arn
   }
 }

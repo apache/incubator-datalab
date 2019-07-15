@@ -62,11 +62,20 @@ variable "vpc_id" {
 variable "vpc_cidr" {
   default = "172.31.0.0/16"
 }
-variable "subnet_id" {
+variable "subnet_id_a" {
   default = ""
 }
-variable "subnet_cidr" {
+variable "subnet_id_b" {
+  default = ""
+}
+variable "subnet_cidr_a" {
   default = "172.31.0.0/24"
+}
+variable "subnet_cidr_b" {
+  default = "172.31.1.0/24"
+}
+variable "subnet_cidr_c" {
+  default = "172.31.2.0/24"
 }
 variable "ami" {
   default = "ami-07b4f3c02c7f83d59"

@@ -51,25 +51,77 @@ data "aws_vpc" "ssn_k8s_vpc_data" {
   id = var.vpc_id == "" ? aws_vpc.ssn_k8s_vpc.0.id : var.vpc_id
 }
 
-resource "aws_subnet" "ssn_k8s_subnet" {
-  count                   = var.subnet_id == "" ? 1 : 0
+resource "aws_subnet" "ssn_k8s_subnet_a" {
+  count                   = var.subnet_id_a == "" ? 1 : 0
   vpc_id                  = data.aws_vpc.ssn_k8s_vpc_data.id
-  availability_zone       = "${var.region}${var.zone}"
-  cidr_block              = var.subnet_cidr
+  availability_zone       = "${var.region}a"
+  cidr_block              = var.subnet_cidr_a
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.service_base_name}-ssn-subnet"
+    Name = "${var.service_base_name}-ssn-subnet-az-a"
   }
 }
 
-data "aws_subnet" "k8s-subnet-data" {
-  id = var.subnet_id == "" ? aws_subnet.ssn_k8s_subnet.0.id : var.subnet_id
-}
+resource "aws_subnet" "ssn_k8s_subnet_b" {
+  count                   = var.subnet_id_b == "" ? 1 : 0
+  vpc_id                  = data.aws_vpc.ssn_k8s_vpc_data.id
+  availability_zone       = "${var.region}b"
+  cidr_block              = var.subnet_cidr_b
+  map_public_ip_on_launch = true
 
-resource "aws_eip" "k8s-lb-eip" {
-  vpc      = true
   tags = {
-    Name = "${var.service_base_name}-ssn-eip"
+    Name = "${var.service_base_name}-ssn-subnet-az-b"
   }
 }
+
+resource "aws_subnet" "ssn_k8s_subnet_c" {
+  count                   = var.ssn_k8s_masters_count > 2 ? 1 : 0
+  vpc_id                  = data.aws_vpc.ssn_k8s_vpc_data.id
+  availability_zone       = "${var.region}c"
+  cidr_block              = var.subnet_cidr_c
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.service_base_name}-ssn-subnet-az-c"
+  }
+}
+
+data "aws_subnet" "k8s-subnet-a-data" {
+  id = var.subnet_id_a == "" ? aws_subnet.ssn_k8s_subnet_a.0.id : var.subnet_id_a
+}
+
+data "aws_subnet" "k8s-subnet-b-data" {
+  id = var.subnet_id_b == "" ? aws_subnet.ssn_k8s_subnet_b.0.id : var.subnet_id_b
+}
+
+data "aws_subnet" "k8s-subnet-c-data" {
+  count = var.ssn_k8s_masters_count > 2 ? 1 : 0
+  id = aws_subnet.ssn_k8s_subnet_c.0.id
+}
+
+//resource "aws_eip" "k8s-lb-eip-a" {
+//  vpc      = true
+//  tags = {
+//    Name = "${var.service_base_name}-ssn-eip-a"
+//  }
+//}
+//
+//resource "aws_eip" "k8s-lb-eip-b" {
+//  vpc      = true
+//  tags = {
+//    Name = "${var.service_base_name}-ssn-eip-b"
+//  }
+//}
+//
+//resource "aws_eip" "k8s-lb-eip-c" {
+//  count    = var.ssn_k8s_masters_count > 2 ? 1 : 0
+//  vpc      = true
+//  tags = {
+//    Name = "${var.service_base_name}-ssn-eip-c"
+//  }
+//}
+//
+//data "aws_eip" "k8s-lb-eip-c-data" {
+//  id = aws_eip.k8s-lb-eip-c.0.id
+//}

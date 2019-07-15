@@ -25,9 +25,15 @@ variable "vpc_id" {}
 
 variable "vpc_cidr" {}
 
-variable "subnet_id" {}
+variable "subnet_id_a" {}
 
-variable "subnet_cidr" {}
+variable "subnet_id_b" {}
+
+variable "subnet_cidr_a" {}
+
+variable "subnet_cidr_b" {}
+
+variable "subnet_cidr_c" {}
 
 variable "env_os" {}
 

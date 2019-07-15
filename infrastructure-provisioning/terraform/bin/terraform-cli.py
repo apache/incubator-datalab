@@ -359,11 +359,21 @@ class AWSSourceBuilder(AbstractDeployBuilder):
                   default='t2.medium')
          .add_int('--ssn_root_volume_size', 'Size of root volume in GB.',
                   default=30)
-         .add_str('--subnet_cidr',
-                  'CIDR for Subnet creation. Conflicts with  subnet_id.',
+         .add_str('--subnet_cidr_a',
+                  'CIDR for Subnet creation in zone a. Conflicts with  subnet_id_a.',
                   default='172.31.0.0/24')
-         .add_str('--subnet_id',
-                  'ID of AWS Subnet if you already have subnet created.')
+         .add_str('--subnet_cidr_b',
+                  'CIDR for Subnet creation in zone b. Conflicts with  subnet_id_b.',
+                  default='172.31.1.0/24')
+         .add_str('--subnet_cidr_c',
+                  'CIDR for Subnet creation in zone c. Conflicts with  subnet_id_c.',
+                  default='172.31.2.0/24')
+         .add_str('--subnet_id_a',
+                  'ID of AWS Subnet in zone a if you already have subnet created.')
+         .add_str('--subnet_id_b',
+                  'ID of AWS Subnet in zone b if you already have subnet created.')
+         .add_str('--subnet_id_c',
+                  'ID of AWS Subnet in zone c if you already have subnet created.')
          .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id',
                   default='172.31.0.0/16')
          .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.')
