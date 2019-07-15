@@ -27,7 +27,7 @@ provider "helm" {
 }
 
 
-resource "helm_release" "my_mongo" {
+resource "helm_release" "dlab-ui" {
     name      = "dlab-ui"
     chart     = "./dlab-ui-chart"
 }
