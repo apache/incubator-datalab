@@ -3,10 +3,10 @@ import json
 import os
 import abc
 import argparse
-import re
 
-import paramiko
 import time
+from fabric.api import *
+from fabric.contrib.files import exists
 
 
 class TerraformProviderError(Exception):
@@ -18,7 +18,7 @@ class TerraformProviderError(Exception):
 
 class Console:
     @staticmethod
-    def exec_command(command):
+    def execute(command):
         """ Execute cli command
 
         Args:
@@ -28,23 +28,10 @@ class Console:
         """
         return os.popen(command).read()
 
-    @staticmethod
-    def remote(ip, user, pkey=None):
-        """ Get remote console\
-
-        Args:
-            ip: str address
-            user: str username
-            pkey: str path to pkey
-            passwd: str password
-        Returns:
-            SSHClient: remoter cli
-        """
-        pkey = paramiko.RSAKey.from_private_key_file(pkey)
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ip, username=user, pkey=pkey)
-        return ssh
+    def connect_to_ssh(self, ip, name, pkey):
+        env.hosts = [ip]
+        env.user = name
+        env.key_filename = pkey
 
 
 class TerraformProvider:
@@ -57,7 +44,7 @@ class TerraformProvider:
             TerraformProviderError: if initialization was not succeed
         """
         terraform_success_init = 'Terraform has been successfully initialized!'
-        terraform_init_result = Console.exec_command('terraform init')
+        terraform_init_result = Console.execute('terraform init')
         if terraform_success_init not in terraform_init_result:
             raise TerraformProviderError(terraform_init_result)
 
@@ -71,7 +58,7 @@ class TerraformProvider:
 
         """
         terraform_success_validate = 'Success!'
-        terraform_validate_result = Console.exec_command('terraform validate')
+        terraform_validate_result = Console.execute('terraform validate')
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)
 
@@ -79,25 +66,27 @@ class TerraformProvider:
         """Run terraform
 
         Args:
+            target: str
             cli_args: dict of parameters
         Returns:
              None
         """
         args_str = self.get_args_string(cli_args)
-        command = 'terraform apply -auto-approve -target module.ssn-k8s {}'
-        Console.exec_command(command.format(args_str))
+        command = 'terraform apply -auto-approve {}'
+        Console.execute(command.format(args_str))
 
     def destroy(self, cli_args):
         """Destroy terraform
 
         Args:
+            target: str
             cli_args: dict of parameters
         Returns:
              None
         """
         args_str = self.get_args_string(cli_args)
-        command = 'terraform destroy -auto-approve -target module.ssn-k8s {}'
-        Console.exec_command(command.format(args_str))
+        command = 'terraform destroy -auto-approve {}'
+        Console.execute(command.format(args_str))
 
     def output(self, *args):
         """Get terraform output
@@ -107,7 +96,7 @@ class TerraformProvider:
         Returns:
             str: terraform output result
         """
-        return Console.exec_command('terraform output {}'.format(' '.join(args)))
+        return Console.execute('terraform output {}'.format(' '.join(args)))
 
     @staticmethod
     def get_args_string(cli_args):
@@ -199,10 +188,8 @@ class AbstractDeployBuilder:
         try:
             terraform.initialize()
             terraform.validate()
-
             if action == 'deploy':
                 terraform.apply(terraform_args)
-                self.check_k8s_cluster_status()
             elif action == 'destroy':
                 terraform.destroy(terraform_args)
         except TerraformProviderError as ex:
@@ -222,44 +209,6 @@ class AbstractDeployBuilder:
         if not ips:
             raise TerraformProviderError('no ips')
         return ips[0]
-
-    def check_k8s_cluster_status(self):
-        """ Check for kubernetes status
-
-        Returns:
-            None
-        Raises:
-            TerraformProviderError: if master or kubeDNS is not running
-
-        """
-        terraform = TerraformProvider()
-        output = terraform.output('-json ssn_k8s_masters_ip_addresses')
-        args = self.parse_args()
-
-        ip = self.get_node_ip(output)
-        user_name = args.get('terraform_args').get('os_user')
-        pkey_path = args.get('service_args').get('pkey')
-
-        console = Console.remote(ip, user_name, pkey=pkey_path)
-        start_time = time.time()
-        while True:
-            stdin, stdout, stderr = console.exec_command('kubectl cluster-info | '
-                                                         'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"')
-            outlines = stdout.readlines()
-            k8c_info_status = ''.join(outlines)
-
-            kubernetes_success_status = 'Kubernetes master is running'
-            kubernetes_dns_success_status = 'KubeDNS is running'
-
-            kubernetes_succeed = kubernetes_success_status in k8c_info_status
-            kube_dns_succeed = kubernetes_dns_success_status in k8c_info_status
-
-            if kubernetes_succeed and kube_dns_succeed:
-                break
-            if (time.time() - start_time) >= 600:
-                raise TimeoutError
-            time.sleep(60)
-
 
 
 class DeployDirector:
@@ -320,12 +269,12 @@ class ParamsBuilder:
         return self.__params
 
 
-class AWSSourceBuilder(AbstractDeployBuilder):
+class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     @property
     def terraform_location(self):
         tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
-        return os.path.join(tf_dir, 'aws/main')
+        return os.path.join(tf_dir, 'aws/ssn-k8s/main')
 
     @property
     def cli_args(self):
@@ -377,18 +326,140 @@ class AWSSourceBuilder(AbstractDeployBuilder):
          .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id',
                   default='172.31.0.0/16')
          .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.')
-         .add_str('--zone', 'Name of AWS zone', default='a'))
+         .add_str('--zone', 'Name of AWS zone', default='a')
+         )
+        return params.build()
+
+    def check_k8s_cluster_status(self):
+        """ Check for kubernetes status
+
+        Returns:
+            None
+        Raises:
+            TerraformProviderError: if master or kubeDNS is not running
+
+        """
+        terraform = TerraformProvider()
+        output = terraform.output('-json ssn_k8s_masters_ip_addresses')
+        args = self.parse_args()
+
+        ip = self.get_node_ip(output)
+        user_name = args.get('terraform_args').get('os_user')
+        pkey_path = args.get('service_args').get('pkey')
+
+        Console.connect_to_ssh(ip, user_name, pkey_path)
+        start_time = time.time()
+        while True:
+            stdout = run(
+                'kubectl cluster-info | '
+                'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"')
+            outlines = stdout.readlines()
+            k8c_info_status = ''.join(outlines)
+
+            kubernetes_success_status = 'Kubernetes master is running'
+            kubernetes_dns_success_status = 'KubeDNS is running'
+
+            kubernetes_succeed = kubernetes_success_status in k8c_info_status
+            kube_dns_succeed = kubernetes_dns_success_status in k8c_info_status
+
+            if kubernetes_succeed and kube_dns_succeed:
+                break
+            if (time.time() - start_time) >= 600:
+                raise TimeoutError
+            time.sleep(60)
+
+    def copy_terraform_to_remote(self):
+        args = self.parse_args()
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
+        source = os.path.join(tf_dir, 'aws/ss-helm-charts')
+        user_name = args.get('terraform_args').get('os_user')
+        put(source, '/home/{}/terraform/'.format(user_name))
+
+    def run_remote_terraform(self):
+        run('terraform apply')
+
+    def deploy(self):
+        self.check_k8s_cluster_status()
+        self.copy_terraform_to_remote()
+        self.run_remote_terraform()
+
+
+class AWSEndpointBuilder(AbstractDeployBuilder):
+
+    @property
+    def terraform_location(self):
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
+        return os.path.join(tf_dir, 'aws/endpoint/main')
+
+    @property
+    def cli_args(self):
+        params = ParamsBuilder()
+        (params
+         .add_str('--service_base_name',
+                  'Any infrastructure value (should be unique if  multiple '
+                  'SSN\'s have been deployed before). Should be  same as on ssn')
+         .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.')
+         .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id.',
+                  default='172.31.0.0/16')
+         .add_str('--subnet_id',
+                  'ID of AWS Subnet if you already have subnet created.')
+         .add_str('--subnet_cidr',
+                  'CIDR for Subnet creation. Conflicts with subnet_id.',
+                  default='172.31.0.0/24')
+         .add_str('--ami', 'ID of EC2 AMI.', required=True)
+         .add_str('--key_name', 'Name of EC2 Key pair.', required=True)
+         .add_str('--region', 'Name of AWS region.', default='us-west-2')
+         .add_str('--zone', 'Name of AWS zone.', default='a')
+         .add_str('--network_type',
+                  'Type of created network (if network is not existed and '
+                  'require creation) for endpoint',
+                  default='public')
+         .add_str('--endpoint_instance_shape', 'Instance shape of Endpoint.',
+                  default='t2.medium')
+         .add_int('--endpoint_volume_size', 'Size of root volume in GB.',
+                  default=30)
+         .add_str('--request_id', 'Request id', is_terraform_param=False)
+         .add_str('--dlab_path', '', is_terraform_param=False)
+         .add_str('--resource', '', is_terraform_param=False)
+         .add_str('--conf_key_name', '', is_terraform_param=False)
+         .add_str('--pkey', '', is_terraform_param=False, required=True)
+         .add_str('--hostname', '', is_terraform_param=False)
+         .add_str('--jar_url', '', is_terraform_param=False)
+         .add_str('--os_user', '', is_terraform_param=False)
+         .add_str('--cloud_provider', '', is_terraform_param=False)
+         .add_str('--ssn_host', '', is_terraform_param=False)
+         .add_str('--mongo_password', '', is_terraform_param=False)
+         .add_str('--repository_address', '', is_terraform_param=False)
+         .add_str('--repository_user', '', is_terraform_param=False)
+         .add_str('--repository_pass', '', is_terraform_param=False)
+         .add_str('--docker_version', '', is_terraform_param=False,
+                  default='18.06.3~ce~3-0~ubuntu')
+
+         )
         return params.build()
 
     def deploy(self):
-        # os.system('ls -l')
-        print('installation process')
+        pass
 
 
 def main():
-    # TODO switch case depend on TF file name
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source', help='Target', choices=['aws'],
+                        required=True)
+    parser.add_argument('--target', help='Source', choices=['k8s', 'endpoint'],
+                        required=True)
+    arguments = vars(parser.parse_known_args()[0])
+
+    source = arguments.get('source').lower()
+    target = arguments.get('target').lower()
+
+    if source == 'aws':
+        if target == 'k8s':
+            builder = AWSK8sSourceBuilder()
+        elif target == 'endpoint':
+            builder = AWSEndpointBuilder()
+
     deploy_director = DeployDirector()
-    builder = AWSSourceBuilder()
     deploy_director.build(builder)
 
 
