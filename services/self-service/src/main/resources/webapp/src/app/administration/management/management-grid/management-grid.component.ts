@@ -25,6 +25,7 @@ import { HealthStatusService } from '../../../core/services';
 import { ConfirmationDialogType } from '../../../shared';
 import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
 import { EnvironmentsDataService } from '../management-data.service';
+import { EnvironmentModel } from '../management.model';
 
 export interface ManageAction {
   action: string;
@@ -62,7 +63,7 @@ export class ManagementGridComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.environmentsDataService._data.subscribe(data => this.allEnvironmentData = data);
+    this.environmentsDataService._data.subscribe(data => this.allEnvironmentData = EnvironmentModel.loadEnvironments(data));
   }
 
   buildGrid(): void {
@@ -79,7 +80,7 @@ export class ManagementGridComponent implements OnInit {
         result && this.actionToggle.emit({ action, environment, resource });
       });
     } else {
-      const type = (environment.resource_type.toLowerCase() === 'edge node')
+      const type = (environment.type.toLowerCase() === 'edge node')
         ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
 
       if (action === 'stop') {
@@ -109,9 +110,9 @@ export class ManagementGridComponent implements OnInit {
       if (notebook.name === 'edge node') {
         return this.allEnvironmentData
           .filter(env => env.user === notebook.user)
-          .some(el => this.inProgress([el]) || this.inProgress(el.computational_resources));
-      } else if (notebook.computational_resources.length) {
-        return this.inProgress(notebook.computational_resources);
+          .some(el => this.inProgress([el]) || this.inProgress(el.resources));
+      } else if (notebook.resources && notebook.resources.length) {
+        return this.inProgress(notebook.resources);
       }
     }
     return false;

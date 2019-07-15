@@ -77,7 +77,7 @@ export class ManagementComponent implements OnInit {
         $event.environment.user,
         $event.action,
         $event.environment.resource_type === 'edge node' ? 'edge' : $event.environment.resource_name,
-        $event.computational_resources ? $event.computational_resources.computational_name : null
+        $event.resources ? $event.resources.computational_name : null
       ).subscribe(
         () => this.buildGrid(),
         error => this.toastr.error('Environment management failed!', 'Oops!'));
@@ -108,9 +108,9 @@ export class ManagementComponent implements OnInit {
   }
 
   isEnvironmentsInProgress(data): boolean {
-    return data.some(el => {
-      return el.status === 'creating' || el.status === 'starting' ||
-        el.computational_resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring');
+    return data.some(item => {
+      return item.exploratory.some(el => el.status === 'creating' || el.status === 'starting' ||
+        el.resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring'));
     });
   }
 
