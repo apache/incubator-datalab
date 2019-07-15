@@ -35,6 +35,7 @@ import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import { ManageEnvironmentComponent } from './manage-environment/manage-environment-dilog.component';
 import { EndpointsComponent } from './endpoints/endpoints.component';
+import { ExploratoryModel } from '../../resources/resources-grid/resources-grid.model';
 
 import { EnvironmentsDataService } from './management-data.service';
 
@@ -48,7 +49,6 @@ export class ManagementComponent implements OnInit {
   public healthStatus: GeneralEnvironmentStatus;
   public allEnvironmentData: Array<EnvironmentModel>;
   public anyEnvInProgress: boolean = false;
-  public notebookInProgress: boolean = false;
 
   constructor(
     public toastr: ToastrService,
@@ -76,7 +76,7 @@ export class ManagementComponent implements OnInit {
       .environmentManagement(
         $event.environment.user,
         $event.action,
-        $event.environment.resource_type === 'edge node' ? 'edge' : $event.environment.resource_name,
+        $event.environment.type === 'edge node' ? 'edge' : $event.environment.resource_name,
         $event.resources ? $event.resources.computational_name : null
       ).subscribe(
         () => this.buildGrid(),
@@ -107,15 +107,11 @@ export class ManagementComponent implements OnInit {
     this.dialog.open(SsnMonitorComponent, { panelClass: 'modal-lg' });
   }
 
-  isEnvironmentsInProgress(data): boolean {
-    return data.some(item => {
+  isEnvironmentsInProgress(exploratory): boolean {
+    return exploratory.some(item => {
       return item.exploratory.some(el => el.status === 'creating' || el.status === 'starting' ||
         el.resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring'));
     });
-  }
-
-  isNotebookInProgress(data): boolean {
-    return data.some(el => el.status === 'creating');
   }
 
   setBudgetLimits($event) {
@@ -147,10 +143,8 @@ export class ManagementComponent implements OnInit {
 
   private getExploratoryList() {
     this.userResourceService.getUserProvisionedResources()
-      .subscribe((result) => {
-        this.anyEnvInProgress = this.isEnvironmentsInProgress(result);
-        this.notebookInProgress = this.isNotebookInProgress(result);
-      });
+      .subscribe((result) => this.anyEnvInProgress = this.isEnvironmentsInProgress(
+        ExploratoryModel.loadEnvironments(result)));
   }
 
   private getEnvironmentHealthStatus() {
