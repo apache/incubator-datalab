@@ -56,9 +56,6 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
-  // displayedColumns: string[] = ['name', 'status', 'shape', 'resources', 'cost', 'actions'];
-  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
-
   environments: Exploratory[];
   forse: boolean = true;
 
@@ -76,15 +73,16 @@ export class ResourcesGridComponent implements OnInit {
   healthStatus: GeneralEnvironmentStatus;
 
   public filteringColumns: Array<any> = [
-    { title: 'Environment name', name: 'name', class: 'name-col', filtering: {} },
-    { title: 'Status', name: 'statuses', class: 'status-col', filtering: {} },
-    { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filtering: {} },
-    { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filtering: {} },
-    { title: 'Cost', name: 'cost', class: 'cost-col' },
-    { title: '', name: 'actions', class: 'actions-col' }
+    { title: 'Environment name', name: 'name', class: 'name-col', filter: 'name-filter' },
+    { title: 'Status', name: 'statuses', class: 'status-col', filter: 'status-filter' },
+    { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter: 'shape-filter' },
+    { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter: 'resource-filter' },
+    { title: 'Cost', name: 'cost', class: 'cost-col', filter: 'cost-filter' },
+    { title: '', name: 'actions', class: 'actions-col', filter: 'action-filter' }
   ];
 
   displayedColumns: string[] = this.filteringColumns.map(item => item.name);
+  displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter);
 
   constructor(
     public toastr: ToastrService,
