@@ -371,12 +371,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
     def copy_terraform_to_remote(self):
         args = self.parse_args()
         tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
-        source = os.path.join(tf_dir, 'aws/ss-helm-charts')
+        source = os.path.join(tf_dir, 'aws/ssn-helm-charts')
         user_name = args.get('terraform_args').get('os_user')
         put(source, '/home/{}/terraform/'.format(user_name))
 
     def run_remote_terraform(self):
-        run('terraform apply')
+        with cd('terraform/ssn-helm-charts/'):
+            run('terraform init')
+            run('terraform apply')
 
     def deploy(self):
         self.check_k8s_cluster_status()
