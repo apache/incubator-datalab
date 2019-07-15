@@ -24,25 +24,3 @@ provider "helm" {
     service_account = "tiller"
     tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
 }
-
-
-resource "helm_release" "my_mongo" {
-    name      = "nginx-ingress"
-    chart     = "stable/nginx-ingress"
-
-    set {
-        name = "controller.service.nodePorts.http"
-        value = "${var.nginx_http_port}"
-    }
-
-    set {
-        name = "controller.service.nodePorts.https"
-        value = "${var.nginx_https_port}"
-    }
-
-    set {
-        name = "controller.service.type"
-        value = "NodePort"
-    }
-
-}

@@ -18,11 +18,9 @@
 # under the License.
 #
 # ******************************************************************************
-variable "nginx_http_port" {
-    default = "31080"
-    description = "Sets the nodePort that maps to the Ingress' port 80"
-}
-variable "nginx_https_port" {
-    default = "31443"
-    description = "Sets the nodePort that maps to the Ingress' port 443"
+
+resource "helm_release" "dlab-ui" {
+    name      = "dlab-ui"
+    chart     = "./dlab-ui-chart"
+    depends_on = [helm_release.mongodb]
 }

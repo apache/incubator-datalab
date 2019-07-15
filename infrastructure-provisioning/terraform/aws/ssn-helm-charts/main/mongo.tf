@@ -19,44 +19,42 @@
 #
 # ******************************************************************************
 
-variable "service_base_name" {}
+resource "helm_release" "mongodb" {
+    name      = "mongo-ha"
+    chart     = "stable/mongodb"
 
-variable "vpc_id" {}
+    set {
+        name  = "replicaSet.enabled"
+        value = "true"
+    }
 
-variable "vpc_cidr" {}
+    set {
+        name = "mongodbRootPassword"
+        value = "${var.mongo_root_pwd}"
+    }
 
-variable "subnet_id_a" {}
+    set {
+        name = "mongodbUsername"
+        value = "${var.mongo_db_username}"
+    }
 
-variable "subnet_id_b" {}
+    set {
+        name = "mongodbPassword"
+        value = "${var.mongo_db_pwd}"
+    }
 
-variable "subnet_cidr_a" {}
-
-variable "subnet_cidr_b" {}
-
-variable "subnet_cidr_c" {}
-
-variable "env_os" {}
-
-variable "ami" {}
-
-variable "key_name" {}
-
-variable "region" {}
-
-variable "zone" {}
-
-variable "ssn_k8s_masters_count" {}
-
-variable "ssn_k8s_workers_count" {}
-
-variable "ssn_root_volume_size" {}
-
-variable "allowed_cidrs" {
-  type = list
+    set {
+        name = "mongodbDatabase"
+        value = "${var.mongo_dbname}"
+    }
+    set {
+        name = "image.tag"
+        value = "${var.image_tag}"
+    }
+    set {
+        # temporary. PV should be implemented
+        name = "persistence.enabled"
+        value = "false"
+    }
+    depends_on = [helm_release.nginx]
 }
-
-variable "ssn_k8s_masters_shape" {}
-
-variable "ssn_k8s_workers_shape" {}
-
-variable "os_user" {}

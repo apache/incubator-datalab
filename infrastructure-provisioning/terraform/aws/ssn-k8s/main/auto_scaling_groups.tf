@@ -24,7 +24,7 @@ locals {
 }
 
 data "template_file" "ssn_k8s_masters_user_data" {
-  template = file("../modules/ssn-k8s/files/masters-user-data.sh")
+  template = file("./files/masters-user-data.sh")
   vars = {
     k8s-asg = "${var.service_base_name}-ssn-masters"
     k8s-region = var.region
@@ -36,7 +36,7 @@ data "template_file" "ssn_k8s_masters_user_data" {
 }
 
 data "template_file" "ssn_k8s_workers_user_data" {
-  template = file("../modules/ssn-k8s/files/workers-user-data.sh")
+  template = file("./files/workers-user-data.sh")
   vars = {
     k8s-bucket-name = aws_s3_bucket.ssn_k8s_bucket.id
     k8s_os_user = var.os_user

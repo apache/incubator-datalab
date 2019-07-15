@@ -19,59 +19,33 @@
 #
 # ******************************************************************************
 
-resource "helm_release" "keycloak" {
-  name = "keycloak"
-  chart = "stable/keycloak"
-  wait = false
-
-  set {
-    name = "keycloak.username"
-    value = "dlab-admin"
+data "template_file" "ssn_k8s_s3_policy" {
+  template = file("./files/ssn-policy.json.tpl")
+  vars = {
+    bucket_arn = aws_s3_bucket.ssn_k8s_bucket.arn
   }
+}
 
-  set {
-    name = "keycloak.password"
-    value = "12345o"
+resource "aws_iam_policy" "ssn_k8s_policy" {
+  name        = "${var.service_base_name}-ssn-policy"
+  description = "Policy for SSN K8S"
+  policy      = data.template_file.ssn_k8s_s3_policy.rendered
+}
+
+resource "aws_iam_role" "ssn_k8s_role" {
+  name               = "${var.service_base_name}-ssn-role"
+  assume_role_policy = file("./files/assume-policy.json")
+  tags = {
+    Name = "${var.service_base_name}-ssn-role"
   }
+}
 
-  set {
-    name = "keycloak.persistence.dbVendor"
-    value = "mysql"
-  }
+resource "aws_iam_role_policy_attachment" "ssn_k8s_policy_attachment" {
+  role       = aws_iam_role.ssn_k8s_role.name
+  policy_arn = aws_iam_policy.ssn_k8s_policy.arn
+}
 
-  set {
-    name = "keycloak.persistence.dbName"
-    value = "keycloak"
-  }
-
-  set {
-    name = "keycloak.persistence.dbHost"
-    value = "keycloak-mysql"
-  }
-
-  set {
-    name = "keycloak.persistence.dbPort"
-    value = "3306"
-  }
-
-  set {
-    name = "keycloak.persistence.dbUser"
-    value = "keycloak"
-  }
-
- set {
-    name = "keycloak.persistence.dbPassword"
-    value = "1234567890o"
-  }
-
-  set {
-    name = "keycloak.service.type"
-    value = "NodePort"
-  }
-
-  set {
-    name = "keycloak.service.nodePort"
-    value = "31088"
-  }
-
+resource "aws_iam_instance_profile" "k8s-profile" {
+  name = "${var.service_base_name}-instance-profile"
+  role = aws_iam_role.ssn_k8s_role.name
 }
