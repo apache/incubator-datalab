@@ -21,6 +21,13 @@
 
 variable "service_base_name" {}
 
+variable "access_key_id" {
+  default = ""
+}
+variable "secret_access_key" {
+  default = ""
+}
+
 variable "region" {}
 
 variable "zone" {}
