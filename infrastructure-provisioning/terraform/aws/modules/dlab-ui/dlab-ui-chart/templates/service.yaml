@@ -29,9 +29,11 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: 58443
+      #targetPort: 58443
+      targetPort: 58080
       protocol: TCP
-      name: https
+      #name: https
+      name: http
   selector:
     app.kubernetes.io/name: {{ include "dlab-ui.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

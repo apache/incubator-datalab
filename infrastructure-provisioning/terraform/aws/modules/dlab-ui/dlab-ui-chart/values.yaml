@@ -28,7 +28,8 @@ replicaCount: 1
 image:
   repository: koppox/dlab-ui
   tag: '1.3-hardj'
-  pullPolicy: IfNotPresent
+  # pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 #imagePullSecrets: []
 #nameOverride: ""
@@ -36,7 +37,8 @@ image:
 
 service:
   type: NodePort
-  port: 58443
+#  port: 58443
+  port: 58080
 
 ingress:
   enabled: true

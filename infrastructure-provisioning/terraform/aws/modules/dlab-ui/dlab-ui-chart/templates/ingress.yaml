@@ -28,6 +28,7 @@ metadata:
 {{ include "dlab-ui.labels" . | indent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
@@ -49,7 +50,8 @@ spec:
           - path: {{ . }}
             backend:
               serviceName: {{ $fullName }}
-              servicePort: 443
+              # servicePort: 443
+              servicePort: 80
         {{- end }}
   {{- end }}
 {{- end }}
