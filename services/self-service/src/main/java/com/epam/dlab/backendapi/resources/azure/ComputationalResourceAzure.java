@@ -141,7 +141,7 @@ public class ComputationalResourceAzure {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@DELETE
-	@Path("/{exploratoryName}/{computationalName}/stop")
+	@Path("/{project}/{exploratoryName}/{computationalName}/stop")
 	@ApiOperation("Stops Spark cluster on Azure")
 	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on Azure successfully stopped"))
 	public Response stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,

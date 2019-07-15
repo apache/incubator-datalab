@@ -33,7 +33,7 @@ public class EndpointServiceImpl implements EndpointService {
 		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
 			endpointDAO.create(endpointDTO);
 		} else {
-			throw new ResourceConflictException("Project with passed name already exist in system");
+			throw new ResourceConflictException("Endpoint with passed name already exist in system");
 		}
 	}
 
