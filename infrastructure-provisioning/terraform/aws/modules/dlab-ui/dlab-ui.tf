@@ -18,3 +18,16 @@
 # under the License.
 #
 # ******************************************************************************
+
+provider "helm" {
+    install_tiller  = true
+    namespace       = "kube-system"
+    service_account = "tiller"
+    tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
+}
+
+
+resource "helm_release" "my_mongo" {
+    name      = "dlab-ui"
+    chart     = "./dlab-ui-chart"
+}
