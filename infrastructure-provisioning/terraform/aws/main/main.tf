@@ -157,6 +157,10 @@ module "keycloak" {
   source             = "../modules/keycloak"
 }
 
+module "dlab-ui" {
+  source             = "../modules/dlab-ui"
+}
+
 output "ssn_k8s_masters_ip_addresses" {
   value = module.ssn-k8s.ssn_k8s_masters_ip_addresses
 }
