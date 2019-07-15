@@ -1,4 +1,5 @@
-# *****************************************************************************
+{{- /*
+# ******************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -18,18 +19,20 @@
 # under the License.
 #
 # ******************************************************************************
+*/ -}}
+
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "dlab-ui.fullname" . -}}
+{{ $servicePort := .Values.service.port }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
 {{ include "dlab-ui.labels" . | indent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    {{- toYaml . | nindent 4 }}
+{{- with .Values.ingress.annotations }}
+{{ toYaml . | indent 4 }}
   {{- end }}
 spec:
 {{- if .Values.ingress.tls }}
@@ -50,8 +53,7 @@ spec:
           - path: {{ . }}
             backend:
               serviceName: {{ $fullName }}
-              # servicePort: 443
-              servicePort: 80
+              servicePort: {{ $servicePort }}
         {{- end }}
   {{- end }}
 {{- end }}

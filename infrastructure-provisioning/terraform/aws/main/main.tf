@@ -153,6 +153,10 @@ module "mongo" {
   source             = "../modules/mongo"
 }
 
+module "keycloak" {
+  source             = "../modules/keycloak"
+}
+
 output "ssn_k8s_masters_ip_addresses" {
   value = module.ssn-k8s.ssn_k8s_masters_ip_addresses
 }
