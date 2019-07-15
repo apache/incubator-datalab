@@ -158,31 +158,31 @@ sudo mv /tmp/update_files.sh /usr/local/bin/update_files.sh
 sudo chmod 755 /usr/local/bin/update_files.sh
 sudo bash -c 'echo "0 0 * * * root /usr/local/bin/update_files.sh" >> /etc/crontab'
 
-cat <<EOF > /tmp/remove-etcd-member.sh
-#!/bin/bash
-hostname=\$(/bin/hostname)
-not_ready_node=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl get nodes | grep NotReady | grep master | awk '{print \$1}')
-if [[ \$not_ready_node != "" ]]; then
-etcd_pod_name=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl get pods -n kube-system | /bin/grep etcd \
-    | /bin/grep "\$hostname" | /usr/bin/awk '{print \$1}')
-etcd_member_id=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
-    -- /bin/sh -c "ETCDCTL_API=3 etcdctl member list --endpoints=https://[127.0.0.1]:2379 \
-    --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt \
-    --key=/etc/kubernetes/pki/etcd/healthcheck-client.key"  | /bin/grep ", \$not_ready_node" | /usr/bin/awk -F',' '{print \$1}')
-/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
-    -- /bin/sh -c "ETCDCTL_API=3 etcdctl member remove \$etcd_member_id --endpoints=https://[127.0.0.1]:2379 \
-    --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt \
-    --key=/etc/kubernetes/pki/etcd/healthcheck-client.key"
-/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl delete node \$not_ready_node
-
-fi
-
-EOF
-sudo mv /tmp/remove-etcd-member.sh /usr/local/bin/remove-etcd-member.sh
-sudo chmod 755 /usr/local/bin/remove-etcd-member.sh
-sleep 600
+#cat <<EOF > /tmp/remove-etcd-member.sh
+##!/bin/bash
+#hostname=\$(/bin/hostname)
+#not_ready_node=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl get nodes | grep NotReady | grep master | awk '{print \$1}')
+#if [[ \$not_ready_node != "" ]]; then
+#etcd_pod_name=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl get pods -n kube-system | /bin/grep etcd \
+#    | /bin/grep "\$hostname" | /usr/bin/awk '{print \$1}')
+#etcd_member_id=\$(/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
+#    -- /bin/sh -c "ETCDCTL_API=3 etcdctl member list --endpoints=https://[127.0.0.1]:2379 \
+#    --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt \
+#    --key=/etc/kubernetes/pki/etcd/healthcheck-client.key"  | /bin/grep ", \$not_ready_node" | /usr/bin/awk -F',' '{print \$1}')
+#/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl -n kube-system exec -it \$etcd_pod_name \
+#    -- /bin/sh -c "ETCDCTL_API=3 etcdctl member remove \$etcd_member_id --endpoints=https://[127.0.0.1]:2379 \
+#    --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt \
+#    --key=/etc/kubernetes/pki/etcd/healthcheck-client.key"
+#/usr/bin/sudo -i -u ${k8s_os_user} /usr/bin/kubectl delete node \$not_ready_node
+#
+#fi
+#
+#EOF
+# sudo mv /tmp/remove-etcd-member.sh /usr/local/bin/remove-etcd-member.sh
+# sudo chmod 755 /usr/local/bin/remove-etcd-member.sh
+# sleep 300
+# sudo bash -c 'echo "* * * * * root /usr/local/bin/remove-etcd-member.sh >> /var/log/cron_k8s.log 2>&1" >> /etc/crontab'
 sudo -i -u ${k8s_os_user} helm repo update
-sudo bash -c 'echo "* * * * * root /usr/local/bin/remove-etcd-member.sh >> /var/log/cron_k8s.log 2>&1" >> /etc/crontab'
 wget https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip -O /tmp/terraform_0.12.3_linux_amd64.zip
 unzip /tmp/terraform_0.12.3_linux_amd64.zip -d /tmp/
 sudo mv /tmp/terraform /usr/local/bin/
