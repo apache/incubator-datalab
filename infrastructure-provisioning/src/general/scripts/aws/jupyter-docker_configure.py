@@ -144,7 +144,7 @@ if __name__ == "__main__":
         print('[CONFIGURE JUPYTER-DOCKER NOTEBOOK INSTANCE]')
         params = "--hostname {} " \
                  "--keyfile {} " \
-                 "--edge_ip {}" \
+                 "--edge_ip {} " \
                  "--region {} " \
                  "--spark_version {} " \
                  "--hadoop_version {} " \

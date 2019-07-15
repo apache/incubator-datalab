@@ -230,7 +230,7 @@ def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_
 #            put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
 #            put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
             put('/root/Dockerfile_jupyter', '/tmp/Dockerfile_jupyter')
-            put('/root/scripts/jupyter_run.sh', '/tmp/jupyter_run.sh')
+            put('/root/scripts/*', '/tmp/')
 #            sudo('\cp /tmp/pyspark_local_template.json ' + jupyter_dir + 'pyspark_local_template.json')
 #            sudo('\cp /tmp/py3spark_local_template.json ' + jupyter_dir + 'py3spark_local_template.json')
 #            sudo('sed -i \'s/3.5/3.6/g\' {}py3spark_local_template.json'.format(jupyter_dir))
