@@ -63,7 +63,7 @@ export class ResourcesGridComponent implements OnInit {
 
 
   filteredEnvironments: Exploratory[] = [];
-  filterConfiguration: FilterConfigurationModel;
+  filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
 
   isOutscreenDropdown: boolean;
@@ -73,16 +73,16 @@ export class ResourcesGridComponent implements OnInit {
   healthStatus: GeneralEnvironmentStatus;
 
   public filteringColumns: Array<any> = [
-    { title: 'Environment name', name: 'name', class: 'name-col', filter: 'name-filter' },
-    { title: 'Status', name: 'statuses', class: 'status-col', filter: 'status-filter' },
-    { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter: 'shape-filter' },
-    { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter: 'resource-filter' },
-    { title: 'Cost', name: 'cost', class: 'cost-col', filter: 'cost-filter' },
-    { title: '', name: 'actions', class: 'actions-col', filter: 'action-filter' }
+    { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
+    { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
+    { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
+    { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
+    { title: 'Cost', name: 'cost', class: 'cost-col', filter_class: 'cost-filter', filtering: false },
+    { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
   ];
 
   displayedColumns: string[] = this.filteringColumns.map(item => item.name);
-  displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter);
+  displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
 
   constructor(
     public toastr: ToastrService,
@@ -92,7 +92,6 @@ export class ResourcesGridComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
-    debugger;
   }
 
   public buildGrid(): void {
@@ -104,35 +103,35 @@ export class ResourcesGridComponent implements OnInit {
       });
   }
 
-
-
-
-
-
-
-  toggleFilterRow(): void {
+  public toggleFilterRow(): void {
     this.collapseFilterRow = !this.collapseFilterRow;
   }
 
+
+
+
+
   getDefaultFilterConfiguration(): void {
-    // const data: Exploratory[] = this.environments;
+    const data: Exploratory[] = this.environments;
     const shapes = [], statuses = [], resources = [];
 
-    // data.forEach((item: any) => {
-    //   if (shapes.indexOf(item.shape) === -1)
-    //     shapes.push(item.shape);
-    //   if (statuses.indexOf(item.status) === -1)
-    //     statuses.push(item.status);
-    //   statuses.sort(SortUtil.statusSort);
+    data.filter(elem => elem.exploratory.forEach((item: any) => {
+      if (shapes.indexOf(item.shape) === -1)
+        shapes.push(item.shape);
+      if (statuses.indexOf(item.status) === -1)
+        statuses.push(item.status);
+      statuses.sort(SortUtils.statusSort);
 
-    //   item.resources.forEach((resource: any) => {
-    //     if (resources.indexOf(resource.status) === -1)
-    //       resources.push(resource.status);
-    //     resources.sort(SortUtil.statusSort);
-    //   });
-    // });
+      item.resources.forEach((resource: any) => {
+        if (resources.indexOf(resource.status) === -1)
+          resources.push(resource.status);
+        resources.sort(SortUtils.statusSort);
+      });
+    }));
 
     this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '');
+
+    debugger;
   }
 
   applyFilter_btnClick(config: FilterConfigurationModel) {
@@ -298,4 +297,8 @@ export class ResourcesGridComponent implements OnInit {
         .afterClosed().subscribe(() => this.buildGrid());
     }
   }
+
+
+
+
 }

@@ -25,7 +25,15 @@
       <td mat-cell *matCellDef="let element" [attr.colspan]="6" class="highlight"> {{ element.project }} </td>
     </ng-container>
     <ng-container *ngFor="let column of filteringColumns; let i = index" matColumnDef="{{ column.name }}">
-      <th mat-header-cell *matHeaderCellDef ngClass="{{ column.class }}"> {{ column.title }} </th>
+      <th mat-header-cell *matHeaderCellDef ngClass="{{ column.class }}">
+        <span class="label">{{ column.title }}</span>
+        <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
+          </i>
+        </button>
+      </th>
     </ng-container>
     <ng-container matColumnDef="expandedDetail">
       <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="6"
@@ -129,32 +137,32 @@
 
     <!-- FILTER START -->
     <ng-container matColumnDef="name-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="name-col">
         <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
           [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
       </th>
     </ng-container>
     <ng-container matColumnDef="status-filter">
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="status-col">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'"
           [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="shape-filter">
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="shape-col">
         <multi-select-dropdown (selectionChange)="onUpdate($event)"
           [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes"
           [model]="filterForm.shapes"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="resource-filter">
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="resources-col">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
           [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="cost-filter">
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="cost-col">
 
       </th>
     </ng-container>
@@ -180,6 +188,7 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
 
     <tr mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true" class="filter-row"></tr>
+
     <tr mat-row *matRowDef="let element; columns: ['project']" class="element-row"
       [class.expanded-row]="expandedElement === element"
       (click)="expandedElement = expandedElement === element ? null : element">
