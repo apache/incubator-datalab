@@ -63,12 +63,12 @@ public class ProjectServiceImpl implements ProjectService {
 
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
-				new ProjectCallbackHandler(systemUserInfoService, selfService, userInfo.getSimpleName(), uuid,
+				new ProjectCallbackHandler(systemUserInfoService, selfService, userInfo.getName(), uuid,
 						action, CALLBACK_URI, projectName, getEdgeClass()));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
-				.withName(String.join("_", userInfo.getName(), projectName, resourceType, action.toString(),
+				.withName(String.join("_", userInfo.getSimpleName(), projectName, resourceType, action.toString(),
 						Long.toString(System.currentTimeMillis())))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())

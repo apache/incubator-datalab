@@ -15,6 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 
 @Path("/project/status")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -36,7 +37,7 @@ public class ProjectCallback {
 		requestId.checkAndRemove(projectResult.getRequestId());
 		final String projectName = projectResult.getProjectName();
 		final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
-		if (UserInstanceStatus.RUNNING == status) {
+		if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
 			projectDAO.updateEdgeInfoAndStatus(projectName, projectResult.getEdgeInfo(), ProjectDTO.Status.ACTIVE);
 		} else {
 			projectDAO.updateStatus(projectName, ProjectDTO.Status.from(status));

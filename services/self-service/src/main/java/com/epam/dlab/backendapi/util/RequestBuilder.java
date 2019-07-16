@@ -551,7 +551,8 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
 				.withNotebookImageName(exploratory.getImageName())
 				.withImage(cr.getImageName())
-				.withComputationalId(cr.getComputationalId());
+				.withComputationalId(cr.getComputationalId())
+				.withProject(exploratory.getProject());
 	}
 
 
@@ -614,7 +615,8 @@ public class RequestBuilder {
 		dto.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withNotebookImage(userInstance.getImageName())
 				.withExploratoryName(userInstance.getExploratoryName())
-				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+				.withProject(userInstance.getProject());
 		return dto;
 	}
 
