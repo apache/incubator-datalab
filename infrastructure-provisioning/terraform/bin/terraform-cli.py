@@ -397,6 +397,30 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 raise TimeoutError
             time.sleep(60)
 
+    def check_tiller_status(self):
+        """ Check tiller status
+
+        Returns:
+            None
+        Raises:
+            TerraformProviderError: if tiller is not running
+
+        """
+        start_time = time.time()
+        while True:
+            with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
+                tiller_status = c.run(
+                    "kubectl get pods --all-namespaces | grep tiller | awk '{print $4}'") \
+                    .stdout
+
+            tiller_success_status = 'Running'
+
+            if tiller_success_status in tiller_status:
+                break
+            if (time.time() - start_time) >= 600:
+                raise TimeoutError
+            time.sleep(60)
+
     def select_master_ip(self):
         terraform = TerraformProvider()
         output = terraform.output('-json ssn_k8s_masters_ip_addresses')
@@ -419,17 +443,38 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 conn.run('terraform validate')
                 conn.run('terraform apply')
 
+    def output_terraform_result(self):
+        dns_name = json.loads(TerraformProvider().output(' -json ssn_k8s_alb_dns_name'))
+        ssn_bucket_name = json.loads(TerraformProvider().output(' -json ssn_bucket_name'))
+        ssn_k8s_sg_id = json.loads(TerraformProvider().output(' -json ssn_k8s_sg_id'))
+        ssn_subnets = json.loads(TerraformProvider().output(' -json ssn_subnets'))
+        ssn_vpc_id = json.loads(TerraformProvider().output(' -json ssn_vpc_id'))
+
+        logging.info("""
+        DLab SSN K8S cluster has been deployed successfully!
+        Summary:
+        DNS name: {}
+        Bucket name: {}
+        VPC ID: {}
+        Subnet IDs:  {}
+        SG IDs: {}
+        DLab UI URL: http://new-k8s-ssn-alb-774741052.us-west-2.elb.amazonaws.com
+        """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
+                   ', '.join(ssn_subnets), ssn_k8s_sg_id))
 
     def deploy(self):
+        if self.args.get('service_args').get('action') == 'destroy':
+            return
         logging.info('deploy')
         self.select_master_ip()
         self.check_k8s_cluster_status()
+        self.check_tiller_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
+        self.output_terraform_result()
 
 
 class AWSEndpointBuilder(AbstractDeployBuilder):
-
     @property
     def terraform_location(self):
         tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
