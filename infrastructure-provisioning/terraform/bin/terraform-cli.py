@@ -6,6 +6,7 @@ import argparse
 
 import time
 from fabric import Connection
+from patchwork.transfers import rsync
 
 
 class TerraformProviderError(Exception):
@@ -27,7 +28,8 @@ class Console:
         """
         return os.popen(command).read()
 
-    def ssh(self, ip, name, pkey):
+    @staticmethod
+    def ssh(ip, name, pkey):
         return Connection(host=ip,
                           user=name,
                           connect_kwargs={'key_filename': pkey})
@@ -390,12 +392,12 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.ip = self.get_node_ip(output)
 
     def copy_terraform_to_remote(self):
-        args = self.parse_args()
         tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
         source = os.path.join(tf_dir, 'aws/ssn-helm-charts')
-        user_name = args.get('terraform_args').get('os_user')
+        remote_dir = '/home/{}/terraform/'.format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
-            conn.put(source, '/home/{}/terraform/'.format(user_name))
+            conn.run('mkdir -p {}'.format(remote_dir))
+            rsync(conn, source, remote_dir)
 
     def run_remote_terraform(self):
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
@@ -485,7 +487,7 @@ def main():
             builder = AWSK8sSourceBuilder()
         elif target == 'endpoint':
             builder = AWSEndpointBuilder()
-
+    print(builder)
     deploy_director = DeployDirector()
     deploy_director.build(builder)
 
