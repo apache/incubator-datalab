@@ -26,12 +26,12 @@ locals {
 }
 
 data "template_file" "endpoint_policy" {
-  template = file("../modules/endpoint/files/endpoint-policy.json")
+  template = file("./files/endpoint-policy.json")
 }
 
 resource "aws_iam_role" "endpoint_role" {
   name               = local.role_name
-  assume_role_policy = file("../modules/endpoint/files/assume-policy.json")
+  assume_role_policy = file("./files/assume-policy.json")
   tags = {
     product = "${var.product}"
     Name = "${local.role_name}"
