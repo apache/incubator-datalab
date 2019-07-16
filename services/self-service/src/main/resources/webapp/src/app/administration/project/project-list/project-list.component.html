@@ -63,7 +63,7 @@
       </span>
       <span [ngClass]="{'not-active' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' }">
         <a [ngClass]="{'not-allowed' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' }"
-          (click)="element.status === 'ACTIVE' && editProject(element)">
+          (click)="editProject(element)">
           <mat-icon>mode_edit</mat-icon>
         </a>
       </span>
