@@ -49,3 +49,7 @@ output "ssn_subnets" {
 output "ssn_k8s_sg_id" {
   value = aws_security_group.ssn_k8s_sg.id
 }
+
+output "endpoint_eip_" {
+  value = aws_eip.k8s-endpoint-eip.allocation_id
+}
