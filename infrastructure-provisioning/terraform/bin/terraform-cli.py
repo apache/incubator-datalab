@@ -8,8 +8,10 @@ import time
 from fabric import Connection
 from patchwork.transfers import rsync
 import logging
+
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s-%(message)s')
+
 
 class TerraformProviderError(Exception):
     """
@@ -380,7 +382,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
                 k8c_info_status = c.run(
                     'kubectl cluster-info | '
-                    'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"')
+                    'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"') \
+                    .stdout
 
             kubernetes_success_status = 'Kubernetes master is running'
             kubernetes_dns_success_status = 'KubeDNS is running'
