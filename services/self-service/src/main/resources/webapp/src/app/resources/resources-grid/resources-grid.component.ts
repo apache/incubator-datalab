@@ -58,19 +58,9 @@ export class ResourcesGridComponent implements OnInit {
 
   environments: Exploratory[];
   forse: boolean = true;
-
-
-
-
   filteredEnvironments: Exploratory[] = [];
   filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
-
-  isOutscreenDropdown: boolean;
-  collapseFilterRow: boolean = false;
-  filtering: boolean = false;
-  activeFiltering: boolean = false;
-  healthStatus: GeneralEnvironmentStatus;
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
@@ -81,8 +71,25 @@ export class ResourcesGridComponent implements OnInit {
     { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
   ];
 
-  displayedColumns: string[] = this.filteringColumns.map(item => item.name);
-  displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
+  public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
+  public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
+
+
+
+
+
+
+
+  isOutscreenDropdown: boolean;
+  collapseFilterRow: boolean = false;
+  filtering: boolean = false;
+  activeFiltering: boolean = false;
+  healthStatus: GeneralEnvironmentStatus;
+
+
+
+
+
 
   constructor(
     public toastr: ToastrService,
@@ -109,9 +116,8 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-
-
-  getDefaultFilterConfiguration(): void {
+  // PRIVATE
+  private getDefaultFilterConfiguration(): void {
     const data: Exploratory[] = this.environments;
     const shapes = [], statuses = [], resources = [];
 
@@ -130,36 +136,53 @@ export class ResourcesGridComponent implements OnInit {
     }));
 
     this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '');
-
-    debugger;
   }
+
+
+
+  private getEnvironmentsListCopy() {
+    // let filteredData: any = this.environments.map(env => (<any>Object).create(env));
+    return this.environments.map(env => JSON.parse(JSON.stringify(env)));
+  }
+
+
+
 
   applyFilter_btnClick(config: FilterConfigurationModel) {
     this.filtering = true;
+    let filteredData = this.getEnvironmentsListCopy();
 
-    let filteredData: Exploratory[] = this.environments.map(env => (<any>Object).assign({}, env));
-    // let filteredData: any = this.environments.map(env => (<any>Object).create(env));
-    // const containsStatus = (list, selectedItems) => {
-    //   return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
-    // };
 
-    // config && (filteredData = filteredData.filter((item: any) => {
-    //   const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
-    //   const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-    //   const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+    const containsStatus = (list, selectedItems) => {
+      debugger;
+      return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
+    };
 
-    //   const modifiedResources = containsStatus(item.resources, config.resources);
-    //   let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
+    config && (filteredData.forEach((project: any) => {
 
-    //   if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
-    //   if (config.resources.length === 0 && config.type === 'active' ||
-    //     modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
-    //     item.resources = modifiedResources;
-    //     isResources = true;
-    //   }
 
-    //   return isName && isStatus && isShape && isResources;
-    // }));
+      debugger;
+
+      project.exploratory = project.exploratory.filter(item => {
+
+        const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
+        const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
+        const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+
+        const modifiedResources = containsStatus(item.resources, config.resources);
+        let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
+
+        if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
+
+        if (config.resources.length === 0 && config.type === 'active' ||
+          modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
+          item.resources = modifiedResources;
+          isResources = true;
+        }
+        // && isResources
+        return isName && isStatus && isShape;
+      })
+    }));
 
     config && this.updateUserPreferences(config);
     this.filteredEnvironments = filteredData;
