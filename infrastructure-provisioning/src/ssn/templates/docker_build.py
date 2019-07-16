@@ -32,6 +32,7 @@ if sys.argv[1] == 'all':
     node = [
             'edge',
             'jupyter',
+            'jupyter-docker'
             'rstudio',
             'zeppelin',
             'tensor',
