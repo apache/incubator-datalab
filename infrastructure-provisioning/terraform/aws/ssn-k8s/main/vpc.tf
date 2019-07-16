@@ -100,6 +100,13 @@ data "aws_subnet" "k8s-subnet-c-data" {
   id = aws_subnet.ssn_k8s_subnet_c.0.id
 }
 
+resource "aws_eip" "k8s-endpoint-eip" {
+  vpc      = true
+  tags = {
+    Name = "${var.service_base_name}-endpoint-eip"
+  }
+}
+
 //resource "aws_eip" "k8s-lb-eip-a" {
 //  vpc      = true
 //  tags = {
