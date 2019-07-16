@@ -51,3 +51,5 @@ variable "network_type" {}
 variable "vpc_cidr" {}
 
 variable "endpoint_volume_size" {}
+
+variable "endpoint_eip_allocation_id" {}
