@@ -217,7 +217,7 @@ if __name__ == "__main__":
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
-                             {"name": "jupyter-dockere", "tag": "latest"},
+                             {"name": "jupyter-docker", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
