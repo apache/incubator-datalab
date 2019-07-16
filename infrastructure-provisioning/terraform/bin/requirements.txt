@@ -1,0 +1,2 @@
+fabric==2.4.0
+patchwork==1.0.1

@@ -5,9 +5,11 @@ import abc
 import argparse
 
 import time
-from fabric.api import *
-from fabric.contrib.files import exists
-
+from fabric import Connection
+from patchwork.transfers import rsync
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(levelname)s-%(message)s')
 
 class TerraformProviderError(Exception):
     """
@@ -28,10 +30,11 @@ class Console:
         """
         return os.popen(command).read()
 
-    def connect_to_ssh(self, ip, name, pkey):
-        env.hosts = [ip]
-        env.user = name
-        env.key_filename = pkey
+    @staticmethod
+    def ssh(ip, name, pkey):
+        return Connection(host=ip,
+                          user=name,
+                          connect_kwargs={'key_filename': pkey})
 
 
 class TerraformProvider:
@@ -43,8 +46,10 @@ class TerraformProvider:
         Raises:
             TerraformProviderError: if initialization was not succeed
         """
+        logging.info('terraform init')
         terraform_success_init = 'Terraform has been successfully initialized!'
         terraform_init_result = Console.execute('terraform init')
+        logging.info(terraform_init_result)
         if terraform_success_init not in terraform_init_result:
             raise TerraformProviderError(terraform_init_result)
 
@@ -57,8 +62,10 @@ class TerraformProvider:
             TerraformProviderError: if validation status was not succeed
 
         """
+        logging.info('terraform validate')
         terraform_success_validate = 'Success!'
         terraform_validate_result = Console.execute('terraform validate')
+        logging.info(terraform_validate_result)
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)
 
@@ -71,9 +78,11 @@ class TerraformProvider:
         Returns:
              None
         """
+        logging.info('terraform apply')
         args_str = self.get_args_string(cli_args)
         command = 'terraform apply -auto-approve {}'
-        Console.execute(command.format(args_str))
+        result = Console.execute(command.format(args_str))
+        print(result)
 
     def destroy(self, cli_args):
         """Destroy terraform
@@ -271,6 +280,33 @@ class ParamsBuilder:
 
 class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
+    def __init__(self):
+        super(AWSK8sSourceBuilder, self).__init__()
+        self._args = self.parse_args()
+        self._ip = None
+        self._user_name = self.args.get('terraform_args').get('os_user')
+        self._pkey_path = self.args.get('service_args').get('pkey')
+
+    @property
+    def args(self):
+        return self._args
+
+    @property
+    def ip(self):
+        return self._ip
+
+    @ip.setter
+    def ip(self, ip):
+        self._ip = ip
+
+    @property
+    def user_name(self):
+        return self._user_name
+
+    @property
+    def pkey_path(self):
+        return self._pkey_path
+
     @property
     def terraform_location(self):
         tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
@@ -339,22 +375,12 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             TerraformProviderError: if master or kubeDNS is not running
 
         """
-        terraform = TerraformProvider()
-        output = terraform.output('-json ssn_k8s_masters_ip_addresses')
-        args = self.parse_args()
-
-        ip = self.get_node_ip(output)
-        user_name = args.get('terraform_args').get('os_user')
-        pkey_path = args.get('service_args').get('pkey')
-
-        Console.connect_to_ssh(ip, user_name, pkey_path)
         start_time = time.time()
         while True:
-            stdout = run(
-                'kubectl cluster-info | '
-                'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"')
-            outlines = stdout.readlines()
-            k8c_info_status = ''.join(outlines)
+            with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
+                k8c_info_status = c.run(
+                    'kubectl cluster-info | '
+                    'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"')
 
             kubernetes_success_status = 'Kubernetes master is running'
             kubernetes_dns_success_status = 'KubeDNS is running'
@@ -368,19 +394,32 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 raise TimeoutError
             time.sleep(60)
 
+    def select_master_ip(self):
+        terraform = TerraformProvider()
+        output = terraform.output('-json ssn_k8s_masters_ip_addresses')
+        self.ip = self.get_node_ip(output)
+
     def copy_terraform_to_remote(self):
-        args = self.parse_args()
+        logging.info('transfer terraform dir to remote')
         tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
         source = os.path.join(tf_dir, 'aws/ssn-helm-charts')
-        user_name = args.get('terraform_args').get('os_user')
-        put(source, '/home/{}/terraform/'.format(user_name))
+        remote_dir = '/home/{}/terraform/'.format(self.user_name)
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
+            conn.run('mkdir -p {}'.format(remote_dir))
+            rsync(conn, source, remote_dir)
 
     def run_remote_terraform(self):
-        with cd('terraform/ssn-helm-charts/'):
-            run('terraform init')
-            run('terraform apply')
+        logging.info('apply ssn-helm-charts')
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
+            with conn.cd('/terraform/ssn-helm-charts'):
+                conn.run('terraform init')
+                conn.run('terraform validate')
+                conn.run('terraform apply')
+
 
     def deploy(self):
+        logging.info('deploy')
+        self.select_master_ip()
         self.check_k8s_cluster_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
@@ -460,7 +499,6 @@ def main():
             builder = AWSK8sSourceBuilder()
         elif target == 'endpoint':
             builder = AWSEndpointBuilder()
-
     deploy_director = DeployDirector()
     deploy_director.build(builder)
 
