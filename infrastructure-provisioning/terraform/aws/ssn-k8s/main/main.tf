@@ -50,6 +50,10 @@ output "ssn_k8s_sg_id" {
   value = aws_security_group.ssn_k8s_sg.id
 }
 
-output "endpoint_eip_" {
+output "endpoint_eip_allocation_id" {
   value = aws_eip.k8s-endpoint-eip.allocation_id
+}
+
+output "endpoint_eip_address" {
+  value = aws_eip.k8s-endpoint-eip.public_ip
 }
