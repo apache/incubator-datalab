@@ -117,20 +117,21 @@ export class ResourcesGridComponent implements OnInit {
 
 
   // PRIVATE
+  private getEnvironmentsListCopy() {
+    return this.environments.map(env => JSON.parse(JSON.stringify(env)));
+  }
+
   private getDefaultFilterConfiguration(): void {
     const data: Exploratory[] = this.environments;
     const shapes = [], statuses = [], resources = [];
 
-    data.filter(elem => elem.exploratory.forEach((item: any) => {
-      if (shapes.indexOf(item.shape) === -1)
-        shapes.push(item.shape);
-      if (statuses.indexOf(item.status) === -1)
-        statuses.push(item.status);
+    data.filter(elem => elem.exploratory.map((item: any) => {
+      if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+      if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
       statuses.sort(SortUtils.statusSort);
 
-      item.resources.forEach((resource: any) => {
-        if (resources.indexOf(resource.status) === -1)
-          resources.push(resource.status);
+      item.resources.map((resource: any) => {
+        if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
         resources.sort(SortUtils.statusSort);
       });
     }));
@@ -138,55 +139,46 @@ export class ResourcesGridComponent implements OnInit {
     this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '');
   }
 
-
-
-  private getEnvironmentsListCopy() {
-    // let filteredData: any = this.environments.map(env => (<any>Object).create(env));
-    return this.environments.map(env => JSON.parse(JSON.stringify(env)));
-  }
-
-
-
-
-  applyFilter_btnClick(config: FilterConfigurationModel) {
+  private applyFilter_btnClick(config: FilterConfigurationModel) {
     this.filtering = true;
     let filteredData = this.getEnvironmentsListCopy();
 
 
     const containsStatus = (list, selectedItems) => {
-      debugger;
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
 
-    config && (filteredData.forEach((project: any) => {
+    if (config)
+      filteredData = filteredData.filter(project => {
+        project.exploratory = project.exploratory.filter(item => {
 
+          const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
+          const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
+          const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
 
-      debugger;
+          const modifiedResources = containsStatus(item.resources, config.resources);
+          let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
 
-      project.exploratory = project.exploratory.filter(item => {
+          if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
 
-        const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
-        const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-        const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+          if (config.resources.length === 0 && config.type === 'active' ||
+            modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
+            item.resources = modifiedResources;
+            isResources = true;
+          }
 
-        const modifiedResources = containsStatus(item.resources, config.resources);
-        let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
-
-        if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
-
-        if (config.resources.length === 0 && config.type === 'active' ||
-          modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
-          item.resources = modifiedResources;
-          isResources = true;
-        }
-        // && isResources
-        return isName && isStatus && isShape;
-      })
-    }));
+          return isName && isStatus && isShape && isResources;
+        });
+        return project.exploratory.length > 0;
+      });
 
     config && this.updateUserPreferences(config);
     this.filteredEnvironments = filteredData;
   }
+
+
+
+
 
   showActiveInstances(): void {
     this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
