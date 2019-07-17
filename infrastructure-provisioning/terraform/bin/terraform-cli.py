@@ -462,7 +462,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         VPC ID: {}
         Subnet IDs:  {}
         SG IDs: {}
-        DLab UI URL: {}
+        DLab UI URL: http://{}
         """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
                    ', '.join(ssn_subnets), ssn_k8s_sg_id, dns_name))
 
