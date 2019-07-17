@@ -3,7 +3,6 @@ replicaSet:
 
 mongodbRootPassword: $tr0ng_r00T-passworI)
 mongodbUsername: admin
-mongodbPassword: $tr0ng_N0N=r00T-passworI)
 mongodbDatabase: dlabdb
 
 image:

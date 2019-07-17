@@ -43,10 +43,10 @@ resource "helm_release" "mongodb" {
 //        value = "${var.mongo_db_username}"
 //    }
 //
-//    set {
-//        name = "mongodbPassword"
-//        value = "${var.mongo_db_pwd}"
-//    }
+    set {
+        name = "mongodbPassword"
+        value = var.mongo_db_pwd
+    }
 //
 //    set {
 //        name = "mongodbDatabase"

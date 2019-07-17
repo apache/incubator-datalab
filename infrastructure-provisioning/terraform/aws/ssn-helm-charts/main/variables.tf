@@ -35,10 +35,10 @@
 //    default = "admin"
 //    description = "Password for MongoDB root user"
 //}
-//variable "mongo_db_pwd" {
-//    default = "$tr0ng_N0N=r00T-passworI)"
-//    description = "Password for MongoDB root user"
-//}
+variable "mongo_db_pwd" {
+    default = "$tr0ng_N0N=r00T-passworI)"
+    description = "Password for MongoDB root user"
+}
 //variable "mongo_dbname" {
 //    default = "dlabdb"
 //    description = "Password for MongoDB root user"
