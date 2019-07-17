@@ -20,13 +20,13 @@
 # ******************************************************************************
 
 locals {
-  role_name    = "${var.project_tag}-nb-de-Role"
-  role_profile = "${var.project_tag}-nb-Profile"
-  policy_name  = "${var.project_tag}-strict_to_S3-Policy"
+  role_name    = "${var.sbn}-nb-de-Role"
+  role_profile = "${var.sbn}-nb-Profile"
+  policy_name  = "${var.sbn}-strict_to_S3-Policy"
 }
 
 resource "aws_iam_role" "nb_de_role" {
-  name               = "${local.role_name}"
+  name               = local.role_name
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -44,19 +44,26 @@ resource "aws_iam_role" "nb_de_role" {
 EOF
 
   tags = {
-    product = "${var.product}"
-    Name = "${local.role_name}"
-    environment_tag = "${var.project_tag}"
+    Name             = local.role_name
+    Environment_tag  = var.sbn
+    "${var.sbn}-Tag" = local.role_name
+    Product          = var.product
+    Project_name     = var.project_name
+    Project_tag      = var.project_tag
+    Endpoint_tag     = var.endpoint_tag
+    "user:tag"       = "${var.sbn}:${local.role_name}"
+    User_tag         = var.user_tag
+    Custom_tag       = var.custom_tag
   }
 }
 
 resource "aws_iam_instance_profile" "nb_profile" {
-  name = "${local.role_profile}"
-  role = "${aws_iam_role.nb_de_role.name}"
+  name = local.role_profile
+  role = aws_iam_role.nb_de_role.name
 }
 
 resource "aws_iam_policy" "strict_S3_policy" {
-  name = "${local.policy_name}"
+  name = local.policy_name
   description = "Strict Bucket only policy"
   policy = <<EOF
 {
@@ -76,7 +83,7 @@ resource "aws_iam_policy" "strict_S3_policy" {
                 "s3:PutEncryptionConfiguration"
             ],
             "Resource": [
-                "arn:aws:s3:::${var.project_tag}*"
+                "arn:aws:s3:::${var.sbn}*"
             ]
         },
         {
@@ -85,7 +92,7 @@ resource "aws_iam_policy" "strict_S3_policy" {
                 "s3:GetObject",
                 "s3:HeadObject"
             ],
-            "Resource": "arn:aws:s3:::${var.project_tag}-ssn-bucket/*"
+            "Resource": "arn:aws:s3:::${var.sbn}-ssn-bucket/*"
         },
         {
             "Effect": "Allow",
@@ -96,8 +103,8 @@ resource "aws_iam_policy" "strict_S3_policy" {
                 "s3:DeleteObject"
             ],
             "Resource": [
-                "arn:aws:s3:::${var.project_tag}-bucket/*",
-                "arn:aws:s3:::${var.project_tag}-shared-bucket/*"
+                "arn:aws:s3:::${var.sbn}-bucket/*",
+                "arn:aws:s3:::${var.sbn}-shared-bucket/*"
             ]
         }
     ]
@@ -106,6 +113,6 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "strict_S3_policy-attach" {
-  role       = "${aws_iam_role.nb_de_role.name}"
-  policy_arn = "${aws_iam_policy.strict_S3_policy.arn}"
+  role       = aws_iam_role.nb_de_role.name
+  policy_arn = aws_iam_policy.strict_S3_policy.arn
 }
