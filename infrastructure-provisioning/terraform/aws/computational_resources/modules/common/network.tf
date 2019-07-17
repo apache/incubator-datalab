@@ -20,8 +20,8 @@
 # ******************************************************************************
 
 locals {
-  subnet_name = "${var.project_tag}-subnet"
-  sg_name     = "${var.project_tag}-nb-sg" #sg - security group
+  subnet_name = "${var.sbn}-subnet"
+  sg_name     = "${var.sbn}-nb-sg" #sg - security group
 }
 
 resource "aws_subnet" "subnet" {
@@ -29,9 +29,15 @@ resource "aws_subnet" "subnet" {
   cidr_block = "${var.cidr_range}"
 
   tags = {
-    Name    = "${local.subnet_name}"
-    Env-Tag = "${local.subnet_name}"
-    product = "${var.product}"
+    Name             = "${local.subnet_name}"
+    "${var.sbn}-Tag" = "${local.subnet_name}"
+    Product          = "${var.product}"
+    Project_name     = "${var.project_name}"
+    Project_tag      = "${var.project_tag}"
+    Endpoint_tag     = "${var.endpoint_tag}"
+    "user:tag"       = "${var.sbn}:${local.subnet_name}"
+    User_tag         = "${var.user_tag}"
+    Custom_tag       = "${var.custom_tag}"
   }
 }
 
@@ -61,7 +67,14 @@ resource "aws_security_group" "nb-sg" {
   }
 
   tags = {
-    Name    = "${local.sg_name}"
-    product = "${var.product}"
+    Name             = "${local.sg_name}"
+    "${var.sbn}-Tag" = "${local.sg_name}"
+    Product          = "${var.product}"
+    Project_name     = "${var.project_name}"
+    Project_tag      = "${var.project_tag}"
+    Endpoint_tag     = "${var.endpoint_tag}"
+    "user:tag"       = "${var.sbn}:${local.sg_name}"
+    User_tag         = "${var.user_tag}"
+    Custom_tag       = "${var.custom_tag}"
   }
 }

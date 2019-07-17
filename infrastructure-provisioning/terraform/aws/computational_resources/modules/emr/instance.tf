@@ -20,8 +20,8 @@
 # ******************************************************************************
 
 locals {
-  cluster_name  = "${var.project_tag}-des-${var.notebook_name}-${var.cluster_name}"
-  notebook_name = "${var.project_tag}-nb-${var.notebook_name}"
+  cluster_name  = "${var.sbn}-des-${var.notebook_name}-${var.cluster_name}"
+  notebook_name = "${var.sbn}-nb-${var.notebook_name}"
 }
 
 resource "aws_emr_cluster" "cluster" {
@@ -62,11 +62,13 @@ resource "aws_emr_cluster" "cluster" {
     ComputationalName        = "${var.cluster_name}"
     Name                     = "${local.cluster_name}"
     Notebook                 = "${local.notebook_name}"
-    product                  = "${var.product}"
-    "${var.project_tag}-Tag" = "${local.cluster_name}"
+    Product                  = "${var.product}"
+    "${var.sbn}-Tag"         = "${local.cluster_name}"
+    Project_name             = "${var.project_name}"
+    Project_tag              = "${var.project_tag}"
     User_tag                 = "${var.user_tag}"
     Endpoint_Tag             = "${var.endpoint_tag}"
-    "user:tag"               = "${var.project_tag}:${local.cluster_name}"
+    "user:tag"               = "${var.sbn}:${local.cluster_name}"
     Custom_Tag               = "${var.custom_tag}"
   }
 

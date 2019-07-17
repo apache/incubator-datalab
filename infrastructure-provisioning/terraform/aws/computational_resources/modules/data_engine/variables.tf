@@ -19,6 +19,10 @@
 #
 # ******************************************************************************
 
+variable "project_name" {}
+
+variable "sbn" {}
+
 variable "project_tag" {}
 
 variable "endpoint_tag" {}
@@ -31,7 +35,7 @@ variable "notebook_name" {}
 
 variable "product" {}
 
-variable "note_ami" {}
+variable "ami" {}
 
 variable "instance_type" {}
 
@@ -41,4 +45,8 @@ variable "subnet_id" {}
 
 variable "nb-sg_id" {}
 
-variable "note_profile_name" {}
+variable "iam_profile_name" {}
+
+variable "cluster_name" {}
+
+variable "slave_count" {}
