@@ -1,0 +1,4 @@
+mysqlRootPassword: 1234567890o
+mysqlUser: keycloak
+mysqlPassword: 1234567890o
+mysqlDatabase: keycloak

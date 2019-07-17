@@ -23,4 +23,5 @@ resource "helm_release" "dlab-ui" {
     name      = "dlab-ui"
     chart     = "./dlab-ui-chart"
     depends_on = [helm_release.mongodb]
+    wait = true
 }

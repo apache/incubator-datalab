@@ -1,0 +1,25 @@
+keycloak:
+  username: dlab-admin
+  password: 12345o
+
+  persistence:
+    dbVendor: mysql
+    dbName: keycloak
+    dbHost: keycloak-mysql
+    dbPort: 3306
+    dbUser: keycloak
+    dbPassword: 1234567890o
+
+  service:
+    type: NodePort
+    nodePort: 31088
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/rewrite-target: /keycloak
+    path: /keycloak
+    hosts:
+      - "*"
