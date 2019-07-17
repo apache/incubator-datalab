@@ -149,18 +149,18 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} " \
+        params = "--hostname {} --keyfile {} --edge_ip {} " \
                  "--region {} --spark_version {} " \
                  "--hadoop_version {} --os_user {} " \
                  "--scala_version {} --r_mirror {} " \
-                 "--exploratory_name {}" "--edge_ip {} ".\
-            format(instance_hostname, notebook_config['ssh_key_path'],
+                 "--exploratory_name {}".\
+            format(instance_hostname, notebook_config['ssh_key_path'], edge_instance_private_ip,
                    os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
-                   notebook_config['exploratory_name'], edge_instance_private_ip)
+                   notebook_config['exploratory_name'],)
         try:
-            local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
+            local("~/scripts/{}.py {}".format('configure_jupyter-docker_node', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -255,6 +255,26 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to set edge reverse proxy template.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
+    try:
+        print('[STARTING JUPYTER CONTAINER]')
+        logging.info('[STARTING JUPYTER CONTAINER]')
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   notebook_config['ssh_key_path'],
+                   notebook_config['dlab_ssh_user'])
+        try:
+           local("~/scripts/jupyter_container_start.py {}".format(params))
+        except:
+             traceback.print_exc()
+             raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to start Jupyter container.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
