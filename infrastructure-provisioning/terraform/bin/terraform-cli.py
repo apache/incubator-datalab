@@ -378,6 +378,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
         """
         start_time = time.time()
+        Console.execute('ssh-keyscan {} >> ~/.ssh/known_hosts'.format(self.ip))
         while True:
             with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
                 k8c_info_status = c.run(
@@ -443,7 +444,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             with conn.cd('/terraform/ssn-helm-charts'):
                 conn.run('terraform init')
                 conn.run('terraform validate')
-                conn.run('terraform apply '
+                conn.run('terraform apply -auto-approve '
                          '-var \'ssn_k8s_alb_dns_name={}\''.format(dns_name))
 
     def output_terraform_result(self):
@@ -461,9 +462,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         VPC ID: {}
         Subnet IDs:  {}
         SG IDs: {}
-        DLab UI URL: http://new-k8s-ssn-alb-774741052.us-west-2.elb.amazonaws.com
+        DLab UI URL: {}
         """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
-                   ', '.join(ssn_subnets), ssn_k8s_sg_id))
+                   ', '.join(ssn_subnets), ssn_k8s_sg_id, dns_name))
 
     def deploy(self):
         if self.args.get('service_args').get('action') == 'destroy':
