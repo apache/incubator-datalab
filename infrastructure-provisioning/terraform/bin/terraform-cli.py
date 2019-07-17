@@ -84,7 +84,7 @@ class TerraformProvider:
         args_str = self.get_args_string(cli_args)
         command = 'terraform apply -auto-approve {}'
         result = Console.execute(command.format(args_str))
-        print(result)
+        logging.info(result)
 
     def destroy(self, cli_args):
         """Destroy terraform
@@ -436,12 +436,15 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             rsync(conn, source, remote_dir)
 
     def run_remote_terraform(self):
+        dns_name = json.loads(TerraformProvider()
+                              .output('-json ssn_k8s_alb_dns_name'))
         logging.info('apply ssn-helm-charts')
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             with conn.cd('/terraform/ssn-helm-charts'):
                 conn.run('terraform init')
                 conn.run('terraform validate')
-                conn.run('terraform apply')
+                conn.run('terraform apply '
+                         '-var \'ssn_k8s_alb_dns_name={}\''.format(dns_name))
 
     def output_terraform_result(self):
         dns_name = json.loads(TerraformProvider().output(' -json ssn_k8s_alb_dns_name'))
