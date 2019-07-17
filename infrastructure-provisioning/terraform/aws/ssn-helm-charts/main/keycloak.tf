@@ -19,13 +19,26 @@
 #
 # ******************************************************************************
 
+data "template_file" "keycloak_values" {
+  template = file("./files/keycloak_values.yaml")
+  vars = {
+    ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
+  }
+}
+
+data "helm_repository" "codecentric" {
+    name = "codecentric"
+    url  = "https://codecentric.github.io/helm-charts"
+}
+
 resource "helm_release" "keycloak" {
   name = "keycloak"
-  chart = "stable/keycloak"
+  repository = data.helm_repository.codecentric.metadata.0.name
+  chart = "codecentric/keycloak"
   wait = true
 
   values = [
-    file("files/keycloak_values.yaml")
+    data.template_file.keycloak_values.rendered
   ]
 
 //  set {

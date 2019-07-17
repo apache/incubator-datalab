@@ -47,3 +47,6 @@ variable "mongo_db_pwd" {
 //    default = "4.0.10-debian-9-r13"
 //    description = "MongoDB Image tag"
 //}
+variable "ssn_k8s_alb_dns_name" {
+    default = ""
+}

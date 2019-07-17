@@ -24,4 +24,9 @@ resource "helm_release" "dlab-ui" {
     chart     = "./dlab-ui-chart"
     depends_on = [helm_release.mongodb]
     wait = true
+
+    set {
+        name = "ingress.host"
+        value = var.ssn_k8s_alb_dns_name
+    }
 }
