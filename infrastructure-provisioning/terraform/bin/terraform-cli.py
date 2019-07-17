@@ -429,8 +429,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def copy_terraform_to_remote(self):
         logging.info('transfer terraform dir to remote')
-        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
-        source = os.path.join(tf_dir, 'aws/ssn-helm-charts')
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir, os.path.pardir))
+        source = os.path.join(tf_dir, 'ssn-helm-charts')
         remote_dir = '/home/{}/terraform/'.format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             conn.run('mkdir -p {}'.format(remote_dir))
@@ -441,7 +441,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                               .output('-json ssn_k8s_alb_dns_name'))
         logging.info('apply ssn-helm-charts')
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
-            with conn.cd('/terraform/ssn-helm-charts'):
+            with conn.cd('terraform/ssn-helm-charts/main'):
                 conn.run('terraform init')
                 conn.run('terraform validate')
                 conn.run('terraform apply -auto-approve '

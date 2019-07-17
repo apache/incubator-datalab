@@ -20,31 +20,31 @@
 # ******************************************************************************
 
 locals {
-  cluster_name  = "${var.project_tag}-des-${var.notebook_name}-${var.cluster_name}"
-  notebook_name = "${var.project_tag}-nb-${var.notebook_name}"
+  cluster_name  = "${var.sbn}-des-${var.notebook_name}-${var.cluster_name}"
+  notebook_name = "${var.sbn}-nb-${var.notebook_name}"
 }
 
 resource "aws_emr_cluster" "cluster" {
-  name          = "${local.cluster_name}"
-  release_label = "${var.emr_template}"
+  name          = local.cluster_name
+  release_label = var.emr_template
   applications  = ["Spark"]
 
   termination_protection            = false
   keep_job_flow_alive_when_no_steps = true
 
   ec2_attributes {
-    subnet_id                         = "${var.subnet_id}"
-    emr_managed_master_security_group = "${var.nb-sg_id}"
-    emr_managed_slave_security_group  = "${var.nb-sg_id}"
+    subnet_id                         = var.subnet_id
+    emr_managed_master_security_group = var.nb-sg_id
+    emr_managed_slave_security_group  = var.nb-sg_id
     instance_profile                  = "arn:aws:iam::203753054073:instance-profile/EMR_EC2_DefaultRole"
   }
 
   master_instance_group {
-    instance_type = "${var.master_shape}"
+    instance_type = var.master_shape
   }
 
   core_instance_group {
-    instance_type  = "${var.slave_shape}"
+    instance_type  = var.slave_shape
     instance_count = "${var.instance_count - 1}"
 
     ebs_config {
@@ -59,15 +59,17 @@ resource "aws_emr_cluster" "cluster" {
   ebs_root_volume_size = 100
 
   tags = {
-    ComputationalName        = "${var.cluster_name}"
-    Name                     = "${local.cluster_name}"
-    Notebook                 = "${local.notebook_name}"
-    product                  = "${var.product}"
-    "${var.project_tag}-Tag" = "${local.cluster_name}"
-    User_tag                 = "${var.user_tag}"
-    Endpoint_Tag             = "${var.endpoint_tag}"
-    "user:tag"               = "${var.project_tag}:${local.cluster_name}"
-    Custom_Tag               = "${var.custom_tag}"
+    ComputationalName        = var.cluster_name
+    Name                     = local.cluster_name
+    Notebook                 = local.notebook_name
+    Product                  = var.product
+    "${var.sbn}-Tag"         = local.cluster_name
+    Project_name             = var.project_name
+    Project_tag              = var.project_tag
+    User_tag                 = var.user_tag
+    Endpoint_Tag             = var.endpoint_tag
+    "user:tag"               = "${var.sbn}:${local.cluster_name}"
+    Custom_Tag               = var.custom_tag
   }
 
   bootstrap_action {

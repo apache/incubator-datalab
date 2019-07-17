@@ -129,8 +129,3 @@ data "aws_instances" "ssn_k8s_masters_instances" {
   instance_state_names = ["running"]
   depends_on = [aws_autoscaling_group.ssn_k8s_autoscaling_group_masters]
 }
-
-output "ssn_k8s_masters_ip_addresses" {
-  value = data.aws_instances.ssn_k8s_masters_instances.public_ips
-  depends_on = [data.aws_instances.ssn_k8s_masters_instances]
-}

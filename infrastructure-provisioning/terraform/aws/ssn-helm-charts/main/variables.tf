@@ -18,32 +18,35 @@
 # under the License.
 #
 # ******************************************************************************
-variable "nginx_http_port" {
-    default = "31080"
-    description = "Sets the nodePort that maps to the Ingress' port 80"
-}
-variable "nginx_https_port" {
-    default = "31443"
-    description = "Sets the nodePort that maps to the Ingress' port 443"
-}
+//variable "nginx_http_port" {
+//    default = "31080"
+//    description = "Sets the nodePort that maps to the Ingress' port 80"
+//}
+//variable "nginx_https_port" {
+//    default = "31443"
+//    description = "Sets the nodePort that maps to the Ingress' port 443"
+//}
 
-variable "mongo_root_pwd" {
-    default = "$tr0ng_r00T-passworI)"
-    description = "Password for MongoDB root user"
-}
-variable "mongo_db_username" {
-    default = "admin"
-    description = "Password for MongoDB root user"
-}
+//variable "mongo_root_pwd" {
+//    default = "$tr0ng_r00T-passworI)"
+//    description = "Password for MongoDB root user"
+//}
+//variable "mongo_db_username" {
+//    default = "admin"
+//    description = "Password for MongoDB root user"
+//}
 variable "mongo_db_pwd" {
     default = "$tr0ng_N0N=r00T-passworI)"
     description = "Password for MongoDB root user"
 }
-variable "mongo_dbname" {
-    default = "dlabdb"
-    description = "Password for MongoDB root user"
-}
-variable "image_tag" {
-    default = "4.0.10-debian-9-r13"
-    description = "MongoDB Image tag"
+//variable "mongo_dbname" {
+//    default = "dlabdb"
+//    description = "Password for MongoDB root user"
+//}
+//variable "image_tag" {
+//    default = "4.0.10-debian-9-r13"
+//    description = "MongoDB Image tag"
+//}
+variable "ssn_k8s_alb_dns_name" {
+    default = ""
 }

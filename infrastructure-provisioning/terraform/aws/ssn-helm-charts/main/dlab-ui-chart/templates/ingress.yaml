@@ -24,6 +24,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "dlab-ui.fullname" . -}}
 {{ $servicePort := .Values.service.port }}
+{{ $host := .Values.ingress.host }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -46,14 +47,11 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.rules }}
-    - http:
+    - host: {{ $host }}
+      http:
         paths:
-        {{- range .paths }}
-          - path: {{ . }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $servicePort }}
-        {{- end }}
-  {{- end }}
+        - backend:
+            serviceName: {{ $fullName }}
+            servicePort: {{ $servicePort }}
+          path: /
 {{- end }}

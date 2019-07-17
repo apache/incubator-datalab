@@ -44,20 +44,9 @@ resource "aws_instance" "endpoint" {
   }
 }
 
-resource "aws_eip" "e_ip" {
-  instance = aws_instance.endpoint.id
-  vpc      = true
-  tags = {
-    Name = "${local.eip_name}"
-    "${var.service_base_name}-Tag" = "${local.eip_name}"
-    product = "${var.product}"
-    "user:tag" = "${var.service_base_name}:${local.eip_name}"
-  }
-  count = var.network_type == "public" ? 1 : 0
-}
 
 resource "aws_eip_association" "e_ip_assoc" {
   instance_id   = aws_instance.endpoint.id
-  allocation_id = aws_eip.e_ip.0.id
+  allocation_id = var.endpoint_eip_allocation_id
   count         = var.network_type == "public" ? 1 : 0
 }
