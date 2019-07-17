@@ -36,6 +36,7 @@ resource "helm_release" "keycloak" {
   repository = data.helm_repository.codecentric.metadata.0.name
   chart = "codecentric/keycloak"
   wait = true
+  timeout = 600
 
   values = [
     data.template_file.keycloak_values.rendered
