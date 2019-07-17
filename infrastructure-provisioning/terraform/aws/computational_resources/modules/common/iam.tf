@@ -26,7 +26,7 @@ locals {
 }
 
 resource "aws_iam_role" "nb_de_role" {
-  name               = "${local.role_name}"
+  name               = local.role_name
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -44,26 +44,26 @@ resource "aws_iam_role" "nb_de_role" {
 EOF
 
   tags = {
-    Name            = "${local.role_name}"
-    Environment_tag = "${var.sbn}"
-    "${var.sbn}-Tag" = "${local.role_name}"
-    Product          = "${var.product}"
-    Project_name     = "${var.project_name}"
-    Project_tag      = "${var.project_tag}"
-    Endpoint_tag     = "${var.endpoint_tag}"
+    Name             = local.role_name
+    Environment_tag  = var.sbn
+    "${var.sbn}-Tag" = local.role_name
+    Product          = var.product
+    Project_name     = var.project_name
+    Project_tag      = var.project_tag
+    Endpoint_tag     = var.endpoint_tag
     "user:tag"       = "${var.sbn}:${local.role_name}"
-    User_tag         = "${var.user_tag}"
-    Custom_tag       = "${var.custom_tag}"
+    User_tag         = var.user_tag
+    Custom_tag       = var.custom_tag
   }
 }
 
 resource "aws_iam_instance_profile" "nb_profile" {
-  name = "${local.role_profile}"
-  role = "${aws_iam_role.nb_de_role.name}"
+  name = local.role_profile
+  role = aws_iam_role.nb_de_role.name
 }
 
 resource "aws_iam_policy" "strict_S3_policy" {
-  name = "${local.policy_name}"
+  name = local.policy_name
   description = "Strict Bucket only policy"
   policy = <<EOF
 {
@@ -113,6 +113,6 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "strict_S3_policy-attach" {
-  role       = "${aws_iam_role.nb_de_role.name}"
-  policy_arn = "${aws_iam_policy.strict_S3_policy.arn}"
+  role       = aws_iam_role.nb_de_role.name
+  policy_arn = aws_iam_policy.strict_S3_policy.arn
 }
