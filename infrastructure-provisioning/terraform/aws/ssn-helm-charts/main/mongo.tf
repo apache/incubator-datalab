@@ -20,41 +20,46 @@
 # ******************************************************************************
 
 resource "helm_release" "mongodb" {
-    name      = "mongo-ha"
-    chart     = "stable/mongodb"
+    name  = "mongo-ha"
+    chart = "stable/mongodb"
+    wait = true
 
-    set {
-        name  = "replicaSet.enabled"
-        value = "true"
-    }
+    values = [
+        file("files/mongo_values.yaml")
+    ]
 
-    set {
-        name = "mongodbRootPassword"
-        value = "${var.mongo_root_pwd}"
-    }
-
-    set {
-        name = "mongodbUsername"
-        value = "${var.mongo_db_username}"
-    }
-
+//    set {
+//        name  = "replicaSet.enabled"
+//        value = "true"
+//    }
+//
+//    set {
+//        name = "mongodbRootPassword"
+//        value = "${var.mongo_root_pwd}"
+//    }
+//
+//    set {
+//        name = "mongodbUsername"
+//        value = "${var.mongo_db_username}"
+//    }
+//
     set {
         name = "mongodbPassword"
-        value = "${var.mongo_db_pwd}"
+        value = var.mongo_db_pwd
     }
-
-    set {
-        name = "mongodbDatabase"
-        value = "${var.mongo_dbname}"
-    }
-    set {
-        name = "image.tag"
-        value = "${var.image_tag}"
-    }
-    set {
-        # temporary. PV should be implemented
-        name = "persistence.enabled"
-        value = "false"
-    }
+//
+//    set {
+//        name = "mongodbDatabase"
+//        value = "${var.mongo_dbname}"
+//    }
+//    set {
+//        name = "image.tag"
+//        value = "${var.image_tag}"
+//    }
+//    set {
+//        # temporary. PV should be implemented
+//        name = "persistence.enabled"
+//        value = "false"
+//    }
     depends_on = [helm_release.nginx]
 }

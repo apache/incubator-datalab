@@ -1,0 +1,12 @@
+replicaSet:
+  enabled: true
+
+mongodbRootPassword: $tr0ng_r00T-passworI)
+mongodbUsername: admin
+mongodbDatabase: dlabdb
+
+image:
+  tag: 4.0.10-debian-9-r13
+
+persistence:
+  enabled: false

@@ -22,27 +22,31 @@
 resource "helm_release" "keycloak-mysql" {
   name = "keycloak-mysql"
   chart = "stable/mysql"
-  wait = false
+  wait = true
 
-  set {
-    name = "mysqlRootPassword"
-    value = "1234567890o"
-  }
+  values = [
+    file("files/mysql_values.yaml")
+  ]
 
-  set {
-    name = "mysqlUser"
-    value = "keycloak"
-  }
-
-  set {
-    name = "mysqlPassword"
-    value = "1234567890o"
-  }
-
-  set {
-    name = "mysqlDatabase"
-    value = "keycloak"
-  }
+//  set {
+//    name = "mysqlRootPassword"
+//    value = "1234567890o"
+//  }
+//
+//  set {
+//    name = "mysqlUser"
+//    value = "keycloak"
+//  }
+//
+//  set {
+//    name = "mysqlPassword"
+//    value = "1234567890o"
+//  }
+//
+//  set {
+//    name = "mysqlDatabase"
+//    value = "keycloak"
+//  }
 
   set {
     name = "persistence.existingClaim"

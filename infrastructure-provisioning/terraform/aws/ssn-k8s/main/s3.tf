@@ -25,6 +25,6 @@ resource "aws_s3_bucket" "ssn_k8s_bucket" {
   tags = {
     Name = "${var.service_base_name}-ssn-bucket"
   }
-  # force_destroy = true
+  force_destroy = true
 }
 
