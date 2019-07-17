@@ -39,7 +39,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         time.sleep(30)
     create_aws_config_files()
     edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-        os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
+        os.environ['conf_service_base_name'] + '-' + os.environ['project_name'] + '-edge')
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     emr_conf['key_name'] = os.environ['conf_key_name']
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
-    emr_conf['edge_instance_name'] = '{0}-{1}-edge'.format(emr_conf['service_base_name'], os.environ['edge_user_name'])
+    emr_conf['edge_instance_name'] = '{0}-{1}-edge'.format(emr_conf['service_base_name'], os.environ['project_name'])
     emr_conf['edge_security_group_name'] = '{0}-SG'.format(emr_conf['edge_instance_name'])
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
@@ -96,13 +96,13 @@ if __name__ == "__main__":
                        'State=not-configured,' \
                        'ComputationalName={3}' \
         .format(emr_conf['service_base_name'],
-                os.environ['edge_user_name'],
+                os.environ['project_name'],
                 emr_conf['exploratory_name'],
                 emr_conf['computational_name'],
                 os.environ['notebook_instance_name'])
     emr_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}-{4}'\
         .format(emr_conf['service_base_name'],
-                os.environ['edge_user_name'],
+                os.environ['project_name'],
                 emr_conf['exploratory_name'],
                 emr_conf['computational_name'],
                 args.uuid)
@@ -113,12 +113,12 @@ if __name__ == "__main__":
 
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']),
            "Value": "{}-{}-subnet".format(emr_conf['service_base_name'],
-                                          os.environ['edge_user_name'])}
+                                          os.environ['project_name'])}
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
     emr_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     emr_conf['all_ip_cidr'] = '0.0.0.0/0'
     emr_conf['additional_emr_sg_name'] = '{}-{}-de-se-additional-sg'\
-        .format(emr_conf['service_base_name'], os.environ['edge_user_name'])
+        .format(emr_conf['service_base_name'], os.environ['project_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
     if os.environ['emr_slave_instance_spot'] == 'True':
@@ -258,7 +258,7 @@ if __name__ == "__main__":
                  "--region {14} " \
                  "--tags '{15}' " \
                  "--key_dir {16} " \
-                 "--edge_user_name {17} " \
+                 "--project_name {17} " \
                  "--slave_instance_spot {18} " \
                  "--bid_price {19} " \
                  "--service_base_name {20} " \
@@ -281,7 +281,7 @@ if __name__ == "__main__":
                     emr_conf['region'],
                     emr_conf['tags'],
                     os.environ['conf_key_dir'],
-                    os.environ['edge_user_name'],
+                    os.environ['project_name'],
                     os.environ['emr_slave_instance_spot'],
                     str(emr_conf['slave_bid_price']),
                     emr_conf['service_base_name'],

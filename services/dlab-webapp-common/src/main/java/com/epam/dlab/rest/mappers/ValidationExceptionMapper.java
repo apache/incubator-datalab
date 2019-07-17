@@ -36,7 +36,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<JerseyViolatio
 		final String errors =
 				exception.getConstraintViolations()
 						.stream().map(violation -> ConstraintMessage.getMessage(violation, invocable))
-						.collect(Collectors.joining());
+						.collect(Collectors.joining(","));
 		return Response.status(Response.Status.BAD_REQUEST)
 				.entity(new ErrorDTO(Response.Status.BAD_REQUEST.getStatusCode(), errors))
 				.type(MediaType.APPLICATION_JSON)

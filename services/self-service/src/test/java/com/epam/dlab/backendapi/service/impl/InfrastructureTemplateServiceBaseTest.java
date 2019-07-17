@@ -20,7 +20,9 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalResourceShapeDto;
@@ -34,10 +36,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -50,6 +49,8 @@ public class InfrastructureTemplateServiceBaseTest {
 	private SettingsDAO settingsDAO;
 	@Mock
 	private RESTService provisioningService;
+	@Mock
+	private ProjectDAO projectDAO;
 
 	@InjectMocks
 	private InfrastructureTemplateServiceBaseChild infrastructureTemplateServiceBaseChild =
@@ -75,12 +76,14 @@ public class InfrastructureTemplateServiceBaseTest {
 						"someRam2", 6)));
 		emDto2.setExploratoryEnvironmentShapes(shapes2);
 		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
+		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
+				Collections.singleton("project"), null, null, null)));
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		List<ExploratoryMetadataDTO> actualEmdDtoList =
-				infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo);
+				infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo, "project");
 		assertNotNull(actualEmdDtoList);
 		assertEquals(expectedEmdDtoList, actualEmdDtoList);
 
@@ -96,7 +99,7 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
-			infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo);
+			infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo, "project");
 		} catch (DlabException e) {
 			assertEquals("Could not load list of exploratory templates for user", e.getMessage());
 		}
@@ -106,11 +109,14 @@ public class InfrastructureTemplateServiceBaseTest {
 
 	@Test
 	public void getComputationalTemplates() throws NoSuchFieldException, IllegalAccessException {
+
 		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
 		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(
 				computationalMetadataDTO
 		);
+		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
+				Collections.singleton("project"), null, null, null)));
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
@@ -119,7 +125,7 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		List<FullComputationalTemplate> actualFullCmdDtoList =
-				infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo);
+				infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project");
 		assertNotNull(actualFullCmdDtoList);
 		assertEquals(expectedFullCmdDtoList.size(), actualFullCmdDtoList.size());
 		for (int i = 0; i < expectedFullCmdDtoList.size(); i++) {
@@ -137,7 +143,7 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
-			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo);
+			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project");
 		} catch (DlabException e) {
 			assertEquals("Could not load list of computational templates for user", e.getMessage());
 		}
@@ -151,10 +157,12 @@ public class InfrastructureTemplateServiceBaseTest {
 		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
+		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
+				Collections.singleton("project"), null, null,null)));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
-			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo);
+			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project");
 		} catch (IllegalArgumentException e) {
 			assertEquals("Unknown data engine null", e.getMessage());
 		}
@@ -165,6 +173,7 @@ public class InfrastructureTemplateServiceBaseTest {
 	private boolean areFullComputationalTemplatesEqual(FullComputationalTemplate object1,
 													   FullComputationalTemplate object2) throws NoSuchFieldException,
 			IllegalAccessException {
+		String project = "";//TODO CHANGEIT
 		Field computationalMetadataDTO1 = object1.getClass().getDeclaredField("computationalMetadataDTO");
 		computationalMetadataDTO1.setAccessible(true);
 		Field computationalMetadataDTO2 = object2.getClass().getDeclaredField("computationalMetadataDTO");

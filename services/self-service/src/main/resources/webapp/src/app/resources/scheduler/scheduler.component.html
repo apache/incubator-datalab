@@ -17,16 +17,17 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="scheduler-dialog modal-xl-s">
-  <modal-header>
+<div class="scheduler-dialog" id="dialog-box">
+  <header class="dialog-header">
     <h4 class="modal-title">Scheduler
       <span *ngIf="destination">for
         <b *ngIf="destination.type === 'EXPLORATORY'; else resource">{{ destination.name }}</b>
         <ng-template #resource><b>{{ destination.computational_name }}</b></ng-template>
       </span>
     </h4>
-  </modal-header>
-  <modal-content>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
     <div *ngIf="destination" class="content-box">
       <form [formGroup]="schedulerForm">
         <div class="enable-schedule">
@@ -203,10 +204,10 @@
 
       </form>
       <div class="text-center m-top-30">
-        <button mat-raised-button type="button" class="butt action" (click)="close()">Cancel</button>
+        <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
         <button mat-raised-button type="button" class="butt butt-success action" [disabled]="enableIdleTime && !schedulerForm.controls.inactivityTime.valid"
           (click)="scheduleInstance_btnClick()">Save</button>
       </div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

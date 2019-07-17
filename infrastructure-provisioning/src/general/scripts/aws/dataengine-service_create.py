@@ -66,7 +66,7 @@ parser.add_argument('--emr_timeout', type=int)
 parser.add_argument('--configurations', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--key_dir', type=str, default='')
-parser.add_argument('--edge_user_name', type=str, default='')
+parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--slave_instance_spot', type=str, default='False')
 parser.add_argument('--bid_price', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
@@ -100,7 +100,7 @@ cp_config = "Name=CUSTOM_JAR, Args=aws " \
            args.name,
            args.nbs_user,
            args.region,
-           args.edge_user_name,
+           args.project_name,
            args.name,
            endpoint_url)
 
@@ -123,7 +123,7 @@ cp_jars = "Name=CUSTOM_JAR, Args=aws " \
            args.release_label,
            args.region,
            args.release_label,
-           args.edge_user_name,
+           args.project_name,
            args.name,
            endpoint_url)
 
@@ -172,9 +172,9 @@ def upload_user_key(args):
     try:
         s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
         s3.meta.client.upload_file(args.key_dir + '/' +
-                                   args.edge_user_name + '.pub',
-                                   args.s3_bucket, args.edge_user_name +
-                                   '/' + args.edge_user_name + '.pub',
+                                   args.project_name + '.pub',
+                                   args.s3_bucket, args.project_name +
+                                   '/' + args.project_name + '.pub',
                                    ExtraArgs={'ServerSideEncryption': 'AES256'})
         s3.meta.client.upload_file(
             '/root/scripts/dataengine-service_key_importer.py',
@@ -194,7 +194,7 @@ def remove_user_key(args):
                               config=Config(signature_version='s3v4'),
                               region_name=args.region)
         client.delete_object(Bucket=args.s3_bucket,
-                             Key=args.edge_user_name + '.pub')
+                             Key=args.project_name + '.pub')
 
     except Exception as err:
         logging.error("Unable to remove user key: " +
@@ -233,7 +233,7 @@ def emr_sg(id):
 
 def wait_emr(bucket, cluster_name, timeout, delay=30):
     deadline = time.time() + timeout
-    prefix = args.edge_user_name + '/' + cluster_name + "/config/"
+    prefix = args.project_name + '/' + cluster_name + "/config/"
     global cluster_id
     while time.time() < deadline:
         state = action_validate(cluster_id)
@@ -473,5 +473,5 @@ if __name__ == "__main__":
             out.close()
             if action_validate(cluster_id)[0] == "True":
                 terminate_emr(cluster_id)
-            s3_cleanup(args.s3_bucket, args.name, args.edge_user_name)
+            s3_cleanup(args.s3_bucket, args.name, args.project_name)
             sys.exit(1)

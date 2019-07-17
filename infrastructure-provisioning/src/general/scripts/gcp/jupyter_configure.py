@@ -31,7 +31,7 @@ import os
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -47,15 +47,17 @@ if __name__ == "__main__":
     notebook_config['instance_type'] = os.environ['gcp_notebook_instance_size']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['project_tag'] = os.environ['project_tag']
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
-                                                               notebook_config['edge_user_name'],
+                                                               notebook_config['project_name'],
                                                                notebook_config['exploratory_name'])
     notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(
                                                         notebook_config['service_base_name'], os.environ['application'])
     notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
                                                         notebook_config['service_base_name'], os.environ['application'])
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
-    edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
+    edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['project_name'])
     edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
     edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -152,7 +154,7 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
-        additional_config = {"user_keyname": os.environ['edge_user_name'],
+        additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, notebook_config['ssh_key_path'], json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -250,7 +252,7 @@ if __name__ == "__main__":
     print("Private IP: {}".format(ip_address))
     print("Instance type: {}".format(notebook_config['instance_type']))
     print("Key name: {}".format(notebook_config['key_name']))
-    print("User key name: {}".format(os.environ['edge_user_name']))
+    print("User key name: {}".format(os.environ['project_name']))
     print("Jupyter URL: {}".format(jupyter_ip_url))
     print("Ungit URL: {}".format(ungit_ip_url))
     print("ReverseProxyNotebook".format(jupyter_notebook_acces_url))

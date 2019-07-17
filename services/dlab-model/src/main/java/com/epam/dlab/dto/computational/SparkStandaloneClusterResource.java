@@ -32,6 +32,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -51,10 +52,10 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
 										  SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 										  String dataEngineInstanceCount, String dataEngineInstanceShape,
 										  List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-										  List<ClusterConfig> config) {
+										  List<ClusterConfig> config, Map<String, String> tags) {
 
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity);
+				reuploadKeyRequired, resourceURL, lastActivity, tags);
 		this.dataEngineInstanceCount = dataEngineInstanceCount;
 		this.dataEngineInstanceShape = dataEngineInstanceShape;
 		this.config = config;

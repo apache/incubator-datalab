@@ -28,10 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Stores info about the user notebook.
@@ -51,6 +48,10 @@ public class UserInstanceDTO {
 	private String imageName;
 	@JsonProperty("version")
 	private String imageVersion;
+	@JsonProperty("project")
+	private String project;
+	@JsonProperty("endpoint")
+	private String endpoint;
 	@JsonProperty("template_name")
 	private String templateName;
 	@JsonProperty
@@ -75,6 +76,8 @@ public class UserInstanceDTO {
 	private LocalDateTime lastActivity;
 	@JsonProperty("cluster_config")
 	private List<ClusterConfig> clusterConfig;
+	@JsonProperty
+	private Map<String, String> tags;
 
 	/**
 	 * Sets the user login name.
@@ -145,6 +148,11 @@ public class UserInstanceDTO {
 		return this;
 	}
 
+	public UserInstanceDTO withProject(String project) {
+		setProject(project);
+		return this;
+	}
+
 	/**
 	 * Sets a list of user's computational resources for notebook.
 	 */
@@ -158,6 +166,16 @@ public class UserInstanceDTO {
 	 */
 	public UserInstanceDTO withLibs(List<LibInstallDTO> libs) {
 		setLibs(libs);
+		return this;
+	}
+
+	public UserInstanceDTO withEndpoint(String endpoint) {
+		setEndpoint(endpoint);
+		return this;
+	}
+
+	public UserInstanceDTO withTags(Map<String, String> tags) {
+		setTags(tags);
 		return this;
 	}
 }

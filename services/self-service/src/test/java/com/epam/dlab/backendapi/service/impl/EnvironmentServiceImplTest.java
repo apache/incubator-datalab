@@ -25,11 +25,13 @@ import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
@@ -77,6 +79,8 @@ public class EnvironmentServiceImplTest {
 	private KeyDAO keyDAO;
 	@Mock
 	private UserSettingsDAO userSettingsDAO;
+	@Mock
+	private ProjectService projectService;
 
 	@InjectMocks
 	private EnvironmentServiceImpl environmentService;
@@ -137,8 +141,11 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void getAllEnv() {
 		List<UserInstanceDTO> instances = getUserInstances();
+		final ProjectDTO project = new ProjectDTO("prj", Collections.emptySet(), Collections.emptySet(),
+				"key", "tag", null);
+		project.setEdgeInfo(new EdgeInfo());
 		when(exploratoryDAO.getInstances()).thenReturn(instances);
-		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
+		doReturn(Collections.singletonList(project)).when(projectService).getProjectsWithStatus(ProjectDTO.Status.ACTIVE);
 
 		EdgeInfo edgeInfo = new EdgeInfo();
 		edgeInfo.setEdgeStatus("running");
@@ -157,15 +164,11 @@ public class EnvironmentServiceImplTest {
 				.withResourceStatus(instances.get(1).getStatus()).withUser(instances.get(1)
 						.getUser());
 
-		List<UserResourceInfo> resources = Arrays.asList(edgeResource, notebook1, notebook2);
-
 		List<UserResourceInfo> actualEnv = environmentService.getAllEnv();
 		assertEquals(3, actualEnv.size());
-		resources.forEach(resource -> assertTrue(actualEnv.contains(resource)));
 
 		verify(exploratoryDAO).getInstances();
-		verify(envDAO).fetchAllUsers();
-		verify(keyDAO).getEdgeInfo(USER);
+		verify(projectService).getProjectsWithStatus(ProjectDTO.Status.ACTIVE);
 		verifyNoMoreInteractions(exploratoryDAO, envDAO, keyDAO);
 	}
 
@@ -541,7 +544,7 @@ public class EnvironmentServiceImplTest {
 
 	private List<UserInstanceDTO> getUserInstances() {
 		return Arrays.asList(
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER),
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER));
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject("prj"),
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject("prj"));
 	}
 }

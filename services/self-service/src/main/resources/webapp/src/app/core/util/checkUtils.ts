@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import { PATTERNS } from './patterns';
+
 export class CheckUtils {
   public static isJSON(str) {
     try {
@@ -34,5 +36,9 @@ export class CheckUtils {
       return false;
     }
     return true;
+  }
+
+  public static delimitersFiltering(resource): string {
+    return resource.replace(PATTERNS.delimitersRegex, '').toString().toLowerCase();
   }
 }

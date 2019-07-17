@@ -263,6 +263,26 @@ class GCPMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_role_status(self, role_name):
+        request = self.service_iam.projects().roles().list(parent='projects/{}'.format(self.project,),showDeleted='true').execute()
+        rn = 'projects/{}/roles/{}'.format(self.project,role_name.replace('-','_'))
+        try:
+            for role in request['roles']:
+                if role['name'] == rn:
+                    return role['deleted']
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+            else:
+                raise err
+        except Exception as err:
+            logging.info(
+                "Unable to get IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get IAM role",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_static_address(self, region, static_address_name):
         request = self.service.addresses().get(project=self.project, region=region, address=static_address_name)
         try:

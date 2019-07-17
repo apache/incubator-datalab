@@ -20,7 +20,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ModalModule } from '../../../shared';
 import { MaterialModule } from '../../../shared/material.module';
 import { DetailDialogComponent } from './detail-dialog.component';
 import { DirectivesModule } from '../../../core/directives';
@@ -30,13 +29,13 @@ export * from './detail-dialog.component';
 @NgModule({
   imports: [
     CommonModule,
-    ModalModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
     DirectivesModule
   ],
   declarations: [DetailDialogComponent],
+  entryComponents: [DetailDialogComponent],
   exports: [DetailDialogComponent]
 })
 export class DetailDialogModule {}

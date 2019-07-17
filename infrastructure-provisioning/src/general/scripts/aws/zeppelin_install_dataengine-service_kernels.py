@@ -37,7 +37,7 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--emr_excluded_spark_properties', type=str, default='')
-parser.add_argument('--edge_user_name', type=str, default='')
+parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
@@ -85,7 +85,7 @@ if __name__ == "__main__":
              "--hadoop_version {4} " \
              "--region {5} " \
              "--excluded_lines '{6}' " \
-             "--user_name {7} " \
+             "--project_name {7} " \
              "--os_user {8} " \
              "--edge_hostname {9} " \
              "--proxy_port {10} " \
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                 hadoop_version,
                 args.region,
                 args.emr_excluded_spark_properties,
-                args.edge_user_name,
+                args.project_name,
                 args.os_user,
                 args.edge_hostname,
                 args.proxy_port,

@@ -36,7 +36,7 @@ def configure_http_proxy_server(config):
             put(template_file, '/tmp/squid.conf')
             sudo('\cp /tmp/squid.conf /etc/squid/squid.conf')
             sudo('sed -i "s|PROXY_SUBNET|{}|g" /etc/squid/squid.conf'.format(proxy_subnet))
-            sudo('sed -i "s|EDGE_USER_NAME|{}|g" /etc/squid/squid.conf'.format(config['edge_user_name']))
+            sudo('sed -i "s|EDGE_USER_NAME|{}|g" /etc/squid/squid.conf'.format(config['project_name']))
             sudo('sed -i "s|LDAP_HOST|{}|g" /etc/squid/squid.conf'.format(config['ldap_host']))
             sudo('sed -i "s|LDAP_DN|{}|g" /etc/squid/squid.conf'.format(config['ldap_dn']))
             sudo('sed -i "s|LDAP_SERVICE_USERNAME|{}|g" /etc/squid/squid.conf'.format(config['ldap_user']))
@@ -58,8 +58,7 @@ def configure_http_proxy_server(config):
         sys.exit(1)
 
 
-def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username,
-                       ldap_user):
+def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
             sudo('apt-get install -y wget')
@@ -91,7 +90,6 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
             sudo('sed -i \'s/LDAP_OU/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_ou))
             sudo('sed -i \'s/LDAP_SERVICE_PASSWORD/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_service_pass))
             sudo('sed -i \'s/LDAP_SERVICE_USERNAME/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_service_username))
-            sudo('sed -i \'s/LDAP_USERNAME/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_user))
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
             sudo('cp /opt/dlab/templates/nginx.conf /etc/nginx/')
             sudo('mkdir /etc/nginx/conf.d')

@@ -28,7 +28,7 @@ import sys, time, os
 from dlab.actions_lib import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -39,8 +39,8 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['key_name'] = os.environ['conf_key_name']
-    edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    edge_conf['user_keyname'] = os.environ['project_name']
+    edge_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -49,28 +49,28 @@ if __name__ == "__main__":
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
     edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
-    edge_conf['subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'], edge_conf['project_name'])
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
     edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
     edge_conf['edge_service_account_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
-                                                                 edge_conf['edge_user_name'])
+                                                                 edge_conf['project_name'])
     edge_conf['edge_role_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
-                                                      edge_conf['edge_user_name'])
+                                                      edge_conf['project_name'])
     edge_conf['ps_service_account_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
-                                                             edge_conf['edge_user_name'])
+                                                             edge_conf['project_name'])
     edge_conf['ps_role_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
-                                                  edge_conf['edge_user_name'])
-    edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+                                                  edge_conf['project_name'])
+    edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['project_name'])
     edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
     edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'],
-                                                                       edge_conf['edge_user_name'])
-    edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+                                                                       edge_conf['project_name'])
+    edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['project_name'])
     edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name'])
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     edge_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['project_name'])
     instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
     edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
     edge_conf['private_ip'] = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
     edge_conf['vpc_cidrs'] = [edge_conf['vpc_cidr']]
-    edge_conf['fw_common_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['fw_common_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['project_name'])
     edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])
@@ -165,7 +165,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
-                             "edge_user_name": os.environ['gcp_iam_user'],
+                             "project_name": os.environ['project_name'],
                              "ldap_host": os.environ['ldap_hostname'],
                              "ldap_dn": os.environ['ldap_dn'],
                              "ldap_user": os.environ['ldap_service_username'],
@@ -285,6 +285,7 @@ if __name__ == "__main__":
                    "socks_port": "1080",
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
+                   "project_name": os.environ['project_name'],
                    "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
