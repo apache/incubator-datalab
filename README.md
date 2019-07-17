@@ -342,6 +342,7 @@ Prerequisites:
 
 Prerequisites:
 
+- IAM user
 - Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
 - Google Cloud Storage JSON API should be enabled
 
