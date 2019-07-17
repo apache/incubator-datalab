@@ -56,7 +56,6 @@ if __name__ == "__main__":
         notebook_config['region'] = os.environ['aws_region']
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
         notebook_config['project_name'] = os.environ['project_name']
-        notebook_config['project_tag'] = os.environ['project_tag']
         notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['project_name'] + \
                                           '-de-' + notebook_config['exploratory_name'] + '-' + \
                                           notebook_config['computational_name']

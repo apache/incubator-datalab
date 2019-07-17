@@ -1365,13 +1365,13 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
 
 def install_emr_spark(args):
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
-    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz',
+    s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark.tar.gz',
                             '/tmp/spark.tar.gz')
-    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark-checksum.chk',
+    s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark-checksum.chk',
                             '/tmp/spark-checksum.chk')
     if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
         local('rm -f /tmp/spark.tar.gz')
-        s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz',
+        s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark.tar.gz',
                                 '/tmp/spark.tar.gz')
         if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
             print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
@@ -1403,9 +1403,9 @@ def yarn(args, yarn_dir):
     else:
         s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
         s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    get_files(s3client, s3resource, args.user_name + '/' + args.cluster_name + '/config/', args.bucket, yarn_dir)
-    local('sudo mv ' + yarn_dir + args.user_name + '/' + args.cluster_name + '/config/* ' + yarn_dir)
-    local('sudo rm -rf ' + yarn_dir + args.user_name + '/')
+    get_files(s3client, s3resource, args.project_name + '/' + args.cluster_name + '/config/', args.bucket, yarn_dir)
+    local('sudo mv ' + yarn_dir + args.project_name + '/' + args.cluster_name + '/config/* ' + yarn_dir)
+    local('sudo rm -rf ' + yarn_dir + args.project_name + '/')
 
 
 def get_files(s3client, s3resource, dist, bucket, local):
