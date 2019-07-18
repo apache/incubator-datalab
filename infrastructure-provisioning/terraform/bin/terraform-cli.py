@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import itertools
 import json
 import os
 import abc
@@ -8,7 +9,10 @@ import time
 from fabric import Connection
 from patchwork.transfers import rsync
 import logging
-
+import os.path
+import sys
+from deploy.endpoint_fab import start_deploy
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s-%(message)s')
 
@@ -224,7 +228,7 @@ class AbstractDeployBuilder:
 
 class DeployDirector:
 
-    def build(self, builder):
+    def build(self, *builders):
         """ Do build action
 
         Args:
@@ -233,8 +237,9 @@ class DeployDirector:
             None
         """
         try:
-            builder.provision()
-            builder.deploy()
+            for builder in builders:
+                builder.provision()
+                builder.deploy()
         except Exception as ex:
             print(ex)
 
@@ -446,6 +451,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 conn.run('terraform validate')
                 conn.run('terraform apply -auto-approve '
                          '-var \'ssn_k8s_alb_dns_name={}\''.format(dns_name))
+                output = json.loads(conn.run('terraform output -json').stdout)
+                self.fill_args_from_dict(output)
 
     def output_terraform_result(self):
         dns_name = json.loads(TerraformProvider().output(' -json ssn_k8s_alb_dns_name'))
@@ -466,6 +473,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
                    ', '.join(ssn_subnets), ssn_k8s_sg_id, dns_name))
 
+    def fill_args_from_dict(self, output):
+        for key, value in output.items():
+            sys.argv.extend([key, value.get('value')])
+
     def deploy(self):
         if self.args.get('service_args').get('action') == 'destroy':
             return
@@ -475,6 +486,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_tiller_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
+        self.fill_args_from_dict(json.loads(TerraformProvider().output()))
         self.output_terraform_result()
 
 
@@ -511,49 +523,47 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   default='t2.medium')
          .add_int('--endpoint_volume_size', 'Size of root volume in GB.',
                   default=30)
-         .add_str('--request_id', 'Request id', is_terraform_param=False)
-         .add_str('--dlab_path', '', is_terraform_param=False)
-         .add_str('--resource', '', is_terraform_param=False)
-         .add_str('--conf_key_name', '', is_terraform_param=False)
-         .add_str('--pkey', '', is_terraform_param=False, required=True)
-         .add_str('--hostname', '', is_terraform_param=False)
-         .add_str('--jar_url', '', is_terraform_param=False)
-         .add_str('--os_user', '', is_terraform_param=False)
-         .add_str('--cloud_provider', '', is_terraform_param=False)
-         .add_str('--ssn_host', '', is_terraform_param=False)
-         .add_str('--mongo_password', '', is_terraform_param=False)
-         .add_str('--repository_address', '', is_terraform_param=False)
-         .add_str('--repository_user', '', is_terraform_param=False)
-         .add_str('--repository_pass', '', is_terraform_param=False)
-         .add_str('--docker_version', '', is_terraform_param=False,
-                  default='18.06.3~ce~3-0~ubuntu')
 
          )
         return params.build()
 
     def deploy(self):
-        pass
+        start_deploy()
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--source', help='Target', choices=['aws'],
-                        required=True)
-    parser.add_argument('--target', help='Source', choices=['k8s', 'endpoint'],
-                        required=True)
-    arguments = vars(parser.parse_known_args()[0])
+    sources_targets = {'aws': ['k8s', 'endpoint']}
 
-    source = arguments.get('source').lower()
-    target = arguments.get('target').lower()
+    no_args_error = ('usage: ./terraform-cli {} {}'
+                     .format(set(sources_targets.keys()),
+                             set(itertools.chain(*sources_targets.values()))))
+
+    no_target_error = lambda x: ('usage: ./terraform-cli {} {}'
+                       .format(x,
+                               set(itertools.chain(*sources_targets.values()))))
+
+    if any([len(sys.argv) == 1,
+            len(sys.argv) > 2 and sys.argv[1] not in sources_targets]):
+        print(no_args_error)
+        sys.exit(1)
+
+    if any([len(sys.argv) == 2,
+            sys.argv[1] not in sources_targets,
+            len(sys.argv) > 2 and sys.argv[2] not in sources_targets[sys.argv[1]]
+            ]):
+        print(no_target_error(sys.argv[1]))
+        exit(1)
+
+    source = sys.argv[1]
+    target = sys.argv[2]
 
     if source == 'aws':
         if target == 'k8s':
-            builder = AWSK8sSourceBuilder()
+            builders = AWSK8sSourceBuilder(),
         elif target == 'endpoint':
-            builder = AWSEndpointBuilder()
+            builders = (AWSK8sSourceBuilder(), AWSEndpointBuilder())
     deploy_director = DeployDirector()
-    deploy_director.build(builder)
-
+    deploy_director.build(*builders)
 
 if __name__ == "__main__":
     main()
