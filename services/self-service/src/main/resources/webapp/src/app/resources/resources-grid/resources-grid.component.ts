@@ -58,6 +58,10 @@ export class ResourcesGridComponent implements OnInit {
 
   environments: Exploratory[];
   forse: boolean = true;
+
+  collapsedFilterRow: boolean = false;
+
+
   filteredEnvironments: Exploratory[] = [];
   filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
@@ -78,10 +82,8 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-
-
   isOutscreenDropdown: boolean;
-  collapseFilterRow: boolean = false;
+
   filtering: boolean = false;
   activeFiltering: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
@@ -111,7 +113,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public toggleFilterRow(): void {
-    this.collapseFilterRow = !this.collapseFilterRow;
+    this.collapsedFilterRow = !this.collapsedFilterRow;
   }
 
 
