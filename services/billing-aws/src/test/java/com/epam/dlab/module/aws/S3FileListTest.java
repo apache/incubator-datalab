@@ -52,15 +52,15 @@ public class S3FileListTest {
 		final ListObjectsV2Result result = mock(ListObjectsV2Result.class);
 		final ModuleData moduleData = mock(ModuleData.class);
 		final String[] array = {
-				"report-prefix/report/20160101-20160131/123456789/report-1.csv.zip",
-				"report-prefix/report/20160101-20160131/123456789/report-2.csv.zip",
-				"report-prefix/report/20160101-20160131/123456789/report-3.csv.zip",
-				"report-prefix/report/20160202-20160231/123456789/report.csv.zip",
-				"report-prefix/report/20160202-20160301/123456789/report.csv.zip",
-				"report-prefix/report/20160303-20160301/123456789/report-1.csv.zip",
-				"report-prefix/report/20160303-20160301/123456789/report-2.csv.zip",
-				"report-prefix/report/20160303-20160302/123456789/report-1.csv.zip",
-				"report-prefix/report/20160303-20160302/123456789/report-2.csv.zip"
+				"report-prefix/report/20160101-20160131/123456789/report-1.csv",
+				"report-prefix/report/20160101-20160131/123456789/report-2.csv",
+				"report-prefix/report/20160101-20160131/123456789/report-3.csv",
+				"report-prefix/report/20160202-20160231/123456789/report.csv",
+				"report-prefix/report/20160202-20160301/123456789/report.csv",
+				"report-prefix/report/20160303-20160301/123456789/report-1.csv",
+				"report-prefix/report/20160303-20160301/123456789/report-2.csv",
+				"report-prefix/report/20160303-20160302/123456789/report-1.csv",
+				"report-prefix/report/20160303-20160302/123456789/report-2.csv"
 		};
 		final List<S3ObjectSummary> objectSummaries = Arrays.asList(
 				getObjectSummary(array[0], LocalDate.of(2018, 4, 4)),
