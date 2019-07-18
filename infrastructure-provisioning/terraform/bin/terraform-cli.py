@@ -489,7 +489,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.run_remote_terraform()
         # output = ' '.join(json.loads(TerraformProvider().output('- json')).split())
         # self.fill_args_from_dict(output)
-        # self.output_terraform_result()
+        self.output_terraform_result()
 
 
 class AWSEndpointBuilder(AbstractDeployBuilder):
