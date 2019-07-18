@@ -43,32 +43,32 @@ resource "aws_lb" "ssn_k8s_alb" {
 }
 
 resource "aws_lb_target_group" "ssn_k8s_nlb_api_target_group" {
-  name     = "${var.service_base_name}-ssn-nlb-api-target-group"
+  name     = "${var.service_base_name}-ssn-nlb-api-tg"
   port     = 6443
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags = {
-    Name = "${var.service_base_name}-ssn-nlb-api-target-group"
+    Name = "${var.service_base_name}-ssn-nlb-api-tg"
   }
 }
 
 resource "aws_lb_target_group" "ssn_k8s_nlb_mongo_target_group" {
-  name     = "${var.service_base_name}-ssn-nlb-mongo-target-group"
+  name     = "${var.service_base_name}-ssn-nlb-mongo-tg"
   port     = 31017
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags = {
-    Name = "${var.service_base_name}-ssn-nlb-mongo-target-group"
+    Name = "${var.service_base_name}-ssn-nlb-mongo-tg"
   }
 }
 
 resource "aws_lb_target_group" "ssn_k8s_alb_target_group" {
-  name     = "${var.service_base_name}-ssn-alb-target-group"
+  name     = "${var.service_base_name}-ssn-alb-tg"
   port     = 31080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags = {
-    Name = "${var.service_base_name}-ssn-alb-target-group"
+    Name = "${var.service_base_name}-ssn-alb-tg"
   }
 }
 

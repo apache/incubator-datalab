@@ -1,4 +1,4 @@
-from fabric import *
+from fabric import Connection
 from patchwork.files import exists
 import logging
 import argparse
