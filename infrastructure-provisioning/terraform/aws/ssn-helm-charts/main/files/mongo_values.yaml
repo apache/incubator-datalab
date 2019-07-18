@@ -10,3 +10,7 @@ image:
 
 persistence:
   enabled: false
+
+service:
+  type: NodePort
+  nodePort: 31017

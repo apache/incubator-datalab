@@ -25,6 +25,6 @@ provider "helm" {
     tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
 }
 
-output "mongo_dlabdb_password" {
+output "mongo_password" {
     value = var.mongo_db_pwd
 }
