@@ -451,8 +451,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 conn.run('terraform validate')
                 conn.run('terraform apply -auto-approve '
                          '-var \'ssn_k8s_alb_dns_name={}\''.format(dns_name))
-                output = json.loads(conn.run('terraform output -json').stdout)
-                self.fill_args_from_dict(output)
+                output = ' '.join(conn.run('terraform output -json')
+                                 .stdout.split())
+                self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
         dns_name = json.loads(TerraformProvider().output(' -json ssn_k8s_alb_dns_name'))
@@ -486,7 +487,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_tiller_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
-        self.fill_args_from_dict(json.loads(TerraformProvider().output()))
+        output = ' '.join(json.loads(TerraformProvider().output('- json')).split())
+        self.fill_args_from_dict(output)
         self.output_terraform_result()
 
 
