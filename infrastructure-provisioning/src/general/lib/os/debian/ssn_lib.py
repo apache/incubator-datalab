@@ -169,7 +169,7 @@ def ensure_mongo():
 
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              os_user, mongo_passwd, keystore_passwd, cloud_provider,
-             service_base_name, tag_resource_id, account_id, billing_bucket,
+             service_base_name, tag_resource_id, billing_tag, account_id, billing_bucket,
              aws_job_enabled, dlab_path, billing_enabled,
              authentication_file, offer_number, currency,
              locale, region_info, ldap_login, tenant_id,
@@ -240,6 +240,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \
                          '--tag_resource_id {} ' \
+                         '--billing_tag {} ' \
                          '--account_id {} ' \
                          '--billing_bucket {} ' \
                          '--aws_job_enabled {} ' \
@@ -261,6 +262,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--tags {}'.\
                             format(cloud_provider,
                                    service_base_name,
+                                   billing_tag,
                                    tag_resource_id,
                                    account_id,
                                    billing_bucket,
