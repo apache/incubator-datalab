@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import * as _moment from 'moment';
@@ -67,37 +68,39 @@ export class SchedulerComponent implements OnInit {
   public inactivityLimits = { min: 120, max: 10080 };
   public integerRegex: string = '^[0-9]*$';
 
-  @ViewChild('bindDialog') bindDialog;
+  // @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect') resource_select;
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
+  // @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
+    public dialogRef: MatDialogRef<SchedulerComponent>,
     private formBuilder: FormBuilder,
     private schedulerService: SchedulerService,
-    private changeDetector: ChangeDetectorRef,
-    public toastr: ToastrService
+    private changeDetector: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => {
-      this.resetDialog();
-      this.buildGrid.emit();
-    };
+    // this.bindDialog.onClosing = () => {
+    //   this.resetDialog();
+    //   this.buildGrid.emit();
+    // };
+    this.open(this.data.notebook, this.data.type, this.data.resource);
   }
 
-  public open(param, notebook, type, resource?): void {
+  public open(notebook, type, resource?): void {
     this.notebook = notebook;
     this.zones = _moment.tz.names()
       .map(el => _moment.tz(el).format('Z'))
       .filter((item, pos, ar) => ar.indexOf(item) === pos)
       .sort();
 
-    if (!this.bindDialog.isOpened)
       this.model = new SchedulerModel(
         response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
             this.toastr.success('Schedule data were successfully saved', 'Success!');
-            this.close();
+            this.dialogRef.close();
           }
         },
         error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'),
@@ -118,7 +121,7 @@ export class SchedulerComponent implements OnInit {
             this.allowInheritView = this.checkIsActiveSpark();
             this.getExploratorySchedule(this.notebook.name);
           }
-          this.bindDialog.open(param);
+          // this.bindDialog.open(param);
         },
         this.schedulerService
       );
@@ -179,7 +182,7 @@ export class SchedulerComponent implements OnInit {
     this.model.setInactivityTime(params).subscribe((response: any) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
           this.toastr.success('Schedule data were successfully saved', 'Success!');
-          this.close();
+          this.dialogRef.close();
         }
       },
       error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'));
@@ -206,7 +209,7 @@ export class SchedulerComponent implements OnInit {
       .subscribe(() => {
         this.resetDialog();
         this.toastr.success('Schedule data were successfully deleted', 'Success!');
-        this.close();
+        this.dialogRef.close();
       });
   }
 
@@ -259,13 +262,13 @@ export class SchedulerComponent implements OnInit {
       : this.setInactivity(this.notebook.name, {...data, consider_inactivity: this.considerInactivity});
   }
 
-  public close(): void {
-    if (this.bindDialog.isOpened) {
-      this.bindDialog.close();
-    }
+  // public close(): void {
+  //   if (this.bindDialog.isOpened) {
+  //     this.bindDialog.close();
+  //   }
 
-    this.resetDialog();
-  }
+  //   this.resetDialog();
+  // }
 
   private formInit(start?: string, end?: string, terminate?: string) {
     this.schedulerForm = this.formBuilder.group({

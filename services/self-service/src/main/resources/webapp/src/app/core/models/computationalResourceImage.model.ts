@@ -20,7 +20,7 @@
 import { ComputationalResourceApplicationTemplate } from './computationalResourceApplicationTemplate.model';
 import { ResourceShapeTypesModel } from './resourceShapeTypes.model';
 import { ImageType } from './imageType.enum';
-import { SortUtil } from '../util';
+import { SortUtils } from '../util';
 
 export class ComputationalResourceImage {
   image: string;
@@ -38,13 +38,13 @@ export class ComputationalResourceImage {
     this.environment_type = ImageType.СOMPUTATIONAL;
     this.application_templates = [];
     this.limits = jsonModel.limits;
-    this.shapes = new ResourceShapeTypesModel(SortUtil.shapesSort(jsonModel.computation_resources_shapes));
+    this.shapes = new ResourceShapeTypesModel(SortUtils.shapesSort(jsonModel.computation_resources_shapes));
 
     if (jsonModel.templates && jsonModel.templates.length > 0)
       for (let index = 0; index < jsonModel.templates.length; index++)
         this.application_templates.push(
           new ComputationalResourceApplicationTemplate(jsonModel.templates[index],
-          this.shapes, this.image, this.template_name, this.description));
+            this.shapes, this.image, this.template_name, this.description));
 
   }
 }

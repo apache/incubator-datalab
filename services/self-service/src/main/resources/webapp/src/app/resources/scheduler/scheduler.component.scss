@@ -44,6 +44,7 @@
   .enable-schedule {
     display: flex;
     margin-bottom: 10px;
+    justify-content: space-between;
     .idle {
       display: flex;
       width: 50%;
@@ -171,6 +172,8 @@
       .mat-button-toggle-standalone {
         box-shadow: none;
         margin: 2px;
+        border: none;
+        color: #607D8B;
         &.mat-button-toggle-checked {
           background-color: rgba(77, 184, 218, 0.62);
           color: #ffffff;

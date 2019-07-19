@@ -69,9 +69,10 @@ public class EnvDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_STATUS_FILTER = COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + STATUS;
 	private static final String COMPUTATIONAL_SPOT = "slave_node_spot";
 	private static final String IMAGE = "image";
+	private static final String PROJECT = "project";
 
 	private static final Bson INCLUDE_EDGE_FIELDS = include(INSTANCE_ID, EDGE_STATUS, EDGE_PUBLIC_IP);
-	private static final Bson INCLUDE_EXP_FIELDS = include(INSTANCE_ID, STATUS,
+	private static final Bson INCLUDE_EXP_FIELDS = include(INSTANCE_ID, STATUS, PROJECT,
 			COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_RESOURCES + "." + IMAGE, COMPUTATIONAL_STATUS,
 			EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + "." + ComputationalDAO.COMPUTATIONAL_NAME);
 	private static final Bson INCLUDE_EXP_UPDATE_FIELDS = include(EXPLORATORY_NAME, INSTANCE_ID, STATUS,
@@ -92,12 +93,13 @@ public class EnvDAO extends BaseDAO {
 		List<EnvResource> hostList = new ArrayList<>();
 		List<EnvResource> clusterList = new ArrayList<>();
 
-		getEdgeNode(user).ifPresent(edge -> addResource(hostList, edge, EDGE_STATUS, ResourceType.EDGE, null));
+		//getEdgeNode(user).ifPresent(edge -> addResource(hostList, edge, EDGE_STATUS, ResourceType.EDGE, null));
 
 		stream(find(USER_INSTANCES, eq(USER, user), fields(INCLUDE_EXP_FIELDS, excludeId())))
 				.forEach(exp -> {
 					final String exploratoryName = exp.getString(EXPLORATORY_NAME);
-					addResource(hostList, exp, STATUS, ResourceType.EXPLORATORY, exploratoryName);
+					final String project = exp.getString(PROJECT);
+					addResource(hostList, exp, STATUS, ResourceType.EXPLORATORY, exploratoryName, project);
 					addComputationalResources(hostList, clusterList, exp, exploratoryName);
 				});
 		return new EnvResourceList()
@@ -113,31 +115,16 @@ public class EnvDAO extends BaseDAO {
 				.collect(Collectors.toList());
 	}
 
-	private List<EnvResource> getRunningEnvResources(Document ui) {
-		final String exploratoryName = ui.getString(EXPLORATORY_NAME);
-		final List<EnvResource> envResources = getComputationalResources(ui)
-				.stream()
-				.filter(comp -> RUNNING.toString().equals(comp.getString(STATUS)))
-				.map(comp -> toEnvResource(String.join("_", exploratoryName,
-						comp.getString(COMPUTATIONAL_NAME)), comp.getString(INSTANCE_ID),
-						ResourceType.COMPUTATIONAL))
-				.collect(Collectors.toList());
-		if (UserInstanceStatus.of(ui.getString(STATUS)) == RUNNING) {
-			envResources.add(toEnvResource(exploratoryName, ui.getString(INSTANCE_ID),
-					ResourceType.EXPLORATORY));
-		}
-		return envResources;
-	}
-
-	private EnvResource toEnvResource(String name, String instanceId, ResourceType resType) {
-		return new EnvResource(instanceId, name, resType);
+	private EnvResource toEnvResource(String name, String instanceId, ResourceType resType, String project) {
+		return new EnvResource(instanceId, name, resType, project);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void addComputationalResources(List<EnvResource> hostList, List<EnvResource> clusterList, Document exp,
 										   String exploratoryName) {
+		final String project = exp.getString(PROJECT);
 		getComputationalResources(exp)
-				.forEach(comp -> addComputational(hostList, clusterList, exploratoryName, comp));
+				.forEach(comp -> addComputational(hostList, clusterList, exploratoryName, comp, project));
 	}
 
 	private List<Document> getComputationalResources(Document userInstanceDocument) {
@@ -145,12 +132,12 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	private void addComputational(List<EnvResource> hostList, List<EnvResource> clusterList, String exploratoryName,
-								  Document computational) {
+								  Document computational, String project) {
 		final List<EnvResource> resourceList = DataEngineType.CLOUD_SERVICE ==
 				DataEngineType.fromDockerImageName(computational.getString(IMAGE)) ? clusterList :
 				hostList;
 		addResource(resourceList, computational, STATUS, ResourceType.COMPUTATIONAL,
-				String.join("_", exploratoryName, computational.getString(COMPUTATIONAL_NAME)));
+				String.join("_", exploratoryName, computational.getString(COMPUTATIONAL_NAME)), project);
 	}
 
 	/**
@@ -522,13 +509,13 @@ public class EnvDAO extends BaseDAO {
 	 * @param resourceType    type if resource EDGE/NOTEBOOK
 	 */
 	private void addResource(List<EnvResource> list, Document document, String statusFieldName,
-							 ResourceType resourceType, String name) {
+							 ResourceType resourceType, String name, String project) {
 		LOGGER.trace("Add resource from {}", document);
 		getInstanceId(document).ifPresent(instanceId ->
 				Optional.ofNullable(UserInstanceStatus.of(document.getString(statusFieldName)))
 						.filter(s -> s.in(CONFIGURING, CREATING, RUNNING, STARTING, STOPPED, STOPPING, TERMINATING) ||
 								(FAILED == s && ResourceType.EDGE == resourceType))
-						.ifPresent(s -> list.add(toEnvResource(name, instanceId, resourceType))));
+						.ifPresent(s -> list.add(toEnvResource(name, instanceId, resourceType, project))));
 	}
 
 	private boolean notEmpty(List<EnvResource> hostList) {

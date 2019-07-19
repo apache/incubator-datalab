@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -78,6 +79,8 @@ public class ExploratoryServiceImplTest {
 	private RequestBuilder requestBuilder;
 	@Mock
 	private RequestId requestId;
+	@Mock
+	private TagService tagService;
 
 	@InjectMocks
 	private ExploratoryServiceImpl exploratoryService;
@@ -109,7 +112,7 @@ public class ExploratoryServiceImplTest {
 				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
-		String uuid = exploratoryService.start(userInfo, EXPLORATORY_NAME);
+		String uuid = exploratoryService.start(userInfo, EXPLORATORY_NAME, "project");
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
@@ -128,7 +131,7 @@ public class ExploratoryServiceImplTest {
 		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
 				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
 		try {
-			exploratoryService.start(userInfo, EXPLORATORY_NAME);
+			exploratoryService.start(userInfo, EXPLORATORY_NAME, "project");
 		} catch (DlabException e) {
 			assertEquals("Could not exploratory/start exploratory environment expName: Exploratory for user with " +
 					"name not found", e.getMessage());
@@ -254,13 +257,13 @@ public class ExploratoryServiceImplTest {
 		ExploratoryCreateDTO ecDto = new ExploratoryCreateDTO();
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
 		when(requestBuilder.newExploratoryCreate(any(Exploratory.class), any(UserInfo.class),
-				any(ExploratoryGitCredsDTO.class))).thenReturn(ecDto);
+				any(ExploratoryGitCredsDTO.class), anyMapOf(String.class, String.class))).thenReturn(ecDto);
 		String exploratoryCreate = "exploratory/create";
 		when(provisioningService.post(anyString(), anyString(), any(ExploratoryCreateDTO.class), any()))
 				.thenReturn(UUID);
 		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
-		String uuid = exploratoryService.create(userInfo, exploratory);
+		String uuid = exploratoryService.create(userInfo, exploratory, "project");
 		assertNotNull(uuid);
 		assertEquals(UUID, uuid);
 
@@ -268,7 +271,7 @@ public class ExploratoryServiceImplTest {
 		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
-		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
+		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto, Collections.emptyMap());
 		verify(provisioningService).post(exploratoryCreate, TOKEN, ecDto, String.class);
 		verify(requestId).put(USER, UUID);
 		verifyNoMoreInteractions(exploratoryDAO, gitCredsDAO, requestBuilder, provisioningService, requestId);
@@ -283,7 +286,7 @@ public class ExploratoryServiceImplTest {
 				"Exploratory for user with name not found");
 
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
-		exploratoryService.create(userInfo, exploratory);
+		exploratoryService.create(userInfo, exploratory, "project");
 	}
 
 	@Test
@@ -291,7 +294,7 @@ public class ExploratoryServiceImplTest {
 		doThrow(new RuntimeException()).when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
 		try {
-			exploratoryService.create(userInfo, exploratory);
+			exploratoryService.create(userInfo, exploratory, "project");
 		} catch (DlabException e) {
 			assertEquals("Could not create exploratory environment expName for user test: null",
 					e.getMessage());
@@ -312,11 +315,12 @@ public class ExploratoryServiceImplTest {
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
 
 		doThrow(new DlabException("Cannot create instance of resource class ")).when(requestBuilder)
-				.newExploratoryCreate(any(Exploratory.class), any(UserInfo.class), any(ExploratoryGitCredsDTO.class));
+				.newExploratoryCreate(any(Exploratory.class), any(UserInfo.class), any(ExploratoryGitCredsDTO.class),
+						anyMapOf(String.class, String.class));
 
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
 		try {
-			exploratoryService.create(userInfo, exploratory);
+			exploratoryService.create(userInfo, exploratory, "project");
 		} catch (DlabException e) {
 			assertEquals("Could not create exploratory environment expName for user test: Cannot create instance " +
 					"of resource class ", e.getMessage());
@@ -328,7 +332,7 @@ public class ExploratoryServiceImplTest {
 		userInstance.withResources(Collections.emptyList());
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
-		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto);
+		verify(requestBuilder).newExploratoryCreate(exploratory, userInfo, egcDto, Collections.emptyMap());
 		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verifyNoMoreInteractions(exploratoryDAO, gitCredsDAO, requestBuilder);
 	}
@@ -526,7 +530,9 @@ public class ExploratoryServiceImplTest {
 		compResource.setStatus("stopped");
 		compResource.setComputationalId("compId");
 		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME).withStatus("running")
-				.withResources(singletonList(compResource));
+				.withResources(singletonList(compResource))
+				.withTags(Collections.emptyMap())
+				.withProject("project");
 	}
 
 	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {

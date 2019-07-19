@@ -17,7 +17,6 @@
  * under the License.
  */
 
-export * from './modal-dialog';
 export * from './modal-dialog/confirmation-dialog';
 export * from './modal-dialog/progress-dialog';
 export * from './modal-dialog/key-upload-dialog';

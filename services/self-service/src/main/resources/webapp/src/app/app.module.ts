@@ -19,31 +19,32 @@
 
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
+
+import { HttpTokenInterceptor } from './core/interceptors/http.token.interceptor';
+import { NoCacheInterceptor } from './core/interceptors/nocache.interceptor';
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
-import { NavbarModule } from './shared/navbar';
+import { LayoutModule } from './layout/layout.module'
+
 import { GuidesModule } from './help';
 import { NotFoundModule } from './not-found/not-found.module';
 import { AccessDeniedModule } from './access-denied/access-denied.module';
 import { ResourcesModule } from './resources/resources.module';
-import { HttpTokenInterceptor } from './core/interceptors/http.token.interceptor';
-import { NoCacheInterceptor } from './core/interceptors/nocache.interceptor';
-import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
 import { ReportingModule } from './reporting/reporting.module';
-import { ManagenementModule } from './management';
+import { AdministrationModule } from './administration/administration.module';
 import { WebterminalModule } from './webterminal';
-
 import { CoreModule } from './core/core.module';
-import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [AppComponent],
@@ -54,20 +55,18 @@ import { ToastrModule } from 'ngx-toastr';
     ReactiveFormsModule,
     HttpClientModule,
     LoginModule,
-    NavbarModule,
+    LayoutModule,
     ResourcesModule,
     GuidesModule,
     NotFoundModule,
     AccessDeniedModule,
     ReportingModule,
-    ManagenementModule,
+    AdministrationModule,
     WebterminalModule,
     RouterModule,
     AppRoutingModule,
     CoreModule.forRoot(),
-    ToastrModule.forRoot({
-      timeOut: 10000
-    })
+    ToastrModule.forRoot({ timeOut: 10000 })
   ],
   providers: [{
       provide: LocationStrategy,

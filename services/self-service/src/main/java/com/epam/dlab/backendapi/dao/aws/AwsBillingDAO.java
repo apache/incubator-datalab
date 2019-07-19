@@ -84,7 +84,7 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     public Document getReport(UserInfo userInfo, AwsBillingFilter filter) {
         // Create filter
         List<Bson> conditions = new ArrayList<>();
-        boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing");
+        boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing", userInfo.getRoles());
         setUserFilter(userInfo, filter, isFullReport);
         addCondition(conditions, USER, filter.getUser());
         addCondition(conditions, FIELD_PRODUCT, filter.getProduct());

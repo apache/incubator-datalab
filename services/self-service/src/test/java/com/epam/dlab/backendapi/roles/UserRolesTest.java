@@ -75,14 +75,14 @@ public class UserRolesTest {
 		when(cursor.next()).thenReturn(doc1).thenReturn(doc2);
 		UserRoles.initialize(dao, true);
 
-		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "shape_1"));
-		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "shape_2"));
-		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "shape_3"));
-		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "someShape"));
+		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "shape_1", userInfoDev.getRoles()));
+		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "shape_2", userInfoDev.getRoles()));
+		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "shape_3", userInfoDev.getRoles()));
+		assertTrue(UserRoles.checkAccess(userInfoDev, RoleType.EXPLORATORY_SHAPES, "someShape", userInfoDev.getRoles()));
 
-		assertFalse(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "shape_1"));
-		assertFalse(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "shape_2"));
-		assertFalse(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "shape_3"));
-		assertTrue(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "someShape"));
+		assertFalse(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "shape_1", userInfoTest.getRoles()));
+		assertFalse(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "shape_2", userInfoTest.getRoles()));
+		assertFalse(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "shape_3", userInfoTest.getRoles()));
+		assertTrue(UserRoles.checkAccess(userInfoTest, RoleType.EXPLORATORY_SHAPES, "someShape", userInfoTest.getRoles()));
 	}
 }

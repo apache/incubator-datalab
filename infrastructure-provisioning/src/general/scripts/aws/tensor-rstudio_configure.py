@@ -38,7 +38,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -53,31 +53,31 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['user_keyname'] = os.environ['edge_user_name']
+    notebook_config['user_keyname'] = os.environ['project_name']
     notebook_config['network_type'] = os.environ['conf_network_type']
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
-                                                               os.environ['edge_user_name'],
+                                                               os.environ['project_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
     notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                            os.environ['application'])
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
-        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
+        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
-                                                                  os.environ['edge_user_name'])
+                                                                  os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'],
                                                             notebook_config['instance_name']).get('Private')
     tag = {"Key": notebook_config['tag_name'],
-           "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
+           "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['project_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
     notebook_config['rstudio_pass'] = id_generator()
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['project_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
     edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':

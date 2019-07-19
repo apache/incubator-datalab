@@ -218,7 +218,7 @@ def ensure_python2_libraries(os_user):
         try:
             sudo('pip2 install pyparsing==2.0.3')
             sudo('yum install -y python-setuptools python-wheel')
-            sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxml2-devel libxslt-devel --nogpgcheck')
+            sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxslt-devel --nogpgcheck')
             try:
                 sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))

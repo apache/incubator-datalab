@@ -64,7 +64,7 @@ public class LdapUserDAOImpl implements LdapUserDAO {
 			return getUserInfo(username, password, connection.getBoundConnection());
 		} catch (Exception e) {
 			log.error("Can not get user info for user {} due to: {}", username, e.getMessage());
-			throw new DlabException("Can not get user info due to: " + e.getMessage(), e);
+			throw new DlabException("Username or password is invalid");
 		}
 	}
 

@@ -262,6 +262,7 @@ if __name__ == "__main__":
         print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
+                             {"name": "project", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
@@ -346,6 +347,7 @@ if __name__ == "__main__":
                  "--resource {} " \
                  "--service_base_name {} " \
                  "--tag_resource_id {} " \
+                 "--billing_tag {} " \
                  "--cloud_provider {} " \
                  "--account_id {} " \
                  "--billing_bucket {} " \
@@ -370,6 +372,7 @@ if __name__ == "__main__":
                    os.environ['conf_resource'],
                    os.environ['conf_service_base_name'],
                    os.environ['conf_tag_resource_id'],
+                   os.environ['conf_billing_tag'],
                    os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'],
                    os.environ['aws_billing_bucket'],

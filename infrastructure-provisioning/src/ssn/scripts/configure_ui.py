@@ -44,6 +44,7 @@ parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default=None)
+parser.add_argument('--billing_tag', type=str, default=None)
 parser.add_argument('--account_id', type=str, default=None)
 parser.add_argument('--billing_bucket', type=str, default=None)
 parser.add_argument('--aws_job_enabled', type=str, default=None)
@@ -233,7 +234,7 @@ if __name__ == "__main__":
     print("Starting Self-Service(UI)")
     start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path,
              args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
-             args.service_base_name, args.tag_resource_id, args.account_id,
+             args.service_base_name, args.tag_resource_id, args.billing_tag, args.account_id,
              args.billing_bucket, args.aws_job_enabled, args.dlab_path, args.billing_enabled,
              args.authentication_file, args.offer_number, args.currency, args.locale,
              args.region_info, args.ldap_login, args.tenant_id, args.application_id,

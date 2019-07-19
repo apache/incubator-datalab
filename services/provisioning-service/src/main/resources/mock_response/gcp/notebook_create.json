@@ -14,6 +14,7 @@
           "description": "Ungit"
         }
       ],
+      "instance_id": "${INSTANCE_ID}",
       "notebook_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-${EXPLORATORY_NAME}-${NOTEBOOK_ID}",
       "Action": "Create new notebook server",
       "master_keyname": "${CONF_KEY_NAME}"

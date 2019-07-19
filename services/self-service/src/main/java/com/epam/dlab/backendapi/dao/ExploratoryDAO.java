@@ -67,6 +67,7 @@ public class ExploratoryDAO extends BaseDAO {
 	private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
 	public static final String EXPLORATORY_NOT_FOUND_MSG = "Exploratory for user %s with name %s not found";
 	private static final String EXPLORATORY_LAST_ACTIVITY = "last_activity";
+	private static final String PROJECT = "project";
 
 	public ExploratoryDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -129,6 +130,10 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(USER, user), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
+	public List<UserInstanceDTO> fetchRunningExploratoryFieldsForProject(String project) {
+		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *
@@ -169,6 +174,20 @@ public class ExploratoryDAO extends BaseDAO {
 				false);
 	}
 
+	public List<UserInstanceDTO> fetchProjectExploratoriesWhereStatusIn(String project,
+																		List<UserInstanceStatus> exploratoryStatuses,
+																		UserInstanceStatus... computationalStatuses) {
+		final List<String> exploratoryStatusList = statusList(exploratoryStatuses);
+		final List<String> computationalStatusList = statusList(computationalStatuses);
+		return getUserInstances(
+				and(
+						eq(PROJECT, project),
+						or(in(STATUS, exploratoryStatusList),
+								in(COMPUTATIONAL_RESOURCES + "." + STATUS, computationalStatusList))
+				),
+				false);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is absent among predefined ones.
 	 *
@@ -180,6 +199,17 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(
 				and(
 						eq(USER, user),
+						not(in(STATUS, statusList))
+				),
+				false);
+	}
+
+	public List<UserInstanceDTO> fetchProjectExploratoriesWhereStatusNotIn(String project,
+																		   UserInstanceStatus... statuses) {
+		final List<String> statusList = statusList(statuses);
+		return getUserInstances(
+				and(
+						eq(USER, project),
 						not(in(STATUS, statusList))
 				),
 				false);
