@@ -12,6 +12,7 @@ import logging
 import os.path
 import sys
 from deploy.endpoint_fab import start_deploy
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s-%(message)s')
@@ -434,7 +435,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def copy_terraform_to_remote(self):
         logging.info('transfer terraform dir to remote')
-        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir, os.path.pardir))
+        tf_dir = os.path.abspath(
+            os.path.join(os.getcwd(), os.path.pardir, os.path.pardir))
         source = os.path.join(tf_dir, 'ssn-helm-charts')
         remote_dir = '/home/{}/terraform/'.format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
@@ -452,14 +454,18 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 conn.run('terraform apply -auto-approve '
                          '-var \'ssn_k8s_alb_dns_name={}\''.format(dns_name))
                 output = ' '.join(conn.run('terraform output -json')
-                                 .stdout.split())
+                                  .stdout.split())
                 self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
-        dns_name = json.loads(TerraformProvider().output(' -json ssn_k8s_alb_dns_name'))
-        ssn_bucket_name = json.loads(TerraformProvider().output(' -json ssn_bucket_name'))
-        ssn_k8s_sg_id = json.loads(TerraformProvider().output(' -json ssn_k8s_sg_id'))
-        ssn_subnets = json.loads(TerraformProvider().output(' -json ssn_subnets'))
+        dns_name = json.loads(
+            TerraformProvider().output(' -json ssn_k8s_alb_dns_name'))
+        ssn_bucket_name = json.loads(
+            TerraformProvider().output(' -json ssn_bucket_name'))
+        ssn_k8s_sg_id = json.loads(
+            TerraformProvider().output(' -json ssn_k8s_sg_id'))
+        ssn_subnets = json.loads(
+            TerraformProvider().output(' -json ssn_subnets'))
         ssn_vpc_id = json.loads(TerraformProvider().output(' -json ssn_vpc_id'))
 
         logging.info("""
@@ -487,8 +493,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_tiller_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
-        output = ' '.join(json.loads(TerraformProvider().output('-json')).split())
-        self.fill_args_from_dict(output)
+        output = ' '.join(TerraformProvider().output('-json').split())
+        self.fill_args_from_dict(json.loads(output))
         self.output_terraform_result()
 
 
@@ -541,8 +547,9 @@ def main():
                              set(itertools.chain(*sources_targets.values()))))
 
     no_target_error = lambda x: ('usage: ./terraform-cli {} {}'
-                       .format(x,
-                               set(itertools.chain(*sources_targets.values()))))
+                                 .format(x,
+                                         set(itertools.chain(
+                                             *sources_targets.values()))))
 
     if any([len(sys.argv) == 1,
             len(sys.argv) > 2 and sys.argv[1] not in sources_targets]):
@@ -551,7 +558,8 @@ def main():
 
     if any([len(sys.argv) == 2,
             sys.argv[1] not in sources_targets,
-            len(sys.argv) > 2 and sys.argv[2] not in sources_targets[sys.argv[1]]
+            len(sys.argv) > 2 and sys.argv[2] not in sources_targets[
+                sys.argv[1]]
             ]):
         print(no_target_error(sys.argv[1]))
         exit(1)
