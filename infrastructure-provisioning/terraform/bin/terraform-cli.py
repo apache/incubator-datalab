@@ -451,9 +451,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 conn.run('terraform validate')
                 conn.run('terraform apply -auto-approve '
                          '-var \'ssn_k8s_alb_dns_name={}\''.format(dns_name))
-                # output = ' '.join(conn.run('terraform output -json')
-                #                  .stdout.split())
-                # self.fill_args_from_dict(json.loads(output))
+                output = ' '.join(conn.run('terraform output -json')
+                                 .stdout.split())
+                self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
         dns_name = json.loads(TerraformProvider().output(' -json ssn_k8s_alb_dns_name'))
@@ -487,8 +487,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_tiller_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
-        # output = ' '.join(json.loads(TerraformProvider().output('- json')).split())
-        # self.fill_args_from_dict(output)
+        output = ' '.join(json.loads(TerraformProvider().output('- json')).split())
+        self.fill_args_from_dict(output)
         self.output_terraform_result()
 
 
@@ -534,7 +534,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
 
 
 def main():
-    sources_targets = {'aws': ['k8s']}
+    sources_targets = {'aws': ['k8s', 'endpoint']}
 
     no_args_error = ('usage: ./terraform-cli {} {}'
                      .format(set(sources_targets.keys()),
@@ -562,8 +562,8 @@ def main():
     if source == 'aws':
         if target == 'k8s':
             builders = AWSK8sSourceBuilder(),
-        # elif target == 'endpoint':
-        #     builders = (AWSK8sSourceBuilder(), AWSEndpointBuilder())
+        elif target == 'endpoint':
+            builders = (AWSK8sSourceBuilder(), AWSEndpointBuilder())
     deploy_director = DeployDirector()
     deploy_director.build(*builders)
 
