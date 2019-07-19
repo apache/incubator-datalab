@@ -122,6 +122,13 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_name:{}'.format(
+            os.environ['project_name'])
+    except KeyError:
+        os.environ['conf_additional_tags'] = 'project_name:{}'.format(os.environ['project_name'])
+    print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+
+    try:
         logging.info('[CREATE MASTER NODE]')
         print('[CREATE MASTER NODE]')
         data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "master"}
