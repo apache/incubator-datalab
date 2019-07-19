@@ -66,6 +66,8 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'],
+                                                            notebook_config['instance_name']).get('Private')
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -151,6 +153,7 @@ if __name__ == "__main__":
                  "--os_user {} " \
                  "--scala_version {} " \
                  "--r_mirror {} " \
+                 "--ip_adress {} " \
                  "--exploratory_name {}".\
             format(instance_hostname,
                    keyfile_name,
@@ -161,6 +164,7 @@ if __name__ == "__main__":
                    notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'],
                    os.environ['notebook_r_mirror'],
+                   notebook_config['ip_address'],
                    notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter-docker_node', params))
