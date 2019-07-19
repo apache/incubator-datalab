@@ -487,7 +487,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_tiller_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
-        output = ' '.join(json.loads(TerraformProvider().output('- json')).split())
+        output = ' '.join(json.loads(TerraformProvider().output('-json')).split())
         self.fill_args_from_dict(output)
         self.output_terraform_result()
 
