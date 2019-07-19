@@ -31,13 +31,13 @@ import java.util.Optional;
 
 public interface ExploratoryService {
 
-	String start(UserInfo userInfo, String exploratoryName);
+	String start(UserInfo userInfo, String exploratoryName, String project);
 
 	String stop(UserInfo userInfo, String exploratoryName);
 
 	String terminate(UserInfo userInfo, String exploratoryName);
 
-	String create(UserInfo userInfo, Exploratory exploratory);
+	String create(UserInfo userInfo, Exploratory exploratory, String project);
 
 	void updateExploratoryStatuses(String user, UserInstanceStatus status);
 

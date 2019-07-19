@@ -45,47 +45,47 @@ def status():
         sys.exit(1)
 
 
-def run():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
-    try:
-        local("~/scripts/{}.py".format('edge_prepare'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed preparing Edge node.", str(err))
-        sys.exit(1)
-
-    try:
-        local("~/scripts/{}.py".format('edge_configure'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed configuring Edge node.", str(err))
-        sys.exit(1)
+#def run():
+#    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+#                                               os.environ['request_id'])
+#    local_log_filepath = "/logs/edge/" + local_log_filename
+#    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+#                        level=logging.DEBUG,
+#                        filename=local_log_filepath)
+#
+#    try:
+#        local("~/scripts/{}.py".format('edge_prepare'))
+#    except Exception as err:
+#        traceback.print_exc()
+#        append_result("Failed preparing Edge node.", str(err))
+#        sys.exit(1)
+#
+#    try:
+#        local("~/scripts/{}.py".format('edge_configure'))
+#    except Exception as err:
+#        traceback.print_exc()
+#        append_result("Failed configuring Edge node.", str(err))
+#        sys.exit(1)
 
 
 # Main function for terminating EDGE node and exploratory environment if exists
-def terminate():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-    try:
-        local("~/scripts/{}.py".format('edge_terminate'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed terminating Edge node.", str(err))
-        sys.exit(1)
+#def terminate():
+#    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+#    local_log_filepath = "/logs/edge/" + local_log_filename
+#    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+#                        level=logging.DEBUG,
+#                        filename=local_log_filepath)
+#    try:
+#        local("~/scripts/{}.py".format('edge_terminate'))
+#    except Exception as err:
+#       traceback.print_exc()
+#        append_result("Failed terminating Edge node.", str(err))
+#        sys.exit(1)
 
 
 # Main function for stopping EDGE node
 def stop():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -98,9 +98,9 @@ def stop():
         sys.exit(1)
 
 
-# Main function for stopping EDGE node
+# Main function for starting stoped EDGE node
 def start():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -113,40 +113,39 @@ def start():
         sys.exit(1)
 
 
-def recreate():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
+#def recreate():
+#    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+#                                               os.environ['request_id'])
+#    local_log_filepath = "/logs/edge/" + local_log_filename
+#    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+#                        level=logging.DEBUG,
+#                        filename=local_log_filepath)
+#
+#    try:
+#        local("~/scripts/{}.py".format('edge_prepare'))
+#    except Exception as err:
+#        traceback.print_exc()
+#        append_result("Failed preparing Edge node.", str(err))
+#        sys.exit(1)
+#
+#    try:
+#        local("~/scripts/{}.py".format('edge_configure'))
+#    except Exception as err:
+#        traceback.print_exc()
+#        append_result("Failed configuring Edge node.", str(err))
+#        sys.exit(1)
 
-    try:
-        local("~/scripts/{}.py".format('edge_prepare'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed preparing Edge node.", str(err))
-        sys.exit(1)
-
-    try:
-        local("~/scripts/{}.py".format('edge_configure'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed configuring Edge node.", str(err))
-        sys.exit(1)
-
-
-def reupload_key():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
-    try:
-        local("~/scripts/{}.py".format('reupload_ssh_key'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed to reupload key on Edge node.", str(err))
-        sys.exit(1)
+#def reupload_key():
+#    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+#                                               os.environ['request_id'])
+#    local_log_filepath = "/logs/edge/" + local_log_filename
+#    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+#                        level=logging.DEBUG,
+#                        filename=local_log_filepath)
+#
+#    try:
+#        local("~/scripts/{}.py".format('reupload_ssh_key'))
+#    except Exception as err:
+#        traceback.print_exc()
+#        append_result("Failed to reupload key on Edge node.", str(err))
+#        sys.exit(1)

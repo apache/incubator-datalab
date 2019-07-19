@@ -36,6 +36,7 @@ public interface EnvironmentService {
 	void stopAll();
 
 	void stopEnvironment(String user);
+	void stopProjectEnvironment(String project);
 
 	void stopEdge(String user);
 
@@ -46,6 +47,7 @@ public interface EnvironmentService {
 	void terminateAll();
 
 	void terminateEnvironment(String user);
+	void terminateProjectEnvironment(String project);
 
 	void terminateExploratory(String user, String exploratoryName);
 

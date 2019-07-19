@@ -564,6 +564,35 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def undelete_role(self, role_name):
+        request = self.service_iam.projects().roles().undelete(
+            name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')),
+                                                             body=
+                                                             { })
+        try:
+            result = request.execute()
+            role = meta_lib.GCPMeta().get_role(role_name)
+            if 'deleted' in role:
+                role_removed = True
+            else:
+                role_removed = False
+            while role_removed:
+                time.sleep(5)
+                role = meta_lib.GCPMeta().get_role(role_name)
+                if 'deleted' in role:
+                    role_removed = True
+            time.sleep(30)
+            print('IAM role {} restored.'.format(role_name))
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to restore IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to restore IAM role",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_role(self, role_name):
         request = self.service_iam.projects().roles().delete(
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))

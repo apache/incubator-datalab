@@ -36,6 +36,9 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 	@JsonProperty("notebook_template_name")
 	private String notebookTemplateName;
 
+	@JsonProperty("project_name")
+	private String project;
+
 	public String getComputationalName() {
 		return computationalName;
 	}
@@ -73,6 +76,15 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 	public T withNotebookTemplateName(String notebookTemplateName) {
 		setNotebookTemplateName(notebookTemplateName);
 		return self;
+	}
+
+	public T withProject(String project) {
+		this.project = project;
+		return self;
+	}
+
+	public String getProject() {
+		return project;
 	}
 
 	@Override

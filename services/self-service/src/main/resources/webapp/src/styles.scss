@@ -17,14 +17,15 @@
  * under the License.
  */
 
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+// @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
 @import './assets/fonts/Material_Icons/material-icons.css';
 @import './assets/fonts/Open_Sans/open-sans.css';
 
-@import './assets/styles/_reset.scss';
-@import './assets/styles/_general.scss';
-@import './assets/styles/_theme.scss';
+@import '_reset.scss';
+@import '_general.scss';
+@import '_theme.scss';
+@import '_dialogs.scss';
 
 .mat-tab-label {
   font-family: 'Open Sans', sans-serif !important;
@@ -32,8 +33,8 @@
 }
 
 .install-libraries .mat-ink-bar,
-.manage-ungit .mat-ink-bar {
-  background-color: #35afd5 !important;
+.tabs .mat-ink-bar,
+.tabs .mat-tab-label {
   width: 50% !important;
 }
 
@@ -46,9 +47,14 @@
   background-color: rgba(53, 175, 213, 0.11) !important;
   color: #577289;
 }
+
 .mat-tab-header-pagination.mat-tab-header-pagination-after,
 .mat-tab-header-pagination.mat-tab-header-pagination-before {
   display: none !important;
+}
+
+.mat-drawer-container {
+  height: calc(100% - 48px);
 }
 
 mat-chip.mat-chip {
@@ -57,6 +63,7 @@ mat-chip.mat-chip {
   font-size: 14px;
   padding: 8px 18px;
 }
+
 mat-chip.mat-chip a {
   display: inline-block;
   width: 12px;
@@ -85,22 +92,28 @@ mat-chip.mat-chip strong {
   margin-right: 15px;
   float: right;
 }
+
 .rotate {
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
 }
+
 .status {
   text-transform: capitalize;
 }
 
 .running,
 .starting,
-.installed {
+.installed,
+.active,
+.activating {
   color: #49af38;
 }
 
 .stopped,
-.stopping {
+.stopping,
+.deactivating,
+.not_active {
   color: #f7b500;
 }
 
@@ -116,8 +129,14 @@ mat-chip.mat-chip strong {
 .terminated,
 .terminating,
 .failed,
+.deleting,
+.deleted {
+  color: #f1696e;
+}
+
 .error {
   color: #f1696e;
+  font-size: 12px;
 }
 
 .not-allowed {
@@ -127,12 +146,18 @@ mat-chip.mat-chip strong {
   pointer-events: none;
 }
 
+.not-active {
+  cursor: not-allowed !important;
+  opacity: .6;
+}
+
 .message {
   padding: 40px 20px;
   text-align: center;
 }
+
 .info {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 300;
   color: #35afd5;
 }
@@ -155,6 +180,7 @@ mat-chip.mat-chip strong {
   0% {
     -webkit-transform: rotate(0deg);
   }
+
   100% {
     -webkit-transform: rotate(360deg);
   }
@@ -164,6 +190,7 @@ mat-chip.mat-chip strong {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -223,10 +250,12 @@ mat-chip.mat-chip strong {
 }
 
 /* IE can just show/hide with no transition */
-@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+@media all and (-ms-high-contrast: none),
+(-ms-high-contrast: active) {
   .tooltip-wrap .tooltip {
     display: none;
   }
+
   .tooltip-wrap:hover .tooltip {
     display: block;
   }
@@ -247,38 +276,63 @@ input[type='number'] {
 .text-center {
   text-align: center !important;
 }
+
 .text-right {
   text-align: right;
 }
+
 .m-top-10 {
   margin-top: 10px;
 }
+
 .m-top-15 {
   margin-top: 15px;
 }
+
 .m-top-20 {
   margin-top: 20px;
 }
+
 .m-top-30 {
   margin-top: 30px;
 }
+
 .m-bott-10 {
   margin-bottom: 10px;
 }
+
 .m-top-10p {
   margin-top: 10%;
+}
+
+.ml-10 {
+  margin-left: 10px;
 }
 
 .full-height {
   height: 100%;
 }
+
 .ani {
   transition: all .35s ease-in-out;
 }
 
+.empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  .content {
+    text-align: center;
+  }
+}
+
 #scrolling::-webkit-scrollbar,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 #scrolling::-webkit-scrollbar-track,
@@ -303,6 +357,7 @@ input[type='number'] {
   color: #fff;
   background: #e2747d;
   word-break: break-word;
+
   span {
     position: absolute;
     top: -12px;
@@ -322,20 +377,22 @@ input[type='number'] {
   white-space: nowrap;
   overflow: hidden;
 }
+
 .capitalize {
   text-transform: capitalize;
 }
 
 .overlay-container {
   #toast-container {
-    > div.toast {
-      box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    >div.toast {
+      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
       border-radius: 2px;
       background-color: #fff;
       padding: 12px 20px;
       overflow: inherit;
       margin: 0 0 15px;
       font-size: 14px;
+
       &::before {
         position: absolute;
         left: -15px;
@@ -347,32 +404,40 @@ input[type='number'] {
         padding: 7px;
         box-sizing: border-box;
         border-radius: 50%;
-        box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+        box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
       }
+
       &.toast-success {
         background-image: none;
         color: #49af38;
+
         &::before {
           content: "done";
         }
       }
+
       &.toast-error {
         background-image: none;
         color: #e2747d;
+
         &::before {
           content: "priority_high";
         }
       }
+
       &.toast-info {
         background-image: none;
         color: #35afd5;
+
         &::before {
           content: "priority_high";
         }
       }
+
       &.toast-warning {
         background-image: none;
         color: #f7b500;
+
         &::before {
           content: "priority_high";
         }
