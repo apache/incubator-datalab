@@ -127,8 +127,8 @@ if __name__ == "__main__":
         ec2.delete_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag'}, {'Key': 'project_name'}])
     except Exception as err:
         print("Failed to remove Project tag from Enpoint", str(err))
-        traceback.print_exc()
-        sys.exit(1)
+#        traceback.print_exc()
+#        sys.exit(1)
 
     try:
         with open("/root/result.json", 'w') as result:
