@@ -37,14 +37,12 @@ startupScripts:
     }
 
     check_realm () {
-            RUN=`/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab > /dev/null && echo "true" || echo "false"
+            RUN=`/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab > /dev/null && echo "true" || echo "false"`
     }
 
     configure_keycloak () {
         # Create Realm
-        /opt/jboss/keycloak/bin/kcadm.sh create realms -f - << EOF
-        { "realm": "dlab", "enabled": true }
-        EOF
+        /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=dlab -s enabled=true
 
         # Get realm ID
         dlab_realm_id=`/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab | jq -r '.id'`
@@ -74,9 +72,8 @@ startupScripts:
         -s 'config."always.read.value.from.ldap"=["false"]' -s 'config."is.mandatory.in.ldap"=["false"]'
 
         # Create client
-        /opt/jboss/keycloak/bin/kcadm.sh create clients -r dlab -f - << EOF
-        { "clientId": "dlab-ui", "enabled": true, "redirectUris": ["http://dlab-ui:58080/"] }
-        EOF
+        /opt/jboss/keycloak/bin/kcadm.sh create clients -r dlab -s clientId=dlab-ui -s enabled=true -s \
+        'redirectUris=["http://dlab-ui:58080/"]'
     }
 
     main_func () {
@@ -84,7 +81,7 @@ startupScripts:
         count=0
         while auth
         do
-        if [[ $RUN == "false" ]] && [[ $count < 120 ]];
+        if [[ $RUN == "false" ]] && (( $count < 120 ));
         then
             echo "Waiting for Keycloak..."
             sleep 5
@@ -114,6 +111,3 @@ startupScripts:
     }
 
     main_func &
-
-
-
