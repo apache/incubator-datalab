@@ -35,7 +35,7 @@
   <ng-container matColumnDef="status">
     <th mat-header-cell *matHeaderCellDef class="status"> Status </th>
     <td mat-cell *matCellDef="let element" class="status" ngClass="{{ element.status.toLowerCase() || '' }}">
-      {{ element.status.toLowerCase() }}
+      {{ element.status.toLowerCase() | underscoreless }}
     </td>
   </ng-container>
 
@@ -56,19 +56,23 @@
           <mat-icon *ngIf="element.status === 'ACTIVE'" (click)="toggleProjectStatus(element, 'stop')">
             pause_circle_outline
           </mat-icon>
-          <mat-icon *ngIf="element.status === 'STOPPED'" (click)="toggleProjectStatus(element, 'start')">
+          <mat-icon *ngIf="element.status === 'NOT_ACTIVE'" (click)="toggleProjectStatus(element, 'start')">
             play_circle_outline
           </mat-icon>
         </a>
       </span>
-      <span [ngClass]="{'not-active' : element.status !== 'ACTIVE' }">
-        <a [ngClass]="{'not-allowed' : element.status !== 'ACTIVE' }"
-          (click)="element.status === 'ACTIVE' && editProject(element)">
+      <span [ngClass]="{'not-active' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' }">
+        <a [ngClass]="{'not-allowed' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' }"
+          (click)="editProject(element)">
           <mat-icon>mode_edit</mat-icon>
         </a>
       </span>
-      <span (click)="deleteProject(element)">
-        <mat-icon>delete_forever</mat-icon>
+      <span
+        [ngClass]="{'not-active' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' && element.status !== 'FAILED' }">
+        <a [ngClass]="{'not-allowed' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' && element.status !== 'FAILED' }"
+          (click)="deleteProject(element)">
+          <mat-icon>delete_forever</mat-icon>
+        </a>
       </span>
     </td>
 

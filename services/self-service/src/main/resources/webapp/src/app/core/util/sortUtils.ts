@@ -1,4 +1,4 @@
-/*!
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,54 +17,27 @@
  * under the License.
  */
 
-.detail-dialog {
-  overflow: hidden;
-}
+export class SortUtils {
+  public static statusSort(arg1: string, arg2: string): number {
+    const order = ['creating', 'running', 'stopping', 'stopped', 'terminating', 'terminated', 'failed'];
 
-.checkbox-group {
-  position: relative;
-
-  label {
-    input[type="checkbox"] {
-      margin: 10px 0;
-    }
+    return order.indexOf(arg1) - order.indexOf(arg2);
   }
 
-  span {
-    &.danger_color {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-    }
+  public static shapesSort(shapesJson) {
+    const sortOrder = ['For testing', 'Memory optimized', 'GPU optimized', 'Compute optimized'];
+    const sortedShapes = {};
+
+    Object.keys(shapesJson)
+      .sort((a, b) => sortOrder.indexOf(a) - sortOrder.indexOf(b))
+      .forEach(key => { sortedShapes[key] = shapesJson[key]; });
+
+    return sortedShapes;
   }
-}
 
-.config-details {
-  height: 0;
-  opacity: 0;
-  visibility: hidden;
-  text-align: left;
-  position: relative;
+  public static libGroupsSort(groups) {
+    const sortOrder = ['os_pkg', 'pip2', 'pip3', 'r_pkg', 'java', 'others'];
 
-  &.show {
-    height: 200px;
-    visibility: visible;
-    opacity: 1;
-
-    textarea {
-      height: 100%;
-      resize: none;
-      font-size: 14px;
-      line-height: 1.5;
-      font-family: Consolas, monospace;
-    }
-
-    span {
-      .danger_color {
-        position: absolute;
-        bottom: -16px;
-        right: 0;
-      }
-    }
+    return groups.sort((arg1, arg2) => sortOrder.indexOf(arg1) - sortOrder.indexOf(arg2));
   }
 }

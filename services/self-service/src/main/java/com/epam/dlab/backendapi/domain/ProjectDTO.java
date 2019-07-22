@@ -54,5 +54,22 @@ public class ProjectDTO {
 			}
 			return Status.valueOf(userInstanceStatus.name());
 		}
+
+		public static UserInstanceStatus from(Status status) {
+			if (status == ACTIVE) {
+				return UserInstanceStatus.RUNNING;
+			} else if (status == ACTIVATING) {
+				return UserInstanceStatus.STARTING;
+			} else if (status == DEACTIVATING) {
+				return UserInstanceStatus.STOPPING;
+			} else if (status == NOT_ACTIVE) {
+				return UserInstanceStatus.STOPPED;
+			} else if (status == DELETING) {
+				return UserInstanceStatus.TERMINATING;
+			} else if (status == DELETED) {
+				return UserInstanceStatus.TERMINATED;
+			}
+			throw new IllegalArgumentException();
+		}
 	}
 }

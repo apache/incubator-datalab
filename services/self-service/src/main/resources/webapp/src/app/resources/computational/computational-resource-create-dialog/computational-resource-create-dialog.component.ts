@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES, PATTERNS, CheckUtils } from '../../../core/util';
+import { HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
@@ -251,7 +251,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
       || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
       const allowed: any = ['GPU optimized'];
-      const filtered = Object.keys(this.selectedImage.computation_resources_shapes)
+      const filtered = Object.keys(
+        SortUtils.shapesSort(this.selectedImage.computation_resources_shapes))
         .filter(key => allowed.includes(key))
         .reduce((obj, key) => {
           obj[key] = this.selectedImage.computation_resources_shapes[key];

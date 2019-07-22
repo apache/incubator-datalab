@@ -23,6 +23,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
+import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 
 import { ProjectFormComponent } from './project-form/project-form.component';
 import { ProjectListComponent } from './project-list/project-list.component';
@@ -36,7 +37,8 @@ import { ProjectDataService } from './project-data.service';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    FormControlsModule
+    FormControlsModule,
+    UnderscorelessPipeModule
   ],
   declarations: [ProjectComponent, EditProjectComponent, ProjectFormComponent, ProjectListComponent],
   entryComponents: [EditProjectComponent],

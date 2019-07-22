@@ -171,7 +171,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@DELETE
-	@Path("/{exploratoryName}/{computationalName}/stop")
+	@Path("/{project}/{exploratoryName}/{computationalName}/stop")
 	@ApiOperation("Stops Spark cluster on AWS")
 	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on AWS successfully stopped"))
 	public Response stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,

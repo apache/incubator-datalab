@@ -25,8 +25,8 @@ import { ToastrService } from 'ngx-toastr';
 import { debounceTime } from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
-import { LibrariesInstallationService} from '../../../core/services';
-import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
+import { LibrariesInstallationService } from '../../../core/services';
+import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
 
 @Component({
@@ -94,7 +94,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   uploadLibGroups(): void {
-     this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
           this.libsUploadingStatus(response);
@@ -112,12 +112,12 @@ export class InstallLibrariesComponent implements OnInit {
 
   private getResourcesList() {
     this.notebook.type = 'EXPLORATORY';
-    this.notebook.title = `${ this.notebook.name } <em class="capt">notebook</em>`;
+    this.notebook.title = `${this.notebook.name} <em class="capt">notebook</em>`;
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
-        item['title'] = `${ item.computational_name } <em class="capt">cluster</em>`;
+        item['title'] = `${item.computational_name} <em class="capt">cluster</em>`;
         item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
@@ -134,7 +134,7 @@ export class InstallLibrariesComponent implements OnInit {
     const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
 
     const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
-    return SortUtil.libGroupsSort(filteredGroups);
+    return SortUtils.libGroupsSort(filteredGroups);
   }
 
   public onUpdate($event) {
@@ -156,7 +156,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public isDuplicated(item) {
-    const select = {group: this.group, name: item.name, version: item.version};
+    const select = { group: this.group, name: item.name, version: item.version };
 
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
@@ -171,7 +171,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public selectLibrary(item): void {
-    this.model.selectedLibs.push({group: this.group, name: item.name, version: item.version});
+    this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
 
     this.query = '';
     this.libSearch.setValue('');
@@ -220,7 +220,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public reinstallLibrary(item, lib) {
-    const retry = [{group: lib.group, name: lib.name, version: lib.version}];
+    const retry = [{ group: lib.group, name: lib.name, version: lib.version }];
 
     if (this.getResourcesList().find(el => el.name === item.resource).type === 'СOMPUTATIONAL') {
       this.model.confirmAction(retry, item.resource);
@@ -263,13 +263,13 @@ export class InstallLibrariesComponent implements OnInit {
         .subscribe(
           lib => this.filteredList = [lib],
           error => {
-          if (error.status === HTTP_STATUS_CODES.NOT_FOUND
-            || error.status === HTTP_STATUS_CODES.BAD_REQUEST
-            || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
-            this.validity_format = error.message;
-            this.filteredList = null;
-          }
-        });
+            if (error.status === HTTP_STATUS_CODES.NOT_FOUND
+              || error.status === HTTP_STATUS_CODES.BAD_REQUEST
+              || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
+              this.validity_format = error.message;
+              this.filteredList = null;
+            }
+          });
     } else {
       this.model.getLibrariesList(this.group, this.query)
         .subscribe(libs => this.filteredList = libs);
@@ -290,7 +290,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.isInSelectedList = false;
     this.uploading = false;
     this.model.selectedLibs = [];
-    this.filteredList = null ;
+    this.filteredList = null;
     this.destination = null;
     this.groupsList = [];
 

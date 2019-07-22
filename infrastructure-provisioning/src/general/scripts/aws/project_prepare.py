@@ -27,6 +27,7 @@ from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
 import traceback
+import boto3
 
 
 if __name__ == "__main__":
@@ -41,6 +42,7 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     project_conf = dict()
     project_conf['service_base_name'] = os.environ['conf_service_base_name']
+    project_conf['endpoint_name'] = '{}-endpoint'.format(os.environ['conf_service_base_name'])
     project_conf['project_name'] = os.environ['project_name']
     project_conf['project_tag'] = os.environ['project_tag']
     project_conf['key_name'] = os.environ['conf_key_name']
@@ -124,6 +126,16 @@ if __name__ == "__main__":
         os.environ['conf_additional_tags'] = 'project_tag:{0};project_name:{1}'.format(project_conf['project_tag'],
                                                                                         project_conf['project_name'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+
+    try:
+        endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
+        print("Endpoint id: " + endpoint_id)
+        ec2 = boto3.client('ec2')
+        ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']}, {'Key': 'project_name', 'Value': project_conf['project_name']}])
+    except Exception as err:
+        print("Failed to attach Project tag to Enpoint", str(err))
+#        traceback.print_exc()
+#        sys.exit(1)
 
     try:
         project_conf['vpc2_id'] = os.environ['aws_vpc2_id']

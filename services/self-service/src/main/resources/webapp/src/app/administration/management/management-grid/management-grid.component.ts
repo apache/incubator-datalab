@@ -24,6 +24,8 @@ import { ToastrService } from 'ngx-toastr';
 import { HealthStatusService } from '../../../core/services';
 import { ConfirmationDialogType } from '../../../shared';
 import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
+import { EnvironmentsDataService } from '../management-data.service';
+import { EnvironmentModel } from '../management.model';
 
 export interface ManageAction {
   action: string;
@@ -36,12 +38,14 @@ export interface ManageAction {
   templateUrl: 'management-grid.component.html',
   styleUrls: [
     './management-grid.component.scss',
-    '../../../resources/resources-grid/resources-grid.component.css',
+    '../../../resources/resources-grid/resources-grid.component.scss',
     '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
   ]
 })
 export class ManagementGridComponent implements OnInit {
-  @Input() allEnvironmentData: Array<any>;
+  allEnvironmentData: Array<any>;
+  loading: boolean = false;
+
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
   @Input() isAdmin: boolean;
@@ -49,15 +53,17 @@ export class ManagementGridComponent implements OnInit {
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
-  displayedColumns: string[] = ['user', 'type', 'shape', 'status', 'resources', 'actions'];
+  displayedColumns: string[] = ['user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
 
   constructor(
     private healthStatusService: HealthStatusService,
+    private environmentsDataService: EnvironmentsDataService,
     public toastr: ToastrService,
     public dialog: MatDialog
   ) { }
 
   ngOnInit() {
+    this.environmentsDataService._data.subscribe(data => this.allEnvironmentData = EnvironmentModel.loadEnvironments(data));
   }
 
   buildGrid(): void {
@@ -74,7 +80,7 @@ export class ManagementGridComponent implements OnInit {
         result && this.actionToggle.emit({ action, environment, resource });
       });
     } else {
-      const type = (environment.name === 'edge node' || environment.type.toLowerCase() === 'edge node')
+      const type = (environment.type.toLowerCase() === 'edge node')
         ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
 
       if (action === 'stop') {
@@ -105,7 +111,7 @@ export class ManagementGridComponent implements OnInit {
         return this.allEnvironmentData
           .filter(env => env.user === notebook.user)
           .some(el => this.inProgress([el]) || this.inProgress(el.resources));
-      } else if (notebook.resources.length) {
+      } else if (notebook.resources && notebook.resources.length) {
         return this.inProgress(notebook.resources);
       }
     }

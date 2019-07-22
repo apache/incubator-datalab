@@ -286,6 +286,7 @@ if __name__ == "__main__":
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
                    "project_name": os.environ['project_name'],
+                   "@class": "com.epam.dlab.dto.gcp.edge.EdgeInfoGcp",
                    "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))

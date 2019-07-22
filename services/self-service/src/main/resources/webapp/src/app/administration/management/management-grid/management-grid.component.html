@@ -24,9 +24,14 @@
       <td mat-cell *matCellDef="let element">{{ element.user }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="project">
+      <th mat-header-cell *matHeaderCellDef class="project"> Project </th>
+      <td mat-cell *matCellDef="let element">{{ element.project }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="type">
       <th mat-header-cell *matHeaderCellDef class="type"> Type </th>
-      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      <td mat-cell *matCellDef="let element">{{ element.name || element.type }}</td>
     </ng-container>
 
     <ng-container matColumnDef="shape">
@@ -75,11 +80,9 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef class="actions"></th>
       <td mat-cell *matCellDef="let element" class="actions settings">
-        <span #settings class="actions" (click)="actions.toggle($event, settings)"
+        <span #settings class="actions" (click)="actions.toggle($event, settings)" *ngIf="element.type !== 'edge node'"
           [ngClass]="{ 'disabled'
-            : (element.status !== 'running' && element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'failed' )
-            || (element.type === 'edge node' && element.user.toLowerCase() === currentUser && element.status === 'stopping')
-            || element.type === 'edge node' && element.user.toLowerCase() !== currentUser && element.status !== 'running' }"></span>
+            : element.status !== 'running' && element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'failed' }"></span>
         <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
           <ul class="list-unstyled">
             <li
@@ -102,8 +105,8 @@
               </div>
             </li>
 
-            <div *ngIf="element.name === 'edge node' && element.user.toLowerCase() === currentUser">
-              <li (click)="toggleResourceAction(element, 'run')" *ngIf="element.status === 'stopped'">
+            <div *ngIf="element.name === 'edge node' && element.status === 'stopped'">
+              <li (click)="toggleResourceAction(element, 'run')">
                 <i class="material-icons">play_circle_outline</i>
                 <span>Start</span>
               </li>

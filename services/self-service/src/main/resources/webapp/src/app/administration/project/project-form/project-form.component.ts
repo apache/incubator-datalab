@@ -80,7 +80,7 @@ export class ProjectFormComponent implements OnInit {
       }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
     } else {
       this.projectService.createProject(data).subscribe(() => {
-        this.toastr.success('Project created successfully!', 'Success!');
+        this.toastr.success('Project creation is processing!', 'Success!');
         this.projectDataService.updateProjects();
         this.update.emit();
         this.reset();
@@ -127,7 +127,7 @@ export class ProjectFormComponent implements OnInit {
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'key': ['', Validators.required],
-      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)])],
+      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       'groups': [[], Validators.required]
@@ -172,5 +172,9 @@ export class ProjectFormComponent implements OnInit {
           return { duplication: true };
       }
     }
+  }
+
+  private providerMaxLength(control) {
+    return control.value.length <= 50 ? null : { limit: true };
   }
 }

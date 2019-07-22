@@ -68,8 +68,12 @@
                   exists.</span>
                 <span class="error" *ngIf="!projectForm?.controls.name.valid
                   && !projectForm?.controls.name.hasError('duplication')
+                  && !projectForm?.controls.name.hasError('limit')
                   && projectForm?.controls.name.dirty">Project name can only contain letters, numbers, hyphens and '_'
                   but can not end with special characters
+                </span>
+                <span class="error" *ngIf="projectForm?.controls.name.hasError('limit')">
+                  Project name cannot exceed 50 characters
                 </span>
               </div>
             </div>

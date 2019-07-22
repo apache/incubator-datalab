@@ -25,6 +25,7 @@ import { BubbleModule, ConfirmationDialogModule } from '../../shared';
 import { MaterialModule } from '../../shared/material.module';
 
 import { ManagementComponent } from './management.component';
+import { EnvironmentsDataService } from './management-data.service';
 import { ManagementGridComponent, ReconfirmationDialogComponent } from './management-grid/management-grid.component';
 import { ComputationalResourcesModule } from '../../resources/computational/computational-resources-list';
 
@@ -70,6 +71,7 @@ export * from './management.component';
     SsnMonitorComponent,
     EndpointsComponent,
     ManageEnvironmentComponent],
+  providers: [EnvironmentsDataService],
   exports: [ManagementComponent]
 })
 export class ManagenementModule { }

@@ -7,7 +7,10 @@ import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ProjectCallbackHandler;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
+import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.dto.project.ProjectCreateDTO;
@@ -61,11 +64,12 @@ public class ProjectServiceImpl implements ProjectService {
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
 				new ProjectCallbackHandler(systemUserInfoService, selfService, userInfo.getName(), uuid,
-						action, CALLBACK_URI, projectName, EdgeInfoGcp.class));
+						action, CALLBACK_URI, projectName, getEdgeClass()));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
-				.withName(String.join("_", projectName, resourceType))
+				.withName(String.join("_", userInfo.getSimpleName(), projectName, resourceType, action.toString(),
+						Long.toString(System.currentTimeMillis())))
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getKeyLoaderDirectory())
 				.withVolumeForLog(configuration.getDockerLogDirectory(), resourceType)
@@ -81,5 +85,16 @@ public class ProjectServiceImpl implements ProjectService {
 			e.printStackTrace();
 		}
 		return uuid;
+	}
+
+	private <T> Class<T> getEdgeClass() {
+		if (configuration.getCloudProvider() == CloudProvider.AWS) {
+			return (Class<T>) EdgeInfoAws.class;
+		} else if (configuration.getCloudProvider() == CloudProvider.AZURE) {
+			return (Class<T>) EdgeInfoAzure.class;
+		} else if (configuration.getCloudProvider() == CloudProvider.GCP) {
+			return (Class<T>) EdgeInfoGcp.class;
+		}
+		throw new IllegalArgumentException();
 	}
 }

@@ -32,6 +32,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String TERMINATE_PRJ_API = "infrastructure/project/terminate";
 	private static final String START_PRJ_API = "infrastructure/project/start";
 	private static final String STOP_PRJ_API = "infrastructure/project/stop";
+	private static final String ANY_USER_ROLE = "$anyuser";
 	private final ProjectDAO projectDAO;
 	private final EnvironmentService environmentService;
 	private final UserGroupDao userGroupDao;
@@ -57,7 +58,13 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+		userInfo.getRoles().add(ANY_USER_ROLE);
 		return projectDAO.getUserProjectsWithStatus(userInfo, ProjectDTO.Status.ACTIVE);
+	}
+
+	@Override
+	public List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status) {
+		return projectDAO.getProjectsWithStatus(status);
 	}
 
 	@Override

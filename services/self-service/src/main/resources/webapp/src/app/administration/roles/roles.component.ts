@@ -29,7 +29,7 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 @Component({
   selector: 'dlab-roles',
   templateUrl: './roles.component.html',
-  styleUrls: ['../../resources/resources-grid/resources-grid.component.css', './roles.component.scss']
+  styleUrls: ['../../resources/resources-grid/resources-grid.component.scss', './roles.component.scss']
 })
 export class RolesComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;

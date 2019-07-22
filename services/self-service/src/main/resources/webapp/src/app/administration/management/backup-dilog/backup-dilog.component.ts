@@ -75,7 +75,7 @@ export class BackupDilogComponent implements OnInit {
       if (this.backupOptions[el] instanceof Array) {
         if (this.backupOptions[el][0] && this.backupOptions[el][0] !== 'skip') items.push(this.backupOptions[el][0]);
       } else {
-        if (this.backupOptions[el]) items.push(this.backupOptions[el]) ;
+        if (this.backupOptions[el]) items.push(this.backupOptions[el]);
       }
     });
 
@@ -83,7 +83,6 @@ export class BackupDilogComponent implements OnInit {
   }
 
   private getBackupStatus(result) {
-    debugger;
     const uuid = result.body;
     this.backupService.getBackupStatus(uuid)
       .subscribe((backupStatus: any) => {

@@ -61,7 +61,7 @@ export class ConfirmationDialogModel {
           && resources[i].status.toLowerCase() != 'terminated'
           && resources[i].status.toLowerCase() != 'terminating'
           && resources[i].status.toLowerCase() != 'stopped')
-            return true;
+          return true;
       }
     }
 
@@ -94,7 +94,7 @@ export class ConfirmationDialogModel {
     const defaultTerminateMessage = 'Notebook server will be terminated.';
     const containRunningResourcesTerminateMessage = 'Notebook server and all computational resources will be terminated.';
 
-    const edgeNodeStopMessage = 'Edge node will be stopped. You will need to start it later to proceed working with DLAB.';
+    const edgeNodeStopMessage = 'Edge node will be stopped. You will need to start it later to proceed working with project.';
 
     switch (confirmationType) {
       case ConfirmationDialogType.StopExploratory: {

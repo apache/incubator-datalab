@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
-import { CheckUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
+import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 
@@ -42,7 +42,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   templates = [];
   endpoints: Array<String> = [];
   currentTemplate: any;
-  shapes: Array<any> = [];
+  shapes = [] || {};
   resourceGrid: any;
   images: Array<any>;
 
@@ -79,7 +79,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   public getShapes(template) {
     this.currentTemplate = template;
-    this.shapes = template.exploratory_environment_shapes;
+    this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes);
     this.getImagesList();
   }
 
@@ -105,7 +105,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private initFormModel(): void {
-
     this.createExploratoryForm = this._fb.group({
       project: ['', Validators.required],
       endpoint: ['', Validators.required],

@@ -18,29 +18,35 @@
  */
 
 .dashboard_table {
+
   .th_user,
   .th_name {
     width: 20%;
   }
+
   .th_shape,
   .th_status {
     width: 12% !important;
   }
+
   .th_resources {
     width: 33%;
   }
+
   .dashboard_table_body {
     td:first-child {
       cursor: default;
     }
   }
 }
+
 .source .resource-wrap .resource-name .detailed-link {
   cursor: default !important;
 }
 
 table {
   width: 100%;
+
   .actions {
     text-align: right;
   }

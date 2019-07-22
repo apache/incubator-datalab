@@ -17,27 +17,26 @@
  * under the License.
  */
 
-export class SortUtil {
-  public static statusSort(arg1: string, arg2: string): number {
-    const order = ['creating', 'running', 'stopping', 'stopped', 'terminating', 'terminated', 'failed'];
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
-    return order.indexOf(arg1) - order.indexOf(arg2);
+import { ManageEnvironmentsService } from '../../core/services';
+
+@Injectable()
+export class EnvironmentsDataService {
+
+  _data = new BehaviorSubject<any>(null);
+
+  constructor(private manageEnvironmentsService: ManageEnvironmentsService) {
+    this.getAllEnvironmentData();
   }
 
-  public static shapesSort(shapesJson) {
-    const sortOrder = ['For testing', 'Memory optimized', 'GPU optimized', 'Compute optimized'];
-    const sortedShapes = {};
-
-    Object.keys(shapesJson)
-      .sort((a, b) => sortOrder.indexOf(a) - sortOrder.indexOf(b))
-      .forEach(key => { sortedShapes[key] = shapesJson[key]; });
-
-    return sortedShapes;
+  public updateEnvironmentData() {
+    this.getAllEnvironmentData();
   }
 
-  public static libGroupsSort(groups) {
-    const sortOrder = ['os_pkg', 'pip2', 'pip3', 'r_pkg', 'java', 'others'];
-
-    return groups.sort((arg1, arg2) => sortOrder.indexOf(arg1) - sortOrder.indexOf(arg2));
+  private getAllEnvironmentData() {
+    this.manageEnvironmentsService.getAllEnvironmentData().subscribe(
+      (response) => this._data.next(response));
   }
 }

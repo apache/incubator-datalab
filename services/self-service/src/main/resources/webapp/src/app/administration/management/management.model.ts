@@ -25,8 +25,24 @@ export class EnvironmentModel {
     public resources: Array<any>,
     public user: string,
     public ip: string,
-    public type?: string
+    public type?: string,
+    public project?: string,
   ) { }
+
+  public static loadEnvironments(data: Array<any>) {
+    if (data) {
+      return data.map(value => new EnvironmentModel(
+        value.resource_name,
+        value.status,
+        value.shape,
+        value.computational_resources,
+        value.user,
+        value.public_ip,
+        value.resource_type,
+        value.project,
+      ));
+    }
+  }
 }
 
 export class BackupOptionsModel {

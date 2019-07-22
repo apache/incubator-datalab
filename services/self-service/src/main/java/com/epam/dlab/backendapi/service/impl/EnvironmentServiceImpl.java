@@ -98,7 +98,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public List<UserResourceInfo> getAllEnv() {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-		return projectService.getProjects().stream().map(projectDTO -> getProjectEnv(projectDTO, expList)).flatMap(Collection::stream)
+		return projectService.getProjects()
+				.stream()
+				.map(projectDTO -> getProjectEnv(projectDTO, expList)).flatMap(Collection::stream)
 				.collect(toList());
 	}
 
@@ -225,13 +227,18 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
-		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-				.withResourceStatus("running")
-				.withProject(projectDTO.getName())
-				.withIp(projectDTO.getEdgeInfo().getPublicIp());
-		return Stream.concat(Stream.of(edgeResource), allInstances.stream()
-				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo))
-				.collect(toList());
+		final Stream<UserResourceInfo> userResources = allInstances.stream()
+				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo);
+		if (projectDTO.getEdgeInfo() != null) {
+			UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
+					.withResourceStatus(ProjectDTO.Status.from(projectDTO.getStatus()).toString())
+					.withProject(projectDTO.getName())
+					.withIp(projectDTO.getEdgeInfo().getPublicIp());
+			return Stream.concat(Stream.of(edgeResource), userResources)
+					.collect(toList());
+		} else {
+			return userResources.collect(toList());
+		}
 	}
 
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {

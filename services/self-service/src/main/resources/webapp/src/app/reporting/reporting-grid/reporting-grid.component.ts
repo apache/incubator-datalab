@@ -25,7 +25,7 @@ import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dic
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
-    '../../resources/resources-grid/resources-grid.component.css']
+    '../../resources/resources-grid/resources-grid.component.scss']
 })
 export class ReportingGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
