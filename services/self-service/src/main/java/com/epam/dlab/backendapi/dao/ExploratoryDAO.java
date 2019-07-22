@@ -209,7 +209,7 @@ public class ExploratoryDAO extends BaseDAO {
 		final List<String> statusList = statusList(statuses);
 		return getUserInstances(
 				and(
-						eq(USER, project),
+						eq(PROJECT, project),
 						not(in(STATUS, statusList))
 				),
 				false);

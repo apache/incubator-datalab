@@ -27,7 +27,6 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
 @Path("project")
-@RolesAllowed("/api/project")
 public class ProjectResource {
 	private final ProjectService projectService;
 	@Context
@@ -54,6 +53,7 @@ public class ProjectResource {
 	})
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
 	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo, @Valid ProjectDTO projectDTO) {
 		projectService.create(userInfo, projectDTO);
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
@@ -73,6 +73,7 @@ public class ProjectResource {
 	@Path("start")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
 	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								 @Valid ProjectActionFormDTO startProjectDto) {
 		projectService.start(userInfo, startProjectDto.getProjectName());
@@ -91,6 +92,7 @@ public class ProjectResource {
 	@Path("stop")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								@Valid ProjectActionFormDTO startProjectDto) {
 		projectService.stop(userInfo, startProjectDto.getProjectName());
@@ -112,6 +114,7 @@ public class ProjectResource {
 	@GET
 	@Path("{name}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
 	public Response getProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 							   @Parameter(description = "Project name")
 							   @PathParam("name") String name) {
@@ -128,6 +131,7 @@ public class ProjectResource {
 	})
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
 	public Response getProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								@Parameter(description = "Project name")
 								@PathParam("name") String name) {
@@ -162,6 +166,7 @@ public class ProjectResource {
 							schema = @Schema(implementation = ErrorDTO.class)))
 	})
 	@PUT
+	@RolesAllowed("/api/project")
 	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, UpdateProjectDTO projectDTO) {
 		projectService.update(projectDTO);
 		return Response.ok().build();
@@ -176,6 +181,7 @@ public class ProjectResource {
 	})
 	@DELETE
 	@Path("{name}")
+	@RolesAllowed("/api/project")
 	public Response removeProject(
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
 			@Parameter(description = "Project name")
@@ -194,6 +200,7 @@ public class ProjectResource {
 	})
 	@PUT
 	@Path("/budget")
+	@RolesAllowed("/api/project")
 	public Response updateBudget(
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
 			@Parameter(description = "Project name")

@@ -6,9 +6,10 @@ import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
-import com.epam.dlab.backendapi.service.EnvironmentService;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
@@ -32,19 +33,20 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String TERMINATE_PRJ_API = "infrastructure/project/terminate";
 	private static final String START_PRJ_API = "infrastructure/project/start";
 	private static final String STOP_PRJ_API = "infrastructure/project/stop";
+	private static final String ANY_USER_ROLE = "$anyuser";
 	private final ProjectDAO projectDAO;
-	private final EnvironmentService environmentService;
+	private final ExploratoryService exploratoryService;
 	private final UserGroupDao userGroupDao;
 	private final RESTService provisioningService;
 	private final RequestId requestId;
 
 	@Inject
-	public ProjectServiceImpl(ProjectDAO projectDAO, EnvironmentService environmentService,
+	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
 							  RequestId requestId) {
 		this.projectDAO = projectDAO;
-		this.environmentService = environmentService;
+		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
 		this.provisioningService = provisioningService;
 		this.requestId = requestId;
@@ -57,6 +59,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+		userInfo.getRoles().add(ANY_USER_ROLE);
 		return projectDAO.getUserProjectsWithStatus(userInfo, ProjectDTO.Status.ACTIVE);
 	}
 
@@ -84,7 +87,7 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public void terminate(UserInfo userInfo, String name) {
 		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API);
-		environmentService.terminateProjectEnvironment(name);
+		exploratoryService.updateProjectExploratoryStatuses(name, UserInstanceStatus.TERMINATING);
 		projectDAO.updateStatus(name, ProjectDTO.Status.DELETING);
 	}
 

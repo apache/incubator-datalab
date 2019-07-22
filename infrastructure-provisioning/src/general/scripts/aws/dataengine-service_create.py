@@ -73,6 +73,12 @@ parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--additional_emr_sg', type=str, default='')
 args = parser.parse_args()
 
+try:
+    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+except KeyError:
+    os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+
 if args.region == 'us-east-1':
     endpoint_url = 'https://s3.amazonaws.com'
 elif args.region == 'cn-north-1':
