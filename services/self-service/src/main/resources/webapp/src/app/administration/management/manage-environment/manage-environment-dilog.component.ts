@@ -46,16 +46,16 @@ export class ManageEnvironmentComponent implements OnInit {
 
   ngOnInit() {
     !this.manageUsersForm && this.initForm();
+    this.manageUsersForm.setControl('projects',
+      this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
+        name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
+      }))));
 
-    this.manageUsersForm.setControl('users',
-    this._fb.array((this.data.usersList || []).map((x: any) => this._fb.group({
-      name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
-    }))));
     this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || null);
   }
 
   get usersEnvironments(): FormArray {
-    return <FormArray>this.manageUsersForm.get('users');
+    return <FormArray>this.manageUsersForm.get('projects');
   }
 
   public setBudgetLimits(value) {
@@ -64,21 +64,22 @@ export class ManageEnvironmentComponent implements OnInit {
 
   public applyAction(action, user) {
     const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
-      ConfirmActionDialogComponent, { data: {action, user: user.value.name}, width: '550px', panelClass: 'error-modalbox' });
+      ConfirmActionDialogComponent, { data: { action, user: user.value.name }, width: '550px', panelClass: 'error-modalbox' });
+
     dialogRef.afterClosed().subscribe(result => {
-      if (result) this.manageEnv.emit({action, user: user.value.name});
+      if (result) this.manageEnv.emit({ action, user: user.value.name });
     });
   }
 
   private initForm(): void {
     this.manageUsersForm = this._fb.group({
       total: [null, [Validators.min(0), this.totalValidityCheck.bind(this)]],
-      users: this._fb.array([this._fb.group({ name: '', budget: null, status: ''})])
+      projects: this._fb.array([this._fb.group({ name: '', budget: null, status: '' })])
     });
   }
 
   private getCurrentUsersTotal(): number {
-    return this.manageUsersForm.value.users.reduce((memo, el) => memo += el.budget, 0);
+    return this.manageUsersForm.value.projects.reduce((memo, el) => memo += el.budget, 0);
   }
 
   private getCurrentTotalValue(): number {

@@ -38,6 +38,7 @@ import { EndpointsComponent } from './endpoints/endpoints.component';
 import { ExploratoryModel } from '../../resources/resources-grid/resources-grid.model';
 
 import { EnvironmentsDataService } from './management-data.service';
+import { ProjectService } from '../../core/services';
 
 @Component({
   selector: 'environments-management',
@@ -58,7 +59,8 @@ export class ManagementComponent implements OnInit {
     private manageEnvironmentsService: ManageEnvironmentsService,
     private userResourceService: UserResourceService,
     private storageService: StorageService,
-    private environmentsDataService: EnvironmentsDataService
+    private environmentsDataService: EnvironmentsDataService,
+    private projectService: ProjectService
   ) { }
 
   ngOnInit() {
@@ -93,13 +95,13 @@ export class ManagementComponent implements OnInit {
   }
 
   openManageEnvironmentDialog() {
-    this.getActiveUsersList().subscribe(usersList => {
-      this.getTotalBudgetData().subscribe(
-        total => {
-          const dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { usersList, total }, panelClass: 'modal-xl-s' });
-          dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
-          dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
-        }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
+    // this.getActiveUsersList().subscribe(usersList => {
+    this.projectService.getProjectsList().subscribe(projectsList => {
+      this.getTotalBudgetData().subscribe(total => {
+        const dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
+        dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
+        dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
+      }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
     });
   }
 
