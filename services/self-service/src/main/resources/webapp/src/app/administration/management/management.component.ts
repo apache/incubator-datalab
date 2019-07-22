@@ -117,7 +117,7 @@ export class ManagementComponent implements OnInit {
   }
 
   setBudgetLimits($event) {
-    this.healthStatusService.updateUsersBudget($event.users).subscribe((result: any) => {
+    this.healthStatusService.updateUsersBudget($event.projects).subscribe((result: any) => {
       this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
         result.status === HTTP_STATUS_CODES.OK
           && res.status === HTTP_STATUS_CODES.NO_CONTENT
