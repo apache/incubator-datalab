@@ -19,10 +19,15 @@
 #
 # ******************************************************************************
 
+data "template_file" "configure_keycloak" {
+  template = file("./files/configure_keycloak.sh")
+}
+
 data "template_file" "keycloak_values" {
   template = file("./files/keycloak_values.yaml")
   vars = {
     ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
+    configure_keycloak_file = data.template_file.configure_keycloak.rendered
   }
 }
 
