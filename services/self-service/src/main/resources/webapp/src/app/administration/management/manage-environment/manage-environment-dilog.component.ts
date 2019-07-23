@@ -48,7 +48,7 @@ export class ManageEnvironmentComponent implements OnInit {
     !this.manageUsersForm && this.initForm();
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
-        name: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
+        project: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
       }))));
 
     this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || null);
@@ -74,7 +74,7 @@ export class ManageEnvironmentComponent implements OnInit {
   private initForm(): void {
     this.manageUsersForm = this._fb.group({
       total: [null, [Validators.min(0), this.totalValidityCheck.bind(this)]],
-      projects: this._fb.array([this._fb.group({ name: '', budget: null, status: '' })])
+      projects: this._fb.array([this._fb.group({ project: '', budget: null, status: '' })])
     });
   }
 
