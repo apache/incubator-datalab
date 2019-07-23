@@ -158,7 +158,7 @@ if __name__ == "__main__":
                                                                    os.environ['gcp_project_id'])
 
     dataproc_conf['edge_instance_name'] = '{0}-{1}-edge'.format(dataproc_conf['service_base_name'],
-                                                                dataproc_conf['edge_user_name'])
+                                                                dataproc_conf['project_name'])
     dataproc_conf['edge_instance_hostname'] = GCPMeta().get_instance_public_ip_by_name(
         dataproc_conf['edge_instance_name'])
     dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
