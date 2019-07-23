@@ -117,7 +117,7 @@ export class ManagementComponent implements OnInit {
   }
 
   setBudgetLimits($event) {
-    this.healthStatusService.updateUsersBudget($event.projects).subscribe((result: any) => {
+    this.projectService.updateProjectsBudget($event.projects).subscribe((result: any) => {
       this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
         result.status === HTTP_STATUS_CODES.OK
           && res.status === HTTP_STATUS_CODES.NO_CONTENT
@@ -131,7 +131,6 @@ export class ManagementComponent implements OnInit {
     this.healthStatusService.manageEnvironment(event.action, event.user)
       .subscribe(res => {
         this.getActiveUsersList().subscribe(usersList => {
-          // this.manageEnvironmentDialog.usersList = usersList;
           this.toastr.success(`Action ${event.action} is processing!`, 'Processing!');
           this.buildGrid();
         });
