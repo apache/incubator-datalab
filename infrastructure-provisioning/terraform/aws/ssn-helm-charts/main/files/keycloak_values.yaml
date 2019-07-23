@@ -21,16 +21,16 @@
 
 keycloak:
   basepath: auth
-  username: dlab-admin
-  password: 12345o
+  username: ${keycloak_user}
+  password: ${keycloak_password}
 
   persistence:
     dbVendor: mysql
-    dbName: keycloak
+    dbName: ${mysql_db_name}
     dbHost: keycloak-mysql
     dbPort: 3306
-    dbUser: keycloak
-    dbPassword: 1234567890o
+    dbUser: ${mysql_user}
+    dbPassword: ${mysql_user_password}
 
   service:
     type: NodePort
@@ -46,7 +46,7 @@ keycloak:
     hosts:
       - ${ssn_k8s_alb_dns_name}
 
-startupScripts:
-  mystartup.sh: |
-    ${configure_keycloak_file}
+  startupScripts:
+    mystartup.sh: |
+      ${configure_keycloak_file}
 

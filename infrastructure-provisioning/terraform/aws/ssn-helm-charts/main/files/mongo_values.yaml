@@ -22,12 +22,13 @@
 replicaSet:
   enabled: true
 
-mongodbRootPassword: $tr0ng_r00T-passworI)
-mongodbUsername: admin
-mongodbDatabase: dlabdb
+mongodbRootPassword: ${mongo_root_pwd}
+mongodbUsername: ${mongo_db_username}
+mongodbDatabase: ${mongo_dbname}
+mongodbPassword: ${mongo_db_pwd}
 
 image:
-  tag: 4.0.10-debian-9-r13
+  tag: ${mongo_image_tag}
 
 persistence:
   enabled: false

@@ -19,44 +19,27 @@
 #
 # ******************************************************************************
 
-resource "helm_release" "keycloak-mysql" {
-  name = "keycloak-mysql"
-  chart = "stable/mysql"
-  wait = true
-
-  values = [
-    file("files/mysql_values.yaml")
-  ]
-
-//  set {
-//    name = "mysqlRootPassword"
-//    value = "1234567890o"
-//  }
-//
-//  set {
-//    name = "mysqlUser"
-//    value = "keycloak"
-//  }
-//
-//  set {
-//    name = "mysqlPassword"
-//    value = "1234567890o"
-//  }
-//
-//  set {
-//    name = "mysqlDatabase"
-//    value = "keycloak"
-//  }
-
-  set {
-    name = "persistence.existingClaim"
-    value = "${kubernetes_persistent_volume_claim.example.metadata.0.name}"
+data "template_file" "mysql_values" {
+  template = file("./files/mysql_values.yaml")
+  vars = {
+    mysql_root_password = var.mysql_root_password
+    mysql_user          = var.mysql_user
+    mysql_user_password = var.mysql_user_password
+    mysql_db_name       = var.mysql_db_name
+    mysql_volume_claim  = kubernetes_persistent_volume_claim.example.metadata.0.name
   }
 }
 
+resource "helm_release" "keycloak-mysql" {
+  name   = "keycloak-mysql"
+  chart  = "stable/mysql"
+  wait   = true
+  values = [
+    data.template_file.mysql_values.rendered
+  ]
+}
 
-provider "kubernetes" {
-  }
+provider "kubernetes" {}
 
 resource "kubernetes_persistent_volume" "example" {
   metadata {
@@ -75,7 +58,6 @@ resource "kubernetes_persistent_volume" "example" {
   }
 }
 
-
 resource "kubernetes_persistent_volume_claim" "example" {
   metadata {
     name = "mysql-keycloak-pvc2"
@@ -87,7 +69,7 @@ resource "kubernetes_persistent_volume_claim" "example" {
         storage = "5Gi"
       }
     }
-    volume_name = "${kubernetes_persistent_volume.example.metadata.0.name}"
+    volume_name = kubernetes_persistent_volume.example.metadata.0.name
   }
 }
 

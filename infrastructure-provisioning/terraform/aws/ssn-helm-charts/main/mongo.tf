@@ -19,47 +19,23 @@
 #
 # ******************************************************************************
 
+data "template_file" "mongo_values" {
+  template = file("./files/mongo_values.yaml")
+  vars     = {
+      mongo_root_pwd    = var.mongo_root_pwd
+      mongo_db_username = var.mongo_db_username
+      mongo_dbname      = var.mongo_dbname
+      mongo_db_pwd      = var.mongo_db_pwd
+      mongo_image_tag   = var.mongo_image_tag
+  }
+}
+
 resource "helm_release" "mongodb" {
-    name  = "mongo-ha"
-    chart = "stable/mongodb"
-    wait = true
-
+    name   = "mongo-ha"
+    chart  = "stable/mongodb"
+    wait   = true
     values = [
-        file("files/mongo_values.yaml")
+        data.template_file.mongo_values.rendered
     ]
-
-//    set {
-//        name  = "replicaSet.enabled"
-//        value = "true"
-//    }
-//
-//    set {
-//        name = "mongodbRootPassword"
-//        value = "${var.mongo_root_pwd}"
-//    }
-//
-//    set {
-//        name = "mongodbUsername"
-//        value = "${var.mongo_db_username}"
-//    }
-//
-    set {
-        name = "mongodbPassword"
-        value = var.mongo_db_pwd
-    }
-//
-//    set {
-//        name = "mongodbDatabase"
-//        value = "${var.mongo_dbname}"
-//    }
-//    set {
-//        name = "image.tag"
-//        value = "${var.image_tag}"
-//    }
-//    set {
-//        # temporary. PV should be implemented
-//        name = "persistence.enabled"
-//        value = "false"
-//    }
     depends_on = [helm_release.nginx]
 }
