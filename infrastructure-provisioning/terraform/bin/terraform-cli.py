@@ -487,7 +487,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 conn.run('terraform init')
                 conn.run('terraform validate')
                 conn.run('terraform apply -auto-approve {}'
-                         '-var \'ssn_k8s_alb_dns_name={}\''
+                         ' -var \'ssn_k8s_alb_dns_name={}\''
                          .format(args_str,dns_name))
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
