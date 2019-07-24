@@ -25,6 +25,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("project")
 public class ProjectResource {
@@ -204,8 +206,12 @@ public class ProjectResource {
 	public Response updateBudget(
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
 			@Parameter(description = "Project name")
-					UpdateProjectBudgetDTO dto) {
-		projectService.updateBudget(dto.getProject(), dto.getBudget());
+					List<UpdateProjectBudgetDTO> dtos) {
+		final List<ProjectDTO> projects = dtos
+				.stream()
+				.map(dto -> new ProjectDTO(dto.getProject(), null, null, null, null, dto.getBudget()))
+				.collect(Collectors.toList());
+		projectService.updateBudget(projects);
 		return Response.ok().build();
 	}
 }

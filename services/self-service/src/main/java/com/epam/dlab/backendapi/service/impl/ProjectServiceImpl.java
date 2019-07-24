@@ -116,6 +116,11 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public void updateBudget(List<ProjectDTO> projects) {
+		projects.forEach(p -> projectDAO.updateBudget(p.getName(), p.getBudget()));
+	}
+
+	@Override
 	public boolean isAnyProjectAssigned(UserInfo userInfo) {
 		final Set<String> userGroups = concat(userInfo.getRoles().stream(),
 				userGroupDao.getUserGroups(userInfo.getName()).stream())
