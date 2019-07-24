@@ -221,7 +221,8 @@
           <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="button" [disabled]="!resourceForm?.valid"
             (click)="createComputationalResource(resourceForm.value)" class="butt butt-success action"
-            [ngClass]="{'not-allowed': !resourceForm?.valid}">Create</button>
+            [ngClass]="{'not-allowed': !resourceForm?.valid ||
+            (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) }">Create</button>
         </div>
       </form>
 
