@@ -486,8 +486,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             with conn.cd('terraform/ssn-helm-charts/main'):
                 conn.run('terraform init')
                 conn.run('terraform validate')
-                conn.run('terraform apply -auto-approve {}'
-                         ' -var \'ssn_k8s_alb_dns_name={}\''
+                conn.run('terraform apply -auto-approve {} '
+                         '-var \'ssn_k8s_alb_dns_name={}\''
                          .format(args_str,dns_name))
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
