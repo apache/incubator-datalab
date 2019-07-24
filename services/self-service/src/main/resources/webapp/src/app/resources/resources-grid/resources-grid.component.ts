@@ -106,6 +106,7 @@ export class ResourcesGridComponent implements OnInit {
   public buildGrid(): void {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
+        this.filtering = false;
         this.environments = ExploratoryModel.loadEnvironments(result);
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
@@ -142,15 +143,14 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private applyFilter_btnClick(config: FilterConfigurationModel) {
-    this.filtering = true;
     let filteredData = this.getEnvironmentsListCopy();
-
 
     const containsStatus = (list, selectedItems) => {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
 
-    if (config)
+    if (filteredData.length) this.filtering = true;
+    if (config) {
       filteredData = filteredData.filter(project => {
         project.exploratory = project.exploratory.filter(item => {
 
@@ -174,7 +174,9 @@ export class ResourcesGridComponent implements OnInit {
         return project.exploratory.length > 0;
       });
 
-    config && this.updateUserPreferences(config);
+      this.updateUserPreferences(config);
+    }
+
     this.filteredEnvironments = filteredData;
   }
 
@@ -314,8 +316,4 @@ export class ResourcesGridComponent implements OnInit {
         .afterClosed().subscribe(() => this.buildGrid());
     }
   }
-
-
-
-
 }
