@@ -246,7 +246,7 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
