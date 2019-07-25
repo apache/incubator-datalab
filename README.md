@@ -226,7 +226,7 @@ DLab can be deployed using one of the two options:
  - EC2 instance where DLab deployment script is executed. 
  - IAM role with the following IAM [policy](#AWS_SSN_policy) should be attached to the EC2 instance. 
  
- **Optional prerequisites for both methods:**
+ **Requirements for both options(optional):**
   
   - VPC ID. If VPC where DLab should be deployed is already in place, then "VPC ID" should be provided for deployment script. DLab instances are deployed in this VPC.
   - Subnet ID. If Subnet where DLab should be deployed is already in place, then "Subnet ID" should be provided for deployment script. DLab SSN node and users' Edge nodes are deployed in this Subnet. 
