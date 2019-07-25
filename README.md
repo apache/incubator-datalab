@@ -210,17 +210,17 @@ For each cloud provider, prerequisites are different.
 
 Prerequisites:
 
-DLab can be deployed using the following two methods:
- - IAM user: DLab deployment script is executed on local machine and uses IAM user permissions to create resources in AWS.
- - EC2 instance: DLab deployment script is executed on EC2 instance prepared in advance and with attached IAM role. Deployment script uses the attached IAM role to create resources in AWS.
+DLab can be deployed using one of the two options:
+ - **First option: using IAM user.** DLab deployment script is executed on local machine and uses IAM user permissions to create resources in AWS.
+ - **Second option(preferred): using EC2 instance.** DLab deployment script is executed on EC2 instance prepared in advance and with attached IAM role. Deployment script uses the attached IAM role to create resources in AWS.
 
-**'IAM user' method prerequisites:**  
+**Requirements for the first option:**  
  
  - IAM user with created AWS access key ID and secret access key. These keys are provided as arguments for the deployment script and are used to create resources in AWS.
  - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
  - The following IAM [policy](#AWS_SSN_policy) should be attached to the IAM user in order to deploy DLab.
  
- **'EC2 instance' method prerequisites:**
+ **Requirements for the second option:**
  
  - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
  - EC2 instance where DLab deployment script is executed. 
