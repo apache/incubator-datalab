@@ -33,8 +33,6 @@ public class SparkComputationalCreateAzure extends ComputationalBase<SparkComput
 	private String dataEngineSlaveSize;
 	@JsonProperty("azure_dataengine_master_size")
 	private String dataEngineMasterSize;
-	@JsonProperty("azure_client_id")
-	private String azureClientId;
 	@JsonProperty("azure_datalake_enable")
 	private String azureDataLakeEnabled;
 	@JsonProperty("azure_user_refresh_token")
@@ -54,11 +52,6 @@ public class SparkComputationalCreateAzure extends ComputationalBase<SparkComput
 
 	public SparkComputationalCreateAzure withDataEngineMasterSize(String dataEngineMasterSize) {
 		this.dataEngineMasterSize = dataEngineMasterSize;
-		return this;
-	}
-
-	public SparkComputationalCreateAzure withAzureClientId(String azureClientId) {
-		this.azureClientId = azureClientId;
 		return this;
 	}
 
@@ -83,7 +76,6 @@ public class SparkComputationalCreateAzure extends ComputationalBase<SparkComput
 				.add("dataEngineInstanceCount", dataEngineInstanceCount)
 				.add("dataEngineSlaveSize", dataEngineSlaveSize)
 				.add("dataEngineMasterSize", dataEngineMasterSize)
-				.add("azureClientId", azureClientId != null ? "***" : null)
 				.add("azureDataLakeEnabled", azureDataLakeEnabled)
 				.add("azureUserRefreshToken", azureUserRefreshToken != null ? "***" : null);
 	}

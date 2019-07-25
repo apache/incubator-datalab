@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, OnInit, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { KeyUploadDialogModel } from './key-upload.model';
 import { UserAccessKeyService } from '../../../core/services';
@@ -32,7 +32,7 @@ import { HTTP_STATUS_CODES } from '../../../core/util';
 export class UploadKeyDialogComponent implements OnInit {
   model: KeyUploadDialogModel;
   @Input() primaryUploading: boolean = true;
-  
+
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('userAccessKeyUploadControl') userAccessKeyUploadControl;
   @Output() checkInfrastructureCreationProgress: EventEmitter<{}> = new EventEmitter();
@@ -40,11 +40,9 @@ export class UploadKeyDialogComponent implements OnInit {
 
   constructor(
     private userAccessKeyService: UserAccessKeyService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = KeyUploadDialogModel.getDefault();
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -77,9 +75,7 @@ export class UploadKeyDialogComponent implements OnInit {
             this.checkInfrastructureCreationProgress.emit();
           }
         },
-        error => {
-          this.toastr.error(error.message, 'Oops!', { toastLife: 5000 });
-        },
+        error => this.toastr.error(error.message, 'Oops!'),
         this.userAccessKeyService);
       this.bindDialog.open(params);
     }

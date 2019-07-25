@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -52,14 +52,19 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['edge_user_name'],
                                                                notebook_config['exploratory_name'])
-
+    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(
+                                                        notebook_config['service_base_name'], os.environ['application'])
+    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
+                                                        notebook_config['service_base_name'], os.environ['application'])
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
+    edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
+    edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
-
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -108,9 +113,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}". \
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
-                   os.environ['gcp_region'])
+                   os.environ['gcp_region'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -139,10 +144,10 @@ if __name__ == "__main__":
                  "--livy_version {} --multiple_clusters {} " \
                  "--r_mirror {} --endpoint_url {} " \
                  "--exploratory_name {}" \
-            .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], os.environ['gcp_region'],
-                    json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
-                    os.environ['notebook_hadoop_version'], edge_instance_name, '3128',
-                    os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
+            .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
+                    os.environ['gcp_region'], json.dumps(additional_config), notebook_config['dlab_ssh_user'],
+                    os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'], edge_instance_name,
+                    '3128', os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
                     os.environ['notebook_r_mirror'], 'null',
                     notebook_config['exploratory_name'])
@@ -193,10 +198,69 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
+
+    if notebook_config['shared_image_enabled'] == 'true':
+        try:
+            print('[CREATING IMAGE]')
+            primary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])
+            if primary_image_id == '':
+                print("Looks like it's first time we configure notebook server. Creating images.")
+                image_id_list = GCPActions().create_image_from_instance_disks(
+                    notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
+                    notebook_config['instance_name'], notebook_config['zone'])
+                if image_id_list and image_id_list[0] != '':
+                    print("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
+                else:
+                    print("Looks like another image creating operation for your template have been started a moment ago.")
+                if image_id_list and image_id_list[1] != '':
+                    print("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            append_result("Failed creating image.", str(err))
+            GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+            GCPActions().remove_image(notebook_config['expected_primary_image_name'])
+            GCPActions().remove_image(notebook_config['expected_secondary_image_name'])
+            sys.exit(1)
+
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_hostname,
+                    notebook_config['ssh_key_path'],
+                    notebook_config['dlab_ssh_user'],
+                    'zeppelin',
+                    notebook_config['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
+
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     zeppelin_ip_url = "http://" + ip_address + ":8080/"
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+    zeppelin_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+        notebook_config['exploratory_name'])
+    zeppelin_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+        notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print("Instance name: {}".format(notebook_config['instance_name']))
@@ -219,7 +283,12 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Apache Zeppelin",
-                    "url": zeppelin_ip_url},
+                    "url": zeppelin_notebook_acces_url},
                    {"description": "Ungit",
-                    "url": ungit_ip_url}]}
+                    "url": zeppelin_ungit_acces_url},
+                   {"description": "Apache Zeppelin (via tunnel)",
+                    "url": zeppelin_ip_url},
+                   {"description": "Ungit (via tunnel)",
+                    "url": ungit_ip_url}
+               ]}
         result.write(json.dumps(res))

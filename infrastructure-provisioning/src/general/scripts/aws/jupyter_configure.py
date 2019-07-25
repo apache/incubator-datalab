@@ -66,11 +66,13 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+    edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     else:
@@ -108,7 +110,8 @@ if __name__ == "__main__":
         print('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
-            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
+                    notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
@@ -124,8 +127,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
+            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -141,15 +145,16 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
-        params = "--hostname {} " \
-                 "--keyfile {} " \
-                 "--region {} " \
-                 "--spark_version {} " \
-                 "--hadoop_version {} " \
-                 "--os_user {} " \
-                 "--scala_version {} " \
-                 "--r_mirror {} " \
-                 "--exploratory_name {}".\
+        params = "--hostname {0} " \
+                 "--keyfile {1} " \
+                 "--region {2} " \
+                 "--spark_version {3} " \
+                 "--hadoop_version {4} " \
+                 "--os_user {5} " \
+                 "--scala_version {6} " \
+                 "--r_mirror {7} " \
+                 "--ip_adress {8} " \
+                 "--exploratory_name {9}".\
             format(instance_hostname,
                    keyfile_name,
                    os.environ['aws_region'],
@@ -158,6 +163,7 @@ if __name__ == "__main__":
                    notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'],
                    os.environ['notebook_r_mirror'],
+                   notebook_config['ip_address'],
                    notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter_node', params))

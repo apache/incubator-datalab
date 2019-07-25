@@ -27,6 +27,7 @@ import lombok.Data;
 import java.time.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Stores info about a scheduler job (general duration, days to repeat, time to start and finish).
@@ -71,5 +72,11 @@ public class SchedulerJobDTO {
 	private Long maxInactivity;
 	@JsonProperty("check_inactivity_required")
 	private boolean checkInactivityRequired;
+	@JsonProperty("consider_inactivity")
+	private boolean considerInactivity = true;
+
+	public boolean inactivityScheduler() {
+		return Objects.nonNull(maxInactivity);
+	}
 
 }

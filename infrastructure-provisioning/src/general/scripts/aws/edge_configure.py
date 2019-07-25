@@ -200,7 +200,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed installing users key." + str(err))
+        append_result("Failed installing nginx reverse proxy." + str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])

@@ -34,7 +34,7 @@ public class SchedulerJobDTOValidator implements ConstraintValidator<SchedulerJo
 
 	@Override
 	public boolean isValid(SchedulerJobDTO schedulerJobDTO, ConstraintValidatorContext constraintValidatorContext) {
-		if (!schedulerJobDTO.isCheckInactivityRequired()) {
+		if (!schedulerJobDTO.isCheckInactivityRequired() && Objects.isNull(schedulerJobDTO.getTerminateDateTime())) {
 			return !schedulerJobDTO.getStartDaysRepeat().isEmpty() || !schedulerJobDTO.getStopDaysRepeat().isEmpty();
 		} else if (schedulerJobDTO.isCheckInactivityRequired() && Objects.isNull(schedulerJobDTO.getMaxInactivity())) {
 			constraintValidatorContext.disableDefaultConstraintViolation();

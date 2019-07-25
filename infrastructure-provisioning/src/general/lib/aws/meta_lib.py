@@ -749,9 +749,10 @@ def get_list_instance_statuses(instance_ids):
                     host['id'] = j.get('InstanceId')
                     host['status'] = j.get('State').get('Name')
                     data.append(host)
-        except:
-            host['id'] = h.get('id')
+        except Exception as err:
+            host['id'] = i.get('id')
             host['status'] = 'terminated'
+            host['error_response'] = err
             data.append(host)
     return data
 

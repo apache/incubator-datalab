@@ -43,6 +43,7 @@ parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', h
 parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
 parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
 parser.add_argument('--aws_region', type=str, default='', help='AWS region')
+parser.add_argument('--aws_zone', type=str, default='', help='AWS zone')
 parser.add_argument('--azure_region', type=str, default='', help='Azure region')
 parser.add_argument('--gcp_region', type=str, default='', help='GCP region')
 parser.add_argument('--gcp_zone', type=str, default='', help='GCP zone')

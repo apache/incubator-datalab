@@ -220,6 +220,7 @@ if __name__ == "__main__":
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
+                             {"name": "tensor-rstudio", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"}]
@@ -304,6 +305,8 @@ if __name__ == "__main__":
         jenkins_url_https = "https://{}/jenkins".format(instance_hostname)
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        print("DLab UI HTTP URL: http://{}".format(instance_hostname))
+        print("DLab UI HTTPS URL: https://{}".format(instance_hostname))
         try:
             with open('jenkins_creds.txt') as f:
                 print(f.read())

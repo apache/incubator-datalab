@@ -255,12 +255,14 @@ public class RunDockerCommand implements CmdCommand {
         return this;
     }
 
+    public RunDockerCommand withRemove(){
+        options.add("--rm");
+        return this;
+    }
+
     @Override
     public String toCMD() {
         StringBuilder sb = new StringBuilder(command);
-        if (action != null && action == DockerAction.STATUS) {
-       		sb.append(" --rm");
-        }
         for (String option : options) {
             sb.append(" ").append(option);
         }

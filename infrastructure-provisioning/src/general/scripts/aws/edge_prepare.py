@@ -52,8 +52,9 @@ if __name__ == "__main__":
     edge_conf['sg_ids'] = os.environ['aws_security_groups_ids']
     edge_conf['instance_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['tag_name'] = '{}-Tag'.format(edge_conf['service_base_name'])
-    edge_conf['bucket_name'] = '{}-{}-bucket'.format(edge_conf['service_base_name'],
-                                                     os.environ['edge_user_name']).lower().replace('_', '-')
+    edge_conf['bucket_name_tag'] = '{}-{}-bucket'.format(edge_conf['service_base_name'],
+                                                     os.environ['edge_user_name'])
+    edge_conf['bucket_name'] = edge_conf['bucket_name_tag'].lower().replace('_', '-')
     edge_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(edge_conf['service_base_name']).lower().replace('_', '-')
     edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name']).lower().replace('_',
                                                                                                                 '-')
@@ -78,6 +79,8 @@ if __name__ == "__main__":
     edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'],
                                                                      os.environ['edge_user_name'])
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'],
+                                                               os.environ['edge_user_name'])
     edge_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
         .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
@@ -87,6 +90,9 @@ if __name__ == "__main__":
         edge_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ','')})
     edge_conf['network_type'] = os.environ['conf_network_type']
     edge_conf['all_ip_cidr'] = '0.0.0.0/0'
+    edge_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
+    edge_conf['elastic_ip_name'] = '{0}-{1}-edge-EIP'.format(edge_conf['service_base_name'],
+                                                             os.environ['edge_user_name'])
     if 'aws_user_predefined_s3_policies' not in os.environ:
         os.environ['aws_user_predefined_s3_policies'] = 'None'
 
@@ -109,10 +115,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
-        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {} --user_subnets_range '{}'" \
-                 .format(edge_conf['vpc2_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
-                         os.environ['edge_user_name'], edge_conf['private_subnet_prefix'],
-                         os.environ['conf_user_subnets_range'])
+        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {} " \
+                 "--user_subnets_range '{}' --subnet_name {} --zone {}".format(
+            edge_conf['vpc2_id'], edge_conf['tag_name'], edge_conf['service_base_name'], os.environ['edge_user_name'],
+            edge_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'], edge_conf['private_subnet_name'],
+            edge_conf['zone'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
@@ -131,9 +138,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE ROLES]')
         print('[CREATE EDGE ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+        params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
+                 "--infra_tag_value {}" \
                  .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-                         edge_conf['policy_name'], os.environ['aws_region'])
+                         edge_conf['policy_name'], os.environ['aws_region'], edge_conf['tag_name'],
+                         edge_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -147,9 +156,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+        params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
+                 "--infra_tag_value {}" \
                  .format(edge_conf['notebook_dataengine_role_name'], edge_conf['notebook_dataengine_role_profile_name'],
-                         edge_conf['notebook_dataengine_policy_name'], os.environ['aws_region'])
+                         edge_conf['notebook_dataengine_policy_name'], os.environ['aws_region'], edge_conf['tag_name'],
+                         edge_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -255,7 +266,7 @@ if __name__ == "__main__":
                 "PrefixListIds": [],
                 "FromPort": 4040,
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 4045, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                "ToPort": 4140, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
@@ -280,6 +291,12 @@ if __name__ == "__main__":
                 "FromPort": 80,
                 "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 123,
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "ToPort": 123, "IpProtocol": "udp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
@@ -380,9 +397,11 @@ if __name__ == "__main__":
             }
         ])
 
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
-            format(edge_conf['notebook_security_group_name'], edge_conf['vpc2_id'], json.dumps(private_sg_ingress),
-                   json.dumps(private_sg_egress), edge_conf['service_base_name'], edge_conf['notebook_instance_name'], True)
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
+                 "--infra_tag_value {} --force {}".format(edge_conf['notebook_security_group_name'],
+                                                          edge_conf['vpc2_id'], json.dumps(private_sg_ingress),
+                                                          json.dumps(private_sg_egress), edge_conf['service_base_name'],
+                                                          edge_conf['notebook_instance_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -404,10 +423,11 @@ if __name__ == "__main__":
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
     print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
-            format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc2_id'],
-                   json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
-                   edge_conf['dataengine_instances_name'], True)
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
+                 "--infra_tag_value {} --force {}".format(edge_conf['dataengine_master_security_group_name'],
+                                                          edge_conf['vpc2_id'], json.dumps(private_sg_ingress),
+                                                          json.dumps(private_sg_egress), edge_conf['service_base_name'],
+                                                          edge_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -425,10 +445,11 @@ if __name__ == "__main__":
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
     print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
-            format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc2_id'],
-                   json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
-                   edge_conf['dataengine_instances_name'], True)
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
+                 "--infra_tag_value {} --force {}".format(edge_conf['dataengine_slave_security_group_name'],
+                                                          edge_conf['vpc2_id'], json.dumps(private_sg_ingress),
+                                                          json.dumps(private_sg_egress), edge_conf['service_base_name'],
+                                                          edge_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -447,9 +468,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}" \
+        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}" \
                  .format(edge_conf['bucket_name'], edge_conf['tag_name'], edge_conf['bucket_name'],
-                  edge_conf['region'])
+                         edge_conf['region'], edge_conf['bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
@@ -468,10 +489,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {} --user_predefined_s3_policies "{}"'.format(
-            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'],
-            os.environ['edge_user_name'], edge_conf['role_name'], edge_conf['notebook_dataengine_role_name'],
-            edge_conf['service_base_name'], edge_conf['region'], os.environ['aws_user_predefined_s3_policies'])
+        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
+                 '--notebook_role_name {} --service_base_name {} --region {} ' \
+                 '--user_predefined_s3_policies "{}"'.format(edge_conf['bucket_name'], edge_conf['ssn_bucket_name'],
+                                                             edge_conf['shared_bucket_name'],
+                                                             os.environ['edge_user_name'], edge_conf['role_name'],
+                                                             edge_conf['notebook_dataengine_role_name'],
+                                                             edge_conf['service_base_name'], edge_conf['region'],
+                                                             os.environ['aws_user_predefined_s3_policies'])
         try:
             local("~/scripts/{}.py {}".format('common_create_policy', params))
         except:
@@ -522,7 +547,8 @@ if __name__ == "__main__":
                 edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
             except:
                 edge_conf['elastic_ip'] = 'None'
-            params = "--elastic_ip {} --edge_id {}".format(edge_conf['elastic_ip'], edge_conf['edge_id'])
+            params = "--elastic_ip {} --edge_id {}  --infra_tag_name {} --infra_tag_value {}".format(
+                edge_conf['elastic_ip'], edge_conf['edge_id'], edge_conf['tag_name'], edge_conf['elastic_ip_name'])
             try:
                 local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
             except:
@@ -532,7 +558,8 @@ if __name__ == "__main__":
             print('Error: {0}'.format(err))
             append_result("Failed to associate elastic ip.", str(err))
             try:
-                edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
+                edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'],
+                                                                      edge_conf['instance_name']).get('Public')
                 edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
             except:
                 print("No Elastic IPs to release!")

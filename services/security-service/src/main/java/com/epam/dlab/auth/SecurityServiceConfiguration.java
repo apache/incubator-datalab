@@ -22,14 +22,13 @@ package com.epam.dlab.auth;
 
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.auth.conf.AzureLoginConfiguration;
+import com.epam.dlab.auth.conf.GcpLoginConfiguration;
 import com.epam.dlab.auth.dao.Request;
-import com.epam.dlab.config.gcp.GcpLoginConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 
 import javax.validation.constraints.Min;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SecurityServiceConfiguration extends ServiceConfiguration {
@@ -42,8 +41,6 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 	@JsonProperty
 	@Min(5)
 	private int loginAuthenticationTimeout = 10;
-	@JsonProperty
-	private List<Request> ldapSearch;
 	@JsonProperty
 	private String ldapBindTemplate;
 	@JsonProperty
@@ -61,16 +58,38 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	private LdapConnectionConfig ldapConfiguration;
 
+	private String ldapGroupAttribute;
+	private String ldapGroupNameAttribute;
+	private String ldapGroupUserAttribute;
+
+	@JsonProperty
+	private Request ldapSearchRequest;
+
+	@JsonProperty
+	private Request ldapGroupSearchRequest;
+
 	public SecurityServiceConfiguration() {
 		super();
 	}
 
-	public boolean isUserInfoPersistenceEnabled() {
-		return userInfoPersistenceEnabled;
+	public String getLdapGroupUserAttribute() {
+		return ldapGroupUserAttribute;
 	}
 
-	public List<Request> getLdapSearch() {
-		return ldapSearch;
+	public String getLdapGroupAttribute() {
+		return ldapGroupAttribute;
+	}
+
+	public String getLdapGroupNameAttribute() {
+		return ldapGroupNameAttribute;
+	}
+
+	public Request getLdapGroupSearchRequest() {
+		return ldapGroupSearchRequest;
+	}
+
+	public boolean isUserInfoPersistenceEnabled() {
+		return userInfoPersistenceEnabled;
 	}
 
 	public LdapConnectionConfig getLdapConnectionConfig() {
@@ -119,5 +138,9 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	public GcpLoginConfiguration getGcpLoginConfiguration() {
 		return gcpLoginConfiguration;
+	}
+
+	public Request getLdapSearchRequest() {
+		return ldapSearchRequest;
 	}
 }

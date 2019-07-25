@@ -17,96 +17,101 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog  modalClass="detail-dialog modal-lg header-white">
-  <modal-header></modal-header>
-  <modal-content>
-    <div *ngIf="notebook">
-      <table class="detail-header">
-        <tr>
-          <td>{{notebook.template_name}}</td>
-          <td>
-            <span class="status" ngClass="{{notebook.status || ''}}">
+<modal-dialog #bindDialog modalClass="detail-dialog modal-lg header-white">
+    <modal-header></modal-header>
+    <modal-content>
+        <div *ngIf="notebook">
+            <table class="detail-header">
+                <tr>
+                    <td>{{notebook.template_name}}</td>
+                    <td>
+                        <span class="status" ngClass="{{notebook.status || ''}}">
               {{notebook.status}}
             </span>
-          </td>
-          <td>{{notebook.shape}}</td>
-        </tr>
-      </table>
-      <div class="content-box">
-        <div class="detail-info" *ngIf="notebook.error_message">
-          <p class="failed">{{ notebook.error_message }}</p>
-        </div>
-
-        <div class="scroll-box" id="scrolling">
-          <div class="detail-info" *ngIf="!notebook.error_message">
-            <p>Edge Node IP Address {{notebook.ip}}</p>
-            <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
-            <p>Open following URL(s) in your browser to access this box:</p>
-            <div class="links_block">
-              <p *ngFor="let item of notebook.url">
-                <strong class="description">{{item.description}}: &#32;</strong>
-                <a class="ellipsis" href="{{item.url}}" target="_blank">&#32;{{item.url}}</a>
-              </p>
-            </div>
-            <p *ngIf="notebook.username">Node User: <strong>{{ notebook.username }}</strong></p>
-            <p *ngIf="notebook.password">Password: <strong>{{ notebook.password }}</strong></p>
-
-            <p class="m-top-30">{{ DICTIONARY.personal_storage }}: </p>
-            <div class="links_block">
-              <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
-              <p *ngIf="notebook.bucket_name">{{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
-            </div>
-            <p>{{ DICTIONARY.collaboration_storage }}: </p>
-            <div class="links_block">
-              <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
-              <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
-            </div>
-            <br/>
-
-            <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
-              <p>Data Lake Store: </p>
-              <div  class="links_block">
-                <p>Data Lake Store Account: <strong>{{ notebook.datalake_name }}</strong></p>
-                <p>Personal folder: <strong>{{ notebook.datalake_directory }}</strong></p>
-                <p>Collaboration folder: <strong>{{ notebook.datalake_shared_directory }}</strong></p>
-              </div>
-            </div>
-
-            <p>
-              <a href="#/help/accessnotebookguide" target="_blank">
-                <small class="helper_instruction">
-                    <i class="material-icons">help_outline</i>
-                    Read instruction how to create the tunnel</small>
-              </a>
-            </p>
-          </div>
-
-          <div class="checkbox-group" *ngIf="notebook.image !== 'docker.dlab-zeppelin'; else not_support" [hidden]="notebook.status !== 'running'">
-            <label>
-              <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
-            </label>
-            <div class="checkbox-group">
-              <form [formGroup]="configurationForm" novalidate>
-                <div class="config-details"  *ngIf="configuration?.nativeElement['checked']">
-                  <textarea formControlName="configuration_parameters" id="config" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
-                  <span class="danger_color" *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
+                    </td>
+                    <td>{{notebook.shape}}</td>
+                </tr>
+            </table>
+            <div class="content-box">
+                <div class="detail-info" *ngIf="notebook.error_message">
+                    <p class="failed">{{ notebook.error_message }}</p>
                 </div>
-              </form>
-            </div>
-          </div>
-          <ng-template #not_support>
-            <small [hidden]="notebook.status !== 'running'">Spark default configuration for Apache Zeppelin can not be changed from DLab UI. Currently it can be done directly through Apache Zeppelin interpreter menu.
-              For more details please refer for Apache Zeppelin <a href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official documentation</a>.
+
+                <div class="scroll-box" id="scrolling">
+                    <div class="detail-info" *ngIf="!notebook.error_message">
+                        <p>Edge Node IP Address {{notebook.ip}}</p>
+                        <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
+                        <p>Open following URL(s) in your browser to access this box:</p>
+                        <div class="links_block">
+                            <p *ngFor="let item of notebook.url">
+                                <strong class="description">{{item.description}}: &#32;</strong>
+                                <a class="ellipsis" href="{{item.url}}" target="_blank">&#32;{{item.url}}</a>
+                            </p>
+                        </div>
+                        <p *ngIf="notebook.username">Node User: &#32;<strong>{{ notebook.username }}</strong></p>
+                        <p *ngIf="notebook.password">Password: &#32;<strong>{{ notebook.password }}</strong></p>
+
+                        <p class="m-top-30">{{ DICTIONARY.personal_storage }}: &#32;</p>
+                        <div class="links_block">
+                            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY.account }}
+                                <strong>{{ notebook.account_name}}</strong></p>
+                            <p *ngIf="notebook.bucket_name">{{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
+                        </div>
+                        <p>{{ DICTIONARY.collaboration_storage }}: &#32;</p>
+                        <div class="links_block">
+                            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY.account }}
+                                <strong>{{ notebook.shared_account_name}}</strong></p>
+                            <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY.container }}
+                                <strong>{{ notebook.shared_bucket_name }}</strong></p>
+                        </div>
+                        <br />
+
+                        <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
+                            <p>Data Lake Store: &#32;</p>
+                            <div class="links_block">
+                                <p>Data Lake Store Account: &#32;<strong>{{ notebook.datalake_name }}</strong></p>
+                                <p>Personal folder: &#32;<strong>{{ notebook.datalake_directory }}</strong></p>
+                                <p>Collaboration folder: &#32;<strong>{{ notebook.datalake_shared_directory }}</strong></p>
+                            </div>
+                        </div>
+
+                        <p>
+                            <a href="#/help/accessnotebookguide" target="_blank">
+                                <small class="helper_instruction">
+                  <i class="material-icons">help_outline</i>
+                  Read instruction how to create the tunnel</small>
+                            </a>
+                        </p>
+                    </div>
+
+                    <div class="checkbox-group" *ngIf="notebook.image !== 'docker.dlab-zeppelin'; else not_support" [hidden]="notebook.status !== 'running'">
+                        <label>
+              <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
+            </label>
+                        <div class="checkbox-group">
+                            <form [formGroup]="configurationForm" novalidate>
+                                <div class="config-details" *ngIf="configuration?.nativeElement['checked'] || false">
+                                    <textarea formControlName="configuration_parameters" id="config" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
+                                    <span class="danger_color" *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
+                    parameters is not in a valid format</span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <ng-template #not_support>
+                        <small [hidden]="notebook.status !== 'running'">Spark default configuration for Apache Zeppelin can not be
+              changed from DLab UI. Currently it can be done directly through Apache Zeppelin interpreter menu.
+              For more details please refer for Apache Zeppelin <a
+                href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
+                documentation</a>.
             </small>
-          </ng-template>
-          <div [scrollTo]="configuration?.nativeElement['checked']" class="text-center m-top-20 m-bott-10" *ngIf="configuration?.nativeElement['checked'] && notebook.status === 'running'">
-            <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
-            <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
-                    class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
-                    (click)="editClusterConfiguration(configurationForm.value)">Update</button>
-          </div>
+                    </ng-template>
+                    <div [scrollTo]="configuration?.nativeElement['checked'] || false" class="text-center m-top-20 m-bott-10" *ngIf="(configuration?.nativeElement['checked'] || false) && notebook.status === 'running'">
+                        <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
+                        <button mat-raised-button type="submit" [disabled]="!configurationForm.valid" class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}" (click)="editClusterConfiguration(configurationForm.value)">Update</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </modal-content>
+    </modal-content>
 </modal-dialog>

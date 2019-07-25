@@ -21,9 +21,10 @@ package com.epam.dlab.backendapi.dao.gcp;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import org.bson.Document;
 
-public class GcpBillingDao implements BillingDAO<Object> {
+public class GcpBillingDao implements BillingDAO<BillingFilter> {
 	@Override
 	public Double getTotalCost() {
 		return null;
@@ -55,7 +56,7 @@ public class GcpBillingDao implements BillingDAO<Object> {
 	}
 
 	@Override
-	public Document getReport(UserInfo userInfo, Object filter) {
+	public Document getReport(UserInfo userInfo, BillingFilter filter) {
 		return null;
 	}
 }

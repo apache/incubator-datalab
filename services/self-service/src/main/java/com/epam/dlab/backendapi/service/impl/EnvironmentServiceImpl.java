@@ -212,7 +212,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		EdgeInfo edgeInfo = keyDAO.getEdgeInfo(user);
 		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
 				.withResourceStatus(edgeInfo.getEdgeStatus())
-				.withUser(user);
+				.withUser(user)
+				.withIp(edgeInfo.getPublicIp());
 		return Stream.concat(Stream.of(edgeResource), allInstances.stream()
 				.filter(instance -> instance.getUser().equals(user)).map(this::toUserResourceInfo))
 				.collect(toList());

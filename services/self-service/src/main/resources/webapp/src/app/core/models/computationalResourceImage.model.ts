@@ -17,7 +17,9 @@
  * under the License.
  */
 
-import { ComputationalResourceApplicationTemplate, ResourceShapeTypesModel, ImageType } from '.';
+import { ComputationalResourceApplicationTemplate } from './computationalResourceApplicationTemplate.model';
+import { ResourceShapeTypesModel } from './resourceShapeTypes.model';
+import { ImageType } from './imageType.enum';
 import { SortUtil } from '../util';
 
 export class ComputationalResourceImage {

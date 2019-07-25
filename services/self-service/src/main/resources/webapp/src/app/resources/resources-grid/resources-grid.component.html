@@ -147,10 +147,10 @@
   </tr>
 </table>
 
-<computational-resource-create-dialog #computationalResourceModal (buildGrid)="buildGrid($event)"></computational-resource-create-dialog>
-<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
-<detail-dialog #detailDialog (buildGrid)="buildGrid($event)"></detail-dialog>
+<computational-resource-create-dialog #computationalResourceModal (buildGrid)="buildGrid()"></computational-resource-create-dialog>
+<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid()"></confirmation-dialog>
+<detail-dialog #detailDialog (buildGrid)="buildGrid()"></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
-<install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
-<dlab-scheduler #envScheduler (buildGrid)="buildGrid($event)"></dlab-scheduler>
-<dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid($event)"></dlab-ami-create-dialog>
+<install-libraries #installLibs (buildGrid)="buildGrid()"></install-libraries>
+<dlab-scheduler #envScheduler (buildGrid)="buildGrid()"></dlab-scheduler>
+<dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid()"></dlab-ami-create-dialog>

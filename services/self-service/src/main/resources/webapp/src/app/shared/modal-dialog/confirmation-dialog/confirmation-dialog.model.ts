@@ -18,15 +18,15 @@
  */
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
 
 export class ConfirmationDialogModel {
   public title: string;
-  private notebook: any;
-  private confirmAction: Function;
+  public notebook: any;
+  public confirmAction: Function;
   private manageAction: Function;
   private userResourceService: UserResourceService;
   private healthStatusService: HealthStatusService;
@@ -70,19 +70,19 @@ export class ConfirmationDialogModel {
 
 
   private stopExploratory(): Observable<{}> {
-    return this.manageAction 
+    return this.manageAction
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.name)
       : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
   private terminateExploratory(): Observable<{}> {
-    return this.manageAction 
+    return this.manageAction
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'terminate', this.notebook.name)
       : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
   private stopEdgeNode(): Observable<{}> {
-    return this.manageAction 
+    return this.manageAction
       ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', 'edge')
       : this.healthStatusService.suspendEdgeNode();
   }

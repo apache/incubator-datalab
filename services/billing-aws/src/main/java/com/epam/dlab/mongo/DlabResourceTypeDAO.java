@@ -152,9 +152,12 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		Iterable<Document> docs = connection.getCollection(COLLECTION_USER_EDGE).find().projection(projection);
 		for (Document d : docs) {
 			String username = d.getString(FIELD_ID);
-			resourceList.append(sbName + "-" + BillingUtils.getSimpleUserName(username) + "-edge", "EDGE Node",
+			final String simpleUserName = BillingUtils.getSimpleUserName(username);
+			resourceList.append(sbName + "-" + simpleUserName + "-edge", "EDGE Node",
 					DlabResourceType.EDGE, username, null);
-			resourceList.append(sbName + "-" + BillingUtils.getSimpleUserName(username) + "-edge-volume-primary",
+			resourceList.append(sbName + "-" + simpleUserName + "-bucket", "Personal bucket",
+					DlabResourceType.COLLABORATION_BUCKET, username, null);
+			resourceList.append(sbName + "-" + simpleUserName + "-edge-volume-primary",
 					"EDGE Volume", DlabResourceType.VOLUME, username, null);
 			resourceList.append(getBucketName(d.getString(FIELD_EDGE_BUCKET)), "EDGE bucket", DlabResourceType
 					.EDGE_BUCKET, username, null);

@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
@@ -78,8 +78,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
           window.location.href = error.headers.get('Location');
         } else {
-          const errObj = error.json();
-          this.error = errObj.message;
+          this.error = error.message;
           this.loading = false;
         }
       });

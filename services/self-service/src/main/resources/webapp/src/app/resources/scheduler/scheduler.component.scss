@@ -18,14 +18,28 @@
  */
 
 .scheduler-dialog {
+  .mat-form-field-appearance-legacy {
+    .mat-form-field-label {
+      font-family: 'Open Sans', sans-serif !important;
+      font-size: 13px;
+    }
+  }
   .mat-select-value {
     color: #758da9;
+  }
+  .mat-select-disabled {
+    .mat-select-value {
+      color: #9e9e9e;
+    }
   }
   .mat-form-field-flex {
     width: 160px;
   }
   .mat-select-trigger {
     width: 180px;
+  }
+  .content-box {
+    overflow: hidden;
   }
   .enable-schedule {
     display: flex;
@@ -42,12 +56,13 @@
       }
     }
   }
-  .info-message, .idle-control {
+  .info-message,
+  .idle-control {
     height: 0;
     opacity: 0;
     visibility: hidden;
     text-align: left;
-    transition: all .35s linear .2s;
+    transition: height 0.35s linear 0.2s;
     padding-bottom: 0;
     &.show {
       height: 30px;
@@ -56,9 +71,46 @@
       margin-bottom: 50px;
     }
   }
+  .idle-control {
+    .control {
+      position: relative;
+      .error {
+        position: absolute;
+        left: 5px;
+        top: 40px;
+        font-size: 12px;
+      }
+    }
+  }
   .info-message {
     &.show {
       margin-bottom: 15px;
+    }
+  }
+  .schedule-by-time {
+    transition: opacity 0.5s linear 0.2s;
+    visibility: visible;
+    height: 240px;
+    opacity: 1;
+    &.hide {
+      height: 0;
+      opacity: 0;
+      visibility: hidden;
+      text-align: left;
+    }
+    &.resource {
+      height: 280px;
+    }
+    .row-wrap {
+      position: relative;
+      .error {
+        position: absolute;
+        bottom: -10px;
+        font-size: 12px;
+      }
+      mat-datepicker-toggle.not-allowed {
+        opacity: 1;
+      }
     }
   }
   .col-3 {
@@ -119,15 +171,13 @@
         &.mat-button-toggle-disabled.mat-button-toggle-checked {
           background-color: #bdbdbd !important;
         }
-        label {
+        .mat-button-toggle-label-content {
+          line-height: 26px;
+          padding: 0px 8px;
+          width: 26px;
+          font-size: 13px;
+          text-align: center;
           background: rgba(196, 231, 243, 0.3);
-          .mat-button-toggle-label-content {
-            line-height: 26px;
-            padding: 0px 8px;
-            width: 26px;
-            font-size: 13px;
-            text-align: center;
-          }
         }
       }
     }
@@ -141,16 +191,18 @@
     font-size: 12px;
     color: #36afd5;
   }
-  .inherit {
+  .options {
     color: #718ba6;
     font-size: 15px;
     font-weight: 600;
+    margin-bottom: 10px;
     .mat-slide-toggle-content {
       padding: 5px;
-    }
-    .hold-label {
-      span {
-        font-size: 14px;
+      .hold-label {
+        span {
+          font-size: 13px;
+          vertical-align: text-bottom;
+        }
       }
     }
   }

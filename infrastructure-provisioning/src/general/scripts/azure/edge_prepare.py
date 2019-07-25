@@ -164,6 +164,17 @@ if __name__ == "__main__":
                 "direction": "Inbound"
             },
             {
+                "name": "in-4",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "80",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Inbound"
+            },
+            {
                 "name": "out-1",
                 "protocol": "Tcp",
                 "source_port_range": "*",
@@ -288,7 +299,7 @@ if __name__ == "__main__":
                 "name": "out-12",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "4040-4045",
+                "destination_port_range": "4040-4140",
                 "source_address_prefix": "*",
                 "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -341,6 +352,28 @@ if __name__ == "__main__":
             },
             {
                 "name": "out-17",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "8042",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 260,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-18",
+                "protocol": "Udp",
+                "source_port_range": "*",
+                "destination_port_range": "123",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 270,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-19",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",

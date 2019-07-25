@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.config.gcp;
+package com.epam.dlab.auth.conf;
 
 import lombok.Data;
 

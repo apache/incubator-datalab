@@ -65,13 +65,21 @@ if __name__ == "__main__":
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+        notebook_config['ip_address'] = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                           notebook_config['instance_name'])
 
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                notebook_config['instance_name'])
         edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['user_name'])
-        edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                    edge_instance_name)
+        edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                            edge_instance_name)
+        if os.environ['conf_network_type'] == 'private':
+            edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                        edge_instance_name)
+        else:
+            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
+                                                                                edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         notebook_config['rstudio_pass'] = id_generator()
 
@@ -109,7 +117,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
         print('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
                     notebook_config['dlab_ssh_user'])
@@ -128,8 +136,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['azure_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
+            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['azure_region'],
+                   edge_instance_private_hostname)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -145,14 +154,15 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
         print('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {}  --keyfile {} " \
-                 "--region {} --rstudio_pass {} " \
-                 "--rstudio_version {} --os_user {} " \
-                 "--r_mirror {} --exploratory_name {}" \
+        params = "--hostname {0}  --keyfile {1} " \
+                 "--region {2} --rstudio_pass {3} " \
+                 "--rstudio_version {4} --os_user {5} " \
+                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8}" \
             .format(instance_hostname, keyfile_name,
                     os.environ['azure_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
-                    os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
+                    os.environ['notebook_r_mirror'], notebook_config['ip_address'],
+                    notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
@@ -241,8 +251,8 @@ if __name__ == "__main__":
                                                                        notebook_config['instance_name'])
                 remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
                 set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
-                              'http://{}:3128'.format(edge_instance_hostname))
-                additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+                              'http://{}:3128'.format(edge_instance_private_hostname))
+                additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
                             json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -257,12 +267,47 @@ if __name__ == "__main__":
             append_result("Failed creating image.", str(err))
             AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
+
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        additional_info = {
+            'instance_hostname': instance_hostname,
+            'tensor': False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_private_hostname,
+                    keyfile_name,
+                    notebook_config['dlab_ssh_user'],
+                    'rstudio',
+                    notebook_config['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to set edge reverse proxy template.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     try:
         # generating output information
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
         rstudio_ip_url = "http://" + ip_address + ":8787/"
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+        rstudio_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+            notebook_config['exploratory_name'])
+        rstudio_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+            notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))
@@ -287,9 +332,14 @@ if __name__ == "__main__":
                    "Action": "Create new notebook server",
                    "exploratory_url": [
                        {"description": "RStudio",
-                        "url": rstudio_ip_url},
+                        "url": rstudio_notebook_acces_url},
                        {"description": "Ungit",
-                        "url": ungit_ip_url}],
+                        "url": rstudio_ungit_acces_url},
+                       {"description": "RStudio (via tunnel)",
+                        "url": rstudio_ip_url},
+                       {"description": "Ungit (via tunnel)",
+                        "url": ungit_ip_url}
+                   ],
                    "exploratory_user": notebook_config['dlab_ssh_user'],
                    "exploratory_pass": notebook_config['rstudio_pass']}
             result.write(json.dumps(res))

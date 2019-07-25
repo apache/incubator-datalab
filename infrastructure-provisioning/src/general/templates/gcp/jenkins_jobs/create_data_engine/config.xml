@@ -39,12 +39,12 @@ under the License.
                 <hudson.model.StringParameterDefinition>
                     <name>Master_Node_Size</name>
                     <description>Size of the master node</description>
-                    <defaultValue>n1-standard-1</defaultValue>
+                    <defaultValue>n1-standard-2</defaultValue>
                 </hudson.model.StringParameterDefinition>
                 <hudson.model.StringParameterDefinition>
                     <name>Slave_Node_Size</name>
                     <description>Size of the slave nodes</description>
-                    <defaultValue>n1-standard-1</defaultValue>
+                    <defaultValue>n1-standard-2</defaultValue>
                 </hudson.model.StringParameterDefinition>
                 <hudson.model.StringParameterDefinition>
                     <name>Notebook_name</name>

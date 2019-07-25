@@ -76,8 +76,8 @@ server:
       archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-  #    - type: http
-  #      port: 8080
+#    - type: http
+#      port: 8080
   - type: https
     port: 8443
     certAlias: dlab
@@ -87,8 +87,8 @@ server:
     trustStorePath: ${TRUST_STORE_PATH}
     trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-  #    - type: http
-  #      port: 8081
+#    - type: http
+#      port: 8081
   - type: https
     port: 8444
     certAlias: dlab
@@ -150,10 +150,12 @@ schedulers:
   stopExploratoryScheduler:
     enabled: true
     cron: "*/20 * * ? * * *"
+  terminateComputationalScheduler:
+    enabled: true
+    cron: "*/20 * * ? * * *"
   checkQuoteScheduler:
     enabled: true
     cron: "0 0 * ? * * *"
   checkUserQuoteScheduler:
     enabled: true
     cron: "0 0 * ? * * *"
-

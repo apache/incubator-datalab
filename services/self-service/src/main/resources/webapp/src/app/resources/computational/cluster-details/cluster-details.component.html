@@ -40,6 +40,10 @@
           <div class="col"><p>Cluster type:</p></div>
           <div class="col"><span>{{ resource.template_name }}</span></div>
         </div>
+        <div class="row-wrap" *ngIf="resource.image === 'docker.dlab-dataengine-service'">
+          <div class="col"><p>Cluster version:</p></div>
+          <div class="col"><span>{{ resource[DICTIONARY.cluster_version] }}</span></div>
+        </div>
         <div class="row-wrap">
          <div class="col"><p>Cluster alias:</p></div>
          <div class="col tooltip-wrap" (mouseover)="isEllipsisActive($event)">
@@ -71,7 +75,7 @@
         </div>
         <div class="m-top-10">
           <p *ngFor="let item of resource.computational_url">
-            <strong>{{ item.description }}:</strong>
+            <strong>{{ item.description }}:</strong>&nbsp;
             <a href="{{item.url}}" target="_blank">{{ item.url }}</a>
           </p>
         </div>
@@ -82,7 +86,7 @@
           </label>
           <div class="checkbox-group">
             <form [formGroup]="configurationForm" novalidate>
-              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] }">
+              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
                 <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
                 <span class="danger_color" *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
               </div>
@@ -94,7 +98,7 @@
             For more details please refer for Apache Zeppelin <a href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official documentation</a>.
           </small>
         </div>
-        <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked']">
+        <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked'] || false">
           <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
                   class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"

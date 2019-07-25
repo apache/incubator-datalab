@@ -33,11 +33,6 @@ import { AmiCreateDialogModule } from '../exploratory/ami-create-dialog';
 import { SchedulerModule } from '../scheduler';
 import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 
-export * from './resources-grid.component';
-export * from './resources-grid.model';
-export * from './create-resource.model';
-export * from './filter-configuration.model';
-
 @NgModule({
   imports: [
     CommonModule,

@@ -60,23 +60,30 @@ if __name__ == "__main__":
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
+        ssn_bucket_name_tag = service_base_name + '-ssn-bucket'
+        shared_bucket_name_tag = service_base_name + '-shared-bucket'
+        ssn_bucket_name = ssn_bucket_name_tag.lower().replace('_', '-')
+        shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
+        zone_full = os.environ['aws_region'] + os.environ['aws_zone']
         ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
         vpc2_cidr = os.environ['conf_vpc2_cidr']
+        vpc_name = '{}-VPC'.format(service_base_name)
+        vpc2_name = '{}-secondary-VPC'.format(service_base_name)
+        subnet_name = '{}-subnet'.format(service_base_name)
         allowed_ip_cidr = list()
         for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
             allowed_ip_cidr.append({"CidrIp": cidr.replace(' ','')})
         sg_name = instance_name + '-SG'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
+        elastic_ip_name = '{0}-ssn-EIP'.format(os.environ['conf_service_base_name'])
 
         try:
             if not os.environ['aws_vpc_id']:
@@ -86,14 +93,14 @@ if __name__ == "__main__":
                 pre_defined_vpc = True
                 logging.info('[CREATE VPC AND ROUTE TABLE]')
                 print('[CREATE VPC AND ROUTE TABLE]')
-                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {}".format(vpc_cidr, region, tag_name, service_base_name)
+                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --vpc_name {}".format(
+                    vpc_cidr, region, tag_name, service_base_name, vpc_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
                 except:
                     traceback.print_exc()
                     raise Exception
                 os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
-                create_product_tag(os.environ['aws_vpc_id'])
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create VPC. Exception:" + str(err))
@@ -111,14 +118,14 @@ if __name__ == "__main__":
                 pre_defined_vpc2 = True
                 logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
                 print('[CREATE SECONDARY VPC AND ROUTE TABLE]')
-                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary".format(vpc2_cidr, region, tag2_name, service_base_name)
+                params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary " \
+                         "--vpc_name {}".format(vpc2_cidr, region, tag2_name, service_base_name, vpc2_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
                 except:
                     traceback.print_exc()
                     raise Exception
                 os.environ['aws_vpc2_id'] = get_vpc_by_tag(tag2_name, service_base_name)
-                create_product_tag(os.environ['aws_vpc2_id'])
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create secondary VPC. Exception:" + str(err))
@@ -136,7 +143,9 @@ if __name__ == "__main__":
                 pre_defined_subnet = True
                 logging.info('[CREATE SUBNET]')
                 print('[CREATE SUBNET]')
-                params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
+                params = "--vpc_id {0} --username {1} --infra_tag_name {2} --infra_tag_value {3} --prefix {4} " \
+                         "--ssn {5} --zone {6} --subnet_name {7}".format(os.environ['aws_vpc_id'], 'ssn', tag_name,
+                                                             service_base_name, '20', True, zone_full, subnet_name)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 except:
@@ -144,7 +153,6 @@ if __name__ == "__main__":
                     raise Exception
                 with open('/tmp/ssn_subnet_id', 'r') as f:
                     os.environ['aws_subnet_id'] = f.read()
-                create_product_tag(os.environ['aws_subnet_id'])
                 enable_auto_assign_ip(os.environ['aws_subnet_id'])
             except Exception as err:
                 print('Error: {0}'.format(err))
@@ -158,6 +166,10 @@ if __name__ == "__main__":
                         print("Subnet hasn't been created.")
                     remove_vpc(os.environ['aws_vpc_id'])
                 if pre_defined_vpc2:
+                    try:
+                        remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    except:
+                        print("There are no VPC Endpoints")
                     remove_route_tables(tag2_name, True)
                     remove_vpc(os.environ['aws_vpc2_id'])
                 sys.exit(1)
@@ -169,9 +181,11 @@ if __name__ == "__main__":
             try:
                 logging.info('[CREATE PEERING CONNECTION]')
                 print('[CREATE PEERING CONNECTION]')
-                os.environ['aws_peering_id'] = create_peering_connection(os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], service_base_name)
+                os.environ['aws_peering_id'] = create_peering_connection(os.environ['aws_vpc_id'],
+                                                                         os.environ['aws_vpc2_id'], service_base_name)
                 print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
-                create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'], get_cidr_by_vpc(os.environ['aws_vpc2_id']))
+                create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'], os.environ['aws_peering_id'],
+                                   get_cidr_by_vpc(os.environ['aws_vpc2_id']))
             except Exception as err:
                 print('Error: {0}'.format(err))
                 append_result("Failed to create peering connection.", str(err))
@@ -183,6 +197,11 @@ if __name__ == "__main__":
                         print("Subnet hasn't been created.")
                     remove_vpc(os.environ['aws_vpc_id'])
                 if pre_defined_vpc2:
+                    remove_peering('*')
+                    try:
+                        remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    except:
+                        print("There are no VPC Endpoints")
                     remove_route_tables(tag2_name, True)
                     remove_vpc(os.environ['aws_vpc2_id'])
                 sys.exit(1)
@@ -236,8 +255,10 @@ if __name__ == "__main__":
                 egress_sg_rules_template = format_sg([
                     {"IpProtocol": "-1", "IpRanges": [{"CidrIp": all_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
                 ])
-                params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
-                    format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
+                params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
+                         "--infra_tag_value {} --force {} --ssn {}". \
+                    format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template),
+                           json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_security_group', params))
                 except:
@@ -254,13 +275,20 @@ if __name__ == "__main__":
                     remove_route_tables(tag_name, True)
                     remove_vpc(os.environ['aws_vpc_id'])
                 if pre_defined_vpc2:
+                    remove_peering('*')
+                    try:
+                        remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    except:
+                        print("There are no VPC Endpoints")
                     remove_route_tables(tag2_name, True)
                     remove_vpc(os.environ['aws_vpc2_id'])
                 sys.exit(1)
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {}".\
-            format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'])
+        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
+                 "--infra_tag_name {} --infra_tag_value {}".\
+            format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'], tag_name,
+                   service_base_name)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -278,6 +306,11 @@ if __name__ == "__main__":
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
             remove_route_tables(tag2_name, True)
             remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
@@ -305,11 +338,14 @@ if __name__ == "__main__":
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
             remove_route_tables(tag2_name, True)
             remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
-
-
 
     if os.environ['conf_duo_vpc_enable'] == 'true':
         try:
@@ -335,14 +371,19 @@ if __name__ == "__main__":
                 remove_route_tables(tag_name, True)
                 remove_vpc(os.environ['aws_vpc_id'])
             if pre_defined_vpc2:
+                remove_peering('*')
+                try:
+                    remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                except:
+                    print("There are no VPC Endpoints")
                 remove_route_tables(tag2_name, True)
                 remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
-                 format(user_bucket_name, tag_name, user_bucket_name, region)
+        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
+                 format(ssn_bucket_name, tag_name, ssn_bucket_name, region, ssn_bucket_name_tag)
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
@@ -350,8 +391,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
 
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
-                 format(shared_bucket_name, tag_name, shared_bucket_name, region)
+        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
+                 format(shared_bucket_name, tag_name, shared_bucket_name, region, shared_bucket_name_tag)
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
@@ -372,6 +413,11 @@ if __name__ == "__main__":
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
             remove_route_tables(tag2_name, True)
             remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
@@ -379,10 +425,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}".\
+        params = "--node_name {0} --ami_id {1} --instance_type {2} --key_name {3} --security_group_ids {4} --subnet_id {5} " \
+                 "--iam_profile {6} --infra_tag_name {7} --infra_tag_value {8} --instance_class {9} --primary_disk_size {10}".\
             format(instance_name, ssn_ami_id, os.environ['aws_ssn_instance_size'], os.environ['conf_key_name'],
                    os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
-                   role_profile_name, tag_name, instance_name)
+                   role_profile_name, tag_name, instance_name, 'ssn', '20')
 
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
@@ -404,6 +451,11 @@ if __name__ == "__main__":
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
             remove_route_tables(tag2_name, True)
             remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
@@ -417,7 +469,8 @@ if __name__ == "__main__":
                 elastic_ip = os.environ['ssn_elastic_ip']
             except:
                 elastic_ip = 'None'
-            params = "--elastic_ip {} --ssn_id {}".format(elastic_ip, ssn_id)
+            params = "--elastic_ip {} --ssn_id {} --infra_tag_name {} --infra_tag_value {}".format(
+                elastic_ip, ssn_id, tag_name, elastic_ip_name)
             try:
                 local("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params))
             except:
@@ -439,6 +492,11 @@ if __name__ == "__main__":
                 remove_route_tables(tag_name, True)
                 remove_vpc(os.environ['aws_vpc_id'])
             if pre_defined_vpc2:
+                remove_peering('*')
+                try:
+                    remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                except:
+                    print("There are no VPC Endpoints")
                 remove_route_tables(tag2_name, True)
                 remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
@@ -474,4 +532,12 @@ if __name__ == "__main__":
                 remove_vpc_endpoints(os.environ['aws_vpc_id'])
                 remove_route_tables(tag_name, True)
                 remove_vpc(os.environ['aws_vpc_id'])
+            if pre_defined_vpc2:
+                remove_peering('*')
+                try:
+                    remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                except:
+                    print("There are no VPC Endpoints")
+                remove_route_tables(tag2_name, True)
+                remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)

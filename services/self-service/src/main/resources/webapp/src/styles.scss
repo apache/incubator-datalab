@@ -326,7 +326,7 @@ input[type='number'] {
   text-transform: capitalize;
 }
 
-toast-container {
+.overlay-container {
   #toast-container {
     > div.toast {
       box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
@@ -335,10 +335,11 @@ toast-container {
       padding: 12px 20px;
       overflow: inherit;
       margin: 0 0 15px;
+      font-size: 14px;
       &::before {
         position: absolute;
         left: -15px;
-        top: -12px;
+        top: -15px;
         font-family: "Material Icons";
         background-color: #fff;
         width: 30px;
@@ -365,6 +366,13 @@ toast-container {
       &.toast-info {
         background-image: none;
         color: #35afd5;
+        &::before {
+          content: "priority_high";
+        }
+      }
+      &.toast-warning {
+        background-image: none;
+        color: #f7b500;
         &::before {
           content: "priority_high";
         }

@@ -30,6 +30,7 @@
 .butt-login.mat-raised-button {
   display: block;
   margin: 0 auto;
+  height: 38px;
   background-color: #5bc0de;
   color: #fff;
   border-color: #46b8da;
@@ -102,7 +103,12 @@
   border: 1px solid #35afd5 !important;
   border-left: 1px solid #35afd5;
   transition: all 0.35s ease-in-out;
-  font: 300 14px/24px 'Open Sans', sans-serif !important;
+  /* font: 300 14px/24px 'Open Sans', sans-serif !important; */
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 24px;
+  font-family:'Open Sans', sans-serif !important;
 }
 
 .input-icon {

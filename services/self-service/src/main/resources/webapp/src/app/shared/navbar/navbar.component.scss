@@ -45,11 +45,12 @@
 
     .statusbar {
       display: flex;
-      width: 60px;
+      width: 50px;
       height: 46px;
       text-decoration: none;
       justify-content: center;
       color: #f9fafb;
+      cursor: pointer;
       span {
         align-self: center;
         font-size: 18px;
@@ -66,6 +67,12 @@
         color: #ef5c4b;
         &:hover {
           color: #bd4146;
+        }
+      }
+      .meta {
+        color: #c7d4d6;
+        &:hover {
+          color: #fff;
         }
       }
     }
@@ -86,7 +93,29 @@
     }
   }
 }
-
+.app-info {
+  padding: 15px;
+  p {
+    strong {
+      color: #455c74;
+      font-size: 14px;
+      font-weight: 600;
+      width: 120px;
+      display: inline-block;
+    }
+    .helper_instructiongit {
+      font-size: 14px;
+      i {
+        vertical-align: bottom;
+      }
+    }
+    span {
+      width: 180px;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+  }
+}
 a.nav-item {
   position: relative;
   height: 56px;
@@ -118,7 +147,7 @@ a.nav-item {
   }
  }
 
-.ok, .warning, .error, .user-name {
+.ok, .warning, .error, .user-name, .meta {
   transition: all .35s ease-in-out;
 }
 
