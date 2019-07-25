@@ -19,14 +19,25 @@
 #
 # ******************************************************************************
 
-resource "helm_release" "dlab-ui" {
-    name      = "dlab-ui"
-    chart     = "./dlab-ui-chart"
-    depends_on = [helm_release.mongodb]
-    wait = true
+data "template_file" "dlab_ui_values" {
+  template = file("./dlab-ui-chart/values.yaml")
+  vars = {
+      mongo_db_name       = var.mongo_dbname
+      mongo_db_password   = var.mongo_db_pwd
+      mongo_user          = var.mongo_db_username
+      mongo_port          = var.mongo_service_port
+      mongo_service_name  = var.mongo_service_name
+      ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
+  }
+}
 
-    set {
-        name = "ingress.host"
-        value = var.ssn_k8s_alb_dns_name
-    }
+resource "helm_release" "dlab_ui" {
+    name       = "dlab-ui"
+    chart      = "./dlab-ui-chart"
+    depends_on = [helm_release.mongodb]
+    wait       = true
+
+    values     = [
+        data.template_file.dlab_ui_values.rendered
+    ]
 }

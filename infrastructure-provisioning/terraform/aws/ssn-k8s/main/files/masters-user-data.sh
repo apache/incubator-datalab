@@ -23,14 +23,14 @@
 set -ex
 
 check_tokens () {
-RUN=`aws s3 ls s3://${k8s-bucket-name}/k8s/masters/ > /dev/null && echo "true" || echo "false"`
+RUN=$(aws s3 ls s3://${k8s-bucket-name}/k8s/masters/ > /dev/null && echo "true" || echo "false")
 sleep 5
 }
 
 check_elb_status () {
-RUN=`aws elbv2 describe-target-health --target-group-arn ${k8s-tg-arn} --region ${k8s-region} | \
+RUN=$(aws elbv2 describe-target-health --target-group-arn ${k8s-tg-arn} --region ${k8s-region} | \
      jq -r '.TargetHealthDescriptions[].TargetHealth.State' | \
-     grep "^healthy" > /dev/null && echo "true" || echo "false"`
+     grep "^healthy" > /dev/null && echo "true" || echo "false")
 sleep 5
 }
 
@@ -48,11 +48,11 @@ sudo apt-get install -y python-pip jq unzip
 sudo pip install -U pip
 sudo pip install awscli
 
-local_ip=`curl http://169.254.169.254/latest/meta-data/local-ipv4`
-first_master_ip=`aws autoscaling describe-auto-scaling-instances --region ${k8s-region} --output text --query \
+local_ip=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+first_master_ip=$(aws autoscaling describe-auto-scaling-instances --region ${k8s-region} --output text --query \
                  "AutoScalingInstances[?AutoScalingGroupName=='${k8s-asg}'].InstanceId" | xargs -n1 aws ec2 \
                  describe-instances --instance-ids $ID --region ${k8s-region} --query \
-                 "Reservations[].Instances[].PrivateIpAddress" --output text | sort | head -n1`
+                 "Reservations[].Instances[].PrivateIpAddress" --output text | sort | head -n1)
 
 # installing Docker
 sudo bash -c 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -'
@@ -68,7 +68,7 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 
 check_tokens
-if [[ $local_ip == $first_master_ip ]] && [[ $RUN == "false" ]];then
+if [[ $local_ip == "$first_master_ip" ]] && [[ $RUN == "false" ]];then
 cat <<EOF > /tmp/kubeadm-config.yaml
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
@@ -136,9 +136,9 @@ do
 done
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/cert_key /tmp/cert_key
-join_command=`cat /tmp/join_command`
-cert_key=`cat /tmp/cert_key`
-sudo $join_command --control-plane --certificate-key $cert_key
+join_command=$(cat /tmp/join_command)
+cert_key=$(cat /tmp/cert_key)
+sudo "$join_command" --control-plane --certificate-key "$cert_key"
 sudo mkdir -p /home/${k8s_os_user}/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/${k8s_os_user}/.kube/config
 sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/.kube

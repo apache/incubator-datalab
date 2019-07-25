@@ -22,11 +22,13 @@
 data "template_file" "mongo_values" {
   template = file("./files/mongo_values.yaml")
   vars     = {
-      mongo_root_pwd    = var.mongo_root_pwd
-      mongo_db_username = var.mongo_db_username
-      mongo_dbname      = var.mongo_dbname
-      mongo_db_pwd      = var.mongo_db_pwd
-      mongo_image_tag   = var.mongo_image_tag
+      mongo_root_pwd      = var.mongo_root_pwd
+      mongo_db_username   = var.mongo_db_username
+      mongo_dbname        = var.mongo_dbname
+      mongo_db_pwd        = var.mongo_db_pwd
+      mongo_image_tag     = var.mongo_image_tag
+      mongo_service_port  = var.mongo_service_port
+      mongo_node_port     = var.mongo_node_port
   }
 }
 

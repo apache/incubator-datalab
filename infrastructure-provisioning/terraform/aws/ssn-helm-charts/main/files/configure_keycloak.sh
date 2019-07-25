@@ -23,17 +23,17 @@
       # 6 spaces needed as this file will be pasted in keycloak_values.yaml by Terraform
       set -x
       auth () {
-          RUN=`/opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://127.0.0.1:8080/auth --realm master \
-          --user ${keycloak_user} --password ${keycloak_passowrd} > /dev/null && echo "true" || echo "false"`
+          RUN=$(/opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://127.0.0.1:8080/auth --realm master \
+          --user ${keycloak_user} --password ${keycloak_passowrd} > /dev/null && echo "true" || echo "false")
       }
       check_realm () {
-          RUN=`/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab > /dev/null && echo "true" || echo "false"`
+          RUN=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab > /dev/null && echo "true" || echo "false")
       }
       configure_keycloak () {
           # Create Realm
           /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=dlab -s enabled=true
           # Get realm ID
-          dlab_realm_id=`/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab | /usr/bin/jq -r '.id'`
+          dlab_realm_id=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab | /usr/bin/jq -r '.id')
           # Create user federation
           /opt/jboss/keycloak/bin/kcadm.sh create components -r dlab -s name=dlab-ldap -s providerId=ldap \
           -s providerType=org.keycloak.storage.UserStorageProvider -s parentId=$dlab_realm_id  -s 'config.priority=["1"]' \
@@ -49,7 +49,7 @@
           -s 'config.useTruststoreSpi=["ldapsOnly"]' -s 'config.connectionPooling=["true"]' \
           -s 'config.pagination=["true"]' --server http://127.0.0.1:8080/auth
           # Get user federation ID
-          user_f_id=`/opt/jboss/keycloak/bin/kcadm.sh get components -r dlab --query name=dlab-ldap | /usr/bin/jq -er '.[].id'`
+          user_f_id=$(/opt/jboss/keycloak/bin/kcadm.sh get components -r dlab --query name=dlab-ldap | /usr/bin/jq -er '.[].id')
           # Create user federation mapper
           /opt/jboss/keycloak/bin/kcadm.sh create components -r dlab -s name=uid-attribute-to-email-mapper \
           -s providerId=user-attribute-ldap-mapper -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \

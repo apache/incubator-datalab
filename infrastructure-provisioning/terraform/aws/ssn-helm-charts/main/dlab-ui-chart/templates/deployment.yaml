@@ -64,6 +64,15 @@ spec:
 #              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: ssn-yml
+              mountPath: /root/
+              readOnly: true
+        volumes:
+          - name: ssn-yml
+            configMap:
+              name: {{ include "dlab-ui.fullname" . }}-ssn-yml
+              defaultMode: 0644
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

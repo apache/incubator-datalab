@@ -28,12 +28,7 @@ replicaCount: 1
 image:
   repository: koppox/dlab-ui
   tag: '1.3-hardj'
-  # pullPolicy: IfNotPresent
   pullPolicy: Always
-
-#imagePullSecrets: []
-#nameOverride: ""
-#fullnameOverride: ""
 
 service:
   type: NodePort
@@ -42,31 +37,21 @@ service:
 
 ingress:
   enabled: true
-  host: ""
+  host: ${ssn_k8s_alb_dns_name}
   annotations: 
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    # kubernetes.io/tls-acme: "true"
 
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 labels: {}
-#resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
-#nodeSelector: {}
-
-#tolerations: []
-
-#affinity: {}
+dlab-ui:
+  mongo:
+    host: ${mongo_service_name}
+    port: ${mongo_port}
+    username: ${mongo_user}
+    password: ${mongo_db_password}
+    db_name: ${mongo_db_name}

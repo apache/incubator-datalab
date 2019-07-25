@@ -99,6 +99,18 @@ variable "mongo_image_tag" {
     description = "MongoDB Image tag"
 }
 
+variable "mongo_service_port" {
+    default = "27017"
+}
+
+variable "mongo_node_port" {
+    default = "31017"
+}
+
+variable "mongo_service_name" {
+    default = "mongo-ha-mongodb"
+}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

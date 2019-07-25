@@ -35,4 +35,5 @@ persistence:
 
 service:
   type: NodePort
-  nodePort: 31017
+  port: ${mongo_service_port}
+  nodePort: ${mongo_node_port}
