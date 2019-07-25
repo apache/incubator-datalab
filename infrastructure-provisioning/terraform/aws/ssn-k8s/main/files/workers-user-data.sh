@@ -65,4 +65,4 @@ do
 done
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
 join_command=$(cat /tmp/join_command)
-sudo "$join_command"
+sudo $join_command
