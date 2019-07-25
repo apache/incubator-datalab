@@ -66,13 +66,17 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: ssn-yml
-              mountPath: /root/
+              mountPath: /root/ssn.yml
+              subPath: ssn
               readOnly: true
       volumes:
         - name: ssn-yml
           configMap:
             name: {{ include "dlab-ui.fullname" . }}-ssn-yml
             defaultMode: 0644
+            items:
+              - key: ssn.yml
+                path: ssn
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
