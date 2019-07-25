@@ -61,7 +61,7 @@ spec:
       volumes:
         - name: billing-yml
           configMap:
-            name: {{ include "dlab-billing.fullname" . }}-billing-yml
+            name: {{ include "dlab-billing.fullname" . }}-billing-conf
             defaultMode: 0644
             items:
               - key: billing.yml

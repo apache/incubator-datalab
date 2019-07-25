@@ -65,18 +65,25 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: ssn-yml
+            - name: ui-conf
               mountPath: /root/ssn.yml
               subPath: ssn
               readOnly: true
+            - name: ui-conf
+              mountPath: /root/self-service.yml
+              subPath: self-service
+              readOnly: true
       volumes:
-        - name: ssn-yml
+        - name: ui-conf
           configMap:
-            name: {{ include "dlab-ui.fullname" . }}-ssn-yml
+            name: {{ include "dlab-ui.fullname" . }}-ui-conf
             defaultMode: 0644
             items:
               - key: ssn.yml
                 path: ssn
+              - key: self-service.yml
+                path: self-service
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
