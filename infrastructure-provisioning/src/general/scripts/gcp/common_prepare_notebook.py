@@ -118,14 +118,14 @@ if __name__ == "__main__":
                                                          notebook_config['project_name'])
 
     additional_tags = os.environ['tags'].replace("': u'", ": ").replace("', u'", ", ").replace("{u'", "" ).replace("'}", "")
-    print('Additional tags will be added: {}'.format(additional_tags)
+    print('Additional tags will be added: {}'.format(additional_tags))
 
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
                                  "project_name": notebook_config['project_name'],
                                  "user": notebook_config['edge_user_name'],
                                  "product": "dlab",
-                                 additional_tags}
+                                 }
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
