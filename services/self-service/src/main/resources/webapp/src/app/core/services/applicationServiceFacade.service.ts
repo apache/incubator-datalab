@@ -410,13 +410,6 @@ export class ApplicationServiceFacade {
       });
   }
 
-  public buildUpdateUsersBudget(data): Observable<any> {
-    return this.buildRequest(RequestMethod.Put,
-      this.requestRegistry.Item(ApplicationServiceFacade.BUDGET),
-      data,
-      { observe: 'response' });
-  }
-
   public buildGetSsnMonitorData(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.SNN_MONITOR),
@@ -549,6 +542,13 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
       data);
+  }
+
+  public buildUpdateProjectsBudget(param, data): Observable<any> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      data,
+      { observe: 'response' });
   }
 
   public buildGetEndpointsData(): Observable<any> {
