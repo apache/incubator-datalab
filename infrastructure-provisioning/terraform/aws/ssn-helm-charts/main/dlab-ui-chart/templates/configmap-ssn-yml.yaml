@@ -43,11 +43,11 @@ data:
     devMode: ${DEV_MODE}
 
     mongo:
-      host: {{ .Values.dlab-ui.mongo.host }}
-      port: {{ .Values.dlab-ui.mongo.port }}
-      username: {{ .Values.dlab-ui.mongo.username }}
-      password: {{ .Values.dlab-ui.mongo.password }}
-      database: {{ .Values.dlab-ui.mongo.db_name }}
+      host: {{ .Values.dlab_ui.mongo.host }}
+      port: {{ .Values.dlab_ui.mongo.port }}
+      username: {{ .Values.dlab_ui.mongo.username }}
+      password: {{ .Values.dlab_ui.mongo.password }}
+      database: {{ .Values.dlab_ui.mongo.db_name }}
 
     selfService:
       protocol: https

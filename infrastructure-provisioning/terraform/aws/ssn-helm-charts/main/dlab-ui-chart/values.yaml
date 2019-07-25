@@ -48,7 +48,7 @@ ingress:
   #      - chart-example.local
 labels: {}
 
-dlab-ui:
+dlab_ui:
   mongo:
     host: ${mongo_service_name}
     port: ${mongo_port}
