@@ -131,10 +131,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --region {} --os_user {} --exploratory_name {}" \
+        params = "--hostname {} --keyfile {} --region {} --os_user {} --exploratory_name {} --edge_ip {}" \
                  .format(instance_hostname, notebook_config['ssh_key_path'],
                          os.environ['gcp_region'], notebook_config['dlab_ssh_user'],
-                         notebook_config['exploratory_name'])
+                         notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
         except:

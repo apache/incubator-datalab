@@ -88,6 +88,7 @@ if __name__ == "__main__":
     else:
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Public')
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    edge_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -167,14 +168,14 @@ if __name__ == "__main__":
                  "--zeppelin_version {10} --scala_version {11} " \
                  "--livy_version {12} --multiple_clusters {13} " \
                  "--r_mirror {14} --endpoint_url {15} " \
-                 "--ip_adress {16} --exploratory_name {17}" \
+                 "--ip_adress {16} --exploratory_name {17} --edge_ip {18}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
                     os.environ['notebook_r_mirror'], endpoint_url, notebook_config['ip_address'],
-                    notebook_config['exploratory_name'])
+                    notebook_config['exploratory_name'], edge_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
         except:

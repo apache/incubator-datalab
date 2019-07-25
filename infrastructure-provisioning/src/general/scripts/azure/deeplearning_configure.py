@@ -81,6 +81,8 @@ if __name__ == "__main__":
             edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
                                                                                 edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        edge_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                           edge_instance_name)
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -173,12 +175,12 @@ if __name__ == "__main__":
                  "--os_user {2} --jupyter_version {3} " \
                  "--scala_version {4} --spark_version {5} " \
                  "--hadoop_version {6} --region {7} " \
-                 "--r_mirror {8} --ip_adress {9} --exploratory_name {10}" \
+                 "--r_mirror {8} --ip_adress {9} --exploratory_name {10} --edge_ip {11}" \
                  .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
                          os.environ['azure_region'], os.environ['notebook_r_mirror'],
-                         notebook_config['ip_address'], notebook_config['exploratory_name'])
+                         notebook_config['ip_address'], notebook_config['exploratory_name'], edge_hostname)
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,

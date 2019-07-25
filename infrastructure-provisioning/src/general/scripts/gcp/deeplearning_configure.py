@@ -58,6 +58,7 @@ if __name__ == "__main__":
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
+    edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -130,12 +131,12 @@ if __name__ == "__main__":
                  "--os_user {} --jupyter_version {} " \
                  "--scala_version {} --spark_version {} " \
                  "--hadoop_version {} --region {} " \
-                 "--r_mirror {} --exploratory_name {}" \
+                 "--r_mirror {} --exploratory_name {} --edge_ip" \
                  .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
                          os.environ['gcp_region'], os.environ['notebook_r_mirror'],
-                         notebook_config['exploratory_name'])
+                         notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:
