@@ -57,11 +57,11 @@ spec:
             - name: billing-yml
               mountPath: /root/
               readOnly: true
-        volumes:
-          - name: billing-yml
-            configMap:
-              name: {{ include "dlab-billing.fullname" . }}-billing-yml
-              defaultMode: 0644
+      volumes:
+        - name: billing-yml
+          configMap:
+            name: {{ include "dlab-billing.fullname" . }}-billing-yml
+            defaultMode: 0644
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

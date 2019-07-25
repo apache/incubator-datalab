@@ -68,11 +68,11 @@ spec:
             - name: ssn-yml
               mountPath: /root/
               readOnly: true
-        volumes:
-          - name: ssn-yml
-            configMap:
-              name: {{ include "dlab-ui.fullname" . }}-ssn-yml
-              defaultMode: 0644
+      volumes:
+        - name: ssn-yml
+          configMap:
+            name: {{ include "dlab-ui.fullname" . }}-ssn-yml
+            defaultMode: 0644
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
