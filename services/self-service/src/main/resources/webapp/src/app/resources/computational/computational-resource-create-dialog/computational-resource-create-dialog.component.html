@@ -219,10 +219,13 @@
         </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
-          <button mat-raised-button type="button" [disabled]="!resourceForm?.valid"
+          <button mat-raised-button type="button" [disabled]="!resourceForm?.valid || 
+              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
+              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version)"
             (click)="createComputationalResource(resourceForm.value)" class="butt butt-success action"
             [ngClass]="{'not-allowed': !resourceForm?.valid ||
-            (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) }">Create</button>
+              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
+              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version) }">Create</button>
         </div>
       </form>
 
