@@ -45,6 +45,7 @@ data "template_file" "keycloak_values" {
     mysql_db_name           = var.mysql_db_name
     mysql_user              = var.mysql_user
     mysql_user_password     = var.mysql_user_password
+    replicas_count          = var.ssn_k8s_workers_count
   }
 }
 
