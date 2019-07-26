@@ -23,7 +23,6 @@ data "template_file" "dlab_ui_values" {
   template = file("./dlab-ui-chart/values.yaml")
   vars = {
       mongo_db_name       = var.mongo_dbname
-      mongo_db_password   = var.mongo_db_pwd
       mongo_user          = var.mongo_db_username
       mongo_port          = var.mongo_service_port
       mongo_service_name  = var.mongo_service_name
@@ -34,7 +33,7 @@ data "template_file" "dlab_ui_values" {
 resource "helm_release" "dlab_ui" {
     name       = "dlab-ui"
     chart      = "./dlab-ui-chart"
-    depends_on = [helm_release.mongodb]
+    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
     wait       = true
 
     values     = [

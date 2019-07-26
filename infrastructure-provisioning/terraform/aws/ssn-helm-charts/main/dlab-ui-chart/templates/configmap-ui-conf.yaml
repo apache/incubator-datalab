@@ -46,7 +46,7 @@ data:
       host: {{ .Values.dlab_ui.mongo.host }}
       port: {{ .Values.dlab_ui.mongo.port }}
       username: {{ .Values.dlab_ui.mongo.username }}
-      password: {{ .Values.dlab_ui.mongo.password }}
+      password: ${MONGO_DB_PASSWORD}
       database: {{ .Values.dlab_ui.mongo.db_name }}
 
     selfService:

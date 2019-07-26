@@ -22,10 +22,10 @@
 data "template_file" "mongo_values" {
   template = file("./files/mongo_values.yaml")
   vars     = {
-      mongo_root_pwd      = var.mongo_root_pwd
+      mongo_root_pwd      = random_string.mongo_root_password.result
       mongo_db_username   = var.mongo_db_username
       mongo_dbname        = var.mongo_dbname
-      mongo_db_pwd        = var.mongo_db_pwd
+      mongo_db_pwd        = random_string.mongo_db_password.result
       mongo_image_tag     = var.mongo_image_tag
       mongo_service_port  = var.mongo_service_port
       mongo_node_port     = var.mongo_node_port
@@ -39,5 +39,6 @@ resource "helm_release" "mongodb" {
     values = [
         data.template_file.mongo_values.rendered
     ]
-    depends_on = [helm_release.nginx]
+    depends_on = [helm_release.nginx, kubernetes_secret.mongo_db_password_secret,
+                  kubernetes_secret.mongo_root_password_secret]
 }

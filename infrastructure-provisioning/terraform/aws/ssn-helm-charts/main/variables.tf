@@ -27,20 +27,8 @@ variable "keycloak_user" {
     default = "dlab-admin"
 }
 
-variable "keycloak_password" {
-    default = "keycloak123"
-}
-
-variable "mysql_root_password" {
-    default = "mysqlroot123"
-}
-
 variable "mysql_user" {
     default = "keycloak"
-}
-
-variable "mysql_user_password" {
-    default = "keycloak123"
 }
 
 variable "mysql_db_name" {
@@ -75,23 +63,12 @@ variable "ldap_connection_url" {
     default = ""
 }
 
-variable "mongo_root_pwd" {
-    default = "$tr0ng_r00T-passworI)"
-    description = "Password for MongoDB root user"
-}
 variable "mongo_db_username" {
     default = "admin"
-    description = "Password for MongoDB root user"
 }
 
 variable "mongo_dbname" {
     default = "dlabdb"
-    description = "Password for MongoDB root user"
-}
-
-variable "mongo_db_pwd" {
-    default = "$tr0ng_N0N=r00T-passworI)"
-    description = "Password for MongoDB root user"
 }
 
 variable "mongo_image_tag" {

@@ -22,9 +22,9 @@
 data "template_file" "mysql_values" {
   template = file("./files/mysql_values.yaml")
   vars = {
-    mysql_root_password = var.mysql_root_password
+    mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_user
-    mysql_user_password = var.mysql_user_password
+    mysql_user_password = random_string.mysql_user_password.result
     mysql_db_name       = var.mysql_db_name
     mysql_volume_claim  = kubernetes_persistent_volume_claim.example.metadata.0.name
   }
@@ -37,6 +37,7 @@ resource "helm_release" "keycloak-mysql" {
   values = [
     data.template_file.mysql_values.rendered
   ]
+  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_user_password_secret]
 }
 
 provider "kubernetes" {}

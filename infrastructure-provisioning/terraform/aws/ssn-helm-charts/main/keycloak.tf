@@ -24,7 +24,7 @@ data "template_file" "configure_keycloak" {
   vars     = {
     ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
     keycloak_user        = var.keycloak_user
-    keycloak_passowrd    = var.keycloak_password
+    keycloak_passowrd    = random_string.keycloak_password.result
     ldap_usernameAttr    = var.ldap_usernameAttr
     ldap_rdnAttr         = var.ldap_rdnAttr
     ldap_uuidAttr        = var.ldap_uuidAttr
@@ -39,12 +39,12 @@ data "template_file" "keycloak_values" {
   template = file("./files/keycloak_values.yaml")
   vars = {
     keycloak_user           = var.keycloak_user
-    keycloak_password       = var.keycloak_password
+    keycloak_password       = random_string.keycloak_password.result
     ssn_k8s_alb_dns_name    = var.ssn_k8s_alb_dns_name
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
     mysql_db_name           = var.mysql_db_name
     mysql_user              = var.mysql_user
-    mysql_user_password     = var.mysql_user_password
+    mysql_user_password     = random_string.mysql_user_password.result
     replicas_count          = var.ssn_k8s_workers_count > 3 ? 3 : var.ssn_k8s_workers_count
   }
 }
@@ -64,5 +64,5 @@ resource "helm_release" "keycloak" {
   values     = [
     data.template_file.keycloak_values.rendered
   ]
-  depends_on = [helm_release.keycloak-mysql]
+  depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret]
 }

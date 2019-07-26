@@ -37,7 +37,7 @@ data:
     host: {{ .Values.billing.mongo.host }}
     port: {{ .Values.billing.mongo.port }}
     username: {{ .Values.billing.mongo.username }}
-    password: {{ .Values.billing.mongo.password }}
+    password: ${MONGO_DB_PASSWORD}
     database: {{ .Values.billing.mongo.db_name }}
 
     scheduler:
@@ -60,7 +60,7 @@ data:
         host: {{ .Values.billing.mongo.host }}
         port: {{ .Values.billing.mongo.port }}
         username: {{ .Values.billing.mongo.username }}
-        password: {{ .Values.billing.mongo.password }}
+        password: ${MONGO_DB_PASSWORD}
         database: {{ .Values.billing.mongo.db_name }}
     #    bufferSize: 10000
         upsert: true

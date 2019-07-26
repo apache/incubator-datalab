@@ -26,5 +26,5 @@ provider "helm" {
 }
 
 output "mongo_password" {
-    value = var.mongo_db_pwd
+    value = random_string.mongo_db_password.result
 }

@@ -58,5 +58,4 @@ billing:
     host: ${mongo_service_name}
     port: ${mongo_port}
     username: ${mongo_user}
-    password: ${mongo_db_password}
     db_name: ${mongo_db_name}
