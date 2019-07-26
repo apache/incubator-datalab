@@ -52,6 +52,10 @@ if __name__ == "__main__":
 
         ami_id = get_ami_id_by_name(image_conf['full_image_name'])
         if ami_id == '':
+            try:
+                os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+            except KeyError:
+                os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
             image_id = create_image_from_instance(tag_name=image_conf['instance_tag'],
                                                   instance_name=image_conf['instance_name'],
                                                   image_name=image_conf['full_image_name'],
