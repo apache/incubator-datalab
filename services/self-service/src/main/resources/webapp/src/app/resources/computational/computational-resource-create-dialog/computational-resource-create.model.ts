@@ -50,16 +50,16 @@ export class ComputationalResourceModel {
       });
     } else if (DICTIONARY.cloud_provider === 'gcp' && image.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
-        name: parameters.cluster_alias_name,
-        dataproc_slave_count: (parameters.instance_number - 1),
         template_name: image.template_name,
-        notebook_name: env.name,
         image: image.image,
+        notebook_name: env.name,
+        name: parameters.cluster_alias_name,
+        dataproc_master_count: 1,
+        dataproc_slave_count: (parameters.instance_number - 1),
+        dataproc_preemptible_count: parameters.preemptible_instance_number,
         dataproc_master_instance_type: parameters.shape_master,
         dataproc_slave_instance_type: parameters.shape_slave,
-        dataproc_version: image.version,
-        dataproc_master_count: 1,
-        dataproc_preemptible_count: parameters.preemptible_instance_number,
+        dataproc_version: parameters.version,
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag
