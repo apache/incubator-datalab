@@ -21,7 +21,6 @@ package com.epam.dlab.mongo;
 
 import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
-import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.exceptions.ParseException;
@@ -147,20 +146,17 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		resourceList.append(getBucketName(sbName) + "-shared-bucket", "Collaboration bucket", DlabResourceType
 				.COLLABORATION_BUCKET, null, null);
 
-		// Add EDGE
-		Bson projection = fields(include(FIELD_ID, FIELD_EDGE_BUCKET));
-		Iterable<Document> docs = connection.getCollection(COLLECTION_USER_EDGE).find().projection(projection);
+		// Add PROJECTS
+		Bson projection = fields(include("name"));
+		Iterable<Document> docs = connection.getCollection("Projects").find().projection(projection);
 		for (Document d : docs) {
-			String username = d.getString(FIELD_ID);
-			final String simpleUserName = BillingUtils.getSimpleUserName(username);
-			resourceList.append(sbName + "-" + simpleUserName + "-edge", "EDGE Node",
-					DlabResourceType.EDGE, username, null);
-			resourceList.append(sbName + "-" + simpleUserName + "-bucket", "Personal bucket",
-					DlabResourceType.COLLABORATION_BUCKET, username, null);
-			resourceList.append(sbName + "-" + simpleUserName + "-edge-volume-primary",
-					"EDGE Volume", DlabResourceType.VOLUME, username, null);
-			resourceList.append(getBucketName(d.getString(FIELD_EDGE_BUCKET)), "EDGE bucket", DlabResourceType
-					.EDGE_BUCKET, username, null);
+			String projectName = d.getString("name");
+			resourceList.append(sbName + "-" + projectName + "-edge", "EDGE Node",
+					DlabResourceType.EDGE, null, null);
+			resourceList.append(sbName + "-" + projectName + "-bucket", "Project bucket",
+					DlabResourceType.COLLABORATION_BUCKET, null, null);
+			resourceList.append(sbName + "-" + projectName + "-edge-volume-primary",
+					"EDGE Volume", DlabResourceType.VOLUME, null, null);
 		}
 
 		// Add exploratory
