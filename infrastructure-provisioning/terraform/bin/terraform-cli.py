@@ -184,7 +184,17 @@ class AbstractDeployBuilder:
             dict: CLI arguments
         """
         parsers = {}
-        cli_args = sorted(self.cli_args, key=lambda x: x.get('group'))
+        args = []
+
+        for arg in self.cli_args:
+            group = arg.get('group')
+            if isinstance(group, (list, tuple)):
+                for item in group:
+                    args.append(dict(arg.copy(), **{'group': item}))
+            else:
+                args.append(arg)
+
+        cli_args = sorted(args, key=lambda x: x.get('group'))
         args_groups = itertools.groupby(cli_args, lambda x: x.get('group'))
         for group, args in args_groups:
             parser = argparse.ArgumentParser()
@@ -365,7 +375,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_int('--ssn_k8s_masters_count', 'Count of K8S masters.', default=3,
                   group='k8s')
          .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2,
-                  group='k8s')
+                  group=('k8s', 'helm_charts'))
          .add_str('--ssn_k8s_masters_shape', 'Shape for SSN K8S masters.',
                   default='t2.medium', group='k8s')
          .add_str('--ssn_k8s_workers_shape', 'Shape for SSN K8S workers.',
