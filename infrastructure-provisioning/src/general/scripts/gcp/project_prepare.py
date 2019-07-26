@@ -229,7 +229,7 @@ if __name__ == "__main__":
             },
             {
                 'IPProtocol': 'tcp',
-                'ports': ['80', '443']
+                'ports': ['22', '80', '443']
             }
         ]
         egress_rule['allowed'] = rules
