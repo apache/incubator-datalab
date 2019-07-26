@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                            os.environ['application'])
-    notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+    notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None' and ''
         else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
     print('Searching pre-configured images')
     notebook_config['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])

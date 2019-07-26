@@ -12,9 +12,7 @@ import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -102,7 +100,8 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	@Override
 	public boolean isAnyProjectAssigned(Set<String> groups) {
-		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, in(GROUPS, groups)));
+		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, in(GROUPS,
+				Sets.union(groups, Collections.singleton("$anyuser")))));
 	}
 
 	private Bson projectCondition(String name) {

@@ -181,15 +181,20 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="placeholder">
-      <td mat-footer-cell *matFooterCellDef colspan="6" class="info">
-        To start working, please, create new environment
+      <td mat-footer-cell *matFooterCellDef
+        [colSpan]="!healthStatus?.billingEnabled ? displayedFilterColumns.length -1 : displayedFilterColumns.length"
+        class="info">
+        <span *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering">
+          To start working, please, create new environment</span>
+        <span *ngIf="(filteredEnvironments.length == 0) && filtering">No matches found</span>
       </td>
     </ng-container>
+
     <!-- FILTER END -->
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
 
-    <tr [hidden]="collapsedFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
+    <tr [hidden]="!collapsedFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>
 
     <tr mat-row *matRowDef="let element; columns: ['project']" class="element-row"
@@ -197,9 +202,9 @@
       (click)="expandedElement = expandedElement === element ? null : element">
     </tr>
     <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+
     <tr [hidden]="filteredEnvironments?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
-
 </section>
 
 

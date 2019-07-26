@@ -43,7 +43,6 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    notebook_config['project_tag'] = (os.environ['project_tag']).lower().replace('_', '-')
     notebook_config['region'] = os.environ['gcp_region']
     notebook_config['zone'] = os.environ['gcp_zone']
 
@@ -117,12 +116,16 @@ if __name__ == "__main__":
 
     notebook_config['network_tag'] = '{0}-{1}-ps'.format(notebook_config['service_base_name'],
                                                          notebook_config['project_name'])
+
+    additional_tags = os.environ['tags'].replace("': u'", ": ").replace("', u'", ", ").replace("{u'", "" ).replace("'}", "")
+    print('Additional tags will be added: {}'.format(additional_tags))
+
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
                                  "project_name": notebook_config['project_name'],
-                                 "project_tag": notebook_config['project_tag'],
                                  "user": notebook_config['edge_user_name'],
-                                 "product": "dlab"}
+                                 "product": "dlab",
+                                 }
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')

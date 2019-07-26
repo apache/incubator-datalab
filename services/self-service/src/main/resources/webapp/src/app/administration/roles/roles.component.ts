@@ -234,7 +234,7 @@ export class RolesComponent implements OnInit {
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
-  styles: [`.group-name { max-width: 96%; display: inline-block; }`]
+  styles: [`.group-name { max-width: 96%; display: inline-block; vertical-align: bottom; }`]
 })
 export class ConfirmDeleteUserAccountDialogComponent {
   constructor(
