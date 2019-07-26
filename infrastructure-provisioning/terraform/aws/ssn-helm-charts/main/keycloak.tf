@@ -39,7 +39,6 @@ data "template_file" "keycloak_values" {
   template = file("./files/keycloak_values.yaml")
   vars = {
     keycloak_user           = var.keycloak_user
-    keycloak_password       = random_string.keycloak_password.result
     ssn_k8s_alb_dns_name    = var.ssn_k8s_alb_dns_name
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
     mysql_db_name           = var.mysql_db_name

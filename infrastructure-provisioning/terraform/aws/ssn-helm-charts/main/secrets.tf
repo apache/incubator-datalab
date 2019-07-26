@@ -21,8 +21,7 @@
 
 resource "random_string" "keycloak_password" {
   length = 16
-  special = true
-  override_special = "/@\" "
+  special = false
 }
 
 
@@ -38,8 +37,7 @@ resource "kubernetes_secret" "keycloak_password_secret" {
 
 resource "random_string" "mongo_root_password" {
   length = 16
-  special = true
-  override_special = "/@\" "
+  special = false
 }
 
 resource "kubernetes_secret" "mongo_root_password_secret" {
@@ -48,14 +46,13 @@ resource "kubernetes_secret" "mongo_root_password_secret" {
   }
 
   data = {
-    password = random_string.mongo_root_password
+    password = random_string.mongo_root_password.result
   }
 }
 
 resource "random_string" "mongo_db_password" {
   length = 16
-  special = true
-  override_special = "/@\" "
+  special = false
 }
 
 resource "kubernetes_secret" "mongo_db_password_secret" {
@@ -64,14 +61,13 @@ resource "kubernetes_secret" "mongo_db_password_secret" {
   }
 
   data = {
-    password = random_string.mongo_db_password
+    password = random_string.mongo_db_password.result
   }
 }
 
 resource "random_string" "mysql_root_password" {
   length = 16
-  special = true
-  override_special = "/@\" "
+  special = false
 }
 
 resource "kubernetes_secret" "mysql_root_password_secret" {
@@ -80,14 +76,13 @@ resource "kubernetes_secret" "mysql_root_password_secret" {
   }
 
   data = {
-    password = random_string.mysql_root_password
+    password = random_string.mysql_root_password.result
   }
 }
 
 resource "random_string" "mysql_user_password" {
   length = 16
-  special = true
-  override_special = "/@\" "
+  special = false
 }
 
 resource "kubernetes_secret" "mysql_user_password_secret" {
@@ -96,6 +91,6 @@ resource "kubernetes_secret" "mysql_user_password_secret" {
   }
 
   data = {
-    password = random_string.mysql_user_password
+    password = random_string.mysql_user_password.result
   }
 }

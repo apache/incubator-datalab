@@ -23,7 +23,8 @@ keycloak:
   replicas: ${replicas_count}
   basepath: auth
   username: ${keycloak_user}
-  password: ${keycloak_password}
+  existingSecret: keycloak-password
+  existingSecretKey: password
 
   persistence:
     dbVendor: mysql
