@@ -155,7 +155,7 @@ if __name__ == "__main__":
                  "--scala_version {6} " \
                  "--r_mirror {7} " \
                  "--ip_adress {8} " \
-                 "--exploratory_name {9}" \
+                 "--exploratory_name {9} " \
                  "--edge_ip {10}".\
             format(instance_hostname,
                    keyfile_name,
