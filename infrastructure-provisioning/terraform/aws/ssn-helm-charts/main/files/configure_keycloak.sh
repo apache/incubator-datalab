@@ -24,7 +24,7 @@
       set -x
       auth () {
           RUN=$(/opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://127.0.0.1:8080/auth --realm master \
-          --user ${keycloak_user} --password ${keycloak_passowrd} > /dev/null && echo "true" || echo "false")
+          --user ${keycloak_user} --password ${keycloak_password} > /dev/null && echo "true" || echo "false")
       }
       check_realm () {
           RUN=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab > /dev/null && echo "true" || echo "false")

@@ -24,7 +24,7 @@ data "template_file" "configure_keycloak" {
   vars     = {
     ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
     keycloak_user        = var.keycloak_user
-    keycloak_passowrd    = random_string.keycloak_password.result
+    keycloak_password    = random_string.keycloak_password.result
     ldap_usernameAttr    = var.ldap_usernameAttr
     ldap_rdnAttr         = var.ldap_rdnAttr
     ldap_uuidAttr        = var.ldap_uuidAttr
@@ -39,6 +39,7 @@ data "template_file" "keycloak_values" {
   template = file("./files/keycloak_values.yaml")
   vars = {
     keycloak_user           = var.keycloak_user
+    keycloak_password       = random_string.keycloak_password.result
     ssn_k8s_alb_dns_name    = var.ssn_k8s_alb_dns_name
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
     mysql_db_name           = var.mysql_db_name

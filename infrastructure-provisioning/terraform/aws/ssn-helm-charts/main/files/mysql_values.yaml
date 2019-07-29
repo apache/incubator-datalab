@@ -19,9 +19,9 @@
 #
 # ******************************************************************************
 
-mysqlRootPassword: ${mysql_root_password}
+mysqlRootPassword: "${mysql_root_password}"
 mysqlUser: ${mysql_user}
-mysqlPassword: ${mysql_user_password}
+mysqlPassword: "${mysql_user_password}"
 mysqlDatabase: ${mysql_db_name}
 persistence:
   existingClaim: ${mysql_volume_claim}

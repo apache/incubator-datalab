@@ -23,8 +23,7 @@ keycloak:
   replicas: ${replicas_count}
   basepath: auth
   username: ${keycloak_user}
-  existingSecret: keycloak-password
-  existingSecretKey: password
+  password: "${keycloak_password}"
 
   persistence:
     dbVendor: mysql
@@ -32,7 +31,7 @@ keycloak:
     dbHost: keycloak-mysql
     dbPort: 3306
     dbUser: ${mysql_user}
-    dbPassword: ${mysql_user_password}
+    dbPassword: "${mysql_user_password}"
 
   service:
     type: NodePort

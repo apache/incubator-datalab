@@ -22,10 +22,10 @@
 replicaSet:
   enabled: true
 
-mongodbRootPassword: ${mongo_root_pwd}
+mongodbRootPassword: "${mongo_root_pwd}"
 mongodbUsername: ${mongo_db_username}
 mongodbDatabase: ${mongo_dbname}
-mongodbPassword: ${mongo_db_pwd}
+mongodbPassword: "${mongo_db_pwd}"
 
 image:
   tag: ${mongo_image_tag}
