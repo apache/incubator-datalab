@@ -31,7 +31,7 @@ data:
     <#assign KEYS_DIR="/root/keys">
     <#assign KEY_STORE_PATH="/root/keys/dlab.keystore.jks">
     <#assign KEY_STORE_PASSWORD="jhMDPlwgGb">
-    <#assign TRUST_STORE_PATH="/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts">
+    <#assign TRUST_STORE_PATH="/usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts">
     <#assign TRUST_STORE_PASSWORD="changeit">
 
     # Available options are aws, azure, gcp
