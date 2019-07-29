@@ -68,7 +68,7 @@ export class ProjectFormComponent implements OnInit {
       }));
     if (this.item) {
       this.editSpecificProject(this.item);
-      this.stepper.selectedIndex = 2;
+      this.stepper.selectedIndex = 1;
     }
   }
 
@@ -143,6 +143,10 @@ export class ProjectFormComponent implements OnInit {
       'tag': [item.tag, Validators.required],
       'groups': [item.groups, Validators.required]
     });
+  }
+
+  isDisabled(endpoint: any): boolean {
+    return this.item.endpoints.includes(endpoint);
   }
 
   private getLabel(file: File): string {

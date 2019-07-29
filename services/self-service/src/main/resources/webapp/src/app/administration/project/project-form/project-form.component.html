@@ -86,17 +86,19 @@
             </div>
             <div class="control-group">
               <div class="selector-wrapper">
-                <mat-form-field [ngClass]="{ 'not-allowed' : item }">
+                <mat-form-field>
                   <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
                     <mat-option class="multiple-select" disabled>
                       <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
                         <i class="material-icons">playlist_add_check</i>&nbsp;All
                       </a>
-                      <a class="deselect ani" (click)="selectOptions(endpointsList, 'endpoints')">
+                      <a class="deselect ani" (click)="!item && selectOptions(endpointsList, 'endpoints')"
+                        [ngClass]="{ 'not-active' : item }">
                         <i class="material-icons">clear</i>&nbsp;None
                       </a>
                     </mat-option>
-                    <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name">
+                    <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name"
+                      [disabled]="isDisabled(endpoint.name)">
                       {{ endpoint.name }}
                     </mat-option>
                     <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>Endpoints
