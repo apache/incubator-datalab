@@ -48,7 +48,6 @@ if __name__ == "__main__":
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    notebook_config['project_tag'] = os.environ['project_tag']
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['project_name'],
                                                                notebook_config['exploratory_name'])
@@ -134,12 +133,13 @@ if __name__ == "__main__":
                  "--region {} --spark_version {} " \
                  "--hadoop_version {} --os_user {} " \
                  "--scala_version {} --r_mirror {} " \
-                 "--exploratory_name {}".\
+                 "--exploratory_name {} "\
+                 "--edge_ip {}".\
             format(instance_hostname, notebook_config['ssh_key_path'],
                    os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
-                   notebook_config['exploratory_name'])
+                   notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
         except:

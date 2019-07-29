@@ -27,5 +27,7 @@ public interface ProjectService {
 
 	void updateBudget(String project, Integer budget);
 
+	void updateBudget(List<ProjectDTO> projects);
+
 	boolean isAnyProjectAssigned(UserInfo userInfo);
 }

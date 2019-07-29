@@ -83,6 +83,8 @@ if __name__ == "__main__":
             edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
                                                                                 edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        edge_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                    edge_instance_name)
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -155,10 +157,10 @@ if __name__ == "__main__":
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {0} --keyfile {1} " \
                  "--region {2} --os_user {3} " \
-                 "--ip_adress {4} --exploratory_name {5}" \
+                 "--ip_adress {4} --exploratory_name {5} --edge_ip {6}" \
                  .format(instance_hostname, keyfile_name,
                          os.environ['azure_region'], notebook_config['dlab_ssh_user'],
-                         notebook_config['ip_address'], notebook_config['exploratory_name'])
+                         notebook_config['ip_address'], notebook_config['exploratory_name'], edge_hostname)
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,

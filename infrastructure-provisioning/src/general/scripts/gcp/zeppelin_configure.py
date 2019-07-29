@@ -59,7 +59,7 @@ if __name__ == "__main__":
                                                         notebook_config['service_base_name'], os.environ['application'])
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
-    edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
+    edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['project_name'])
     edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
     edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -144,14 +144,15 @@ if __name__ == "__main__":
                  "--zeppelin_version {} --scala_version {} " \
                  "--livy_version {} --multiple_clusters {} " \
                  "--r_mirror {} --endpoint_url {} " \
-                 "--exploratory_name {}" \
+                 "--exploratory_name {} " \
+                 "--edge_ip {}" \
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
                     os.environ['gcp_region'], json.dumps(additional_config), notebook_config['dlab_ssh_user'],
                     os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'], edge_instance_name,
                     '3128', os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
                     os.environ['notebook_r_mirror'], 'null',
-                    notebook_config['exploratory_name'])
+                    notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
         except:

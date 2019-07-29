@@ -134,8 +134,8 @@ if __name__ == "__main__":
         ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']}, {'Key': 'project_name', 'Value': project_conf['project_name']}])
     except Exception as err:
         print("Failed to attach Project tag to Enpoint", str(err))
-        traceback.print_exc()
-        sys.exit(1)
+#        traceback.print_exc()
+#        sys.exit(1)
 
     try:
         project_conf['vpc2_id'] = os.environ['aws_vpc2_id']
@@ -246,7 +246,7 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {

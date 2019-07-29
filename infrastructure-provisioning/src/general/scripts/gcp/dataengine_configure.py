@@ -62,7 +62,7 @@ def configure_slave(slave_number, data_engine):
     try:
         print('[INSTALLING USERs KEY ON SLAVE NODE]')
         logging.info('[INSTALLING USERs KEY ON SLAVE NODE]')
-        additional_config = {"user_keyname": os.environ['edge_user_name'],
+        additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(
@@ -149,7 +149,7 @@ def configure_slave(slave_number, data_engine):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -161,6 +161,7 @@ if __name__ == "__main__":
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         data_engine['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+        data_engine['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
         try:
@@ -180,13 +181,13 @@ if __name__ == "__main__":
             data_engine['computational_name'] = ''
 
         data_engine['subnet_name'] = '{0}-{1}-subnet'.format(data_engine['service_base_name'],
-                                                             data_engine['edge_user_name'])
+                                                             data_engine['project_name'])
         data_engine['master_size'] = os.environ['gcp_dataengine_master_size']
         data_engine['slave_size'] = os.environ['gcp_dataengine_slave_size']
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], data_engine['key_name'])
         data_engine['dataengine_service_account_name'] = '{}-{}-ps'.format(data_engine['service_base_name'],
-                                                                           data_engine['edge_user_name'])
+                                                                           data_engine['project_name'])
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -194,7 +195,7 @@ if __name__ == "__main__":
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['edge_user_name'] + \
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['project_name'] + \
                                       '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
@@ -205,10 +206,10 @@ if __name__ == "__main__":
         if os.environ['application'] in ('tensor', 'deeplearning'):
             data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
         data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
-                                                         data_engine['edge_user_name'])
+                                                         data_engine['project_name'])
         master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
         edge_instance_name = '{0}-{1}-edge'.format(data_engine['service_base_name'],
-                                                   data_engine['edge_user_name'])
+                                                   data_engine['project_name'])
         edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
         edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -247,7 +248,7 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING USERs KEY ON MASTER NODE]')
         logging.info('[INSTALLING USERs KEY ON MASTER NODE]')
-        additional_config = {"user_keyname": os.environ['edge_user_name'],
+        additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])

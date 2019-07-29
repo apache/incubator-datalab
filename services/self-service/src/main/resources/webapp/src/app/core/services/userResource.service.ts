@@ -109,7 +109,7 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public toggleStopStartAction(project, notebook: string, resource: string, action): Observable<{}> {
+  public toggleStopStartAction(project: string, notebook: string, resource: string, action): Observable<{}> {
     const url = `/${project}/${notebook}/${resource}/${action}`;
     if (action === 'stop') {
       return this.applicationServiceFacade

@@ -78,6 +78,7 @@ if __name__ == "__main__":
     else:
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Public')
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    edge_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -154,7 +155,8 @@ if __name__ == "__main__":
                  "--scala_version {6} " \
                  "--r_mirror {7} " \
                  "--ip_adress {8} " \
-                 "--exploratory_name {9}".\
+                 "--exploratory_name {9}" \
+                 "--edge_ip {10}".\
             format(instance_hostname,
                    keyfile_name,
                    os.environ['aws_region'],
@@ -164,7 +166,8 @@ if __name__ == "__main__":
                    os.environ['notebook_scala_version'],
                    os.environ['notebook_r_mirror'],
                    notebook_config['ip_address'],
-                   notebook_config['exploratory_name'])
+                   notebook_config['exploratory_name'],
+                   edge_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
         except:

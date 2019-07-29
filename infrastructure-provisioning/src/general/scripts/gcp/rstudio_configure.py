@@ -32,7 +32,7 @@ import os
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -137,12 +137,12 @@ if __name__ == "__main__":
         params = "--hostname {0}  --keyfile {1} " \
                  "--region {2} --rstudio_pass {3} " \
                  "--rstudio_version {4} --os_user {5} " \
-                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8}" \
+                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8} --edge_ip {9}" \
             .format(instance_hostname, notebook_config['ssh_key_path'],
                     os.environ['gcp_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
                     os.environ['notebook_r_mirror'], notebook_config['ip_address'],
-                    notebook_config['exploratory_name'])
+                    notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
         except:
