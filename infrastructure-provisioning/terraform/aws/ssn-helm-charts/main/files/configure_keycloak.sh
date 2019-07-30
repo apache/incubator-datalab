@@ -61,8 +61,14 @@
           'redirectUris=["http://${ssn_k8s_alb_dns_name}/"]' -s secret=${keycloak_client_secret}
       }
       main_func () {
+          hostname=$(hostname)
           # Authentication
           count=0
+          if [[ $hostname != "keycloak-0" ]];
+          then
+            echo "Skipping startup script!"
+            exit 0
+          fi
           while auth
           do
           if [[ $RUN == "false" ]] && (( $count < 120 ));

@@ -46,7 +46,7 @@ data "template_file" "keycloak_values" {
     mysql_db_name           = var.mysql_db_name
     mysql_user              = var.mysql_user
     mysql_user_password     = random_string.mysql_user_password.result
-    replicas_count          = var.ssn_k8s_workers_count > 3 ? 3 : var.ssn_k8s_workers_count
+    # replicas_count          = var.ssn_k8s_workers_count > 3 ? 3 : var.ssn_k8s_workers_count
   }
 }
 
