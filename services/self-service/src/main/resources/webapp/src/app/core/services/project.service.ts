@@ -77,4 +77,13 @@ export class ProjectService {
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
+
+  public updateProjectsBudget(data): Observable<{}> {
+    const url = '/budget';
+    return this.applicationServiceFacade
+      .buildUpdateProjectsBudget(url, data)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
 }

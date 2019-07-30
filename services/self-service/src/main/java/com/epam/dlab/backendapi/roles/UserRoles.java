@@ -70,9 +70,9 @@ public class UserRoles {
 		LOGGER.trace("Loading roles from database...");
 		if (userRoles == null) {
 			userRoles = new UserRoles();
+			userRoles.load(dao, defaultAccess);
+			LOGGER.trace("New roles are	: {}", getRoles());
 		}
-		userRoles.load(dao, defaultAccess);
-		LOGGER.trace("New roles are: {}", getRoles());
 	}
 
 	/**
@@ -97,8 +97,12 @@ public class UserRoles {
 
 	public static boolean isAdmin(UserInfo userInfo) {
 		final List<UserRole> roles = UserRoles.getRoles();
-		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
+		if (roles == null || roles.isEmpty()) {
+			System.out.println("=============EMPTY==========");
+		}
+		final boolean b = roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
 				(userRoles.hasAccessByGroup(userInfo, r, userInfo.getRoles()) || userRoles.hasAccessByUserName(userInfo, r)));
+		return b;
 	}
 
 	/**

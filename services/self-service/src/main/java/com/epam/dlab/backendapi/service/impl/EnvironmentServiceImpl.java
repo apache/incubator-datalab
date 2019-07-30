@@ -162,15 +162,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
-	public void terminateProjectEnvironment(String project) {
-		log.debug("Terminating environment for project {}", project);
-		checkProjectResourceConditions(project, "terminate");
-		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
-				.forEach(this::terminateNotebook);
-	}
-
-	@Override
 	public void terminateExploratory(String user, String exploratoryName) {
 		terminateNotebook(new UserInstanceDTO().withUser(user).withExploratoryName(exploratoryName));
 	}

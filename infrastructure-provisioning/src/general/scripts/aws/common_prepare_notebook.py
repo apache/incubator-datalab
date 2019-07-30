@@ -75,6 +75,7 @@ if __name__ == "__main__":
 
     notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                            os.environ['application'])
+
     notebook_config['custom_image_name'] = '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
                                                                     os.environ['project_name'],
                                                                     os.environ['application'],

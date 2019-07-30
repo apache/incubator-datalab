@@ -539,7 +539,8 @@ public class RequestBuilder {
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookImage(userInstance.getImageName())
-				.withImageName(imageName);
+				.withImageName(imageName)
+				.withTags(userInstance.getTags());
 	}
 
 	@SuppressWarnings("unchecked")

@@ -70,7 +70,7 @@ export class ManagementGridComponent implements OnInit {
     this.refreshGrid.emit();
   }
 
-  toggleResourceAction(environment, action: string, resource?) {
+  toggleResourceAction(environment: any, action: string, resource?): void {
     if (resource) {
       const resource_name = resource ? resource.computational_name : environment.name;
       this.dialog.open(ReconfirmationDialogComponent, {
