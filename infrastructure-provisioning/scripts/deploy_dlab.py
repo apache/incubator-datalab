@@ -57,7 +57,7 @@ parser.add_argument('--ssn_subdomain', type=str, default='', help='Subdomain nam
 parser.add_argument('--ssn_assume_role_arn', type=str, default='', help='Role ARN for creating Route53 record in '
                                                                         'different AWS account')
 parser.add_argument('--ssl_cert_path', type=str, default='', help='Full path to SSL certificate')
-parser.add_argument('--ssl_key_path', type=str, default='', help='Full path to SSL certificate')
+parser.add_argument('--ssl_key_path', type=str, default='', help='Full path to key for SSL certificate')
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--conf_duo_vpc_enable', type=str, default='false', help='Duo VPC scheme enable(true|false)')
 parser.add_argument('--aws_vpc2_id', type=str, default='', help='Secondary AWS VPC ID')

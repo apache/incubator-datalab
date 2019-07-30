@@ -253,6 +253,10 @@ if __name__ == "__main__":
             ami_id = get_ami_id_by_name(notebook_config['expected_image_name'])
             if ami_id == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
+                try:
+                    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+                except KeyError:
+                    os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
                 image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
                                                       instance_name=notebook_config['instance_name'],
                                                       image_name=notebook_config['expected_image_name'])
