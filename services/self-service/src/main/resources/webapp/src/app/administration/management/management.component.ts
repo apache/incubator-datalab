@@ -78,8 +78,8 @@ export class ManagementComponent implements OnInit {
       .environmentManagement(
         $event.environment.user,
         $event.action,
-        $event.environment.type === 'edge node' ? 'edge' : $event.environment.resource_name,
-        $event.resources ? $event.resources.computational_name : null
+        $event.environment.type === 'edge node' ? 'edge' : $event.environment.name,
+        $event.resource ? $event.resource.computational_name : null
       ).subscribe(
         () => this.buildGrid(),
         error => this.toastr.error('Environment management failed!', 'Oops!'));

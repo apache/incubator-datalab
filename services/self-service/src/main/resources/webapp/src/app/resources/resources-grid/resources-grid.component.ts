@@ -110,6 +110,8 @@ export class ResourcesGridComponent implements OnInit {
         this.environments = ExploratoryModel.loadEnvironments(result);
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
+
+        !this.healthStatus.billingEnabled && this.modifyGrid();
       });
   }
 
@@ -180,7 +182,10 @@ export class ResourcesGridComponent implements OnInit {
     this.filteredEnvironments = filteredData;
   }
 
-
+  private modifyGrid() {
+    this.displayedColumns = this.displayedColumns.filter(el => el !== 'cost');
+    this.displayedFilterColumns = this.displayedFilterColumns.filter(el => el !== 'cost-filter');
+  }
 
 
 

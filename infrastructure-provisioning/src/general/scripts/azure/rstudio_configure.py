@@ -82,6 +82,8 @@ if __name__ == "__main__":
                                                                                 edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         notebook_config['rstudio_pass'] = id_generator()
+        edge_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                           edge_instance_name)
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -157,12 +159,12 @@ if __name__ == "__main__":
         params = "--hostname {0}  --keyfile {1} " \
                  "--region {2} --rstudio_pass {3} " \
                  "--rstudio_version {4} --os_user {5} " \
-                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8}" \
+                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8} --edge_ip" \
             .format(instance_hostname, keyfile_name,
                     os.environ['azure_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
                     os.environ['notebook_r_mirror'], notebook_config['ip_address'],
-                    notebook_config['exploratory_name'])
+                    notebook_config['exploratory_name'], edge_hostname)
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,

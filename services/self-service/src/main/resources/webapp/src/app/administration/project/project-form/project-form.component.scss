@@ -19,12 +19,14 @@
 
 .form-block {
   width: 600px;
+
   &.split {
     flex-direction: column;
     display: flex;
     justify-content: space-between;
     height: 210px;
   }
+
   .mat-raised-button {
     &.butt {
       &.butt-success {
@@ -46,4 +48,9 @@
   .row-wrap {
     padding: 35px 25px;
   }
+}
+
+.mat-option-disabled:not(.multiple-select) {
+  background: #f1f1f1;
+  cursor: not-allowed;
 }
