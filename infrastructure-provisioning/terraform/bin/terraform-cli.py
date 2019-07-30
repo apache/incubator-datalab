@@ -59,9 +59,14 @@ class Console:
 
     @staticmethod
     def ssh(ip, name, pkey):
-        return Connection(host=ip,
-                          user=name,
-                          connect_kwargs={'key_filename': pkey})
+        while True:
+            return Connection(host=ip,
+                              user=name,
+                              connect_kwargs={'key_filename': pkey,
+                                              'allow_agent': False,
+                                              'look_for_keys': False,
+                                              })
+
 
 
 class TerraformProvider:
@@ -457,19 +462,20 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
         """
         start_time = time.time()
-        while True:
-            with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
+
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
+            while True:
                 tiller_status = c.run(
                     "kubectl get pods --all-namespaces | grep tiller | awk '{print $4}'") \
                     .stdout
 
-            tiller_success_status = 'Running'
+                tiller_success_status = 'Running'
 
-            if tiller_success_status in tiller_status:
-                break
-            if (time.time() - start_time) >= 1200:
-                raise TimeoutError
-            time.sleep(60)
+                if tiller_success_status in tiller_status:
+                    break
+                if (time.time() - start_time) >= 1200:
+                    raise TimeoutError
+                time.sleep(60)
 
     def select_master_ip(self):
         terraform = TerraformProvider()
