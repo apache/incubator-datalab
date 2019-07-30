@@ -58,7 +58,7 @@
           -s 'config."always.read.value.from.ldap"=["false"]' -s 'config."is.mandatory.in.ldap"=["false"]'
           # Create client
           /opt/jboss/keycloak/bin/kcadm.sh create clients -r dlab -s clientId=dlab-ui -s enabled=true -s \
-          'redirectUris=["http://${ssn_k8s_alb_dns_name}/"]'
+          'redirectUris=["http://${ssn_k8s_alb_dns_name}/"]' -s secret=${keycloak_client_secret}
       }
       main_func () {
           # Authentication

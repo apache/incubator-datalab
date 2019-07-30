@@ -22,16 +22,17 @@
 data "template_file" "configure_keycloak" {
   template = file("./files/configure_keycloak.sh")
   vars     = {
-    ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
-    keycloak_user        = var.keycloak_user
-    keycloak_password    = random_string.keycloak_password.result
-    ldap_usernameAttr    = var.ldap_usernameAttr
-    ldap_rdnAttr         = var.ldap_rdnAttr
-    ldap_uuidAttr        = var.ldap_uuidAttr
-    ldap_connection_url  = var.ldap_connection_url
-    ldap_users_dn        = var.ldap_users_dn
-    ldap_bind_dn         = var.ldap_bind_dn
-    ldap_bind_creds      = var.ldap_bind_creds
+    ssn_k8s_alb_dns_name   = var.ssn_k8s_alb_dns_name
+    keycloak_user          = var.keycloak_user
+    keycloak_password      = random_string.keycloak_password.result
+    keycloak_client_secret = random_uuid.keycloak_client_secret.result
+    ldap_usernameAttr      = var.ldap_usernameAttr
+    ldap_rdnAttr           = var.ldap_rdnAttr
+    ldap_uuidAttr          = var.ldap_uuidAttr
+    ldap_connection_url    = var.ldap_connection_url
+    ldap_users_dn          = var.ldap_users_dn
+    ldap_bind_dn           = var.ldap_bind_dn
+    ldap_bind_creds        = var.ldap_bind_creds
   }
 }
 

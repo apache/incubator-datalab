@@ -19,6 +19,18 @@
 #
 # ******************************************************************************
 
+resource "random_uuid" "keycloak_client_secret" {}
+
+resource "kubernetes_secret" "keycloak_client_secret" {
+  metadata {
+    name = "keycloak-client-secret"
+  }
+
+  data = {
+    client_secret = random_uuid.keycloak_client_secret.result
+  }
+}
+
 resource "random_string" "keycloak_password" {
   length = 16
   special = false
