@@ -35,14 +35,14 @@ import { RolesComponent } from './administration/roles/roles.component';
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard } from './core/services';
 
 const routes: Routes = [{
-    path: 'login',
-    component: LoginComponent
-  }, {
-    path: '',
-    canActivate: [AuthorizationGuard],
-    component: LayoutComponent,
-    children: [
-      {
+  path: 'login',
+  component: LoginComponent
+}, {
+  path: '',
+  canActivate: [AuthorizationGuard],
+  component: LayoutComponent,
+  children: [
+    {
       path: '',
       redirectTo: 'resources_list',
       pathMatch: 'full'
@@ -67,9 +67,6 @@ const routes: Routes = [{
       component: ManagementComponent,
       canActivate: [AuthorizationGuard, AdminGuard]
     }, {
-      path: 'terminal/:id',
-      component: WebterminalComponent
-    }, {
       path: 'help/publickeyguide',
       component: PublicKeyGuideComponent,
       canActivate: [AuthorizationGuard]
@@ -79,13 +76,16 @@ const routes: Routes = [{
       canActivate: [AuthorizationGuard]
     }
   ]
-  }, {
-    path: '403',
-    component: AccessDeniedComponent,
-    canActivate: [AuthorizationGuard]
-  }, {
-    path: '**',
-    component: NotFoundComponent
-  }];
+}, {
+  path: 'terminal/:id',
+  component: WebterminalComponent
+}, {
+  path: '403',
+  component: AccessDeniedComponent,
+  canActivate: [AuthorizationGuard]
+}, {
+  path: '**',
+  component: NotFoundComponent
+}];
 
 export const AppRoutingModule: ModuleWithProviders = RouterModule.forRoot(routes, { useHash: true });
