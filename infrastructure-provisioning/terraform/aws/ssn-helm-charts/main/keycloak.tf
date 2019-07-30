@@ -19,59 +19,51 @@
 #
 # ******************************************************************************
 
+data "template_file" "configure_keycloak" {
+  template = file("./files/configure_keycloak.sh")
+  vars     = {
+    ssn_k8s_alb_dns_name   = var.ssn_k8s_alb_dns_name
+    keycloak_user          = var.keycloak_user
+    keycloak_password      = random_string.keycloak_password.result
+    keycloak_client_secret = random_uuid.keycloak_client_secret.result
+    ldap_usernameAttr      = var.ldap_usernameAttr
+    ldap_rdnAttr           = var.ldap_rdnAttr
+    ldap_uuidAttr          = var.ldap_uuidAttr
+    ldap_connection_url    = var.ldap_connection_url
+    ldap_users_dn          = var.ldap_users_dn
+    ldap_bind_dn           = var.ldap_bind_dn
+    ldap_bind_creds        = var.ldap_bind_creds
+  }
+}
+
+data "template_file" "keycloak_values" {
+  template = file("./files/keycloak_values.yaml")
+  vars = {
+    keycloak_user           = var.keycloak_user
+    keycloak_password       = random_string.keycloak_password.result
+    ssn_k8s_alb_dns_name    = var.ssn_k8s_alb_dns_name
+    configure_keycloak_file = data.template_file.configure_keycloak.rendered
+    mysql_db_name           = var.mysql_db_name
+    mysql_user              = var.mysql_user
+    mysql_user_password     = random_string.mysql_user_password.result
+    # replicas_count          = var.ssn_k8s_workers_count > 3 ? 3 : var.ssn_k8s_workers_count
+  }
+}
+
+data "helm_repository" "codecentric" {
+    name = "codecentric"
+    url  = "https://codecentric.github.io/helm-charts"
+}
+
 resource "helm_release" "keycloak" {
-  name = "keycloak"
-  chart = "stable/keycloak"
-  wait = false
+  name       = "keycloak"
+  repository = data.helm_repository.codecentric.metadata.0.name
+  chart      = "codecentric/keycloak"
+  wait       = true
+  timeout    = 600
 
-  set {
-    name = "keycloak.username"
-    value = "dlab-admin"
-  }
-
-  set {
-    name = "keycloak.password"
-    value = "12345o"
-  }
-
-  set {
-    name = "keycloak.persistence.dbVendor"
-    value = "mysql"
-  }
-
-  set {
-    name = "keycloak.persistence.dbName"
-    value = "keycloak"
-  }
-
-  set {
-    name = "keycloak.persistence.dbHost"
-    value = "keycloak-mysql"
-  }
-
-  set {
-    name = "keycloak.persistence.dbPort"
-    value = "3306"
-  }
-
-  set {
-    name = "keycloak.persistence.dbUser"
-    value = "keycloak"
-  }
-
- set {
-    name = "keycloak.persistence.dbPassword"
-    value = "1234567890o"
-  }
-
-  set {
-    name = "keycloak.service.type"
-    value = "NodePort"
-  }
-
-  set {
-    name = "keycloak.service.nodePort"
-    value = "31088"
-  }
-  depends_on = [helm_release.keycloak-mysql]
+  values     = [
+    data.template_file.keycloak_values.rendered
+  ]
+  depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret]
 }

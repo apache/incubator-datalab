@@ -19,38 +19,26 @@
 #
 # ******************************************************************************
 
-# Default values for dlab-ui.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+locals {
+  node_name = "${var.sbn}-nb-${var.notebook_name}"
+}
 
-replicaCount: 1
-
-image:
-  repository: koppox/dlab-ui
-  tag: '1.4-alpine'
-  pullPolicy: Always
-
-service:
-  type: NodePort
-#  port: 58443
-  port: 58080
-
-ingress:
-  enabled: true
-  host: ${ssn_k8s_alb_dns_name}
-  annotations: 
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-labels: {}
-
-dlab_ui:
-  mongo:
-    host: ${mongo_service_name}
-    port: ${mongo_port}
-    username: ${mongo_user}
-    db_name: ${mongo_db_name}
+resource "aws_instance" "notebook" {
+  ami                  = var.ami
+  instance_type        = var.instance_type
+  key_name             = var.key_name
+  subnet_id            = var.subnet_id
+  security_groups      = ["${var.nb-sg_id}"]
+  iam_instance_profile = var.iam_profile_name
+  tags = {
+    Name             = local.node_name
+    "${var.sbn}-Tag" = local.node_name
+    Project_name     = var.project_name
+    Project_tag      = var.project_tag
+    Endpoint_Tag     = var.endpoint_tag
+    "user:tag"       = "${var.sbn}:${local.node_name}"
+    Product          = var.product
+    User_Tag         = var.user_tag
+    Custom_Tag       = var.custom_tag
+  }
+}

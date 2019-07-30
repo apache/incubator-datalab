@@ -1,3 +1,4 @@
+{{- /*
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -18,39 +19,20 @@
 # under the License.
 #
 # ******************************************************************************
+*/ -}}
 
-# Default values for dlab-ui.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dlab-billing.fullname" . }}
+  labels:
+{{ include "dlab-billing.labels" . | indent 4 }}
+spec:
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 27017
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "dlab-billing.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 
-replicaCount: 1
-
-image:
-  repository: koppox/dlab-ui
-  tag: '1.4-alpine'
-  pullPolicy: Always
-
-service:
-  type: NodePort
-#  port: 58443
-  port: 58080
-
-ingress:
-  enabled: true
-  host: ${ssn_k8s_alb_dns_name}
-  annotations: 
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-labels: {}
-
-dlab_ui:
-  mongo:
-    host: ${mongo_service_name}
-    port: ${mongo_port}
-    username: ${mongo_user}
-    db_name: ${mongo_db_name}

@@ -30,7 +30,7 @@ data "template_file" "ssn_k8s_masters_user_data" {
     k8s-region = var.region
     k8s-bucket-name = aws_s3_bucket.ssn_k8s_bucket.id
     k8s-nlb-dns-name = aws_lb.ssn_k8s_nlb.dns_name #aws_eip.k8s-lb-eip.public_ip
-    k8s-tg-arn = aws_lb_target_group.ssn_k8s_nlb_target_group.arn
+    k8s-tg-arn = aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn
     k8s_os_user = var.os_user
   }
 }
@@ -86,8 +86,10 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
   launch_configuration = aws_launch_configuration.ssn_k8s_launch_conf_masters.name
   min_size             = var.ssn_k8s_masters_count
   max_size             = var.ssn_k8s_masters_count
-  vpc_zone_identifier  = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
-  target_group_arns    = [aws_lb_target_group.ssn_k8s_nlb_target_group.arn,
+  vpc_zone_identifier  = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id,
+                                  local.subnet_c_id])
+  target_group_arns    = [aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn,
+                          aws_lb_target_group.ssn_k8s_nlb_mongo_target_group.arn,
                           aws_lb_target_group.ssn_k8s_alb_target_group.arn]
 
   lifecycle {
@@ -107,7 +109,8 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
   launch_configuration = aws_launch_configuration.ssn_k8s_launch_conf_workers.name
   min_size             = var.ssn_k8s_workers_count
   max_size             = var.ssn_k8s_workers_count
-  vpc_zone_identifier  = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+  vpc_zone_identifier  = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id,
+                                  local.subnet_c_id])
 
   lifecycle {
     create_before_destroy = true

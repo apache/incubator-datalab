@@ -23,7 +23,7 @@
 set -e
 
 check_tokens () {
-RUN=`aws s3 ls s3://${k8s-bucket-name}/k8s/masters/ > /dev/null && echo "true" || echo "false"`
+RUN=$(aws s3 ls s3://${k8s-bucket-name}/k8s/masters/ > /dev/null && echo "true" || echo "false")
 sleep 5
 }
 
@@ -64,5 +64,5 @@ do
     fi
 done
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
-join_command=`cat /tmp/join_command`
+join_command=$(cat /tmp/join_command)
 sudo $join_command

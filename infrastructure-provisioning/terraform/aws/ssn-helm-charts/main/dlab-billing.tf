@@ -19,38 +19,23 @@
 #
 # ******************************************************************************
 
-# Default values for dlab-ui.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+data "template_file" "dlab_billing_values" {
+  template = file("./dlab-billing-chart/values.yaml")
+  vars = {
+      mongo_db_name       = var.mongo_dbname
+      mongo_user          = var.mongo_db_username
+      mongo_port          = var.mongo_service_port
+      mongo_service_name  = var.mongo_service_name
+  }
+}
 
-replicaCount: 1
+resource "helm_release" "dlab-billing" {
+    name      = "dlab-billing"
+    chart     = "./dlab-billing-chart"
+    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
+    wait = true
 
-image:
-  repository: koppox/dlab-ui
-  tag: '1.4-alpine'
-  pullPolicy: Always
-
-service:
-  type: NodePort
-#  port: 58443
-  port: 58080
-
-ingress:
-  enabled: true
-  host: ${ssn_k8s_alb_dns_name}
-  annotations: 
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-labels: {}
-
-dlab_ui:
-  mongo:
-    host: ${mongo_service_name}
-    port: ${mongo_port}
-    username: ${mongo_user}
-    db_name: ${mongo_db_name}
+    values     = [
+        data.template_file.dlab_billing_values.rendered
+    ]
+}

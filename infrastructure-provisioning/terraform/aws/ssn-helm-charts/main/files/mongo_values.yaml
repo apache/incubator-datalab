@@ -19,38 +19,21 @@
 #
 # ******************************************************************************
 
-# Default values for dlab-ui.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+replicaSet:
+  enabled: true
 
-replicaCount: 1
+mongodbRootPassword: "${mongo_root_pwd}"
+mongodbUsername: ${mongo_db_username}
+mongodbDatabase: ${mongo_dbname}
+mongodbPassword: "${mongo_db_pwd}"
 
 image:
-  repository: koppox/dlab-ui
-  tag: '1.4-alpine'
-  pullPolicy: Always
+  tag: ${mongo_image_tag}
+
+persistence:
+  enabled: false
 
 service:
   type: NodePort
-#  port: 58443
-  port: 58080
-
-ingress:
-  enabled: true
-  host: ${ssn_k8s_alb_dns_name}
-  annotations: 
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-labels: {}
-
-dlab_ui:
-  mongo:
-    host: ${mongo_service_name}
-    port: ${mongo_port}
-    username: ${mongo_user}
-    db_name: ${mongo_db_name}
+  port: ${mongo_service_port}
+  nodePort: ${mongo_node_port}

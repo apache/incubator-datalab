@@ -22,20 +22,9 @@
 resource "helm_release" "nginx" {
     name      = "nginx-ingress"
     chart     = "stable/nginx-ingress"
+    wait = true
 
-    set {
-        name = "controller.service.nodePorts.http"
-        value = "${var.nginx_http_port}"
-    }
-
-    set {
-        name = "controller.service.nodePorts.https"
-        value = "${var.nginx_https_port}"
-    }
-
-    set {
-        name = "controller.service.type"
-        value = "NodePort"
-    }
-
+    values = [
+        file("files/nginx_values.yaml")
+    ]
 }

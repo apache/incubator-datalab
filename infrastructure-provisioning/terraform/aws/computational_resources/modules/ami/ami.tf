@@ -19,38 +19,22 @@
 #
 # ******************************************************************************
 
-# Default values for dlab-ui.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+locals {
+  ami_name = "${var.sbn}-ami"
+}
 
-replicaCount: 1
-
-image:
-  repository: koppox/dlab-ui
-  tag: '1.4-alpine'
-  pullPolicy: Always
-
-service:
-  type: NodePort
-#  port: 58443
-  port: 58080
-
-ingress:
-  enabled: true
-  host: ${ssn_k8s_alb_dns_name}
-  annotations: 
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-labels: {}
-
-dlab_ui:
-  mongo:
-    host: ${mongo_service_name}
-    port: ${mongo_port}
-    username: ${mongo_user}
-    db_name: ${mongo_db_name}
+resource "aws_ami_from_instance" "ami" {
+  name               = "${var.project_tag}-${var.notebook_name}-ami"
+  source_instance_id = var.source_instance_id
+  tags {
+    Name             = local.ami_name
+    "${var.sbn}-Tag" = local.ami_name
+    Product          = var.product
+    Project_name     = var.project_name
+    Project_tag      = var.project_tag
+    Endpoint_tag     = var.endpoint_tag
+    "user:tag"       = "${var.sbn}:${local.ami_name}"
+    User_tag         = var.user_tag
+    Custom_tag       = var.custom_tag
+  }
+}

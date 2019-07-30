@@ -24,19 +24,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dlab-ui.fullname" . }}
+  name: {{ include "dlab-billing.fullname" . }}
   labels:
-{{ include "dlab-ui.labels" . | indent 4 }}
+{{ include "dlab-billing.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "dlab-ui.name" . }}
+      app.kubernetes.io/name: {{ include "dlab-billing.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "dlab-ui.name" . }}
+        app.kubernetes.io/name: {{ include "dlab-billing.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
     {{- with .Values.imagePullSecrets }}
@@ -54,42 +54,24 @@ spec:
                   name: mongo-db-password
                   key: password
           ports:
-#            - name: https
-#              containerPort: 443
-#              protocol: TCP
-            - name: http
-              containerPort: 80
+            - name: mongo
+              containerPort: 21017
               protocol: TCP
-#          livenessProbe:
-#            httpGet:
-#              path: /
-#              port: http
-#          readinessProbe:
-#            httpGet:
-#              path: /
-#              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: ui-conf
-              mountPath: /root/ssn.yml
-              subPath: ssn
-              readOnly: true
-            - name: ui-conf
-              mountPath: /root/self-service.yml
-              subPath: self-service
+            - name: billing-yml
+              mountPath: /root/billing.yml
+              subPath: billing
               readOnly: true
       volumes:
-        - name: ui-conf
+        - name: billing-yml
           configMap:
-            name: {{ include "dlab-ui.fullname" . }}-ui-conf
+            name: {{ include "dlab-billing.fullname" . }}-billing-conf
             defaultMode: 0644
             items:
-              - key: ssn.yml
-                path: ssn
-              - key: self-service.yml
-                path: self-service
-
+              - key: billing.yml
+                path: billing
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

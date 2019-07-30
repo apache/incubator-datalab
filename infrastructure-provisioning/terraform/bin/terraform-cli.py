@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import itertools
 import json
 import os
 import abc
@@ -8,9 +9,33 @@ import time
 from fabric import Connection
 from patchwork.transfers import rsync
 import logging
+import os.path
+import sys
+from deploy.endpoint_fab import start_deploy
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s-%(message)s')
+
+
+def get_args_string(cli_args):
+    """Convert dict of cli argument into string
+
+    Args:
+        cli_args: dict of cli arguments
+    Returns:
+        str: string of joined key=values
+    """
+    args = []
+    for key, value in cli_args.items():
+        if not value:
+            continue
+        if type(value) == list:
+            quoted_list = ['"{}"'.format(item) for item in value]
+            joined_values = ', '.join(quoted_list)
+            value = '[{}]'.format(joined_values)
+        args.append("-var '{0}={1}'".format(key, value))
+    return ' '.join(args)
 
 
 class TerraformProviderError(Exception):
@@ -81,10 +106,10 @@ class TerraformProvider:
              None
         """
         logging.info('terraform apply')
-        args_str = self.get_args_string(cli_args)
+        args_str = get_args_string(cli_args)
         command = 'terraform apply -auto-approve {}'
         result = Console.execute(command.format(args_str))
-        print(result)
+        logging.info(result)
 
     def destroy(self, cli_args):
         """Destroy terraform
@@ -95,7 +120,7 @@ class TerraformProvider:
         Returns:
              None
         """
-        args_str = self.get_args_string(cli_args)
+        args_str = get_args_string(cli_args)
         command = 'terraform destroy -auto-approve {}'
         Console.execute(command.format(args_str))
 
@@ -109,32 +134,22 @@ class TerraformProvider:
         """
         return Console.execute('terraform output {}'.format(' '.join(args)))
 
-    @staticmethod
-    def get_args_string(cli_args):
-        """Convert dict of cli argument into string
-
-        Args:
-            cli_args: dict of cli arguments
-        Returns:
-            str: string of joined key=values
-        """
-        args = []
-        for key, value in cli_args.items():
-            if not value:
-                continue
-            if type(value) == list:
-                quoted_list = ['"{}"'.format(item) for item in value]
-                joined_values = ', '.join(quoted_list)
-                value = '[{}]'.format(joined_values)
-            args.append("-var '{0}={1}'".format(key, value))
-        return ' '.join(args)
-
 
 class AbstractDeployBuilder:
 
     @property
     @abc.abstractmethod
     def terraform_location(self):
+        """ get Terraform location
+
+        Returns:
+            str: TF script location
+        """
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def terraform_args_group_name(self):
         """ get Terraform location
 
         Returns:
@@ -168,17 +183,27 @@ class AbstractDeployBuilder:
         Returns:
             dict: CLI arguments
         """
-        terraform_args_parser = argparse.ArgumentParser()
-        client_args_parser = argparse.ArgumentParser()
-        for argument in self.cli_args:
-            parser = (terraform_args_parser
-                      if argument.get('is_terraform_param')
-                      else client_args_parser)
-            parser.add_argument(argument.get('name'), **argument.get('props'))
+        parsers = {}
+        args = []
 
+        for arg in self.cli_args:
+            group = arg.get('group')
+            if isinstance(group, (list, tuple)):
+                for item in group:
+                    args.append(dict(arg.copy(), **{'group': item}))
+            else:
+                args.append(arg)
+
+        cli_args = sorted(args, key=lambda x: x.get('group'))
+        args_groups = itertools.groupby(cli_args, lambda x: x.get('group'))
+        for group, args in args_groups:
+            parser = argparse.ArgumentParser()
+            for arg in args:
+                parser.add_argument(arg.get('name'), **arg.get('props'))
+            parsers[group] = parser
         return {
-            'terraform_args': vars(terraform_args_parser.parse_known_args()[0]),
-            'service_args': vars(client_args_parser.parse_known_args()[0]),
+            group: vars(parser.parse_known_args()[0])
+            for group, parser in parsers.items()
         }
 
     def provision(self):
@@ -191,8 +216,8 @@ class AbstractDeployBuilder:
         """
         tf_location = self.terraform_location
         cli_args = self.parse_args()
-        action = cli_args.get('service_args').get('action')
-        terraform_args = cli_args.get('terraform_args')
+        action = cli_args.get('service').get('action')
+        terraform_args = cli_args.get(self.terraform_args_group_name)
         terraform = TerraformProvider()
 
         os.chdir(tf_location)
@@ -224,7 +249,7 @@ class AbstractDeployBuilder:
 
 class DeployDirector:
 
-    def build(self, builder):
+    def build(self, *builders):
         """ Do build action
 
         Args:
@@ -233,8 +258,9 @@ class DeployDirector:
             None
         """
         try:
-            builder.provision()
-            builder.deploy()
+            for builder in builders:
+                builder.provision()
+                builder.deploy()
         except Exception as ex:
             print(ex)
 
@@ -255,7 +281,7 @@ class ParamsBuilder:
 
     def add(self, arg_type, name, desc, **kwargs):
         parameter = {
-            'is_terraform_param': kwargs.get('is_terraform_param', True),
+            'group': kwargs.get('group'),
             'name': name,
             'props': {
                 'help': desc,
@@ -286,8 +312,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         super(AWSK8sSourceBuilder, self).__init__()
         self._args = self.parse_args()
         self._ip = None
-        self._user_name = self.args.get('terraform_args').get('os_user')
-        self._pkey_path = self.args.get('service_args').get('pkey')
+        self._user_name = self.args.get(self.terraform_args_group_name).get(
+            'os_user')
+        self._pkey_path = self.args.get('service').get('pkey')
 
     @property
     def args(self):
@@ -315,56 +342,78 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         return os.path.join(tf_dir, 'aws/ssn-k8s/main')
 
     @property
+    def terraform_args_group_name(self):
+        return 'k8s'
+
+    @property
     def cli_args(self):
         params = ParamsBuilder()
         (params
          .add_str('--action', 'Action', default='deploy',
-                  is_terraform_param=False)
-         .add_str('--access_key_id', 'AWS Access Key ID', required=True)
+                  group='service')
+         .add_str('--access_key_id', 'AWS Access Key ID', required=True,
+                  group='k8s')
          .add_str('--allowed_cidrs',
                   'CIDR to allow acces to SSN K8S cluster.',
-                  default=["0.0.0.0/0"], action='append')
-         .add_str('--ami', 'ID of EC2 AMI.', required=True)
+                  default=["0.0.0.0/0"], action='append', group='k8s')
+         .add_str('--ami', 'ID of EC2 AMI.', required=True, group='k8s')
          .add_str('--env_os', 'OS type.', default='debian',
-                  choices=['debian', 'redhat'])
-         .add_str('--key_name', 'Name of EC2 Key pair.', required=True)
+                  choices=['debian', 'redhat'], group='k8s')
+         .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
+                  group='k8s')
          .add_str('--os_user', 'Name of DLab service user.',
-                  default='dlab-user')
-         .add_str('--pkey', 'path to key',
-                  is_terraform_param=False, required=True)
-         .add_str('--region', 'Name of AWS region.', default='us-west-2')
-         .add_str('--secret_access_key', 'AWS Secret Access Key', required=True)
+                  default='dlab-user', group='k8s')
+         .add_str('--pkey', 'path to key', required=True, group='service')
+         .add_str('--region', 'Name of AWS region.', default='us-west-2',
+                  group='k8s')
+         .add_str('--secret_access_key', 'AWS Secret Access Key', required=True,
+                  group='k8s')
          .add_str('--service_base_name',
                   'Any infrastructure value (should be unique if '
                   'multiple SSN\'s have been deployed before).',
-                  default='dlab-k8s')
-         .add_int('--ssn_k8s_masters_count', 'Count of K8S masters.', default=3)
-         .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2)
+                  default='dlab-k8s', group='k8s')
+         .add_int('--ssn_k8s_masters_count', 'Count of K8S masters.', default=3,
+                  group='k8s')
+         .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2,
+                  group=('k8s', 'helm_charts'))
          .add_str('--ssn_k8s_masters_shape', 'Shape for SSN K8S masters.',
-                  default='t2.medium')
+                  default='t2.medium', group='k8s')
          .add_str('--ssn_k8s_workers_shape', 'Shape for SSN K8S workers.',
-                  default='t2.medium')
+                  default='t2.medium', group='k8s')
          .add_int('--ssn_root_volume_size', 'Size of root volume in GB.',
-                  default=30)
+                  default=30, group='k8s')
          .add_str('--subnet_cidr_a',
                   'CIDR for Subnet creation in zone a. Conflicts with  subnet_id_a.',
-                  default='172.31.0.0/24')
+                  default='172.31.0.0/24', group='k8s')
          .add_str('--subnet_cidr_b',
                   'CIDR for Subnet creation in zone b. Conflicts with  subnet_id_b.',
-                  default='172.31.1.0/24')
+                  default='172.31.1.0/24', group='k8s')
          .add_str('--subnet_cidr_c',
                   'CIDR for Subnet creation in zone c. Conflicts with  subnet_id_c.',
-                  default='172.31.2.0/24')
+                  default='172.31.2.0/24', group='k8s')
          .add_str('--subnet_id_a',
-                  'ID of AWS Subnet in zone a if you already have subnet created.')
+                  'ID of AWS Subnet in zone a if you already have subnet created.',
+                  group='k8s')
          .add_str('--subnet_id_b',
-                  'ID of AWS Subnet in zone b if you already have subnet created.')
+                  'ID of AWS Subnet in zone b if you already have subnet created.',
+                  group='k8s')
          .add_str('--subnet_id_c',
-                  'ID of AWS Subnet in zone c if you already have subnet created.')
+                  'ID of AWS Subnet in zone c if you already have subnet created.',
+                  group='k8s')
          .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id',
-                  default='172.31.0.0/16')
-         .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.')
-         .add_str('--zone', 'Name of AWS zone', default='a')
+                  default='172.31.0.0/16', group='k8s')
+         .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.',
+                  group='k8s')
+         .add_str('--zone', 'Name of AWS zone', default='a',
+                  group='k8s')
+         .add_str('--ldap_connection_url', 'ldap connection url', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_users_dn', 'ldap users dn', required=True,
+                  group='helm_charts')
          )
         return params.build()
 
@@ -378,6 +427,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
         """
         start_time = time.time()
+        Console.execute('ssh-keyscan {} >> ~/.ssh/known_hosts'.format(self.ip))
         while True:
             with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
                 k8c_info_status = c.run(
@@ -397,6 +447,30 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 raise TimeoutError
             time.sleep(60)
 
+    def check_tiller_status(self):
+        """ Check tiller status
+
+        Returns:
+            None
+        Raises:
+            TerraformProviderError: if tiller is not running
+
+        """
+        start_time = time.time()
+        while True:
+            with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
+                tiller_status = c.run(
+                    "kubectl get pods --all-namespaces | grep tiller | awk '{print $4}'") \
+                    .stdout
+
+            tiller_success_status = 'Running'
+
+            if tiller_success_status in tiller_status:
+                break
+            if (time.time() - start_time) >= 1200:
+                raise TimeoutError
+            time.sleep(60)
+
     def select_master_ip(self):
         terraform = TerraformProvider()
         output = terraform.output('-json ssn_k8s_masters_ip_addresses')
@@ -404,7 +478,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def copy_terraform_to_remote(self):
         logging.info('transfer terraform dir to remote')
-        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir, os.path.pardir))
+        tf_dir = os.path.abspath(
+            os.path.join(os.getcwd(), os.path.pardir, os.path.pardir))
         source = os.path.join(tf_dir, 'ssn-helm-charts')
         remote_dir = '/home/{}/terraform/'.format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
@@ -412,28 +487,73 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             rsync(conn, source, remote_dir)
 
     def run_remote_terraform(self):
+        dns_name = json.loads(TerraformProvider()
+                              .output('-json ssn_k8s_alb_dns_name'))
         logging.info('apply ssn-helm-charts')
+        terraform_args = self.args.get('helm_charts')
+        args_str = get_args_string(terraform_args)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             with conn.cd('terraform/ssn-helm-charts/main'):
                 conn.run('terraform init')
                 conn.run('terraform validate')
-                conn.run('terraform apply -auto-approve')
+                conn.run('terraform apply -auto-approve {} '
+                         '-var \'ssn_k8s_alb_dns_name={}\''
+                         .format(args_str,dns_name))
+                output = ' '.join(conn.run('terraform output -json')
+                                  .stdout.split())
+                self.fill_args_from_dict(json.loads(output))
 
+    def output_terraform_result(self):
+        dns_name = json.loads(
+            TerraformProvider().output('-json ssn_k8s_alb_dns_name'))
+        ssn_bucket_name = json.loads(
+            TerraformProvider().output('-json ssn_bucket_name'))
+        ssn_k8s_sg_id = json.loads(
+            TerraformProvider().output('-json ssn_k8s_sg_id'))
+        ssn_subnets = json.loads(
+            TerraformProvider().output('-json ssn_subnets'))
+        ssn_vpc_id = json.loads(TerraformProvider().output('-json ssn_vpc_id'))
+
+        logging.info("""
+        DLab SSN K8S cluster has been deployed successfully!
+        Summary:
+        DNS name: {}
+        Bucket name: {}
+        VPC ID: {}
+        Subnet IDs:  {}
+        SG IDs: {}
+        DLab UI URL: http://{}
+        """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
+                   ', '.join(ssn_subnets), ssn_k8s_sg_id, dns_name))
+
+    def fill_args_from_dict(self, output):
+        for key, value in output.items():
+            sys.argv.extend([key, value.get('value')])
 
     def deploy(self):
+        if self.args.get('service').get('action') == 'destroy':
+            return
         logging.info('deploy')
         self.select_master_ip()
         self.check_k8s_cluster_status()
+        self.check_tiller_status()
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
+        output = ' '.join(TerraformProvider().output('-json').split())
+        self.fill_args_from_dict(json.loads(output))
+        self.output_terraform_result()
 
 
 class AWSEndpointBuilder(AbstractDeployBuilder):
-
     @property
     def terraform_location(self):
-        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
-        return os.path.join(tf_dir, 'aws/endpoint/main')
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(),
+                                              os.path.pardir, os.path.pardir))
+        return os.path.join(tf_dir, 'endpoint/main')
+
+    @property
+    def terraform_args_group_name(self):
+        return 'endpoint'
 
     @property
     def cli_args(self):
@@ -441,69 +561,75 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
         (params
          .add_str('--service_base_name',
                   'Any infrastructure value (should be unique if  multiple '
-                  'SSN\'s have been deployed before). Should be  same as on ssn')
-         .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.')
+                  'SSN\'s have been deployed before). Should be  same as on ssn',
+                  group='endpoint')
+         .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.',
+                  group='endpoint')
          .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id.',
-                  default='172.31.0.0/16')
+                  default='172.31.0.0/16', group='endpoint')
          .add_str('--subnet_id',
-                  'ID of AWS Subnet if you already have subnet created.')
+                  'ID of AWS Subnet if you already have subnet created.',
+                  group='endpoint')
          .add_str('--subnet_cidr',
                   'CIDR for Subnet creation. Conflicts with subnet_id.',
-                  default='172.31.0.0/24')
-         .add_str('--ami', 'ID of EC2 AMI.', required=True)
-         .add_str('--key_name', 'Name of EC2 Key pair.', required=True)
-         .add_str('--region', 'Name of AWS region.', default='us-west-2')
-         .add_str('--zone', 'Name of AWS zone.', default='a')
+                  default='172.31.0.0/24', group='endpoint')
+         .add_str('--ami', 'ID of EC2 AMI.', required=True, group='endpoint')
+         .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
+                  group='endpoint')
+         .add_str('--region', 'Name of AWS region.', default='us-west-2',
+                  group='endpoint')
+         .add_str('--zone', 'Name of AWS zone.', default='a', group='endpoint')
          .add_str('--network_type',
                   'Type of created network (if network is not existed and '
                   'require creation) for endpoint',
-                  default='public')
+                  default='public', group='endpoint')
          .add_str('--endpoint_instance_shape', 'Instance shape of Endpoint.',
-                  default='t2.medium')
+                  default='t2.medium', group='endpoint')
          .add_int('--endpoint_volume_size', 'Size of root volume in GB.',
-                  default=30)
-         .add_str('--request_id', 'Request id', is_terraform_param=False)
-         .add_str('--dlab_path', '', is_terraform_param=False)
-         .add_str('--resource', '', is_terraform_param=False)
-         .add_str('--conf_key_name', '', is_terraform_param=False)
-         .add_str('--pkey', '', is_terraform_param=False, required=True)
-         .add_str('--hostname', '', is_terraform_param=False)
-         .add_str('--jar_url', '', is_terraform_param=False)
-         .add_str('--os_user', '', is_terraform_param=False)
-         .add_str('--cloud_provider', '', is_terraform_param=False)
-         .add_str('--ssn_host', '', is_terraform_param=False)
-         .add_str('--mongo_password', '', is_terraform_param=False)
-         .add_str('--repository_address', '', is_terraform_param=False)
-         .add_str('--repository_user', '', is_terraform_param=False)
-         .add_str('--repository_pass', '', is_terraform_param=False)
-         .add_str('--docker_version', '', is_terraform_param=False,
-                  default='18.06.3~ce~3-0~ubuntu')
+                  default=30, group='endpoint')
 
          )
         return params.build()
 
     def deploy(self):
-        pass
+        start_deploy()
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--source', help='Target', choices=['aws'],
-                        required=True)
-    parser.add_argument('--target', help='Source', choices=['k8s', 'endpoint'],
-                        required=True)
-    arguments = vars(parser.parse_known_args()[0])
+    sources_targets = {'aws': ['k8s', 'endpoint']}
 
-    source = arguments.get('source').lower()
-    target = arguments.get('target').lower()
+    no_args_error = ('usage: ./terraform-cli {} {}'
+                     .format(set(sources_targets.keys()),
+                             set(itertools.chain(*sources_targets.values()))))
+
+    no_target_error = lambda x: ('usage: ./terraform-cli {} {}'
+                                 .format(x,
+                                         set(itertools.chain(
+                                             *sources_targets.values()))))
+
+    if any([len(sys.argv) == 1,
+            len(sys.argv) > 2 and sys.argv[1] not in sources_targets]):
+        print(no_args_error)
+        sys.exit(1)
+
+    if any([len(sys.argv) == 2,
+            sys.argv[1] not in sources_targets,
+            len(sys.argv) > 2 and sys.argv[2] not in sources_targets[
+                sys.argv[1]]
+            ]):
+        print(no_target_error(sys.argv[1]))
+        exit(1)
+
+    source = sys.argv[1]
+    target = sys.argv[2]
 
     if source == 'aws':
         if target == 'k8s':
-            builder = AWSK8sSourceBuilder()
+            builders = AWSK8sSourceBuilder(),
         elif target == 'endpoint':
-            builder = AWSEndpointBuilder()
+            builders = (AWSK8sSourceBuilder(), AWSEndpointBuilder())
     deploy_director = DeployDirector()
-    deploy_director.build(builder)
+    deploy_director.build(*builders)
 
 
 if __name__ == "__main__":

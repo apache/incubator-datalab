@@ -1,0 +1,5 @@
+{
+  "insecure-registries": ["REPOSITORY"],
+  "disable-legacy-registry": true,
+  "dns": ["DNS_IP_RESOLVE"]
+}

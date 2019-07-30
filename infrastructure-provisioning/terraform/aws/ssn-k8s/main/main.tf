@@ -29,6 +29,10 @@ output "ssn_k8s_alb_dns_name" {
   value = aws_lb.ssn_k8s_alb.dns_name
 }
 
+output "ssn_k8s_nlb_dns_name" {
+  value = aws_lb.ssn_k8s_nlb.dns_name
+}
+
 output "ssn_k8s_masters_ip_addresses" {
   value = data.aws_instances.ssn_k8s_masters_instances.public_ips
   depends_on = [data.aws_instances.ssn_k8s_masters_instances]
