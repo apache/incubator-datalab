@@ -69,8 +69,9 @@
                 <span class="error" *ngIf="!projectForm?.controls.name.valid
                   && !projectForm?.controls.name.hasError('duplication')
                   && !projectForm?.controls.name.hasError('limit')
-                  && projectForm?.controls.name.dirty">Project name can only contain letters, numbers, hyphens and '_'
-                  but can not end with special characters
+                  && projectForm?.controls.name.dirty">
+                  Project name can only contain letters, numbers, hyphens and '_' but can not end with special
+                  characters
                 </span>
                 <span class="error" *ngIf="projectForm?.controls.name.hasError('limit')">
                   Project name cannot exceed 50 characters
@@ -85,7 +86,8 @@
               </div>
             </div>
             <div class="control-group">
-              <div class="selector-wrapper">
+              <label class="label">Endpoints</label>
+              <div class="control selector-wrapper">
                 <mat-form-field>
                   <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
                     <mat-option class="multiple-select" disabled>
@@ -101,8 +103,8 @@
                       [disabled]="isDisabled(endpoint.name)">
                       {{ endpoint.name }}
                     </mat-option>
-                    <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>Endpoints
-                      list is empty</mat-option>
+                    <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>
+                      Endpoints list is empty</mat-option>
                   </mat-select>
                   <button class="caret">
                     <i class="material-icons">keyboard_arrow_down</i>
@@ -128,7 +130,8 @@
       <div class="inner-step mat-reset">
         <div class="form-block split">
           <div class="control-group">
-            <div class="selector-wrapper">
+            <label class="label">Groups</label>
+            <div class="control selector-wrapper">
               <mat-form-field>
                 <mat-select multiple formControlName="groups" placeholder="Select user groups">
                   <mat-option class="multiple-select" disabled>
