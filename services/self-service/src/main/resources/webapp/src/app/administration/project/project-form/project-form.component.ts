@@ -62,10 +62,9 @@ export class ProjectFormComponent implements OnInit {
     this.getGroupsData();
     this.getEndpointsData();
 
-    this.subscriptions.add(this.projectDataService._projects.subscribe(
-      (value: Project[]) => {
-        if (value) this.projectList = value;
-      }));
+    this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
+      if (value) this.projectList = value;
+    }));
     if (this.item) {
       this.editSpecificProject(this.item);
       this.stepper.selectedIndex = 1;
@@ -146,7 +145,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   isDisabled(endpoint: any): boolean {
-    return this.item.endpoints.includes(endpoint);
+    return this.item && this.item.endpoints.includes(endpoint);
   }
 
   private getLabel(file: File): string {
