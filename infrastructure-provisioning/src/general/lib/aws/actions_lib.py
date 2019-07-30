@@ -543,11 +543,8 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
             if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
                 conn.tag_role(RoleName=role_name, Tags=[{'Key': os.environ['conf_billing_tag_key'],
                                                          'Value': os.environ['conf_billing_tag_value']}])
-            if 'project_tag' in os.environ:
-                conn.tag_role(RoleName=role_name, Tags=[{'Key': "project_tag",
-                                                         'Value': os.environ['project_tag']}])
             if 'project_name' in os.environ:
-                conn.tag_role(RoleName=role_name, Tags=[{'Key': "project_name",
+                conn.tag_role(RoleName=role_name, Tags=[{'Key': "project_tag",
                                                          'Value': os.environ['project_name']}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
