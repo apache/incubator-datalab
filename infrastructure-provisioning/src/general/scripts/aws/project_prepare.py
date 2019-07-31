@@ -42,7 +42,8 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     project_conf = dict()
     project_conf['service_base_name'] = os.environ['conf_service_base_name']
-    project_conf['endpoint_name'] = '{}-endpoint'.format(os.environ['conf_service_base_name'])
+    project_conf['endpoint_name'] = '{0}-{1}-endpoint'.format(os.environ['conf_service_base_name'], os.environ['endpoint_name'])
+    project_conf['endpoint_tag'] = os.environ['endpoint_name']
     project_conf['project_name'] = os.environ['project_name']
     project_conf['project_tag'] = os.environ['project_name']
     project_conf['key_name'] = os.environ['conf_key_name']
@@ -130,7 +131,7 @@ if __name__ == "__main__":
         print("Endpoint id: " + endpoint_id)
         ec2 = boto3.client('ec2')
         ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
-                                                       {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_name']}])
+                                                       {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
     except Exception as err:
         print("Failed to attach Project tag to Enpoint", str(err))
 #        traceback.print_exc()

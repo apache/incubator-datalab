@@ -57,7 +57,7 @@ if __name__ == "__main__":
                 os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
             except KeyError:
                 os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
-           image_id = create_image_from_instance(tag_name=image_conf['instance_tag'],
+            image_id = create_image_from_instance(tag_name=image_conf['instance_tag'],
                                                   instance_name=image_conf['instance_name'],
                                                   image_name=image_conf['full_image_name'],
                                                   tags=json.dumps(image_conf['tags']))
