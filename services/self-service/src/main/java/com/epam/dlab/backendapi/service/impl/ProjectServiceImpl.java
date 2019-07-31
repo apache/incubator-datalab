@@ -134,6 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
 					.key(projectDTO.getKey())
 					.name(projectDTO.getName())
 					.tag(projectDTO.getTag())
+					.endpoint(projectDTO.getEndpoints().iterator().next()) //TODO figure out how to deal with endpoints
 					.build();
 			String uuid = provisioningService.post(CREATE_PRJ_API, user.getAccessToken(), projectDto, String.class);
 			requestId.put(user.getName(), uuid);
