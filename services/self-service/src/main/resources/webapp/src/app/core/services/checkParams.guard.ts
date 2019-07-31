@@ -21,8 +21,8 @@ import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { ApplicationSecurityService } from './applicationSecurity.service';
-import { AuthorizationGuard } from './authorization.guard';
 
 @Injectable()
 export class CheckParamsGuard implements CanActivate {
@@ -30,17 +30,16 @@ export class CheckParamsGuard implements CanActivate {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private _authGuard: AuthorizationGuard,
     private router: Router
-  ) {}
+  ) { }
 
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot):  Observable<any> | Promise<boolean> | boolean {
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> | Promise<boolean> | boolean {
     return this.applicationSecurityService.isLoggedIn().pipe(
       map(authState => {
         const search = document.URL.split('?')[1];
 
         if (search && this.checkParamsCoincidence(search)) {
-          this.result = search.split('&').reduce(function(prev, curr) {
+          this.result = search.split('&').reduce(function (prev, curr) {
             const params = curr.split('=');
             prev[decodeURIComponent(params[0])] = decodeURIComponent(params[1]);
             return prev;
