@@ -540,6 +540,7 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookImage(userInstance.getImageName())
 				.withImageName(imageName)
+				.withEndpoint(userInstance.getEndpoint())
 				.withTags(userInstance.getTags());
 	}
 
