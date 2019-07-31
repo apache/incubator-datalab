@@ -106,3 +106,23 @@ resource "kubernetes_secret" "mysql_user_password_secret" {
     password = random_string.mysql_user_password.result
   }
 }
+
+resource "kubernetes_secret" "ssn_keystore_password" {
+  metadata {
+    name = "ssn-keystore-password"
+  }
+
+  data = {
+    password = var.ssn_keystore_password
+  }
+}
+
+resource "kubernetes_secret" "endpoint_keystore_password" {
+  metadata {
+    name = "endpoint-keystore-password"
+  }
+
+  data = {
+    password = var.endpoint_keystore_password
+  }
+}
