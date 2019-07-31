@@ -40,7 +40,7 @@ export class ApplicationSecurityService {
     private serviceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService,
     private storage: StorageService,
-  ) {}
+  ) { }
 
   get loggedInStatus() {
     return this._loggedInStatus.asObservable();
@@ -115,10 +115,10 @@ export class ApplicationSecurityService {
   }
 
   public redirectParams(params): Observable<boolean> {
-    console.log('redirect patams');
+    const code = `?code=${params.code}`;
 
     return this.serviceFacade
-      .buildGetAuthToken(params)
+      .buildGetAuthToken(code)
       .pipe(
         map((response: any) => {
           const data = response.body;
@@ -137,12 +137,8 @@ export class ApplicationSecurityService {
           return false;
 
         }), catchError((error: any) => {
-          if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
-            window.location.href = error.headers.get('Location');
-          } else {
-            this.emmitMessage(error.message);
-            return observableOf(false);
-          }
+          this.emmitMessage(error.message);
+          return observableOf(false);
         }));
   }
 
