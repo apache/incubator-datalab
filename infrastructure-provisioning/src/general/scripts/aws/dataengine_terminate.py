@@ -70,10 +70,10 @@ if __name__ == "__main__":
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-    data_engine['project_tag'] = os.environ['project_name']
+    data_engine['project_name'] = os.environ['project_name']
     data_engine['cluster_name'] = \
         data_engine['service_base_name'] + '-' + \
-        data_engine['project_tag'] + '-de-' + \
+        data_engine['project_name'] + '-de-' + \
         data_engine['exploratory_name'] + '-' +\
         data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
