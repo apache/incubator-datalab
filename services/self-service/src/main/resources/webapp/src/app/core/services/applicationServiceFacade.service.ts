@@ -93,8 +93,8 @@ export class ApplicationServiceFacade {
 
   public buildAuthorizeRequest(body: any): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
-      body,
+      this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE) + body,
+      null,
       {
         responseType: 'text',
         headers: { 'Content-Type': 'text/plain' },
@@ -575,12 +575,12 @@ export class ApplicationServiceFacade {
     // Security
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
-    this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
+    this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/oauth/authorize');
     this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 
-    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
+    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY_GENERATE, '/api/user/access_key/generate');
 

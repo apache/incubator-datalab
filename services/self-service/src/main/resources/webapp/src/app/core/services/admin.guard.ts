@@ -23,7 +23,7 @@ import { HealthStatusService } from './healthStatus.service';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private _healthStatus: HealthStatusService) {}
+  constructor(private _healthStatus: HealthStatusService) { }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     return this._healthStatus.isPassageway('administration');

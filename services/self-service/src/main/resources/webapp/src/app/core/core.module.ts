@@ -26,7 +26,7 @@ import { HealthStatusService } from './services/healthStatus.service';
 import { UserResourceService } from './services/userResource.service';
 import { AuthorizationGuard } from './services/authorization.guard';
 import { CloudProviderGuard } from './services/cloudProvider.guard';
-import { AdminGuard } from './services/admin.quard';
+import { AdminGuard } from './services/admin.guard';
 import { CheckParamsGuard } from './services/checkParams.guard';
 import { LibrariesInstallationService } from './services/librariesInstallation.service';
 import { ManageUngitService } from './services/manageUngit.service';
@@ -82,7 +82,7 @@ export class CoreModule {
     };
   }
 
-  constructor (@Optional() @SkipSelf() parentModule: CoreModule) {
+  constructor(@Optional() @SkipSelf() parentModule: CoreModule) {
     if (parentModule)
       throw new Error('CoreModule is already loaded. Import it in the AppModule only');
   }
