@@ -456,6 +456,9 @@ def start_deploy():
     logging.info("Creating key directory")
     create_key_dir_endpoint()
 
+    logging.info("Copying admin key")
+    copy_keys()
+
     logging.info("Configuring certificates")
     configure_keystore_endpoint(args.os_user)
 
