@@ -51,15 +51,15 @@ data:
 
     selfService:
       protocol: https
-      host: 172.17.0.1
-      port: 8443
+      host: localhost
+      port: 58443
       jerseyClient:
         timeout: 3s
         connectionTimeout: 3s
 
     securityService:
       protocol: https
-      host: 172.17.0.1
+      host: localhost
       port: 8090
       jerseyClient:
         timeout: 20s
@@ -67,7 +67,7 @@ data:
 
     provisioningService:
       protocol: https
-      host: 172.17.0.1
+      host: {{ .Values.dlab_ui.provisionService.host }}
       port: 8084
       jerseyClient:
         timeout: 3s
