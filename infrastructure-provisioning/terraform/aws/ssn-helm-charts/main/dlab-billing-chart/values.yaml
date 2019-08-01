@@ -26,8 +26,8 @@
 replicaCount: 1
 
 image:
-  repository: koppox/dlab-billing
-  tag: '1.4-alpine'
+  repository: epamdlab/billing
+  tag: '0.1'
   # pullPolicy: IfNotPresent
   pullPolicy: Always
 

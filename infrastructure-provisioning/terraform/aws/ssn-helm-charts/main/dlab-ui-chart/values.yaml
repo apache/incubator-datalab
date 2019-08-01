@@ -27,8 +27,8 @@ replicaCount: 1
 bucketName: ${ssn_bucket_name}
 
 image:
-  repository: koppox/dlab-ui
-  tag: '1.4-alpine'
+  repository: epamdlab/ui
+  tag: '0.1'
   pullPolicy: Always
 
 service:
