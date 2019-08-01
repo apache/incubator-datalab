@@ -53,6 +53,13 @@ spec:
                 secretKeyRef:
                   name: mongo-db-password
                   key: password
+            - name: SSN_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ssn-keystore-password
+                  key: password
+            - name: SSN_BUCKET_NAME
+              value: {{ .Values.bucketName }}
           ports:
 #            - name: https
 #              containerPort: 443

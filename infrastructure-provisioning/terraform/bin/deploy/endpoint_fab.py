@@ -17,7 +17,7 @@ def create_user():
     initial_user = 'ubuntu'
     sudo_group = 'sudo'
     with Connection(host=args.hostname, user=initial_user,
-                    connect_kwargs={'key_filename': args.keyfile}) as conn:
+                    connect_kwargs={'key_filename': args.pkey}) as conn:
         try:
             if not exists(conn,
                           '/home/{}/.ssh_user_ensured'.format(initial_user)):
@@ -365,7 +365,8 @@ def init_args():
     parser.add_argument('--dlab_path', type=str, default='')
     parser.add_argument('--key_name', type=str, default='')
     parser.add_argument('--conf_key_name', type=str, default='')
-    parser.add_argument('--keyfile', type=str, default='')
+    parser.add_argument('--ssn_k8s_masters_ip_addresses', type=list, default=[])
+    parser.add_argument('--pkey', type=str, default='')
     parser.add_argument('--hostname', type=str, default='')
     parser.add_argument('--os_user', type=str, default='dlab-user')
     parser.add_argument('--cloud_provider', type=str, default='')
@@ -377,7 +378,8 @@ def init_args():
     parser.add_argument('--repository_pass', type=str, default='')
     parser.add_argument('--docker_version', type=str,
                         default='18.06.3~ce~3-0~ubuntu')
-    args = parser.parse_known_args()
+    print(parser.parse_known_args())
+    args = parser.parse_known_args()[0]
 
 
 def update_system():
@@ -392,7 +394,7 @@ def init_dlab_connection(ip=None, user=None,
     if not user:
         user = args.os_user
     if not pkey:
-        pkey = args.keyfile
+        pkey = args.pkey
     try:
         conn = Connection(ip, user, connect_kwargs={'key_filename': pkey})
     except Exception as err:
@@ -414,8 +416,14 @@ def close_connection():
 
 
 def start_deploy():
+    global args
     init_args()
+    print(args)
+    if (args.ssn_k8s_masters_ip_addresses and
+            isinstance(args.ssn_k8s_masters_ip_addresses, (tuple, list))):
+        args.hostname = args.ssn_k8s_masters_ip_addresses[0]
 
+    print(args)
     logging.info("Creating dlab-user")
     create_user()
 

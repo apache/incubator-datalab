@@ -92,6 +92,12 @@ variable "ssn_k8s_workers_count" {
     default = "2"
 }
 
+variable "ssn_keystore_password" {}
+
+variable "endpoint_keystore_password" {}
+
+variable "ssn_bucket_name" {}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"
