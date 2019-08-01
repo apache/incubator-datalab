@@ -33,14 +33,6 @@ resource "random_string" "endpoint_keystore_password" {
   special = false
 }
 
-output "ssn_keystore_password" {
-  value = random_string.ssn_keystore_password.result
-}
-
-output "endpoint_keystore_password" {
-  value = random_string.endpoint_keystore_password.result
-}
-
 data "template_file" "ssn_k8s_masters_user_data" {
   template = file("./files/masters-user-data.sh")
   vars = {

@@ -24,7 +24,3 @@ provider "helm" {
     service_account = "tiller"
     tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
 }
-
-output "mongo_password" {
-    value = random_string.mongo_db_password.result
-}
