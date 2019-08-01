@@ -67,7 +67,7 @@ public class UserInfo implements Principal {
     }
 
     @JsonProperty("roles")
-    public Collection<String> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
@@ -121,6 +121,8 @@ public class UserInfo implements Principal {
         return newInfo;
     }
 
+
+
     public boolean isAwsUser() {
         return awsUser;
     }
@@ -160,6 +162,8 @@ public class UserInfo implements Principal {
         return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
 
     }
+
+
 
     @Override
     public int hashCode() {

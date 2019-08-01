@@ -78,12 +78,13 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
 				.toInstance(configuration.getProvisioningFactory()
 						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
-		bind(InactivityService.class).to(InactivityServiceImpl.class);
 		bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
 		bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
 		bind(BackupService.class).to(BackupServiceImpl.class);
 		bind(BackupDao.class).to(BackupDaoImpl.class);
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
+		bind(TagService.class).to(TagServiceImpl.class);
+		bind(InactivityService.class).to(InactivityServiceImpl.class);
 		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
 		bind(AccessKeyService.class).to(AccessKeyServiceImpl.class);
 		bind(GitCredentialService.class).to(GitCredentialServiceImpl.class);
@@ -106,6 +107,10 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
 		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
 		bind(GuacamoleService.class).to(GuacamoleServiceImpl.class);
+		bind(EndpointService.class).to(EndpointServiceImpl.class);
+		bind(EndpointDAO.class).to(EndpointDAOImpl.class);
+		bind(ProjectService.class).to(ProjectServiceImpl.class);
+		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
 	}
 
 	/**

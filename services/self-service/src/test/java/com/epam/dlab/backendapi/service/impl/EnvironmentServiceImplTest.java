@@ -25,17 +25,15 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
-import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SecurityService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
-import com.epam.dlab.model.ResourceEnum;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -77,6 +75,8 @@ public class EnvironmentServiceImplTest {
 	private KeyDAO keyDAO;
 	@Mock
 	private UserSettingsDAO userSettingsDAO;
+	@Mock
+	private ProjectService projectService;
 
 	@InjectMocks
 	private EnvironmentServiceImpl environmentService;
@@ -132,41 +132,6 @@ public class EnvironmentServiceImplTest {
 		expectedException.expectMessage("Users not found");
 
 		environmentService.getUserNames();
-	}
-
-	@Test
-	public void getAllEnv() {
-		List<UserInstanceDTO> instances = getUserInstances();
-		when(exploratoryDAO.getInstances()).thenReturn(instances);
-		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
-
-		EdgeInfo edgeInfo = new EdgeInfo();
-		edgeInfo.setEdgeStatus("running");
-		edgeInfo.setInstanceId("someId");
-		when(keyDAO.getEdgeInfo(anyString())).thenReturn(edgeInfo);
-
-		UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-				.withResourceStatus(edgeInfo.getEdgeStatus()).withUser(USER);
-
-		UserResourceInfo notebook1 = new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
-				.withResourceName(instances.get(0).getExploratoryName())
-				.withResourceStatus(instances.get(0).getStatus()).withUser(instances.get(0)
-						.getUser());
-		UserResourceInfo notebook2 = new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
-				.withResourceName(instances.get(1).getExploratoryName())
-				.withResourceStatus(instances.get(1).getStatus()).withUser(instances.get(1)
-						.getUser());
-
-		List<UserResourceInfo> resources = Arrays.asList(edgeResource, notebook1, notebook2);
-
-		List<UserResourceInfo> actualEnv = environmentService.getAllEnv();
-		assertEquals(3, actualEnv.size());
-		resources.forEach(resource -> assertTrue(actualEnv.contains(resource)));
-
-		verify(exploratoryDAO).getInstances();
-		verify(envDAO).fetchAllUsers();
-		verify(keyDAO).getEdgeInfo(USER);
-		verifyNoMoreInteractions(exploratoryDAO, envDAO, keyDAO);
 	}
 
 	@Test
@@ -541,7 +506,7 @@ public class EnvironmentServiceImplTest {
 
 	private List<UserInstanceDTO> getUserInstances() {
 		return Arrays.asList(
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER),
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER));
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject("prj"),
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject("prj"));
 	}
 }

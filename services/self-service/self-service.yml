@@ -108,6 +108,7 @@ logging:
     com.epam: INFO
     org.apache.guacamole: DEBUG
     com.novemberain: ERROR
+    io.swagger.v3: DEBUG
   appenders:
 <#if DEV_MODE == "true">
   - type: console
@@ -160,8 +161,12 @@ schedulers:
     enabled: true
     cron: "0 0 * ? * * *"
   checkUserQuoteScheduler:
-    enabled: true
+    enabled: false
     cron: "0 0 * ? * * *"
+  checkProjectQuoteScheduler:
+    enabled: true
+    cron: "0 * * ? * * *"
+
 
 guacamole:
   connectionProtocol: ssh

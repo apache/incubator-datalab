@@ -18,9 +18,8 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Http, Response, RequestOptions, RequestMethod, Headers } from '@angular/http';
+import { RequestMethod } from '@angular/http';
 import { Observable } from 'rxjs';
-
 import { HttpClient } from '@angular/common/http';
 
 import { Dictionary } from '../collections';
@@ -31,7 +30,7 @@ export class ApplicationServiceFacade {
   private static readonly LOGIN = 'login';
   private static readonly LOGOUT = 'logout';
   private static readonly AUTHORIZE = 'authorize';
-  private static readonly AUTHENTICATION = 'authentification';
+  private static readonly OAUTH = 'oauth';
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly ACTIVE_LIST = 'active_list';
   private static readonly FULL_ACTIVE_LIST = 'full_active_list';
@@ -41,7 +40,7 @@ export class ApplicationServiceFacade {
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
   private static readonly IMAGE = 'image';
   private static readonly SCHEDULER = 'scheduler';
-  private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
+  private static readonly TEMPLATES = 'templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
@@ -68,6 +67,9 @@ export class ApplicationServiceFacade {
   private static readonly BILLING = 'billing';
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
+  private static readonly PROJECT = 'project';
+  private static readonly USER_PROJECT = 'project/me';
+  private static readonly ENDPOINT = 'endpoint';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -79,8 +81,7 @@ export class ApplicationServiceFacade {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LOGIN),
       body,
-      { responseType: 'text', observe: 'response' }
-    );
+      { responseType: 'text', observe: 'response' });
   }
 
   public buildLogoutRequest(): Observable<any> {
@@ -103,8 +104,8 @@ export class ApplicationServiceFacade {
 
   public buildGetAuthToken(body: any): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.AUTHENTICATION) + body,
-      null,
+      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
+      body,
       { observe: 'response' });
   }
 
@@ -155,15 +156,9 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildGetExploratoryEnvironmentTemplatesRequest(): Observable<any> {
+  public buildGetTemplatesRequest(params): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES),
-      null);
-  }
-
-  public buildGetComputationalResourcesTemplatesRequest(): Observable<any> {
-    return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES),
+      this.requestRegistry.Item(ApplicationServiceFacade.TEMPLATES) + params,
       null);
   }
 
@@ -415,13 +410,6 @@ export class ApplicationServiceFacade {
       });
   }
 
-  public buildUpdateUsersBudget(data): Observable<any> {
-    return this.buildRequest(RequestMethod.Put,
-      this.requestRegistry.Item(ApplicationServiceFacade.BUDGET),
-      data,
-      { observe: 'response' });
-  }
-
   public buildGetSsnMonitorData(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.SNN_MONITOR),
@@ -457,43 +445,37 @@ export class ApplicationServiceFacade {
   public buildSetupNewGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildUpdateGroupData(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildSetupRolesForGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_ROLE),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildSetupUsersForGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildRemoveUsersForGroup(data): Observable<any> {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildRemoveGroupById(data): Observable<any> {
     return this.buildRequest(RequestMethod.Delete,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
   public buildGetClusterConfiguration(param): Observable<any> {
@@ -526,18 +508,79 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public buildCreateProject(data): Observable<any> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      data);
+  }
+
+  public buildUpdateProject(data): Observable<any> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      data);
+  }
+
+  public buildGetProjectsList(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      null);
+  }
+
+  public buildGetUserProjectsList(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.USER_PROJECT),
+      null);
+  }
+
+  public buildDeleteProject(param): Observable<any> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      null);
+  }
+
+  public buildToggleProjectStatus(param, data): Observable<any> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      data);
+  }
+
+  public buildUpdateProjectsBudget(param, data): Observable<any> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      data,
+      { observe: 'response' });
+  }
+
+  public buildGetEndpointsData(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
+      null);
+  }
+
+  public buildCreateEndpoint(data): Observable<any> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
+      data);
+  }
+
+  public buildDeleteEndpoint(param): Observable<any> {
+    return this.buildRequest(RequestMethod.Delete,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + param,
+      null);
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
     // Security
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
-    this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/oauth/authorize');
+    this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
     this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 
-    this.requestRegistry.Add(ApplicationServiceFacade.AUTHENTICATION, '/api/oauth');
+    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY_GENERATE, '/api/user/access_key/generate');
 
@@ -546,8 +589,8 @@ export class ApplicationServiceFacade {
       '/api/infrastructure/info');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
-    this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
-      '/api/infrastructure_templates/exploratory_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.TEMPLATES,
+      '/api/infrastructure_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
       '/api/infrastructure_provision/exploratory_environment/image');
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
@@ -598,6 +641,11 @@ export class ApplicationServiceFacade {
     // billing report
     this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/billing/report');
     this.requestRegistry.Add(ApplicationServiceFacade.DOWNLOAD_REPORT, '/api/billing/report/download');
+
+    // project
+    this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
+    this.requestRegistry.Add(ApplicationServiceFacade.USER_PROJECT, '/api/project/me');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt?) {
@@ -608,15 +656,5 @@ export class ApplicationServiceFacade {
     } else if (method === RequestMethod.Put) {
       return this.http.put(url, body, opt);
     } else return this.http.get(body ? (url + body) : url, opt);
-  }
-
-  private getRequestOptions(json: boolean, auth: boolean) {
-    // const headers = new Headers();
-    // if (json)
-    //   headers.append('Content-type', 'application/json; charset=utf-8');
-    // if (auth)
-    //   headers.append('Authorization', 'Bearer ' + localStorage.getItem(this.accessTokenKey));
-    // const reqOpt = new RequestOptions({ headers: headers });
-    // return reqOpt;
   }
 }

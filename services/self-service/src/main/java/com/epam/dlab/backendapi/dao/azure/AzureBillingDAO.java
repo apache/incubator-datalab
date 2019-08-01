@@ -57,7 +57,7 @@ public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
 
     public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
 
-        boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing");
+        boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing", userInfo.getRoles());
         setUserFilter(userInfo, filter, isFullReport);
 
         List<Bson> matchCriteria = matchCriteria(filter);

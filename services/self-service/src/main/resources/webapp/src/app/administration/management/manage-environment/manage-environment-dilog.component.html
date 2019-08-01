@@ -1,0 +1,85 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div id="dialog-box" class="manage-env-dialog">
+  <header class="dialog-header">
+    <h4 class="modal-title">Manage environment</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
+    <div class="content-box">
+      <div *ngIf="data.projectsList?.length">
+        <form [formGroup]="manageUsersForm" (submit)="setBudgetLimits(manageUsersForm.value)" novalidate>
+          <mat-list>
+            <mat-list-item class="list-header">
+              <div class="username">Project</div>
+              <div class="quotes" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">Limit</div>
+              <div class="action">Actions</div>
+            </mat-list-item>
+            <div class="scrolling-content" id="scrolling" formArrayName="projects">
+              <mat-list-item *ngFor="let item of usersEnvironments.controls; let i=index" [formGroupName]="i"
+                class="list-item">
+                <div class="username ellipsis">{{ manageUsersForm.controls['projects'].controls[i].value['project'] }}
+                </div>
+                <div class="quotes" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
+                  <input type="number" min="0" placeholder="Enter limit, in USD" formControlName="budget">
+                  <span class="danger_color"
+                    *ngIf="!manageUsersForm?.controls['projects'].controls[i].controls['budget'].valid && !manageUsersForm?.controls['projects'].controls[i].controls['budget'].hasError('overrun')">Only
+                    positive integers are allowed</span>
+                  <span class="danger_color"
+                    *ngIf="manageUsersForm?.controls['projects'].controls[i].controls['budget'].hasError('overrun')">Per-user
+                    quotes cannot be greater than total budget</span>
+                </div>
+                <div class="action">
+                  <span
+                    *ngIf=" manageUsersForm.controls['projects'].controls[i].value['status'] === 'ACTIVE'; else not_active"
+                    matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i
+                      class="material-icons">pause_circle_outline</i></span>
+
+                  <ng-template #not_active>
+                    <span class="disabled" matTooltip="Project is not active" matTooltipPosition="above">
+                      <i class="material-icons">pause_circle_outline</i>
+                    </span>
+                  </ng-template>
+
+                  <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)"><i
+                      class="material-icons">phonelink_off</i></span>
+                </div>
+              </mat-list-item>
+            </div>
+            <div class="control-group total-budget" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
+              <label class="label">Total budget</label>
+              <div class="control">
+                <input type="number" formControlName="total" placeholder="Enter total budget, in USD">
+                <span class="danger_color" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget
+                  cannot be lower than a sum of users quotes</span>
+              </div>
+            </div>
+            <div class="text-center m-top-30" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
+              <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
+              <button mat-raised-button type="submit" [disabled]="!manageUsersForm.valid" class="butt butt-success"
+                [ngClass]="{'not-allowed': !manageUsersForm.valid}">Apply</button>
+            </div>
+          </mat-list>
+        </form>
+      </div>
+      <div class="info message" *ngIf="!data?.projectsList.length">No active projects</div>
+    </div>
+  </div>
+</div>
