@@ -59,9 +59,14 @@ class Console:
 
     @staticmethod
     def ssh(ip, name, pkey):
-        return Connection(host=ip,
-                          user=name,
-                          connect_kwargs={'key_filename': pkey})
+        while True:
+            return Connection(host=ip,
+                              user=name,
+                              connect_kwargs={'key_filename': pkey,
+                                              'allow_agent': False,
+                                              'look_for_keys': False,
+                                              })
+
 
 
 class TerraformProvider:
@@ -120,6 +125,7 @@ class TerraformProvider:
         Returns:
              None
         """
+        logging.info('terraform destroy')
         args_str = get_args_string(cli_args)
         command = 'terraform destroy -auto-approve {}'
         Console.execute(command.format(args_str))
@@ -406,6 +412,12 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='k8s')
          .add_str('--zone', 'Name of AWS zone', default='a',
                   group='k8s')
+         .add_str('--ssn_keystore_password', 'ssn_keystore_password',
+                  group='helm_charts')
+         .add_str('--endpoint_keystore_password', 'endpoint_keystore_password',
+                  group='helm_charts')
+         .add_str('--ssn_bucket_name', 'ssn_bucket_name',
+                  group='helm_charts')
          .add_str('--ldap_connection_url', 'ldap connection url', required=True,
                   group='helm_charts')
          .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
@@ -457,19 +469,20 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
         """
         start_time = time.time()
-        while True:
-            with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
+
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
+            while True:
                 tiller_status = c.run(
                     "kubectl get pods --all-namespaces | grep tiller | awk '{print $4}'") \
                     .stdout
 
-            tiller_success_status = 'Running'
+                tiller_success_status = 'Running'
 
-            if tiller_success_status in tiller_status:
-                break
-            if (time.time() - start_time) >= 1200:
-                raise TimeoutError
-            time.sleep(60)
+                if tiller_success_status in tiller_status:
+                    break
+                if (time.time() - start_time) >= 1200:
+                    raise TimeoutError
+                time.sleep(60)
 
     def select_master_ip(self):
         terraform = TerraformProvider()
@@ -487,10 +500,11 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             rsync(conn, source, remote_dir)
 
     def run_remote_terraform(self):
+        args = self.parse_args()
         dns_name = json.loads(TerraformProvider()
                               .output('-json ssn_k8s_alb_dns_name'))
         logging.info('apply ssn-helm-charts')
-        terraform_args = self.args.get('helm_charts')
+        terraform_args = args.get('helm_charts')
         args_str = get_args_string(terraform_args)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             with conn.cd('terraform/ssn-helm-charts/main'):
@@ -498,7 +512,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 conn.run('terraform validate')
                 conn.run('terraform apply -auto-approve {} '
                          '-var \'ssn_k8s_alb_dns_name={}\''
-                         .format(args_str,dns_name))
+                         .format(args_str, dns_name))
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
                 self.fill_args_from_dict(json.loads(output))
@@ -528,7 +542,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def fill_args_from_dict(self, output):
         for key, value in output.items():
-            sys.argv.extend([key, value.get('value')])
+            sys.argv.extend(['--'+key, value.get('value')])
 
     def deploy(self):
         if self.args.get('service').get('action') == 'destroy':
@@ -537,10 +551,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.select_master_ip()
         self.check_k8s_cluster_status()
         self.check_tiller_status()
-        self.copy_terraform_to_remote()
-        self.run_remote_terraform()
         output = ' '.join(TerraformProvider().output('-json').split())
         self.fill_args_from_dict(json.loads(output))
+        self.copy_terraform_to_remote()
+        self.run_remote_terraform()
         self.output_terraform_result()
 
 
@@ -559,6 +573,9 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
     def cli_args(self):
         params = ParamsBuilder()
         (params
+         .add_str('--action', 'Action', default='deploy',
+                  group='service')
+         .add_str('--pkey', 'path to key', required=True, group='service')
          .add_str('--service_base_name',
                   'Any infrastructure value (should be unique if  multiple '
                   'SSN\'s have been deployed before). Should be  same as on ssn',
