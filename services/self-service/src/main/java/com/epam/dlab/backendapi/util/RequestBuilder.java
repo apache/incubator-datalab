@@ -410,7 +410,8 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
-				.withTags(userInstance.getTags());
+				.withTags(userInstance.getTags())
+				.withEndpoint(userInstance.getEndpoint());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -461,7 +462,8 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
-				.withTags(userInstance.getTags());
+				.withTags(userInstance.getTags())
+				.withEndpoint(userInstance.getEndpoint());
 	}
 
 	@SuppressWarnings("unchecked")
