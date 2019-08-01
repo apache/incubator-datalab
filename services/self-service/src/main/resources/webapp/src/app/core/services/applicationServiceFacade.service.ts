@@ -104,8 +104,8 @@ export class ApplicationServiceFacade {
 
   public buildGetAuthToken(body: any): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
-      body,
+      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH + body),
+      null,
       { observe: 'response' });
   }
 
