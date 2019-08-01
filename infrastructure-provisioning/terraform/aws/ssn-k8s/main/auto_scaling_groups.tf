@@ -23,15 +23,36 @@ locals {
   subnet_c_id = data.aws_subnet.k8s-subnet-c-data == [] ? "" : data.aws_subnet.k8s-subnet-c-data.0.id
 }
 
+resource "random_string" "ssn_keystore_password" {
+  length = 16
+  special = false
+}
+
+resource "random_string" "endpoint_keystore_password" {
+  length = 16
+  special = false
+}
+
+output "ssn_keystore_password" {
+  value = random_string.ssn_keystore_password.result
+}
+
+output "endpoint_keystore_password" {
+  value = random_string.endpoint_keystore_password.result
+}
+
 data "template_file" "ssn_k8s_masters_user_data" {
   template = file("./files/masters-user-data.sh")
   vars = {
-    k8s-asg = "${var.service_base_name}-ssn-masters"
-    k8s-region = var.region
-    k8s-bucket-name = aws_s3_bucket.ssn_k8s_bucket.id
-    k8s-nlb-dns-name = aws_lb.ssn_k8s_nlb.dns_name #aws_eip.k8s-lb-eip.public_ip
-    k8s-tg-arn = aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn
-    k8s_os_user = var.os_user
+    k8s-asg                    = "${var.service_base_name}-ssn-masters"
+    k8s-region                 = var.region
+    k8s-bucket-name            = aws_s3_bucket.ssn_k8s_bucket.id
+    k8s-nlb-dns-name           = aws_lb.ssn_k8s_nlb.dns_name #aws_eip.k8s-lb-eip.public_ip
+    k8s-tg-arn                 = aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn
+    k8s_os_user                = var.os_user
+    ssn_keystore_password      = random_string.ssn_keystore_password.result
+    endpoint_keystore_password = random_string.endpoint_keystore_password.result
+    endpoint_elastic_ip        = aws_eip.k8s-endpoint-eip.public_ip
   }
 }
 

@@ -19,6 +19,18 @@
 #
 # ******************************************************************************
 
+resource "random_uuid" "keycloak_client_secret" {}
+
+resource "kubernetes_secret" "keycloak_client_secret" {
+  metadata {
+    name = "keycloak-client-secret"
+  }
+
+  data = {
+    client_secret = random_uuid.keycloak_client_secret.result
+  }
+}
+
 resource "random_string" "keycloak_password" {
   length = 16
   special = false
@@ -92,5 +104,25 @@ resource "kubernetes_secret" "mysql_user_password_secret" {
 
   data = {
     password = random_string.mysql_user_password.result
+  }
+}
+
+resource "kubernetes_secret" "ssn_keystore_password" {
+  metadata {
+    name = "ssn-keystore-password"
+  }
+
+  data = {
+    password = var.ssn_keystore_password
+  }
+}
+
+resource "kubernetes_secret" "endpoint_keystore_password" {
+  metadata {
+    name = "endpoint-keystore-password"
+  }
+
+  data = {
+    password = var.endpoint_keystore_password
   }
 }

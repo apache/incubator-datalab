@@ -20,10 +20,8 @@
 # ******************************************************************************
 
 locals {
-  ec2_name = "${var.service_base_name}-endpoint"
-  eip_name = "${var.service_base_name}-endpoint-EIP"
+  ec2_name = "${var.service_base_name}-${var.endpoint_id}-endpoint"
 }
-
 
 resource "aws_instance" "endpoint" {
   ami             = var.ami
@@ -44,7 +42,6 @@ resource "aws_instance" "endpoint" {
     "user:tag" = "${var.service_base_name}:${local.ec2_name}"
   }
 }
-
 
 resource "aws_eip_association" "e_ip_assoc" {
   instance_id   = aws_instance.endpoint.id

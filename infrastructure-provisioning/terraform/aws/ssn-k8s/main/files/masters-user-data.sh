@@ -45,6 +45,8 @@ sudo chmod 600 /home/${k8s_os_user}/.ssh/authorized_keys
 
 sudo apt-get update
 sudo apt-get install -y python-pip jq unzip
+sudo apt-get install -y default-jre
+sudo apt-get install -y default-jdk
 sudo pip install -U pip
 sudo pip install awscli
 
@@ -118,6 +120,25 @@ subjects:
 EOF
 sudo -i -u ${k8s_os_user} kubectl create -f /tmp/rbac-config.yaml
 sudo -i -u ${k8s_os_user} helm init --service-account tiller --history-max 200
+# Generating Java SSL certs
+sudo mkdir -p /home/${k8s_os_user}/keys
+sudo keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass ${ssn_keystore_password} \
+  -keypass ${ssn_keystore_password} -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks \
+  -keysize 2048 -dname "CN=${k8s-nlb-dns-name}" -ext SAN=dns:localhost
+sudo keytool -exportcert -alias dlab -storepass ${ssn_keystore_password} -file /home/${k8s_os_user}/keys/ssn.crt \
+  -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks
+
+aws s3 cp /home/${k8s_os_user}/keys/ssn.keystore.jks s3://${k8s-bucket-name}/dlab/certs/ssn/ssn.keystore.jks
+aws s3 cp /home/${k8s_os_user}/keys/ssn.crt s3://${k8s-bucket-name}/dlab/certs/ssn/ssn.crt
+
+sudo keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass ${endpoint_keystore_password} \
+  -keypass ${endpoint_keystore_password} -keystore /home/${k8s_os_user}/keys/endpoint.keystore.jks \
+  -keysize 2048 -dname "CN=${endpoint_elastic_ip}" -ext SAN=dns:localhost
+sudo keytool -exportcert -alias dlab -storepass ${endpoint_keystore_password} -file /home/${k8s_os_user}/keys/endpoint.crt \
+  -keystore /home/${k8s_os_user}/keys/endpoint.keystore.jks
+
+aws s3 cp /home/${k8s_os_user}/keys/endpoint.keystore.jks s3://${k8s-bucket-name}/dlab/certs/endpoint/endpoint.keystore.jks
+aws s3 cp /home/${k8s_os_user}/keys/endpoint.crt s3://${k8s-bucket-name}/dlab/certs/endpoint/endpoint.crt
 sleep 60
 aws s3 cp /tmp/join_command s3://${k8s-bucket-name}/k8s/masters/join_command
 aws s3 cp /tmp/cert_key s3://${k8s-bucket-name}/k8s/masters/cert_key
