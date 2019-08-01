@@ -58,6 +58,11 @@ spec:
                 secretKeyRef:
                   name: ssn-keystore-password
                   key: password
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-client-secret
+                  key: client_secret
             - name: SSN_BUCKET_NAME
               value: {{ .Values.bucketName }}
           ports:
