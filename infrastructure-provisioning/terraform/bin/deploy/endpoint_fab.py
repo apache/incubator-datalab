@@ -9,7 +9,6 @@ import string
 
 conn = None
 args = None
-keystore_passwd = None
 java_home = None
 
 
@@ -66,18 +65,23 @@ def ensure_crutch_endpoint():
 def ensure_logs_endpoint():
     log_root_dir = "/var/opt/dlab/log"
     supervisor_log_file = "/var/log/application/provision-service.log"
-    if not exists(conn, args.dlab_path):
-        conn.sudo("mkdir -p {}".format(args.dlab_path))
-        conn.sudo("chown -R {} {}".format(args.os_user, args.dlab_path))
-    if not exists(conn, log_root_dir):
-        conn.sudo('mkdir -p {}/provisioning'.format(log_root_dir))
-        conn.sudo('touch {}/provisioning/provisioning.log'.format(log_root_dir))
-        conn.sudo('chmod 666 {}/provisioning/provisioning.log'
-                  .format(log_root_dir))
-    if not exists(conn, supervisor_log_file):
-        conn.sudo("mkdir -p /var/log/application")
-        conn.sudo("touch {}".format(supervisor_log_file))
-        conn.sudo("chmod 666 {}".format(supervisor_log_file))
+    try:
+        if not exists(conn, '/home/' + args.os_user + '/.ensure_dir/logs_ensured'):
+            if not exists(conn, args.dlab_path):
+                conn.sudo("mkdir -p " + args.dlab_path)
+                conn.sudo("chown -R " + args.os_user + ' ' + args.dlab_path)
+            if not exists(conn, log_root_dir):
+                conn.sudo('mkdir -p ' + log_root_dir + '/provisioning')
+                conn.sudo('touch ' + log_root_dir + '/provisioning/provisioning.log')
+            if not exists(conn, supervisor_log_file):
+                conn.sudo("mkdir -p /var/log/application")
+                conn.sudo("touch " + supervisor_log_file)
+            conn.sudo("chown -R {0} {1}".format(args.os_user, log_root_dir))
+            conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/logs_ensured')
+    except Exception as err:
+        print('Failed to configure logs and dlab directory: ', str(err))
+        traceback.print_exc()
+        sys.exit(1)
 
 
 def ensure_jre_jdk_endpoint():
@@ -162,37 +166,28 @@ def create_key_dir_endpoint():
         sys.exit(1)
 
 
-def generate_passwd(size=10,
-                    chars=string.digits + string.ascii_letters):
-    global keystore_passwd
-    keystore_passwd = ''.join(random.choice(chars) for _ in range(size))
-
-
 def configure_keystore_endpoint(os_user):
     try:
-        if not exists(conn,
-                      '/home/{}/keys/dlab.keystore.jks'.format(args.os_user)):
-            conn.sudo('keytool -genkeypair -alias dlab -keyalg RSA '
-                      '-validity 730 -storepass {1} -keypass {1} '
-                      '-keystore /home/{0}/keys/dlab.keystore.jks  '
-                      '-keysize 2048 -dname "CN={2}"'
-                      .format(os_user, keystore_passwd, args.hostname))
-        if not exists(conn, '/home/{}/keys/dlab.crt'.format(args.os_user)):
-            conn.sudo('keytool -exportcert -alias dlab -storepass {1} '
-                      '-file /home/{0}/keys/dlab.crt '
-                      '-keystore /home/{0}/keys/dlab.keystore.jks'
-                      .format(os_user, keystore_passwd))
-        if not exists(conn,
-                      '/home/{}/.ensure_dir/cert_imported'
-                              .format(args.os_user)):
-            conn.sudo('keytool -importcert -trustcacerts -alias dlab '
-                      '-file /home/{0}/keys/dlab.crt -noprompt  '
-                      '-storepass changeit -keystore {1}/lib/security/cacerts'
-                      .format(os_user, java_home))
-            conn.sudo('touch /home/{}/.ensure_dir/cert_imported'
-                      .format(args.os_user))
+        conn.sudo('apt-get install -y awscli')
+        if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
+            conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
+                      '/home/{1}/keys/endpoint.keystore.jks'
+                      .format(args.ssn_bucket_name, args.os_user))
+        if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
+            conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.crt'
+                      ' /home/{1}/keys/endpoint.crt'.format(args.ssn_bucket_name, args.os_user))
+        if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
+            conn.sudo('aws s3 cp '
+                      's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
+                      .format(args.ssn_bucket_name,args.os_user))
+        if not exists(conn, '/home/' + args.os_user + '/.ensure_dir/cert_imported'):
+            conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt \
+                 -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+            conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/ssn.crt -noprompt \
+                 -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+            conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/cert_imported')
     except Exception as err:
-        logging.error('Failed to configure Keystore certificates: ', str(err))
+        print('Failed to configure Keystore certificates: ', str(err))
         traceback.print_exc()
         sys.exit(1)
 
@@ -226,7 +221,7 @@ def configure_supervisor_endpoint():
             conn.sudo('sed -i "s|KEYNAME|{}|g" {}provisioning.yml'
                       .format(args.conf_key_name, dlab_conf_dir))
             conn.sudo('sed -i "s|KEYSTORE_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(keystore_passwd, dlab_conf_dir))
+                      .format(args.endpoint_keystore_password, dlab_conf_dir))
             conn.sudo('sed -i "s|JRE_HOME|{}|g" {}provisioning.yml'
                       .format(java_home, dlab_conf_dir))
             conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" {}provisioning.yml'
@@ -289,6 +284,8 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port))
             conn.sudo('docker pull {}:{}/docker.dlab-edge'
                       .format(args.repository_address, args.repository_port))
+            conn.sudo('docker pull {}:{}/docker.dlab-project'
+                      .format(args.repository_address, args.repository_port))
             conn.sudo('docker pull {}:{}/docker.dlab-jupyter'
                       .format(args.repository_address, args.repository_port))
             conn.sudo('docker pull {}:{}/docker.dlab-rstudio'
@@ -308,6 +305,8 @@ def pull_docker_images():
             conn.sudo('docker tag {}:{}/docker.dlab-base docker.dlab-base'
                       .format(args.repository_address, args.repository_port))
             conn.sudo('docker tag {}:{}/docker.dlab-edge docker.dlab-edge'
+                      .format(args.repository_address, args.repository_port))
+            conn.sudo('docker tag {}:{}/docker.dlab-project docker.dlab-project'
                       .format(args.repository_address, args.repository_port))
             conn.sudo('docker tag {}:{}/docker.dlab-jupyter docker.dlab-jupyter'
                       .format(args.repository_address, args.repository_port))
@@ -333,6 +332,8 @@ def pull_docker_images():
             conn.sudo('docker rmi {}:{}/docker.dlab-base'
                       .format(args.repository_address, args.repository_port))
             conn.sudo('docker rmi {}:{}/docker.dlab-edge'
+                      .format(args.repository_address, args.repository_port))
+            conn.sudo('docker rmi {}:{}/docker.dlab-project'
                       .format(args.repository_address, args.repository_port))
             conn.sudo('docker rmi {}:{}/docker.dlab-jupyter'
                       .format(args.repository_address, args.repository_port))
@@ -378,6 +379,8 @@ def init_args():
     parser.add_argument('--repository_pass', type=str, default='')
     parser.add_argument('--docker_version', type=str,
                         default='18.06.3~ce~3-0~ubuntu')
+    parser.add_argument('--ssn_bucket_name', type=str, default='')
+    parser.add_argument('--endpoint_keystore_password', type=str, default='')
     print(parser.parse_known_args())
     args = parser.parse_known_args()[0]
 
@@ -429,7 +432,6 @@ def start_deploy():
 
     init_dlab_connection()
     update_system()
-    generate_passwd()
 
     logging.info("Configuring Crutch")
     ensure_crutch_endpoint()
@@ -454,7 +456,7 @@ def start_deploy():
     logging.info("Creating key directory")
     create_key_dir_endpoint()
 
-    logging.info("Starting Endpoint")
+    logging.info("Configuring certificates")
     configure_keystore_endpoint(args.os_user)
 
     logging.info("Ensure jar")
