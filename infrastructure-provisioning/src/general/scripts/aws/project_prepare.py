@@ -133,7 +133,7 @@ if __name__ == "__main__":
         ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
                                                        {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
     except Exception as err:
-        print("Failed to attach Project tag to Enpoint", str(err))
+        print("Failed to attach Project tag to Endpoint", str(err))
 #        traceback.print_exc()
 #        sys.exit(1)
 
