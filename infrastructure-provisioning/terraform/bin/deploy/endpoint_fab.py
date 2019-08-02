@@ -381,6 +381,7 @@ def init_args():
                         default='18.06.3~ce~3-0~ubuntu')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--endpoint_keystore_password', type=str, default='')
+    parser.add_argument('--keycloak_client_secret', type=str, default='')
     print(parser.parse_known_args())
     args = parser.parse_known_args()[0]
 
