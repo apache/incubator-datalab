@@ -44,9 +44,8 @@ public class KeyUploaderCallback {
             } else {
                 UserInstanceStatus instanceStatus = UserInstanceStatus.of(keyDAO.getEdgeStatus(user));
                 if (instanceStatus == null) {
-                    // Upload the key first time
-                    log.debug("Delete the key for user {}", user);
-                    keyDAO.deleteKey(user);
+                    log.debug("Updating the key status for user {} to error", user);
+                    keyDAO.updateKey(user, "error");
                 } else {
                     keyDAO.updateEdgeStatus(user, status);
                 }

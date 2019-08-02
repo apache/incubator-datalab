@@ -105,6 +105,7 @@ logging:
   loggers:
     com.epam: TRACE
     com.novemberain: ERROR
+    org.apache.guacamole: TRACE
   appenders:
 <#if DEV_MODE == "true">
   - type: console
@@ -150,10 +151,21 @@ schedulers:
   stopExploratoryScheduler:
     enabled: true
     cron: "*/20 * * ? * * *"
+  terminateComputationalScheduler:
+    enabled: true
+    cron: "*/20 * * ? * * *"
   checkQuoteScheduler:
     enabled: true
     cron: "0 0 * ? * * *"
   checkUserQuoteScheduler:
     enabled: true
     cron: "0 0 * ? * * *"
+
+guacamole:
+  connectionProtocol: ssh
+  serverHost: localhost
+  serverPort: 4822
+  port: 22
+  username: dlab-user
+
 

@@ -100,6 +100,20 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
+        logging.info('[UPDATE LAST ACTIVITY TIME]')
+        print('[UPDATE LAST ACTIVITY TIME]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
+        try:
+            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+        except Exception as err:
+            traceback.print_exc()
+            append_result("Failed to update last activity time.", str(err))
+            raise Exception
+    except:
+        sys.exit(1)
+
+    try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                  notebook_config['notebook_name'])
         print('[SUMMARY]')

@@ -73,6 +73,12 @@ files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
+if os.environ['application'] == 'deeplearning':
+    tensorflow_version = '1.4.0'
+    cuda_version = '8.0'
+    cuda_file_name = 'cuda_8.0.44_linux-run'
+    cudnn_version = '6.0'
+    cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
 
 
 def start_spark(os_user, master_ip, node):
@@ -165,8 +171,6 @@ if __name__ == "__main__":
 
     # INSTALL DEEP LEARNING FRAMEWORKS
     if os.environ['application'] == 'deeplearning':
-        print("Installing Caffe")
-        install_caffe(args.os_user, args.region, caffe_version)
         print("Installing Caffe2")
         install_caffe2(args.os_user, caffe2_version, cmake_version)
         print("Installing Torch")

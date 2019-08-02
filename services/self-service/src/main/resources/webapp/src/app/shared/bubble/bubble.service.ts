@@ -63,7 +63,7 @@ export class BubblesCollector {
       this.bubbles.filter((component: BubbleComponent) => component.isVisible)
         .forEach((component: BubbleComponent) => component.hide());
     });
-  };
+  }
 
   public addBubble(bubbleComponent: BubbleComponent) {
     this.bubbles.push(bubbleComponent);

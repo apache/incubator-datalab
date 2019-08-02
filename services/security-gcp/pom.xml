@@ -50,18 +50,15 @@
             <version>1.23.0</version>
         </dependency>
         <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-webapp-common</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-plus</artifactId>
             <version>v1-rev540-1.23.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-auth-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

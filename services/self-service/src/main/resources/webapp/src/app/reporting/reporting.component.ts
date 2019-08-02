@@ -18,24 +18,24 @@
  */
 
 
-import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
-import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
+import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)"
+  <dlab-toolbar (rebuildReport)="rebuildBillingReport()"
                 (exportReport)="exportBillingReport()"
                 (setRangeOption)="setRangeOption($event)">
   </dlab-toolbar>
-  <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
+  <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
   <footer *ngIf="data">
     Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
@@ -73,10 +73,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
     private userAccessKeyService: UserAccessKeyService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef) {
-      this.toastr.setRootViewContainerRef(vcr);
-    }
+    public toastr: ToastrService
+  ) {}
 
   ngOnInit() {
     this.rebuildBillingReport();
@@ -120,11 +118,11 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
-  exportBillingReport($event): void {
+  exportBillingReport(): void {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),
-        error => this.toastr.error('Billing report export failed!', 'Oops!', { toastLife: 5000 }));
+        error => this.toastr.error('Billing report export failed!', 'Oops!'));
   }
 
   getDefaultFilterConfiguration(data): void {

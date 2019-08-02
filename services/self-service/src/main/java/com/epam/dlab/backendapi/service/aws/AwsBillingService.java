@@ -39,13 +39,13 @@ import java.util.List;
 
 @Slf4j
 @Singleton
-public class AwsBillingService implements BillingService<AwsBillingFilter> {
+public class AwsBillingService extends BillingService<AwsBillingFilter> {
 
 	@Inject
 	private BillingDAO billingDAO;
 
 	@Override
-	public Document getReport(UserInfo userInfo, AwsBillingFilter filter) {
+	protected Document getReport(UserInfo userInfo, AwsBillingFilter filter) {
 		log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
 		try {
 			return billingDAO.getReport(userInfo, filter);
@@ -53,12 +53,6 @@ public class AwsBillingService implements BillingService<AwsBillingFilter> {
 			log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
 			throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
 		}
-	}
-
-	@Override
-	public byte[] downloadReport(UserInfo userInfo, AwsBillingFilter filter) {
-		log.trace("Download billing report for user {} with filter {}", userInfo.getName(), filter);
-		return BillingService.super.downloadReport(userInfo, filter);
 	}
 
 	@Override

@@ -134,6 +134,12 @@
             <artifactId>oshi-core</artifactId>
             <version>${com.github.oshi.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.jcabi</groupId>
+            <artifactId>jcabi-manifests</artifactId>
+            <version>1.1</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.smoketurner</groupId>
@@ -154,6 +160,12 @@
                 </exclusion>
             </exclusions>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.guacamole</groupId>
+            <artifactId>guacamole-common</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
@@ -190,7 +202,7 @@
                                         <Created-By>&lt;EPAM&gt; Systems</Created-By>
                                         <Name>com/epam/dlab</Name>
                                         <Implementation-Title>DLab Self-Service</Implementation-Title>
-                                        <Implementation-Version>${dlab.version}</Implementation-Version>
+                                        <DLab-Version>${dlab.version}</DLab-Version>
                                         <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
                                         <Build-Time>${maven.build.timestamp}</Build-Time>
                                         <Build-OS>${os.name}</Build-OS>

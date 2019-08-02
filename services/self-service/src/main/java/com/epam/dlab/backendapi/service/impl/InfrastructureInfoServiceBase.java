@@ -27,9 +27,11 @@ import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
+import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
@@ -38,6 +40,8 @@ import java.util.Map;
 @Slf4j
 public abstract class InfrastructureInfoServiceBase<T> implements InfrastructureInfoService {
 
+	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s" +
+			"/RELEASE_NOTES.md";
 	@Inject
 	private ExploratoryDAO expDAO;
 	@Inject
@@ -81,6 +85,17 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public InfrastructureMetaInfoDTO getInfrastructureMetaInfo() {
+		final String branch = Manifests.read("GIT-Branch");
+		return InfrastructureMetaInfoDTO.builder()
+				.branch(branch)
+				.commit(Manifests.read("GIT-Commit"))
+				.version(Manifests.read("DLab-Version"))
+				.releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
+				.build();
 	}
 
 	protected abstract Map<String, String> getSharedInfo(T sharedInfo);

@@ -75,7 +75,7 @@ input[type='text']:not(.mat-input-element)::placeholder,
 input[type='number']:not(.mat-input-element)::placeholder,
 input[type='email']:not(.mat-input-element)::placeholder,
 input[type='password']:not(.mat-input-element)::placeholder,
-textarea::placeholder, {
+textarea::placeholder {
   color: #718ba6;
 }
 
@@ -136,5 +136,21 @@ button {
     color: #35afd5;
     margin-right: 0px;
     font-style: normal;
+  }
+}
+
+.helper_instruction {
+  color: #35afd5;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .45s ease-in-out;
+  &:hover {
+    color: #3392b0;
+  }
+  .material-icons {
+    font-size: 20px;
+    vertical-align: top;
+    padding-right: 5px;
+    overflow: hidden;
   }
 }

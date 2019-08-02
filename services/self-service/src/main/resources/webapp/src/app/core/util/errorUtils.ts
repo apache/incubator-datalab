@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import { Observable } from 'rxjs/Observable';
-import { CheckUtils } from '.';
+
+import { throwError as observableThrowError } from 'rxjs';
+import { CheckUtils } from './checkUtils';
 
 export class ErrorUtils {
 
@@ -39,9 +40,9 @@ export class ErrorUtils {
   // }
 
   public static handleServiceError(errorMessage) {
-    let error = errorMessage.json();
+    const error = CheckUtils.isJSON(errorMessage.error) ? JSON.parse(errorMessage.error) : errorMessage.error;
 
-    return Observable.throw({
+    return observableThrowError({
       status: error.code,
       statusText: errorMessage.statusText,
       message: error.message

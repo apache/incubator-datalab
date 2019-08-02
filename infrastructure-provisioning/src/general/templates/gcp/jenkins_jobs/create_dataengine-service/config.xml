@@ -49,12 +49,12 @@ under the License.
         <hudson.model.StringParameterDefinition>
           <name>master_instance_type</name>
           <description>Shape of master node</description>
-          <defaultValue>n1-standard-1</defaultValue>
+          <defaultValue>n1-standard-2</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>slave_instance_type</name>
           <description>Shape of slave nodes</description>
-          <defaultValue>n1-standard-1</defaultValue>
+          <defaultValue>n1-standard-2</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>master_count</name>
@@ -85,6 +85,7 @@ under the License.
               <string>rstudio</string>
               <string>zeppelin</string>
               <string>tensor</string>
+              <string>tensor-rstudio</string>
               <string>deeplearning</string>
             </a>
           </choices>

@@ -30,6 +30,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
+parser.add_argument('--bucket_name_tag', type=str, default='')
 parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
 parser.add_argument('--region', type=str, default='')
@@ -43,7 +44,7 @@ if __name__ == "__main__":
             bucket = get_bucket_by_name(args.bucket_name)
             if bucket == '':
                 print("Creating bucket {0} with tag {1}.".format(args.bucket_name, json.dumps(tag)))
-                bucket = create_s3_bucket(args.bucket_name, tag, args.region)
+                bucket = create_s3_bucket(args.bucket_name, tag, args.region, args.bucket_name_tag)
             else:
                 print("REQUESTED BUCKET ALREADY EXISTS")
             print("BUCKET_NAME {}".format(bucket))

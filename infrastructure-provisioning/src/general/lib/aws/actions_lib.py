@@ -40,6 +40,7 @@ import dlab.fab
 import uuid
 import ast
 
+
 def backoff_log(err):
     logging.info("Unable to create Tag: " + \
                  str(err) + "\n Traceback: " + \
@@ -57,32 +58,35 @@ def put_to_bucket(bucket_name, local_file, destination_file):
             s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'ServerSideEncryption': 'AES256'})
         return True
     except Exception as err:
-        logging.info("Unable to upload files to S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to upload files to S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to upload files to S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to upload files to S3 bucket",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
         return False
 
 
-def create_s3_bucket(bucket_name, tag, region):
+def create_s3_bucket(bucket_name, tag, region, bucket_name_tag):
     try:
         s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
         if region == "us-east-1":
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
-        boto3.client('s3', config=Config(signature_version='s3v4')).put_bucket_encryption(Bucket=bucket_name, ServerSideEncryptionConfiguration={
-            'Rules': [
-                {
-                    'ApplyServerSideEncryptionByDefault': {
-                        'SSEAlgorithm': 'AES256'
-                    }
-                },
-            ]
-        })
+        boto3.client('s3', config=Config(signature_version='s3v4')).put_bucket_encryption(
+            Bucket=bucket_name, ServerSideEncryptionConfiguration={
+                'Rules': [
+                    {
+                        'ApplyServerSideEncryptionByDefault': {
+                            'SSEAlgorithm': 'AES256'
+                        }
+                    },
+                ]
+            })
         tags = list()
         tags.append(tag)
-        tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' +
-                                                                         bucket_name})
+        tags.append({'Key': os.environ['conf_tag_resource_id'],
+                     'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
         tags.append({'Key': os.environ['conf_billing_tag_key'], 'Value': os.environ['conf_billing_tag_value']})
         if 'conf_additional_tags' in os.environ:
             for tag in os.environ['conf_additional_tags'].split(';'):
@@ -97,8 +101,10 @@ def create_s3_bucket(bucket_name, tag, region):
         tagging.reload()
         return bucket.name
     except Exception as err:
-        logging.info("Unable to create S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to create S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to create S3 bucket",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -110,7 +116,8 @@ def create_vpc(vpc_cidr, tag):
         return vpc.id
     except Exception as err:
         logging.info("Unable to create VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create VPC", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create VPC",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -120,8 +127,10 @@ def enable_vpc_dns(vpc_id):
         client.modify_vpc_attribute(VpcId=vpc_id,
                                     EnableDnsHostnames={'Value': True})
     except Exception as err:
-        logging.info("Unable to modify VPC attributes: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to modify VPC attributes", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to modify VPC attributes: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to modify VPC attributes",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -132,7 +141,8 @@ def remove_vpc(vpc_id):
         print("VPC {} has been removed".format(vpc_id))
     except Exception as err:
         logging.info("Unable to remove VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove VPC", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to remove VPC",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -179,22 +189,6 @@ def create_tag(resource, tag, with_tag_res_id=True):
         Tags=tags_list
     )
 
-def create_product_tag(resource):
-    print('Tag product for the resource {} will be created'.format(resource))
-    tags_list = list()
-    ec2 = boto3.client('ec2')
-    if type(resource) != list:
-        resource = [resource]
-    tags_list.append(
-        {
-            'Key': os.environ['conf_billing_tag_key'],
-            'Value': os.environ['conf_billing_tag_value']
-        }
-    )
-    ec2.create_tags(
-        Resources=resource,
-        Tags=tags_list
-    )
 
 def remove_emr_tag(emr_id, tag):
     try:
@@ -202,7 +196,8 @@ def remove_emr_tag(emr_id, tag):
         emr.remove_tags(ResourceId=emr_id, TagKeys=tag)
     except Exception as err:
         logging.info("Unable to remove Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to remove Tag",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -227,31 +222,42 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
         return rt_id
     except Exception as err:
         logging.info("Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Route Table", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create Route Table",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
-def create_subnet(vpc_id, subnet, tag):
+def create_subnet(vpc_id, subnet, tag, zone):
     try:
         ec2 = boto3.resource('ec2')
-        subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet)
+        if zone != "":
+            subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet, AvailabilityZone=zone)
+        else:
+            subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet)
         create_tag(subnet.id, tag)
         subnet.reload()
         return subnet.id
     except Exception as err:
         logging.info("Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create Subnet",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
 def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
     try:
         ec2 = boto3.resource('ec2')
+        tag_name = {"Key": "Name", "Value": security_group_name}
         group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
         time.sleep(10)
         create_tag(group.id, tag)
+        create_tag(group.id, tag_name)
+        if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
+            create_tag(group.id, {'Key': os.environ['conf_billing_tag_key'],
+                                  'Value': os.environ['conf_billing_tag_value']})
         try:
-            group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
+            group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                                                "UserIdGroupPairs": [], "PrefixListIds": []}])
         except:
             print("Mentioned rule does not exist")
         for rule in security_group_rules:
@@ -261,8 +267,10 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
         return group.id
     except Exception as err:
         logging.info("Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create security group", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create security group",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 
 def create_route_by_id(subnet_id, vpc_id, peering_id, another_cidr):
     client = boto3.client('ec2')
@@ -293,13 +301,16 @@ def create_route_by_id(subnet_id, vpc_id, peering_id, another_cidr):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def create_peer_routes(peering_id, service_base_name):
     client = boto3.client('ec2')
     try:
         route_tables = client.describe_route_tables(
-            Filters=[{'Name': 'tag:{}-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+            Filters=[{'Name': 'tag:{}-Tag'.format(service_base_name), 'Values': ['{}'.format(
+                service_base_name)]}]).get('RouteTables')
         route_tables2 = client.describe_route_tables(Filters=[
-            {'Name': 'tag:{}-secondary-Tag'.format(service_base_name), 'Values': ['{}'.format(service_base_name)]}]).get('RouteTables')
+            {'Name': 'tag:{}-secondary-Tag'.format(service_base_name), 'Values': ['{}'.format(
+                service_base_name)]}]).get('RouteTables')
         for table in route_tables:
             routes = table.get('Routes')
             routeExists=False
@@ -312,9 +323,10 @@ def create_peer_routes(peering_id, service_base_name):
                     VpcPeeringConnectionId=peering_id,
                     RouteTableId=table.get('RouteTableId'))
         for table in route_tables2:
+            routes = table.get('Routes')
             routeExists=False
             for route in routes:
-                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                if route.get('DestinationCidrBlock')==os.environ['conf_vpc_cidr'].replace("'", ""):
                     routeExists = True
             if not routeExists:
                 client.create_route(
@@ -333,6 +345,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        tag_name = {"Key": 'Name', "Value": "{0}-peering-connection".format(service_base_name)}
         peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
         client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
         client.modify_vpc_peering_connection_options(
@@ -345,10 +358,13 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
             VpcPeeringConnectionId=peering.id
         )
         create_tag(peering.id, json.dumps(tag))
+        create_tag(peering.id, json.dumps(tag_name))
         return peering.id
     except Exception as err:
-        logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to create peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to create peering connection",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -358,7 +374,8 @@ def enable_auto_assign_ip(subnet_id):
         client.modify_subnet_attribute(MapPublicIpOnLaunch={'Value': True}, SubnetId=subnet_id)
     except Exception as err:
         logging.info("Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create Subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create Subnet",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -416,6 +433,23 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                                              SubnetId=definitions.subnet_id,
                                              IamInstanceProfile={'Name': definitions.iam_profile},
                                              UserData=user_data)
+        elif definitions.instance_class == 'ssn':
+            get_iam_profile(definitions.iam_profile)
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             BlockDeviceMappings=[
+                                                 {
+                                                     "DeviceName": "/dev/sda1",
+                                                     "Ebs":
+                                                         {
+                                                             "VolumeSize": int(primary_disk_size)
+                                                         }
+                                                 }],
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
         else:
             get_iam_profile(definitions.iam_profile)
             instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
@@ -436,8 +470,10 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         return ''
     except Exception as err:
         logging.info("Unable to create EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to create EC2",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 
 def tag_intance_volume(instance_id, node_name, instance_tag):
     try:
@@ -467,6 +503,7 @@ def tag_intance_volume(instance_id, node_name, instance_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+
 def tag_emr_volume(cluster_id, node_name, billing_tag):
     try:
         client = boto3.client('emr')
@@ -485,20 +522,36 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-def create_iam_role(role_name, role_profile, region, service='ec2'):
+
+def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
     conn = boto3.client('iam')
     try:
         if region == 'cn-north-1':
-            conn.create_role(RoleName=role_name,
-                             AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service + '.amazonaws.com.cn"]},"Action":["sts:AssumeRole"]}]}')
+            conn.create_role(
+                RoleName=role_name,
+                AssumeRolePolicyDocument=
+                '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service +
+                '.amazonaws.com.cn"]},"Action":["sts:AssumeRole"]}]}')
         else:
-            conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service + '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
+            conn.create_role(
+                RoleName=role_name, AssumeRolePolicyDocument=
+                '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service +
+                '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
+        if tag:
+            conn.tag_role(RoleName=role_name, Tags=[tag])
+            conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
+            if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
+                conn.tag_role(RoleName=role_name, Tags=[{'Key': os.environ['conf_billing_tag_key'],
+                                                         'Value': os.environ['conf_billing_tag_value']}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")
         else:
-            logging.info("Unable to create IAM role: " + str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create IAM role", "error_message": str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            logging.info("Unable to create IAM role: " + str(e_role.response['Error']['Message']) +
+                         "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create IAM role",
+                               "error_message": str(e_role.response['Error']['Message']) + "\n Traceback: " +
+                                                traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return
     if service == 'ec2':
@@ -510,16 +563,22 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
             if e_profile.response['Error']['Code'] == 'EntityAlreadyExists':
                 print("Instance profile already exists. Reusing...")
             else:
-                logging.info("Unable to create Instance Profile: " + str(e_profile.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Instance Profile", "error_message": str(e_profile.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                logging.info("Unable to create Instance Profile: " + str(e_profile.response['Error']['Message']) +
+                             "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Instance Profile",
+                                   "error_message": str(e_profile.response['Error']['Message']) + "\n Traceback: " +
+                                                    traceback.print_exc(file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
                 return
         try:
             conn.add_role_to_instance_profile(InstanceProfileName=role_profile, RoleName=role_name)
             time.sleep(30)
         except botocore.exceptions.ClientError as err:
-            logging.info("Unable to add IAM role to instance profile: " + str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to add IAM role to instance profile", "error_message": str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            logging.info("Unable to add IAM role to instance profile: " + str(err.response['Error']['Message']) +
+                         "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to add IAM role to instance profile",
+                               "error_message": str(err.response['Error']['Message']) + "\n Traceback: " +
+                                                traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
 
@@ -529,8 +588,11 @@ def attach_policy(role_name, policy_arn):
         conn.attach_role_policy(PolicyArn=policy_arn, RoleName=role_name)
         time.sleep(30)
     except botocore.exceptions.ClientError as err:
-        logging.info("Unable to attach Policy: " + str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to attach Policy", "error_message": str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to attach Policy: " + str(err.response['Error']['Message']) + "\n Traceback: " +
+                     traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to attach Policy",
+                           "error_message": str(err.response['Error']['Message']) + "\n Traceback: " +
+                                            traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -542,7 +604,8 @@ def create_attach_policy(policy_name, role_name, file_path):
         conn.put_role_policy(RoleName=role_name, PolicyName=policy_name, PolicyDocument=json_file)
     except Exception as err:
         logging.info("Unable to attach Policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to attach Policy", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to attach Policy",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -606,7 +669,8 @@ def remove_route_53_record(hosted_zone_id, hosted_zone_name, subdomain):
                                           )
         else:
             route53_client = boto3.client('route53')
-        for record_set in route53_client.list_resource_record_sets(HostedZoneId=hosted_zone_id).get('ResourceRecordSets'):
+        for record_set in route53_client.list_resource_record_sets(
+                HostedZoneId=hosted_zone_id).get('ResourceRecordSets'):
             if record_set['Name'] == "{}.{}.".format(subdomain, hosted_zone_name):
                 for record in record_set['ResourceRecords']:
                     route53_client.change_resource_record_sets(
@@ -725,7 +789,8 @@ def remove_ec2(tag_name, tag_value):
             print("There are no instances with '{}' tag to terminate".format(tag_name))
     except Exception as err:
         logging.info("Unable to remove EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -749,7 +814,8 @@ def stop_ec2(tag_name, tag_value):
             print("There are no instances with {} name to stop".format(tag_value))
     except Exception as err:
         logging.info("Unable to stop EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to stop EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to stop EC2",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -773,7 +839,8 @@ def start_ec2(tag_name, tag_value):
             print("There are no instances with {} name to start".format(tag_value))
     except Exception as err:
         logging.info("Unable to start EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to start EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to start EC2",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -790,7 +857,8 @@ def remove_detach_iam_policies(role_name, action=''):
                 client.delete_policy(PolicyArn=policy_arn)
                 print("The IAM policy {} has been deleted successfully".format(policy_arn))
     except Exception as err:
-        logging.info("Unable to remove/detach IAM policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        logging.info("Unable to remove/detach IAM policy: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
         append_result(str({"error": "Unable to remove/detach IAM policy",
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
@@ -802,9 +870,11 @@ def remove_roles_and_profiles(role_name, role_profile_name):
         client.remove_role_from_instance_profile(InstanceProfileName=role_profile_name, RoleName=role_name)
         client.delete_instance_profile(InstanceProfileName=role_profile_name)
         client.delete_role(RoleName=role_name)
-        print("The IAM role {0} and instance profile {1} have been deleted successfully".format(role_name, role_profile_name))
+        print("The IAM role {0} and instance profile {1} have been deleted successfully".format(role_name,
+                                                                                                role_profile_name))
     except Exception as err:
-        logging.info("Unable to remove IAM role/profile: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        logging.info("Unable to remove IAM role/profile: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
         append_result(str({"error": "Unable to remove IAM role/profile",
                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
@@ -813,7 +883,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
         client = boto3.client('iam')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
         roles_list = []
         for item in client.list_roles(MaxItems=250).get("Roles"):
             if item.get("RoleName").startswith(service_base_name + '-'):
@@ -823,14 +893,15 @@ def remove_all_iam_resources(instance_type, scientist=''):
             for iam_role in roles_list:
                 if '-ssn-Role' in iam_role and instance_type == 'ssn' or instance_type == 'all':
                     try:
-                        client.delete_role_policy(RoleName=iam_role, PolicyName=service_base_name + '-ssn-Policy')
+                        client.delete_role_policy(RoleName=iam_role, PolicyName='{0}-ssn-Policy'.format(
+                            service_base_name))
                     except:
                         print('There is no policy {}-ssn-Policy to delete'.format(service_base_name))
                     role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
                     if role_profiles:
                         for i in role_profiles:
                             role_profile_name = i.get('InstanceProfileName')
-                            if role_profile_name == service_base_name + '-ssn-Profile':
+                            if role_profile_name == '{0}-ssn-Profile'.format(service_base_name):
                                 remove_roles_and_profiles(iam_role, role_profile_name)
                     else:
                         print("There is no instance profile for {}".format(iam_role))
@@ -839,7 +910,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-edge-Role' in iam_role:
                     if instance_type == 'edge' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = os.environ['conf_service_base_name'] + '-' + '{}'.format(scientist) + '-edge-Profile'
+                        role_profile_name = '{0}-{1}-edge-Profile'.format(service_base_name, scientist)
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -849,7 +920,8 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             print("The IAM role {} has been deleted successfully".format(iam_role))
                     if instance_type == 'all':
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
+                        role_profile_name = client.list_instance_profiles_for_role(
+                            RoleName=iam_role).get('InstanceProfiles')
                         if role_profile_name:
                             for i in role_profile_name:
                                 role_profile_name = i.get('InstanceProfileName')
@@ -861,7 +933,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-nb-de-Profile'
+                        role_profile_name = '{0}-{1}-nb-de-Profile'.format(service_base_name, scientist)
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -871,7 +943,8 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             print("The IAM role {} has been deleted successfully".format(iam_role))
                     if instance_type == 'all':
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
+                        role_profile_name = client.list_instance_profiles_for_role(
+                            RoleName=iam_role).get('InstanceProfiles')
                         if role_profile_name:
                             for i in role_profile_name:
                                 role_profile_name = i.get('InstanceProfileName')
@@ -884,7 +957,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
             print("There are no IAM roles to delete. Checking instance profiles...")
         profile_list = []
         for item in client.list_instance_profiles(MaxItems=250).get("InstanceProfiles"):
-            if item.get("InstanceProfileName").startswith(service_base_name + '-'):
+            if item.get("InstanceProfileName").startswith('{}-'.format(service_base_name)):
                 profile_list.append(item.get('InstanceProfileName'))
         if profile_list:
             for instance_profile in profile_list:
@@ -908,8 +981,10 @@ def remove_all_iam_resources(instance_type, scientist=''):
         else:
             print("There are no instance profiles to delete")
     except Exception as err:
-        logging.info("Unable to remove some of the IAM resources: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove some of the IAM resources", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to remove some of the IAM resources: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove some of the IAM resources",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -928,7 +1003,8 @@ def s3_cleanup(bucket, cluster_name, user_name):
             s3_res.Object(resource.name, i.key).delete()
     except Exception as err:
         logging.info("Unable to clean S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to clean S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to clean S3 bucket",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -941,7 +1017,8 @@ def remove_s3(bucket_type='all', scientist=''):
             bucket_name = (os.environ['conf_service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
             bucket_list.append((os.environ['conf_service_base_name'] + '-shared-bucket').lower().replace('_', '-'))
         elif bucket_type == 'edge':
-            bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-bucket').lower().replace('_', '-')
+            bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) +
+                           '-bucket').lower().replace('_', '-')
         else:
             bucket_name = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         for item in client.list_buckets().get('Buckets'):
@@ -960,8 +1037,10 @@ def remove_s3(bucket_type='all', scientist=''):
             else:
                 print("There are no buckets to delete")
     except Exception as err:
-        logging.info("Unable to remove S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to remove S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove S3 bucket",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -988,7 +1067,8 @@ def remove_subnets(tag_value):
             print("There are no private subnets to delete")
     except Exception as err:
         logging.info("Unable to remove subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to remove subnet", "error_message": str(err) + "\n Traceback: " +
+                                                                                traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -997,8 +1077,11 @@ def remove_peering(tag_value):
         client = boto3.client('ec2')
         tag_name = os.environ['conf_service_base_name'] + '-Tag'
         if os.environ['conf_duo_vpc_enable']=='true':
-            peering_id = client.describe_vpc_peering_connections(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}, {'Name': 'tag-value', 'Values': [tag_value]},
-                                                                   {'Name': 'status-code', 'Values': ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
+            peering_id = client.describe_vpc_peering_connections(Filters=[
+                {'Name': 'tag-key', 'Values': [tag_name]},
+                {'Name': 'tag-value', 'Values': [tag_value]},
+                {'Name': 'status-code', 'Values':
+                    ['active']}]).get('VpcPeeringConnections')[0].get('VpcPeeringConnectionId')
             if peering_id:
                 client.delete_vpc_peering_connection(VpcPeeringConnectionId=peering_id)
                 print("Peering connection {} has been deleted successfully".format(peering_id))
@@ -1007,8 +1090,10 @@ def remove_peering(tag_value):
         else:
             print("There are no peering connections to delete because duo vpc option is disabled")
     except Exception as err:
-        logging.info("Unable to remove peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove peering connection", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to remove peering connection: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove peering connection",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 def remove_sgroups(tag_value):
@@ -1026,7 +1111,8 @@ def remove_sgroups(tag_value):
             print("There are no security groups to delete")
     except Exception as err:
         logging.info("Unable to remove SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to remove SG",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1042,8 +1128,10 @@ def add_inbound_sg_rule(sg_id, rule):
             print("The following inbound rule is already exist:")
             print(str(rule))
         else:
-            logging.info("Unable to add inbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to add inbound rule to SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            logging.info("Unable to add inbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Unable to add inbound rule to SG",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
 
@@ -1059,8 +1147,10 @@ def add_outbound_sg_rule(sg_id, rule):
             print("The following outbound rule is already exist:")
             print(str(rule))
         else:
-            logging.info("Unable to add outbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to add outbound rule to SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            logging.info("Unable to add outbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Unable to add outbound rule to SG",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
 
@@ -1078,8 +1168,10 @@ def deregister_image(image_name='*'):
                     client.delete_snapshot(SnapshotId=device.get('Ebs').get('SnapshotId'))
             print("Notebook AMI {} has been deregistered successfully".format(image.id))
     except Exception as err:
-        logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to de-register image", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to de-register image",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1093,7 +1185,8 @@ def terminate_emr(id):
         waiter.wait(ClusterId=id)
     except Exception as err:
         logging.info("Unable to remove EMR: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove EMR", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        append_result(str({"error": "Unable to remove EMR",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1115,15 +1208,17 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                 if exists('/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name)):
                     if os.environ['notebook_multiple_clusters'] == 'true':
                         try:
-                            livy_port = sudo("cat /opt/" + emr_version + "/" + emr_name
-                                             + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                            livy_port = sudo("cat /opt/" + emr_version + "/" + emr_name +
+                                             "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | "
+                                             "awk '{printf $3}'")
                             process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                                   "' | awk '{print $7}' | sed 's|/.*||g'")
                             sudo('kill -9 ' + process_number)
                             sudo('systemctl disable livy-server-' + livy_port)
                         except:
                             print("Wasn't able to find Livy server for this EMR!")
-                    sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                    sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" '
+                         '/opt/zeppelin/conf/zeppelin-env.sh')
                     sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                     zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
                     opener = urllib2.build_opener(urllib2.ProxyHandler({}))
@@ -1151,7 +1246,8 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                         if result == '1':
                             zeppelin_restarted = True
                     sudo('sleep 5')
-                    sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
+                    sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user,
+                                                                                                        emr_name))
                 if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                     dlab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
@@ -1159,8 +1255,10 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
         else:
             print("There are no notebooks to clean kernels.")
     except Exception as err:
-        logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to remove kernels on Notebook", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove kernels on Notebook",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1392,22 +1490,24 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         if region == 'cn-north-1':
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip==9.0.3 --no-cache-dir'.format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip==9.0.3 '
+                      '--no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
-                      format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel '
+                      '--no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy=={1} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.
-                      format(pip_mirror, numpy_version))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy=={1} SciPy '
+                      'Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, numpy_version))
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
+                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python '
+                          'keras Theano --no-cache-dir'.format(pip_mirror))
                     python_without_dots = python_version.replace('.', '')
                     local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
-                          format(python_without_dots[:2]))
+                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl '
+                          '--no-cache-dir'.format(python_without_dots[:2]))
                 local('sudo rm /etc/pip.conf')
                 local('sudo mv /etc/back_pip.conf /etc/pip.conf')
             except:
@@ -1420,18 +1520,18 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(numpy_version))
+                  ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn '
+                  '--no-cache-dir'.format(numpy_version))
             # Need to refactor when we add GPU cluster
             if application == 'deeplearning':
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
                 python_without_dots = python_version.replace('.', '')
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
-                      format(python_without_dots[:2]))
-        local('sudo rm -rf /usr/bin/python' + python_version[0:3])
-        local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
-              ' /usr/bin/python' + python_version[0:3])
+                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl '
+                      '--no-cache-dir'.format(python_without_dots[:2]))
+        local('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]))
+        local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version, python_version[0:3]))
 
 
 def spark_defaults(args):
@@ -1440,7 +1540,8 @@ def spark_defaults(args):
         local(""" sudo bash -c " sed -i '/""" + i + """/d' """ + spark_def_path + """ " """)
     local(""" sudo bash -c " sed -i '/#/d' """ + spark_def_path + """ " """)
     local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/DATAENGINE-SERVICE_VERSION/jars/usr|g' """ + spark_def_path + """ " """)
+    local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|"""
+          """/usr|/opt/DATAENGINE-SERVICE_VERSION/jars/usr|g' """ + spark_def_path + """ " """)
     local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/DATAENGINE-SERVICE_VERSION\/CLUSTER\/conf/g' """
           + spark_def_path + """ " """)
     template_file = spark_def_path
@@ -1456,7 +1557,8 @@ def spark_defaults(args):
         endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """ " >> """ + spark_def_path + """'""")
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """ " >> """ +
+          spark_def_path + """'""")
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
@@ -1506,21 +1608,23 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
         if 'spark_configurations' in os.environ:
+            dlab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
             spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
-                for config in spark_configurations:
-                    if config['Classification'] == 'spark-defaults':
-                        for property in config['Properties']:
-                            if property == param.split(' ')[0]:
-                                param = property + ' ' + config['Properties'][property]
-                            else:
-                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
-                new_spark_defaults.append(param)
+                if param.split(' ')[0] != '#':
+                    for config in spark_configurations:
+                        if config['Classification'] == 'spark-defaults':
+                            for property in config['Properties']:
+                                if property == param.split(' ')[0]:
+                                    param = property + ' ' + config['Properties'][property]
+                                else:
+                                    new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                    new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(dlab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
@@ -1544,7 +1648,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         python_version = python_version[0:5]
         livy_port = ''
         livy_path = '/opt/{0}/{1}/livy/'.format(emr_version, cluster_name)
-        spark_libs = "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/{0}/jars/usr/lib/hadoop/hadoop-aws*.jar /opt/" + \
+        spark_libs = "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/{0}/jars/usr/lib/hadoop" \
+                     "/hadoop-aws*.jar /opt/" + \
                      "{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/{0}" + \
                      "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar".format(emr_version)
         #fix due to: Multiple py4j files found under ..../spark/python/lib
@@ -1552,8 +1657,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         local('rm /opt/{0}/{1}/spark/python/lib/py4j-src.zip'.format(emr_version, cluster_name))
 
         local('echo \"Configuring emr path for Zeppelin\"')
-        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/{0}\/{1}\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh'.
-              format(emr_version, cluster_name))
+        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/{0}\/{1}\/spark/\" '
+              '/opt/zeppelin/conf/zeppelin-env.sh'.format(emr_version, cluster_name))
         local('sed -i "s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=' + \
               '\/opt\/{0}\/{1}\/conf/" /opt/{0}/{1}/spark/conf/spark-env.sh'.format(emr_version, cluster_name))
         local('echo \"spark.jars $(ls {0} | tr \'\\n\' \',\')\" >> /opt/{1}/{2}/spark/conf/spark-defaults.conf'
@@ -1590,7 +1695,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                 local('sudo sed -i "s/^/#/g" {}conf/spark-blacklist.conf'.format(livy_path))
             local(''' sudo echo "export SPARK_HOME={0}" >> {1}conf/livy-env.sh'''.format(spark_dir, livy_path))
             local(''' sudo echo "export HADOOP_CONF_DIR={0}" >> {1}conf/livy-env.sh'''.format(yarn_dir, livy_path))
-            local(''' sudo echo "export PYSPARK3_PYTHON=python{0}" >> {1}conf/livy-env.sh'''.format(python_version[0:3], livy_path))
+            local(''' sudo echo "export PYSPARK3_PYTHON=python{0}" >> {1}conf/livy-env.sh'''.format(python_version[0:3],
+                                                                                                    livy_path))
             template_file = "/tmp/dataengine-service_interpreter.json"
             fr = open(template_file, 'r+')
             text = fr.read()
@@ -1620,7 +1726,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             local('sudo systemctl start livy-server-{}'.format(str(livy_port)))
         else:
             template_file = "/tmp/dataengine-service_interpreter.json"
-            p_versions = ["2", python_version[:3]]
+            p_versions = ["2", "{}-dp".format(python_version[:3])]
             for p_version in p_versions:
                 fr = open(template_file, 'r+')
                 text = fr.read()
@@ -1648,7 +1754,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
 
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
-    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars   $jar_list\" >> \
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     region = local('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture=True)[:-1]
     if region == 'us-east-1':
@@ -1665,27 +1771,30 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
         additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-            cluster_name, cluster_dir), capture=True)
+                                             cluster_name, cluster_dir), capture=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
     local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
                                                                                                         cluster_dir))
     if spark_configs:
+        dlab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
+                            capture=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
         spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
-            for config in spark_configurations:
-                if config['Classification'] == 'spark-defaults':
-                    for property in config['Properties']:
-                        if property == param.split(' ')[0]:
-                            param = property + ' ' + config['Properties'][property]
-                        else:
-                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
-            new_spark_defaults.append(param)
+            if param.split(' ')[0] != '#':
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_dir))
         for prop in new_spark_defaults:
             prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
@@ -1779,10 +1888,14 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
-    local('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-    local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/' + cluster_name)
-    local('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
+def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user,
+                             datalake_enabled):
+    local('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' +
+          hadoop_version + '.tgz')
+    local('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version +
+          '.tgz -C /opt/' + cluster_name)
+    local('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' +
+          cluster_dir + 'spark/')
     local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
 
 

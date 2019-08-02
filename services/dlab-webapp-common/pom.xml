@@ -33,10 +33,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-auth-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${org.mongodb.version}</version>
@@ -49,6 +45,20 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-auth</artifactId>
+            <version>${io.dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-client</artifactId>
+            <version>${io.dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>common</artifactId>
         </dependency>
     </dependencies>
 </project>

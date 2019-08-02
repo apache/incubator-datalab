@@ -18,7 +18,7 @@
  */
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { Response } from '@angular/http';
 
 import { ExploratoryEnvironmentVersionModel, ResourceShapeTypesModel } from '../../../core/models';

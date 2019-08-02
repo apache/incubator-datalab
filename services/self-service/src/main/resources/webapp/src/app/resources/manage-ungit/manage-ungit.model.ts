@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ManageUngitService } from '../../core/services';
 
 export interface AccountCredentials {

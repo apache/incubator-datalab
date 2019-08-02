@@ -20,7 +20,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { ModalModule } from '../../../shared';
 import { MaterialModule } from '../../../shared/material.module';
 import { DetailDialogComponent } from './detail-dialog.component';

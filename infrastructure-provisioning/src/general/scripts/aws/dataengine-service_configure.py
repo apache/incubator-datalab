@@ -95,6 +95,7 @@ def configure_dataengine_service(instance, emr_conf):
         terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
+
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
@@ -123,7 +124,7 @@ def configure_dataengine_service(instance, emr_conf):
             .format(emr_conf['edge_instance_hostname'],
                     emr_conf['key_path'],
                     emr_conf['os_user'],
-                    'emr',
+                    'dataengine-service',
                     emr_conf['exploratory_name'],
                     json.dumps(additional_info))
         try:
@@ -222,7 +223,7 @@ if __name__ == "__main__":
                                                                emr_conf['edge_instance_name']).get('Private')
     else:
         emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
-                                                                             emr_conf['edge_instance_name']).get('Public')
+                                                               emr_conf['edge_instance_name']).get('Public')
     emr_conf['user_keyname'] = os.environ['edge_user_name']
     emr_conf['os_user'] = os.environ['conf_os_user']
     emr_conf['initial_user'] = 'ec2-user'
@@ -247,7 +248,9 @@ if __name__ == "__main__":
         logging.info('[SUMMARY]')
         ip_address = emr_conf['cluster_master_instances'][0].get('PrivateIpAddress')
         emr_master_url = "http://" + ip_address + ":8088"
-        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] + '_' + emr_conf['computational_name'])
+        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] +
+                                                                                        '_' +
+                                                                                        emr_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(emr_conf['service_base_name']))

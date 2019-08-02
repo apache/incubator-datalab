@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ResourceShapeModel } from '.';
+import { ResourceShapeModel } from './resourceShape.model';
 
 export class ResourceShapeTypesModel {
   resourcesShapeTypes: any;

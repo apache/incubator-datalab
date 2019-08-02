@@ -18,7 +18,7 @@
  */
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { UserResourceService } from '../../../core/services';
 import { ComputationalResourceImage,

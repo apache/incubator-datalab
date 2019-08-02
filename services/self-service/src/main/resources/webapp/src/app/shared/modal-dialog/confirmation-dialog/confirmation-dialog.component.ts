@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
@@ -51,11 +51,9 @@ export class ConfirmationDialogComponent implements OnInit {
     private userResourceService: UserResourceService,
     private healthStatusService: HealthStatusService,
     private manageEnvironmentsService: ManageEnvironmentsService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
+    public toastr: ToastrService
   ) {
     this.model = ConfirmationDialogModel.getDefault();
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
@@ -72,7 +70,7 @@ export class ConfirmationDialogComponent implements OnInit {
           this.buildGrid.emit();
         }
       },
-      error => this.toastr.error(error.message || 'Action failed!', 'Oops!', { toastLife: 5000 }),
+      error => this.toastr.error(error.message || 'Action failed!', 'Oops'),
       this.manageAction,
       this.userResourceService,
       this.healthStatusService,
@@ -81,7 +79,10 @@ export class ConfirmationDialogComponent implements OnInit {
     this.bindDialog.open(param);
     if (!this.confirmationType) this.filterResourcesByType(notebook.resources);
     this.isAliveResources = this.model.isAliveResources(notebook.resources);
-    this.onlyKilled = !notebook.resources.some(el => el.status !== 'terminated')
+    this.onlyKilled = notebook.resources ? !notebook.resources.some(el => el.status !== 'terminated') : false;
+  }
+  public confirm() {
+    this.model.confirmAction();
   }
 
   public close() {
@@ -90,8 +91,11 @@ export class ConfirmationDialogComponent implements OnInit {
 
   private filterResourcesByType(resources) {
     resources
-    .filter(resource => (resource.status != 'failed' && resource.status != 'terminated' && resource.status != 'terminating' && resource.status != 'stopped'))
-    .forEach(resource => { (resource.image === 'docker.dlab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource); });
+    .filter(resource =>
+      (resource.status !== 'failed' && resource.status !== 'terminated'
+      && resource.status !== 'terminating' && resource.status !== 'stopped'))
+    .forEach(resource => {
+      (resource.image === 'docker.dlab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource); });
   }
 
   private resetDialog(): void {

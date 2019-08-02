@@ -96,7 +96,7 @@ if __name__ == "__main__":
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
     data_engine['gpu_accelerator_type'] = 'None'
-    if os.environ['application'] in ('tensor', 'deeplearning'):
+    if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
     data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
                                                      data_engine['edge_user_name'])

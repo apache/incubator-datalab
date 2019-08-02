@@ -24,57 +24,41 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class ExploratoryActionStartAzure extends ExploratoryGitCredsUpdateDTO {
-    @JsonProperty("azure_client_id")
-    private String azureClientId;
-    @JsonProperty("azure_datalake_enable")
-    private String azureDataLakeEnabled;
-    @JsonProperty("azure_user_refresh_token")
-    private String azureUserRefreshToken;
+	@JsonProperty("azure_datalake_enable")
+	private String azureDataLakeEnabled;
+	@JsonProperty("azure_user_refresh_token")
+	private String azureUserRefreshToken;
 
-    public String getAzureClientId() {
-        return azureClientId;
-    }
+	public String getAzureDataLakeEnabled() {
+		return azureDataLakeEnabled;
+	}
 
-    public void setAzureClientId(String azureClientId) {
-        this.azureClientId = azureClientId;
-    }
+	public void setAzureDataLakeEnabled(String azureDataLakeEnabled) {
+		this.azureDataLakeEnabled = azureDataLakeEnabled;
+	}
 
-    public String getAzureDataLakeEnabled() {
-        return azureDataLakeEnabled;
-    }
+	public String getAzureUserRefreshToken() {
+		return azureUserRefreshToken;
+	}
 
-    public void setAzureDataLakeEnabled(String azureDataLakeEnabled) {
-        this.azureDataLakeEnabled = azureDataLakeEnabled;
-    }
+	public void setAzureUserRefreshToken(String azureUserRefreshToken) {
+		this.azureUserRefreshToken = azureUserRefreshToken;
+	}
 
-    public String getAzureUserRefreshToken() {
-        return azureUserRefreshToken;
-    }
+	public ExploratoryActionStartAzure withAzureDataLakeEnabled(String azureDataLakeEnabled) {
+		setAzureDataLakeEnabled(azureDataLakeEnabled);
+		return this;
+	}
 
-    public void setAzureUserRefreshToken(String azureUserRefreshToken) {
-        this.azureUserRefreshToken = azureUserRefreshToken;
-    }
+	public ExploratoryActionStartAzure withAzureUserRefreshToken(String azureUserRefreshToken) {
+		setAzureUserRefreshToken(azureUserRefreshToken);
+		return this;
+	}
 
-    public ExploratoryActionStartAzure withAzureClientId(String azureClientId) {
-        setAzureClientId(azureClientId);
-        return this;
-    }
-
-    public ExploratoryActionStartAzure withAzureDataLakeEnabled(String azureDataLakeEnabled) {
-        setAzureDataLakeEnabled(azureDataLakeEnabled);
-        return this;
-    }
-
-    public ExploratoryActionStartAzure withAzureUserRefreshToken(String azureUserRefreshToken) {
-        setAzureUserRefreshToken(azureUserRefreshToken);
-        return this;
-    }
-
-    @Override
-    public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return super.toStringHelper(self)
-                .add("azureClientId", azureClientId != null ? "***" : null)
-                .add("azureDataLakeEnabled", azureDataLakeEnabled)
-                .add("azureUserRefreshToken", azureUserRefreshToken != null ? "***" : null);
-    }
+	@Override
+	public MoreObjects.ToStringHelper toStringHelper(Object self) {
+		return super.toStringHelper(self)
+				.add("azureDataLakeEnabled", azureDataLakeEnabled)
+				.add("azureUserRefreshToken", azureUserRefreshToken != null ? "***" : null);
+	}
 }

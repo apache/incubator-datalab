@@ -19,7 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../shared/material.module';
 import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from '../computational/computational-resources-list';
@@ -33,14 +33,10 @@ import { AmiCreateDialogModule } from '../exploratory/ami-create-dialog';
 import { SchedulerModule } from '../scheduler';
 import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 
-export * from './resources-grid.component';
-export * from './resources-grid.model';
-export * from './create-resource.model';
-export * from './filter-configuration.model';
-
 @NgModule({
   imports: [
     CommonModule,
+    RouterModule,
     ComputationalResourcesModule,
     ModalModule,
     ConfirmationDialogModule,

@@ -22,9 +22,12 @@
     <h4 class="modal-title" id="myModalLabel">Manage Git Credentials</h4>
   </modal-header>
   <modal-content class="manage-ungit">
-
     <mat-tab-group mat-stretch-tabs #tabGroup class="content-box">
       <mat-tab label="LIST">
+        <button mat-raised-button class="butt add-creds" (click)="tabGroup.selectedIndex = 1">
+          <i class="material-icons">people_outline</i>Add account
+        </button>
+        <mat-divider></mat-divider>
         <mat-list *ngIf="gitCredentials?.length">
           <mat-list-item class="list-header">
             <div class="hostname-field">Host name</div>
@@ -57,7 +60,7 @@
           <p>You have no related accounts</p>
         </div>
 
-        <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm">
+        <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm && gitCredentials?.length">
           <button mat-raised-button type="button" class="butt action" (click)="cancelAllModifyings()">Cancel</button>
           <button mat-raised-button type="button" class="butt butt-success action" (click)="editAccounts_btnClick()">Apply changes</button>
         </div>
@@ -128,7 +131,7 @@
               </div>
             </div>
           </div>
-          <div class="text-center m-top-20 m-bott-10">
+          <div class="text-center submit m-bott-10">
             <button mat-raised-button type="button" class="butt action" (click)="resetForm()">Clear</button>
             <button mat-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid" (click)="assignChanges(updateAccountCredentialsForm.value)"
               class="butt butt-success action">Assign</button>

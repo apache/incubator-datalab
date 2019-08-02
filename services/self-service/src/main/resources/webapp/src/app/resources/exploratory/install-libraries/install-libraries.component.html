@@ -115,7 +115,7 @@
 
           <mat-list-item *ngFor="let lib of notebookLibs">
             <div class="lib-name">
-              <strong>{{ lib.name }}</strong>
+              <strong>{{ lib.name }}</strong>&nbsp;
               <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
             </div>
             <div class="lib-group">{{ groupsListMap[lib.group] }}</div>

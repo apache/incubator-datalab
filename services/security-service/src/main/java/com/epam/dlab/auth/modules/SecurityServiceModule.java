@@ -24,8 +24,11 @@ import com.epam.dlab.auth.SecurityServiceConfiguration;
 import com.epam.dlab.auth.UserInfoDAO;
 import com.epam.dlab.auth.UserVerificationService;
 import com.epam.dlab.auth.dao.LdapUserDAO;
+import com.epam.dlab.auth.dao.LdapUserDAOImpl;
 import com.epam.dlab.auth.dao.UserInfoDAODumbImpl;
 import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
+import com.epam.dlab.auth.service.AuthenticationService;
+import com.epam.dlab.auth.service.impl.LdapAuthenticationService;
 import com.epam.dlab.mongo.MongoService;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -42,6 +45,8 @@ public class SecurityServiceModule extends ModuleBase<SecurityServiceConfigurati
 	@Override
 	protected void configure() {
 		bind(SecurityServiceConfiguration.class).toInstance(configuration);
+		bind(LdapUserDAO.class).to(LdapUserDAOImpl.class);
+		bind(AuthenticationService.class).to(LdapAuthenticationService.class);
 		if (configuration.isUserInfoPersistenceEnabled()) {
 			bind(UserInfoDAO.class).to(UserInfoDAOMongoImpl.class);
 		} else {
@@ -55,13 +60,7 @@ public class SecurityServiceModule extends ModuleBase<SecurityServiceConfigurati
 		return configuration.getMongoFactory().build(environment);
 	}
 
-	@Provides
-	@Singleton
-	private LdapUserDAO ldapUserDAOWithoutCache() {
-		return new LdapUserDAO(configuration, false);
-	}
-
 	public static UserVerificationService defaultUserVerificationService() {
-		return (username, userInfo) -> log.debug("No additional user verification configured");
+		return userInfo -> log.debug("No additional user verification configured");
 	}
 }

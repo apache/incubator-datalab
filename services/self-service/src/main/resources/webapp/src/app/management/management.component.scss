@@ -19,6 +19,9 @@
 
 .sub-nav {
   justify-content: flex-end;
+  .admin-group {
+    margin-right: 10px;
+  }
   button {
     margin-right: 10px;
     &:last-child {
@@ -26,6 +29,9 @@
     }
     &.env {
       width: 210px;
+    }
+    &.ssn {
+      width: inherit;
     }
   }
 }

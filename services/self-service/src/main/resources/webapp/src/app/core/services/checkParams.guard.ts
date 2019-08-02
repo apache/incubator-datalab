@@ -18,10 +18,11 @@
  */
 
 import { Injectable } from '@angular/core';
-import {  CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ApplicationSecurityService, AuthorizationGuard } from '.';
-
-import 'rxjs/add/operator/toPromise';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApplicationSecurityService } from './applicationSecurity.service';
+import { AuthorizationGuard } from './authorization.guard';
 
 @Injectable()
 export class CheckParamsGuard implements CanActivate {
@@ -29,14 +30,13 @@ export class CheckParamsGuard implements CanActivate {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private _authGuard: AuthorizationGuard
+    private _authGuard: AuthorizationGuard,
+    private router: Router
   ) {}
 
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this._authGuard
-      .canActivate(next, state)
-      .toPromise()
-      .then((auth: boolean) => {
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot):  Observable<any> | Promise<boolean> | boolean {
+    return this.applicationSecurityService.isLoggedIn().pipe(
+      map(authState => {
         const search = document.URL.split('?')[1];
 
         if (search && this.checkParamsCoincidence(search)) {
@@ -50,9 +50,9 @@ export class CheckParamsGuard implements CanActivate {
             .redirectParams(this.result)
             .toPromise();
         }
-
-        return Promise.resolve(!!auth);
-      });
+        if (!authState) this.router.navigate(['/login']);
+        return !!authState;
+      }));
   }
 
   private checkParamsCoincidence(search): boolean {

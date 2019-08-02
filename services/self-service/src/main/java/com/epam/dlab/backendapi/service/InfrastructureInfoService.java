@@ -21,9 +21,12 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
+import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 
 public interface InfrastructureInfoService {
 	InfrastructureInfo getUserResources(String user);
 
 	HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean isAdmin);
+
+	InfrastructureMetaInfoDTO getInfrastructureMetaInfo();
 }

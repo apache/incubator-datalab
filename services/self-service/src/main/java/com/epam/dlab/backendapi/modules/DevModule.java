@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.SystemUserInfoService;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
@@ -41,6 +40,7 @@ import io.dropwizard.setup.Environment;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 /**
  * Mock class for an application configuration of SelfService for developer mode.
@@ -77,7 +77,17 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(BackupDao.class).to(BackupDaoImpl.class);
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
 		bind(InactivityService.class).to(InactivityServiceImpl.class);
-		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
+		bind(SystemUserInfoService.class).toInstance(new SystemUserInfoService() {
+			@Override
+			public Optional<UserInfo> getUser(String token) {
+				return Optional.of(getUserInfo());
+			}
+
+			@Override
+			public UserInfo create(String name) {
+				return getUserInfo();
+			}
+		});
 		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
 		bind(AccessKeyService.class).to(AccessKeyServiceImpl.class);
 		bind(GitCredentialService.class).to(GitCredentialServiceImpl.class);
@@ -99,6 +109,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
 		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
 		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
+		bind(GuacamoleService.class).to(GuacamoleServiceImpl.class);
 	}
 
 	/**
@@ -123,6 +134,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 					return authorize((UserCredentialDTO) parameter);
 				} else if (GET_USER_INFO.equals(path) && TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
 					return (T) getUserInfo();
+				} else if (GET_USER_INFO.equals(path) && !TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
+					return null;
 				} else if (LOGOUT.equals(path)) {
 					return (T) Response.ok().build();
 				}
@@ -134,12 +147,16 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 				if (LOGIN_NAME.equals(credential.getUsername())) {
 					return (T) Response.ok(TOKEN).build();
 				} else {
-					return (T) Response.status(Response.Status.UNAUTHORIZED)
-							.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
-									" are not valid"))
-							.type(MediaType.APPLICATION_JSON_TYPE)
-							.build();
+					return (T) unauthorized();
 				}
+			}
+
+			private Response unauthorized() {
+				return Response.status(Response.Status.UNAUTHORIZED)
+						.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
+								" is invalid"))
+						.type(MediaType.APPLICATION_JSON_TYPE)
+						.build();
 			}
 
 			@Override

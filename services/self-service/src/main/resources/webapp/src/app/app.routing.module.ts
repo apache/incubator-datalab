@@ -22,11 +22,11 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent } from './login/login.module';
 import { ResourcesComponent } from './resources/resources.component';
-import { HealthStatusComponent } from './health-status/health-status.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AccessDeniedComponent } from './access-denied/access-denied.component';
 import { ReportingComponent } from './reporting/reporting.component';
+import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './management/management.component';
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard } from './core/services';
 
@@ -38,10 +38,6 @@ const routes: Routes = [{
     component: ResourcesComponent,
     canActivate: [CheckParamsGuard]
   }, {
-    path: 'environment_health_status',
-    component: HealthStatusComponent,
-    canActivate: [AuthorizationGuard]
-  }, {
     path: 'billing_report',
     component: ReportingComponent,
     canActivate: [AuthorizationGuard, CloudProviderGuard]
@@ -49,6 +45,9 @@ const routes: Routes = [{
     path: 'environment_management',
     component: ManagementComponent,
     canActivate: [AuthorizationGuard]
+  }, {
+    path: 'terminal/:id',
+    component: WebterminalComponent
   }, {
     path: 'help/publickeyguide',
     component: PublicKeyGuideComponent,

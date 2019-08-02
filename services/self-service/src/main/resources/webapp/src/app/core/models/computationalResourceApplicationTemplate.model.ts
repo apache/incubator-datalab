@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import { ComputationalResourceApplication, ResourceShapeTypesModel } from '.';
+import { ComputationalResourceApplication } from './computationalResourceApplication.model';
+import { ResourceShapeTypesModel } from './resourceShapeTypes.model';
 
 export class ComputationalResourceApplicationTemplate {
   image: string;

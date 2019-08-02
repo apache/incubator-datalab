@@ -34,3 +34,4 @@ export * from './scheduler.service';
 export * from './managementEnvironments.service';
 export * from './rolesManagement.service';
 export * from './dataengineConfiguration.service';
+export * from './storage.service';

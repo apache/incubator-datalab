@@ -17,8 +17,6 @@
  * under the License.
  */
 
-export * from './collections/dictionary/dictionary';
-
 export * from './http-status-codes';
 export * from './sortUtil';
 export * from './errorUtils';

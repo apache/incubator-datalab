@@ -26,9 +26,6 @@ import { ModalModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ExploratoryEnvironmentCreateDialogComponent } from './exploratory-environment-create-dialog.component';
 
-export * from './exploratory-environment-create-dialog.component';
-export * from './exploratory-environment-create.model';
-
 @NgModule({
   imports: [
     CommonModule,

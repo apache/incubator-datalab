@@ -18,16 +18,16 @@
  */
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { UserAccessKeyService } from '../../../core/services';
 
 export class KeyUploadDialogModel {
 
   confirmAction: Function;
+  public accessKeyLabel: string;
+  public accessKeyFormValid: boolean;
   private userAccessKeyService: UserAccessKeyService;
 
-  private accessKeyLabel: string;
-  private accessKeyFormValid: boolean;
   private newAccessKeyForUpload: File;
 
   static getDefault(): KeyUploadDialogModel {
@@ -55,7 +55,7 @@ export class KeyUploadDialogModel {
     const formData = new FormData();
     formData.append('file', this.newAccessKeyForUpload);
 
-    return primary ? this.userAccessKeyService.uploadUserAccessKey(formData) : this.userAccessKeyService.reuploadUserAccessKey(formData)
+    return primary ? this.userAccessKeyService.uploadUserAccessKey(formData) : this.userAccessKeyService.reuploadUserAccessKey(formData);
   }
 
   private prepareModel(newAccessKeyForUpload: any, fnProcessResults: any, fnProcessErrors: any): void {

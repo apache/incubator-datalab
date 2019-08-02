@@ -136,6 +136,15 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
         print('Failed to configure SSL certificates: ', str(err))
         sys.exit(1)
 
+def docker_build_script():
+    try:
+        put('/root/templates/docker_build.py', 'docker_build')
+        sudo('chmod +x docker_build')
+        sudo('mv docker_build /usr/bin/docker-build')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure docker_build script: ', str(err))
+        sys.exit(1)
 
 ##############
 # Run script #
@@ -193,3 +202,6 @@ if __name__ == "__main__":
 
     print("Ensuring safest ssh ciphers")
     ensure_ciphers()
+
+    print("Configuring docker_build script")
+    docker_build_script()
