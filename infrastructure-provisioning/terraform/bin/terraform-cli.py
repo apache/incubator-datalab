@@ -595,6 +595,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--ami', 'ID of EC2 AMI.', required=True, group='endpoint')
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='endpoint')
+         .add_str('--endpoint_id', 'Endpoint id.', required=True,
+                  group='endpoint')
          .add_str('--region', 'Name of AWS region.', default='us-west-2',
                   group='endpoint')
          .add_str('--zone', 'Name of AWS zone.', default='a', group='endpoint')
