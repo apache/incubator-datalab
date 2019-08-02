@@ -418,6 +418,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--ssn_bucket_name', 'ssn_bucket_name',
                   group='helm_charts')
+         .add_str('--endpoint_eip_address', 'endpoint_eip_address',
+                  group='helm_charts')
          .add_str('--ldap_connection_url', 'ldap connection url', required=True,
                   group='helm_charts')
          .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
