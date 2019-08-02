@@ -24,3 +24,7 @@ provider "helm" {
     service_account = "tiller"
     tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
 }
+
+output "keycloak_client_secret" {
+    value = random_uuid.keycloak_client_secret.result
+}
