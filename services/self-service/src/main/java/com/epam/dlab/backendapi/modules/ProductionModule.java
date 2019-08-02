@@ -30,7 +30,11 @@ import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
+import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
+import org.glassfish.jersey.logging.LoggingFeature;
+
+import javax.ws.rs.client.Client;
 
 /**
  * Production class for an application configuration of SelfService.
@@ -49,6 +53,11 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 
 	@Override
 	protected void configure() {
+		final Client httpClient =
+				new JerseyClientBuilder(environment)
+						.using(configuration.getJerseyClientConfiguration())
+						.build("httpClient")
+						.register(new LoggingFeature());
 		bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
 		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
@@ -89,5 +98,8 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
 		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
 		bind(TagService.class).to(TagServiceImpl.class);
+		bind(SecurityService.class).to(SecurityServiceImpl.class);
+		bind(KeycloakService.class).to(KeycloakServiceImpl.class);
+		bind(Client.class).toInstance(httpClient);
 	}
 }
