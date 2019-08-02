@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class KeycloakServiceImpl implements KeycloakService {
 
-	private static final String URI = "/realms/DLAB_bhliva/protocol/openid-connect/token";
+	private static final String URI = "/realms/%s/protocol/openid-connect/token";
 	private final Client httpClient;
 	private final KeycloakConfiguration conf;
 
@@ -40,7 +40,8 @@ public class KeycloakServiceImpl implements KeycloakService {
 	private AccessTokenResponse requestToken(Form requestForm) {
 		final String credentials = Base64.encodeAsString(String.join(":", conf.getResource(),
 				String.valueOf(conf.getCredentials().get("secret"))));
-		final Response response = httpClient.target(conf.getAuthServerUrl() + URI).request()
+		final Response response =
+				httpClient.target(conf.getAuthServerUrl() + String.format(URI, conf.getRealm())).request()
 				.header(HttpHeaders.AUTHORIZATION, "Basic " + credentials)
 				.post(Entity.form(requestForm));
 		if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
