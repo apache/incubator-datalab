@@ -98,6 +98,8 @@ variable "endpoint_keystore_password" {}
 
 variable "ssn_bucket_name" {}
 
+variable "endpoint_eip_address" {}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

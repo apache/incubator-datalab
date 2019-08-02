@@ -55,3 +55,5 @@ dlab_ui:
     port: ${mongo_port}
     username: ${mongo_user}
     db_name: ${mongo_db_name}
+  provisionService:
+    host: ${provision_service_host}

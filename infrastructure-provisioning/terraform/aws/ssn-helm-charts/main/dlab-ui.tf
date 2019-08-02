@@ -22,12 +22,13 @@
 data "template_file" "dlab_ui_values" {
   template = file("./dlab-ui-chart/values.yaml")
   vars = {
-      mongo_db_name        = var.mongo_dbname
-      mongo_user           = var.mongo_db_username
-      mongo_port           = var.mongo_service_port
-      mongo_service_name   = var.mongo_service_name
-      ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
-      ssn_bucket_name      = var.ssn_bucket_name
+      mongo_db_name          = var.mongo_dbname
+      mongo_user             = var.mongo_db_username
+      mongo_port             = var.mongo_service_port
+      mongo_service_name     = var.mongo_service_name
+      ssn_k8s_alb_dns_name   = var.ssn_k8s_alb_dns_name
+      ssn_bucket_name        = var.ssn_bucket_name
+      provision_service_host = var.endpoint_eip_address
   }
 }
 

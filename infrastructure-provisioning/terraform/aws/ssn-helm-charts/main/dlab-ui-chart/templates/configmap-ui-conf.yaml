@@ -51,15 +51,15 @@ data:
 
     selfService:
       protocol: https
-      host: 172.17.0.1
-      port: 8443
+      host: localhost
+      port: 58443
       jerseyClient:
         timeout: 3s
         connectionTimeout: 3s
 
     securityService:
       protocol: https
-      host: 172.17.0.1
+      host: localhost
       port: 8090
       jerseyClient:
         timeout: 20s
@@ -67,7 +67,7 @@ data:
 
     provisioningService:
       protocol: https
-      host: 172.17.0.1
+      host: {{ .Values.dlab_ui.provisionService.host }}
       port: 8084
       jerseyClient:
         timeout: 3s
@@ -215,5 +215,35 @@ data:
         enabled: true
         cron: "0 0 * ? * * *"
       checkUserQuoteScheduler:
-        enabled: true
+        enabled: false
         cron: "0 0 * ? * * *"
+      checkProjectQuoteScheduler:
+        enabled: true
+        cron: "0 * * ? * * *"
+
+
+    guacamole:
+      connectionProtocol: ssh
+      serverHost: localhost
+      serverPort: 4822
+      port: 22
+      username: dlab-user
+
+    keycloakConfiguration:
+      realm: dlab
+      bearer-only: true
+      auth-server-url: http://keycloak-http/auth
+      ssl-required: none
+      register-node-at-startup: true
+      register-node-period: 600
+      resource: dlab-ui
+      credentials:
+        secret: ${KEYCLOAK_CLIENT_SECRET}
+
+    jerseyClient:
+      minThreads: 1
+      maxThreads: 128
+      workQueueSize: 8
+      gzipEnabled: true
+      gzipEnabledForRequests: false
+      chunkedEncodingEnabled: true
