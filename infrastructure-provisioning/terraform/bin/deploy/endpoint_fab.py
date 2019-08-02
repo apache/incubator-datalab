@@ -228,6 +228,8 @@ def configure_supervisor_endpoint():
                       .format(args.cloud_provider, dlab_conf_dir))
             conn.sudo('sed -i "s|SSN_HOST|{}|g" {}provisioning.yml'
                       .format(args.ssn_host, dlab_conf_dir))
+            conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
+                      .format(args.keycloak_client_secret, dlab_conf_dir))
             conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
                       .format(args.mongo_password, dlab_conf_dir))
             conn.sudo('touch /home/{}/.ensure_dir/configure_supervisor_ensured'
