@@ -97,7 +97,7 @@ data:
         org.hibernate: WARN
      # Logging appenders
       appenders:
-        #- type: console
+        - type: console
         - type: file
           currentLogFilename: /root/billing.log
           archive: true

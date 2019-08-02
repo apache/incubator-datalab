@@ -164,9 +164,7 @@ data:
         com.epam: TRACE
         com.novemberain: ERROR
       appenders:
-    <#if DEV_MODE == "true">
       - type: console
-    </#if>
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
         archive: true
