@@ -418,6 +418,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--ssn_bucket_name', 'ssn_bucket_name',
                   group='helm_charts')
+         .add_str('--endpoint_eip_address', 'endpoint_eip_address',
+                  group='helm_charts')
          .add_str('--ldap_connection_url', 'ldap connection url', required=True,
                   group='helm_charts')
          .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
@@ -592,6 +594,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   default='172.31.0.0/24', group='endpoint')
          .add_str('--ami', 'ID of EC2 AMI.', required=True, group='endpoint')
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
+                  group='endpoint')
+         .add_str('--endpoint_id', 'Endpoint id.', required=True,
                   group='endpoint')
          .add_str('--region', 'Name of AWS region.', default='us-west-2',
                   group='endpoint')
