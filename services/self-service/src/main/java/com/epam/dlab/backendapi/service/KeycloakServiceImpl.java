@@ -4,6 +4,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import de.ahus1.keycloak.dropwizard.KeycloakConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.internal.util.Base64;
 import org.keycloak.representations.AccessTokenResponse;
 
@@ -13,6 +14,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+@Slf4j
 public class KeycloakServiceImpl implements KeycloakService {
 
 	private static final String URI = "/realms/DLAB_bhliva/protocol/openid-connect/token";
@@ -42,6 +44,8 @@ public class KeycloakServiceImpl implements KeycloakService {
 				.header(HttpHeaders.AUTHORIZATION, "Basic " + credentials)
 				.post(Entity.form(requestForm));
 		if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+
+			log.error("Error getting token:code {}, body {}", response.getStatus(), response.readEntity(String.class));
 			throw new DlabException("can not get token");
 		}
 		return response.readEntity(AccessTokenResponse.class);
