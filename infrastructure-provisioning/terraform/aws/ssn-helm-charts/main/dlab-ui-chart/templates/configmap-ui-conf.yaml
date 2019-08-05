@@ -230,7 +230,7 @@ data:
     keycloakConfiguration:
       realm: dlab
       bearer-only: true
-      auth-server-url: http://keycloak-http/auth
+      auth-server-url: ${KEYCLOAK_AUTH_URL}
       ssl-required: none
       register-node-at-startup: true
       register-node-period: 600

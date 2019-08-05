@@ -39,7 +39,7 @@
           -s providerType=org.keycloak.storage.UserStorageProvider -s parentId=$dlab_realm_id  -s 'config.priority=["1"]' \
           -s 'config.fullSyncPeriod=["-1"]' -s 'config.changedSyncPeriod=["-1"]' -s 'config.cachePolicy=["DEFAULT"]' \
           -s config.evictionDay=[] -s config.evictionHour=[] -s config.evictionMinute=[] -s config.maxLifespan=[] -s \
-          'config.batchSizeForSync=["1000"]' -s 'config.editMode=["WRITABLE"]' -s 'config.syncRegistrations=["false"]' \
+          'config.batchSizeForSync=["1000"]' -s 'config.editMode=["READ_ONLY"]' -s 'config.syncRegistrations=["false"]' \
           -s 'config.vendor=["other"]' -s 'config.usernameLDAPAttribute=["${ldap_usernameAttr}"]' \
           -s 'config.rdnLDAPAttribute=["${ldap_rdnAttr}"]' -s 'config.uuidLDAPAttribute=["${ldap_uuidAttr}"]' \
           -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \

@@ -57,3 +57,5 @@ dlab_ui:
     db_name: ${mongo_db_name}
   provisionService:
     host: ${provision_service_host}
+  keycloak:
+    auth_server_url: http://${ssn_k8s_alb_dns_name}/auth
