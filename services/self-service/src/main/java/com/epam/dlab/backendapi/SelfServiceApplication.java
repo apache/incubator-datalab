@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
@@ -72,6 +73,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -128,7 +130,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 
 			@Override
 			protected Authorizer createAuthorizer() {
-				return (Authorizer<UserInfo>) (principal, role) -> principal.getRoles().contains(role);
+				return new SelfServiceSecurityAuthorizer();
 			}
 
 			@Override
@@ -146,7 +148,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 						final AccessToken token = keycloakSecurityContext.getToken();
 						final UserInfo userInfo = new UserInfo(token.getPreferredUsername(),
 								keycloakSecurityContext.getTokenString());
-							userInfo.addRoles(token.getResourceAccess(keycloakConfiguration.getResource()).getRoles());
+						final AccessToken.Access resourceAccess =
+								token.getResourceAccess(keycloakConfiguration.getResource());
+						Optional.ofNullable(resourceAccess).ifPresent(ra -> userInfo.addRoles(ra.getRoles()));
 						return userInfo;
 					}
 				}
