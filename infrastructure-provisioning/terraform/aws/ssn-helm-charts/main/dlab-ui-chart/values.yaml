@@ -34,7 +34,8 @@ image:
 service:
   type: NodePort
 #  port: 58443
-  port: 58080
+  http_port: 58080
+  https_port: 58443
 
 ingress:
   enabled: true

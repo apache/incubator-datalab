@@ -30,12 +30,15 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      #targetPort: 58443
-      targetPort: 58080
+    - port: {{ .Values.service.http_port }}
+      targetPort: {{ .Values.service.http_port }}
       protocol: TCP
-      #name: https
       name: http
+    - port: {{ .Values.service.https_port }}
+      targetPort: {{ .Values.service.https_port }}
+      nodePort: 30433
+      protocol: TCP
+      name: https
   selector:
     app.kubernetes.io/name: {{ include "dlab-ui.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

@@ -52,7 +52,7 @@ data:
     selfService:
       protocol: https
       host: localhost
-      port: 58443
+      port: {{ .Values.service.https_port }}
       jerseyClient:
         timeout: 3s
         connectionTimeout: 3s
@@ -135,9 +135,9 @@ data:
       rootPath: "/api"
       applicationConnectors:
       - type: http
-        port: 58080
+        port: {{ .Values.service.http_port }}
       - type: https
-        port: 58443
+        port: {{ .Values.service.https_port }}
         certAlias: dlab
         validateCerts: true
         keyStorePath: ${KEY_STORE_PATH}
