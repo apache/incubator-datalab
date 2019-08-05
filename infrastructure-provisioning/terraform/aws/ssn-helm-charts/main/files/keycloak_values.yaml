@@ -51,3 +51,24 @@ keycloak:
     mystartup.sh: |
       ${configure_keycloak_file}
 
+  extraInitContainers: |
+    - name: theme-provider
+      image: epamdlab/ui-theme:0.1
+      imagePullPolicy: Always
+      command:
+        - sh
+      args:
+        - -c
+        - |
+          echo "Copying theme..."
+          cp -R /dlab/* /theme
+      volumeMounts:
+        - name: theme
+          mountPath: /theme
+  extraVolumeMounts: |
+    - name: theme
+      mountPath: /opt/jboss/keycloak/themes/dlab
+
+  extraVolumes: |
+    - name: theme
+      emptyDir: {}
