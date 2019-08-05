@@ -45,7 +45,10 @@ def create_user():
 
 def copy_keys():
     try:
-        conn.put(args.keyfile, ' /home/{}/keys'.format(args.os_user))
+        conn.put(args.pkey, '/tmp/')
+        conn.sudo('mv /tmp/{0} /home/{1}/keys/'
+                  .format(args.conf_key_name, args.os_user))
+        conn.sudo('chown -R {0}:{0} /home/{0}/keys'.format(args.os_user))
     except Exception as err:
         logging.error('Failed to copy keys ', str(err))
         traceback.print_exc()
