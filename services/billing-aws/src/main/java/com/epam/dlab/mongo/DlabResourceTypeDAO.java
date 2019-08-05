@@ -139,11 +139,11 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		String sbName = getServiceBaseName();
 		resourceList.append(sbName + "-ssn", "SSN", DlabResourceType.SSN, null, null);
 		resourceList.append(sbName + "-ssn-volume-primary", "SSN volume", DlabResourceType.VOLUME, null, null);
-		resourceList.append(getBucketName(sbName) + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null,
+		resourceList.append(sbName + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null,
 				null);
 
 		// collaboration bucket
-		resourceList.append(getBucketName(sbName) + "-shared-bucket", "Collaboration bucket", DlabResourceType
+		resourceList.append(sbName + "-shared-bucket", "Collaboration bucket", DlabResourceType
 				.COLLABORATION_BUCKET, null, null);
 
 		// Add PROJECTS
