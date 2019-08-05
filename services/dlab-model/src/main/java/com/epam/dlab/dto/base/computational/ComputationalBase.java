@@ -40,6 +40,8 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 
 	@JsonProperty("project_name")
 	private String project;
+	@JsonProperty("endpoint_name")
+	private String ednpoint;
 
 	@JsonProperty("tags")
 	private Map<String, String> tags;
@@ -90,6 +92,11 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 
 	public T withTags(Map<String, String> tags) {
 		this.tags = tags;
+		return self;
+	}
+
+	public T withEndpoint(String endpoint) {
+		this.ednpoint = endpoint;
 		return self;
 	}
 

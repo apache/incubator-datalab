@@ -73,8 +73,10 @@ if __name__ == "__main__":
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 
-    notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                           os.environ['application'])
+    notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                                     os.environ['endpoint_name'],
+                                                                                     os.environ['project_name'],
+                                                                                     os.environ['application'])
     notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
                                                                                  os.environ['project_name'],
                                                                                  os.environ['application'],

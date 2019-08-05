@@ -33,6 +33,8 @@ public class ExploratoryImageDTO extends ExploratoryActionDTO<ExploratoryImageDT
 
 	@JsonProperty("tags")
 	private Map<String, String> tags;
+	@JsonProperty("endpoint_name")
+	private String endpoint;
 
 	public ExploratoryImageDTO withImageName(String imageName) {
 		this.imageName = imageName;
@@ -41,6 +43,11 @@ public class ExploratoryImageDTO extends ExploratoryActionDTO<ExploratoryImageDT
 
 	public ExploratoryImageDTO withTags(Map<String, String> tags) {
 		this.tags = tags;
+		return this;
+	}
+
+	public ExploratoryImageDTO withEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 		return this;
 	}
 
