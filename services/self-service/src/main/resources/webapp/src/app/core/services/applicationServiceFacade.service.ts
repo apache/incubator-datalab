@@ -93,8 +93,8 @@ export class ApplicationServiceFacade {
 
   public buildAuthorizeRequest(body: any): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE) + body,
-      null,
+      this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
+      body,
       {
         responseType: 'text',
         headers: { 'Content-Type': 'text/plain' },
