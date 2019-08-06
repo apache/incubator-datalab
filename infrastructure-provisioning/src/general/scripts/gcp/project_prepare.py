@@ -100,7 +100,7 @@ if __name__ == "__main__":
     try:
         project_conf['user_key'] = os.environ['key']
         try:
-            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'], project_conf['project_name']))
+            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'], os.environ['project_name']))
         except:
             print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
     except KeyError:
