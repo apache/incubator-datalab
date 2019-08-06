@@ -147,6 +147,28 @@ def configure_slave(slave_number, data_engine):
         append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
+    try:
+        print('[INSTALLING USERs KEY on SLAVE NODE]')
+        logging.info('[INSTALLING USERs KEY]')
+        additional_config = {"user_keyname": os.environ['project_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            slave_hostname, keyfile_name, json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            append_result("Failed installing users key")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed installing users key.", str(err))
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            GCPActions().remove_instance(slave_name, data_engine['zone'])
+        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        append_result("Failed to configure slave node.", str(err))
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -386,6 +408,28 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             GCPActions().remove_instance(slave_name, data_engine['zone'])
         GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        sys.exit(1)
+
+    try:
+        print('[INSTALLING USERs KEY on MASTER NODE]')
+        logging.info('[INSTALLING USERs KEY]')
+        additional_config = {"user_keyname": os.environ['project_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            master_node_hostname, keyfile_name, json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            append_result("Failed installing users key")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed installing users key.", str(err))
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            GCPActions().remove_instance(slave_name, data_engine['zone'])
+        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
     try:
