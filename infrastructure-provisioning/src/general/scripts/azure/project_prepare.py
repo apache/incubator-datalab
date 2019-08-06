@@ -41,8 +41,9 @@ if __name__ == "__main__":
         print('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['service_base_name'] = os.environ['conf_service_base_name']
-        project_conf['project_name'] = os.environ['project_name'].replace('_', '-')
-        project_conf['project_tag'] = os.environ['project_tag']
+        project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+        project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+        project_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
         project_conf['resource_group_name'] = os.environ['azure_resource_group_name']
 
         project_conf['azure_ad_user_name'] = os.environ['azure_iam_user']
@@ -81,15 +82,15 @@ if __name__ == "__main__":
         project_conf['instance_storage_account_type'] = 'Premium_LRS'
         project_conf['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         project_conf['instance_tags'] = {"Name": project_conf['instance_name'],
-                                      "SBN": project_conf['service_base_name'],
-                                      "project_name": project_conf['user_name'],
-                                      "project_tag": project_conf['project_tag'],
-                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+                                        "SBN": project_conf['service_base_name'],
+                                        "project_tag": project_conf['project_tag'],
+                                        "endpoint_tag": project_conf['endpoint_tag'],
+                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         project_conf['storage_account_tags'] = {"Name": project_conf['edge_storage_account_name'],
-                                             "SBN": project_conf['service_base_name'],
-                                             "project_name": project_conf['user_name'],
-                                             "project_tag": project_conf['project_tag'],
-                                             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+                                                "SBN": project_conf['service_base_name'],
+                                                "project_tag": project_conf['project_tag'],
+                                                "endpoint_tag": project_conf['endpoint_tag'],
+                                                os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         project_conf['primary_disk_size'] = '32'
 
         # FUSE in case of absence of user's key
@@ -97,7 +98,7 @@ if __name__ == "__main__":
             project_conf['user_key'] = os.environ['key']
             try:
                 local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
-                                                        project_conf['project_name']))
+                                                        os.environ['project_name']))
             except:
                 print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
