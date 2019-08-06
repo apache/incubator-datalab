@@ -127,15 +127,20 @@ export class ManagementComponent implements OnInit {
     }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
-  manageEnvironment(event: { action: string, user: string }) {
-    this.healthStatusService.manageEnvironment(event.action, event.user)
-      .subscribe(res => {
-        this.getActiveUsersList().subscribe(usersList => {
-          this.toastr.success(`Action ${event.action} is processing!`, 'Processing!');
-          this.buildGrid();
-        });
-      },
-        error => this.toastr.error(error.message, 'Oops!'));
+  manageEnvironment(event: { action: string, project: any }) {
+    if (event.action === 'stop')
+      this.projectService
+        .toggleProjectStatus(event.project, event.action)
+        .subscribe(() =>
+          this.toastr.success(`Action ${event.action} is processing!`, 'Processing!') &&
+          this.buildGrid(), error => this.toastr.error(error.message, 'Oops!'));
+
+    if (event.action === 'terminate')
+      this.projectService.deleteProject(event.project.project_name)
+        .subscribe(() =>
+          this.toastr.success(`Action ${event.action} is processing!`, 'Processing!') &&
+          this.buildGrid(), error => this.toastr.error(error.message, 'Oops!'));
+
   }
 
   get creatingBackup(): boolean {
