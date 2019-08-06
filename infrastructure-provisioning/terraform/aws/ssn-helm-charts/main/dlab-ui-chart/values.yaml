@@ -24,33 +24,30 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-bucketName: ${ssn_bucket_name}
-
-image:
-  repository: epamdlab/ui
-  tag: '0.1'
-  pullPolicy: Always
-
-service:
-  type: NodePort
-#  port: 58443
-  http_port: 58080
-  https_port: 58443
-
-ingress:
-  enabled: true
-  host: ${ssn_k8s_alb_dns_name}
-  annotations: 
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 labels: {}
 
-dlab_ui:
+ui:
+  bucketName: ${ssn_bucket_name}
+  image:
+    repository: epamdlab/ui
+    tag: '0.1'
+    pullPolicy: Always
+  service:
+    type: NodePort
+    #  port: 58443
+    http_port: 58080
+    https_port: 58443
+  ingress:
+    enabled: true
+    host: ${ssn_k8s_alb_dns_name}
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
   mongo:
     host: ${mongo_service_name}
     port: ${mongo_port}

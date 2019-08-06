@@ -43,16 +43,16 @@ data:
     devMode: ${DEV_MODE}
 
     mongo:
-      host: {{ .Values.dlab_ui.mongo.host }}
-      port: {{ .Values.dlab_ui.mongo.port }}
-      username: {{ .Values.dlab_ui.mongo.username }}
+      host: {{ .Values.ui.mongo.host }}
+      port: {{ .Values.ui.mongo.port }}
+      username: {{ .Values.ui.mongo.username }}
       password: ${MONGO_DB_PASSWORD}
-      database: {{ .Values.dlab_ui.mongo.db_name }}
+      database: {{ .Values.ui.mongo.db_name }}
 
     selfService:
       protocol: https
       host: localhost
-      port: {{ .Values.service.https_port }}
+      port: {{ .Values.ui.service.https_port }}
       jerseyClient:
         timeout: 3s
         connectionTimeout: 3s
@@ -67,7 +67,7 @@ data:
 
     provisioningService:
       protocol: https
-      host: {{ .Values.dlab_ui.provisionService.host }}
+      host: {{ .Values.ui.provisionService.host }}
       port: 8084
       jerseyClient:
         timeout: 3s
@@ -135,9 +135,9 @@ data:
       rootPath: "/api"
       applicationConnectors:
       - type: http
-        port: {{ .Values.service.http_port }}
+        port: {{ .Values.ui.service.http_port }}
       - type: https
-        port: {{ .Values.service.https_port }}
+        port: {{ .Values.ui.service.https_port }}
         certAlias: dlab
         validateCerts: true
         keyStorePath: ${KEY_STORE_PATH}

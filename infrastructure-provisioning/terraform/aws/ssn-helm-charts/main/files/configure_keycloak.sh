@@ -31,7 +31,8 @@
       }
       configure_keycloak () {
           # Create Realm
-          /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=dlab -s enabled=true -s loginTheme=dlab
+          /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=dlab -s enabled=true -s loginTheme=dlab \
+          -s sslRequired=none
           # Get realm ID
           dlab_realm_id=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab | /usr/bin/jq -r '.id')
           # Create user federation
