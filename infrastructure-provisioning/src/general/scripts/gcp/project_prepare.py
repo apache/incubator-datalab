@@ -43,7 +43,8 @@ if __name__ == "__main__":
     project_conf['key_name'] = os.environ['conf_key_name']
     project_conf['user_keyname'] = os.environ['project_name']
     project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    project_conf['project_tag'] = (os.environ['project_tag'])
+    project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    project_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -90,8 +91,8 @@ if __name__ == "__main__":
     project_conf['network_tag'] = project_conf['instance_name']
     project_conf['instance_labels'] = {"name": project_conf['instance_name'],
                                     "sbn": project_conf['service_base_name'],
-                                    "project_name": project_conf['project_name'],
                                     "project_tag": project_conf['project_tag'],
+                                    "endpoint_tag": project_conf['endpoint_tag'],
                                     "product": "dlab"}
     project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
