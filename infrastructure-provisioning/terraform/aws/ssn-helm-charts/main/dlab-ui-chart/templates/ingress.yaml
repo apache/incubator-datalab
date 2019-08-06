@@ -23,7 +23,7 @@
 
 {{- if .Values.ui.ingress.enabled -}}
 {{- $fullName := include "dlab-ui.fullname" . -}}
-{{ $servicePort := .Values.keycloak_gatekeeper.service.http_port }}
+{{ $servicePort := .Values.ui.service.http_port }}
 {{ $host := .Values.ui.ingress.host }}
 apiVersion: extensions/v1beta1
 kind: Ingress
