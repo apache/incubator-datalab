@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
+import com.epam.dlab.backendapi.listeners.MongoStartupListener;
 import com.epam.dlab.backendapi.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
@@ -109,14 +110,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
 
-		/*bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
-			@Override
-			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration
-			configuration) {
-				return configuration.getSwaggerConfiguration();
-			}
-		});*/
-
 		bootstrap.addBundle(new KeycloakBundle<SelfServiceApplicationConfiguration>() {
 			@Override
 			protected KeycloakConfiguration getKeycloakConfiguration(SelfServiceApplicationConfiguration configuration) {
@@ -170,6 +163,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		if (configuration.isMongoMigrationEnabled()) {
 			environment.lifecycle().addServerLifecycleListener(server -> applyMongoMigration(configuration));
 		}
+		environment.lifecycle().addServerLifecycleListener(injector.getInstance(MongoStartupListener.class));
 		final RestoreHandlerStartupListener restoreHandlerStartupListener =
 				new RestoreHandlerStartupListener(injector.getInstance(Key.get(RESTService.class,
 						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))));

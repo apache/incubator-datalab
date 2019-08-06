@@ -28,13 +28,18 @@ import java.util.Set;
 public interface UserRoleDao {
 	List<UserRoleDto> findAll();
 
+	void removeAll();
+
 	void insert(UserRoleDto dto);
+
+	void insert(List<UserRoleDto> roles);
 
 	boolean update(UserRoleDto dto);
 
 	boolean addGroupToRole(Set<String> groups, Set<String> roleIds);
 
 	boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds);
+
 	void removeGroupWhenRoleNotIn(String group, Set<String> roleIds);
 
 	void remove(String roleId);
