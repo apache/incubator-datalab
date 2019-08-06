@@ -52,7 +52,7 @@ data:
     selfService:
       protocol: https
       host: localhost
-      port: 58443
+      port: {{ .Values.service.https_port }}
       jerseyClient:
         timeout: 3s
         connectionTimeout: 3s
@@ -135,9 +135,9 @@ data:
       rootPath: "/api"
       applicationConnectors:
       - type: http
-        port: 58080
+        port: {{ .Values.service.http_port }}
       - type: https
-        port: 58443
+        port: {{ .Values.service.https_port }}
         certAlias: dlab
         validateCerts: true
         keyStorePath: ${KEY_STORE_PATH}
@@ -164,9 +164,7 @@ data:
         com.epam: TRACE
         com.novemberain: ERROR
       appenders:
-    <#if DEV_MODE == "true">
       - type: console
-    </#if>
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
         archive: true
@@ -232,7 +230,7 @@ data:
     keycloakConfiguration:
       realm: dlab
       bearer-only: true
-      auth-server-url: http://keycloak-http/auth
+      auth-server-url: ${KEYCLOAK_AUTH_URL}
       ssl-required: none
       register-node-at-startup: true
       register-node-period: 600

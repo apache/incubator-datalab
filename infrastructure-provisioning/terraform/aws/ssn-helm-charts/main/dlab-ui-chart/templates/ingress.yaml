@@ -23,7 +23,7 @@
 
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "dlab-ui.fullname" . -}}
-{{ $servicePort := .Values.service.port }}
+{{ $servicePort := .Values.service.http_port }}
 {{ $host := .Values.ingress.host }}
 apiVersion: extensions/v1beta1
 kind: Ingress

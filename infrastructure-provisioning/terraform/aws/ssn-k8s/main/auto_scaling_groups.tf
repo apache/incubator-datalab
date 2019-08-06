@@ -102,6 +102,7 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
   vpc_zone_identifier  = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id,
                                   local.subnet_c_id])
   target_group_arns    = [aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn,
+                          aws_lb_target_group.ssn_k8s_nlb_ss_target_group.arn,
                           aws_lb_target_group.ssn_k8s_alb_target_group.arn]
 
   lifecycle {

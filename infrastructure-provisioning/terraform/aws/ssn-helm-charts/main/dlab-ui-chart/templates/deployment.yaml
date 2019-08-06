@@ -65,6 +65,8 @@ spec:
                   key: client_secret
             - name: SSN_BUCKET_NAME
               value: {{ .Values.bucketName }}
+            - name: KEYCLOAK_AUTH_URL
+              value: {{ .Values.dlab_ui.keycloak.auth_server_url }}
           ports:
 #            - name: https
 #              containerPort: 443

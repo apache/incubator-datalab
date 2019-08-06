@@ -55,7 +55,7 @@ output "ssn_k8s_sg_id" {
 }
 
 output "endpoint_eip_allocation_id" {
-  value = aws_eip.k8s-endpoint-eip.allocation_id
+  value = aws_eip.k8s-endpoint-eip.id
 }
 
 output "endpoint_eip_address" {

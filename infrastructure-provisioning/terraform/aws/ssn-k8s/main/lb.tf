@@ -52,6 +52,16 @@ resource "aws_lb_target_group" "ssn_k8s_nlb_api_target_group" {
   }
 }
 
+resource "aws_lb_target_group" "ssn_k8s_nlb_ss_target_group" {
+  name     = "${var.service_base_name}-ssn-nlb-ss-tg"
+  port     = 30433
+  protocol = "TCP"
+  vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
+  tags = {
+    Name = "${var.service_base_name}-ssn-nlb-ss-tg"
+  }
+}
+
 resource "aws_lb_target_group" "ssn_k8s_alb_target_group" {
   name     = "${var.service_base_name}-ssn-alb-tg"
   port     = 31080
@@ -81,5 +91,16 @@ resource "aws_lb_listener" "ssn_k8s_nlb_api_listener" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn
+  }
+}
+
+resource "aws_lb_listener" "ssn_k8s_nlb_ss_listener" {
+  load_balancer_arn = aws_lb.ssn_k8s_nlb.arn
+  port              = "8443"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ssn_k8s_nlb_ss_target_group.arn
   }
 }
