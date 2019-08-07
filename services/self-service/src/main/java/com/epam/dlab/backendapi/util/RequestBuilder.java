@@ -584,7 +584,8 @@ public class RequestBuilder {
 				.withExploratoryName(userInstanceDTO.getExploratoryName())
 				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
 				.withComputationalName(compRes.getComputationalName())
-				.withApplicationName(compRes.getImageName());
+				.withApplicationName(compRes.getImageName())
+				.withProject(userInstanceDTO.getProject());
 		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
 		clusterConfigDTO.setConfig(config);
 		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
@@ -604,7 +605,8 @@ public class RequestBuilder {
 						.withExploratoryName(userInstance.getExploratoryName())
 						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 						.withNotebookImage(userInstance.getImageName())
-						.withConfig(config);
+						.withConfig(config)
+						.withProject(userInstance.getProject());
 		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
 			dto.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 		}

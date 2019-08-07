@@ -32,6 +32,7 @@ public interface BillingDAO<T extends BillingFilter> {
 	int getBillingQuoteUsed();
 
 	int getBillingUserQuoteUsed(String user);
+	int getBillingProjectQuoteUsed(String project);
 
 	boolean isBillingQuoteReached();
 
