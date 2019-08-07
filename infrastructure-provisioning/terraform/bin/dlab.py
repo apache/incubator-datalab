@@ -12,6 +12,7 @@ from fabric import Connection
 from patchwork.transfers import rsync
 from deploy.endpoint_fab import start_deploy
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO, format='%(levelname)s-%(message)s')
 
 
@@ -502,14 +503,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--endpoint_eip_address', 'endpoint_eip_address',
                   group='helm_charts')
-         # .add_str('--ldap_connection_url', 'ldap connection url', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_users_dn', 'ldap users dn', required=True,
-         #          group='helm_charts')
+         .add_str('--ldap_connection_url', 'ldap connection url', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_users_dn', 'ldap users dn', required=True,
+                  group='helm_charts')
          )
         return params.build()
 
@@ -584,6 +585,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             rsync(conn, source, remote_dir)
 
     def run_remote_terraform(self):
+        logging.info('apply helm charts')
         args = self.parse_args()
         dns_name = json.loads(TerraformProvider()
                               .output('-json ssn_k8s_alb_dns_name'))
@@ -594,9 +596,11 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             with conn.cd('terraform/ssn-helm-charts/main'):
                 conn.run('terraform init')
                 conn.run('terraform validate')
-                conn.run('terraform apply -auto-approve {} '
-                         '-var \'ssn_k8s_alb_dns_name={}\''
-                         .format(args_str, dns_name))
+                command = ('terraform apply -auto-approve {} '
+                           '-var \'ssn_k8s_alb_dns_name={}\''
+                           .format(args_str, dns_name))
+                logging.info(command)
+                conn.run(command)
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
                 self.fill_args_from_dict(json.loads(output))
