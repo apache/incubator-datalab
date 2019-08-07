@@ -28,14 +28,14 @@ metadata:
   labels:
 {{ include "dlab-ui.labels" . | indent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.ui.service.type }}
   ports:
-    - port: {{ .Values.service.http_port }}
-      targetPort: {{ .Values.service.http_port }}
+    - port: {{ .Values.ui.service.http_port }}
+      targetPort: {{ .Values.ui.service.http_port }}
       protocol: TCP
       name: http
-    - port: {{ .Values.service.https_port }}
-      targetPort: {{ .Values.service.https_port }}
+    - port: {{ .Values.ui.service.https_port }}
+      targetPort: {{ .Values.ui.service.https_port }}
       nodePort: 30433
       protocol: TCP
       name: https

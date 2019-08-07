@@ -21,10 +21,10 @@
 # ******************************************************************************
 */ -}}
 
-{{- if .Values.ingress.enabled -}}
+{{- if .Values.ui.ingress.enabled -}}
 {{- $fullName := include "dlab-ui.fullname" . -}}
-{{ $servicePort := .Values.service.http_port }}
-{{ $host := .Values.ingress.host }}
+{{ $servicePort := .Values.ui.service.http_port }}
+{{ $host := .Values.ui.ingress.host }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -32,13 +32,13 @@ metadata:
   labels:
 {{ include "dlab-ui.labels" . | indent 4 }}
   annotations:
-{{- with .Values.ingress.annotations }}
+{{- with .Values.ui.ingress.annotations }}
 {{ toYaml . | indent 4 }}
   {{- end }}
 spec:
-{{- if .Values.ingress.tls }}
+{{- if .Values.ui.ingress.tls }}
   tls:
-  {{- range .Values.ingress.tls }}
+  {{- range .Values.ui.ingress.tls }}
     - hosts:
       {{- range .hosts }}
         - {{ . | quote }}
