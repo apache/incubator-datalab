@@ -29,6 +29,10 @@ class TerraformOutputBase:
     def extract(self):
         pass
 
+    @abstractmethod
+    def remove_keys(self, keys):
+        pass
+
 
 class LocalStorageOutputProcessor(TerraformOutputBase):
     @property
@@ -52,6 +56,12 @@ class LocalStorageOutputProcessor(TerraformOutputBase):
                 output = fp.read()
                 if len(output):
                     return json.loads(output)
+
+    def remove_keys(self, keys):
+        output = self.extract()
+        updated = {key: value for key, value in output.items()
+                   if key not in keys}
+        self.write(updated)
 
 
 def get_args_string(cli_args):
@@ -629,7 +639,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                                   .stdout.split())
                 self.fill_args_from_dict(json.loads(output))
                 output_processor = LocalStorageOutputProcessor()
-                output_processor.write(json.loads(output))
+                output = {key: value.get('value')
+                          for key, value in json.loads(output).items()}
+                output_processor.write(output)
 
     def deploy(self):
         if self.args.get('service').get('action') == 'destroy':
@@ -646,28 +658,19 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.output_terraform_result()
 
     def destroy(self):
-        self.select_master_ip()
         logging.info('ssn-k8s destroy')
+        output_processor = LocalStorageOutputProcessor()
+        ip = (output_processor.extract()
+            .get('ssn_k8s_masters_ip_addresses', ['test'])[0])
         endpoint_output_keys = []
-        with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
+        with Console.ssh(ip, self.user_name, self.pkey_path) as conn:
             with conn.cd('terraform/ssn-helm-charts/main'):
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
                 endpoint_output_keys.extend(list(json.loads(output).keys()))
         endpoint_output_keys.extend(
             json.loads(TerraformProvider().output('-json')).keys())
-
-        output_file_path = '/tmp/data.json'
-        existed_data = {}
-        if os.path.isfile(output_file_path):
-            with open(output_file_path, 'r') as fp:
-                existed_data = json.loads(fp.read())
-        existed_data = {key: value for key, value in existed_data.items()
-                        if key not in endpoint_output_keys}
-
-        with open(output_file_path, 'w') as fp:
-            json.dump(existed_data, fp)
-
+        output_processor.remove_keys(endpoint_output_keys)
         super(AWSK8sSourceBuilder, self).destroy()
 
 
@@ -739,8 +742,9 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          )
         return params.build()
 
-    def deploy(self):
-        start_deploy()
+
+def deploy(self):
+    start_deploy()
 
 
 class DeployDirector:
