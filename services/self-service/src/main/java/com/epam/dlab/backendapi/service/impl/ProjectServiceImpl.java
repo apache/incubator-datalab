@@ -1,6 +1,8 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
@@ -68,6 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
 		return projectDAO.getProjectsWithStatus(status);
 	}
 
+	@BudgetLimited
 	@Override
 	public void create(UserInfo user, ProjectDTO projectDTO) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
@@ -91,8 +94,9 @@ public class ProjectServiceImpl implements ProjectService {
 		projectDAO.updateStatus(name, ProjectDTO.Status.DELETING);
 	}
 
+	@BudgetLimited
 	@Override
-	public void start(UserInfo userInfo, String name) {
+	public void start(UserInfo userInfo, @Project String name) {
 		projectActionOnCloud(userInfo, name, START_PRJ_API);
 		projectDAO.updateStatus(name, ProjectDTO.Status.ACTIVATING);
 	}
