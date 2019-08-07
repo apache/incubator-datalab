@@ -111,7 +111,7 @@ export class ResourcesGridComponent implements OnInit {
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
 
-        !this.healthStatus.billingEnabled && this.modifyGrid();
+        this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
       });
   }
 
