@@ -450,7 +450,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='k8s')
          .add_str('--os_user', 'Name of DLab service user.',
-                  default='dlab.py-user', group='k8s')
+                  default='dlab-user', group='k8s')
          .add_str('--pkey', 'path to key', required=True, group='service')
          .add_str('--region', 'Name of AWS region.', default='us-west-2',
                   group='k8s')
