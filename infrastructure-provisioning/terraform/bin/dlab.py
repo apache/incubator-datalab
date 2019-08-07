@@ -12,6 +12,7 @@ from fabric import Connection
 from patchwork.transfers import rsync
 from deploy.endpoint_fab import start_deploy
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO, format='%(levelname)s-%(message)s')
 
 
@@ -450,7 +451,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='k8s')
          .add_str('--os_user', 'Name of DLab service user.',
-                  default='dlab.py-user', group='k8s')
+                  default='dlab-user', group='k8s')
          .add_str('--pkey', 'path to key', required=True, group='service')
          .add_str('--region', 'Name of AWS region.', default='us-west-2',
                   group='k8s')
@@ -459,7 +460,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--service_base_name',
                   'Any infrastructure value (should be unique if '
                   'multiple SSN\'s have been deployed before).',
-                  default='dlab.py-k8s', group='k8s')
+                  default='k8s', group='k8s')
          .add_int('--ssn_k8s_masters_count', 'Count of K8S masters.', default=3,
                   group='k8s')
          .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2,
@@ -502,14 +503,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--endpoint_eip_address', 'endpoint_eip_address',
                   group='helm_charts')
-         # .add_str('--ldap_connection_url', 'ldap connection url', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_users_dn', 'ldap users dn', required=True,
-         #          group='helm_charts')
+         .add_str('--ldap_connection_url', 'ldap connection url', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_users_dn', 'ldap users dn', required=True,
+                  group='helm_charts')
          )
         return params.build()
 
@@ -584,6 +585,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             rsync(conn, source, remote_dir)
 
     def run_remote_terraform(self):
+        logging.info('apply helm charts')
         args = self.parse_args()
         dns_name = json.loads(TerraformProvider()
                               .output('-json ssn_k8s_alb_dns_name'))
@@ -594,9 +596,11 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             with conn.cd('terraform/ssn-helm-charts/main'):
                 conn.run('terraform init')
                 conn.run('terraform validate')
-                conn.run('terraform apply -auto-approve {} '
-                         '-var \'ssn_k8s_alb_dns_name={}\''
-                         .format(args_str, dns_name))
+                command = ('terraform apply -auto-approve {} '
+                           '-var \'ssn_k8s_alb_dns_name={}\''
+                           .format(args_str, dns_name))
+                logging.info(command)
+                conn.run(command)
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
                 self.fill_args_from_dict(json.loads(output))
@@ -737,13 +741,15 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--endpoint_eip_allocation_id',
                   'Elastic Ip created for Endpoint',
                   group='endpoint')
-         .add_str('--product', 'Product name.', default='dlab.py',
+         .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
          )
         return params.build()
 
-
     def deploy(self):
+        new_dir = os.path.abspath(
+            os.path.join(os.getcwd(), '../../../bin/deploy'))
+        os.chdir(new_dir)
         start_deploy()
 
 
