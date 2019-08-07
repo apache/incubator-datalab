@@ -107,7 +107,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Override
 	public void stopAll() {
 		log.debug("Stopping environment for all users...");
-		getUserNames().forEach(this::stopEnvironment);
+		projectService.getProjects()
+				.stream()
+				.map(ProjectDTO::getName)
+				.forEach(this::stopProjectEnvironment);
 	}
 
 	@Override
