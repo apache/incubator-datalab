@@ -459,7 +459,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--service_base_name',
                   'Any infrastructure value (should be unique if '
                   'multiple SSN\'s have been deployed before).',
-                  default='dlab.py-k8s', group='k8s')
+                  default='k8s', group='k8s')
          .add_int('--ssn_k8s_masters_count', 'Count of K8S masters.', default=3,
                   group='k8s')
          .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2,
@@ -737,7 +737,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--endpoint_eip_allocation_id',
                   'Elastic Ip created for Endpoint',
                   group='endpoint')
-         .add_str('--product', 'Product name.', default='dlab.py',
+         .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
          )
         return params.build()
