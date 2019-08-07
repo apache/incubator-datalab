@@ -743,8 +743,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
         return params.build()
 
 
-def deploy(self):
-    start_deploy()
+    def deploy(self):
+        start_deploy()
 
 
 class DeployDirector:
