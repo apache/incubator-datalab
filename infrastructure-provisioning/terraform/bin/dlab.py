@@ -746,8 +746,10 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          )
         return params.build()
 
-
     def deploy(self):
+        new_dir = os.path.abspath(
+            os.path.join(os.getcwd(), '../../../bin/deploy'))
+        os.chdir(new_dir)
         start_deploy()
 
 
