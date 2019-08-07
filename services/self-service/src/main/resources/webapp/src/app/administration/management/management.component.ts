@@ -48,8 +48,8 @@ import { ProjectService } from '../../core/services';
 export class ManagementComponent implements OnInit {
   public user: string = '';
   public healthStatus: GeneralEnvironmentStatus;
-  public allEnvironmentData: Array<EnvironmentModel>;
   public anyEnvInProgress: boolean = false;
+  public dialogRef: any;
 
   constructor(
     public toastr: ToastrService,
@@ -95,12 +95,11 @@ export class ManagementComponent implements OnInit {
   }
 
   openManageEnvironmentDialog() {
-    // this.getActiveUsersList().subscribe(usersList => {
     this.projectService.getProjectsList().subscribe(projectsList => {
       this.getTotalBudgetData().subscribe(total => {
-        const dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
-        dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
-        dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
+        this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
+        this.dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
+        this.dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
       }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
     });
   }
@@ -129,18 +128,22 @@ export class ManagementComponent implements OnInit {
 
   manageEnvironment(event: { action: string, project: any }) {
     if (event.action === 'stop')
-      this.projectService
-        .toggleProjectStatus(event.project, event.action)
-        .subscribe(() =>
-          this.toastr.success(`Action ${event.action} is processing!`, 'Processing!') &&
-          this.buildGrid(), error => this.toastr.error(error.message, 'Oops!'));
+      this.projectService.toggleProjectStatus(event.project, event.action)
+        .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
 
     if (event.action === 'terminate')
       this.projectService.deleteProject(event.project.project_name)
-        .subscribe(() =>
-          this.toastr.success(`Action ${event.action} is processing!`, 'Processing!') &&
-          this.buildGrid(), error => this.toastr.error(error.message, 'Oops!'));
+        .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
+  }
 
+  handleSuccessAction(action) {
+    this.toastr.success(`Action ${action} is processing!`, 'Processing!');
+    this.projectService.getProjectsList().subscribe(data => {
+      debugger;
+      this.dialogRef.componentInstance.data.projectsList = data
+      this.dialogRef.componentInstance.setProjectsControl();
+    });
+    this.buildGrid()
   }
 
   get creatingBackup(): boolean {

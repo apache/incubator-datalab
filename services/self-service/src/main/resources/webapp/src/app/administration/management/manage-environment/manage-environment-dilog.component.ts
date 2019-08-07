@@ -30,26 +30,21 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 })
 export class ManageEnvironmentComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  // public usersList: Array<string> = [];
   public manageUsersForm: FormGroup;
   public manageTotalsForm: FormGroup;
 
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
-  // @Output() setBudget: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private _fb: FormBuilder,
     public dialog: MatDialog,
-    public dialogRef: MatDialogRef<ManageEnvironmentComponent>
+    public dialogRef: MatDialogRef<ManageEnvironmentComponent>,
+    private _fb: FormBuilder,
   ) { }
 
   ngOnInit() {
     !this.manageUsersForm && this.initForm();
-    this.manageUsersForm.setControl('projects',
-      this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
-        project: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
-      }))));
+    this.setProjectsControl();
 
     this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || null);
   }
@@ -69,6 +64,13 @@ export class ManageEnvironmentComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.manageEnv.emit({ action, project: { project_name: project.value.project } });
     });
+  }
+
+  public setProjectsControl() {
+    this.manageUsersForm.setControl('projects',
+      this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
+        project: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
+      }))));
   }
 
   private initForm(): void {
