@@ -100,7 +100,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
 		return projectService.getProjects()
 				.stream()
-				.filter(p -> p.getStatus() != ProjectDTO.Status.FAILED)
 				.map(projectDTO -> getProjectEnv(projectDTO, expList)).flatMap(Collection::stream)
 				.collect(toList());
 	}
