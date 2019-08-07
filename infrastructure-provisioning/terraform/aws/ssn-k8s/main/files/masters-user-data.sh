@@ -124,7 +124,7 @@ sudo -i -u ${k8s_os_user} helm init --service-account tiller --history-max 200
 sudo mkdir -p /home/${k8s_os_user}/keys
 sudo keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass ${ssn_keystore_password} \
   -keypass ${ssn_keystore_password} -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks \
-  -keysize 2048 -dname "CN=${k8s-nlb-dns-name}" -ext SAN=dns:localhost
+  -keysize 2048 -dname "CN=${k8s-nlb-dns-name}" -ext SAN=dns:localhost,dns:${k8s-nlb-dns-name}
 sudo keytool -exportcert -alias dlab -storepass ${ssn_keystore_password} -file /home/${k8s_os_user}/keys/ssn.crt \
   -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks
 
@@ -133,7 +133,7 @@ aws s3 cp /home/${k8s_os_user}/keys/ssn.crt s3://${k8s-bucket-name}/dlab/certs/s
 
 sudo keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass ${endpoint_keystore_password} \
   -keypass ${endpoint_keystore_password} -keystore /home/${k8s_os_user}/keys/endpoint.keystore.jks \
-  -keysize 2048 -dname "CN=${endpoint_elastic_ip}" -ext SAN=dns:localhost
+  -keysize 2048 -dname "CN=${endpoint_elastic_ip}" -ext SAN=dns:localhost,dns:${endpoint_elastic_ip}
 sudo keytool -exportcert -alias dlab -storepass ${endpoint_keystore_password} -file /home/${k8s_os_user}/keys/endpoint.crt \
   -keystore /home/${k8s_os_user}/keys/endpoint.keystore.jks
 
