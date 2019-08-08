@@ -98,7 +98,7 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group name-control">
           <label class="label">Name</label>
           <div class="control">
             <input [class.danger_field]="notebookExist || !createExploratoryForm?.controls['name'].valid
@@ -140,6 +140,9 @@
           <div class="control">
             <input type="text" class="form-control" placeholder="Enter custom tag" formControlName="custom_tag">
           </div>
+          <span class="error"
+            *ngIf="!createExploratoryForm?.controls.custom_tag.valid && createExploratoryForm?.controls.custom_tag.dirty">
+            Custom tag can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
         </div>
 
         <div *ngIf="currentTemplate">
