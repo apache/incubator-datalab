@@ -4,8 +4,7 @@ import logging
 import argparse
 import sys
 import traceback
-import random
-import string
+import time
 
 conn = None
 args = None
@@ -46,8 +45,8 @@ def create_user():
 def copy_keys():
     try:
         conn.put(args.pkey, '/tmp/')
-        conn.sudo('mv /tmp/{0} /home/{1}/keys/'
-                  .format(args.conf_key_name, args.os_user))
+        conn.sudo('mv /tmp/{0}.pem /home/{1}/keys/'
+                  .format(args.key_name, args.os_user))
         conn.sudo('chown -R {0}:{0} /home/{0}/keys'.format(args.os_user))
     except Exception as err:
         logging.error('Failed to copy keys ', str(err))
@@ -182,7 +181,7 @@ def configure_keystore_endpoint(os_user):
         if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
             conn.sudo('aws s3 cp '
                       's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
-                      .format(args.ssn_bucket_name,args.os_user))
+                      .format(args.ssn_bucket_name, args.os_user))
         if not exists(conn, '/home/' + args.os_user + '/.ensure_dir/cert_imported'):
             conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt \
                  -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
@@ -222,15 +221,17 @@ def configure_supervisor_endpoint():
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
             conn.sudo('sed -i "s|KEYNAME|{}|g" {}provisioning.yml'
-                      .format(args.conf_key_name, dlab_conf_dir))
+                      .format(args.key_name, dlab_conf_dir))
             conn.sudo('sed -i "s|KEYSTORE_PASSWORD|{}|g" {}provisioning.yml'
                       .format(args.endpoint_keystore_password, dlab_conf_dir))
             conn.sudo('sed -i "s|JRE_HOME|{}|g" {}provisioning.yml'
                       .format(java_home, dlab_conf_dir))
             conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" {}provisioning.yml'
                       .format(args.cloud_provider, dlab_conf_dir))
-            conn.sudo('sed -i "s|SSN_HOST|{}|g" {}provisioning.yml'
-                      .format(args.ssn_host, dlab_conf_dir))
+            conn.sudo('sed -i "s|SSN_NLB|{}|g" {}provisioning.yml'
+                      .format(args.ssn_k8s_nlb_dns_name, dlab_conf_dir))
+            conn.sudo('sed -i "s|SSN_ALB|{}|g" {}provisioning.yml'
+                      .format(args.ssn_k8s_alb_dns_name, dlab_conf_dir))
             conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
                       .format(args.keycloak_client_secret, dlab_conf_dir))
             conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
@@ -370,13 +371,13 @@ def init_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dlab_path', type=str, default='')
     parser.add_argument('--key_name', type=str, default='')
-    parser.add_argument('--conf_key_name', type=str, default='')
-    parser.add_argument('--ssn_k8s_masters_ip_addresses', type=list, default=[])
+    parser.add_argument('--endpoint_eip_address', type=str)
     parser.add_argument('--pkey', type=str, default='')
     parser.add_argument('--hostname', type=str, default='')
     parser.add_argument('--os_user', type=str, default='dlab-user')
     parser.add_argument('--cloud_provider', type=str, default='')
-    parser.add_argument('--ssn_host', type=str, default='')
+    parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
+    parser.add_argument('--ssn_k8s_alb_dns_name', type=str, default='')
     parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
     parser.add_argument('--repository_port', type=str, default='')
@@ -428,9 +429,11 @@ def start_deploy():
     global args
     init_args()
     print(args)
-    if (args.ssn_k8s_masters_ip_addresses and
-            isinstance(args.ssn_k8s_masters_ip_addresses, (tuple, list))):
-        args.hostname = args.ssn_k8s_masters_ip_addresses[0]
+    if args.hostname == "":
+        args.hostname = args.endpoint_eip_address
+
+    print("Start provisioning of Endpoint.")
+    time.sleep(40)
 
     print(args)
     logging.info("Creating dlab-user")
@@ -478,6 +481,7 @@ def start_deploy():
     pull_docker_images()
 
     close_connection()
+    print("Done provisioning of Endpoint.")
 
 
 if __name__ == "__main__":
