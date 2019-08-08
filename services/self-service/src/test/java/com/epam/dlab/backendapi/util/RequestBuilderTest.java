@@ -308,7 +308,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAwsVpcId()).thenReturn("someAwsVpcId");
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
-		requestBuilder.newExploratoryCreate(exploratory, userInfo, egcDto);
+		requestBuilder.newExploratoryCreate(exploratory, userInfo, egcDto, null);
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -336,7 +336,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 		when(settingsDAO.getAzureDataLakeClientId()).thenReturn("someId");
 
-		requestBuilder.newExploratoryCreate(exploratory, userInfo, egcDto);
+		requestBuilder.newExploratoryCreate(exploratory, userInfo, egcDto, null);
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO, times(2)).isAzureDataLakeEnabled();
@@ -357,7 +357,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getServiceBaseName()).thenReturn("someSBN");
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
-		requestBuilder.newExploratoryCreate(exploratory, userInfo, egcDto);
+		requestBuilder.newExploratoryCreate(exploratory, userInfo, egcDto, null);
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();
@@ -972,7 +972,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getConfTagResourceId()).thenReturn("someConfTagResourceId");
 
 		requestBuilder.newComputationalTerminate(userInfo, "explName", "explId", "compName",
-				"compId", DataEngineType.CLOUD_SERVICE);
+				"compId", DataEngineType.CLOUD_SERVICE, "");
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -999,7 +999,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getAzureVpcName()).thenReturn("someAzureVpcId");
 
 		requestBuilder.newComputationalTerminate(userInfo, "explName", "explId", "compName",
-				"compId", DataEngineType.CLOUD_SERVICE);
+				"compId", DataEngineType.CLOUD_SERVICE, "");
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(settingsDAO).getServiceBaseName();
@@ -1020,7 +1020,7 @@ public class RequestBuilderTest {
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
 		requestBuilder.newComputationalTerminate(userInfo, "explName", "explId", "compName",
-				"compId", DataEngineType.CLOUD_SERVICE);
+				"compId", DataEngineType.CLOUD_SERVICE, "");
 
 		verify(configuration, times(3)).getCloudProvider();
 		verify(configuration).getMaxUserNameLength();

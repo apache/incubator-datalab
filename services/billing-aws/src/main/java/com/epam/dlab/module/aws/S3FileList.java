@@ -50,7 +50,7 @@ public class S3FileList {
 	/**
 	 * Report suffix without date.
 	 */
-	private static final String REPORT_SUFIX = ".csv.zip";
+	private static final String REPORT_SUFIX = ".csv";
 	/**
 	 * Date regex for YYYYMMDD
 	 */

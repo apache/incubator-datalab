@@ -17,14 +17,14 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="modal-sm">
-  <modal-header>
+<div id="dialog-box" class="modal-sm">
+  <header class="dialog-header">
     <h4 class="modal-title">
       <span *ngIf="primaryUploading">Create initial infrastructure</span>
       <span *ngIf="!primaryUploading">Reupload key</span>
     </h4>
-  </modal-header>
-  <modal-content>
+  </header>
+  <div class="dialog-content">
     <div class="content-box">
       <form (submit)="uploadUserAccessKey_btnClick($event)" novalidate>
         <div class="row-wrap upload-key">
@@ -60,6 +60,5 @@
         </div>
       </form>
     </div>
-  </modal-content>
-  <modal-footer></modal-footer>
-</modal-dialog>
+  </div>
+</div>

@@ -17,8 +17,8 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="confirmation-dialog modal-md">
-  <modal-header>
+<div id="dialog-box" class="confirmation-dialog">
+  <header class="dialog-header">
     <h4 class="modal-title">
       <span *ngIf="model.notebook.name && model.notebook.name !== 'edge node'">
         <span>{{ confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
@@ -27,12 +27,14 @@
         <i class="material-icons">priority_high</i>Warning
       </span>
     </h4>
-  </modal-header>
-  <modal-content>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
     <div class="content-box">
       <p class="info text-center">{{ model.title }}</p>
 
-      <mat-list class="resources" [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'
+      <mat-list class="resources"
+        [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'
                                   || !model.notebook.resources || model.notebook.resources.length === 0 || (!isAliveResources && !confirmationType) || onlyKilled">
         <mat-list-item class="list-header">
           <div class="cluster">Cluster</div>
@@ -41,23 +43,23 @@
         </mat-list-item>
         <div class="scrolling-content" id="scrolling">
           <mat-list-item *ngFor="let resource of model.notebook.resources"
-                        [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || (resource.status === 'stopped' && !confirmationType)">
+            [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || (resource.status === 'stopped' && !confirmationType)">
             <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
             <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
-                  'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">{{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
+                  'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">
+              {{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
             <div class="size">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
           </mat-list-item>
         </div>
       </mat-list>
 
       <div class="text-center m-top-20">
-        <p *ngIf="model.notebook.name">Do you want to proceed?</p>
-        <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
+        <p>Do you want to proceed?</p>
       </div>
       <div class="text-center m-top-20">
-        <button mat-raised-button type="button" class="butt action" (click)="bindDialog.close()">No</button>
+        <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">No</button>
         <button mat-raised-button type="button" class="butt butt-success action" (click)="confirm()">Yes</button>
       </div>
     </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

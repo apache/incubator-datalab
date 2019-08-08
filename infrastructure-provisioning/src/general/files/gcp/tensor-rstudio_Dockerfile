@@ -33,6 +33,9 @@ COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/templates/gcp/core-site.xml /root/templates/
+COPY general/templates/os/inactive.sh /root/templates/
+COPY general/templates/os/inactive.service /root/templates/
+COPY general/templates/os/inactive.timer /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
 chmod a+x /root/scripts/*

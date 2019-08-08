@@ -23,45 +23,64 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 @Component({
   selector: 'notification-dialog',
   template: `
-  <header>
-    <h4><i class="material-icons">priority_high</i>Warning</h4>
-    <a class="ani" (click)="dialogRef.close()"><i class="material-icons">close</i></a>
-  </header>
-  <div mat-dialog-content class="content info message">
-    <div *ngIf="data.type === 'list'; else info">
-      <div *ngIf="data.template.notebook.length > 0">
-        Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
-        <span *ngFor="let item of data.template.notebook">
-          <b>{{ item.exploratory_name }}</b>
-          <span *ngIf="data.template.notebook.length > 1">, </span>
-        </span> will be stopped and all computational resources will be stopped/terminated
-      </div>
+  <div id="dialog-box">
+    <header class="dialog-header">
+      <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
+      <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+    </header>
+    <div mat-dialog-content class="content message">
+      <div *ngIf="data.type === 'list'" class="info">
+        <div *ngIf="data.template.notebook.length > 0">
+          Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
+          <span *ngFor="let item of data.template.notebook">
+            <b>{{ item.exploratory_name }}</b>
+            <span *ngIf="data.template.notebook.length > 1">, </span>
+          </span> will be stopped and all computational resources will be stopped/terminated
+        </div>
 
-      <div *ngIf="data.template.cluster.length > 0">
-        <p *ngFor="let item of data.template.cluster">
-            Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
-            <b>{{ item.computational_name }}</b> on <b>{{ item.exploratory_name }}</b>
-            will be stopped
-        </p>
+        <div *ngIf="data.template.cluster.length > 0">
+          <p *ngFor="let item of data.template.cluster">
+              Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
+              <b>{{ item.computational_name }}</b> on <b>{{ item.exploratory_name }}</b>
+              will be stopped
+          </p>
+        </div>
+        <strong>by a schedule in 15 minutes.</strong>
       </div>
-      <strong>by a schedule in 15 minutes.</strong>
+      <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
+      <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
+        <p>
+          <strong class="ellipsis label-name" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
+          {{ data.item.name }}</strong> will be {{ data.action || 'decommissioned' }}.
+        </p>
+        <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+      
+        <div class="text-center m-top-30 m-bott-10">
+          <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+          <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
+        </div>
+      </div>
     </div>
-    <ng-template #info><span [innerHTML]="data.template"></span></ng-template>
   </div>
   `,
   styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; }
     .info { color: #35afd5; }
+    .info .confirm-dialog { color: #607D8B; }
     header { display: flex; justify-content: space-between; color: #607D8B; }
     header h4 i { vertical-align: bottom; }
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
     .plur { font-style: normal; }
+    .label-name { display: inline-block; width: 100% }
   `]
 })
 export class NotificationDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<NotificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+  ) {
+    console.log(data);
+
+  }
 }

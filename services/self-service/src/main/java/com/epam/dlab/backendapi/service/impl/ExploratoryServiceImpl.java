@@ -21,12 +21,14 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
@@ -72,10 +74,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private TagService tagService;
 
 	@BudgetLimited
 	@Override
-	public String start(UserInfo userInfo, String exploratoryName) {
+	public String start(UserInfo userInfo, String exploratoryName, @Project String project) {
 		return action(userInfo, exploratoryName, EXPLORATORY_START, STARTING);
 	}
 
@@ -91,15 +95,17 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@BudgetLimited
 	@Override
-	public String create(UserInfo userInfo, Exploratory exploratory) {
+	public String create(UserInfo userInfo, Exploratory exploratory, @Project String project) {
 		boolean isAdded = false;
 		try {
-			exploratoryDAO.insertExploratory(getUserInstanceDTO(userInfo, exploratory));
+			final UserInstanceDTO userInstanceDTO = getUserInstanceDTO(userInfo, exploratory, project);
+			exploratoryDAO.insertExploratory(userInstanceDTO);
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
 			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(),
-					requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds), String.class);
+					requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds, userInstanceDTO.getTags()),
+					String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
@@ -117,6 +123,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	public void updateExploratoryStatuses(String user, UserInstanceStatus status) {
 		exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(user, TERMINATED, FAILED)
 				.forEach(ui -> updateExploratoryStatus(ui.getExploratoryName(), status, user));
+	}
+
+	@Override
+	public void updateProjectExploratoryStatuses(String project, UserInstanceStatus status) {
+		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, TERMINATED, FAILED)
+				.forEach(ui -> updateExploratoryStatus(ui.getExploratoryName(), status, ui.getUser()));
 	}
 
 	/**
@@ -309,7 +321,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withStatus(status);
 	}
 
-	private UserInstanceDTO getUserInstanceDTO(UserInfo userInfo, Exploratory exploratory) {
+	private UserInstanceDTO getUserInstanceDTO(UserInfo userInfo, Exploratory exploratory, String project) {
 		final UserInstanceDTO userInstance = new UserInstanceDTO()
 				.withUser(userInfo.getName())
 				.withExploratoryName(exploratory.getName())
@@ -318,7 +330,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withImageVersion(exploratory.getVersion())
 				.withTemplateName(exploratory.getTemplateName())
 				.withClusterConfig(exploratory.getClusterConfig())
-				.withShape(exploratory.getShape());
+				.withShape(exploratory.getShape())
+				.withProject(project)
+				.withEndpoint(exploratory.getEndpoint())
+				.withTags(tagService.getResourceTags(userInfo, exploratory.getEndpoint(), project,
+						exploratory.getExploratoryTag()));
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {
 			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory
 					.getImageName());

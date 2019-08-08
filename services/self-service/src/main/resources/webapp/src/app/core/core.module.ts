@@ -23,10 +23,10 @@ import { ApplicationServiceFacade } from './services/applicationServiceFacade.se
 import { AppRoutingService } from './services/appRouting.service';
 import { ApplicationSecurityService } from './services/applicationSecurity.service';
 import { HealthStatusService } from './services/healthStatus.service';
-import { UserAccessKeyService } from './services/userAccessKey.service';
 import { UserResourceService } from './services/userResource.service';
 import { AuthorizationGuard } from './services/authorization.guard';
 import { CloudProviderGuard } from './services/cloudProvider.guard';
+import { AdminGuard } from './services/admin.quard';
 import { CheckParamsGuard } from './services/checkParams.guard';
 import { LibrariesInstallationService } from './services/librariesInstallation.service';
 import { ManageUngitService } from './services/manageUngit.service';
@@ -37,6 +37,10 @@ import { ManageEnvironmentsService } from './services/managementEnvironments.ser
 import { RolesGroupsService } from './services/rolesManagement.service';
 import { DataengineConfigurationService } from './services/dataengineConfiguration.service';
 import { StorageService } from './services/storage.service';
+import { ProjectService } from './services/project.service';
+import { EndpointService } from './services/endpoint.service';
+
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @NgModule({
   imports: [CommonModule],
@@ -53,9 +57,9 @@ export class CoreModule {
       providers: [
         ApplicationSecurityService,
         AuthorizationGuard,
+        AdminGuard,
         CloudProviderGuard,
         CheckParamsGuard,
-        UserAccessKeyService,
         AppRoutingService,
         UserResourceService,
         HealthStatusService,
@@ -68,7 +72,12 @@ export class CoreModule {
         RolesGroupsService,
         ApplicationServiceFacade,
         DataengineConfigurationService,
-        StorageService
+        StorageService,
+        ProjectService,
+        EndpointService,
+
+        { provide: MatDialogRef, useValue: {} },
+        { provide: MAT_DIALOG_DATA, useValue: [] }
       ]
     };
   }

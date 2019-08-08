@@ -131,11 +131,13 @@ public class SchedulerJobDAO extends BaseDAO {
 				and(
 						eq(STATUS, status.toString()),
 						schedulerNotNullCondition(),
-						eq(CONSIDER_INACTIVITY_FLAG, true),
-						or(eq(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
-								and(ne(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
-										Filters.elemMatch(COMPUTATIONAL_RESOURCES,
-												lte(LAST_ACTIVITY, lastActivity))))
+						or(and(eq(CONSIDER_INACTIVITY_FLAG, true),
+								or(eq(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+										and(ne(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+												Filters.elemMatch(COMPUTATIONAL_RESOURCES,
+														lte(LAST_ACTIVITY, lastActivity))))),
+								eq(CONSIDER_INACTIVITY_FLAG, false)
+						)
 				),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA))))
 				.map(d -> convertFromDocument(d, SchedulerJobData.class))
@@ -159,9 +161,11 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(toList());
 	}
 
-	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus, UserInstanceStatus... statuses) {
+	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
+																			   UserInstanceStatus... statuses) {
 		return stream(computationalResourcesWithScheduler(exploratoryStatus))
-				.map(doc -> computationalSchedulerData(doc, statuses).map(compResource -> toSchedulerData(doc, compResource)))
+				.map(doc -> computationalSchedulerData(doc, statuses).map(compResource -> toSchedulerData(doc,
+						compResource)))
 				.flatMap(Function.identity())
 				.collect(toList());
 	}

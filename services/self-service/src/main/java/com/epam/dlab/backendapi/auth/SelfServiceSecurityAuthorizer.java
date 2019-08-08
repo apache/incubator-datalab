@@ -29,6 +29,6 @@ import io.dropwizard.auth.Authorizer;
 public class SelfServiceSecurityAuthorizer implements Authorizer<UserInfo> {
 	@Override
 	public boolean authorize(UserInfo principal, String role) {
-		return UserRoles.checkAccess(principal, RoleType.PAGE, role);
+		return UserRoles.checkAccess(principal, RoleType.PAGE, role, principal.getRoles());
 	}
 }

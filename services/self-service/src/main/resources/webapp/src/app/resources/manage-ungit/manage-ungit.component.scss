@@ -22,22 +22,27 @@
     height: 500px;
     padding: 25px 35px;
   }
+
   .add-creds {
-    margin: 15px 5px;
+    margin: 15px 5px 0;
   }
+
   .scrollingList {
     overflow-x: hidden;
     padding: 5px;
     height: 185px;
+
     &.info {
       display: flex;
       justify-content: center;
       height: 300px;
+
       p {
         align-self: center;
       }
     }
   }
+
   .mail-field,
   .user-field,
   .login-field {
@@ -46,6 +51,7 @@
     text-overflow: ellipsis;
     padding: 5px;
   }
+
   .hostname-field {
     width: 25%;
     overflow: hidden;
@@ -53,18 +59,22 @@
     padding: 5px;
     width: 30%;
   }
+
   .actions {
     width: 20%;
     position: relative;
     overflow: visible;
     width: 50px;
+
     span {
       position: absolute;
       top: -10px;
       left: 0;
       zoom: 0.8;
+
       &.git-actions {
         cursor: pointer;
+
         &.remove {
           left: 35px;
         }
@@ -74,37 +84,46 @@
 
   .git-form {
     display: flex;
+
     .control-group {
       width: 100%;
       font-family: 'Open Sans', sans-serif;
       padding: 10px 0 25px;
       position: relative;
+
       input[type='text'],
       input[type='password'],
       input[type='email'] {
         font-size: 14px;
       }
+
       .label {
         width: 30%;
         font-size: 14px;
       }
+
       .control {
         width: 70%;
       }
+
       .danger_color {
         position: absolute;
         top: 45px;
         padding: 0;
+        font-size: 12px;
       }
     }
+
     .col {
       padding: 30px 10px;
       width: 50%;
     }
+
     .danger_color {
       padding-top: 0;
     }
   }
+
   .submit {
     margin-top: 60px;
   }

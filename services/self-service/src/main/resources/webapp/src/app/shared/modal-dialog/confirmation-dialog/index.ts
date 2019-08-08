@@ -20,7 +20,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ModalModule } from '..';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { MaterialModule } from '../../material.module';
 
@@ -28,8 +27,9 @@ export * from './confirmation-dialog.component';
 export * from './confirmation-dialog-type.enum';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, MaterialModule],
+  imports: [CommonModule, MaterialModule],
   declarations: [ConfirmationDialogComponent],
+  entryComponents: [ConfirmationDialogComponent],
   exports: [ConfirmationDialogComponent]
 })
 export class ConfirmationDialogModule {}

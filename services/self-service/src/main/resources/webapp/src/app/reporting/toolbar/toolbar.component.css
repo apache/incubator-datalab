@@ -20,7 +20,6 @@
 section {
     display: flex;
     justify-content: space-between;
-    padding: 10px 15px;
     font-weight: 300;
 }
 section > div {

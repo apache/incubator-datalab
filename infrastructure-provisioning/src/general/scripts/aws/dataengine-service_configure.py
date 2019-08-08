@@ -157,7 +157,7 @@ def configure_dataengine_service(instance, emr_conf):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -192,30 +192,30 @@ if __name__ == "__main__":
     emr_conf['network_type'] = os.environ['conf_network_type']
     emr_conf['role_service_name'] = os.environ['emr_service_role']
     emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + \
+    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-des-' + \
                        emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid + \
                        ', ' + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + \
-                       os.environ['edge_user_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + \
+                       os.environ['project_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + \
                        emr_conf['computational_name'] + '-' + args.uuid + \
                        ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured'
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + \
+    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-des-' + \
                                emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + \
                                args.uuid
     emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
 
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(
-        emr_conf['service_base_name'], os.environ['edge_user_name'])}
+        emr_conf['service_base_name'], os.environ['project_name'])}
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
     emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
     emr_conf['all_ip_cidr'] = '0.0.0.0/0'
     emr_conf['additional_emr_sg_name'] = '{}-{}-de-se-additional-sg'.format(emr_conf['service_base_name'],
-                                                                          os.environ['edge_user_name'])
+                                                                          os.environ['project_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['cluster_id'] = get_emr_id_by_name(emr_conf['cluster_name'])
     emr_conf['cluster_instances'] = get_emr_instances_list(emr_conf['cluster_id'])
     emr_conf['cluster_master_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'MASTER')
     emr_conf['cluster_core_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'CORE')
-    emr_conf['edge_instance_name'] = emr_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    emr_conf['edge_instance_name'] = emr_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
     emr_conf['edge_instance_hostname'] = get_instance_private_ip_address(emr_conf['tag_name'],
                                                                          emr_conf['edge_instance_name'])
     if emr_conf['network_type'] == 'private':
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     else:
         emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
                                                                emr_conf['edge_instance_name']).get('Public')
-    emr_conf['user_keyname'] = os.environ['edge_user_name']
+    emr_conf['user_keyname'] = os.environ['project_name']
     emr_conf['os_user'] = os.environ['conf_os_user']
     emr_conf['initial_user'] = 'ec2-user'
     emr_conf['sudo_group'] = 'wheel'

@@ -42,14 +42,17 @@ public class EnvResource {
 	private String name;
 	@JsonProperty
 	private ResourceType resourceType;
+	@JsonProperty("project_name")
+	private String project;
 	@JsonDeserialize(using = IsoLocalDateTimeDeSerializer.class)
 	@JsonProperty
 	private LocalDateTime lastActivity;
 
-	public EnvResource(String id, String name, ResourceType resourceType) {
+	public EnvResource(String id, String name, ResourceType resourceType, String project) {
 		this.id = id;
 		this.name = name;
 		this.resourceType = resourceType;
+		this.project = project;
 	}
 
 	/**
