@@ -46,6 +46,13 @@ export class ApplicationSecurityService {
     return this._loggedInStatus.asObservable();
   }
 
+  public locationCheck() {
+    return this.serviceFacade.buildLocationCheck()
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public login(loginModel: LoginModel): Observable<boolean | {}> {
     return this.serviceFacade
       .buildLoginRequest(loginModel.toJsonString())
