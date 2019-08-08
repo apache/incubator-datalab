@@ -65,7 +65,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.subscriptions.closed = false;
 
       this.isLoggedIn = response;
-
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
           this.healthStatus = result;
