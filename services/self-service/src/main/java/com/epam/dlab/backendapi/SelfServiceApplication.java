@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;

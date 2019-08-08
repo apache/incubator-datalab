@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.schedulers.internal;
 
 import com.epam.dlab.backendapi.SelfServiceApplication;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.domain.SchedulerConfigurationData;
 import com.epam.dlab.exceptions.DlabException;
 import com.fiestacabin.dropwizard.quartz.GuiceJobFactory;

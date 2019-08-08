@@ -194,3 +194,18 @@ jerseyClient:
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: true
 
+cloudProperties:
+  os: debian
+  serviceBaseName: dev
+  edgeInstanceSize: t2.medium
+  subnetId: subnet-22db937a
+  region: us-west-2
+  confTagResourceId: user:tag
+  securityGroupIds: sg-4d42dc35,sg-f19a0389,sg-71e27b09,sg-d3e67fab
+  ssnInstanceSize: t2.large
+  notebookVpcId: vpc-83c469e4
+  notebookSubnetId: subnet-22db937a
+  confKeyDir: /root/keys/
+  vpcId: vpc-83c469e4
+
+

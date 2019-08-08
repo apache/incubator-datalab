@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi;
+package com.epam.dlab.backendapi.conf;
 
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.backendapi.domain.SchedulerConfigurationData;
@@ -128,6 +128,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@Valid
 	@NotNull
 	private Map<String, String> guacamole;
+
+	@JsonProperty("cloudProperties")
+	private CloudConfiguration cloudConfiguration;
 
 	private KeycloakConfiguration keycloakConfiguration = new KeycloakConfiguration();
 
@@ -256,6 +259,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isMongoMigrationEnabled() {
 		return mongoMigrationEnabled;
+	}
+
+	public CloudConfiguration getCloudConfiguration() {
+		return cloudConfiguration;
 	}
 
 	@NotNull
