@@ -45,11 +45,19 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(SERIVICE_BASE_NAME);
 	}
 
+	public void setServiceBaseName(String sbn) {
+		setSetting(SERIVICE_BASE_NAME, sbn);
+	}
+
 	/**
 	 * Returns the name of OS family.
 	 */
 	public String getConfOsFamily() {
 		return getSetting(CONF_OS_FAMILY);
+	}
+
+	public void setConfOsFamily(String osFamily) {
+		setSetting(CONF_OS_FAMILY, osFamily);
 	}
 
 	/**
@@ -59,11 +67,19 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(CONF_KEY_DIRECTORY);
 	}
 
+	public void setConfKeyDir(String confKeyDir) {
+		setSetting(CONF_KEY_DIRECTORY, confKeyDir);
+	}
+
 	/**
 	 * Returns the name of tag for resource id.
 	 */
 	public String getConfTagResourceId() {
 		return getSetting(CONF_TAG_RESOURCE_ID);
+	}
+
+	public void setConfTagResourceId(String confTagResourceId) {
+		setSetting(CONF_TAG_RESOURCE_ID, confTagResourceId);
 	}
 
 	public Optional<Integer> getMaxBudget() {
@@ -79,11 +95,19 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_REGION);
 	}
 
+	public void setAwsRegion(String awsRegion) {
+		setSetting(AWS_REGION, awsRegion);
+	}
+
 	/**
 	 * Returns the id of security group.
 	 */
 	public String getAwsSecurityGroups() {
 		return getSetting(AWS_SECURITY_GROUPS);
+	}
+
+	public void setAwsSecurityGroups(String awsSecurityGroups) {
+		setSetting(AWS_SECURITY_GROUPS, awsSecurityGroups);
 	}
 
 	/**
@@ -93,9 +117,17 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_VPC_ID);
 	}
 
+	public void setAwsVpcId(String awsVpcId) {
+		setSetting(AWS_VPC_ID, awsVpcId);
+	}
+
 	/**
 	 * Returns the id of virtual private cloud subnet for AWS account.
 	 */
+	public void setAwsSubnetId(String awsSubnetId) {
+		setSetting(AWS_SUBNET_ID, awsSubnetId);
+	}
+
 	public String getAwsSubnetId() {
 		return getSetting(AWS_SUBNET_ID);
 	}
@@ -104,8 +136,16 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_NOTEBOOK_VPC_ID);
 	}
 
+	public void setAwsNotebookVpcId(String awsNotebookVpcId) {
+		setSetting(AWS_NOTEBOOK_VPC_ID, awsNotebookVpcId);
+	}
+
 	public String getAwsNotebookSubnetId() {
 		return getSetting(AWS_NOTEBOOK_SUBNET_ID);
+	}
+
+	public void setAwsNotebookSubnetId(String awsNotebookSubnetId) {
+		setSetting(AWS_NOTEBOOK_SUBNET_ID, awsNotebookSubnetId);
 	}
 
 	public String getAzureRegion() {

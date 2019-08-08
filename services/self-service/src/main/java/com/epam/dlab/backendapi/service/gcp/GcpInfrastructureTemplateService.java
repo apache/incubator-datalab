@@ -19,7 +19,7 @@
 
 package com.epam.dlab.backendapi.service.gcp;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpDataprocConfiguration;
 import com.epam.dlab.backendapi.service.impl.InfrastructureTemplateServiceBase;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;

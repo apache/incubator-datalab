@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.*;
 import com.epam.dlab.backendapi.service.*;

@@ -1,6 +1,6 @@
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import de.ahus1.keycloak.dropwizard.KeycloakConfiguration;

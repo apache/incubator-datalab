@@ -23,7 +23,7 @@ import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.*;
 import com.epam.dlab.backendapi.service.*;
