@@ -31,11 +31,11 @@ data "template_file" "dlab_ui_values" {
       provision_service_host = var.endpoint_eip_address
       env_os                 = var.env_os
       service_base_name      = var.service_base_name
-      subnet_id              = var.ssn_subnets[0]
+      subnet_id              = var.ssn_subnet
       region                 = var.region
       security_group_ids     = var.ssn_k8s_sg_id
       ssn_instance_shape     = var.ssn_k8s_masters_shape
-      vpc_id                 = var.vpc_id
+      vpc_id                 = var.ssn_vpc_id
   }
 }
 

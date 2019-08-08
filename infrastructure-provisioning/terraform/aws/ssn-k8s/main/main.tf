@@ -42,12 +42,13 @@ output "ssn_bucket_name" {
   value = aws_s3_bucket.ssn_k8s_bucket.id
 }
 
-output "vpc_id" {
+output "ssn_vpc_id" {
   value = data.aws_vpc.ssn_k8s_vpc_data.id
 }
 
-output "ssn_subnets" {
-  value = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+output "ssn_subnet" {
+  # value = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+  value = data.aws_subnet.k8s-subnet-a-data.id
 }
 
 output "ssn_k8s_sg_id" {

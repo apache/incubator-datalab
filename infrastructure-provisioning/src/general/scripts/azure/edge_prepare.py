@@ -180,7 +180,7 @@ if __name__ == "__main__":
                 "source_port_range": "*",
                 "destination_port_range": "22",
                 "source_address_prefix": "*",
-                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
                 "access": "Allow",
                 "priority": 100,
                 "direction": "Outbound"

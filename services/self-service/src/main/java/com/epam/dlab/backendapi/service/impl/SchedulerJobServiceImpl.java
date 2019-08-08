@@ -243,7 +243,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String user = schedulerJobData.getUser();
 		final String exploratoryName = schedulerJobData.getExploratoryName();
 		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-		exploratoryService.start(systemUserService.create(user), exploratoryName);
+		exploratoryService.start(systemUserService.create(user), exploratoryName, "");
 		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
 			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
 			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
@@ -266,7 +266,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private void startSpark(String user, String expName, String compName) {
 		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.startSparkCluster(systemUserService.create(user), expName, compName);
+		computationalService.startSparkCluster(systemUserService.create(user), expName, compName,"");
 	}
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {

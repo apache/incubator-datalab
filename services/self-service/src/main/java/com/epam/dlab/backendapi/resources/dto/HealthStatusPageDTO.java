@@ -40,6 +40,8 @@ public class HealthStatusPageDTO {
 	private int billingQuoteUsed;
 	@JsonProperty
 	private int billingUserQuoteUsed;
+	@JsonProperty
+	private boolean projectAssigned;
 
 	/**
 	 * Return the status of environment.
@@ -80,6 +82,11 @@ public class HealthStatusPageDTO {
 	 */
 	public HealthStatusPageDTO withStatus(HealthStatusEnum status) {
 		setStatus(status);
+		return this;
+	}
+
+	public HealthStatusPageDTO withProjectAssinged(boolean isProjectAssigned) {
+		this.projectAssigned = isProjectAssigned;
 		return this;
 	}
 
@@ -144,6 +151,10 @@ public class HealthStatusPageDTO {
 
 	public boolean isAdmin() {
 		return admin;
+	}
+
+	public boolean isProjectAssigned() {
+		return projectAssigned;
 	}
 
 	public int getBillingQuoteUsed() {

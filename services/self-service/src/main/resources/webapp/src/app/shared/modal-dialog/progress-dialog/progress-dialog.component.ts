@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, Input, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'progress-dialog',
@@ -27,20 +28,13 @@ import { Component, OnInit, ViewChild, Input } from '@angular/core';
 export class ProgressDialogComponent implements OnInit {
   @Input() theBoundCallback: Function;
 
-  @ViewChild('bindDialog') bindDialog;
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<ProgressDialogComponent>,
+  ) { }
 
   ngOnInit() {
     if (this.theBoundCallback)
       this.theBoundCallback();
-  }
-
-  open(params) {
-    if (!this.bindDialog.isOpened)
-      this.bindDialog.open(params);
-  }
-
-  close() {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
   }
 }

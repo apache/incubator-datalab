@@ -23,6 +23,8 @@ import com.epam.dlab.dto.ResourceEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.util.Map;
+
 public abstract class ComputationalBase<T extends ComputationalBase<?>> extends ResourceEnvBaseDTO<T> {
 	@SuppressWarnings("unchecked")
 	private final T self = (T) this;
@@ -35,6 +37,14 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 
 	@JsonProperty("notebook_template_name")
 	private String notebookTemplateName;
+
+	@JsonProperty("project_name")
+	private String project;
+	@JsonProperty("endpoint_name")
+	private String ednpoint;
+
+	@JsonProperty("tags")
+	private Map<String, String> tags;
 
 	public String getComputationalName() {
 		return computationalName;
@@ -73,6 +83,25 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 	public T withNotebookTemplateName(String notebookTemplateName) {
 		setNotebookTemplateName(notebookTemplateName);
 		return self;
+	}
+
+	public T withProject(String project) {
+		this.project = project;
+		return self;
+	}
+
+	public T withTags(Map<String, String> tags) {
+		this.tags = tags;
+		return self;
+	}
+
+	public T withEndpoint(String endpoint) {
+		this.ednpoint = endpoint;
+		return self;
+	}
+
+	public String getProject() {
+		return project;
 	}
 
 	@Override

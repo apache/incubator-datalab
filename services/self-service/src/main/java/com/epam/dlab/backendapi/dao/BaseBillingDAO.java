@@ -58,6 +58,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	public static final String COST_TOTAL = "cost_total";
 	public static final String FULL_REPORT = "full_report";
 
+	private static final String PROJECT = "project";
 	private static final String MASTER_NODE_SHAPE = "master_node_shape";
 	private static final String SLAVE_NODE_SHAPE = "slave_node_shape";
 	private static final String TOTAL_INSTANCE_NUMBER = "total_instance_number";
@@ -75,6 +76,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	protected SettingsDAO settings;
 	@Inject
 	private UserSettingsDAO userSettingsDAO;
+	@Inject
+	private ProjectDAO projectDAO;
 
 	protected Map<String, ShapeInfo> getShapes(List<String> shapeNames) {
 		FindIterable<Document> userInstances = getUserInstances();
@@ -109,6 +112,13 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	}
 
 	@Override
+	public Double getProjectCost(String project) {
+		final List<Bson> pipeline = Arrays.asList(match(eq(PROJECT, project)),
+				group(null, sum(TOTAL_FIELD_NAME, COST_FIELD)));
+		return aggregateBillingData(pipeline);
+	}
+
+	@Override
 	public int getBillingQuoteUsed() {
 		return toPercentage(() -> settings.getMaxBudget(), getTotalCost());
 	}
@@ -116,6 +126,11 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	@Override
 	public int getBillingUserQuoteUsed(String user) {
 		return toPercentage(() -> userSettingsDAO.getAllowedBudget(user), getUserCost(user));
+	}
+
+	@Override
+	public int getBillingProjectQuoteUsed(String project) {
+		return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project));
 	}
 
 	@Override
@@ -128,6 +143,14 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		final Double userCost = getUserCost(user);
 		return userSettingsDAO.getAllowedBudget(user)
 				.filter(allowedBudget -> userCost.intValue() != 0 && allowedBudget <= userCost)
+				.isPresent();
+	}
+
+	@Override
+	public boolean isProjectQuoteReached(String project) {
+		final Double projectCost = getProjectCost(project);
+		return projectDAO.getAllowedBudget(project)
+				.filter(allowedBudget -> projectCost.intValue() != 0 && allowedBudget <= projectCost)
 				.isPresent();
 	}
 

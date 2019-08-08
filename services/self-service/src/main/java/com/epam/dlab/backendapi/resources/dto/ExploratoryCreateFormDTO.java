@@ -44,6 +44,16 @@ public class ExploratoryCreateFormDTO {
 
 	@NotBlank
 	@JsonProperty
+	private String project;
+	@JsonProperty("custom_tag")
+	private String exploratoryTag;
+
+	@NotBlank
+	@JsonProperty
+	private String endpoint;
+
+	@NotBlank
+	@JsonProperty
 	private String shape;
 
 	@NotBlank
@@ -142,6 +152,26 @@ public class ExploratoryCreateFormDTO {
 
 	public List<ClusterConfig> getClusterConfig() {
 		return clusterConfig;
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public void setProject(String project) {
+		this.project = project;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
+	}
+
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
+	}
+
+	public String getExploratoryTag() {
+		return exploratoryTag;
 	}
 
 	@Override

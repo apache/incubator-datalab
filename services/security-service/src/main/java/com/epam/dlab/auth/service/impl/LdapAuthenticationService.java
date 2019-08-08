@@ -63,7 +63,7 @@ public class LdapAuthenticationService implements AuthenticationService {
 			return StringUtils.isNoneBlank(token) ? getUserInfo(token) : getLdapUserInfo(credentialDTO);
 		} catch (Exception e) {
 			log.error("Error occurred during login for user {}: {}", credentialDTO.getUsername(), e.getMessage());
-			throw new DlabAuthenticationException("Username or password is invalid");
+			throw new DlabAuthenticationException(e.getMessage());
 		}
 	}
 

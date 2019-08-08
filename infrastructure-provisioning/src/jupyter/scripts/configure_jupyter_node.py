@@ -40,6 +40,7 @@ parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--ip_adress', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
+parser.add_argument('--edge_ip', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install ungit")
-    install_ungit(args.os_user, args.exploratory_name)
+    install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 

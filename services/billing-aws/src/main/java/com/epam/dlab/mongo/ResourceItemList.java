@@ -19,40 +19,46 @@
 
 package com.epam.dlab.mongo;
 
+import com.epam.dlab.billing.DlabResourceType;
+import com.google.common.base.MoreObjects;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
 
-import com.epam.dlab.billing.DlabResourceType;
-import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.base.MoreObjects;
-
-/** List of the DLab's resources.
+/**
+ * List of the DLab's resources.
  */
 public class ResourceItemList {
-	/** List of the resources. */
+	/**
+	 * List of the resources.
+	 */
 	private final Vector<ResourceItem> list;
-	
-	
-	/** Constructs an empty list of resources.
-     */
+
+
+	/**
+	 * Constructs an empty list of resources.
+	 */
 	public ResourceItemList() {
 		list = new Vector<>();
 	}
-	
-	
-	/** Appends the resource to the list and returns it.
-	 * @param resourceId the resource id.
-	 * @param resourceName the user friendly name of resource.
-	 * @param type the type of resource.
-	 * @param user the name of user.
+
+
+	/**
+	 * Appends the resource to the list and returns it.
+	 *
+	 * @param resourceId      the resource id.
+	 * @param resourceName    the user friendly name of resource.
+	 * @param type            the type of resource.
+	 * @param user            the name of user.
 	 * @param exploratoryName the name of exploratory.
 	 * @return Instance of the resource.
 	 */
-	public ResourceItem append(String resourceId, String resourceName, DlabResourceType type, String user, String exploratoryName) {
-		ResourceItem item = new ResourceItem(resourceId, resourceName, type, user, exploratoryName);
-	    synchronized (this) {
+	public ResourceItem append(String resourceId, String resourceName, DlabResourceType type, String user,
+							   String exploratoryName, String project) {
+		ResourceItem item = new ResourceItem(resourceId, resourceName, type, user, exploratoryName, project);
+		synchronized (this) {
 			int index = Collections.binarySearch(list, item);
 			if (index < 0) {
 				index = -index;
@@ -64,51 +70,65 @@ public class ResourceItemList {
 			} else {
 				item = list.get(index);
 			}
-	    }
+		}
 		return item;
 	}
 
-	/** Returns the number of the range in list. */
+	public ResourceItem append(String resourceId, String resourceName, DlabResourceType type) {
+		return append(resourceId, resourceName, type, null, null, null);
+	}
+
+	/**
+	 * Returns the number of the range in list.
+	 */
 	public int size() {
 		return list.size();
 	}
 
-	/** Returns the resource.
+	/**
+	 * Returns the resource.
+	 *
 	 * @param index index of the resource.
 	 */
 	public ResourceItem get(int index) {
 		return list.get(index);
 	}
 
-	/** Comparator for search resource item by resource id. */
-	private final ResourceItem findItemById = new ResourceItem(null, null, null, null, null);
+	/**
+	 * Comparator for search resource item by resource id.
+	 */
+	private final ResourceItem findItemById = new ResourceItem(null, null, null, null, null, null);
 	private final ComparatorByName compareByName = new ComparatorByName();
+
 	private class ComparatorByName implements Comparator<ResourceItem> {
-		
+
 		@Override
 		public int compare(ResourceItem o1, ResourceItem o2) {
 			return StringUtils.compare(o1.resourceId, o2.resourceId);
 		}
-		
+
 	}
-	
-	/** Find and return the resource by resource id.
-	 * @param index index of the resource.
+
+	/**
+	 * Find and return the resource by resource id.
+	 *
+	 * @param resourceId index of the resource.
 	 */
 	public ResourceItem getById(String resourceId) {
 		findItemById.resourceId = resourceId;
 		int index = Collections.binarySearch(list, findItemById, compareByName);
-		
+
 		return (index < 0 ? null : list.get(index));
 	}
 
-	/** Removes all of the elements from list.
+	/**
+	 * Removes all of the elements from list.
 	 */
 	public void clear() {
 		list.clear();
 	}
-	
-	
+
+
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("items", list).toString();

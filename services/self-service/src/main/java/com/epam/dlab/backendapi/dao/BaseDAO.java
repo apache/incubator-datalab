@@ -371,7 +371,7 @@ public class BaseDAO {
 	 */
 	protected <T> Optional<T> findOne(String collection, Bson condition, Class<T> clazz) {
 		Optional<Document> doc = findOne(collection, condition);
-		return doc.isPresent() ? Optional.ofNullable(convertFromDocument(doc.get(), clazz)) : Optional.empty();
+		return doc.map(document -> convertFromDocument(document, clazz));
 	}
 
 	/**
@@ -384,7 +384,7 @@ public class BaseDAO {
 	 */
 	protected <T> Optional<T> findOne(String collection, Bson condition, Bson projection, Class<T> clazz) {
 		Optional<Document> doc = findOne(collection, condition, projection);
-		return doc.isPresent() ? Optional.ofNullable(convertFromDocument(doc.get(), clazz)) : Optional.empty();
+		return doc.map(document -> convertFromDocument(document, clazz));
 	}
 
 	/**

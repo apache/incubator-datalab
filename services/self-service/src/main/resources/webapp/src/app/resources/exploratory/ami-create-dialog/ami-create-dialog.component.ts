@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
@@ -39,41 +40,32 @@ export class AmiCreateDialogComponent implements OnInit {
   delimitersRegex = /[-_]?/g;
   imagesList: any;
 
-  @ViewChild('bindDialog') bindDialog;
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
+    public dialogRef: MatDialogRef<AmiCreateDialogComponent>,
     private _userResource: UserResourceService,
     private _fb: FormBuilder,
-    public toastr: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this._userResource.getImagesList().subscribe(res => this.imagesList = res);
+    this.open(this.data);
   }
 
-  public open(param, notebook): void {
+  public open(notebook): void {
     this.notebook = notebook;
 
     this.initFormModel();
     this._userResource.getImagesList().subscribe(res => this.imagesList = res);
-    this.bindDialog.open(param);
-  }
-
-  public resetForm() {
-    this.initFormModel();
-    this.bindDialog.close();
   }
 
   public assignChanges(data) {
     this._userResource.createAMI(data).subscribe(
       response => {
-        if (response.status === HTTP_STATUS_CODES.ACCEPTED) {
-          this.bindDialog.close();
-          this.buildGrid.emit();
-        }
+        if (response.status === HTTP_STATUS_CODES.ACCEPTED) this.dialogRef.close();
       },
-      error => this.toastr.error(error.message || `${ DICTIONARY.image.toLocaleUpperCase() } creation failed!`, 'Oops!'));
+      error => this.toastr.error(error.message || `${DICTIONARY.image.toLocaleUpperCase()} creation failed!`, 'Oops!'));
   }
 
   private initFormModel(): void {

@@ -21,7 +21,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
-import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
+import { BillingReportService, HealthStatusService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -31,14 +31,14 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport()"
-                (exportReport)="exportBillingReport()"
-                (setRangeOption)="setRangeOption($event)">
-  </dlab-toolbar>
-  <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
-  <footer *ngIf="data">
-    Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
-  </footer>
+  <div class="base-retreat">
+    <dlab-toolbar (rebuildReport)="rebuildBillingReport()"
+                  (exportReport)="exportBillingReport()"
+                  (setRangeOption)="setRangeOption($event)">
+    </dlab-toolbar>
+    <mat-divider></mat-divider>
+    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
+  </div>
 
   `,
   styles: [`
@@ -65,14 +65,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
-  healthStatus: any;
   billingEnabled: boolean;
   admin: boolean;
 
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
-    private userAccessKeyService: UserAccessKeyService,
     public toastr: ToastrService
   ) {}
 
@@ -89,8 +87,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
-        this.reportingGrid.reportData = this.data.lines;
-        this.reportingGrid.full_report = this.data.full_report;
+        this.reportingGrid.reportData = this.data;
+        this.reportingGrid.setFullReport(this.data.full_report);
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
@@ -177,25 +175,22 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.reportingToolbar.clearRangePicker();
   }
 
-  clearStorage(): void {
-    localStorage.removeItem('report_config');
-    localStorage.removeItem('report_period');
-  }
-
   setRangeOption(dateRangeOption: any): void {
     this.reportData.date_start = dateRangeOption.start_date;
     this.reportData.date_end = dateRangeOption.end_date;
     this.getGeneralBillingData();
   }
 
+  private clearStorage(): void {
+    localStorage.removeItem('report_config');
+    localStorage.removeItem('report_period');
+  }
+
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
-        this.healthStatus = result.status;
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
-
-        this.userAccessKeyService.initialUserAccessKeyCheck();
       });
   }
 }

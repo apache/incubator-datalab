@@ -36,7 +36,7 @@ import multiprocessing
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -45,7 +45,9 @@ if __name__ == "__main__":
     try:
         data_engine = dict()
         data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        
+        data_engine['project_name'] = os.environ['project_name'].replace('_', '-')
+        data_engine['project_tag'] = os.environ['project_name'].replace('_', '-')
+        data_engine['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
         print('Generating infrastructure names and tags')
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -61,16 +63,16 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
         data_engine['private_subnet_name'] = '{}-{}-subnet'.format(data_engine['service_base_name'],
-                                                                   data_engine['user_name'])
+                                                                   data_engine['project_name'])
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
                                                                     data_engine['vpc_name'],
                                                                     data_engine['private_subnet_name']).address_prefix
         data_engine['master_security_group_name'] = '{}-{}-dataengine-master-sg'.format(data_engine['service_base_name'],
-                                                                                        data_engine['user_name'])
+                                                                                        data_engine['project_name'])
         data_engine['slave_security_group_name'] = '{}-{}-dataengine-slave-sg'.format(data_engine['service_base_name'],
-                                                                                      data_engine['user_name'])
+                                                                                      data_engine['project_name'])
         data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
-                                                              data_engine['user_name'],
+                                                              data_engine['project_name'],
                                                               data_engine['exploratory_name'],
                                                               data_engine['computational_name'])
         data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
@@ -86,12 +88,16 @@ if __name__ == "__main__":
         data_engine['slave_tags'] = {"Name": data_engine['cluster_name'],
                                      "SBN": data_engine['service_base_name'],
                                      "User": data_engine['user_name'],
+                                     "project_tag": data_engine['project_tag'],
+                                     "endpoint_tag": data_engine['endpoint_tag'],
                                      "Type": "slave",
                                      "notebook_name": data_engine['notebook_name'],
                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         data_engine['master_tags'] = {"Name": data_engine['cluster_name'],
                                       "SBN": data_engine['service_base_name'],
                                       "User": data_engine['user_name'],
+                                      "project_tag": data_engine['project_tag'],
+                                      "endpoint_tag": data_engine['endpoint_tag'],
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name'],
                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
@@ -119,7 +125,7 @@ if __name__ == "__main__":
     try:
         edge_status = AzureMeta().get_instance_status(data_engine['resource_group_name'],
                                                       os.environ['conf_service_base_name'] + '-' +
-                                                      data_engine['user_name'] + '-edge')
+                                                      data_engine['project_name'] + '-edge')
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
@@ -151,14 +157,14 @@ if __name__ == "__main__":
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
             --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
-            --instance_type {} --user_name {} --instance_storage_account_type {} --image_name {} \
+            --instance_type {} --project_name {} --instance_storage_account_type {} --image_name {} \
             --image_type {} --tags '{}'". \
             format(data_engine['master_node_name'], data_engine['master_size'], data_engine['region'],
                    data_engine['vpc_name'], data_engine['master_network_interface_name'],
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                    data_engine['public_ssh_key'], data_engine['primary_disk_size'], 'dataengine',
-                   data_engine['user_name'], data_engine['instance_storage_account_type'],
+                   data_engine['project_name'], data_engine['instance_storage_account_type'],
                    data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['master_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
@@ -187,13 +193,13 @@ if __name__ == "__main__":
             params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
                 --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
                 --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
-                --instance_type {} --user_name {} --instance_storage_account_type {} --image_name {} \
+                --instance_type {} --project_name {} --instance_storage_account_type {} --image_name {} \
                 --image_type {} --tags '{}'". \
                 format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                        data_engine['public_ssh_key'], data_engine['primary_disk_size'], 'dataengine',
-                       data_engine['user_name'], data_engine['instance_storage_account_type'],
+                       data_engine['project_name'], data_engine['instance_storage_account_type'],
                        data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['slave_tags']))
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))

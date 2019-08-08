@@ -492,7 +492,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id',
                   default='172.31.0.0/16', group='k8s')
          .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.',
-                  group=('k8s', 'helm_charts'))
+                  group='k8s')
          .add_str('--zone', 'Name of AWS zone', default='a',
                   group='k8s')
          .add_str('--ssn_keystore_password', 'ssn_keystore_password',
@@ -511,8 +511,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--ldap_users_dn', 'ldap users dn', required=True,
                   group='helm_charts')
-         .add_str('--ssn_subnets', 'ssn subnets ids', group='helm_charts')
+         .add_str('--ssn_subnet', 'ssn subnet id', group='helm_charts')
          .add_str('--ssn_k8s_sg_id', 'ssn sg ids', group='helm_charts')
+         .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
          )
         return params.build()
 
