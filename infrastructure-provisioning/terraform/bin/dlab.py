@@ -44,7 +44,9 @@ class LocalStorageOutputProcessor(TerraformOutputBase):
         existed_data = {}
         if os.path.isfile(self.output_path):
             with open(self.output_path, 'r') as fp:
-                existed_data = json.loads(fp.read())
+                output = fp.read()
+                if len(output):
+                    existed_data = json.loads(fp.read())
         existed_data.update(obj)
 
         with open(self.output_path, 'w') as fp:
@@ -615,8 +617,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             TerraformProvider().output('-json ssn_bucket_name'))
         ssn_k8s_sg_id = json.loads(
             TerraformProvider().output('-json ssn_k8s_sg_id'))
-        ssn_subnets = json.loads(
-            TerraformProvider().output('-json ssn_subnets'))
+        ssn_subnet = json.loads(
+            TerraformProvider().output('-json ssn_subnet'))
         ssn_vpc_id = json.loads(TerraformProvider().output('-json ssn_vpc_id'))
 
         logging.info("""
@@ -625,18 +627,15 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         DNS name: {}
         Bucket name: {}
         VPC ID: {}
-        Subnet IDs:  {}
+        Subnet ID:  {}
         SG IDs: {}
         DLab UI URL: http://{}
         """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
-                   ', '.join(ssn_subnets), ssn_k8s_sg_id, dns_name))
+                   ssn_subnet, ssn_k8s_sg_id, dns_name))
 
     def fill_args_from_dict(self, output):
         for key, value in output.items():
             value = value.get('value')
-            if key == 'subnet_ids' and isinstance(value, list):
-                key = 'endpoint_subnet_id'
-                value = value[0]
             sys.argv.extend(['--' + key, value])
 
     def fill_remote_terraform_output(self):
@@ -651,8 +650,6 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 output_processor.write(output)
 
     def deploy(self):
-        if self.args.get('service').get('action') == 'destroy':
-            return
         logging.info('deploy')
         self.select_master_ip()
         self.check_k8s_cluster_status()
@@ -670,11 +667,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         ip = (output_processor.extract()
             .get('ssn_k8s_masters_ip_addresses', ['test'])[0])
         endpoint_output_keys = []
-        with Console.ssh(ip, self.user_name, self.pkey_path) as conn:
-            with conn.cd('terraform/ssn-helm-charts/main'):
-                output = ' '.join(conn.run('terraform output -json')
-                                  .stdout.split())
-                endpoint_output_keys.extend(list(json.loads(output).keys()))
+        try:
+            with Console.ssh(ip, self.user_name, self.pkey_path) as conn:
+                with conn.cd('terraform/ssn-helm-charts/main'):
+                    output = ' '.join(conn.run('terraform output -json')
+                                      .stdout.split())
+                    endpoint_output_keys.extend(list(json.loads(output).keys()))
+        except Exception:
+            logging.info('could not connect to remote')
         endpoint_output_keys.extend(
             json.loads(TerraformProvider().output('-json')).keys())
         output_processor.remove_keys(endpoint_output_keys)
@@ -688,8 +688,6 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
         self.fill_sys_argv_from_file()
 
     def update_extracted_file_data(self, obj):
-        if 'ssn_subnets' in obj and isinstance(obj['ssn_subnets'], list):
-            obj['subnet_id'] = obj['ssn_subnets'][0]
         if 'ssn_vpc_id' in obj:
             obj['vpc_id'] = obj['ssn_vpc_id']
 
@@ -719,7 +717,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   group='endpoint')
          .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id.',
                   default='172.31.0.0/16', group='endpoint')
-         .add_str('--subnet_id',
+         .add_str('--ssn_subnet',
                   'ID of AWS Subnet if you already have subnet created.',
                   group='endpoint')
          .add_str('--subnet_cidr',
