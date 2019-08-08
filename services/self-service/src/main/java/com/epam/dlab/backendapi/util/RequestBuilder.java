@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
@@ -59,6 +60,7 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
@@ -626,6 +628,16 @@ public class RequestBuilder {
 				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
 				.withProject(userInstance.getProject());
 		return dto;
+	}
+
+	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO) {
+		return ProjectCreateDTO.builder()
+				.key(projectDTO.getKey())
+				.name(projectDTO.getName())
+				.tag(projectDTO.getTag())
+				.endpoint(projectDTO.getEndpoints().iterator().next()) //TODO figure out how to deal with endpoints
+				.build()
+				.withCloudSettings(cloudSettings(userInfo));
 	}
 
 	private CloudProvider cloudProvider() {

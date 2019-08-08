@@ -10,10 +10,10 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.project.ProjectActionDTO;
-import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -41,17 +41,19 @@ public class ProjectServiceImpl implements ProjectService {
 	private final UserGroupDao userGroupDao;
 	private final RESTService provisioningService;
 	private final RequestId requestId;
+	private final RequestBuilder requestBuilder;
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-							  RequestId requestId) {
+							  RequestId requestId, RequestBuilder requestBuilder) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
 		this.provisioningService = provisioningService;
 		this.requestId = requestId;
+		this.requestBuilder = requestBuilder;
 	}
 
 	@Override
@@ -134,13 +136,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private void createProjectOnCloud(UserInfo user, ProjectDTO projectDTO) {
 		try {
-			final ProjectCreateDTO projectDto = ProjectCreateDTO.builder()
-					.key(projectDTO.getKey())
-					.name(projectDTO.getName())
-					.tag(projectDTO.getTag())
-					.endpoint(projectDTO.getEndpoints().iterator().next()) //TODO figure out how to deal with endpoints
-					.build();
-			String uuid = provisioningService.post(CREATE_PRJ_API, user.getAccessToken(), projectDto, String.class);
+			String uuid = provisioningService.post(CREATE_PRJ_API, user.getAccessToken(),
+					requestBuilder.newProjectCreate(user, projectDTO), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
 			log.error("Can not create project due to: {}", e.getMessage());
