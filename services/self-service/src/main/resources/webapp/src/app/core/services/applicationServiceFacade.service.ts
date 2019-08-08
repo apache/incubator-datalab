@@ -102,6 +102,13 @@ export class ApplicationServiceFacade {
       });
   }
 
+  public buildLocationCheck(): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
+      null,
+      { observe: 'response' });
+  }
+
   public buildGetAuthToken(body: any): Observable<any> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.OAUTH) + body,

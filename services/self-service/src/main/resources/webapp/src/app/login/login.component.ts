@@ -49,13 +49,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       .subscribe(message => this.error = message);
   }
 
-  ngOnInit() {
-    // this.applicationSecurityService.isLoggedIn().subscribe(result => {
-    //   console.log('LOGGED IN  /login component');
-
-    //   result && this.checkHealthStatusAndRedirect(result);
-    // });
-  }
+  ngOnInit() { }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
@@ -85,8 +79,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     return false;
   }
-  loginWithAzure_btnClick() {
-    this.appRoutingService.redirectToAzure();
+
+  loginWithKeyClock() {
+    this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location.headers.get('Location'));
   }
 
   checkHealthStatusAndRedirect(isLoggedIn) {

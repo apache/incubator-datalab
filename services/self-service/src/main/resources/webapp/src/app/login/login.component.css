@@ -20,6 +20,7 @@
 .login_page .form-group {
   display: flex;
 }
+
 .butt-azure {
   color: #fff;
   background-color: #5bc0de;
@@ -34,7 +35,9 @@
   background-color: #5bc0de;
   color: #fff;
   border-color: #46b8da;
+  width: 200px;
 }
+
 .butt-login.mat-raised-button:disabled {
   color: #35afd6;
   background-color: rgba(0, 0, 0, 0.28);
@@ -92,6 +95,7 @@
   background: #fff;
   margin-bottom: 20px;
 }
+
 .input-with-icon {
   width: 100%;
   outline: none;
@@ -108,7 +112,7 @@
   font-weight: 300;
   font-size: 14px;
   line-height: 24px;
-  font-family:'Open Sans', sans-serif !important;
+  font-family: 'Open Sans', sans-serif !important;
 }
 
 .input-icon {

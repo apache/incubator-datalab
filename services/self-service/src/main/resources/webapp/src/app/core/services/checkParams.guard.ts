@@ -18,11 +18,12 @@
  */
 
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ApplicationSecurityService } from './applicationSecurity.service';
+import { AppRoutingService } from './appRouting.service';
 
 @Injectable()
 export class CheckParamsGuard implements CanActivate {
@@ -30,7 +31,7 @@ export class CheckParamsGuard implements CanActivate {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private router: Router
+    private appRoutingService: AppRoutingService
   ) { }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> | Promise<boolean> | boolean {
@@ -49,7 +50,8 @@ export class CheckParamsGuard implements CanActivate {
             .redirectParams(this.result)
             .toPromise();
         }
-        if (!authState) this.router.navigate(['/login']);
+        if (!authState)
+          this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location.headers.get('Location'));
         return !!authState;
       }));
   }
