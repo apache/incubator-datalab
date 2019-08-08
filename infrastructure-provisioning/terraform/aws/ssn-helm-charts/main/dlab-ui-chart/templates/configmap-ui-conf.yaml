@@ -245,3 +245,17 @@ data:
       gzipEnabled: true
       gzipEnabledForRequests: false
       chunkedEncodingEnabled: true
+
+    cloudProperties:
+      os: {{ .Values.ui.cloud_properties.env_os }}
+      serviceBaseName: {{ .Values.ui.cloud_properties.service_base_name }}
+      edgeInstanceSize: {{ .Values.ui.cloud_properties.edge_instanse_shape }}
+      subnetId: {{ .Values.ui.cloud_properties.subnet_id }}
+      region: {{ .Values.ui.cloud_properties.region }}
+      confTagResourceId: "{{ .Values.ui.cloud_properties.tag_resource_id }}"
+      securityGroupIds: {{ .Values.ui.cloud_properties.security_group_ids }}
+      ssnInstanceSize: {{ .Values.ui.cloud_properties.ssn_instance_shape }}
+      notebookVpcId: {{ .Values.ui.cloud_properties.vpc_id }}
+      notebookSubnetId: {{ .Values.ui.cloud_properties.subnet_id }}
+      confKeyDir: {{ .Values.ui.cloud_properties.key_dir }}
+      vpcId: {{ .Values.ui.cloud_properties.vpc_id }}

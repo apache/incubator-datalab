@@ -36,7 +36,7 @@ devMode: ${DEV_MODE}
 
 
 mongo:
-  host: SSN_HOST
+  host: SSN_NLB
   port: 27017
   username: admin
   password: MONGO_PASSWORD
@@ -44,7 +44,7 @@ mongo:
 
 selfService:
   protocol: https
-  host: SSN_HOST
+  host: SSN_NLB
   port: 8443
   jerseyClient:
     timeout: 3s
@@ -52,7 +52,7 @@ selfService:
 
 securityService:
   protocol: https
-  host: SSN_HOST
+  host: SSN_NLB
   port: 8090
   jerseyClient:
     timeout: 20s
@@ -142,7 +142,7 @@ logging:
 keycloakConfiguration:
   realm: dlab
   bearer-only: true
-  auth-server-url: http://SSN_HOST/auth
+  auth-server-url: http://SSN_ALB/auth
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600
