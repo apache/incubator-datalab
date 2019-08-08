@@ -128,7 +128,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
 				.forEach(this::stopNotebook);
 		if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
-			projectService.stop(systemUserInfoService.create("admin"), project);
+			projectService.stop(securityService.getUserInfoOffline("admin"), project);
 		}
 	}
 
