@@ -46,7 +46,7 @@ class LocalStorageOutputProcessor(TerraformOutputBase):
             with open(self.output_path, 'r') as fp:
                 output = fp.read()
                 if len(output):
-                    existed_data = json.loads(fp.read())
+                    existed_data = json.loads(output)
         existed_data.update(obj)
 
         with open(self.output_path, 'w') as fp:
@@ -64,7 +64,8 @@ class LocalStorageOutputProcessor(TerraformOutputBase):
         output = self.extract()
         updated = {key: value for key, value in output.items()
                    if key not in keys}
-        self.write(updated)
+        with open(self.output_path, 'w') as fp:
+            json.dump(updated, fp)
 
 
 def get_args_string(cli_args):
@@ -664,17 +665,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
     def destroy(self):
         logging.info('ssn-k8s destroy')
         output_processor = LocalStorageOutputProcessor()
-        ip = (output_processor.extract()
-            .get('ssn_k8s_masters_ip_addresses', ['test'])[0])
-        endpoint_output_keys = []
-        try:
-            with Console.ssh(ip, self.user_name, self.pkey_path) as conn:
-                with conn.cd('terraform/ssn-helm-charts/main'):
-                    output = ' '.join(conn.run('terraform output -json')
-                                      .stdout.split())
-                    endpoint_output_keys.extend(list(json.loads(output).keys()))
-        except Exception:
-            logging.info('could not connect to remote')
+        endpoint_output_keys = ['keycloak_client_secret']
         endpoint_output_keys.extend(
             json.loads(TerraformProvider().output('-json')).keys())
         output_processor.remove_keys(endpoint_output_keys)
