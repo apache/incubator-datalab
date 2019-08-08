@@ -106,7 +106,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Override
 	public void stopAll() {
 		log.debug("Stopping environment for all users...");
-		getUserNames().forEach(this::stopEnvironment);
+		projectService.getProjects()
+				.stream()
+				.map(ProjectDTO::getName)
+				.forEach(this::stopProjectEnvironment);
 	}
 
 	@Override
@@ -124,6 +127,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		checkProjectResourceConditions(project, "stop");
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
 				.forEach(this::stopNotebook);
+		if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
+			projectService.stop(systemUserInfoService.create("admin"), project);
+		}
 	}
 
 	@Override

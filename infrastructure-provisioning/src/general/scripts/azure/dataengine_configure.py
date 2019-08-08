@@ -62,7 +62,7 @@ def configure_slave(slave_number, data_engine):
     try:
         print('[INSTALLING USERs KEY ON SLAVE]')
         logging.info('[INSTALLING USERs KEY ON SLAVE]')
-        additional_config = {"user_keyname": os.environ['edge_user_name'],
+        additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
@@ -168,7 +168,7 @@ def configure_slave(slave_number, data_engine):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -192,17 +192,20 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
         data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        data_engine['project_name'] = os.environ['project_name'].replace('_', '-')
+        data_engine['project_tag'] = os.environ['project_name'].replace('_', '-')
+        data_engine['endpoint_tag'] = os.environ['project_name'].replace('_', '-')
         data_engine['private_subnet_name'] = '{}-{}-subnet'.format(data_engine['service_base_name'],
-                                                                   data_engine['user_name'])
+                                                                   data_engine['project_name'])
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
                                                                     data_engine['vpc_name'],
                                                                     data_engine['private_subnet_name']).address_prefix
         data_engine['master_security_group_name'] = '{}-{}-dataengine-master-sg'.format(
-            data_engine['service_base_name'], data_engine['user_name'])
+            data_engine['service_base_name'], data_engine['project_name'])
         data_engine['slave_security_group_name'] = '{}-{}-dataengine-slave-sg'.format(data_engine['service_base_name'],
-                                                                                      data_engine['user_name'])
+                                                                                      data_engine['project_name'])
         data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
-                                                              data_engine['user_name'],
+                                                              data_engine['project_name'],
                                                               data_engine['exploratory_name'],
                                                               data_engine['computational_name'])
         data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
@@ -215,7 +218,7 @@ if __name__ == "__main__":
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
         master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                            data_engine['master_node_name'])
-        edge_instance_name = '{}-{}-edge'.format(data_engine['service_base_name'], data_engine['user_name'])
+        edge_instance_name = '{}-{}-edge'.format(data_engine['service_base_name'], data_engine['project_name'])
         edge_instance_private_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                             edge_instance_name)
         if os.environ['conf_network_type'] == 'private':
@@ -267,7 +270,7 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING USERs KEY ON MASTER]')
         logging.info('[INSTALLING USERs KEY ON MASTER]')
-        additional_config = {"user_keyname": os.environ['edge_user_name'],
+        additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(

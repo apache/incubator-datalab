@@ -129,6 +129,11 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	}
 
 	@Override
+	public int getBillingProjectQuoteUsed(String project) {
+		return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project));
+	}
+
+	@Override
 	public boolean isBillingQuoteReached() {
 		return getBillingQuoteUsed() >= ONE_HUNDRED;
 	}
