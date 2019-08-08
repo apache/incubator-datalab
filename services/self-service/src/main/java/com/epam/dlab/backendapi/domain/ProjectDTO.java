@@ -51,6 +51,10 @@ public class ProjectDTO {
 				return NOT_ACTIVE;
 			} else if (userInstanceStatus == UserInstanceStatus.STARTING) {
 				return ACTIVATING;
+			} else if (userInstanceStatus == UserInstanceStatus.CREATING) {
+				return CREATING;
+			} else if (userInstanceStatus == UserInstanceStatus.FAILED) {
+				return FAILED;
 			}
 			return Status.valueOf(userInstanceStatus.name());
 		}
@@ -68,6 +72,10 @@ public class ProjectDTO {
 				return UserInstanceStatus.TERMINATING;
 			} else if (status == DELETED) {
 				return UserInstanceStatus.TERMINATED;
+			} else if (status == CREATING) {
+				return UserInstanceStatus.CREATING;
+			} else if (status == FAILED) {
+				return UserInstanceStatus.FAILED;
 			}
 			throw new IllegalArgumentException();
 		}

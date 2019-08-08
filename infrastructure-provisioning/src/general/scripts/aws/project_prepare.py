@@ -42,9 +42,10 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     project_conf = dict()
     project_conf['service_base_name'] = os.environ['conf_service_base_name']
-    project_conf['endpoint_name'] = '{}-endpoint'.format(os.environ['conf_service_base_name'])
+    project_conf['endpoint_name'] = '{0}-{1}-endpoint'.format(os.environ['conf_service_base_name'], os.environ['endpoint_name'])
+    project_conf['endpoint_tag'] = os.environ['endpoint_name']
     project_conf['project_name'] = os.environ['project_name']
-    project_conf['project_tag'] = os.environ['project_tag']
+    project_conf['project_tag'] = os.environ['project_name']
     project_conf['key_name'] = os.environ['conf_key_name']
     project_conf['public_subnet_id'] = os.environ['aws_subnet_id']
     project_conf['vpc_id'] = os.environ['aws_vpc_id']
@@ -120,20 +121,19 @@ if __name__ == "__main__":
     logging.info(json.dumps(project_conf))
 
     try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};project_name:{1}'.format(
-            project_conf['project_tag'], project_conf['project_name'])
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
     except KeyError:
-        os.environ['conf_additional_tags'] = 'project_tag:{0};project_name:{1}'.format(project_conf['project_tag'],
-                                                                                        project_conf['project_name'])
+        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
     try:
         endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
         print("Endpoint id: " + endpoint_id)
         ec2 = boto3.client('ec2')
-        ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']}, {'Key': 'project_name', 'Value': project_conf['project_name']}])
+        ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
+                                                       {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
     except Exception as err:
-        print("Failed to attach Project tag to Enpoint", str(err))
+        print("Failed to attach Project tag to Endpoint", str(err))
 #        traceback.print_exc()
 #        sys.exit(1)
 

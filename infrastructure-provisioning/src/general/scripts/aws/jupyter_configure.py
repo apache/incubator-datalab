@@ -56,8 +56,10 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
                                                                os.environ['project_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
-    notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                           os.environ['application'])
+    notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                                     os.environ['endpoint_name'],
+                                                                                     os.environ['project_name'],
+                                                                                     os.environ['application'])
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
@@ -155,7 +157,7 @@ if __name__ == "__main__":
                  "--scala_version {6} " \
                  "--r_mirror {7} " \
                  "--ip_adress {8} " \
-                 "--exploratory_name {9}" \
+                 "--exploratory_name {9} " \
                  "--edge_ip {10}".\
             format(instance_hostname,
                    keyfile_name,
@@ -268,6 +270,10 @@ if __name__ == "__main__":
             ami_id = get_ami_id_by_name(notebook_config['expected_image_name'])
             if ami_id == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
+                try:
+                    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
+                except KeyError:
+                    os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
                 image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
                                                       instance_name=notebook_config['instance_name'],
                                                       image_name=notebook_config['expected_image_name'])

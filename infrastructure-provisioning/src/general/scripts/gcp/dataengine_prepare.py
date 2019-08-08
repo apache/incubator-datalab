@@ -44,6 +44,8 @@ if __name__ == "__main__":
     data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     data_engine['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     data_engine['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    data_engine['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    data_engine['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     data_engine['region'] = os.environ['gcp_region']
     data_engine['zone'] = os.environ['gcp_zone']
 
@@ -104,12 +106,16 @@ if __name__ == "__main__":
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
                                    "user": data_engine['edge_user_name'],
+                                   "project_tag": data_engine['project_tag'],
+                                   "endpoint_tag": data_engine['endpoint_tag'],
                                    "type": "slave",
                                    "notebook_name": data_engine['notebook_name'],
                                    "product": "dlab"}
     data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                     "sbn": data_engine['service_base_name'],
                                     "user": data_engine['edge_user_name'],
+                                    "project_tag": data_engine['project_tag'],
+                                    "endpoint_tag": data_engine['endpoint_tag'],
                                     "type": "master",
                                     "notebook_name": data_engine['notebook_name'],
                                     "product": "dlab"}

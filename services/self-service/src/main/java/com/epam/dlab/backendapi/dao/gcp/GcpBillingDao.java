@@ -51,6 +51,11 @@ public class GcpBillingDao implements BillingDAO<BillingFilter> {
 	}
 
 	@Override
+	public int getBillingProjectQuoteUsed(String project) {
+		return 0;
+	}
+
+	@Override
 	public boolean isBillingQuoteReached() {
 		return false;
 	}

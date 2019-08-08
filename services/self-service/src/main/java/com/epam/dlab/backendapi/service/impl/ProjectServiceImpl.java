@@ -1,6 +1,8 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
@@ -8,10 +10,10 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.project.ProjectActionDTO;
-import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -39,17 +41,19 @@ public class ProjectServiceImpl implements ProjectService {
 	private final UserGroupDao userGroupDao;
 	private final RESTService provisioningService;
 	private final RequestId requestId;
+	private final RequestBuilder requestBuilder;
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-							  RequestId requestId) {
+							  RequestId requestId, RequestBuilder requestBuilder) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
 		this.provisioningService = provisioningService;
 		this.requestId = requestId;
+		this.requestBuilder = requestBuilder;
 	}
 
 	@Override
@@ -68,6 +72,7 @@ public class ProjectServiceImpl implements ProjectService {
 		return projectDAO.getProjectsWithStatus(status);
 	}
 
+	@BudgetLimited
 	@Override
 	public void create(UserInfo user, ProjectDTO projectDTO) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
@@ -91,8 +96,9 @@ public class ProjectServiceImpl implements ProjectService {
 		projectDAO.updateStatus(name, ProjectDTO.Status.DELETING);
 	}
 
+	@BudgetLimited
 	@Override
-	public void start(UserInfo userInfo, String name) {
+	public void start(UserInfo userInfo, @Project String name) {
 		projectActionOnCloud(userInfo, name, START_PRJ_API);
 		projectDAO.updateStatus(name, ProjectDTO.Status.ACTIVATING);
 	}
@@ -130,12 +136,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private void createProjectOnCloud(UserInfo user, ProjectDTO projectDTO) {
 		try {
-			final ProjectCreateDTO projectDto = ProjectCreateDTO.builder()
-					.key(projectDTO.getKey())
-					.name(projectDTO.getName())
-					.tag(projectDTO.getTag())
-					.build();
-			String uuid = provisioningService.post(CREATE_PRJ_API, user.getAccessToken(), projectDto, String.class);
+			String uuid = provisioningService.post(CREATE_PRJ_API, user.getAccessToken(),
+					requestBuilder.newProjectCreate(user, projectDTO), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
 			log.error("Can not create project due to: {}", e.getMessage());

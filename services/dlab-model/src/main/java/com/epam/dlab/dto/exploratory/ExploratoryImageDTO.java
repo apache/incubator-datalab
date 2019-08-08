@@ -23,14 +23,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 public class ExploratoryImageDTO extends ExploratoryActionDTO<ExploratoryImageDTO> {
 
 	@JsonProperty("notebook_image_name")
 	private String imageName;
 
+	@JsonProperty("tags")
+	private Map<String, String> tags;
+	@JsonProperty("endpoint_name")
+	private String endpoint;
+
 	public ExploratoryImageDTO withImageName(String imageName) {
 		this.imageName = imageName;
+		return this;
+	}
+
+	public ExploratoryImageDTO withTags(Map<String, String> tags) {
+		this.tags = tags;
+		return this;
+	}
+
+	public ExploratoryImageDTO withEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 		return this;
 	}
 

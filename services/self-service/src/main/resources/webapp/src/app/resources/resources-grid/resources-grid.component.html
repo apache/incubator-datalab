@@ -29,8 +29,8 @@
         <span class="label">{{ column.title }}</span>
         <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm[column.name].length > 0 && collapseFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm[column.name].length > 0 && collapseFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">more_vert</span>
           </i>
         </button>
       </th>
