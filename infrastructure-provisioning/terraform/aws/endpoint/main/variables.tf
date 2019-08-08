@@ -44,7 +44,7 @@ variable "ami" {}
 
 variable "vpc_id" {}
 
-variable "subnet_id" {}
+variable "ssn_subnet" {}
 
 variable "network_type" {}
 
