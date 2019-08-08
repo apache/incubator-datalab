@@ -46,6 +46,8 @@ if __name__ == "__main__":
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['bucket_name'] = '{}-{}-bucket'.format(notebook_config['service_base_name'], notebook_config['project_name'])
     notebook_config['cluster_name'] = meta_lib.GCPMeta().get_not_configured_dataproc(notebook_config['notebook_name'])
@@ -63,6 +65,8 @@ if __name__ == "__main__":
         "sbn": notebook_config['service_base_name'],
         "user": notebook_config['edge_user_name'],
         "notebook_name": os.environ['notebook_instance_name'],
+        "project_tag": notebook_config['project_tag'],
+        "endpoint_tag": notebook_config['endpoint_tag'],
         "product": "dlab",
         "computational_name": (os.environ['computational_name']).lower().replace('_', '-')
     }
