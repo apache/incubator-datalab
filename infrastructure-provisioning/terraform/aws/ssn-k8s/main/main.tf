@@ -47,7 +47,8 @@ output "vpc_id" {
 }
 
 output "ssn_subnets" {
-  value = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+  # value = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+  value = data.aws_subnet.k8s-subnet-a-data.id
 }
 
 output "ssn_k8s_sg_id" {

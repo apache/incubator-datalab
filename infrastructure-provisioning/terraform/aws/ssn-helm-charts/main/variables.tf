@@ -104,9 +104,7 @@ variable "region" {}
 
 variable "vpc_id" {}
 
-variable "ssn_subnets" {
-    type = list(string)
-}
+variable "ssn_subnets" {}
 
 variable "service_base_name" {}
 
