@@ -20,6 +20,7 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 import { ProjectDataService } from './project-data.service';
 import { HealthStatusService, ProjectService } from '../../core/services';
@@ -44,6 +45,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   constructor(
     public dialog: MatDialog,
+    public toastr: ToastrService,
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
     private healthStatusService: HealthStatusService
@@ -98,7 +100,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event.project, action: 'stopped' }, panelClass: 'modal-sm' })
         .afterClosed().subscribe(result => {
           result && this.toggleStatusRequest(data, $event.action);
-        });
+        }, error => this.toastr.error(error.message, 'Oops!'));
     } else {
       this.toggleStatusRequest(data, $event.action);
     }
