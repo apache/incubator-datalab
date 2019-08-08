@@ -667,11 +667,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         ip = (output_processor.extract()
             .get('ssn_k8s_masters_ip_addresses', ['test'])[0])
         endpoint_output_keys = []
-        with Console.ssh(ip, self.user_name, self.pkey_path) as conn:
-            with conn.cd('terraform/ssn-helm-charts/main'):
-                output = ' '.join(conn.run('terraform output -json')
-                                  .stdout.split())
-                endpoint_output_keys.extend(list(json.loads(output).keys()))
+        try:
+            with Console.ssh(ip, self.user_name, self.pkey_path) as conn:
+                with conn.cd('terraform/ssn-helm-charts/main'):
+                    output = ' '.join(conn.run('terraform output -json')
+                                      .stdout.split())
+                    endpoint_output_keys.extend(list(json.loads(output).keys()))
+        except Exception:
+            logging.info('could not connect to remote')
         endpoint_output_keys.extend(
             json.loads(TerraformProvider().output('-json')).keys())
         output_processor.remove_keys(endpoint_output_keys)
