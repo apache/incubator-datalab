@@ -42,7 +42,7 @@ output "ssn_bucket_name" {
   value = aws_s3_bucket.ssn_k8s_bucket.id
 }
 
-output "vpc_id" {
+output "ssn_vpc_id" {
   value = data.aws_vpc.ssn_k8s_vpc_data.id
 }
 

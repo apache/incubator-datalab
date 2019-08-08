@@ -35,7 +35,7 @@ data "template_file" "dlab_ui_values" {
       region                 = var.region
       security_group_ids     = var.ssn_k8s_sg_id
       ssn_instance_shape     = var.ssn_k8s_masters_shape
-      vpc_id                 = var.vpc_id
+      vpc_id                 = var.ssn_vpc_id
   }
 }
 
