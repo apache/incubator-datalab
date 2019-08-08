@@ -104,7 +104,7 @@ variable "region" {}
 
 variable "vpc_id" {}
 
-variable "ssn_subnets" {}
+variable "ssn_subnet" {}
 
 variable "service_base_name" {}
 

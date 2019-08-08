@@ -511,7 +511,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--ldap_users_dn', 'ldap users dn', required=True,
                   group='helm_charts')
-         .add_str('--ssn_subnets', 'ssn subnets ids', group='helm_charts')
+         .add_str('--ssn_subnet', 'ssn subnets ids', group='helm_charts')
          .add_str('--ssn_k8s_sg_id', 'ssn sg ids', group='helm_charts')
          )
         return params.build()
