@@ -57,3 +57,15 @@ ui:
     host: ${provision_service_host}
   keycloak:
     auth_server_url: http://${ssn_k8s_alb_dns_name}/auth
+
+  cloud_properties:
+    env_os: ${env_os}
+    service_base_name: ${service_base_name}
+    edge_instanse_shape: "t2.medium"
+    subnet_id: ${subnet_id}
+    region: ${region}
+    tag_resource_id: "user:tag"
+    security_group_ids: ${security_group_ids}
+    ssn_instance_shape: ${ssn_instance_shape}
+    vpc_id: ${vpc_id}
+    key_dir: "/root/keys/"
