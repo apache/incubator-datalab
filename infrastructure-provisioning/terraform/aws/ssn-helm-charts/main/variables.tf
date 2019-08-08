@@ -100,6 +100,20 @@ variable "ssn_bucket_name" {}
 
 variable "endpoint_eip_address" {}
 
+variable "region" {}
+
+variable "vpc_id" {}
+
+variable "ssn_subnets" {}
+
+variable "service_base_name" {}
+
+variable "ssn_k8s_sg_id" {}
+
+variable "env_os" {}
+
+variable "ssn_k8s_masters_shape" {}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

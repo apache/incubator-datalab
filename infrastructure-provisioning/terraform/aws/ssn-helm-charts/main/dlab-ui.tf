@@ -29,6 +29,13 @@ data "template_file" "dlab_ui_values" {
       ssn_k8s_alb_dns_name   = var.ssn_k8s_alb_dns_name
       ssn_bucket_name        = var.ssn_bucket_name
       provision_service_host = var.endpoint_eip_address
+      env_os                 = var.env_os
+      service_base_name      = var.service_base_name
+      subnet_id              = var.ssn_subnets
+      region                 = var.region
+      security_group_ids     = var.ssn_k8s_sg_id
+      ssn_instance_shape     = var.ssn_k8s_masters_shape
+      vpc_id                 = var.vpc_id
   }
 }
 

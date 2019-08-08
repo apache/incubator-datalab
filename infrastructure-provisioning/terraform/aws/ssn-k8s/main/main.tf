@@ -42,12 +42,13 @@ output "ssn_bucket_name" {
   value = aws_s3_bucket.ssn_k8s_bucket.id
 }
 
-output "ssn_vpc_id" {
+output "vpc_id" {
   value = data.aws_vpc.ssn_k8s_vpc_data.id
 }
 
 output "ssn_subnets" {
-  value = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+  # value = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id, local.subnet_c_id])
+  value = data.aws_subnet.k8s-subnet-a-data.id
 }
 
 output "ssn_k8s_sg_id" {
@@ -68,4 +69,20 @@ output "ssn_keystore_password" {
 
 output "endpoint_keystore_password" {
   value = random_string.endpoint_keystore_password.result
+}
+
+output "region" {
+  value = var.region
+}
+
+output "service_base_name" {
+  value = var.service_base_name
+}
+
+output "env_os" {
+  value = var.env_os
+}
+
+output "ssn_k8s_masters_shape" {
+  value = var.ssn_k8s_masters_shape
 }
