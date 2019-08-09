@@ -32,7 +32,8 @@
               <div class="control-group">
                 <label class="label">Name</label>
                 <div class="control">
-                  <input type="text" formControlName="name" placeholder="Enter endpoint name">
+                  <input type="text" formControlName="name" placeholder="Enter endpoint name"
+                    (blur)="generateEndpointTag($event)">
                   <span class="error"
                     *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm?.controls.name.touched">
                     Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
@@ -65,7 +66,8 @@
               <div class="control-group">
                 <label class="label">Endpoint tag</label>
                 <div class="control">
-                  <input type="text" formControlName="endpoint_tag" placeholder="Enter endpoint tag">
+                  <input readonly type="text" formControlName="endpoint_tag" placeholder="< equal to endpoint name >"
+                    class="not-allowed">
                   <span class="error"
                     *ngIf="!createEndpointForm?.controls.endpoint_tag.valid && createEndpointForm.controls.endpoint_tag.touched">
                     Endpoint tag can only contain letters, numbers, hyphens and '_' but can not end with special
