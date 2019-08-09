@@ -56,6 +56,10 @@ export class EndpointsComponent implements OnInit {
     this.getEndpointList();
   }
 
+  public generateEndpointTag($event) {
+    this.createEndpointForm.controls.endpoint_tag.setValue($event.target.value.toLowerCase());
+  }
+
   public assignChanges(data) {
     this.endpointService.createEndpoint(data).subscribe(() => {
       this.toastr.success('Endpoint created successfully!', 'Success!');

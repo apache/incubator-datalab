@@ -23,6 +23,7 @@
     opacity: 0;
     visibility: hidden;
     text-align: left;
+
     &.show {
       height: 200px;
       visibility: visible;
@@ -30,6 +31,7 @@
       position: relative;
       margin-top: 10px;
     }
+
     textarea {
       height: 100%;
       background: #f8f8f8 !important;
@@ -38,6 +40,7 @@
       line-height: 1.5;
       font-family: Consolas, monospace;
     }
+
     span {
       &.danger_color {
         position: absolute;
@@ -52,7 +55,11 @@
   .error {
     position: absolute;
     right: 0;
-    bottom: 3px;
+    top: 35px;
+  }
+
+  &.name-control {
+    padding-bottom: 35px;
   }
 }
 

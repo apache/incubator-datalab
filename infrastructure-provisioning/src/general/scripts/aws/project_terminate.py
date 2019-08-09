@@ -123,7 +123,7 @@ if __name__ == "__main__":
         endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
         print("Endpoint id: " + endpoint_id)
         ec2 = boto3.client('ec2')
-        ec2.delete_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag'}, {'Key': 'endpoint_tag'})
+        ec2.delete_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag'}, {'Key': 'endpoint_tag'}])
     except Exception as err:
         print("Failed to remove Project tag from Enpoint", str(err))
 #        traceback.print_exc()

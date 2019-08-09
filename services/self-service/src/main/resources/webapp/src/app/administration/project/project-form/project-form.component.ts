@@ -93,8 +93,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public generateProjectTag($event) {
-    let user_tag = `dlab-${$event.target.value}`;
-    this.projectForm.controls.tag.setValue(user_tag.toLowerCase());
+    this.projectForm.controls.tag.setValue($event.target.value.toLowerCase());
   }
 
   public onFileChange($event) {
