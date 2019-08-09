@@ -117,7 +117,7 @@ if __name__ == "__main__":
             subnet_check = get_subnet_by_tag(tag, False, args.vpc_id)
         else:
             subnet_id = get_subnet_by_cidr(dlab_subnet_cidr)
-            subnet_check = get_subnet_by_tag(tag)
+            subnet_check = get_subnet_by_tag(tag, args.vpc_id)
         if not subnet_check:
             if subnet_id == '':
                 print("Creating subnet {0} in vpc {1} with tag {2}".
