@@ -47,19 +47,23 @@ variable "ldap_uuidAttr" {
     default = "uid"
 }
 
-variable "ldap_users_dn" {
-    default = "ou=People,dc=example,dc=com"
+variable "ldap_users_group" {
+    default = "ou=People"
 }
 
-variable "ldap_bind_dn" {
-    default = "cn=admin,dc=example,dc=com"
+variable "ldap_dn" {
+    default = "dc=example,dc=com"
+}
+
+variable "ldap_user" {
+    default = "cn=admin"
 }
 
 variable "ldap_bind_creds" {
     default = ""
 }
 
-variable "ldap_connection_url" {
+variable "ldap_host" {
     default = ""
 }
 
@@ -101,6 +105,8 @@ variable "ssn_bucket_name" {}
 variable "endpoint_eip_address" {}
 
 variable "region" {}
+
+variable "zone" {}
 
 variable "ssn_vpc_id" {}
 

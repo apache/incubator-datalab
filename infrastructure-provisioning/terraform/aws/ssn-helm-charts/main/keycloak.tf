@@ -29,9 +29,10 @@ data "template_file" "configure_keycloak" {
     ldap_usernameAttr      = var.ldap_usernameAttr
     ldap_rdnAttr           = var.ldap_rdnAttr
     ldap_uuidAttr          = var.ldap_uuidAttr
-    ldap_connection_url    = var.ldap_connection_url
-    ldap_users_dn          = var.ldap_users_dn
-    ldap_bind_dn           = var.ldap_bind_dn
+    ldap_host              = var.ldap_host
+    ldap_users_group       = var.ldap_users_group
+    ldap_dn                = var.ldap_dn
+    ldap_user              = var.ldap_user
     ldap_bind_creds        = var.ldap_bind_creds
   }
 }

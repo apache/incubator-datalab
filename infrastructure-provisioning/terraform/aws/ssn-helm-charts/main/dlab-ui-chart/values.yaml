@@ -64,8 +64,15 @@ ui:
     edge_instanse_shape: "t2.medium"
     subnet_id: ${subnet_id}
     region: ${region}
+    zone: ${zone}
     tag_resource_id: "user:tag"
     security_group_ids: ${security_group_ids}
     ssn_instance_shape: ${ssn_instance_shape}
     vpc_id: ${vpc_id}
     key_dir: "/root/keys/"
+    ldap:
+      host: ${ldap_host}
+      dn: ${ldap_dn}
+      ou: ${ldap_ou}
+      user: ${ldap_user}
+      password: ${ldap_password}

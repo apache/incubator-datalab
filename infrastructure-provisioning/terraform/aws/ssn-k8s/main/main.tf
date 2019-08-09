@@ -86,3 +86,7 @@ output "env_os" {
 output "ssn_k8s_masters_shape" {
   value = var.ssn_k8s_masters_shape
 }
+
+output "zone" {
+  value = var.zone
+}
