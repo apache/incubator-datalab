@@ -96,7 +96,17 @@ public class RequestBuilder {
 						.confTagResourceId(settingsDAO.getConfTagResourceId())
 						.awsNotebookSubnetId(settingsDAO.getAwsNotebookSubnetId())
 						.awsNotebookVpcId(settingsDAO.getAwsNotebookVpcId())
-						.awsIamUser(userInfo.getName()).build();
+						.awsIamUser(userInfo.getName())
+						.zone(settingsDAO.getAwsZone())
+						.ldapDn(settingsDAO.getLdapDn())
+						.ldapHost(settingsDAO.getLdapHost())
+						.ldapOu(settingsDAO.getLdapOu())
+						.ldapUser(settingsDAO.getLdapUser())
+						.ldapPassword(settingsDAO.getLdapPassword())
+						.sbn(settingsDAO.getServiceBaseName())
+						.cloud(configuration.getCloudProvider().getName())
+						.os(settingsDAO.getConfOsFamily())
+						.build();
 			case AZURE:
 				return AzureCloudSettings.builder()
 						.azureRegion(settingsDAO.getAzureRegion())

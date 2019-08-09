@@ -200,6 +200,7 @@ cloudProperties:
   edgeInstanceSize: t2.medium
   subnetId: subnet-22db937a
   region: us-west-2
+  zone: us
   confTagResourceId: user:tag
   securityGroupIds: sg-4d42dc35,sg-f19a0389,sg-71e27b09,sg-d3e67fab
   ssnInstanceSize: t2.large
@@ -207,5 +208,11 @@ cloudProperties:
   notebookSubnetId: subnet-22db937a
   confKeyDir: /root/keys/
   vpcId: vpc-83c469e4
+  ldap:
+    host: ec2-52-36-63-161.us-west-2.compute.amazonaws.com
+    dn: dc=example,dc=com
+    ou: ou=People
+    user: cn=admin
+    password: pass
 
 

@@ -88,6 +88,54 @@ public class SettingsDAO extends BaseDAO {
 
 	}
 
+	public String getAwsZone() {
+		return getSetting(AWS_ZONE);
+	}
+
+	public void setAwsZone(String awsZone) {
+		setSetting(AWS_ZONE, awsZone);
+	}
+
+	public String getLdapHost() {
+		return getSetting(LDAP_HOSTNAME);
+	}
+
+	public void setLdapHost(String ldapHost) {
+		setSetting(LDAP_HOSTNAME, ldapHost);
+	}
+
+	public String getLdapOu() {
+		return getSetting(LDAP_OU);
+	}
+
+	public void setLdapOu(String ldapOu) {
+		setSetting(LDAP_OU, ldapOu);
+	}
+
+	public String getLdapDn() {
+		return getSetting(LDAP_DN);
+	}
+
+	public void setLdapDn(String ldapDn) {
+		setSetting(LDAP_DN, ldapDn);
+	}
+
+	public String getLdapUser() {
+		return getSetting(LDAP_USER);
+	}
+
+	public void setLdapUser(String user) {
+		setSetting(LDAP_USER, user);
+	}
+
+	public String getLdapPassword() {
+		return getSetting(LDAP_PASSWORD);
+	}
+
+	public void setLdapPassword(String ldapPassword) {
+		setSetting(LDAP_PASSWORD, ldapPassword);
+	}
+
 	/**
 	 * Returns the name of AWS region.
 	 */

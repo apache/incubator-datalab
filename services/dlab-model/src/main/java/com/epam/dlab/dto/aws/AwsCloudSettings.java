@@ -48,6 +48,24 @@ public class AwsCloudSettings extends CloudSettings {
 	private String awsNotebookSubnetId;
 	@JsonProperty("aws_notebook_vpc_id")
 	private String awsNotebookVpcId;
+	@JsonProperty("aws_zone")
+	private String zone;
+	@JsonProperty("ldap_hostname")
+	protected String ldapHost;
+	@JsonProperty("ldap_dn")
+	protected String ldapDn;
+	@JsonProperty("ldap_ou")
+	protected String ldapOu;
+	@JsonProperty("ldap_service_username")
+	protected String ldapUser;
+	@JsonProperty("ldap_service_password")
+	protected String ldapPassword;
+	@JsonProperty("conf_os_family")
+	protected String os;
+	@JsonProperty("conf_cloud_provider")
+	protected String cloud;
+	@JsonProperty("conf_service_base_name")
+	protected String sbn;
 
 	@Override
 	@JsonIgnore

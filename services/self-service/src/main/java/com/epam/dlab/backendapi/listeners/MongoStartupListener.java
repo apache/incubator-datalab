@@ -50,7 +50,15 @@ public class MongoStartupListener implements ServerLifecycleListener {
 		settingsDAO.setConfKeyDir(cloudConfiguration.getConfKeyDir());
 		settingsDAO.setConfOsFamily(cloudConfiguration.getOs());
 		settingsDAO.setConfTagResourceId(cloudConfiguration.getConfTagResourceId());
+		final CloudConfiguration.LdapConfig ldapConfig = cloudConfiguration.getLdapConfig();
+		settingsDAO.setLdapDn(ldapConfig.getDn());
+		settingsDAO.setLdapHost(ldapConfig.getHost());
+		settingsDAO.setLdapOu(ldapConfig.getOu());
+		settingsDAO.setLdapUser(ldapConfig.getUser());
+		settingsDAO.setLdapPassword(ldapConfig.getPassword());
+
 		if (configuration.getCloudProvider() == CloudProvider.AWS) {
+			settingsDAO.setAwsZone(cloudConfiguration.getZone());
 			settingsDAO.setAwsRegion(cloudConfiguration.getRegion());
 			settingsDAO.setAwsVpcId(cloudConfiguration.getVpcId());
 			settingsDAO.setAwsSubnetId(cloudConfiguration.getSubnetId());
