@@ -98,7 +98,7 @@ if __name__ == "__main__":
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
-        data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(os.environ['conf_service_base_name'],
+        data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(os.environ['conf_service_base_name'],
                                                                            os.environ['endpoint_name'],
                                                                            os.environ['project_name'],
                                                                            os.environ['application'])
